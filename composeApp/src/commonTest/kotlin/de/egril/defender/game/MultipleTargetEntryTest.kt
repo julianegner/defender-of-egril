@@ -26,7 +26,6 @@ class MultipleTargetEntryTest {
             startPositions = listOf(Position(0, 2)),
             targetPositions = listOf(Position(9, 2)),
             pathCells = pathCells,
-            buildIslands = emptySet(),
             attackerWaves = emptyList(),
             initialCoins = 100,
             healthPoints = 10
@@ -90,7 +89,6 @@ class MultipleTargetEntryTest {
             startPositions = listOf(Position(0, 2)),
             targetPositions = listOf(Position(9, 2)),
             pathCells = pathCells,
-            buildIslands = emptySet(),
             attackerWaves = emptyList(),
             initialCoins = 100,
             healthPoints = 10

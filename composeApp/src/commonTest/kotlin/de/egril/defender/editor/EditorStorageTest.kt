@@ -28,7 +28,7 @@ class EditorStorageTest {
             "0,0" to TileType.SPAWN_POINT,
             "10,5" to TileType.TARGET,
             "1,0" to TileType.PATH,
-            "5,5" to TileType.ISLAND
+            "5,5" to TileType.BUILD_AREA
         )
         
         val map = EditorMap(

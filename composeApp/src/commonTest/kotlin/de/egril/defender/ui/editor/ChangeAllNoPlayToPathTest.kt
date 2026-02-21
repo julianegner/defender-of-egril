@@ -99,7 +99,7 @@ class ChangeAllNoPlayToPathTest {
             "0,0" to TileType.SPAWN_POINT,
             "1,0" to TileType.PATH,
             "2,0" to TileType.BUILD_AREA,
-            "3,0" to TileType.ISLAND,
+            "3,0" to TileType.BUILD_AREA,
             "4,0" to TileType.TARGET
         )
         
@@ -127,7 +127,7 @@ class ChangeAllNoPlayToPathTest {
         assertEquals(TileType.SPAWN_POINT, updatedTiles["0,0"])
         assertEquals(TileType.PATH, updatedTiles["1,0"])
         assertEquals(TileType.BUILD_AREA, updatedTiles["2,0"])
-        assertEquals(TileType.ISLAND, updatedTiles["3,0"])
+        assertEquals(TileType.BUILD_AREA, updatedTiles["3,0"])
         assertEquals(TileType.TARGET, updatedTiles["4,0"])
         
         // Verify that null tiles were filled with PATH

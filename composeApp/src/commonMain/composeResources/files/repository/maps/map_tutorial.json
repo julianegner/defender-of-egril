@@ -63,9 +63,9 @@
     "8,3": "BUILD_AREA",
     "8,6": "BUILD_AREA",
     "9,3": "BUILD_AREA",
-    "9,6": "ISLAND",
+    "9,6": "BUILD_AREA",
     "10,3": "BUILD_AREA",
-    "10,6": "ISLAND",
+    "10,6": "BUILD_AREA",
     "11,2": "BUILD_AREA",
     "11,6": "BUILD_AREA",
     "12,2": "BUILD_AREA",
@@ -74,11 +74,11 @@
     "13,6": "BUILD_AREA",
     "14,2": "BUILD_AREA",
     "14,6": "BUILD_AREA",
-    "5,1": "ISLAND",
-    "6,1": "ISLAND",
-    "5,2": "ISLAND",
-    "6,2": "ISLAND",
-    "9,7": "ISLAND",
-    "10,7": "ISLAND"
+    "5,1": "BUILD_AREA",
+    "6,1": "BUILD_AREA",
+    "5,2": "BUILD_AREA",
+    "6,2": "BUILD_AREA",
+    "9,7": "BUILD_AREA",
+    "10,7": "BUILD_AREA"
   }
 }

@@ -197,8 +197,7 @@ private fun ExpandedMapEditorHeader(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                // All tile types are selectable
-                items(TileType.entries) { tileType ->
+                items(TileType.entries.toList()) { tileType ->
                     TileTypeButton(
                         tileType = tileType,
                         selected = selectedTileType == tileType,

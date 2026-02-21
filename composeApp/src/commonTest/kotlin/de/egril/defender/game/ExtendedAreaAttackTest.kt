@@ -41,7 +41,7 @@ class ExtendedAreaAttackTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(11, 3)),
             pathCells = pathCells,
-            buildIslands = setOf(Position(5, 0), Position(5, 6)),
+            buildAreas = setOf(Position(5, 0), Position(5, 6)),
             attackerWaves = listOf(
                 AttackerWave(listOf(AttackerType.GOBLIN, AttackerType.GOBLIN))
             ),

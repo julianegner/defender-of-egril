@@ -93,7 +93,8 @@ object EditorJsonSerializer {
 
                 val pos = parts[0].trim().removeSurrounding("\"")
                 val typeStr = parts[1].trim().removeSurrounding("\"")
-                tiles[pos] = TileType.valueOf(typeStr)
+                // Backward compatibility: ISLAND tiles are treated as BUILD_AREA
+                tiles[pos] = if (typeStr == "ISLAND") TileType.BUILD_AREA else TileType.valueOf(typeStr)
             }
             
             // Parse optional river tiles

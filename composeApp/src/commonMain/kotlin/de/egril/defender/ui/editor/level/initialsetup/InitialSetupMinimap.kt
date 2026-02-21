@@ -32,7 +32,7 @@ private const val MINIMAP_HEX_RADIUS = 2.0f
  * Placement mode for initial setup elements
  */
 enum class PlacementMode {
-    DEFENDER,    // Towers: BUILD_AREA or ISLAND
+    DEFENDER,    // Towers: BUILD_AREA
     ATTACKER,    // Enemies: PATH or SPAWN_POINT
     TRAP,        // Traps: PATH
     BARRICADE    // Barricades: PATH
@@ -44,7 +44,7 @@ enum class PlacementMode {
 fun isValidPlacement(position: Position, mode: PlacementMode, map: EditorMap): Boolean {
     val tileType = map.getTileType(position.x, position.y)
     return when (mode) {
-        PlacementMode.DEFENDER -> tileType == TileType.BUILD_AREA || tileType == TileType.ISLAND
+        PlacementMode.DEFENDER -> tileType == TileType.BUILD_AREA
         PlacementMode.ATTACKER -> tileType == TileType.PATH || tileType == TileType.SPAWN_POINT
         PlacementMode.TRAP -> tileType == TileType.PATH
         PlacementMode.BARRICADE -> tileType == TileType.PATH
@@ -222,7 +222,6 @@ fun InitialSetupMinimap(
                     tileType == TileType.SPAWN_POINT -> if (isDarkMode) Color(0xFF8B0000) else Color(0xFFDC143C)
                     tileType == TileType.TARGET -> if (isDarkMode) Color(0xFF1E3A8A) else Color(0xFF4169E1)
                     tileType == TileType.PATH -> if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)
-                    tileType == TileType.ISLAND -> if (isDarkMode) Color(0xFF1B4D0E) else Color(0xFF228B22)
                     else -> if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFF808080)
                 }
 

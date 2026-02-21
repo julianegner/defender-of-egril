@@ -87,7 +87,6 @@ fun MapListCard(
                             startPositions = emptyList(),
                             targetPositions = listOf(Position(0, 0)),
                             pathCells = emptySet(),
-                            buildIslands = emptySet(),
                             attackerWaves = emptyList()
                         )
                     }

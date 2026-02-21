@@ -199,7 +199,7 @@ class GameViewModel {
         val wonLevelIds = savedStatuses?.filter { it.value == LevelStatus.WON }?.keys?.toSet() ?: emptySet()
         
         _worldLevels.value = allLevels.mapIndexed { index, level ->
-            println("DEBUG: Loaded Level ${level.id} - Name: ${level.name} - Path Cells: ${level.pathCells.size} - Build Islands: ${level.buildIslands.size}")
+            println("DEBUG: Loaded Level ${level.id} - Name: ${level.name} - Path Cells: ${level.pathCells.size}")
 
             // Look up status by editorLevelId if available
             val status = if (level.editorLevelId != null) {

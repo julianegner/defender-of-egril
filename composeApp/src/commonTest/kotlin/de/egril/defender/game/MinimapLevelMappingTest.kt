@@ -87,7 +87,6 @@ class MinimapLevelMappingTest {
                 de.egril.defender.model.Position(1, 0),
                 de.egril.defender.model.Position(2, 0)
             ),
-            buildIslands = emptySet(),
             attackerWaves = emptyList(),
             editorLevelId = null  // Old level without editor ID
         )

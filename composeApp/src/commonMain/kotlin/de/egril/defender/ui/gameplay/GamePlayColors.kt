@@ -39,14 +39,12 @@ object GamePlayColors {
     private val YellowDarkMode = Color(0xFFC4A000)        // Much darker yellow
     
     // Map terrain colors (light mode)
-    private val BuildIslandLight = Color(0xFF8BC34A)  // Light green - build islands
     private val BuildStripLight = Color(0xFFA5D6A7)   // Medium green - build strips adjacent to path
     private val PathLight = Color(0xFFFFF8DC)         // Cream/beige - enemy path
     private val NonPlayableLight = Color(0xFFE0E0E0)  // Light gray - off-path non-playable areas
     private val BuildingLight = Color(0xFF9E9E9E)     // Gray - towers under construction
     
     // Map terrain colors (dark mode - darker, less bright)
-    private val BuildIslandDarkMode = Color(0xFF2E5C1A)   // Much darker green - build islands (was #558B2F)
     private val BuildStripDarkMode = Color(0xFF3D6B2C)    // Darker medium-dark green - build strips (was #66BB6A)
     private val PathDarkMode = Color(0xFF3E3528)          // Dark brown-beige - enemy path
     private val NonPlayableDarkMode = Color(0xFF2C2C2C)   // Dark gray - off-path non-playable areas
@@ -114,9 +112,6 @@ object GamePlayColors {
     
     val Yellow: Color
         @Composable get() = if (AppSettings.isDarkMode.value) YellowDarkMode else YellowLight
-    
-    val BuildIsland: Color
-        @Composable get() = if (AppSettings.isDarkMode.value) BuildIslandDarkMode else BuildIslandLight
     
     val BuildStrip: Color
         @Composable get() = if (AppSettings.isDarkMode.value) BuildStripDarkMode else BuildStripLight

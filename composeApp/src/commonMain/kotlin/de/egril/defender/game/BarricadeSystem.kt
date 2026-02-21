@@ -43,7 +43,7 @@ class BarricadeSystem(private val state: GameState) {
     
     /**
      * Check if a barricade position qualifies as a gate.
-     * A gate is a barricade between two buildable tiles (BUILD_AREA or ISLAND) that have towers.
+     * A gate is a barricade between two buildable tiles (BUILD_AREA) that have towers.
      */
     private fun isGatePosition(barricadePosition: Position): Boolean {
         // Get all 6 hex neighbors
@@ -51,7 +51,7 @@ class BarricadeSystem(private val state: GameState) {
         
         // Count how many neighbors are buildable tiles with towers
         val buildableNeighborsWithTowers = neighbors.count { neighbor ->
-            val isBuildable = state.level.isBuildArea(neighbor) || state.level.isBuildIsland(neighbor)
+            val isBuildable = state.level.isBuildArea(neighbor)
             val hasTower = state.defenders.any { it.position.value == neighbor }
             isBuildable && hasTower
         }

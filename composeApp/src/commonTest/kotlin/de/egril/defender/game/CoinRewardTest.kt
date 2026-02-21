@@ -203,7 +203,6 @@ class CoinRewardTest {
             startPositions = listOf(Position(0, 0)),
             targetPositions = listOf(Position(9, 9)),
             pathCells = (0..9).flatMap { x -> (0..9).map { y -> Position(x, y) } }.toSet(),
-            buildIslands = emptySet(),
             attackerWaves = listOf(AttackerWave(emptyList())),
             initialCoins = 100,
             healthPoints = 10,
