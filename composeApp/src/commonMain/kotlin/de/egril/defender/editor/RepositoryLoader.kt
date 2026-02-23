@@ -94,12 +94,15 @@ object RepositoryLoader {
     }
     
     /**
-     * Parse dragon names from JSON
+     * Parse dragon names from JSON.
+     * Supports both old format (plain {"names": [...]}) and new format with metadata wrapper.
      */
     private fun parseDragonNames(json: String): List<String>? {
         return try {
+            // Handle new metadata wrapper format
+            val dataJson = EditorJsonSerializer.extractDataSection(json)
             // Extract the names array from JSON
-            val namesSection = json.substringAfter("\"names\": [").substringBefore("]")
+            val namesSection = dataJson.substringAfter("\"names\": [").substringBefore("]")
             val names = JsonUtils.splitJsonArray(namesSection)
                 .map { it.trim().removeSurrounding("\"") }
                 .filter { it.isNotBlank() }
@@ -182,7 +185,7 @@ object RepositoryLoader {
             }
             
             // Save version file
-            storage.writeFile("gamedata/version.txt", "9")
+            storage.writeFile("gamedata/version.txt", "10")
             
             println("Repository files loaded successfully: $successCount levels, $mapCount maps")
             successCount > 0

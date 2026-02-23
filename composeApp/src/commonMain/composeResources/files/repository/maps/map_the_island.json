@@ -1,1401 +1,2730 @@
 {
-  "id": "map_the_island",
-  "name": "The Island",
-  "nameKey": "map_the_island_name",
-  "width": 30,
-  "height": 30,
-  "readyToUse": true,
-  "tiles": {
-    "0,0": "RIVER",
-    "0,1": "RIVER",
-    "0,2": "RIVER",
-    "0,3": "RIVER",
-    "0,4": "RIVER",
-    "0,5": "RIVER",
-    "0,6": "RIVER",
-    "0,7": "RIVER",
-    "0,8": "RIVER",
-    "0,9": "RIVER",
-    "0,10": "RIVER",
-    "0,11": "RIVER",
-    "0,12": "RIVER",
-    "0,13": "RIVER",
-    "0,14": "RIVER",
-    "0,15": "RIVER",
-    "0,16": "RIVER",
-    "0,17": "RIVER",
-    "0,18": "RIVER",
-    "0,19": "RIVER",
-    "0,20": "RIVER",
-    "0,21": "RIVER",
-    "0,22": "RIVER",
-    "0,23": "RIVER",
-    "0,24": "RIVER",
-    "0,25": "RIVER",
-    "0,26": "RIVER",
-    "0,27": "RIVER",
-    "0,28": "RIVER",
-    "0,29": "RIVER",
-    "1,0": "RIVER",
-    "1,1": "RIVER",
-    "1,2": "RIVER",
-    "1,3": "RIVER",
-    "1,4": "RIVER",
-    "1,5": "RIVER",
-    "1,6": "RIVER",
-    "1,7": "RIVER",
-    "1,8": "RIVER",
-    "1,9": "RIVER",
-    "1,10": "RIVER",
-    "1,11": "RIVER",
-    "1,12": "RIVER",
-    "1,13": "RIVER",
-    "1,14": "RIVER",
-    "1,15": "RIVER",
-    "1,16": "RIVER",
-    "1,17": "RIVER",
-    "1,18": "RIVER",
-    "1,19": "RIVER",
-    "1,20": "RIVER",
-    "1,21": "RIVER",
-    "1,22": "RIVER",
-    "1,23": "RIVER",
-    "1,24": "RIVER",
-    "1,25": "RIVER",
-    "1,26": "RIVER",
-    "1,27": "RIVER",
-    "1,28": "RIVER",
-    "1,29": "RIVER",
-    "2,0": "RIVER",
-    "2,1": "RIVER",
-    "2,2": "RIVER",
-    "2,3": "RIVER",
-    "2,4": "RIVER",
-    "2,5": "RIVER",
-    "2,6": "RIVER",
-    "2,7": "RIVER",
-    "2,8": "RIVER",
-    "2,9": "RIVER",
-    "2,10": "RIVER",
-    "2,11": "RIVER",
-    "2,12": "RIVER",
-    "2,13": "RIVER",
-    "2,14": "RIVER",
-    "2,15": "RIVER",
-    "2,16": "RIVER",
-    "2,17": "PATH",
-    "2,18": "RIVER",
-    "2,19": "RIVER",
-    "2,20": "RIVER",
-    "2,21": "RIVER",
-    "2,22": "RIVER",
-    "2,23": "RIVER",
-    "2,24": "RIVER",
-    "2,25": "RIVER",
-    "2,26": "RIVER",
-    "2,27": "RIVER",
-    "2,28": "RIVER",
-    "2,29": "RIVER",
-    "3,0": "RIVER",
-    "3,1": "RIVER",
-    "3,2": "RIVER",
-    "3,3": "RIVER",
-    "3,4": "RIVER",
-    "3,5": "RIVER",
-    "3,6": "RIVER",
-    "3,7": "RIVER",
-    "3,8": "RIVER",
-    "3,9": "RIVER",
-    "3,10": "RIVER",
-    "3,11": "RIVER",
-    "3,12": "RIVER",
-    "3,13": "RIVER",
-    "3,14": "RIVER",
-    "3,15": "PATH",
-    "3,16": "PATH",
-    "3,17": "PATH",
-    "3,18": "PATH",
-    "3,19": "PATH",
-    "3,20": "RIVER",
-    "3,21": "RIVER",
-    "3,22": "RIVER",
-    "3,23": "RIVER",
-    "3,24": "RIVER",
-    "3,25": "RIVER",
-    "3,26": "RIVER",
-    "3,27": "RIVER",
-    "3,28": "RIVER",
-    "3,29": "RIVER",
-    "4,0": "RIVER",
-    "4,1": "RIVER",
-    "4,2": "RIVER",
-    "4,3": "RIVER",
-    "4,4": "RIVER",
-    "4,5": "RIVER",
-    "4,6": "RIVER",
-    "4,7": "RIVER",
-    "4,8": "RIVER",
-    "4,9": "RIVER",
-    "4,10": "RIVER",
-    "4,11": "RIVER",
-    "4,12": "RIVER",
-    "4,13": "PATH",
-    "4,14": "PATH",
-    "4,15": "PATH",
-    "4,16": "PATH",
-    "4,17": "PATH",
-    "4,18": "PATH",
-    "4,19": "PATH",
-    "4,20": "PATH",
-    "4,21": "PATH",
-    "4,22": "RIVER",
-    "4,23": "RIVER",
-    "4,24": "RIVER",
-    "4,25": "RIVER",
-    "4,26": "RIVER",
-    "4,27": "RIVER",
-    "4,28": "RIVER",
-    "4,29": "RIVER",
-    "5,0": "RIVER",
-    "5,1": "RIVER",
-    "5,2": "RIVER",
-    "5,3": "RIVER",
-    "5,4": "RIVER",
-    "5,5": "RIVER",
-    "5,6": "RIVER",
-    "5,7": "RIVER",
-    "5,8": "RIVER",
-    "5,9": "RIVER",
-    "5,10": "RIVER",
-    "5,11": "PATH",
-    "5,12": "PATH",
-    "5,13": "PATH",
-    "5,14": "PATH",
-    "5,15": "PATH",
-    "5,16": "PATH",
-    "5,17": "PATH",
-    "5,18": "PATH",
-    "5,19": "PATH",
-    "5,20": "PATH",
-    "5,21": "PATH",
-    "5,22": "PATH",
-    "5,23": "PATH",
-    "5,24": "RIVER",
-    "5,25": "RIVER",
-    "5,26": "RIVER",
-    "5,27": "RIVER",
-    "5,28": "RIVER",
-    "5,29": "RIVER",
-    "6,0": "RIVER",
-    "6,1": "RIVER",
-    "6,2": "RIVER",
-    "6,3": "RIVER",
-    "6,4": "RIVER",
-    "6,5": "RIVER",
-    "6,6": "RIVER",
-    "6,7": "RIVER",
-    "6,8": "RIVER",
-    "6,9": "PATH",
-    "6,10": "PATH",
-    "6,11": "PATH",
-    "6,12": "PATH",
-    "6,13": "PATH",
-    "6,14": "PATH",
-    "6,15": "PATH",
-    "6,16": "PATH",
-    "6,17": "PATH",
-    "6,18": "PATH",
-    "6,19": "PATH",
-    "6,20": "PATH",
-    "6,21": "PATH",
-    "6,22": "PATH",
-    "6,23": "PATH",
-    "6,24": "PATH",
-    "6,25": "PATH",
-    "6,26": "RIVER",
-    "6,27": "RIVER",
-    "6,28": "RIVER",
-    "6,29": "RIVER",
-    "7,0": "RIVER",
-    "7,1": "RIVER",
-    "7,2": "RIVER",
-    "7,3": "RIVER",
-    "7,4": "RIVER",
-    "7,5": "RIVER",
-    "7,6": "RIVER",
-    "7,7": "PATH",
-    "7,8": "PATH",
-    "7,9": "PATH",
-    "7,10": "PATH",
-    "7,11": "PATH",
-    "7,12": "PATH",
-    "7,13": "PATH",
-    "7,14": "PATH",
-    "7,15": "PATH",
-    "7,16": "PATH",
-    "7,17": "PATH",
-    "7,18": "PATH",
-    "7,19": "PATH",
-    "7,20": "PATH",
-    "7,21": "PATH",
-    "7,22": "PATH",
-    "7,23": "PATH",
-    "7,24": "PATH",
-    "7,25": "PATH",
-    "7,26": "PATH",
-    "7,27": "RIVER",
-    "7,28": "RIVER",
-    "7,29": "RIVER",
-    "8,0": "RIVER",
-    "8,1": "RIVER",
-    "8,2": "RIVER",
-    "8,3": "RIVER",
-    "8,4": "RIVER",
-    "8,5": "PATH",
-    "8,6": "PATH",
-    "8,7": "PATH",
-    "8,8": "PATH",
-    "8,9": "PATH",
-    "8,10": "PATH",
-    "8,11": "PATH",
-    "8,12": "PATH",
-    "8,13": "PATH",
-    "8,14": "PATH",
-    "8,15": "PATH",
-    "8,16": "PATH",
-    "8,17": "PATH",
-    "8,18": "PATH",
-    "8,19": "PATH",
-    "8,20": "PATH",
-    "8,21": "PATH",
-    "8,22": "PATH",
-    "8,23": "PATH",
-    "8,24": "PATH",
-    "8,25": "PATH",
-    "8,26": "PATH",
-    "8,27": "RIVER",
-    "8,28": "RIVER",
-    "8,29": "RIVER",
-    "9,0": "RIVER",
-    "9,1": "RIVER",
-    "9,2": "RIVER",
-    "9,3": "PATH",
-    "9,4": "PATH",
-    "9,5": "PATH",
-    "9,6": "PATH",
-    "9,7": "PATH",
-    "9,8": "PATH",
-    "9,9": "PATH",
-    "9,10": "PATH",
-    "9,11": "PATH",
-    "9,12": "PATH",
-    "9,13": "PATH",
-    "9,14": "PATH",
-    "9,15": "PATH",
-    "9,16": "PATH",
-    "9,17": "PATH",
-    "9,18": "PATH",
-    "9,19": "PATH",
-    "9,20": "PATH",
-    "9,21": "PATH",
-    "9,22": "PATH",
-    "9,23": "PATH",
-    "9,24": "PATH",
-    "9,25": "PATH",
-    "9,26": "PATH",
-    "9,27": "RIVER",
-    "9,28": "RIVER",
-    "9,29": "RIVER",
-    "10,0": "RIVER",
-    "10,1": "RIVER",
-    "10,2": "PATH",
-    "10,3": "PATH",
-    "10,4": "PATH",
-    "10,5": "PATH",
-    "10,6": "PATH",
-    "10,7": "PATH",
-    "10,8": "PATH",
-    "10,9": "PATH",
-    "10,10": "PATH",
-    "10,11": "PATH",
-    "10,12": "PATH",
-    "10,13": "PATH",
-    "10,14": "PATH",
-    "10,15": "PATH",
-    "10,16": "PATH",
-    "10,17": "BUILD_AREA",
-    "10,18": "PATH",
-    "10,19": "BUILD_AREA",
-    "10,20": "BUILD_AREA",
-    "10,21": "PATH",
-    "10,22": "PATH",
-    "10,23": "PATH",
-    "10,24": "PATH",
-    "10,25": "PATH",
-    "10,26": "PATH",
-    "10,27": "RIVER",
-    "10,28": "RIVER",
-    "10,29": "RIVER",
-    "11,0": "RIVER",
-    "11,1": "RIVER",
-    "11,2": "PATH",
-    "11,3": "PATH",
-    "11,4": "PATH",
-    "11,5": "PATH",
-    "11,6": "PATH",
-    "11,7": "PATH",
-    "11,8": "PATH",
-    "11,9": "PATH",
-    "11,10": "PATH",
-    "11,11": "PATH",
-    "11,12": "PATH",
-    "11,13": "PATH",
-    "11,14": "PATH",
-    "11,15": "NO_PLAY",
-    "11,16": "BUILD_AREA",
-    "11,17": "NO_PLAY",
-    "11,18": "NO_PLAY",
-    "11,19": "NO_PLAY",
-    "11,20": "NO_PLAY",
-    "11,21": "BUILD_AREA",
-    "11,22": "PATH",
-    "11,23": "PATH",
-    "11,24": "PATH",
-    "11,25": "PATH",
-    "11,26": "PATH",
-    "11,27": "RIVER",
-    "11,28": "RIVER",
-    "11,29": "RIVER",
-    "12,0": "RIVER",
-    "12,1": "RIVER",
-    "12,2": "PATH",
-    "12,3": "PATH",
-    "12,4": "PATH",
-    "12,5": "PATH",
-    "12,6": "PATH",
-    "12,7": "PATH",
-    "12,8": "PATH",
-    "12,9": "PATH",
-    "12,10": "PATH",
-    "12,11": "BUILD_AREA",
-    "12,12": "PATH",
-    "12,13": "NO_PLAY",
-    "12,14": "NO_PLAY",
-    "12,15": "NO_PLAY",
-    "12,16": "NO_PLAY",
-    "12,17": "NO_PLAY",
-    "12,18": "NO_PLAY",
-    "12,19": "NO_PLAY",
-    "12,20": "NO_PLAY",
-    "12,21": "NO_PLAY",
-    "12,22": "PATH",
-    "12,23": "PATH",
-    "12,24": "PATH",
-    "12,25": "PATH",
-    "12,26": "PATH",
-    "12,27": "RIVER",
-    "12,28": "RIVER",
-    "12,29": "RIVER",
-    "13,0": "RIVER",
-    "13,1": "RIVER",
-    "13,2": "PATH",
-    "13,3": "PATH",
-    "13,4": "PATH",
-    "13,5": "PATH",
-    "13,6": "PATH",
-    "13,7": "PATH",
-    "13,8": "PATH",
-    "13,9": "PATH",
-    "13,10": "BUILD_AREA",
-    "13,11": "BUILD_AREA",
-    "13,12": "NO_PLAY",
-    "13,13": "NO_PLAY",
-    "13,14": "NO_PLAY",
-    "13,15": "NO_PLAY",
-    "13,16": "NO_PLAY",
-    "13,17": "NO_PLAY",
-    "13,18": "NO_PLAY",
-    "13,19": "NO_PLAY",
-    "13,20": "NO_PLAY",
-    "13,21": "NO_PLAY",
-    "13,22": "PATH",
-    "13,23": "PATH",
-    "13,24": "PATH",
-    "13,25": "PATH",
-    "13,26": "PATH",
-    "13,27": "RIVER",
-    "13,28": "RIVER",
-    "13,29": "RIVER",
-    "14,0": "RIVER",
-    "14,1": "RIVER",
-    "14,2": "PATH",
-    "14,3": "PATH",
-    "14,4": "PATH",
-    "14,5": "PATH",
-    "14,6": "PATH",
-    "14,7": "PATH",
-    "14,8": "PATH",
-    "14,9": "NO_PLAY",
-    "14,10": "BUILD_AREA",
-    "14,11": "NO_PLAY",
-    "14,12": "NO_PLAY",
-    "14,13": "NO_PLAY",
-    "14,14": "NO_PLAY",
-    "14,15": "NO_PLAY",
-    "14,16": "NO_PLAY",
-    "14,17": "NO_PLAY",
-    "14,18": "NO_PLAY",
-    "14,19": "NO_PLAY",
-    "14,20": "NO_PLAY",
-    "14,21": "NO_PLAY",
-    "14,22": "PATH",
-    "14,23": "PATH",
-    "14,24": "PATH",
-    "14,25": "PATH",
-    "14,26": "PATH",
-    "14,27": "RIVER",
-    "14,28": "RIVER",
-    "14,29": "RIVER",
-    "15,0": "RIVER",
-    "15,1": "RIVER",
-    "15,2": "PATH",
-    "15,3": "PATH",
-    "15,4": "PATH",
-    "15,5": "BUILD_AREA",
-    "15,6": "BUILD_AREA",
-    "15,7": "NO_PLAY",
-    "15,8": "NO_PLAY",
-    "15,9": "NO_PLAY",
-    "15,10": "NO_PLAY",
-    "15,11": "NO_PLAY",
-    "15,12": "NO_PLAY",
-    "15,13": "NO_PLAY",
-    "15,14": "NO_PLAY",
-    "15,15": "NO_PLAY",
-    "15,16": "NO_PLAY",
-    "15,17": "NO_PLAY",
-    "15,18": "NO_PLAY",
-    "15,19": "NO_PLAY",
-    "15,20": "NO_PLAY",
-    "15,21": "NO_PLAY",
-    "15,22": "BUILD_AREA",
-    "15,23": "PATH",
-    "15,24": "PATH",
-    "15,25": "PATH",
-    "15,26": "SPAWN_POINT",
-    "15,27": "RIVER",
-    "15,28": "RIVER",
-    "15,29": "RIVER",
-    "16,0": "RIVER",
-    "16,1": "RIVER",
-    "16,2": "PATH",
-    "16,3": "PATH",
-    "16,4": "PATH",
-    "16,5": "BUILD_AREA",
-    "16,6": "NO_PLAY",
-    "16,7": "NO_PLAY",
-    "16,8": "NO_PLAY",
-    "16,9": "NO_PLAY",
-    "16,10": "NO_PLAY",
-    "16,11": "NO_PLAY",
-    "16,12": "NO_PLAY",
-    "16,13": "NO_PLAY",
-    "16,14": "NO_PLAY",
-    "16,15": "NO_PLAY",
-    "16,16": "NO_PLAY",
-    "16,17": "NO_PLAY",
-    "16,18": "NO_PLAY",
-    "16,19": "NO_PLAY",
-    "16,20": "NO_PLAY",
-    "16,21": "NO_PLAY",
-    "16,22": "BUILD_AREA",
-    "16,23": "PATH",
-    "16,24": "PATH",
-    "16,25": "PATH",
-    "16,26": "PATH",
-    "16,27": "RIVER",
-    "16,28": "RIVER",
-    "16,29": "RIVER",
-    "17,0": "RIVER",
-    "17,1": "RIVER",
-    "17,2": "PATH",
-    "17,3": "TARGET",
-    "17,4": "PATH",
-    "17,5": "BUILD_AREA",
-    "17,6": "NO_PLAY",
-    "17,7": "NO_PLAY",
-    "17,8": "NO_PLAY",
-    "17,9": "NO_PLAY",
-    "17,10": "NO_PLAY",
-    "17,11": "NO_PLAY",
-    "17,12": "NO_PLAY",
-    "17,13": "BUILD_AREA",
-    "17,14": "BUILD_AREA",
-    "17,15": "NO_PLAY",
-    "17,16": "NO_PLAY",
-    "17,17": "NO_PLAY",
-    "17,18": "NO_PLAY",
-    "17,19": "NO_PLAY",
-    "17,20": "NO_PLAY",
-    "17,21": "NO_PLAY",
-    "17,22": "BUILD_AREA",
-    "17,23": "PATH",
-    "17,24": "PATH",
-    "17,25": "PATH",
-    "17,26": "PATH",
-    "17,27": "RIVER",
-    "17,28": "RIVER",
-    "17,29": "RIVER",
-    "18,0": "RIVER",
-    "18,1": "RIVER",
-    "18,2": "PATH",
-    "18,3": "PATH",
-    "18,4": "PATH",
-    "18,5": "PATH",
-    "18,6": "BUILD_AREA",
-    "18,7": "BUILD_AREA",
-    "18,8": "PATH",
-    "18,9": "PATH",
-    "18,10": "BUILD_AREA",
-    "18,11": "PATH",
-    "18,12": "PATH",
-    "18,13": "PATH",
-    "18,14": "BUILD_AREA",
-    "18,15": "BUILD_AREA",
-    "18,16": "NO_PLAY",
-    "18,17": "NO_PLAY",
-    "18,18": "NO_PLAY",
-    "18,19": "NO_PLAY",
-    "18,20": "NO_PLAY",
-    "18,21": "BUILD_AREA",
-    "18,22": "PATH",
-    "18,23": "PATH",
-    "18,24": "PATH",
-    "18,25": "PATH",
-    "18,26": "PATH",
-    "18,27": "RIVER",
-    "18,28": "RIVER",
-    "18,29": "RIVER",
-    "19,0": "RIVER",
-    "19,1": "RIVER",
-    "19,2": "PATH",
-    "19,3": "PATH",
-    "19,4": "PATH",
-    "19,5": "PATH",
-    "19,6": "PATH",
-    "19,7": "PATH",
-    "19,8": "PATH",
-    "19,9": "PATH",
-    "19,10": "PATH",
-    "19,11": "PATH",
-    "19,12": "PATH",
-    "19,13": "PATH",
-    "19,14": "PATH",
-    "19,15": "PATH",
-    "19,16": "BUILD_AREA",
-    "19,17": "BUILD_AREA",
-    "19,18": "NO_PLAY",
-    "19,19": "BUILD_AREA",
-    "19,20": "BUILD_AREA",
-    "19,21": "PATH",
-    "19,22": "PATH",
-    "19,23": "PATH",
-    "19,24": "PATH",
-    "19,25": "PATH",
-    "19,26": "PATH",
-    "19,27": "RIVER",
-    "19,28": "RIVER",
-    "19,29": "RIVER",
-    "20,0": "RIVER",
-    "20,1": "RIVER",
-    "20,2": "PATH",
-    "20,3": "PATH",
-    "20,4": "PATH",
-    "20,5": "PATH",
-    "20,6": "PATH",
-    "20,7": "PATH",
-    "20,8": "PATH",
-    "20,9": "PATH",
-    "20,10": "PATH",
-    "20,11": "PATH",
-    "20,12": "PATH",
-    "20,13": "PATH",
-    "20,14": "PATH",
-    "20,15": "PATH",
-    "20,16": "PATH",
-    "20,17": "PATH",
-    "20,18": "BUILD_AREA",
-    "20,19": "PATH",
-    "20,20": "PATH",
-    "20,21": "PATH",
-    "20,22": "PATH",
-    "20,23": "PATH",
-    "20,24": "PATH",
-    "20,25": "PATH",
-    "20,26": "PATH",
-    "20,27": "RIVER",
-    "20,28": "RIVER",
-    "20,29": "RIVER",
-    "21,0": "RIVER",
-    "21,1": "RIVER",
-    "21,2": "PATH",
-    "21,3": "PATH",
-    "21,4": "PATH",
-    "21,5": "PATH",
-    "21,6": "PATH",
-    "21,7": "PATH",
-    "21,8": "PATH",
-    "21,9": "PATH",
-    "21,10": "PATH",
-    "21,11": "PATH",
-    "21,12": "PATH",
-    "21,13": "PATH",
-    "21,14": "PATH",
-    "21,15": "PATH",
-    "21,16": "PATH",
-    "21,17": "PATH",
-    "21,18": "PATH",
-    "21,19": "PATH",
-    "21,20": "PATH",
-    "21,21": "PATH",
-    "21,22": "PATH",
-    "21,23": "PATH",
-    "21,24": "PATH",
-    "21,25": "PATH",
-    "21,26": "PATH",
-    "21,27": "RIVER",
-    "21,28": "RIVER",
-    "21,29": "RIVER",
-    "22,0": "RIVER",
-    "22,1": "RIVER",
-    "22,2": "PATH",
-    "22,3": "PATH",
-    "22,4": "PATH",
-    "22,5": "PATH",
-    "22,6": "PATH",
-    "22,7": "PATH",
-    "22,8": "PATH",
-    "22,9": "PATH",
-    "22,10": "PATH",
-    "22,11": "PATH",
-    "22,12": "PATH",
-    "22,13": "PATH",
-    "22,14": "PATH",
-    "22,15": "PATH",
-    "22,16": "PATH",
-    "22,17": "PATH",
-    "22,18": "PATH",
-    "22,19": "PATH",
-    "22,20": "PATH",
-    "22,21": "PATH",
-    "22,22": "PATH",
-    "22,23": "PATH",
-    "22,24": "PATH",
-    "22,25": "PATH",
-    "22,26": "PATH",
-    "22,27": "RIVER",
-    "22,28": "RIVER",
-    "22,29": "RIVER",
-    "23,0": "RIVER",
-    "23,1": "RIVER",
-    "23,2": "PATH",
-    "23,3": "PATH",
-    "23,4": "PATH",
-    "23,5": "PATH",
-    "23,6": "PATH",
-    "23,7": "PATH",
-    "23,8": "PATH",
-    "23,9": "PATH",
-    "23,10": "PATH",
-    "23,11": "PATH",
-    "23,12": "PATH",
-    "23,13": "PATH",
-    "23,14": "PATH",
-    "23,15": "PATH",
-    "23,16": "PATH",
-    "23,17": "PATH",
-    "23,18": "PATH",
-    "23,19": "PATH",
-    "23,20": "PATH",
-    "23,21": "PATH",
-    "23,22": "PATH",
-    "23,23": "PATH",
-    "23,24": "PATH",
-    "23,25": "RIVER",
-    "23,26": "RIVER",
-    "23,27": "RIVER",
-    "23,28": "RIVER",
-    "23,29": "RIVER",
-    "24,0": "RIVER",
-    "24,1": "RIVER",
-    "24,2": "RIVER",
-    "24,3": "RIVER",
-    "24,4": "PATH",
-    "24,5": "PATH",
-    "24,6": "PATH",
-    "24,7": "PATH",
-    "24,8": "PATH",
-    "24,9": "PATH",
-    "24,10": "PATH",
-    "24,11": "PATH",
-    "24,12": "PATH",
-    "24,13": "PATH",
-    "24,14": "PATH",
-    "24,15": "PATH",
-    "24,16": "PATH",
-    "24,17": "PATH",
-    "24,18": "PATH",
-    "24,19": "PATH",
-    "24,20": "PATH",
-    "24,21": "PATH",
-    "24,22": "PATH",
-    "24,23": "RIVER",
-    "24,24": "RIVER",
-    "24,25": "RIVER",
-    "24,26": "RIVER",
-    "24,27": "RIVER",
-    "24,28": "RIVER",
-    "24,29": "RIVER",
-    "25,0": "RIVER",
-    "25,1": "RIVER",
-    "25,2": "RIVER",
-    "25,3": "RIVER",
-    "25,4": "RIVER",
-    "25,5": "RIVER",
-    "25,6": "PATH",
-    "25,7": "PATH",
-    "25,8": "PATH",
-    "25,9": "PATH",
-    "25,10": "PATH",
-    "25,11": "PATH",
-    "25,12": "PATH",
-    "25,13": "PATH",
-    "25,14": "PATH",
-    "25,15": "PATH",
-    "25,16": "PATH",
-    "25,17": "PATH",
-    "25,18": "PATH",
-    "25,19": "PATH",
-    "25,20": "PATH",
-    "25,21": "RIVER",
-    "25,22": "RIVER",
-    "25,23": "RIVER",
-    "25,24": "RIVER",
-    "25,25": "RIVER",
-    "25,26": "RIVER",
-    "25,27": "RIVER",
-    "25,28": "RIVER",
-    "25,29": "RIVER",
-    "26,0": "RIVER",
-    "26,1": "RIVER",
-    "26,2": "RIVER",
-    "26,3": "RIVER",
-    "26,4": "RIVER",
-    "26,5": "RIVER",
-    "26,6": "RIVER",
-    "26,7": "RIVER",
-    "26,8": "PATH",
-    "26,9": "PATH",
-    "26,10": "PATH",
-    "26,11": "RIVER",
-    "26,12": "RIVER",
-    "26,13": "RIVER",
-    "26,14": "PATH",
-    "26,15": "PATH",
-    "26,16": "PATH",
-    "26,17": "PATH",
-    "26,18": "PATH",
-    "26,19": "RIVER",
-    "26,20": "RIVER",
-    "26,21": "RIVER",
-    "26,22": "RIVER",
-    "26,23": "RIVER",
-    "26,24": "RIVER",
-    "26,25": "RIVER",
-    "26,26": "RIVER",
-    "26,27": "RIVER",
-    "26,28": "RIVER",
-    "26,29": "RIVER",
-    "27,0": "RIVER",
-    "27,1": "RIVER",
-    "27,2": "RIVER",
-    "27,3": "RIVER",
-    "27,4": "RIVER",
-    "27,5": "RIVER",
-    "27,6": "RIVER",
-    "27,7": "RIVER",
-    "27,8": "RIVER",
-    "27,9": "RIVER",
-    "27,10": "RIVER",
-    "27,11": "RIVER",
-    "27,12": "RIVER",
-    "27,13": "RIVER",
-    "27,14": "RIVER",
-    "27,15": "RIVER",
-    "27,16": "PATH",
-    "27,17": "RIVER",
-    "27,18": "RIVER",
-    "27,19": "RIVER",
-    "27,20": "RIVER",
-    "27,21": "RIVER",
-    "27,22": "RIVER",
-    "27,23": "RIVER",
-    "27,24": "RIVER",
-    "27,25": "RIVER",
-    "27,26": "RIVER",
-    "27,27": "RIVER",
-    "27,28": "NO_PLAY",
-    "27,29": "RIVER",
-    "28,0": "RIVER",
-    "28,1": "RIVER",
-    "28,2": "RIVER",
-    "28,3": "RIVER",
-    "28,4": "RIVER",
-    "28,5": "RIVER",
-    "28,6": "RIVER",
-    "28,7": "RIVER",
-    "28,8": "RIVER",
-    "28,9": "RIVER",
-    "28,10": "RIVER",
-    "28,11": "RIVER",
-    "28,12": "RIVER",
-    "28,13": "RIVER",
-    "28,14": "RIVER",
-    "28,15": "RIVER",
-    "28,16": "RIVER",
-    "28,17": "RIVER",
-    "28,18": "RIVER",
-    "28,19": "RIVER",
-    "28,20": "RIVER",
-    "28,21": "RIVER",
-    "28,22": "RIVER",
-    "28,23": "RIVER",
-    "28,24": "RIVER",
-    "28,25": "RIVER",
-    "28,26": "RIVER",
-    "28,27": "RIVER",
-    "28,28": "RIVER",
-    "28,29": "RIVER",
-    "29,0": "RIVER",
-    "29,1": "RIVER",
-    "29,2": "RIVER",
-    "29,3": "RIVER",
-    "29,4": "RIVER",
-    "29,5": "RIVER",
-    "29,6": "RIVER",
-    "29,7": "RIVER",
-    "29,8": "RIVER",
-    "29,9": "RIVER",
-    "29,10": "RIVER",
-    "29,11": "RIVER",
-    "29,12": "RIVER",
-    "29,13": "RIVER",
-    "29,14": "RIVER",
-    "29,15": "RIVER",
-    "29,16": "RIVER",
-    "29,17": "RIVER",
-    "29,18": "RIVER",
-    "29,19": "RIVER",
-    "29,20": "RIVER",
-    "29,21": "RIVER",
-    "29,22": "RIVER",
-    "29,23": "RIVER",
-    "29,24": "RIVER",
-    "29,25": "RIVER",
-    "29,26": "RIVER",
-    "29,27": "RIVER",
-    "29,28": "RIVER",
-    "29,29": "RIVER",
-    "31,8": "PATH",
-    "31,9": "PATH",
-    "31,10": "PATH",
-    "32,10": "RIVER",
-    "29,30": "RIVER",
-    "28,30": "RIVER",
-    "27,30": "RIVER",
-    "26,30": "RIVER",
-    "25,30": "RIVER",
-    "-1,21": "RIVER",
-    "-1,23": "RIVER",
-    "8,30": "RIVER",
-    "7,30": "RIVER",
-    "-1,27": "RIVER",
-    "-1,26": "RIVER",
-    "-2,25": "RIVER",
-    "4,30": "RIVER",
-    "5,30": "RIVER",
-    "-1,29": "RIVER",
-    "-1,28": "RIVER",
-    "-2,27": "RIVER",
-    "-2,28": "RIVER",
-    "11,30": "RIVER",
-    "12,30": "RIVER",
-    "13,30": "RIVER",
-    "14,30": "RIVER",
-    "15,30": "RIVER",
-    "17,30": "RIVER",
-    "19,30": "RIVER",
-    "20,30": "RIVER",
-    "21,30": "RIVER",
-    "22,30": "RIVER",
-    "-1,11": "RIVER",
-    "-1,12": "RIVER",
-    "-1,13": "RIVER",
-    "-1,14": "RIVER",
-    "-1,6": "RIVER",
-    "-1,7": "RIVER",
-    "-1,8": "RIVER",
-    "11,-1": "RIVER",
-    "11,-2": "RIVER",
-    "9,-2": "RIVER",
-    "0,-1": "PATH",
-    "32,13": "RIVER",
-    "31,13": "RIVER",
-    "30,13": "RIVER",
-    "30,12": "RIVER",
-    "30,4": "RIVER"
+  "metadata": {
+    "program": "Defender of Egril",
+    "type": "map"
   },
-  "riverTiles": {
-    "29,19": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,18": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,17": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,16": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,15": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,15": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,14": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,12": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,11": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,10": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,9": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,8": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,7": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,6": {"flowDirection": "NONE", "flowSpeed": 1},
-    "32,10": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,1": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,1": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,1": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,1": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,1": {"flowDirection": "NONE", "flowSpeed": 1},
-    "3,1": {"flowDirection": "NONE", "flowSpeed": 1},
-    "4,1": {"flowDirection": "NONE", "flowSpeed": 1},
-    "5,1": {"flowDirection": "NONE", "flowSpeed": 1},
-    "6,1": {"flowDirection": "NONE", "flowSpeed": 1},
-    "7,1": {"flowDirection": "NONE", "flowSpeed": 1},
-    "8,1": {"flowDirection": "NONE", "flowSpeed": 1},
-    "10,1": {"flowDirection": "WEST", "flowSpeed": 1},
-    "9,1": {"flowDirection": "SOUTH_WEST", "flowSpeed": 1},
-    "27,1": {"flowDirection": "NONE", "flowSpeed": 1},
-    "26,1": {"flowDirection": "NONE", "flowSpeed": 1},
-    "25,1": {"flowDirection": "NONE", "flowSpeed": 1},
-    "24,1": {"flowDirection": "NONE", "flowSpeed": 1},
-    "23,1": {"flowDirection": "WEST", "flowSpeed": 1},
-    "22,1": {"flowDirection": "WEST", "flowSpeed": 1},
-    "21,1": {"flowDirection": "WEST", "flowSpeed": 1},
-    "20,1": {"flowDirection": "WEST", "flowSpeed": 1},
-    "19,1": {"flowDirection": "WEST", "flowSpeed": 1},
-    "18,1": {"flowDirection": "WEST", "flowSpeed": 1},
-    "17,1": {"flowDirection": "WEST", "flowSpeed": 1},
-    "16,1": {"flowDirection": "WEST", "flowSpeed": 1},
-    "15,1": {"flowDirection": "WEST", "flowSpeed": 1},
-    "14,1": {"flowDirection": "WEST", "flowSpeed": 1},
-    "13,1": {"flowDirection": "WEST", "flowSpeed": 1},
-    "11,1": {"flowDirection": "WEST", "flowSpeed": 1},
-    "29,20": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,21": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,21": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,22": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,23": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,24": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,25": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,26": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,27": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,30": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,30": {"flowDirection": "NONE", "flowSpeed": 1},
-    "27,30": {"flowDirection": "NONE", "flowSpeed": 1},
-    "26,30": {"flowDirection": "NONE", "flowSpeed": 1},
-    "25,30": {"flowDirection": "NONE", "flowSpeed": 1},
-    "24,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "25,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "26,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "27,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,27": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,25": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,24": {"flowDirection": "NONE", "flowSpeed": 1},
-    "27,25": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,26": {"flowDirection": "NONE", "flowSpeed": 1},
-    "27,26": {"flowDirection": "NONE", "flowSpeed": 1},
-    "27,27": {"flowDirection": "NONE", "flowSpeed": 1},
-    "26,27": {"flowDirection": "NONE", "flowSpeed": 1},
-    "26,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "25,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "23,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "22,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "21,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "20,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "19,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "18,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "17,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "16,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "16,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "15,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "14,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "13,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "11,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "10,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "9,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "8,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "8,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "7,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "6,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "5,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "5,27": {"flowDirection": "NONE", "flowSpeed": 1},
-    "4,27": {"flowDirection": "NONE", "flowSpeed": 1},
-    "4,26": {"flowDirection": "NONE", "flowSpeed": 1},
-    "3,26": {"flowDirection": "NONE", "flowSpeed": 1},
-    "3,25": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,25": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,24": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,23": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,22": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,22": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,21": {"flowDirection": "NONE", "flowSpeed": 1},
-    "-1,21": {"flowDirection": "NONE", "flowSpeed": 1},
-    "-1,23": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,23": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,24": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,24": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,25": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,26": {"flowDirection": "NONE", "flowSpeed": 1},
-    "3,27": {"flowDirection": "NONE", "flowSpeed": 1},
-    "4,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "6,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "7,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "8,30": {"flowDirection": "NONE", "flowSpeed": 1},
-    "7,30": {"flowDirection": "NONE", "flowSpeed": 1},
-    "5,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "4,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "3,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,27": {"flowDirection": "NONE", "flowSpeed": 1},
-    "-1,27": {"flowDirection": "NONE", "flowSpeed": 1},
-    "-1,26": {"flowDirection": "NONE", "flowSpeed": 1},
-    "-2,25": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,26": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,27": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "3,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "4,30": {"flowDirection": "NONE", "flowSpeed": 1},
-    "5,30": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "-1,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "-1,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,26": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,25": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,27": {"flowDirection": "NONE", "flowSpeed": 1},
-    "-2,27": {"flowDirection": "NONE", "flowSpeed": 1},
-    "-2,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "11,30": {"flowDirection": "NONE", "flowSpeed": 1},
-    "12,30": {"flowDirection": "NONE", "flowSpeed": 1},
-    "13,30": {"flowDirection": "NONE", "flowSpeed": 1},
-    "14,30": {"flowDirection": "NONE", "flowSpeed": 1},
-    "15,30": {"flowDirection": "NONE", "flowSpeed": 1},
-    "17,30": {"flowDirection": "NONE", "flowSpeed": 1},
-    "19,30": {"flowDirection": "NONE", "flowSpeed": 1},
-    "20,30": {"flowDirection": "NONE", "flowSpeed": 1},
-    "21,30": {"flowDirection": "NONE", "flowSpeed": 1},
-    "22,30": {"flowDirection": "NONE", "flowSpeed": 1},
-    "15,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "14,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "13,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "12,29": {"flowDirection": "NONE", "flowSpeed": 1},
-    "27,23": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,22": {"flowDirection": "NONE", "flowSpeed": 1},
-    "27,22": {"flowDirection": "NONE", "flowSpeed": 1},
-    "26,23": {"flowDirection": "NONE", "flowSpeed": 1},
-    "26,24": {"flowDirection": "NONE", "flowSpeed": 1},
-    "26,25": {"flowDirection": "NONE", "flowSpeed": 1},
-    "25,25": {"flowDirection": "NONE", "flowSpeed": 1},
-    "26,26": {"flowDirection": "NONE", "flowSpeed": 1},
-    "25,26": {"flowDirection": "NONE", "flowSpeed": 1},
-    "24,27": {"flowDirection": "NONE", "flowSpeed": 1},
-    "23,27": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "24,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "23,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "25,27": {"flowDirection": "NONE", "flowSpeed": 1},
-    "27,24": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,23": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,19": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,20": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,20": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,17": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,16": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,15": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,14": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,16": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,18": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,18": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,13": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,12": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,11": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,10": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,9": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,10": {"flowDirection": "NONE", "flowSpeed": 1},
-    "-1,11": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,12": {"flowDirection": "NONE", "flowSpeed": 1},
-    "-1,12": {"flowDirection": "NONE", "flowSpeed": 1},
-    "-1,13": {"flowDirection": "NONE", "flowSpeed": 1},
-    "-1,14": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,14": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,9": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,8": {"flowDirection": "NONE", "flowSpeed": 1},
-    "3,8": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,7": {"flowDirection": "NONE", "flowSpeed": 1},
-    "3,7": {"flowDirection": "NONE", "flowSpeed": 1},
-    "4,7": {"flowDirection": "NONE", "flowSpeed": 1},
-    "4,6": {"flowDirection": "NONE", "flowSpeed": 1},
-    "5,6": {"flowDirection": "NONE", "flowSpeed": 1},
-    "6,6": {"flowDirection": "NONE", "flowSpeed": 1},
-    "6,5": {"flowDirection": "NONE", "flowSpeed": 1},
-    "7,5": {"flowDirection": "SOUTH_WEST", "flowSpeed": 1},
-    "1,8": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,7": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,6": {"flowDirection": "NONE", "flowSpeed": 1},
-    "3,6": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,6": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,6": {"flowDirection": "NONE", "flowSpeed": 1},
-    "-1,6": {"flowDirection": "NONE", "flowSpeed": 1},
-    "-1,7": {"flowDirection": "NONE", "flowSpeed": 1},
-    "-1,8": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,8": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,7": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,9": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,8": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,7": {"flowDirection": "NONE", "flowSpeed": 1},
-    "27,7": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,6": {"flowDirection": "NONE", "flowSpeed": 1},
-    "27,6": {"flowDirection": "NONE", "flowSpeed": 1},
-    "27,5": {"flowDirection": "NONE", "flowSpeed": 1},
-    "26,5": {"flowDirection": "NONE", "flowSpeed": 1},
-    "25,5": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "26,4": {"flowDirection": "NONE", "flowSpeed": 1},
-    "25,4": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "26,6": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "26,7": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "1,17": {"flowDirection": "SOUTH_EAST", "flowSpeed": 1},
-    "2,18": {"flowDirection": "SOUTH_EAST", "flowSpeed": 1},
-    "2,19": {"flowDirection": "SOUTH_EAST", "flowSpeed": 1},
-    "3,20": {"flowDirection": "SOUTH_EAST", "flowSpeed": 1},
-    "3,21": {"flowDirection": "SOUTH_EAST", "flowSpeed": 1},
-    "4,22": {"flowDirection": "SOUTH_EAST", "flowSpeed": 1},
-    "4,23": {"flowDirection": "SOUTH_EAST", "flowSpeed": 1},
-    "5,24": {"flowDirection": "SOUTH_EAST", "flowSpeed": 1},
-    "4,25": {"flowDirection": "NONE", "flowSpeed": 1},
-    "5,25": {"flowDirection": "SOUTH_EAST", "flowSpeed": 1},
-    "6,26": {"flowDirection": "SOUTH_EAST", "flowSpeed": 1},
-    "6,27": {"flowDirection": "EAST", "flowSpeed": 1},
-    "7,27": {"flowDirection": "EAST", "flowSpeed": 1},
-    "8,27": {"flowDirection": "EAST", "flowSpeed": 1},
-    "9,27": {"flowDirection": "EAST", "flowSpeed": 1},
-    "10,27": {"flowDirection": "EAST", "flowSpeed": 1},
-    "11,27": {"flowDirection": "EAST", "flowSpeed": 1},
-    "12,27": {"flowDirection": "EAST", "flowSpeed": 1},
-    "13,27": {"flowDirection": "EAST", "flowSpeed": 1},
-    "14,27": {"flowDirection": "EAST", "flowSpeed": 1},
-    "15,27": {"flowDirection": "EAST", "flowSpeed": 1},
-    "16,27": {"flowDirection": "EAST", "flowSpeed": 1},
-    "17,27": {"flowDirection": "EAST", "flowSpeed": 1},
-    "18,27": {"flowDirection": "EAST", "flowSpeed": 1},
-    "19,27": {"flowDirection": "EAST", "flowSpeed": 1},
-    "20,27": {"flowDirection": "EAST", "flowSpeed": 1},
-    "21,27": {"flowDirection": "EAST", "flowSpeed": 1},
-    "22,27": {"flowDirection": "EAST", "flowSpeed": 1},
-    "23,26": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "24,26": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "23,25": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "24,25": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "24,24": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "25,24": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "24,23": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "25,23": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "25,22": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "26,22": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "25,21": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "26,21": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "26,20": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "27,20": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "27,19": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "27,18": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "28,18": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "27,17": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "28,17": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "26,19": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "28,16": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "27,15": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "27,14": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "26,13": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "26,12": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "27,12": {"flowDirection": "NONE", "flowSpeed": 1},
-    "26,11": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "27,10": {"flowDirection": "NORTH_EAST", "flowSpeed": 1},
-    "27,9": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "27,8": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "24,3": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "24,2": {"flowDirection": "NORTH_WEST", "flowSpeed": 1},
-    "6,7": {"flowDirection": "SOUTH_WEST", "flowSpeed": 1},
-    "7,6": {"flowDirection": "SOUTH_WEST", "flowSpeed": 1},
-    "8,4": {"flowDirection": "SOUTH_WEST", "flowSpeed": 1},
-    "8,3": {"flowDirection": "SOUTH_WEST", "flowSpeed": 1},
-    "9,2": {"flowDirection": "SOUTH_WEST", "flowSpeed": 1},
-    "13,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "11,-1": {"flowDirection": "WEST", "flowSpeed": 1},
-    "11,-2": {"flowDirection": "WEST", "flowSpeed": 1},
-    "9,-2": {"flowDirection": "WEST", "flowSpeed": 1},
-    "6,8": {"flowDirection": "SOUTH_WEST", "flowSpeed": 1},
-    "5,9": {"flowDirection": "SOUTH_WEST", "flowSpeed": 1},
-    "5,10": {"flowDirection": "SOUTH_WEST", "flowSpeed": 1},
-    "4,11": {"flowDirection": "SOUTH_WEST", "flowSpeed": 1},
-    "4,12": {"flowDirection": "SOUTH_WEST", "flowSpeed": 1},
-    "3,13": {"flowDirection": "SOUTH_WEST", "flowSpeed": 1},
-    "3,14": {"flowDirection": "SOUTH_WEST", "flowSpeed": 1},
-    "2,14": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,15": {"flowDirection": "SOUTH_WEST", "flowSpeed": 1},
-    "2,16": {"flowDirection": "SOUTH_WEST", "flowSpeed": 1},
-    "1,15": {"flowDirection": "NONE", "flowSpeed": 1},
-    "5,7": {"flowDirection": "NONE", "flowSpeed": 1},
-    "5,8": {"flowDirection": "NONE", "flowSpeed": 1},
-    "4,8": {"flowDirection": "NONE", "flowSpeed": 1},
-    "3,9": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,9": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,10": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,11": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,12": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,13": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,13": {"flowDirection": "NONE", "flowSpeed": 1},
-    "3,12": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,11": {"flowDirection": "NONE", "flowSpeed": 1},
-    "3,10": {"flowDirection": "NONE", "flowSpeed": 1},
-    "4,10": {"flowDirection": "NONE", "flowSpeed": 1},
-    "4,9": {"flowDirection": "NONE", "flowSpeed": 1},
-    "3,11": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,10": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,11": {"flowDirection": "NONE", "flowSpeed": 1},
-    "27,11": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,12": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,13": {"flowDirection": "NONE", "flowSpeed": 1},
-    "27,13": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,14": {"flowDirection": "NONE", "flowSpeed": 1},
-    "32,13": {"flowDirection": "NONE", "flowSpeed": 1},
-    "31,13": {"flowDirection": "NONE", "flowSpeed": 1},
-    "30,13": {"flowDirection": "NONE", "flowSpeed": 1},
-    "30,12": {"flowDirection": "NONE", "flowSpeed": 1},
-    "17,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "18,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "19,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "20,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "21,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "22,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "9,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "10,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "11,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "12,28": {"flowDirection": "NONE", "flowSpeed": 1},
-    "5,26": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,19": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,20": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,21": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,21": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,22": {"flowDirection": "NONE", "flowSpeed": 1},
-    "3,22": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,23": {"flowDirection": "NONE", "flowSpeed": 1},
-    "3,24": {"flowDirection": "NONE", "flowSpeed": 1},
-    "3,23": {"flowDirection": "NONE", "flowSpeed": 1},
-    "4,24": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,19": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,20": {"flowDirection": "NONE", "flowSpeed": 1},
-    "27,21": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,5": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,4": {"flowDirection": "NONE", "flowSpeed": 1},
-    "30,4": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,5": {"flowDirection": "NONE", "flowSpeed": 1},
-    "27,4": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,4": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,3": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,3": {"flowDirection": "NONE", "flowSpeed": 1},
-    "27,3": {"flowDirection": "NONE", "flowSpeed": 1},
-    "26,3": {"flowDirection": "NONE", "flowSpeed": 1},
-    "25,3": {"flowDirection": "NONE", "flowSpeed": 1},
-    "12,1": {"flowDirection": "WEST", "flowSpeed": 1},
-    "29,13": {"flowDirection": "NONE", "flowSpeed": 1},
-    "4,5": {"flowDirection": "NONE", "flowSpeed": 1},
-    "3,5": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,5": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,5": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,5": {"flowDirection": "NONE", "flowSpeed": 1},
-    "5,5": {"flowDirection": "NONE", "flowSpeed": 1},
-    "7,4": {"flowDirection": "NONE", "flowSpeed": 1},
-    "6,4": {"flowDirection": "NONE", "flowSpeed": 1},
-    "5,4": {"flowDirection": "NONE", "flowSpeed": 1},
-    "4,4": {"flowDirection": "NONE", "flowSpeed": 1},
-    "3,4": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,4": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,4": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,4": {"flowDirection": "NONE", "flowSpeed": 1},
-    "7,3": {"flowDirection": "NONE", "flowSpeed": 1},
-    "6,3": {"flowDirection": "NONE", "flowSpeed": 1},
-    "5,3": {"flowDirection": "NONE", "flowSpeed": 1},
-    "4,3": {"flowDirection": "NONE", "flowSpeed": 1},
-    "3,3": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,3": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,3": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,3": {"flowDirection": "NONE", "flowSpeed": 1},
-    "8,2": {"flowDirection": "NONE", "flowSpeed": 1},
-    "7,2": {"flowDirection": "NONE", "flowSpeed": 1},
-    "6,2": {"flowDirection": "NONE", "flowSpeed": 1},
-    "5,2": {"flowDirection": "NONE", "flowSpeed": 1},
-    "4,2": {"flowDirection": "NONE", "flowSpeed": 1},
-    "3,2": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,2": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,2": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,2": {"flowDirection": "NONE", "flowSpeed": 1},
-    "0,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "1,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "2,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "29,2": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,2": {"flowDirection": "NONE", "flowSpeed": 1},
-    "27,2": {"flowDirection": "NONE", "flowSpeed": 1},
-    "26,2": {"flowDirection": "NONE", "flowSpeed": 1},
-    "25,2": {"flowDirection": "NONE", "flowSpeed": 1},
-    "3,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "4,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "5,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "6,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "7,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "8,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "9,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "10,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "11,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "12,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "14,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "15,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "16,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "17,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "18,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "19,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "20,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "21,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "22,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "23,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "24,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "25,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "26,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "27,0": {"flowDirection": "NONE", "flowSpeed": 1},
-    "28,0": {"flowDirection": "NONE", "flowSpeed": 1}
+  "data": {
+    "id": "map_the_island",
+    "name": "The Island",
+    "nameKey": "map_the_island_name",
+    "width": 30,
+    "height": 30,
+    "readyToUse": true,
+    "tiles": {
+      "0,0": "RIVER",
+      "0,1": "RIVER",
+      "0,2": "RIVER",
+      "0,3": "RIVER",
+      "0,4": "RIVER",
+      "0,5": "RIVER",
+      "0,6": "RIVER",
+      "0,7": "RIVER",
+      "0,8": "RIVER",
+      "0,9": "RIVER",
+      "0,10": "RIVER",
+      "0,11": "RIVER",
+      "0,12": "RIVER",
+      "0,13": "RIVER",
+      "0,14": "RIVER",
+      "0,15": "RIVER",
+      "0,16": "RIVER",
+      "0,17": "RIVER",
+      "0,18": "RIVER",
+      "0,19": "RIVER",
+      "0,20": "RIVER",
+      "0,21": "RIVER",
+      "0,22": "RIVER",
+      "0,23": "RIVER",
+      "0,24": "RIVER",
+      "0,25": "RIVER",
+      "0,26": "RIVER",
+      "0,27": "RIVER",
+      "0,28": "RIVER",
+      "0,29": "RIVER",
+      "1,0": "RIVER",
+      "1,1": "RIVER",
+      "1,2": "RIVER",
+      "1,3": "RIVER",
+      "1,4": "RIVER",
+      "1,5": "RIVER",
+      "1,6": "RIVER",
+      "1,7": "RIVER",
+      "1,8": "RIVER",
+      "1,9": "RIVER",
+      "1,10": "RIVER",
+      "1,11": "RIVER",
+      "1,12": "RIVER",
+      "1,13": "RIVER",
+      "1,14": "RIVER",
+      "1,15": "RIVER",
+      "1,16": "RIVER",
+      "1,17": "RIVER",
+      "1,18": "RIVER",
+      "1,19": "RIVER",
+      "1,20": "RIVER",
+      "1,21": "RIVER",
+      "1,22": "RIVER",
+      "1,23": "RIVER",
+      "1,24": "RIVER",
+      "1,25": "RIVER",
+      "1,26": "RIVER",
+      "1,27": "RIVER",
+      "1,28": "RIVER",
+      "1,29": "RIVER",
+      "2,0": "RIVER",
+      "2,1": "RIVER",
+      "2,2": "RIVER",
+      "2,3": "RIVER",
+      "2,4": "RIVER",
+      "2,5": "RIVER",
+      "2,6": "RIVER",
+      "2,7": "RIVER",
+      "2,8": "RIVER",
+      "2,9": "RIVER",
+      "2,10": "RIVER",
+      "2,11": "RIVER",
+      "2,12": "RIVER",
+      "2,13": "RIVER",
+      "2,14": "RIVER",
+      "2,15": "RIVER",
+      "2,16": "RIVER",
+      "2,17": "PATH",
+      "2,18": "RIVER",
+      "2,19": "RIVER",
+      "2,20": "RIVER",
+      "2,21": "RIVER",
+      "2,22": "RIVER",
+      "2,23": "RIVER",
+      "2,24": "RIVER",
+      "2,25": "RIVER",
+      "2,26": "RIVER",
+      "2,27": "RIVER",
+      "2,28": "RIVER",
+      "2,29": "RIVER",
+      "3,0": "RIVER",
+      "3,1": "RIVER",
+      "3,2": "RIVER",
+      "3,3": "RIVER",
+      "3,4": "RIVER",
+      "3,5": "RIVER",
+      "3,6": "RIVER",
+      "3,7": "RIVER",
+      "3,8": "RIVER",
+      "3,9": "RIVER",
+      "3,10": "RIVER",
+      "3,11": "RIVER",
+      "3,12": "RIVER",
+      "3,13": "RIVER",
+      "3,14": "RIVER",
+      "3,15": "PATH",
+      "3,16": "PATH",
+      "3,17": "PATH",
+      "3,18": "PATH",
+      "3,19": "PATH",
+      "3,20": "RIVER",
+      "3,21": "RIVER",
+      "3,22": "RIVER",
+      "3,23": "RIVER",
+      "3,24": "RIVER",
+      "3,25": "RIVER",
+      "3,26": "RIVER",
+      "3,27": "RIVER",
+      "3,28": "RIVER",
+      "3,29": "RIVER",
+      "4,0": "RIVER",
+      "4,1": "RIVER",
+      "4,2": "RIVER",
+      "4,3": "RIVER",
+      "4,4": "RIVER",
+      "4,5": "RIVER",
+      "4,6": "RIVER",
+      "4,7": "RIVER",
+      "4,8": "RIVER",
+      "4,9": "RIVER",
+      "4,10": "RIVER",
+      "4,11": "RIVER",
+      "4,12": "RIVER",
+      "4,13": "PATH",
+      "4,14": "PATH",
+      "4,15": "PATH",
+      "4,16": "PATH",
+      "4,17": "PATH",
+      "4,18": "PATH",
+      "4,19": "PATH",
+      "4,20": "PATH",
+      "4,21": "PATH",
+      "4,22": "RIVER",
+      "4,23": "RIVER",
+      "4,24": "RIVER",
+      "4,25": "RIVER",
+      "4,26": "RIVER",
+      "4,27": "RIVER",
+      "4,28": "RIVER",
+      "4,29": "RIVER",
+      "5,0": "RIVER",
+      "5,1": "RIVER",
+      "5,2": "RIVER",
+      "5,3": "RIVER",
+      "5,4": "RIVER",
+      "5,5": "RIVER",
+      "5,6": "RIVER",
+      "5,7": "RIVER",
+      "5,8": "RIVER",
+      "5,9": "RIVER",
+      "5,10": "RIVER",
+      "5,11": "PATH",
+      "5,12": "PATH",
+      "5,13": "PATH",
+      "5,14": "PATH",
+      "5,15": "PATH",
+      "5,16": "PATH",
+      "5,17": "PATH",
+      "5,18": "PATH",
+      "5,19": "PATH",
+      "5,20": "PATH",
+      "5,21": "PATH",
+      "5,22": "PATH",
+      "5,23": "PATH",
+      "5,24": "RIVER",
+      "5,25": "RIVER",
+      "5,26": "RIVER",
+      "5,27": "RIVER",
+      "5,28": "RIVER",
+      "5,29": "RIVER",
+      "6,0": "RIVER",
+      "6,1": "RIVER",
+      "6,2": "RIVER",
+      "6,3": "RIVER",
+      "6,4": "RIVER",
+      "6,5": "RIVER",
+      "6,6": "RIVER",
+      "6,7": "RIVER",
+      "6,8": "RIVER",
+      "6,9": "PATH",
+      "6,10": "PATH",
+      "6,11": "PATH",
+      "6,12": "PATH",
+      "6,13": "PATH",
+      "6,14": "PATH",
+      "6,15": "PATH",
+      "6,16": "PATH",
+      "6,17": "PATH",
+      "6,18": "PATH",
+      "6,19": "PATH",
+      "6,20": "PATH",
+      "6,21": "PATH",
+      "6,22": "PATH",
+      "6,23": "PATH",
+      "6,24": "PATH",
+      "6,25": "PATH",
+      "6,26": "RIVER",
+      "6,27": "RIVER",
+      "6,28": "RIVER",
+      "6,29": "RIVER",
+      "7,0": "RIVER",
+      "7,1": "RIVER",
+      "7,2": "RIVER",
+      "7,3": "RIVER",
+      "7,4": "RIVER",
+      "7,5": "RIVER",
+      "7,6": "RIVER",
+      "7,7": "PATH",
+      "7,8": "PATH",
+      "7,9": "PATH",
+      "7,10": "PATH",
+      "7,11": "PATH",
+      "7,12": "PATH",
+      "7,13": "PATH",
+      "7,14": "PATH",
+      "7,15": "PATH",
+      "7,16": "PATH",
+      "7,17": "PATH",
+      "7,18": "PATH",
+      "7,19": "PATH",
+      "7,20": "PATH",
+      "7,21": "PATH",
+      "7,22": "PATH",
+      "7,23": "PATH",
+      "7,24": "PATH",
+      "7,25": "PATH",
+      "7,26": "PATH",
+      "7,27": "RIVER",
+      "7,28": "RIVER",
+      "7,29": "RIVER",
+      "8,0": "RIVER",
+      "8,1": "RIVER",
+      "8,2": "RIVER",
+      "8,3": "RIVER",
+      "8,4": "RIVER",
+      "8,5": "PATH",
+      "8,6": "PATH",
+      "8,7": "PATH",
+      "8,8": "PATH",
+      "8,9": "PATH",
+      "8,10": "PATH",
+      "8,11": "PATH",
+      "8,12": "PATH",
+      "8,13": "PATH",
+      "8,14": "PATH",
+      "8,15": "PATH",
+      "8,16": "PATH",
+      "8,17": "PATH",
+      "8,18": "PATH",
+      "8,19": "PATH",
+      "8,20": "PATH",
+      "8,21": "PATH",
+      "8,22": "PATH",
+      "8,23": "PATH",
+      "8,24": "PATH",
+      "8,25": "PATH",
+      "8,26": "PATH",
+      "8,27": "RIVER",
+      "8,28": "RIVER",
+      "8,29": "RIVER",
+      "9,0": "RIVER",
+      "9,1": "RIVER",
+      "9,2": "RIVER",
+      "9,3": "PATH",
+      "9,4": "PATH",
+      "9,5": "PATH",
+      "9,6": "PATH",
+      "9,7": "PATH",
+      "9,8": "PATH",
+      "9,9": "PATH",
+      "9,10": "PATH",
+      "9,11": "PATH",
+      "9,12": "PATH",
+      "9,13": "PATH",
+      "9,14": "PATH",
+      "9,15": "PATH",
+      "9,16": "PATH",
+      "9,17": "PATH",
+      "9,18": "PATH",
+      "9,19": "PATH",
+      "9,20": "PATH",
+      "9,21": "PATH",
+      "9,22": "PATH",
+      "9,23": "PATH",
+      "9,24": "PATH",
+      "9,25": "PATH",
+      "9,26": "PATH",
+      "9,27": "RIVER",
+      "9,28": "RIVER",
+      "9,29": "RIVER",
+      "10,0": "RIVER",
+      "10,1": "RIVER",
+      "10,2": "PATH",
+      "10,3": "PATH",
+      "10,4": "PATH",
+      "10,5": "PATH",
+      "10,6": "PATH",
+      "10,7": "PATH",
+      "10,8": "PATH",
+      "10,9": "PATH",
+      "10,10": "PATH",
+      "10,11": "PATH",
+      "10,12": "PATH",
+      "10,13": "PATH",
+      "10,14": "PATH",
+      "10,15": "PATH",
+      "10,16": "PATH",
+      "10,17": "BUILD_AREA",
+      "10,18": "PATH",
+      "10,19": "BUILD_AREA",
+      "10,20": "BUILD_AREA",
+      "10,21": "PATH",
+      "10,22": "PATH",
+      "10,23": "PATH",
+      "10,24": "PATH",
+      "10,25": "PATH",
+      "10,26": "PATH",
+      "10,27": "RIVER",
+      "10,28": "RIVER",
+      "10,29": "RIVER",
+      "11,0": "RIVER",
+      "11,1": "RIVER",
+      "11,2": "PATH",
+      "11,3": "PATH",
+      "11,4": "PATH",
+      "11,5": "PATH",
+      "11,6": "PATH",
+      "11,7": "PATH",
+      "11,8": "PATH",
+      "11,9": "PATH",
+      "11,10": "PATH",
+      "11,11": "PATH",
+      "11,12": "PATH",
+      "11,13": "PATH",
+      "11,14": "PATH",
+      "11,15": "NO_PLAY",
+      "11,16": "BUILD_AREA",
+      "11,17": "NO_PLAY",
+      "11,18": "NO_PLAY",
+      "11,19": "NO_PLAY",
+      "11,20": "NO_PLAY",
+      "11,21": "BUILD_AREA",
+      "11,22": "PATH",
+      "11,23": "PATH",
+      "11,24": "PATH",
+      "11,25": "PATH",
+      "11,26": "PATH",
+      "11,27": "RIVER",
+      "11,28": "RIVER",
+      "11,29": "RIVER",
+      "12,0": "RIVER",
+      "12,1": "RIVER",
+      "12,2": "PATH",
+      "12,3": "PATH",
+      "12,4": "PATH",
+      "12,5": "PATH",
+      "12,6": "PATH",
+      "12,7": "PATH",
+      "12,8": "PATH",
+      "12,9": "PATH",
+      "12,10": "PATH",
+      "12,11": "BUILD_AREA",
+      "12,12": "PATH",
+      "12,13": "NO_PLAY",
+      "12,14": "NO_PLAY",
+      "12,15": "NO_PLAY",
+      "12,16": "NO_PLAY",
+      "12,17": "NO_PLAY",
+      "12,18": "NO_PLAY",
+      "12,19": "NO_PLAY",
+      "12,20": "NO_PLAY",
+      "12,21": "NO_PLAY",
+      "12,22": "PATH",
+      "12,23": "PATH",
+      "12,24": "PATH",
+      "12,25": "PATH",
+      "12,26": "PATH",
+      "12,27": "RIVER",
+      "12,28": "RIVER",
+      "12,29": "RIVER",
+      "13,0": "RIVER",
+      "13,1": "RIVER",
+      "13,2": "PATH",
+      "13,3": "PATH",
+      "13,4": "PATH",
+      "13,5": "PATH",
+      "13,6": "PATH",
+      "13,7": "PATH",
+      "13,8": "PATH",
+      "13,9": "PATH",
+      "13,10": "BUILD_AREA",
+      "13,11": "BUILD_AREA",
+      "13,12": "NO_PLAY",
+      "13,13": "NO_PLAY",
+      "13,14": "NO_PLAY",
+      "13,15": "NO_PLAY",
+      "13,16": "NO_PLAY",
+      "13,17": "NO_PLAY",
+      "13,18": "NO_PLAY",
+      "13,19": "NO_PLAY",
+      "13,20": "NO_PLAY",
+      "13,21": "NO_PLAY",
+      "13,22": "PATH",
+      "13,23": "PATH",
+      "13,24": "PATH",
+      "13,25": "PATH",
+      "13,26": "PATH",
+      "13,27": "RIVER",
+      "13,28": "RIVER",
+      "13,29": "RIVER",
+      "14,0": "RIVER",
+      "14,1": "RIVER",
+      "14,2": "PATH",
+      "14,3": "PATH",
+      "14,4": "PATH",
+      "14,5": "PATH",
+      "14,6": "PATH",
+      "14,7": "PATH",
+      "14,8": "PATH",
+      "14,9": "NO_PLAY",
+      "14,10": "BUILD_AREA",
+      "14,11": "NO_PLAY",
+      "14,12": "NO_PLAY",
+      "14,13": "NO_PLAY",
+      "14,14": "NO_PLAY",
+      "14,15": "NO_PLAY",
+      "14,16": "NO_PLAY",
+      "14,17": "NO_PLAY",
+      "14,18": "NO_PLAY",
+      "14,19": "NO_PLAY",
+      "14,20": "NO_PLAY",
+      "14,21": "NO_PLAY",
+      "14,22": "PATH",
+      "14,23": "PATH",
+      "14,24": "PATH",
+      "14,25": "PATH",
+      "14,26": "PATH",
+      "14,27": "RIVER",
+      "14,28": "RIVER",
+      "14,29": "RIVER",
+      "15,0": "RIVER",
+      "15,1": "RIVER",
+      "15,2": "PATH",
+      "15,3": "PATH",
+      "15,4": "PATH",
+      "15,5": "BUILD_AREA",
+      "15,6": "BUILD_AREA",
+      "15,7": "NO_PLAY",
+      "15,8": "NO_PLAY",
+      "15,9": "NO_PLAY",
+      "15,10": "NO_PLAY",
+      "15,11": "NO_PLAY",
+      "15,12": "NO_PLAY",
+      "15,13": "NO_PLAY",
+      "15,14": "NO_PLAY",
+      "15,15": "NO_PLAY",
+      "15,16": "NO_PLAY",
+      "15,17": "NO_PLAY",
+      "15,18": "NO_PLAY",
+      "15,19": "NO_PLAY",
+      "15,20": "NO_PLAY",
+      "15,21": "NO_PLAY",
+      "15,22": "BUILD_AREA",
+      "15,23": "PATH",
+      "15,24": "PATH",
+      "15,25": "PATH",
+      "15,26": "SPAWN_POINT",
+      "15,27": "RIVER",
+      "15,28": "RIVER",
+      "15,29": "RIVER",
+      "16,0": "RIVER",
+      "16,1": "RIVER",
+      "16,2": "PATH",
+      "16,3": "PATH",
+      "16,4": "PATH",
+      "16,5": "BUILD_AREA",
+      "16,6": "NO_PLAY",
+      "16,7": "NO_PLAY",
+      "16,8": "NO_PLAY",
+      "16,9": "NO_PLAY",
+      "16,10": "NO_PLAY",
+      "16,11": "NO_PLAY",
+      "16,12": "NO_PLAY",
+      "16,13": "NO_PLAY",
+      "16,14": "NO_PLAY",
+      "16,15": "NO_PLAY",
+      "16,16": "NO_PLAY",
+      "16,17": "NO_PLAY",
+      "16,18": "NO_PLAY",
+      "16,19": "NO_PLAY",
+      "16,20": "NO_PLAY",
+      "16,21": "NO_PLAY",
+      "16,22": "BUILD_AREA",
+      "16,23": "PATH",
+      "16,24": "PATH",
+      "16,25": "PATH",
+      "16,26": "PATH",
+      "16,27": "RIVER",
+      "16,28": "RIVER",
+      "16,29": "RIVER",
+      "17,0": "RIVER",
+      "17,1": "RIVER",
+      "17,2": "PATH",
+      "17,3": "TARGET",
+      "17,4": "PATH",
+      "17,5": "BUILD_AREA",
+      "17,6": "NO_PLAY",
+      "17,7": "NO_PLAY",
+      "17,8": "NO_PLAY",
+      "17,9": "NO_PLAY",
+      "17,10": "NO_PLAY",
+      "17,11": "NO_PLAY",
+      "17,12": "NO_PLAY",
+      "17,13": "BUILD_AREA",
+      "17,14": "BUILD_AREA",
+      "17,15": "NO_PLAY",
+      "17,16": "NO_PLAY",
+      "17,17": "NO_PLAY",
+      "17,18": "NO_PLAY",
+      "17,19": "NO_PLAY",
+      "17,20": "NO_PLAY",
+      "17,21": "NO_PLAY",
+      "17,22": "BUILD_AREA",
+      "17,23": "PATH",
+      "17,24": "PATH",
+      "17,25": "PATH",
+      "17,26": "PATH",
+      "17,27": "RIVER",
+      "17,28": "RIVER",
+      "17,29": "RIVER",
+      "18,0": "RIVER",
+      "18,1": "RIVER",
+      "18,2": "PATH",
+      "18,3": "PATH",
+      "18,4": "PATH",
+      "18,5": "PATH",
+      "18,6": "BUILD_AREA",
+      "18,7": "BUILD_AREA",
+      "18,8": "PATH",
+      "18,9": "PATH",
+      "18,10": "BUILD_AREA",
+      "18,11": "PATH",
+      "18,12": "PATH",
+      "18,13": "PATH",
+      "18,14": "BUILD_AREA",
+      "18,15": "BUILD_AREA",
+      "18,16": "NO_PLAY",
+      "18,17": "NO_PLAY",
+      "18,18": "NO_PLAY",
+      "18,19": "NO_PLAY",
+      "18,20": "NO_PLAY",
+      "18,21": "BUILD_AREA",
+      "18,22": "PATH",
+      "18,23": "PATH",
+      "18,24": "PATH",
+      "18,25": "PATH",
+      "18,26": "PATH",
+      "18,27": "RIVER",
+      "18,28": "RIVER",
+      "18,29": "RIVER",
+      "19,0": "RIVER",
+      "19,1": "RIVER",
+      "19,2": "PATH",
+      "19,3": "PATH",
+      "19,4": "PATH",
+      "19,5": "PATH",
+      "19,6": "PATH",
+      "19,7": "PATH",
+      "19,8": "PATH",
+      "19,9": "PATH",
+      "19,10": "PATH",
+      "19,11": "PATH",
+      "19,12": "PATH",
+      "19,13": "PATH",
+      "19,14": "PATH",
+      "19,15": "PATH",
+      "19,16": "BUILD_AREA",
+      "19,17": "BUILD_AREA",
+      "19,18": "NO_PLAY",
+      "19,19": "BUILD_AREA",
+      "19,20": "BUILD_AREA",
+      "19,21": "PATH",
+      "19,22": "PATH",
+      "19,23": "PATH",
+      "19,24": "PATH",
+      "19,25": "PATH",
+      "19,26": "PATH",
+      "19,27": "RIVER",
+      "19,28": "RIVER",
+      "19,29": "RIVER",
+      "20,0": "RIVER",
+      "20,1": "RIVER",
+      "20,2": "PATH",
+      "20,3": "PATH",
+      "20,4": "PATH",
+      "20,5": "PATH",
+      "20,6": "PATH",
+      "20,7": "PATH",
+      "20,8": "PATH",
+      "20,9": "PATH",
+      "20,10": "PATH",
+      "20,11": "PATH",
+      "20,12": "PATH",
+      "20,13": "PATH",
+      "20,14": "PATH",
+      "20,15": "PATH",
+      "20,16": "PATH",
+      "20,17": "PATH",
+      "20,18": "BUILD_AREA",
+      "20,19": "PATH",
+      "20,20": "PATH",
+      "20,21": "PATH",
+      "20,22": "PATH",
+      "20,23": "PATH",
+      "20,24": "PATH",
+      "20,25": "PATH",
+      "20,26": "PATH",
+      "20,27": "RIVER",
+      "20,28": "RIVER",
+      "20,29": "RIVER",
+      "21,0": "RIVER",
+      "21,1": "RIVER",
+      "21,2": "PATH",
+      "21,3": "PATH",
+      "21,4": "PATH",
+      "21,5": "PATH",
+      "21,6": "PATH",
+      "21,7": "PATH",
+      "21,8": "PATH",
+      "21,9": "PATH",
+      "21,10": "PATH",
+      "21,11": "PATH",
+      "21,12": "PATH",
+      "21,13": "PATH",
+      "21,14": "PATH",
+      "21,15": "PATH",
+      "21,16": "PATH",
+      "21,17": "PATH",
+      "21,18": "PATH",
+      "21,19": "PATH",
+      "21,20": "PATH",
+      "21,21": "PATH",
+      "21,22": "PATH",
+      "21,23": "PATH",
+      "21,24": "PATH",
+      "21,25": "PATH",
+      "21,26": "PATH",
+      "21,27": "RIVER",
+      "21,28": "RIVER",
+      "21,29": "RIVER",
+      "22,0": "RIVER",
+      "22,1": "RIVER",
+      "22,2": "PATH",
+      "22,3": "PATH",
+      "22,4": "PATH",
+      "22,5": "PATH",
+      "22,6": "PATH",
+      "22,7": "PATH",
+      "22,8": "PATH",
+      "22,9": "PATH",
+      "22,10": "PATH",
+      "22,11": "PATH",
+      "22,12": "PATH",
+      "22,13": "PATH",
+      "22,14": "PATH",
+      "22,15": "PATH",
+      "22,16": "PATH",
+      "22,17": "PATH",
+      "22,18": "PATH",
+      "22,19": "PATH",
+      "22,20": "PATH",
+      "22,21": "PATH",
+      "22,22": "PATH",
+      "22,23": "PATH",
+      "22,24": "PATH",
+      "22,25": "PATH",
+      "22,26": "PATH",
+      "22,27": "RIVER",
+      "22,28": "RIVER",
+      "22,29": "RIVER",
+      "23,0": "RIVER",
+      "23,1": "RIVER",
+      "23,2": "PATH",
+      "23,3": "PATH",
+      "23,4": "PATH",
+      "23,5": "PATH",
+      "23,6": "PATH",
+      "23,7": "PATH",
+      "23,8": "PATH",
+      "23,9": "PATH",
+      "23,10": "PATH",
+      "23,11": "PATH",
+      "23,12": "PATH",
+      "23,13": "PATH",
+      "23,14": "PATH",
+      "23,15": "PATH",
+      "23,16": "PATH",
+      "23,17": "PATH",
+      "23,18": "PATH",
+      "23,19": "PATH",
+      "23,20": "PATH",
+      "23,21": "PATH",
+      "23,22": "PATH",
+      "23,23": "PATH",
+      "23,24": "PATH",
+      "23,25": "RIVER",
+      "23,26": "RIVER",
+      "23,27": "RIVER",
+      "23,28": "RIVER",
+      "23,29": "RIVER",
+      "24,0": "RIVER",
+      "24,1": "RIVER",
+      "24,2": "RIVER",
+      "24,3": "RIVER",
+      "24,4": "PATH",
+      "24,5": "PATH",
+      "24,6": "PATH",
+      "24,7": "PATH",
+      "24,8": "PATH",
+      "24,9": "PATH",
+      "24,10": "PATH",
+      "24,11": "PATH",
+      "24,12": "PATH",
+      "24,13": "PATH",
+      "24,14": "PATH",
+      "24,15": "PATH",
+      "24,16": "PATH",
+      "24,17": "PATH",
+      "24,18": "PATH",
+      "24,19": "PATH",
+      "24,20": "PATH",
+      "24,21": "PATH",
+      "24,22": "PATH",
+      "24,23": "RIVER",
+      "24,24": "RIVER",
+      "24,25": "RIVER",
+      "24,26": "RIVER",
+      "24,27": "RIVER",
+      "24,28": "RIVER",
+      "24,29": "RIVER",
+      "25,0": "RIVER",
+      "25,1": "RIVER",
+      "25,2": "RIVER",
+      "25,3": "RIVER",
+      "25,4": "RIVER",
+      "25,5": "RIVER",
+      "25,6": "PATH",
+      "25,7": "PATH",
+      "25,8": "PATH",
+      "25,9": "PATH",
+      "25,10": "PATH",
+      "25,11": "PATH",
+      "25,12": "PATH",
+      "25,13": "PATH",
+      "25,14": "PATH",
+      "25,15": "PATH",
+      "25,16": "PATH",
+      "25,17": "PATH",
+      "25,18": "PATH",
+      "25,19": "PATH",
+      "25,20": "PATH",
+      "25,21": "RIVER",
+      "25,22": "RIVER",
+      "25,23": "RIVER",
+      "25,24": "RIVER",
+      "25,25": "RIVER",
+      "25,26": "RIVER",
+      "25,27": "RIVER",
+      "25,28": "RIVER",
+      "25,29": "RIVER",
+      "26,0": "RIVER",
+      "26,1": "RIVER",
+      "26,2": "RIVER",
+      "26,3": "RIVER",
+      "26,4": "RIVER",
+      "26,5": "RIVER",
+      "26,6": "RIVER",
+      "26,7": "RIVER",
+      "26,8": "PATH",
+      "26,9": "PATH",
+      "26,10": "PATH",
+      "26,11": "RIVER",
+      "26,12": "RIVER",
+      "26,13": "RIVER",
+      "26,14": "PATH",
+      "26,15": "PATH",
+      "26,16": "PATH",
+      "26,17": "PATH",
+      "26,18": "PATH",
+      "26,19": "RIVER",
+      "26,20": "RIVER",
+      "26,21": "RIVER",
+      "26,22": "RIVER",
+      "26,23": "RIVER",
+      "26,24": "RIVER",
+      "26,25": "RIVER",
+      "26,26": "RIVER",
+      "26,27": "RIVER",
+      "26,28": "RIVER",
+      "26,29": "RIVER",
+      "27,0": "RIVER",
+      "27,1": "RIVER",
+      "27,2": "RIVER",
+      "27,3": "RIVER",
+      "27,4": "RIVER",
+      "27,5": "RIVER",
+      "27,6": "RIVER",
+      "27,7": "RIVER",
+      "27,8": "RIVER",
+      "27,9": "RIVER",
+      "27,10": "RIVER",
+      "27,11": "RIVER",
+      "27,12": "RIVER",
+      "27,13": "RIVER",
+      "27,14": "RIVER",
+      "27,15": "RIVER",
+      "27,16": "PATH",
+      "27,17": "RIVER",
+      "27,18": "RIVER",
+      "27,19": "RIVER",
+      "27,20": "RIVER",
+      "27,21": "RIVER",
+      "27,22": "RIVER",
+      "27,23": "RIVER",
+      "27,24": "RIVER",
+      "27,25": "RIVER",
+      "27,26": "RIVER",
+      "27,27": "RIVER",
+      "27,28": "NO_PLAY",
+      "27,29": "RIVER",
+      "28,0": "RIVER",
+      "28,1": "RIVER",
+      "28,2": "RIVER",
+      "28,3": "RIVER",
+      "28,4": "RIVER",
+      "28,5": "RIVER",
+      "28,6": "RIVER",
+      "28,7": "RIVER",
+      "28,8": "RIVER",
+      "28,9": "RIVER",
+      "28,10": "RIVER",
+      "28,11": "RIVER",
+      "28,12": "RIVER",
+      "28,13": "RIVER",
+      "28,14": "RIVER",
+      "28,15": "RIVER",
+      "28,16": "RIVER",
+      "28,17": "RIVER",
+      "28,18": "RIVER",
+      "28,19": "RIVER",
+      "28,20": "RIVER",
+      "28,21": "RIVER",
+      "28,22": "RIVER",
+      "28,23": "RIVER",
+      "28,24": "RIVER",
+      "28,25": "RIVER",
+      "28,26": "RIVER",
+      "28,27": "RIVER",
+      "28,28": "RIVER",
+      "28,29": "RIVER",
+      "29,0": "RIVER",
+      "29,1": "RIVER",
+      "29,2": "RIVER",
+      "29,3": "RIVER",
+      "29,4": "RIVER",
+      "29,5": "RIVER",
+      "29,6": "RIVER",
+      "29,7": "RIVER",
+      "29,8": "RIVER",
+      "29,9": "RIVER",
+      "29,10": "RIVER",
+      "29,11": "RIVER",
+      "29,12": "RIVER",
+      "29,13": "RIVER",
+      "29,14": "RIVER",
+      "29,15": "RIVER",
+      "29,16": "RIVER",
+      "29,17": "RIVER",
+      "29,18": "RIVER",
+      "29,19": "RIVER",
+      "29,20": "RIVER",
+      "29,21": "RIVER",
+      "29,22": "RIVER",
+      "29,23": "RIVER",
+      "29,24": "RIVER",
+      "29,25": "RIVER",
+      "29,26": "RIVER",
+      "29,27": "RIVER",
+      "29,28": "RIVER",
+      "29,29": "RIVER",
+      "31,8": "PATH",
+      "31,9": "PATH",
+      "31,10": "PATH",
+      "32,10": "RIVER",
+      "29,30": "RIVER",
+      "28,30": "RIVER",
+      "27,30": "RIVER",
+      "26,30": "RIVER",
+      "25,30": "RIVER",
+      "-1,21": "RIVER",
+      "-1,23": "RIVER",
+      "8,30": "RIVER",
+      "7,30": "RIVER",
+      "-1,27": "RIVER",
+      "-1,26": "RIVER",
+      "-2,25": "RIVER",
+      "4,30": "RIVER",
+      "5,30": "RIVER",
+      "-1,29": "RIVER",
+      "-1,28": "RIVER",
+      "-2,27": "RIVER",
+      "-2,28": "RIVER",
+      "11,30": "RIVER",
+      "12,30": "RIVER",
+      "13,30": "RIVER",
+      "14,30": "RIVER",
+      "15,30": "RIVER",
+      "17,30": "RIVER",
+      "19,30": "RIVER",
+      "20,30": "RIVER",
+      "21,30": "RIVER",
+      "22,30": "RIVER",
+      "-1,11": "RIVER",
+      "-1,12": "RIVER",
+      "-1,13": "RIVER",
+      "-1,14": "RIVER",
+      "-1,6": "RIVER",
+      "-1,7": "RIVER",
+      "-1,8": "RIVER",
+      "11,-1": "RIVER",
+      "11,-2": "RIVER",
+      "9,-2": "RIVER",
+      "0,-1": "PATH",
+      "32,13": "RIVER",
+      "31,13": "RIVER",
+      "30,13": "RIVER",
+      "30,12": "RIVER",
+      "30,4": "RIVER"
+    },
+    "riverTiles": {
+      "29,19": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,18": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,17": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,16": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,15": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,15": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,14": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,12": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,11": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,10": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,9": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,8": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,7": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,6": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "32,10": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,1": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,1": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,1": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,1": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,1": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "3,1": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "4,1": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "5,1": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "6,1": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "7,1": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "8,1": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "10,1": {
+        "flowDirection": "WEST",
+        "flowSpeed": 1
+      },
+      "9,1": {
+        "flowDirection": "SOUTH_WEST",
+        "flowSpeed": 1
+      },
+      "27,1": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "26,1": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "25,1": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "24,1": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "23,1": {
+        "flowDirection": "WEST",
+        "flowSpeed": 1
+      },
+      "22,1": {
+        "flowDirection": "WEST",
+        "flowSpeed": 1
+      },
+      "21,1": {
+        "flowDirection": "WEST",
+        "flowSpeed": 1
+      },
+      "20,1": {
+        "flowDirection": "WEST",
+        "flowSpeed": 1
+      },
+      "19,1": {
+        "flowDirection": "WEST",
+        "flowSpeed": 1
+      },
+      "18,1": {
+        "flowDirection": "WEST",
+        "flowSpeed": 1
+      },
+      "17,1": {
+        "flowDirection": "WEST",
+        "flowSpeed": 1
+      },
+      "16,1": {
+        "flowDirection": "WEST",
+        "flowSpeed": 1
+      },
+      "15,1": {
+        "flowDirection": "WEST",
+        "flowSpeed": 1
+      },
+      "14,1": {
+        "flowDirection": "WEST",
+        "flowSpeed": 1
+      },
+      "13,1": {
+        "flowDirection": "WEST",
+        "flowSpeed": 1
+      },
+      "11,1": {
+        "flowDirection": "WEST",
+        "flowSpeed": 1
+      },
+      "29,20": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,21": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,21": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,22": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,23": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,24": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,25": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,26": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,27": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,30": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,30": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "27,30": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "26,30": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "25,30": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "24,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "25,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "26,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "27,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,27": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,25": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,24": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "27,25": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,26": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "27,26": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "27,27": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "26,27": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "26,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "25,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "23,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "22,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "21,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "20,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "19,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "18,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "17,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "16,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "16,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "15,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "14,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "13,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "11,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "10,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "9,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "8,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "8,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "7,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "6,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "5,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "5,27": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "4,27": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "4,26": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "3,26": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "3,25": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,25": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,24": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,23": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,22": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,22": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,21": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "-1,21": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "-1,23": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,23": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,24": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,24": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,25": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,26": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "3,27": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "4,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "6,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "7,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "8,30": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "7,30": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "5,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "4,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "3,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,27": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "-1,27": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "-1,26": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "-2,25": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,26": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,27": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "3,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "4,30": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "5,30": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "-1,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "-1,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,26": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,25": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,27": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "-2,27": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "-2,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "11,30": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "12,30": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "13,30": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "14,30": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "15,30": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "17,30": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "19,30": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "20,30": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "21,30": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "22,30": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "15,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "14,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "13,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "12,29": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "27,23": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,22": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "27,22": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "26,23": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "26,24": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "26,25": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "25,25": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "26,26": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "25,26": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "24,27": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "23,27": {
+        "flowDirection": "NORTH_EAST",
+        "flowSpeed": 1
+      },
+      "24,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "23,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "25,27": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "27,24": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,23": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,19": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,20": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,20": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,17": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,16": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,15": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,14": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,16": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,18": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,18": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,13": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,12": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,11": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,10": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,9": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,10": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "-1,11": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,12": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "-1,12": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "-1,13": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "-1,14": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,14": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,9": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,8": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "3,8": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,7": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "3,7": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "4,7": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "4,6": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "5,6": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "6,6": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "6,5": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "7,5": {
+        "flowDirection": "SOUTH_WEST",
+        "flowSpeed": 1
+      },
+      "1,8": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,7": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,6": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "3,6": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,6": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,6": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "-1,6": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "-1,7": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "-1,8": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,8": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,7": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,9": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,8": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,7": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "27,7": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,6": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "27,6": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "27,5": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "26,5": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "25,5": {
+        "flowDirection": "NORTH_WEST",
+        "flowSpeed": 1
+      },
+      "26,4": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "25,4": {
+        "flowDirection": "NORTH_WEST",
+        "flowSpeed": 1
+      },
+      "26,6": {
+        "flowDirection": "NORTH_WEST",
+        "flowSpeed": 1
+      },
+      "26,7": {
+        "flowDirection": "NORTH_WEST",
+        "flowSpeed": 1
+      },
+      "1,17": {
+        "flowDirection": "SOUTH_EAST",
+        "flowSpeed": 1
+      },
+      "2,18": {
+        "flowDirection": "SOUTH_EAST",
+        "flowSpeed": 1
+      },
+      "2,19": {
+        "flowDirection": "SOUTH_EAST",
+        "flowSpeed": 1
+      },
+      "3,20": {
+        "flowDirection": "SOUTH_EAST",
+        "flowSpeed": 1
+      },
+      "3,21": {
+        "flowDirection": "SOUTH_EAST",
+        "flowSpeed": 1
+      },
+      "4,22": {
+        "flowDirection": "SOUTH_EAST",
+        "flowSpeed": 1
+      },
+      "4,23": {
+        "flowDirection": "SOUTH_EAST",
+        "flowSpeed": 1
+      },
+      "5,24": {
+        "flowDirection": "SOUTH_EAST",
+        "flowSpeed": 1
+      },
+      "4,25": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "5,25": {
+        "flowDirection": "SOUTH_EAST",
+        "flowSpeed": 1
+      },
+      "6,26": {
+        "flowDirection": "SOUTH_EAST",
+        "flowSpeed": 1
+      },
+      "6,27": {
+        "flowDirection": "EAST",
+        "flowSpeed": 1
+      },
+      "7,27": {
+        "flowDirection": "EAST",
+        "flowSpeed": 1
+      },
+      "8,27": {
+        "flowDirection": "EAST",
+        "flowSpeed": 1
+      },
+      "9,27": {
+        "flowDirection": "EAST",
+        "flowSpeed": 1
+      },
+      "10,27": {
+        "flowDirection": "EAST",
+        "flowSpeed": 1
+      },
+      "11,27": {
+        "flowDirection": "EAST",
+        "flowSpeed": 1
+      },
+      "12,27": {
+        "flowDirection": "EAST",
+        "flowSpeed": 1
+      },
+      "13,27": {
+        "flowDirection": "EAST",
+        "flowSpeed": 1
+      },
+      "14,27": {
+        "flowDirection": "EAST",
+        "flowSpeed": 1
+      },
+      "15,27": {
+        "flowDirection": "EAST",
+        "flowSpeed": 1
+      },
+      "16,27": {
+        "flowDirection": "EAST",
+        "flowSpeed": 1
+      },
+      "17,27": {
+        "flowDirection": "EAST",
+        "flowSpeed": 1
+      },
+      "18,27": {
+        "flowDirection": "EAST",
+        "flowSpeed": 1
+      },
+      "19,27": {
+        "flowDirection": "EAST",
+        "flowSpeed": 1
+      },
+      "20,27": {
+        "flowDirection": "EAST",
+        "flowSpeed": 1
+      },
+      "21,27": {
+        "flowDirection": "EAST",
+        "flowSpeed": 1
+      },
+      "22,27": {
+        "flowDirection": "EAST",
+        "flowSpeed": 1
+      },
+      "23,26": {
+        "flowDirection": "NORTH_EAST",
+        "flowSpeed": 1
+      },
+      "24,26": {
+        "flowDirection": "NORTH_EAST",
+        "flowSpeed": 1
+      },
+      "23,25": {
+        "flowDirection": "NORTH_EAST",
+        "flowSpeed": 1
+      },
+      "24,25": {
+        "flowDirection": "NORTH_EAST",
+        "flowSpeed": 1
+      },
+      "24,24": {
+        "flowDirection": "NORTH_EAST",
+        "flowSpeed": 1
+      },
+      "25,24": {
+        "flowDirection": "NORTH_EAST",
+        "flowSpeed": 1
+      },
+      "24,23": {
+        "flowDirection": "NORTH_EAST",
+        "flowSpeed": 1
+      },
+      "25,23": {
+        "flowDirection": "NORTH_EAST",
+        "flowSpeed": 1
+      },
+      "25,22": {
+        "flowDirection": "NORTH_EAST",
+        "flowSpeed": 1
+      },
+      "26,22": {
+        "flowDirection": "NORTH_EAST",
+        "flowSpeed": 1
+      },
+      "25,21": {
+        "flowDirection": "NORTH_EAST",
+        "flowSpeed": 1
+      },
+      "26,21": {
+        "flowDirection": "NORTH_EAST",
+        "flowSpeed": 1
+      },
+      "26,20": {
+        "flowDirection": "NORTH_EAST",
+        "flowSpeed": 1
+      },
+      "27,20": {
+        "flowDirection": "NORTH_EAST",
+        "flowSpeed": 1
+      },
+      "27,19": {
+        "flowDirection": "NORTH_EAST",
+        "flowSpeed": 1
+      },
+      "27,18": {
+        "flowDirection": "NORTH_EAST",
+        "flowSpeed": 1
+      },
+      "28,18": {
+        "flowDirection": "NORTH_EAST",
+        "flowSpeed": 1
+      },
+      "27,17": {
+        "flowDirection": "NORTH_EAST",
+        "flowSpeed": 1
+      },
+      "28,17": {
+        "flowDirection": "NORTH_WEST",
+        "flowSpeed": 1
+      },
+      "26,19": {
+        "flowDirection": "NORTH_EAST",
+        "flowSpeed": 1
+      },
+      "28,16": {
+        "flowDirection": "NORTH_WEST",
+        "flowSpeed": 1
+      },
+      "27,15": {
+        "flowDirection": "NORTH_WEST",
+        "flowSpeed": 1
+      },
+      "27,14": {
+        "flowDirection": "NORTH_WEST",
+        "flowSpeed": 1
+      },
+      "26,13": {
+        "flowDirection": "NORTH_WEST",
+        "flowSpeed": 1
+      },
+      "26,12": {
+        "flowDirection": "NORTH_EAST",
+        "flowSpeed": 1
+      },
+      "27,12": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "26,11": {
+        "flowDirection": "NORTH_EAST",
+        "flowSpeed": 1
+      },
+      "27,10": {
+        "flowDirection": "NORTH_EAST",
+        "flowSpeed": 1
+      },
+      "27,9": {
+        "flowDirection": "NORTH_WEST",
+        "flowSpeed": 1
+      },
+      "27,8": {
+        "flowDirection": "NORTH_WEST",
+        "flowSpeed": 1
+      },
+      "24,3": {
+        "flowDirection": "NORTH_WEST",
+        "flowSpeed": 1
+      },
+      "24,2": {
+        "flowDirection": "NORTH_WEST",
+        "flowSpeed": 1
+      },
+      "6,7": {
+        "flowDirection": "SOUTH_WEST",
+        "flowSpeed": 1
+      },
+      "7,6": {
+        "flowDirection": "SOUTH_WEST",
+        "flowSpeed": 1
+      },
+      "8,4": {
+        "flowDirection": "SOUTH_WEST",
+        "flowSpeed": 1
+      },
+      "8,3": {
+        "flowDirection": "SOUTH_WEST",
+        "flowSpeed": 1
+      },
+      "9,2": {
+        "flowDirection": "SOUTH_WEST",
+        "flowSpeed": 1
+      },
+      "13,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "11,-1": {
+        "flowDirection": "WEST",
+        "flowSpeed": 1
+      },
+      "11,-2": {
+        "flowDirection": "WEST",
+        "flowSpeed": 1
+      },
+      "9,-2": {
+        "flowDirection": "WEST",
+        "flowSpeed": 1
+      },
+      "6,8": {
+        "flowDirection": "SOUTH_WEST",
+        "flowSpeed": 1
+      },
+      "5,9": {
+        "flowDirection": "SOUTH_WEST",
+        "flowSpeed": 1
+      },
+      "5,10": {
+        "flowDirection": "SOUTH_WEST",
+        "flowSpeed": 1
+      },
+      "4,11": {
+        "flowDirection": "SOUTH_WEST",
+        "flowSpeed": 1
+      },
+      "4,12": {
+        "flowDirection": "SOUTH_WEST",
+        "flowSpeed": 1
+      },
+      "3,13": {
+        "flowDirection": "SOUTH_WEST",
+        "flowSpeed": 1
+      },
+      "3,14": {
+        "flowDirection": "SOUTH_WEST",
+        "flowSpeed": 1
+      },
+      "2,14": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,15": {
+        "flowDirection": "SOUTH_WEST",
+        "flowSpeed": 1
+      },
+      "2,16": {
+        "flowDirection": "SOUTH_WEST",
+        "flowSpeed": 1
+      },
+      "1,15": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "5,7": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "5,8": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "4,8": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "3,9": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,9": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,10": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,11": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,12": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,13": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,13": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "3,12": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,11": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "3,10": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "4,10": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "4,9": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "3,11": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,10": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,11": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "27,11": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,12": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,13": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "27,13": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,14": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "32,13": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "31,13": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "30,13": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "30,12": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "17,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "18,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "19,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "20,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "21,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "22,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "9,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "10,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "11,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "12,28": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "5,26": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,19": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,20": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,21": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,21": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,22": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "3,22": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,23": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "3,24": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "3,23": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "4,24": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,19": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,20": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "27,21": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,5": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,4": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "30,4": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,5": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "27,4": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,4": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,3": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,3": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "27,3": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "26,3": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "25,3": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "12,1": {
+        "flowDirection": "WEST",
+        "flowSpeed": 1
+      },
+      "29,13": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "4,5": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "3,5": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,5": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,5": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,5": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "5,5": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "7,4": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "6,4": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "5,4": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "4,4": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "3,4": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,4": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,4": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,4": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "7,3": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "6,3": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "5,3": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "4,3": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "3,3": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,3": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,3": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,3": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "8,2": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "7,2": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "6,2": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "5,2": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "4,2": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "3,2": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,2": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,2": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,2": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "0,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "1,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "2,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "29,2": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,2": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "27,2": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "26,2": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "25,2": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "3,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "4,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "5,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "6,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "7,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "8,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "9,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "10,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "11,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "12,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "14,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "15,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "16,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "17,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "18,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "19,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "20,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "21,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "22,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "23,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "24,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "25,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "26,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "27,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      },
+      "28,0": {
+        "flowDirection": "NONE",
+        "flowSpeed": 1
+      }
+    }
   }
 }

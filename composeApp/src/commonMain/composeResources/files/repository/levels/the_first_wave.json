@@ -1,46 +1,294 @@
 {
-  "id": "the_first_wave",
-  "mapId": "map_straight",
-  "title": "The First Wave",
-  "titleKey": "level_the_first_wave_title",
-  "subtitle": "",
-  "startCoins": 100,
-  "startHealthPoints": 10,
-  "enemySpawns": [
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 1}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 4}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 1}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 4}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 1}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 4}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 1}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 4}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 1}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 4}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 1}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 4}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 1}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 4}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 1}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 4}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 1}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 4}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 1}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 4}},
-    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 7}}
-  ],
-  "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER"],
-  "waypoints": [
-    
-  ],
-  "prerequisites": []
+  "metadata": {
+    "program": "Defender of Egril",
+    "type": "level"
+  },
+  "data": {
+    "id": "the_first_wave",
+    "mapId": "map_straight",
+    "title": "The First Wave",
+    "titleKey": "level_the_first_wave_title",
+    "subtitle": "",
+    "startCoins": 100,
+    "startHealthPoints": 10,
+    "enemySpawns": [
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 1,
+        "spawnPoint": {
+          "x": 0,
+          "y": 1
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 1,
+        "spawnPoint": {
+          "x": 0,
+          "y": 4
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 1,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 1,
+        "spawnPoint": {
+          "x": 0,
+          "y": 1
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 1,
+        "spawnPoint": {
+          "x": 0,
+          "y": 4
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 1,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 2,
+        "spawnPoint": {
+          "x": 0,
+          "y": 1
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 2,
+        "spawnPoint": {
+          "x": 0,
+          "y": 4
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 2,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 2,
+        "spawnPoint": {
+          "x": 0,
+          "y": 1
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 2,
+        "spawnPoint": {
+          "x": 0,
+          "y": 4
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 2,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 3,
+        "spawnPoint": {
+          "x": 0,
+          "y": 1
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 3,
+        "spawnPoint": {
+          "x": 0,
+          "y": 4
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 3,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 3,
+        "spawnPoint": {
+          "x": 0,
+          "y": 1
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 3,
+        "spawnPoint": {
+          "x": 0,
+          "y": 4
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 3,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 4,
+        "spawnPoint": {
+          "x": 0,
+          "y": 1
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 4,
+        "spawnPoint": {
+          "x": 0,
+          "y": 4
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 4,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 4,
+        "spawnPoint": {
+          "x": 0,
+          "y": 1
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 4,
+        "spawnPoint": {
+          "x": 0,
+          "y": 4
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 4,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 5,
+        "spawnPoint": {
+          "x": 0,
+          "y": 1
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 5,
+        "spawnPoint": {
+          "x": 0,
+          "y": 4
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 5,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 5,
+        "spawnPoint": {
+          "x": 0,
+          "y": 1
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 5,
+        "spawnPoint": {
+          "x": 0,
+          "y": 4
+        }
+      },
+      {
+        "attackerType": "GOBLIN",
+        "level": 1,
+        "spawnTurn": 5,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      }
+    ],
+    "availableTowers": [
+      "SPIKE_TOWER",
+      "SPEAR_TOWER",
+      "BOW_TOWER"
+    ],
+    "waypoints": [],
+    "prerequisites": []
+  }
 }
