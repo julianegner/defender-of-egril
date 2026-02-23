@@ -32,21 +32,20 @@ Legend:
 - `S` = SPAWN_POINT
 - `P` = PATH
 - `B` = BUILD_AREA
-- `I` = ISLAND (2×2)
 - `T` = TARGET
 - `.` = NO_PLAY
 
 ### Tutorial Map Pattern (Simplified 15×8)
 
 ```
-   . . . . .I.I. . . . . . . .     Row 0
-    . . . . . .I.I. . . . . . .    Row 1
+   . . . . .B.B. . . . . . . .     Row 0
+    . . . . . .B.B. . . . . . .    Row 1
    . .B.B.B.B.B.B.B.B.B.B.B.B.B.   Row 2
     .P.P.P.P.P.P.P.P.P.P.P.P.P.P.  Row 3
    .S.P.P.P.P.P.P.P.P.P.P.P.P.T.   Row 4
     .P.P.P.P.P.P.P.P.P.P.P.P.P.P.  Row 5
-   . .B.B.B.B.B.B.B.B.I.I.B.B.B.   Row 6
-    . . . . . . . . . .I.I. . . .  Row 7
+   . .B.B.B.B.B.B.B.B.B.B.B.B.B.   Row 6
+    . . . . . . . . . .B.B. . . .  Row 7
 ```
 
 ## Pixel Coordinate System

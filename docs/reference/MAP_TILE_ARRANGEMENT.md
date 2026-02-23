@@ -14,7 +14,7 @@ This document describes the hexagonal tile arrangement system used in Defender o
 
 ## Overview
 
-Defender of Egril uses a **pointy-top hexagonal grid** with an **odd-row offset** layout (also known as "odd-q vertical layout" in the Red Blob Games hexagon guide).
+Defender of Egril uses a **pointy-top hexagonal grid** with an **odd-row offset** layout (also known as "odd-r horizontal layout" in the Red Blob Games hexagon guide).
 
 Key characteristics:
 - Hexagons have points at top and bottom, flat sides on left and right
@@ -168,13 +168,6 @@ Maps use the `TileType` enum with the following values:
 - **Visual**: Usually shown as buildable terrain adjacent to paths
 - **Placement**: Typically placed next to paths for strategic tower positioning
 
-### TileType.ISLAND
-- **Purpose**: Build islands - isolated buildable areas
-- **Gameplay**: Special build areas that can be placed within or separate from the main path
-- **Visual**: Often 2×2 or larger island formations
-- **Placement**: Can be in the middle of paths or standalone areas
-- **Note**: Islands are always buildable regardless of path adjacency
-
 ### TileType.NO_PLAY
 - **Purpose**: Non-playable area (void/blocked)
 - **Gameplay**: Not accessible to enemies or towers
@@ -197,7 +190,7 @@ Maps use the `TileType` enum with the following values:
 
 ### TileType.RIVER
 - **Purpose**: River tiles with flow mechanics
-- **Gameplay**: Movable with bridges (built by certain enemy types like Ork, Evil Wizard, Ewhad)
+- **Gameplay**: Movable with bridges (built by certain enemy types like Ork, Ogre, Evil Wizard, Ewhad)
 - **Visual**: Shown with flowing water and directional indicators
 - **Additional Properties**:
   - `flowDirection`: One of NORTH_EAST, EAST, SOUTH_EAST, SOUTH_WEST, WEST, NORTH_WEST, NONE, MAELSTROM
@@ -456,7 +449,7 @@ When rendering map images:
    - NO_PLAY tiles (background/void)
    - RIVER tiles with flow indicators
    - PATH tiles
-   - BUILD_AREA and ISLAND tiles
+   - BUILD_AREA tiles
    - SPAWN_POINT markers
    - TARGET markers
 

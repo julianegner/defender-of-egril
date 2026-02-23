@@ -62,7 +62,6 @@ function getImageDimensions(mapWidth, mapHeight, padding = 20) {
 |------|---------|----------|-----------|
 | `PATH` | Enemy walking path | ✓ | ✗ |
 | `BUILD_AREA` | Tower build zones | ✗ | ✓ |
-| `ISLAND` | Build islands (2×2) | ✗ | ✓ |
 | `NO_PLAY` | Empty/void/blocked | ✗ | ✗ |
 | `SPAWN_POINT` | Enemy spawn | ✓ | ✗ |
 | `TARGET` | Enemy goal | ✓ | ✗ |
