@@ -50,15 +50,6 @@ fun GameLegend(modifier: Modifier = Modifier, forceExpanded: Boolean = false) {
 
             item {
                 LegendItemHex(
-                            color = GamePlayColors.BuildIsland,
-                            label = "",
-                            description = stringResource(Res.string.build_island),
-                            border = borderColor,
-                            tileType = de.egril.defender.editor.TileType.ISLAND
-                        )
-                    }
-                    item {
-                        LegendItemHex(
                             color = GamePlayColors.BuildStrip,
                             label = "",
                             description = stringResource(Res.string.build_strip),

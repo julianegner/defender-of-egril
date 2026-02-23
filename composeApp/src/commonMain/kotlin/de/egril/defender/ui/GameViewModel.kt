@@ -30,8 +30,8 @@ sealed class Screen {
     object StatsUpgrade : Screen()  // New screen for stats/spells upgrade
     data class GamePlay(val levelId: Int) : Screen()
     data class LevelComplete(
-        val levelId: Int, 
-        val won: Boolean, 
+        val levelId: Int,
+        val won: Boolean,
         val isLastLevel: Boolean,
         val xpEarned: Int = 0
     ) : Screen()
@@ -75,7 +75,7 @@ class GameViewModel {
     
     private val _showCheatHelp = MutableStateFlow(false)
     val showCheatHelp: StateFlow<Boolean> = _showCheatHelp.asStateFlow()
-    
+
     // Player profile state
     private val _currentPlayer = MutableStateFlow<de.egril.defender.save.PlayerProfile?>(null)
     val currentPlayer: StateFlow<de.egril.defender.save.PlayerProfile?> = _currentPlayer.asStateFlow()
@@ -106,20 +106,20 @@ class GameViewModel {
     // Magic panel state
     private val _showMagicPanel = MutableStateFlow(false)
     val showMagicPanel: StateFlow<Boolean> = _showMagicPanel.asStateFlow()
-    
+
     private val _selectedSpell = MutableStateFlow<SpellType?>(null)
     val selectedSpell: StateFlow<SpellType?> = _selectedSpell.asStateFlow()
-    
+
     private val _pendingSpellCast = MutableStateFlow<SpellType?>(null)
     val pendingSpellCast: StateFlow<SpellType?> = _pendingSpellCast.asStateFlow()
-    
+
     // Post-target confirmation dialog state
     private val _showSpellTargetConfirmation = MutableStateFlow<Pair<SpellType, Any>?>(null)
     val showSpellTargetConfirmation: StateFlow<Pair<SpellType, Any>?> = _showSpellTargetConfirmation.asStateFlow()
-    
+
     private val _showFreezeImmuneWarning = MutableStateFlow<Attacker?>(null)
     val showFreezeImmuneWarning: StateFlow<Attacker?> = _showFreezeImmuneWarning.asStateFlow()
-    
+
     // Track game session time
     private var gameSessionStartTime: Long? = null
     private var lastBreakReminderTime: Long? = null
@@ -185,7 +185,7 @@ class GameViewModel {
                 _currentPlayer.value = playerToUse
                 de.egril.defender.save.SaveFileStorage.setCurrentPlayer(playerToUse.id)
                 de.egril.defender.save.PlayerProfileStorage.updateLastPlayed(playerToUse.id)
-                
+
                 // Reload the player profile after updateLastPlayed to ensure we have the latest data
                 val reloadedProfile = de.egril.defender.save.PlayerProfileStorage.getProfile(playerToUse.id)
                 if (reloadedProfile != null) {
@@ -204,7 +204,7 @@ class GameViewModel {
         if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
         println("DEBUG: Total official levels loaded: ${officialLevels.size}")
         }
-        
+
         // Load user levels from user sequence
         val userSequence = de.egril.defender.editor.EditorStorage.getUserLevelSequence()
         val userLevels = userSequence.sequence.mapNotNull { levelId ->
@@ -227,7 +227,7 @@ class GameViewModel {
         if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
         println("DEBUG: Total user levels loaded: ${userLevels.size}")
         }
-        
+
         // Combine official and user levels
         val allLevels = officialLevels + userLevels
         
@@ -239,9 +239,8 @@ class GameViewModel {
         
         _worldLevels.value = allLevels.mapIndexed { index, level ->
             if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-            println("DEBUG: Loaded Level ${level.id} - Name: ${level.name} - Path Cells: ${level.pathCells.size} - Build Islands: ${level.buildIslands.size}")
+                println("DEBUG: Loaded Level ${level.id} - Name: ${level.name} - Path Cells: ${level.pathCells.size}")
             }
-
             // Look up status by editorLevelId if available
             val status = if (level.editorLevelId != null) {
                 // Check saved status first
@@ -320,7 +319,7 @@ class GameViewModel {
     fun navigateToStatsUpgrade() {
         _currentScreen.value = Screen.StatsUpgrade
     }
-    
+
     fun upgradeAbility(statType: de.egril.defender.model.AbilityType) {
         val currentPlayer = _currentPlayer.value ?: return
         val oldStats = currentPlayer.abilities
@@ -328,26 +327,26 @@ class GameViewModel {
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
-        
+
         // Check for achievements
         val playerId = currentPlayer.id
         val tempAchievementManager = de.egril.defender.game.AchievementManager(playerId)
         tempAchievementManager.onAchievementEarned = { achievement ->
             _newAchievement.value = achievement
         }
-        
+
         // First stat upgrade achievement
-        val totalSpentBefore = oldStats.healthAbility + oldStats.treasuryAbility + oldStats.incomeAbility + 
+        val totalSpentBefore = oldStats.healthAbility + oldStats.treasuryAbility + oldStats.incomeAbility +
                                oldStats.constructionAbility + oldStats.manaAbility
         if (totalSpentBefore == 0) {
             tempAchievementManager.onFirstStatUpgrade()
         }
-        
+
         // Construction level 3 achievement
         if (statType == de.egril.defender.model.AbilityType.CONSTRUCTION && updatedStats.constructionAbility >= 3) {
             tempAchievementManager.onConstructionLevel3()
         }
-        
+
         // Player level achievements
         val playerLevel = de.egril.defender.model.PlayerAbilities.calculateLevel(updatedStats.totalXP)
         if (playerLevel >= 10) {
@@ -357,7 +356,7 @@ class GameViewModel {
             tempAchievementManager.onPlayerLevel100()
         }
     }
-    
+
     fun unlockSpell(spell: de.egril.defender.model.SpellType) {
         val currentPlayer = _currentPlayer.value ?: return
         val oldStats = currentPlayer.abilities
@@ -365,26 +364,26 @@ class GameViewModel {
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
-        
+
         // Check for first spell unlock achievement
         val playerId = currentPlayer.id
         val tempAchievementManager = de.egril.defender.game.AchievementManager(playerId)
         tempAchievementManager.onAchievementEarned = { achievement ->
             _newAchievement.value = achievement
         }
-        
+
         if (oldStats.unlockedSpells.isEmpty()) {
             tempAchievementManager.onFirstSpellUnlock()
         }
     }
-    
+
     fun startLevel(levelId: Int) {
         val worldLevel = _worldLevels.value.find { it.level.id == levelId }
         if (worldLevel != null && worldLevel.status != LevelStatus.LOCKED) {
             val difficulty = AppSettings.difficulty.value
             val level = worldLevel.level
             val playerStats = _currentPlayer.value?.abilities ?: PlayerAbilities()
-            
+
             // Apply difficulty modifiers to spawn plan
             val modifiedSpawnPlan = if (level.directSpawnPlan != null) {
                 DifficultyModifiers.applySpawnPlanModifier(level.directSpawnPlan, difficulty)
@@ -397,15 +396,15 @@ class GameViewModel {
             val baseCoins = DifficultyModifiers.applyCoinsModifier(level.initialCoins, difficulty)
             val bonusCoins = playerStats.getBonusStartCoins()
             val totalCoins = baseCoins + bonusCoins
-            
+
             val baseHealth = DifficultyModifiers.applyHealthPointsModifier(level.healthPoints, difficulty)
             val bonusHealth = playerStats.getBonusHealth()
             val totalHealth = baseHealth + bonusHealth
-            
+
             val maxMana = playerStats.getMaxMana()
             val incomeMultiplier = playerStats.getIncomeMultiplier()
             val constructionLevel = playerStats.constructionAbility
-            
+
             // Create GameState with difficulty-modified and stats-bonus values
             val newGameState = GameState(
                 level = level,
@@ -549,26 +548,26 @@ class GameViewModel {
     fun generateMana(wizardId: Int): Boolean {
         val state = _gameState.value ?: return false
         val wizard = state.defenders.find { it.id == wizardId } ?: return false
-        
+
         // Validate: must be wizard tower, must be ready, must have actions, not at max mana
         if (wizard.type != DefenderType.WIZARD_TOWER) return false
         if (!wizard.isReady) return false
         if (wizard.actionsRemaining.value <= 0) return false
         if (state.currentMana.value >= state.maxMana.value) return false
-        
+
         // Calculate mana amount: base 5 + (level / 5)
         val manaAmount = 5 + (wizard.level.value / 5)
-        
+
         // Add mana (capped at max)
         val newMana = minOf(state.currentMana.value + manaAmount, state.maxMana.value)
         state.currentMana.value = newMana
-        
+
         // Consume action
         wizard.actionsRemaining.value -= 1
-        
+
         return true
     }
-    
+
     fun startFirstPlayerTurn() {
         if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("DEBUG: startFirstPlayerTurn called")
@@ -580,7 +579,7 @@ class GameViewModel {
         if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("DEBUG: Attackers before: ${stateBefore?.attackers?.size}")
         }
-        
+
         gameEngine?.startFirstPlayerTurn()
         
         // Track turn start for achievements
@@ -664,7 +663,7 @@ class GameViewModel {
     fun performWizardGenerateMana(wizardId: Int): Boolean {
         return gameEngine?.performWizardGenerateMana(wizardId) ?: false
     }
-    
+
     fun performBuildBarricade(towerId: Int, barricadePosition: Position): Boolean {
         val result = gameEngine?.performBuildBarricade(towerId, barricadePosition) ?: false
         if (result) {
@@ -797,11 +796,11 @@ class GameViewModel {
     private fun completeLevel(levelId: Int, won: Boolean) {
         val currentHP = _gameState.value?.healthPoints?.value ?: 0
         val xpEarned = _gameState.value?.xpEarnedThisLevel?.value ?: 0
-        
+
         // Track achievement for level completion
         if (won) {
             achievementManager?.onWinLevel(currentHP)
-            
+
             // Award XP to player profile
             val currentPlayer = _currentPlayer.value
             if (currentPlayer != null) {
@@ -915,7 +914,7 @@ class GameViewModel {
     fun clearCheatHelp() {
         _showCheatHelp.value = false
     }
-    
+
     // Player stat/XP/spell cheat methods
     private fun addPlayerXP(amount: Int) {
         val currentPlayer = _currentPlayer.value ?: return
@@ -924,7 +923,7 @@ class GameViewModel {
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
     }
-    
+
     private fun removePlayerXP(amount: Int) {
         val currentPlayer = _currentPlayer.value ?: return
         val currentXP = currentPlayer.abilities.totalXP
@@ -934,11 +933,11 @@ class GameViewModel {
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
     }
-    
+
     private fun addPlayerStat(statName: String, amount: Int) {
         val currentPlayer = _currentPlayer.value ?: return
         val oldStats = currentPlayer.abilities
-        
+
         val updatedStats = when (statName.lowercase()) {
             "health" -> oldStats.copy(healthAbility = oldStats.healthAbility + amount)
             "treasury" -> oldStats.copy(treasuryAbility = oldStats.treasuryAbility + amount)
@@ -947,16 +946,16 @@ class GameViewModel {
             "mana" -> oldStats.copy(manaAbility = oldStats.manaAbility + amount)
             else -> return  // Invalid stat name
         }
-        
+
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
     }
-    
+
     private fun removePlayerStat(statName: String, amount: Int) {
         val currentPlayer = _currentPlayer.value ?: return
         val oldStats = currentPlayer.abilities
-        
+
         val updatedStats = when (statName.lowercase()) {
             "health" -> oldStats.copy(healthAbility = maxOf(0, oldStats.healthAbility - amount))
             "treasury" -> oldStats.copy(treasuryAbility = maxOf(0, oldStats.treasuryAbility - amount))
@@ -965,16 +964,16 @@ class GameViewModel {
             "mana" -> oldStats.copy(manaAbility = maxOf(0, oldStats.manaAbility - amount))
             else -> return  // Invalid stat name
         }
-        
+
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
     }
-    
+
     private fun unlockPlayerSpell(spellName: String) {
         val currentPlayer = _currentPlayer.value ?: return
         val oldStats = currentPlayer.abilities
-        
+
         // Parse spell name to SpellType
         val spell = when (spellName.lowercase().replace(" ", "_")) {
             "attack_aimed", "attackaimed" -> de.egril.defender.model.SpellType.ATTACK_AIMED
@@ -988,17 +987,17 @@ class GameViewModel {
             "double_reach", "doublereach", "double_tower_reach", "doubletowerreach" -> de.egril.defender.model.SpellType.DOUBLE_TOWER_REACH
             else -> return  // Invalid spell name
         }
-        
+
         val updatedStats = oldStats.copy(unlockedSpells = oldStats.unlockedSpells + spell)
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
     }
-    
+
     private fun lockPlayerSpell(spellName: String) {
         val currentPlayer = _currentPlayer.value ?: return
         val oldStats = currentPlayer.abilities
-        
+
         // Parse spell name to SpellType
         val spell = when (spellName.lowercase().replace(" ", "_")) {
             "attack_aimed", "attackaimed" -> de.egril.defender.model.SpellType.ATTACK_AIMED
@@ -1012,13 +1011,13 @@ class GameViewModel {
             "double_reach", "doublereach", "double_tower_reach", "doubletowerreach" -> de.egril.defender.model.SpellType.DOUBLE_TOWER_REACH
             else -> return  // Invalid spell name
         }
-        
+
         val updatedStats = oldStats.copy(unlockedSpells = oldStats.unlockedSpells - spell)
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
     }
-    
+
     fun applyWorldMapCheatCode(code: String): Boolean {
         // Check for "sticker" cheat code first (navigation cheat)
         if (code.lowercase().trim() == "sticker") {
@@ -1162,7 +1161,7 @@ class GameViewModel {
                 if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                 println("Level sequence may have changed. Attempting to find level with matching map ID...")
                 }
-                
+
                 // Try to find any level that uses the same map as the saved game
                 val levelWithCorrectMap = _worldLevels.value
                     .map { it.level }
@@ -1575,7 +1574,7 @@ class GameViewModel {
     private fun getLocalHour(timestamp: Long): Int {
         return de.egril.defender.utils.getLocalHour(timestamp)
     }
-    
+
     /**
      * Toggle magic panel display
      */
@@ -1585,7 +1584,7 @@ class GameViewModel {
             println("=== SPELL: Magic panel toggled - now ${if (_showMagicPanel.value) "OPEN" else "CLOSED"}")
         }
     }
-    
+
     /**
      * Open magic panel
      */
@@ -1599,7 +1598,7 @@ class GameViewModel {
             println("=== SPELL: Player has $unlockedSpells unlocked spell(s)")
         }
     }
-    
+
     /**
      * Close magic panel
      */
@@ -1610,7 +1609,7 @@ class GameViewModel {
             println("=== SPELL: Magic panel CLOSED")
         }
     }
-    
+
     /**
      * Toggle spell selection (select or deselect)
      * No confirmation dialog - enters targeting mode directly
@@ -1649,7 +1648,7 @@ class GameViewModel {
             }
         }
     }
-    
+
     /**
      * Cancel pending spell cast
      */
@@ -1663,14 +1662,14 @@ class GameViewModel {
         _pendingSpellCast.value = null
         _selectedSpell.value = null
     }
-    
+
     /**
      * Handle target selection for spell (called when player clicks a target)
      * Shows confirmation or warning dialog based on target validity
      */
     fun onSpellTargetSelected(target: Any) {
         val spell = _pendingSpellCast.value ?: return
-        
+
         // Check for freeze immunity
         if (spell == SpellType.FREEZE_SPELL && target is Attacker) {
             if (isImmuneToFreeze(target.type)) {
@@ -1681,14 +1680,14 @@ class GameViewModel {
                 return
             }
         }
-        
+
         // Show confirmation dialog with target details
         _showSpellTargetConfirmation.value = Pair(spell, target)
         if (LogConfig.ENABLE_SPELL_LOGGING) {
             println("=== SPELL: Target selected for ${spell.displayName}")
         }
     }
-    
+
     /**
      * Confirm spell cast after target selection
      */
@@ -1701,7 +1700,7 @@ class GameViewModel {
             _selectedSpell.value = null
         }
     }
-    
+
     /**
      * Dismiss spell target confirmation dialog
      */
@@ -1709,7 +1708,7 @@ class GameViewModel {
         _showSpellTargetConfirmation.value = null
         // Keep spell selected and targeting mode active
     }
-    
+
     /**
      * Dismiss freeze immune warning
      */
@@ -1717,7 +1716,7 @@ class GameViewModel {
         _showFreezeImmuneWarning.value = null
         // Keep spell selected and targeting mode active
     }
-    
+
     /**
      * Check if an enemy type is immune to freeze spell
      */
@@ -1727,7 +1726,7 @@ class GameViewModel {
                type == AttackerType.DRAGON ||
                type == AttackerType.EWHAD
     }
-    
+
     /**
      * Cast a spell (called after targeting is complete)
      * For non-targeting spells, this is called immediately after confirmation
@@ -1735,12 +1734,12 @@ class GameViewModel {
     fun castSpell(spell: SpellType, target: Any? = null) {
         val gameState = _gameState.value ?: return
         val currentPlayer = _currentPlayer.value ?: return
-        
+
         if (LogConfig.ENABLE_SPELL_LOGGING) {
             println("=== SPELL: Cast spell called - ${spell.displayName}")
             println("=== SPELL: Current mana: ${gameState.currentMana.value}/${gameState.maxMana.value}")
         }
-        
+
         // Validate mana cost
         if (gameState.currentMana.value < spell.manaCost) {
             if (LogConfig.ENABLE_SPELL_LOGGING) {
@@ -1748,7 +1747,7 @@ class GameViewModel {
             }
             return
         }
-        
+
         // Validate spell is unlocked
         if (!currentPlayer.abilities.unlockedSpells.contains(spell)) {
             if (LogConfig.ENABLE_SPELL_LOGGING) {
@@ -1756,7 +1755,7 @@ class GameViewModel {
             }
             return
         }
-        
+
         // If spell requires targeting and no target provided, enter targeting mode
         if (spell.requiresTarget && target == null) {
             if (LogConfig.ENABLE_SPELL_LOGGING) {
@@ -1765,29 +1764,29 @@ class GameViewModel {
             enterSpellTargetingMode(spell)
             return
         }
-        
+
         // Deduct mana cost
         val previousMana = gameState.currentMana.value
         gameState.currentMana.value -= spell.manaCost
         if (LogConfig.ENABLE_SPELL_LOGGING) {
             println("=== SPELL: Mana deducted - ${previousMana} -> ${gameState.currentMana.value}")
         }
-        
+
         // Execute spell effect
         executeSpellEffect(spell, target, gameState)
-        
+
         // Clear pending spell and targeting state
         _pendingSpellCast.value = null
         exitSpellTargetingMode()
-        
+
         // Close magic panel after casting
         closeMagicPanel()
-        
+
         if (LogConfig.ENABLE_SPELL_LOGGING) {
             println("=== SPELL: Spell cast COMPLETE - ${spell.displayName}")
         }
     }
-    
+
     /**
      * Execute the effect of a cast spell
      */
@@ -1893,11 +1892,11 @@ class GameViewModel {
                 val attacker = target as? Attacker
                 if (attacker != null) {
                     // Check immunity: Does not work on Demons, Dragons, Ewhad
-                    val isImmune = attacker.type.isDragon || 
+                    val isImmune = attacker.type.isDragon ||
                                    attacker.type == AttackerType.BLUE_DEMON ||
                                    attacker.type == AttackerType.RED_DEMON ||
                                    attacker.type == AttackerType.EWHAD
-                    
+
                     if (isImmune) {
                         println("Freeze Spell: ${attacker.type.displayName} is immune to freeze!")
                     } else {
@@ -1940,13 +1939,13 @@ class GameViewModel {
             }
         }
     }
-    
+
     /**
      * Enter spell targeting mode
      */
     fun enterSpellTargetingMode(spell: SpellType) {
         val gameState = _gameState.value ?: return
-        
+
         // Calculate valid targets based on spell type
         val validTargets: Set<Any> = when (spell.targetType) {
             SpellTargetType.POSITION -> {
@@ -1969,17 +1968,17 @@ class GameViewModel {
             }
             SpellTargetType.NONE -> emptySet()
         }
-        
+
         // Set targeting state
         gameState.spellTargeting.value = SpellTargetingState(
             activeSpell = spell,
             validTargets = validTargets
         )
-        
+
         // Clear pending spell cast (we're now in targeting mode)
         _pendingSpellCast.value = null
     }
-    
+
     /**
      * Exit spell targeting mode (cancel)
      */
@@ -1987,20 +1986,20 @@ class GameViewModel {
         val gameState = _gameState.value ?: return
         gameState.spellTargeting.value = null
     }
-    
+
     /**
      * Select a target and cast the spell
      */
     fun selectSpellTarget(target: Any) {
         val gameState = _gameState.value ?: return
         val targeting = gameState.spellTargeting.value ?: return
-        
+
         // Validate target is in valid targets set
         if (!targeting.validTargets.contains(target)) {
             println("Invalid target for spell")
             return
         }
-        
+
         // Show confirmation dialog with target details (or warning for immune enemies)
         onSpellTargetSelected(target)
     }

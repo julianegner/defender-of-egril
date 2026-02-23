@@ -118,7 +118,7 @@ class TowerFirstUseInfoTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(9, 3)),
             pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = setOf(
+            buildAreas = setOf(
                 Position(0, 1),
                 Position(1, 1),
                 Position(2, 1),

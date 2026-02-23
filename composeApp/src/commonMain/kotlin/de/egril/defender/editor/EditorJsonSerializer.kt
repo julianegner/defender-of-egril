@@ -13,6 +13,14 @@ import de.egril.defender.config.LogConfig
  */
 object EditorJsonSerializer {
     
+    private const val PROGRAM_NAME = "Defender of Egril"
+
+    /**
+     * Extracts the "data" section from a file with metadata wrapper.
+     * If the JSON has no metadata wrapper (old format), returns the JSON as-is for backward compatibility.
+     */
+    internal fun extractDataSection(json: String): String = de.egril.defender.utils.JsonUtils.extractDataSection(json)
+
     fun serializeMap(map: EditorMap): String {
         val tilesJson = map.tiles.entries.joinToString(",\n    ") { (pos, type) ->
             "\"$pos\": \"${type.name}\""
@@ -33,7 +41,7 @@ object EditorJsonSerializer {
             ",\n  \"riverTiles\": {\n    $riverData\n  }"
         } else ""
         
-        return """{
+        val data = """{
   "id": "${map.id}",
   "name": "${map.name}"$nameKeyJson,
   "width": ${map.width},
@@ -44,33 +52,41 @@ object EditorJsonSerializer {
     $tilesJson
   }$riverTilesJson
 }"""
+        return """{
+  "metadata": {
+    "program": "$PROGRAM_NAME",
+    "type": "map"
+  },
+  "data": $data
+}"""
     }
     
     fun deserializeMap(json: String): EditorMap? {
+        val dataJson = extractDataSection(json)
         try {
-            val id = JsonUtils.extractValue(json, "id")
-            val name = JsonUtils.extractValue(json, "name")
+            val id = JsonUtils.extractValue(dataJson, "id")
+            val name = JsonUtils.extractValue(dataJson, "name")
             val nameKey = try {
-                JsonUtils.extractValue(json, "nameKey").takeIf { it.isNotEmpty() }
+                JsonUtils.extractValue(dataJson, "nameKey").takeIf { it.isNotEmpty() }
             } catch (e: Exception) {
                 null  // Optional field - null if not present
             }
-            val width = JsonUtils.extractValue(json, "width").toInt()
-            val height = JsonUtils.extractValue(json, "height").toInt()
+            val width = JsonUtils.extractValue(dataJson, "width").toInt()
+            val height = JsonUtils.extractValue(dataJson, "height").toInt()
             val readyToUse = try {
-                JsonUtils.extractBooleanValue(json, "readyToUse")
+                JsonUtils.extractBooleanValue(dataJson, "readyToUse")
             } catch (e: Exception) {
                 false  // Default to false for backward compatibility
             }
             val isOfficial = try {
-                JsonUtils.extractBooleanValue(json, "isOfficial")
+                JsonUtils.extractBooleanValue(dataJson, "isOfficial")
             } catch (e: Exception) {
                 false  // Default to false for backward compatibility
             }
             
             // Parse optional world map position
             val worldMapPosition = try {
-                val positionSection = json.substringAfter("\"worldMapPosition\":", "")
+                val positionSection = dataJson.substringAfter("\"worldMapPosition\":", "")
                 if (positionSection.isNotEmpty()) {
                     val posObj = positionSection.substringAfter("{").substringBefore("}")
                     val x = JsonUtils.extractNumericValue("{$posObj}", "x").toIntOrNull()
@@ -82,7 +98,7 @@ object EditorJsonSerializer {
             }
             
             val tiles = mutableMapOf<String, TileType>()
-            val tilesSection = json.substringAfter("\"tiles\": {")
+            val tilesSection = dataJson.substringAfter("\"tiles\": {")
                 .substringBefore("}")
                 .replace("\",","\";")
             val tileEntries = tilesSection.split(";").map { it.trim() }
@@ -94,24 +110,25 @@ object EditorJsonSerializer {
 
                 val pos = parts[0].trim().removeSurrounding("\"")
                 val typeStr = parts[1].trim().removeSurrounding("\"")
-                tiles[pos] = TileType.valueOf(typeStr)
+                // Backward compatibility: ISLAND tiles are treated as BUILD_AREA
+                tiles[pos] = if (typeStr == "ISLAND") TileType.BUILD_AREA else TileType.valueOf(typeStr)
             }
             
             // Parse optional river tiles
             val riverTiles = mutableMapOf<String, de.egril.defender.model.RiverTile>()
             try {
-                if (json.contains("\"riverTiles\"")) {
+                if (dataJson.contains("\"riverTiles\"")) {
                     // Find the riverTiles section by counting braces to find the matching closing brace
                     val startMarker = "\"riverTiles\": {"
-                    val startIdx = json.indexOf(startMarker)
+                    val startIdx = dataJson.indexOf(startMarker)
                     if (startIdx != -1) {
                         val contentStart = startIdx + startMarker.length
                         var braceCount = 1
                         var endIdx = contentStart
                         
                         // Find matching closing brace
-                        while (endIdx < json.length && braceCount > 0) {
-                            when (json[endIdx]) {
+                        while (endIdx < dataJson.length && braceCount > 0) {
+                            when (dataJson[endIdx]) {
                                 '{' -> braceCount++
                                 '}' -> braceCount--
                             }
@@ -119,7 +136,7 @@ object EditorJsonSerializer {
                         }
                         
                         if (braceCount == 0) {
-                            val riverSection = json.substring(contentStart, endIdx - 1)
+                            val riverSection = dataJson.substring(contentStart, endIdx - 1)
                             val riverEntries = riverSection.split("},").map { it.trim() }
                             
                             for (entry in riverEntries) {
@@ -272,7 +289,7 @@ object EditorJsonSerializer {
             ",\n  \"initialData\": {\n    $allParts\n  }"
         } else ""
         
-        return """{
+        val data = """{
   "id": "${level.id}",
   "mapId": "${level.mapId}",
   "title": "${level.title}"$titleKeyJson,
@@ -288,30 +305,38 @@ object EditorJsonSerializer {
   ],
   "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$isOfficialJson$initialDataJson
 }"""
+        return """{
+  "metadata": {
+    "program": "$PROGRAM_NAME",
+    "type": "level"
+  },
+  "data": $data
+}"""
     }
     
     fun deserializeLevel(json: String): EditorLevel? {
+        val dataJson = extractDataSection(json)
         try {
-            val id = JsonUtils.extractValue(json, "id")
-            val mapId = JsonUtils.extractValue(json, "mapId")
-            val title = JsonUtils.extractValue(json, "title")
+            val id = JsonUtils.extractValue(dataJson, "id")
+            val mapId = JsonUtils.extractValue(dataJson, "mapId")
+            val title = JsonUtils.extractValue(dataJson, "title")
             val titleKey = try {
-                JsonUtils.extractValue(json, "titleKey").takeIf { it.isNotEmpty() }
+                JsonUtils.extractValue(dataJson, "titleKey").takeIf { it.isNotEmpty() }
             } catch (e: Exception) {
                 null  // Optional field - null if not present
             }
-            val subtitle = JsonUtils.extractValue(json, "subtitle")
+            val subtitle = JsonUtils.extractValue(dataJson, "subtitle")
             val subtitleKey = try {
-                JsonUtils.extractValue(json, "subtitleKey").takeIf { it.isNotEmpty() }
+                JsonUtils.extractValue(dataJson, "subtitleKey").takeIf { it.isNotEmpty() }
             } catch (e: Exception) {
                 null  // Optional field - null if not present
             }
-            val startCoins = JsonUtils.extractValue(json, "startCoins").toInt()
-            val startHealthPoints = JsonUtils.extractValue(json, "startHealthPoints").toInt()
+            val startCoins = JsonUtils.extractValue(dataJson, "startCoins").toInt()
+            val startHealthPoints = JsonUtils.extractValue(dataJson, "startHealthPoints").toInt()
             
             // Parse enemy spawns
             val spawns = mutableListOf<EditorEnemySpawn>()
-            val spawnsSection = json.substringAfter("\"enemySpawns\": [").substringBefore("],")
+            val spawnsSection = dataJson.substringAfter("\"enemySpawns\": [").substringBefore("],")
             val spawnEntries = spawnsSection.split("},").map { it.trim() + "}" }
             
             for (entry in spawnEntries) {
@@ -339,7 +364,7 @@ object EditorJsonSerializer {
             
             // Parse available towers
             val towers = mutableSetOf<DefenderType>()
-            val towersSection = json.substringAfter("\"availableTowers\": [").substringBefore("]")
+            val towersSection = dataJson.substringAfter("\"availableTowers\": [").substringBefore("]")
             val towerEntries = towersSection.split(",").map { it.trim().removeSurrounding("\"") }
             
             for (entry in towerEntries) {
@@ -350,25 +375,25 @@ object EditorJsonSerializer {
             
             // Parse waypoints (optional for backward compatibility)
             val waypoints = mutableListOf<EditorWaypoint>()
-            if (json.contains("\"waypoints\"")) {
+            if (dataJson.contains("\"waypoints\"")) {
                 try {
                     // Find the waypoints array section
-                    val waypointsStart = json.indexOf("\"waypoints\": [")
+                    val waypointsStart = dataJson.indexOf("\"waypoints\": [")
                     if (waypointsStart >= 0) {
-                        val arrayStart = json.indexOf("[", waypointsStart)
+                        val arrayStart = dataJson.indexOf("[", waypointsStart)
                         var arrayEnd = arrayStart + 1
                         var depth = 1
                         
                         // Find matching closing bracket
-                        while (depth > 0 && arrayEnd < json.length) {
-                            when (json[arrayEnd]) {
+                        while (depth > 0 && arrayEnd < dataJson.length) {
+                            when (dataJson[arrayEnd]) {
                                 '[' -> depth++
                                 ']' -> depth--
                             }
                             arrayEnd++
                         }
                         
-                        val waypointsSection = json.substring(arrayStart + 1, arrayEnd - 1).trim()
+                        val waypointsSection = dataJson.substring(arrayStart + 1, arrayEnd - 1).trim()
                         
                         if (waypointsSection.isNotEmpty()) {
                             // Split by "}," but need to be careful about nested braces
@@ -427,9 +452,9 @@ object EditorJsonSerializer {
             
             // Parse prerequisites (optional for backward compatibility)
             val prerequisites = mutableSetOf<String>()
-            if (json.contains("\"prerequisites\"")) {
+            if (dataJson.contains("\"prerequisites\"")) {
                 try {
-                    val prerequisitesSection = json.substringAfter("\"prerequisites\": [").substringBefore("]")
+                    val prerequisitesSection = dataJson.substringAfter("\"prerequisites\": [").substringBefore("]")
                     if (prerequisitesSection.isNotBlank()) {
                         val prereqEntries = prerequisitesSection.split(",").map { it.trim().removeSurrounding("\"") }
                         for (entry in prereqEntries) {
@@ -447,9 +472,9 @@ object EditorJsonSerializer {
             }
             
             // Parse requiredPrerequisiteCount (optional)
-            val requiredPrerequisiteCount: Int? = if (json.contains("\"requiredPrerequisiteCount\"")) {
+            val requiredPrerequisiteCount: Int? = if (dataJson.contains("\"requiredPrerequisiteCount\"")) {
                 try {
-                    JsonUtils.extractValue(json, "requiredPrerequisiteCount").toInt()
+                    JsonUtils.extractValue(dataJson, "requiredPrerequisiteCount").toInt()
                 } catch (e: Exception) {
                     null
                 }
@@ -458,9 +483,9 @@ object EditorJsonSerializer {
             }
             
             // Parse testingOnly (optional, defaults to false)
-            val testingOnly = if (json.contains("\"testingOnly\"")) {
+            val testingOnly = if (dataJson.contains("\"testingOnly\"")) {
                 try {
-                    JsonUtils.extractValue(json, "testingOnly").toBoolean()
+                    JsonUtils.extractValue(dataJson, "testingOnly").toBoolean()
                 } catch (e: Exception) {
                     false
                 }
@@ -469,9 +494,9 @@ object EditorJsonSerializer {
             }
             
             // Parse allowAutoAttack (optional, defaults to false)
-            val allowAutoAttack = if (json.contains("\"allowAutoAttack\"")) {
+            val allowAutoAttack = if (dataJson.contains("\"allowAutoAttack\"")) {
                 try {
-                    JsonUtils.extractValue(json, "allowAutoAttack").toBoolean()
+                    JsonUtils.extractValue(dataJson, "allowAutoAttack").toBoolean()
                 } catch (e: Exception) {
                     false
                 }
@@ -481,7 +506,7 @@ object EditorJsonSerializer {
             
             // Parse isOfficial (optional, defaults to false)
             val isOfficial = try {
-                JsonUtils.extractBooleanValue(json, "isOfficial")
+                JsonUtils.extractBooleanValue(dataJson, "isOfficial")
             } catch (e: Exception) {
                 false  // Default to false for backward compatibility
             }
@@ -503,11 +528,7 @@ object EditorJsonSerializer {
                 }
                 if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                 println("Comeplete JSON Data")
-                }
-                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                println(json)
-                }
-                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                println(dataJson)
                 println("")
                 }
                 if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
@@ -518,7 +539,7 @@ object EditorJsonSerializer {
                 }
 
 
-                if (json.contains("\"initialData\"")) {
+                if (dataJson.contains("\"initialData\"")) {
                     println("EditorJsonSerializer: initialData found in JSON")
                 } else {
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
@@ -532,13 +553,13 @@ object EditorJsonSerializer {
             }
 
             // Try new nested format first
-            if (json.contains("\"initialData\"")) {
+            if (dataJson.contains("\"initialData\"")) {
                 try {
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("EditorJsonSerializer: Found initialData in JSON")
                     }
                     // Extract initialData section - find opening brace after "initialData":
-                    val afterKey = json.substringAfter("\"initialData\"")
+                    val afterKey = dataJson.substringAfter("\"initialData\"")
                     
                     // Find the first { after the key (skipping the colon and any whitespace)
                     val openBraceIndex = afterKey.indexOf('{')
@@ -583,7 +604,7 @@ object EditorJsonSerializer {
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("EditorJsonSerializer: initialDataSection = ${initialDataSection}")
                     }
-                    
+
                     // Parse defenders from new format
                     if (initialDataSection.contains("\"defenders\"")) {
                         println("EditorJsonSerializer: Found defenders in initialDataSection")
@@ -771,10 +792,10 @@ object EditorJsonSerializer {
                 initialTraps.isEmpty() && initialBarricades.isEmpty()) {
                 
                 // Parse initial defenders (legacy flat format)
-                if (json.contains("\"initialDefenders\"")) {
+                if (dataJson.contains("\"initialDefenders\"")) {
                 try {
                     // Extract array - handle both `],` and `]` at end
-                    val afterKey = json.substringAfter("\"initialDefenders\": [")
+                    val afterKey = dataJson.substringAfter("\"initialDefenders\": [")
                     val defendersSection = if (afterKey.contains("],")) {
                         afterKey.substringBefore("],")
                     } else {
@@ -811,10 +832,10 @@ object EditorJsonSerializer {
             }
             
                 // Parse initial attackers (legacy flat format)
-                if (json.contains("\"initialAttackers\"")) {
+                if (dataJson.contains("\"initialAttackers\"")) {
                 try {
                     // Extract array - handle both `],` and `]` at end
-                    val afterKey = json.substringAfter("\"initialAttackers\": [")
+                    val afterKey = dataJson.substringAfter("\"initialAttackers\": [")
                     val attackersSection = if (afterKey.contains("],")) {
                         afterKey.substringBefore("],")
                     } else {
@@ -851,10 +872,10 @@ object EditorJsonSerializer {
             }
             
                 // Parse initial traps (legacy flat format)
-                if (json.contains("\"initialTraps\"")) {
+                if (dataJson.contains("\"initialTraps\"")) {
                 try {
                     // Extract array - handle both `],` and `]` at end
-                    val afterKey = json.substringAfter("\"initialTraps\": [")
+                    val afterKey = dataJson.substringAfter("\"initialTraps\": [")
                     val trapsSection = if (afterKey.contains("],")) {
                         afterKey.substringBefore("],")
                     } else {
@@ -885,10 +906,10 @@ object EditorJsonSerializer {
             }
             
                 // Parse initial barricades (legacy flat format)
-                if (json.contains("\"initialBarricades\"")) {
+                if (dataJson.contains("\"initialBarricades\"")) {
                 try {
                     // Extract array - handle both `],` and `]` at end
-                    val afterKey = json.substringAfter("\"initialBarricades\": [")
+                    val afterKey = dataJson.substringAfter("\"initialBarricades\": [")
                     val barricadesSection = if (afterKey.contains("],")) {
                         afterKey.substringBefore("],")
                     } else {
@@ -917,7 +938,7 @@ object EditorJsonSerializer {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("EditorJsonSerializer.deserializeLevel: Parsed level $id with ${initialDefenders.size} defenders, ${initialAttackers.size} attackers, ${initialTraps.size} traps, ${initialBarricades.size} barricades")
             }
-            
+
             // Create InitialData object from parsed data
             val initialData = if (initialDefenders.isNotEmpty() || initialAttackers.isNotEmpty() || 
                                    initialTraps.isNotEmpty() || initialBarricades.isNotEmpty()) {
@@ -944,13 +965,20 @@ object EditorJsonSerializer {
     fun serializeSequence(sequence: LevelSequence): String {
         val idsJson = sequence.sequence.joinToString(", ") { "\"$it\"" }
         return """{
-  "sequence": [$idsJson]
+  "metadata": {
+    "program": "$PROGRAM_NAME",
+    "type": "sequence"
+  },
+  "data": {
+    "sequence": [$idsJson]
+  }
 }"""
     }
     
     fun deserializeSequence(json: String): LevelSequence? {
+        val dataJson = extractDataSection(json)
         try {
-            val sequenceSection = json.substringAfter("\"sequence\": [").substringBefore("]")
+            val sequenceSection = dataJson.substringAfter("\"sequence\": [").substringBefore("]")
             if (sequenceSection.isBlank()) {
                 return LevelSequence(emptyList())
             }
@@ -1008,7 +1036,7 @@ object EditorJsonSerializer {
     }"""
         }
         
-        return """{
+        val data = """{
   "locations": [
     $locationsJson
   ],
@@ -1016,16 +1044,24 @@ object EditorJsonSerializer {
     $pathsJson
   ]
 }"""
+        return """{
+  "metadata": {
+    "program": "$PROGRAM_NAME",
+    "type": "worldmap"
+  },
+  "data": $data
+}"""
     }
     
     fun deserializeWorldMapData(json: String): WorldMapData? {
+        val dataJson = extractDataSection(json)
         try {
             val locations = mutableListOf<WorldMapLocationData>()
             val paths = mutableListOf<WorldMapPathData>()
             
             // Parse locations
-            if (json.contains("\"locations\"")) {
-                val locationsSection = extractJsonArray(json, "locations")
+            if (dataJson.contains("\"locations\"")) {
+                val locationsSection = extractJsonArray(dataJson, "locations")
                 val locationEntries = splitJsonArrayObjects(locationsSection)
                 
                 for (entry in locationEntries) {
@@ -1069,8 +1105,8 @@ object EditorJsonSerializer {
             }
             
             // Parse paths
-            if (json.contains("\"paths\"")) {
-                val pathsSection = extractJsonArray(json, "paths")
+            if (dataJson.contains("\"paths\"")) {
+                val pathsSection = extractJsonArray(dataJson, "paths")
                 val pathEntries = splitJsonArrayObjects(pathsSection)
                 
                 for (entry in pathEntries) {

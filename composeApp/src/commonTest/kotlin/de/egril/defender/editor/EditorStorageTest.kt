@@ -13,7 +13,6 @@ import androidx.compose.runtime.mutableStateOf
 import kotlin.test.assertNotNull
 import androidx.compose.runtime.mutableStateOf
 import kotlin.test.assertTrue
-import androidx.compose.runtime.mutableStateOf
 
 /**
  * Tests for EditorStorage - limited to testing data structures
@@ -28,7 +27,7 @@ class EditorStorageTest {
             "0,0" to TileType.SPAWN_POINT,
             "10,5" to TileType.TARGET,
             "1,0" to TileType.PATH,
-            "5,5" to TileType.ISLAND
+            "5,5" to TileType.BUILD_AREA
         )
         
         val map = EditorMap(
@@ -370,6 +369,268 @@ class EditorStorageTest {
         // requiredPrerequisiteCount of 0
         val level0 = level.copy(requiredPrerequisiteCount = 0)
         assertEquals(0, level0.getEffectiveRequiredCount())
+    }
+
+    // ==================== Metadata wrapper tests ====================
+
+    @Test
+    fun testMapMetadataRoundTrip() {
+        val map = EditorMap(
+            id = "test_map_roundtrip",
+            name = "Round Trip Map",
+            width = 20,
+            height = 15,
+            tiles = mapOf(
+                "0,0" to TileType.SPAWN_POINT,
+                "5,5" to TileType.BUILD_AREA,
+                "10,10" to TileType.TARGET
+            )
+        )
+
+        val json = EditorJsonSerializer.serializeMap(map)
+
+        // Verify metadata fields are present
+        assertTrue(json.contains("\"metadata\""))
+        assertTrue(json.contains("\"program\": \"Defender of Egril\""))
+        assertTrue(json.contains("\"type\": \"map\""))
+        assertTrue(json.contains("\"data\""))
+
+        // Verify round-trip
+        val deserialized = EditorJsonSerializer.deserializeMap(json)
+        assertNotNull(deserialized)
+        assertEquals(map.id, deserialized.id)
+        assertEquals(map.name, deserialized.name)
+        assertEquals(map.width, deserialized.width)
+        assertEquals(map.height, deserialized.height)
+        assertEquals(TileType.SPAWN_POINT, deserialized.getTileType(0, 0))
+        assertEquals(TileType.BUILD_AREA, deserialized.getTileType(5, 5))
+        assertEquals(TileType.TARGET, deserialized.getTileType(10, 10))
+    }
+
+    @Test
+    fun testLevelMetadataRoundTrip() {
+        val level = EditorLevel(
+            id = "test_level_roundtrip",
+            mapId = "some_map",
+            title = "Round Trip Level",
+            subtitle = "A test level",
+            startCoins = 200,
+            startHealthPoints = 20,
+            enemySpawns = listOf(
+                EditorEnemySpawn(AttackerType.GOBLIN, 1, 1),
+                EditorEnemySpawn(AttackerType.ORK, 2, 3)
+            ),
+            availableTowers = setOf(DefenderType.SPIKE_TOWER, DefenderType.BOW_TOWER),
+            prerequisites = setOf("level_a"),
+            requiredPrerequisiteCount = 1
+        )
+
+        val json = EditorJsonSerializer.serializeLevel(level)
+
+        // Verify metadata fields are present
+        assertTrue(json.contains("\"metadata\""))
+        assertTrue(json.contains("\"program\": \"Defender of Egril\""))
+        assertTrue(json.contains("\"type\": \"level\""))
+        assertTrue(json.contains("\"data\""))
+
+        // Verify round-trip
+        val deserialized = EditorJsonSerializer.deserializeLevel(json)
+        assertNotNull(deserialized)
+        assertEquals(level.id, deserialized.id)
+        assertEquals(level.mapId, deserialized.mapId)
+        assertEquals(level.title, deserialized.title)
+        assertEquals(level.subtitle, deserialized.subtitle)
+        assertEquals(level.startCoins, deserialized.startCoins)
+        assertEquals(level.startHealthPoints, deserialized.startHealthPoints)
+        assertEquals(2, deserialized.enemySpawns.size)
+        assertEquals(2, deserialized.availableTowers.size)
+        assertTrue(deserialized.availableTowers.contains(DefenderType.SPIKE_TOWER))
+        assertTrue(deserialized.availableTowers.contains(DefenderType.BOW_TOWER))
+        assertEquals(1, deserialized.prerequisites.size)
+        assertEquals(1, deserialized.requiredPrerequisiteCount)
+    }
+
+    @Test
+    fun testSequenceMetadataRoundTrip() {
+        val sequence = LevelSequence(listOf("level_one", "level_two", "level_three"))
+
+        val json = EditorJsonSerializer.serializeSequence(sequence)
+
+        // Verify metadata fields are present
+        assertTrue(json.contains("\"metadata\""))
+        assertTrue(json.contains("\"program\": \"Defender of Egril\""))
+        assertTrue(json.contains("\"type\": \"sequence\""))
+        assertTrue(json.contains("\"data\""))
+
+        // Verify round-trip
+        val deserialized = EditorJsonSerializer.deserializeSequence(json)
+        assertNotNull(deserialized)
+        assertEquals(3, deserialized.sequence.size)
+        assertEquals("level_one", deserialized.sequence[0])
+        assertEquals("level_two", deserialized.sequence[1])
+        assertEquals("level_three", deserialized.sequence[2])
+    }
+
+    @Test
+    fun testWorldMapMetadataRoundTrip() {
+        val worldMapData = WorldMapData(
+            locations = listOf(
+                WorldMapLocationData(
+                    id = "loc_start",
+                    name = "Start",
+                    position = WorldMapPoint(100, 200),
+                    levelIds = listOf("level_one", "level_two")
+                ),
+                WorldMapLocationData(
+                    id = "loc_end",
+                    name = "End",
+                    position = WorldMapPoint(500, 600),
+                    levelIds = listOf("level_three")
+                )
+            ),
+            paths = listOf(
+                WorldMapPathData(
+                    fromLocationId = "loc_start",
+                    toLocationId = "loc_end",
+                    type = ConnectionType.ROAD
+                )
+            )
+        )
+
+        val json = EditorJsonSerializer.serializeWorldMapData(worldMapData)
+
+        // Verify metadata fields are present
+        assertTrue(json.contains("\"metadata\""))
+        assertTrue(json.contains("\"program\": \"Defender of Egril\""))
+        assertTrue(json.contains("\"type\": \"worldmap\""))
+        assertTrue(json.contains("\"data\""))
+
+        // Verify round-trip
+        val deserialized = EditorJsonSerializer.deserializeWorldMapData(json)
+        assertNotNull(deserialized)
+        assertEquals(2, deserialized.locations.size)
+        assertEquals("loc_start", deserialized.locations[0].id)
+        assertEquals("Start", deserialized.locations[0].name)
+        assertEquals(100, deserialized.locations[0].position.x)
+        assertEquals(200, deserialized.locations[0].position.y)
+        assertEquals(2, deserialized.locations[0].levelIds.size)
+        assertEquals("loc_end", deserialized.locations[1].id)
+        assertEquals(1, deserialized.paths.size)
+        assertEquals("loc_start", deserialized.paths[0].fromLocationId)
+        assertEquals("loc_end", deserialized.paths[0].toLocationId)
+    }
+
+    @Test
+    fun testBackwardCompatibilityMap() {
+        // Old-style map JSON without metadata wrapper
+        val oldJson = """{
+  "id": "old_map",
+  "name": "Old Map",
+  "width": 10,
+  "height": 8,
+  "readyToUse": false,
+  "isOfficial": false,
+  "tiles": {
+    "0,0": "SPAWN_POINT",
+    "9,7": "TARGET"
+  }
+}"""
+        val deserialized = EditorJsonSerializer.deserializeMap(oldJson)
+        assertNotNull(deserialized)
+        assertEquals("old_map", deserialized.id)
+        assertEquals("Old Map", deserialized.name)
+        assertEquals(10, deserialized.width)
+        assertEquals(8, deserialized.height)
+        assertEquals(TileType.SPAWN_POINT, deserialized.getTileType(0, 0))
+        assertEquals(TileType.TARGET, deserialized.getTileType(9, 7))
+    }
+
+    @Test
+    fun testBackwardCompatibilityLevel() {
+        // Old-style level JSON without metadata wrapper
+        val oldJson = """{
+  "id": "old_level",
+  "mapId": "old_map",
+  "title": "Old Level",
+  "subtitle": "",
+  "startCoins": 100,
+  "startHealthPoints": 10,
+  "enemySpawns": [
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 1}}
+  ],
+  "availableTowers": ["SPIKE_TOWER"],
+  "waypoints": [],
+  "prerequisites": []
+}"""
+        val deserialized = EditorJsonSerializer.deserializeLevel(oldJson)
+        assertNotNull(deserialized)
+        assertEquals("old_level", deserialized.id)
+        assertEquals("old_map", deserialized.mapId)
+        assertEquals("Old Level", deserialized.title)
+        assertEquals(100, deserialized.startCoins)
+        assertEquals(1, deserialized.enemySpawns.size)
+        assertEquals(AttackerType.GOBLIN, deserialized.enemySpawns[0].attackerType)
+        assertTrue(deserialized.availableTowers.contains(DefenderType.SPIKE_TOWER))
+    }
+
+    @Test
+    fun testBackwardCompatibilitySequence() {
+        // Old-style sequence JSON without metadata wrapper
+        val oldJson = """{
+  "sequence": ["level_a", "level_b", "level_c"]
+}"""
+        val deserialized = EditorJsonSerializer.deserializeSequence(oldJson)
+        assertNotNull(deserialized)
+        assertEquals(3, deserialized.sequence.size)
+        assertEquals("level_a", deserialized.sequence[0])
+        assertEquals("level_b", deserialized.sequence[1])
+        assertEquals("level_c", deserialized.sequence[2])
+    }
+
+    @Test
+    fun testBackwardCompatibilityWorldMap() {
+        // Old-style worldmap JSON without metadata wrapper
+        val oldJson = """{
+  "locations": [
+    {
+      "id": "start",
+      "name": "Start Location",
+      "position": {"x": 100, "y": 200},
+      "levelIds": ["lvl1"]
+    }
+  ],
+  "paths": []
+}"""
+        val deserialized = EditorJsonSerializer.deserializeWorldMapData(oldJson)
+        assertNotNull(deserialized)
+        assertEquals(1, deserialized.locations.size)
+        assertEquals("start", deserialized.locations[0].id)
+        assertEquals("Start Location", deserialized.locations[0].name)
+        assertEquals(0, deserialized.paths.size)
+    }
+
+    @Test
+    fun testExtractDataSection() {
+        // Test with metadata wrapper
+        val wrappedJson = """{
+  "metadata": {
+    "program": "Defender of Egril",
+    "type": "map"
+  },
+  "data": {
+    "id": "test",
+    "name": "Test"
+  }
+}"""
+        val extracted = EditorJsonSerializer.extractDataSection(wrappedJson)
+        assertTrue(extracted.contains("\"id\": \"test\""))
+        assertTrue(extracted.contains("\"name\": \"Test\""))
+        assertTrue(!extracted.contains("\"metadata\""))
+
+        // Test without metadata wrapper (old format)
+        val plainJson = """{"id": "plain", "name": "Plain"}"""
+        val unchanged = EditorJsonSerializer.extractDataSection(plainJson)
+        assertEquals(plainJson, unchanged)
     }
 }
 

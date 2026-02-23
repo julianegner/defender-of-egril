@@ -197,7 +197,6 @@ class TowerPlacementRangePreviewTest {
         
         // Find a build area tile
         var buildAreaFound = false
-        var buildIslandFound = false
         
         for (y in 0 until level.gridHeight) {
             for (x in 0 until level.gridWidth) {
@@ -205,16 +204,13 @@ class TowerPlacementRangePreviewTest {
                 if (level.isBuildArea(pos)) {
                     buildAreaFound = true
                 }
-                if (level.isBuildIsland(pos)) {
-                    buildIslandFound = true
-                }
             }
         }
         
-        assertTrue(buildAreaFound || buildIslandFound, "Level should have buildable tiles")
+        assertTrue(buildAreaFound, "Level should have buildable tiles")
         
         // Preview should only show on buildable tiles that:
-        // 1. Are build areas or build islands
+        // 1. Are build areas
         // 2. Don't have an existing tower
         // 3. Don't have an enemy
     }

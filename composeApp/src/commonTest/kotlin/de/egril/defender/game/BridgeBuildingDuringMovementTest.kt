@@ -42,7 +42,6 @@ class BridgeBuildingDuringMovementTest {
             startPositions = listOf(Position(0, 0)),
             targetPositions = listOf(Position(4, 0)),
             pathCells = map.getPathCells(),
-            buildIslands = emptySet(),
             attackerWaves = emptyList(),
             riverTiles = map.getRiverCells().associateWith { RiverTile(it) }
         )
@@ -117,7 +116,6 @@ class BridgeBuildingDuringMovementTest {
             startPositions = listOf(Position(0, 0)),
             targetPositions = listOf(Position(5, 0)),
             pathCells = map.getPathCells(),
-            buildIslands = emptySet(),
             attackerWaves = emptyList(),
             riverTiles = map.getRiverCells().associateWith { RiverTile(it) }
         )

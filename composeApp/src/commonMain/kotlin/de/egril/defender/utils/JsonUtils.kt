@@ -46,6 +46,32 @@ object JsonUtils {
         return match?.groupValues?.get(1) == "true"
     }
     
+/**
+     * Extract the "data" section from a JSON file with a metadata wrapper.
+     * If the JSON has no metadata wrapper (old format), returns the original JSON for backward compatibility.
+     */
+    fun extractDataSection(json: String): String {
+        if (!json.contains("\"metadata\"")) {
+            return json  // Old format - no wrapper, return as-is
+        }
+        val dataKeyIndex = json.indexOf("\"data\"")
+        if (dataKeyIndex == -1) return json
+        val colonIndex = json.indexOf(":", dataKeyIndex + 6)
+        if (colonIndex == -1) return json
+        val openBrace = json.indexOf("{", colonIndex + 1)
+        if (openBrace == -1) return json
+        var depth = 1
+        var endIndex = openBrace + 1
+        while (endIndex < json.length && depth > 0) {
+            when (json[endIndex]) {
+                '{' -> depth++
+                '}' -> depth--
+            }
+            endIndex++
+        }
+        return json.substring(openBrace, endIndex)
+    }
+
     /**
      * Split a JSON array content into individual elements
      * Handles nested objects and arrays

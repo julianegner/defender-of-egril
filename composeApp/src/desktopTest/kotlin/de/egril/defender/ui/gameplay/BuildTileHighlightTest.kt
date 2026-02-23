@@ -57,47 +57,6 @@ class BuildTileHighlightTest {
     }
     
     @Test
-    fun testBuildIslandTileIsHighlightable() {
-        // Create test levels and find one with build islands
-        val levels = LevelData.createLevels()
-        var levelWithIsland: Level? = null
-        var buildIslandPosition: Position? = null
-        
-        for (level in levels) {
-            // Find a build island tile that has no defender
-            for (y in 0 until level.gridHeight) {
-                for (x in 0 until level.gridWidth) {
-                    val pos = Position(x, y)
-                    if (level.isBuildIsland(pos)) {
-                        levelWithIsland = level
-                        buildIslandPosition = pos
-                        break
-                    }
-                }
-                if (buildIslandPosition != null) break
-            }
-            if (levelWithIsland != null) break
-        }
-        
-        // If no level has build islands, skip this test
-        if (levelWithIsland == null || buildIslandPosition == null) {
-            println("No levels with build islands found, skipping test")
-            return
-        }
-        
-        val gameState = GameState(levelWithIsland)
-        
-        // Verify the tile is buildable
-        val isBuildIsland = levelWithIsland.isBuildIsland(buildIslandPosition)
-        val hasDefender = gameState.defenders.any { it.position.value == buildIslandPosition }
-        val hasAttacker = gameState.attackers.any { it.position.value == buildIslandPosition && !it.isDefeated.value }
-        
-        assertTrue(isBuildIsland, "Position should be a build island")
-        assertFalse(hasDefender, "Position should not have a defender")
-        assertFalse(hasAttacker, "Position should not have an attacker")
-    }
-    
-    @Test
     fun testOccupiedTileIsNotHighlightable() {
         // Create a simple test level
         val level = LevelData.createLevels().firstOrNull() ?: return
@@ -158,10 +117,7 @@ class BuildTileHighlightTest {
         
         // Path tiles are NOT buildable for regular towers
         val isBuildArea = level.isBuildArea(pathPosition!!)
-        val isBuildIsland = level.isBuildIsland(pathPosition)
-        
         assertFalse(isBuildArea, "Path tile should not be a build area")
-        assertFalse(isBuildIsland, "Path tile should not be a build island")
         
         // This tile should NOT be highlighted when a tower type is selected
     }
@@ -201,7 +157,7 @@ class BuildTileHighlightTest {
         assertTrue(towerTypes.isNotEmpty(), "Level should have available tower types")
         
         // For each tower type, highlighting should work the same way:
-        // Show green border on all empty buildable tiles (BUILD_AREA, BUILD_ISLAND, RIVER)
+        // Show green border on all empty buildable tiles (BUILD_AREA, RIVER)
         for (towerType in towerTypes) {
             // Verify the tower type exists
             assertTrue(towerType in DefenderType.entries, "Tower type should be valid")

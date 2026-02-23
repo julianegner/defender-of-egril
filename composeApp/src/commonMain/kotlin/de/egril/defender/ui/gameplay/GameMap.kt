@@ -330,7 +330,6 @@ fun GridCell(
     val isSpawnPoint = gameState.level.isSpawnPoint(position)
     val isTarget = gameState.level.isTargetPosition(position)
     val isOnPath = gameState.level.isOnPath(position)
-    val isBuildIsland = gameState.level.isBuildIsland(position)
     val isBuildArea = gameState.level.isBuildArea(position)
     val isRiverTile = gameState.level.isRiverTile(position)
     val defender = gameState.defenders.find { it.position.value == position }
@@ -351,14 +350,13 @@ fun GridCell(
         isTarget -> de.egril.defender.editor.TileType.TARGET
         isRiverTile -> de.egril.defender.editor.TileType.RIVER
         isOnPath -> de.egril.defender.editor.TileType.PATH
-        isBuildIsland -> de.egril.defender.editor.TileType.ISLAND
         isBuildArea -> de.egril.defender.editor.TileType.BUILD_AREA
         else -> de.egril.defender.editor.TileType.NO_PLAY
     }
     
     // Get tile background painter (will be null if images are disabled or not available)
     // For ready towers on build areas or islands, don't show tile background to make towers more visible
-    val shouldShowTileImage = !(defender != null && defender.isReady && (isBuildArea || isBuildIsland))
+    val shouldShowTileImage = !(defender != null && defender.isReady && isBuildArea)
     val tilePainter = if (shouldShowTileImage) {
         TileImageProvider.getTilePainter(tileType, isMaelstrom = isMaelstrom)
     } else {
@@ -390,7 +388,7 @@ fun GridCell(
     // Calculate hover preview for tower placement
     val isHoveringForPreview = hoveredPosition == position && selectedDefenderType != null
     // Include river tiles as buildable (for rafts)
-    val isBuildableTile = (isBuildArea || isBuildIsland || isRiverTile) && defender == null && attacker == null
+    val isBuildableTile = (isBuildArea || isRiverTile) && defender == null && attacker == null
     val showPlacementPreview = isHoveringForPreview && isBuildableTile
     
     // Calculate hover preview for trap placement
@@ -417,11 +415,10 @@ fun GridCell(
     // Include river tiles as buildable (for rafts)
     val hoveredPositionIsBuildable = if (hoveredPosition != null && selectedDefenderType != null) {
         val hoveredIsBuildArea = gameState.level.isBuildArea(hoveredPosition)
-        val hoveredIsBuildIsland = gameState.level.isBuildIsland(hoveredPosition)
         val hoveredIsRiver = gameState.level.isRiverTile(hoveredPosition)
         val hoveredHasDefender = gameState.defenders.any { it.position.value == hoveredPosition }
         val hoveredHasAttacker = gameState.attackers.any { it.position.value == hoveredPosition && !it.isDefeated.value }
-        (hoveredIsBuildArea || hoveredIsBuildIsland || hoveredIsRiver) && !hoveredHasDefender && !hoveredHasAttacker
+        (hoveredIsBuildArea || hoveredIsRiver) && !hoveredHasDefender && !hoveredHasAttacker
     } else {
         false
     }
@@ -483,9 +480,8 @@ fun GridCell(
                                !showPlacementPreview  // Don't double-highlight the hovered tile
 
     // Base background color based on area type - ALWAYS visible
-    // Build islands + strips adjacent to path allow tower placement
+    // Build areas adjacent to path allow tower placement
     val baseBackgroundColor = when {
-        isBuildIsland -> GamePlayColors.BuildIsland  // Light green for build islands
         isBuildArea -> GamePlayColors.BuildStrip  // Medium green for strips adjacent to path
         isOnPath -> GamePlayColors.Path  // Cream/beige for enemy path
         isRiverTile -> GamePlayColors.River  // Blue for river tiles
@@ -623,7 +619,6 @@ fun GridCell(
                 gameState.level.isTargetPosition(pos) -> de.egril.defender.editor.TileType.TARGET
                 gameState.level.isRiverTile(pos) -> de.egril.defender.editor.TileType.RIVER
                 gameState.level.isOnPath(pos) -> de.egril.defender.editor.TileType.PATH
-                gameState.level.isBuildIsland(pos) -> de.egril.defender.editor.TileType.ISLAND
                 gameState.level.isBuildArea(pos) -> de.egril.defender.editor.TileType.BUILD_AREA
                 else -> de.egril.defender.editor.TileType.NO_PLAY
             }
@@ -649,13 +644,11 @@ fun GridCell(
     
     // Get the actual painters for neighbors (must be done in @Composable context)
     val neighborPainters = neighborTileTypes.mapValues { (pos, type) ->
-        // Check if there's a ready defender on this tile (build area or island)
+        // Check if there's a ready defender on this tile (build area)
         val neighborDefender = gameState.defenders.find { it.position.value == pos }
         val neighborIsReady = neighborDefender?.isReady == true
         val neighborIsBuildArea = gameState.level.isBuildArea(pos)
-        val neighborIsBuildIsland = gameState.level.isBuildIsland(pos)
-        val shouldShowNeighborTile = !(neighborDefender != null && neighborIsReady && 
-                                       (neighborIsBuildArea || neighborIsBuildIsland))
+        val shouldShowNeighborTile = !(neighborDefender != null && neighborIsReady && neighborIsBuildArea)
         
         if (shouldShowNeighborTile) {
             val neighborRiverTile = gameState.level.getRiverTile(pos)

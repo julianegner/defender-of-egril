@@ -34,7 +34,6 @@ class WaypointFollowingTest {
                 Position(10, 0)   // Target 2 (top) - alternate target
             ),
             pathCells = pathCells,
-            buildIslands = emptySet(),
             buildAreas = emptySet(),
             attackerWaves = emptyList(),
             initialCoins = 100,

@@ -1,78 +1,569 @@
 {
-  "id": "the_fortress_3_necromancer",
-  "mapId": "map_the_fortress",
-  "title": "The Fortress 3",
-  "titleKey": "level_the_fortress_title:3",
-  "subtitle": "The Necromancer",
-  "subtitleKey": "level_the_fortress_3_necromancer_subtitle",
-  "startCoins": 300,
-  "startHealthPoints": 10,
-  "enemySpawns": [
-    {"attackerType": "EVIL_WIZARD", "level": 5, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "SKELETON", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 15}},
-    {"attackerType": "SKELETON", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 22}},
-    {"attackerType": "SKELETON", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "SKELETON", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 15}},
-    {"attackerType": "SKELETON", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 22}},
-    {"attackerType": "SKELETON", "level": 2, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "SKELETON", "level": 2, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 15}},
-    {"attackerType": "SKELETON", "level": 2, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 22}},
-    {"attackerType": "SKELETON", "level": 2, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "SKELETON", "level": 2, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 15}},
-    {"attackerType": "SKELETON", "level": 2, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 22}},
-    {"attackerType": "SKELETON", "level": 3, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "SKELETON", "level": 3, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 15}},
-    {"attackerType": "SKELETON", "level": 3, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 22}},
-    {"attackerType": "SKELETON", "level": 3, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "SKELETON", "level": 3, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 15}},
-    {"attackerType": "SKELETON", "level": 3, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 22}},
-    {"attackerType": "SKELETON", "level": 4, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "SKELETON", "level": 4, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 15}},
-    {"attackerType": "SKELETON", "level": 4, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 22}},
-    {"attackerType": "SKELETON", "level": 4, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "SKELETON", "level": 4, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 15}},
-    {"attackerType": "SKELETON", "level": 4, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 22}},
-    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 15}},
-    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 22}},
-    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 15}},
-    {"attackerType": "SKELETON", "level": 5, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 22}},
-    {"attackerType": "SKELETON", "level": 6, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "SKELETON", "level": 6, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 15}},
-    {"attackerType": "SKELETON", "level": 6, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 22}},
-    {"attackerType": "SKELETON", "level": 6, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "SKELETON", "level": 6, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 15}},
-    {"attackerType": "SKELETON", "level": 6, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 22}},
-    {"attackerType": "SKELETON", "level": 7, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "SKELETON", "level": 7, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 15}},
-    {"attackerType": "SKELETON", "level": 7, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 22}},
-    {"attackerType": "SKELETON", "level": 7, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "SKELETON", "level": 7, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 15}},
-    {"attackerType": "SKELETON", "level": 7, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 22}},
-    {"attackerType": "SKELETON", "level": 8, "spawnTurn": 8, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "SKELETON", "level": 8, "spawnTurn": 8, "spawnPoint": {"x": 0, "y": 15}},
-    {"attackerType": "SKELETON", "level": 8, "spawnTurn": 8, "spawnPoint": {"x": 0, "y": 22}},
-    {"attackerType": "SKELETON", "level": 8, "spawnTurn": 8, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "SKELETON", "level": 8, "spawnTurn": 8, "spawnPoint": {"x": 0, "y": 15}},
-    {"attackerType": "SKELETON", "level": 8, "spawnTurn": 8, "spawnPoint": {"x": 0, "y": 22}},
-    {"attackerType": "SKELETON", "level": 9, "spawnTurn": 9, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "SKELETON", "level": 9, "spawnTurn": 9, "spawnPoint": {"x": 0, "y": 15}},
-    {"attackerType": "SKELETON", "level": 9, "spawnTurn": 9, "spawnPoint": {"x": 0, "y": 22}},
-    {"attackerType": "SKELETON", "level": 9, "spawnTurn": 9, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "SKELETON", "level": 9, "spawnTurn": 9, "spawnPoint": {"x": 0, "y": 15}},
-    {"attackerType": "SKELETON", "level": 9, "spawnTurn": 9, "spawnPoint": {"x": 0, "y": 22}},
-    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 10, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 10, "spawnPoint": {"x": 0, "y": 15}},
-    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 10, "spawnPoint": {"x": 0, "y": 22}},
-    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 10, "spawnPoint": {"x": 0, "y": 7}},
-    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 10, "spawnPoint": {"x": 0, "y": 15}},
-    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 10, "spawnPoint": {"x": 0, "y": 22}}
-  ],
-  "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER"],
-  "waypoints": [
-    
-  ],
-  "prerequisites": ["the_fortress_2_orks_marching"],
-  "allowAutoAttack": true
+  "metadata": {
+    "program": "Defender of Egril",
+    "type": "level"
+  },
+  "data": {
+    "id": "the_fortress_3_necromancer",
+    "mapId": "map_the_fortress",
+    "title": "The Fortress 3",
+    "titleKey": "level_the_fortress_title:3",
+    "subtitle": "The Necromancer",
+    "subtitleKey": "level_the_fortress_3_necromancer_subtitle",
+    "startCoins": 300,
+    "startHealthPoints": 10,
+    "enemySpawns": [
+      {
+        "attackerType": "EVIL_WIZARD",
+        "level": 5,
+        "spawnTurn": 1,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 1,
+        "spawnTurn": 1,
+        "spawnPoint": {
+          "x": 0,
+          "y": 15
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 1,
+        "spawnTurn": 1,
+        "spawnPoint": {
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 1,
+        "spawnTurn": 1,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 1,
+        "spawnTurn": 1,
+        "spawnPoint": {
+          "x": 0,
+          "y": 15
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 1,
+        "spawnTurn": 1,
+        "spawnPoint": {
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 2,
+        "spawnTurn": 2,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 2,
+        "spawnTurn": 2,
+        "spawnPoint": {
+          "x": 0,
+          "y": 15
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 2,
+        "spawnTurn": 2,
+        "spawnPoint": {
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 2,
+        "spawnTurn": 2,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 2,
+        "spawnTurn": 2,
+        "spawnPoint": {
+          "x": 0,
+          "y": 15
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 2,
+        "spawnTurn": 2,
+        "spawnPoint": {
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 3,
+        "spawnTurn": 3,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 3,
+        "spawnTurn": 3,
+        "spawnPoint": {
+          "x": 0,
+          "y": 15
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 3,
+        "spawnTurn": 3,
+        "spawnPoint": {
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 3,
+        "spawnTurn": 3,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 3,
+        "spawnTurn": 3,
+        "spawnPoint": {
+          "x": 0,
+          "y": 15
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 3,
+        "spawnTurn": 3,
+        "spawnPoint": {
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 4,
+        "spawnTurn": 4,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 4,
+        "spawnTurn": 4,
+        "spawnPoint": {
+          "x": 0,
+          "y": 15
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 4,
+        "spawnTurn": 4,
+        "spawnPoint": {
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 4,
+        "spawnTurn": 4,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 4,
+        "spawnTurn": 4,
+        "spawnPoint": {
+          "x": 0,
+          "y": 15
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 4,
+        "spawnTurn": 4,
+        "spawnPoint": {
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 5,
+        "spawnTurn": 5,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 5,
+        "spawnTurn": 5,
+        "spawnPoint": {
+          "x": 0,
+          "y": 15
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 5,
+        "spawnTurn": 5,
+        "spawnPoint": {
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 5,
+        "spawnTurn": 5,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 5,
+        "spawnTurn": 5,
+        "spawnPoint": {
+          "x": 0,
+          "y": 15
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 5,
+        "spawnTurn": 5,
+        "spawnPoint": {
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 6,
+        "spawnTurn": 6,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 6,
+        "spawnTurn": 6,
+        "spawnPoint": {
+          "x": 0,
+          "y": 15
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 6,
+        "spawnTurn": 6,
+        "spawnPoint": {
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 6,
+        "spawnTurn": 6,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 6,
+        "spawnTurn": 6,
+        "spawnPoint": {
+          "x": 0,
+          "y": 15
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 6,
+        "spawnTurn": 6,
+        "spawnPoint": {
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 7,
+        "spawnTurn": 7,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 7,
+        "spawnTurn": 7,
+        "spawnPoint": {
+          "x": 0,
+          "y": 15
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 7,
+        "spawnTurn": 7,
+        "spawnPoint": {
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 7,
+        "spawnTurn": 7,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 7,
+        "spawnTurn": 7,
+        "spawnPoint": {
+          "x": 0,
+          "y": 15
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 7,
+        "spawnTurn": 7,
+        "spawnPoint": {
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 8,
+        "spawnTurn": 8,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 8,
+        "spawnTurn": 8,
+        "spawnPoint": {
+          "x": 0,
+          "y": 15
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 8,
+        "spawnTurn": 8,
+        "spawnPoint": {
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 8,
+        "spawnTurn": 8,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 8,
+        "spawnTurn": 8,
+        "spawnPoint": {
+          "x": 0,
+          "y": 15
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 8,
+        "spawnTurn": 8,
+        "spawnPoint": {
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 9,
+        "spawnTurn": 9,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 9,
+        "spawnTurn": 9,
+        "spawnPoint": {
+          "x": 0,
+          "y": 15
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 9,
+        "spawnTurn": 9,
+        "spawnPoint": {
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 9,
+        "spawnTurn": 9,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 9,
+        "spawnTurn": 9,
+        "spawnPoint": {
+          "x": 0,
+          "y": 15
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 9,
+        "spawnTurn": 9,
+        "spawnPoint": {
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 10,
+        "spawnTurn": 10,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 10,
+        "spawnTurn": 10,
+        "spawnPoint": {
+          "x": 0,
+          "y": 15
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 10,
+        "spawnTurn": 10,
+        "spawnPoint": {
+          "x": 0,
+          "y": 22
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 10,
+        "spawnTurn": 10,
+        "spawnPoint": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 10,
+        "spawnTurn": 10,
+        "spawnPoint": {
+          "x": 0,
+          "y": 15
+        }
+      },
+      {
+        "attackerType": "SKELETON",
+        "level": 10,
+        "spawnTurn": 10,
+        "spawnPoint": {
+          "x": 0,
+          "y": 22
+        }
+      }
+    ],
+    "availableTowers": [
+      "SPIKE_TOWER",
+      "SPEAR_TOWER",
+      "BOW_TOWER",
+      "WIZARD_TOWER"
+    ],
+    "waypoints": [],
+    "prerequisites": [
+      "the_fortress_2_orks_marching"
+    ],
+    "allowAutoAttack": true
+  }
 }

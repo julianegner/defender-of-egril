@@ -39,7 +39,7 @@ object EditorStorage {
     private val LEGACY_WORLDMAP_FILE = "gamedata/worldmap.json"
     
     private val VERSION_FILE = "gamedata/version.txt"
-    private val CURRENT_VERSION = "9" // Increment when level data format changes - v9: added official/user separation and isOfficial flag
+    private val CURRENT_VERSION = "10" // Increment when level data format changes - v10: added metadata wrapper to all JSON files
     
     private var worldMapDataCache: WorldMapData? = null
     private var initialized = false
@@ -1040,7 +1040,6 @@ object EditorStorage {
             startPositions = map.getSpawnPoints(),
             targetPositions = targets,
             pathCells = pathCellsWithWaypoints,
-            buildIslands = map.getBuildIslands(),
             buildAreas = map.getBuildAreas(),
             attackerWaves = waves,
             initialCoins = editorLevel.startCoins,

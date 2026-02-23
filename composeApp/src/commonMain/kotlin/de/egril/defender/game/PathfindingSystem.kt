@@ -75,8 +75,7 @@ class PathfindingSystem(private val state: GameState) {
         val exitCount = position.getHexNeighbors().count { neighbor ->
             neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
             neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
-            (state.level.isOnPath(neighbor) || state.level.isTargetPosition(neighbor)) &&
-            !state.level.isBuildIsland(neighbor)
+            (state.level.isOnPath(neighbor) || state.level.isTargetPosition(neighbor))
         }
         
         // Penalize positions with few exits (potential dead ends)
@@ -200,8 +199,8 @@ class PathfindingSystem(private val state: GameState) {
     }
     
     private fun isBlocked(pos: Position, attacker: Attacker? = null, ignoreBarricades: Boolean = false): Boolean {
-        // Check if position has a build island (these block enemies)
-        if (state.level.isBuildIsland(pos)) return true
+        // Check if position has a build area (these block enemies)
+        if (state.level.isBuildArea(pos)) return true
         
         // Check if position has a barricade
         // Flying dragons can move over barricades (like they can fly over non-playable tiles)

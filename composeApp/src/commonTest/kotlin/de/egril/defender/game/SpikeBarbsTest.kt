@@ -29,7 +29,7 @@ class SpikeBarbsTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(9, 3)),
             pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = setOf(Position(2, 2)),
+            buildAreas = setOf(Position(2, 2)),
             attackerWaves = listOf(
                 AttackerWave(listOf(AttackerType.GOBLIN))
             ),
@@ -81,7 +81,7 @@ class SpikeBarbsTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(9, 3)),
             pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = setOf(Position(2, 2)),
+            buildAreas = setOf(Position(2, 2)),
             attackerWaves = listOf(
                 AttackerWave(listOf(AttackerType.GOBLIN))
             ),
@@ -130,7 +130,7 @@ class SpikeBarbsTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(9, 3)),
             pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = setOf(Position(2, 2), Position(3, 2)),
+            buildAreas = setOf(Position(2, 2), Position(3, 2)),
             attackerWaves = listOf(
                 AttackerWave(listOf(AttackerType.GOBLIN))
             ),
@@ -187,7 +187,7 @@ class SpikeBarbsTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(9, 3)),
             pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = setOf(Position(2, 2)),
+            buildAreas = setOf(Position(2, 2)),
             attackerWaves = listOf(
                 AttackerWave(listOf(AttackerType.GOBLIN))
             ),
@@ -236,7 +236,7 @@ class SpikeBarbsTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(9, 3)),
             pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = setOf(Position(2, 2)),
+            buildAreas = setOf(Position(2, 2)),
             attackerWaves = listOf(
                 AttackerWave(listOf(AttackerType.GOBLIN))
             ),
@@ -278,7 +278,7 @@ class SpikeBarbsTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(9, 3)),
             pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = setOf(Position(2, 2)),
+            buildAreas = setOf(Position(2, 2)),
             attackerWaves = listOf(
                 AttackerWave(listOf(AttackerType.GOBLIN))
             ),
@@ -317,7 +317,7 @@ class SpikeBarbsTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(9, 3)),
             pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = setOf(Position(2, 2)),
+            buildAreas = setOf(Position(2, 2)),
             attackerWaves = listOf(
                 AttackerWave(listOf(AttackerType.GOBLIN))
             ),
@@ -360,7 +360,7 @@ class SpikeBarbsTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(9, 3)),
             pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = setOf(Position(2, 2)),
+            buildAreas = setOf(Position(2, 2)),
             attackerWaves = listOf(
                 AttackerWave(listOf(AttackerType.GOBLIN))
             ),
@@ -402,7 +402,7 @@ class SpikeBarbsTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(9, 3)),
             pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = setOf(Position(2, 2)),
+            buildAreas = setOf(Position(2, 2)),
             attackerWaves = listOf(
                 AttackerWave(listOf(AttackerType.GOBLIN))
             ),
@@ -455,7 +455,7 @@ class SpikeBarbsTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(9, 3)),
             pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = setOf(Position(2, 2)),
+            buildAreas = setOf(Position(2, 2)),
             attackerWaves = listOf(
                 AttackerWave(listOf(AttackerType.GOBLIN))
             ),

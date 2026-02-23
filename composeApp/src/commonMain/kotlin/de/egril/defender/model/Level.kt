@@ -26,7 +26,6 @@ data class Level(
     ),
     val targetPositions: List<Position> = listOf(Position(gridWidth - 1, gridHeight / 2)),
     val pathCells: Set<Position>,
-    val buildIslands: Set<Position>,
     val buildAreas: Set<Position> = emptySet(),  // Explicit build areas from map
     val attackerWaves: List<AttackerWave>,
     val initialCoins: Int = 100,
@@ -67,17 +66,10 @@ data class Level(
         return pathCells.contains(position)
     }
     
-    fun isBuildIsland(position: Position): Boolean {
-        return buildIslands.contains(position)
-    }
-    
     fun isBuildArea(position: Position): Boolean {
         // Cannot build on path itself, spawn points, or targets
         if (isSpawnPoint(position) || targetPositions.contains(position)) return false
         if (isOnPath(position)) return false
-        
-        // Can build on islands
-        if (isBuildIsland(position)) return true
         
         // Can build on explicitly defined build areas
         return buildAreas.contains(position)

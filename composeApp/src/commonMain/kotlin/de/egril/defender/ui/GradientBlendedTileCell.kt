@@ -205,11 +205,11 @@ private fun getEdgeAngle(dx: Int, dy: Int, isOddRow: Boolean): Float {
 
 /**
  * Determines if a tile type should have smooth transitions with neighbors.
- * According to requirements: PATH, BUILD_AREA, ISLAND, NO_PLAY tiles.
+ * According to requirements: PATH, BUILD_AREA, NO_PLAY tiles.
  */
 private fun shouldBlendTileType(tileType: TileType): Boolean {
     return when (tileType) {
-        TileType.PATH, TileType.BUILD_AREA, TileType.ISLAND, 
+        TileType.PATH, TileType.BUILD_AREA,
         TileType.NO_PLAY -> true
         TileType.SPAWN_POINT, TileType.TARGET, TileType.RIVER -> false
     }
@@ -227,9 +227,8 @@ private fun shouldBlendWithNeighbor(currentType: TileType, neighborType: TileTyp
         neighborType == TileType.TARGET || 
         neighborType == TileType.RIVER) return false
     
-    // Don't show NO_PLAY image on buildable tiles (BUILD_AREA or ISLAND)
-    if ((currentType == TileType.BUILD_AREA || currentType == TileType.ISLAND) && 
-        neighborType == TileType.NO_PLAY) {
+    // Don't show NO_PLAY image on buildable tiles (BUILD_AREA)
+    if (currentType == TileType.BUILD_AREA && neighborType == TileType.NO_PLAY) {
         return false
     }
     
