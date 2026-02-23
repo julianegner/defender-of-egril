@@ -492,37 +492,142 @@ class SaveDataTest {
         assertEquals(LevelStatus.LOCKED, deserialized.worldMapSave!!.levelStatuses["level_003"])
     }
     
+    // ==================== Metadata wrapper tests ====================
+
     @Test
-    fun testBackwardCompatibilityWithoutWorldMapSave() {
-        // Test that old saves without worldMapSave field can still be loaded
-        val oldSaveJson = """{
-  "id": "old_save_no_worldmap",
-  "timestamp": 1234567890,
-  "levelId": 1,
-  "levelName": "Test Level",
-  "turnNumber": 5,
-  "coins": 100,
-  "healthPoints": 10,
-  "phase": "PLAYER_TURN",
-  "defenders": [],
-  "attackers": [],
-  "nextDefenderId": 1,
-  "nextAttackerId": 1,
-  "currentWaveIndex": 0,
-  "spawnCounter": 0,
-  "attackersToSpawn": [],
-  "fieldEffects": [],
-  "traps": [],
-  "rafts": [],
-  "nextRaftId": 1,
-  "comment": null,
-  "mapId": null
-}"""
-        
-        // Should deserialize successfully with worldMapSave defaulting to null
-        val deserialized = SaveJsonSerializer.deserializeSavedGame(oldSaveJson)
+    fun testWorldMapSaveMetadataRoundTrip() {
+        val worldMapSave = WorldMapSave(
+            levelStatuses = mapOf(
+                "level_001" to LevelStatus.WON,
+                "level_002" to LevelStatus.UNLOCKED
+            )
+        )
+
+        val json = SaveJsonSerializer.serializeWorldMapSave(worldMapSave)
+
+        // Verify metadata present
+        assert(json.contains("\"metadata\"")) { "Expected metadata in serialized output" }
+        assert(json.contains("\"program\": \"Defender of Egril\"")) { "Expected program name in metadata" }
+        assert(json.contains("\"type\": \"level_progress\"")) { "Expected type in metadata" }
+
+        // Verify round-trip
+        val deserialized = SaveJsonSerializer.deserializeWorldMapSave(json)
         assertNotNull(deserialized)
-        assertEquals("old_save_no_worldmap", deserialized.id)
-        assertEquals(null, deserialized.worldMapSave)  // Should default to null for old saves
+        assertEquals(2, deserialized.levelStatuses.size)
+        assertEquals(LevelStatus.WON, deserialized.levelStatuses["level_001"])
+        assertEquals(LevelStatus.UNLOCKED, deserialized.levelStatuses["level_002"])
+    }
+
+    @Test
+    fun testWorldMapSaveBackwardCompatibility() {
+        // Old format without metadata wrapper
+        val oldJson = """{
+  "levelStatuses": {
+    "level_a": "WON",
+    "level_b": "LOCKED"
+  }
+}"""
+        val deserialized = SaveJsonSerializer.deserializeWorldMapSave(oldJson)
+        assertNotNull(deserialized)
+        assertEquals(2, deserialized.levelStatuses.size)
+        assertEquals(LevelStatus.WON, deserialized.levelStatuses["level_a"])
+        assertEquals(LevelStatus.LOCKED, deserialized.levelStatuses["level_b"])
+    }
+
+    @Test
+    fun testSavedGameMetadataRoundTrip() {
+        val savedGame = SavedGame(
+            id = "meta_test_save",
+            timestamp = 1234567890L,
+            levelId = 1,
+            levelName = "Test Level",
+            turnNumber = 3,
+            coins = 100,
+            healthPoints = 10,
+            phase = GamePhase.PLAYER_TURN,
+            defenders = emptyList(),
+            attackers = emptyList(),
+            nextDefenderId = 1,
+            nextAttackerId = 1,
+            currentWaveIndex = 0,
+            spawnCounter = 0,
+            attackersToSpawn = emptyList(),
+            fieldEffects = emptyList(),
+            traps = emptyList()
+        )
+
+        val json = SaveJsonSerializer.serializeSavedGame(savedGame)
+
+        // Verify metadata present
+        assert(json.contains("\"metadata\"")) { "Expected metadata in serialized output" }
+        assert(json.contains("\"program\": \"Defender of Egril\"")) { "Expected program name in metadata" }
+        assert(json.contains("\"type\": \"savegame\"")) { "Expected type in metadata" }
+
+        // Verify round-trip
+        val deserialized = SaveJsonSerializer.deserializeSavedGame(json)
+        assertNotNull(deserialized)
+        assertEquals("meta_test_save", deserialized.id)
+        assertEquals(1, deserialized.levelId)
+        assertEquals("Test Level", deserialized.levelName)
+        assertEquals(3, deserialized.turnNumber)
+        assertEquals(100, deserialized.coins)
+        assertEquals(10, deserialized.healthPoints)
+        assertEquals(GamePhase.PLAYER_TURN, deserialized.phase)
+    }
+
+    @Test
+    fun testPlayerProfilesMetadataRoundTrip() {
+        val profiles = PlayerProfiles(
+            profiles = listOf(
+                PlayerProfile(
+                    id = "player_1",
+                    name = "Player One",
+                    createdAt = 1000L,
+                    lastPlayedAt = 2000L,
+                    achievements = emptyList()
+                )
+            ),
+            lastUsedPlayerId = "player_1"
+        )
+
+        val json = SaveJsonSerializer.serializePlayerProfiles(profiles)
+
+        // Verify metadata present
+        assert(json.contains("\"metadata\"")) { "Expected metadata in serialized output" }
+        assert(json.contains("\"program\": \"Defender of Egril\"")) { "Expected program name in metadata" }
+        assert(json.contains("\"type\": \"players\"")) { "Expected type in metadata" }
+
+        // Verify round-trip
+        val deserialized = SaveJsonSerializer.deserializePlayerProfiles(json)
+        assertNotNull(deserialized)
+        assertEquals(1, deserialized.profiles.size)
+        assertEquals("player_1", deserialized.profiles[0].id)
+        assertEquals("Player One", deserialized.profiles[0].name)
+        assertEquals(1000L, deserialized.profiles[0].createdAt)
+        assertEquals(2000L, deserialized.profiles[0].lastPlayedAt)
+        assertEquals("player_1", deserialized.lastUsedPlayerId)
+    }
+
+    @Test
+    fun testPlayerProfilesBackwardCompatibility() {
+        // Old format without metadata wrapper
+        val oldJson = """{
+  "profiles": [
+    {
+      "id": "old_player",
+      "name": "Old Player",
+      "createdAt": 500,
+      "lastPlayedAt": 600,
+      "achievements": []
+    }
+  ],
+  "lastUsedPlayerId": "old_player"
+}"""
+        val deserialized = SaveJsonSerializer.deserializePlayerProfiles(oldJson)
+        assertNotNull(deserialized)
+        assertEquals(1, deserialized.profiles.size)
+        assertEquals("old_player", deserialized.profiles[0].id)
+        assertEquals("Old Player", deserialized.profiles[0].name)
+        assertEquals("old_player", deserialized.lastUsedPlayerId)
     }
 }

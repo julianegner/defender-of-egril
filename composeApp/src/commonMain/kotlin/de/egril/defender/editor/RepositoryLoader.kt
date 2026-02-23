@@ -185,7 +185,7 @@ object RepositoryLoader {
             }
             
             // Save version file
-            storage.writeFile("gamedata/version.txt", "9")
+            storage.writeFile("gamedata/version.txt", "10")
             
             println("Repository files loaded successfully: $successCount levels, $mapCount maps")
             successCount > 0

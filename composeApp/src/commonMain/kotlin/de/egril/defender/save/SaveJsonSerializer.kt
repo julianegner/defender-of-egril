@@ -9,6 +9,8 @@ import de.egril.defender.utils.JsonUtils
  * Uses simple manual serialization like the editor
  */
 object SaveJsonSerializer {
+
+    private const val PROGRAM_NAME = "Defender of Egril"
     
     fun serializeWorldMapSave(worldMap: WorldMapSave): String {
         val statusesJson = worldMap.levelStatuses.entries.joinToString(",\n    ") { (editorLevelId, status) ->
@@ -16,16 +18,23 @@ object SaveJsonSerializer {
         }
         
         return """{
-  "levelStatuses": {
-    $statusesJson
+  "metadata": {
+    "program": "$PROGRAM_NAME",
+    "type": "level_progress"
+  },
+  "data": {
+    "levelStatuses": {
+      $statusesJson
+    }
   }
 }"""
     }
     
     fun deserializeWorldMapSave(json: String): WorldMapSave? {
+        val dataJson = de.egril.defender.utils.JsonUtils.extractDataSection(json)
         try {
             val statuses = mutableMapOf<String, LevelStatus>()
-            val statusesSection = json.substringAfter("\"levelStatuses\": {")
+            val statusesSection = dataJson.substringAfter("\"levelStatuses\": {")
                 .substringBefore("}")
                 .replace("\",", "\";")
             val statusEntries = statusesSection.split(";").map { it.trim() }
@@ -144,7 +153,7 @@ object SaveJsonSerializer {
             """{"levelStatuses": {$statusesJson}}"""
         } ?: "null"
         
-        return """{
+        val data = """{
   "id": "${savedGame.id}",
   "timestamp": ${savedGame.timestamp},
   "levelId": ${savedGame.levelId},
@@ -181,26 +190,34 @@ object SaveJsonSerializer {
   "mapId": $mapIdJson,
   "worldMapSave": $worldMapSaveJson
 }"""
+        return """{
+  "metadata": {
+    "program": "$PROGRAM_NAME",
+    "type": "savegame"
+  },
+  "data": $data
+}"""
     }
     
     fun deserializeSavedGame(json: String): SavedGame? {
+        val dataJson = de.egril.defender.utils.JsonUtils.extractDataSection(json)
         try {
-            val id = JsonUtils.extractValue(json, "id")
-            val timestamp = JsonUtils.extractValue(json, "timestamp").toLong()
-            val levelId = JsonUtils.extractValue(json, "levelId").toInt()
-            val levelName = JsonUtils.extractValue(json, "levelName")
-            val turnNumber = JsonUtils.extractValue(json, "turnNumber").toInt()
-            val coins = JsonUtils.extractValue(json, "coins").toInt()
-            val healthPoints = JsonUtils.extractValue(json, "healthPoints").toInt()
-            val phase = GamePhase.valueOf(JsonUtils.extractValue(json, "phase"))
-            val nextDefenderId = JsonUtils.extractValue(json, "nextDefenderId").toInt()
-            val nextAttackerId = JsonUtils.extractValue(json, "nextAttackerId").toInt()
-            val currentWaveIndex = JsonUtils.extractValue(json, "currentWaveIndex").toInt()
-            val spawnCounter = JsonUtils.extractValue(json, "spawnCounter").toInt()
+            val id = JsonUtils.extractValue(dataJson, "id")
+            val timestamp = JsonUtils.extractValue(dataJson, "timestamp").toLong()
+            val levelId = JsonUtils.extractValue(dataJson, "levelId").toInt()
+            val levelName = JsonUtils.extractValue(dataJson, "levelName")
+            val turnNumber = JsonUtils.extractValue(dataJson, "turnNumber").toInt()
+            val coins = JsonUtils.extractValue(dataJson, "coins").toInt()
+            val healthPoints = JsonUtils.extractValue(dataJson, "healthPoints").toInt()
+            val phase = GamePhase.valueOf(JsonUtils.extractValue(dataJson, "phase"))
+            val nextDefenderId = JsonUtils.extractValue(dataJson, "nextDefenderId").toInt()
+            val nextAttackerId = JsonUtils.extractValue(dataJson, "nextAttackerId").toInt()
+            val currentWaveIndex = JsonUtils.extractValue(dataJson, "currentWaveIndex").toInt()
+            val spawnCounter = JsonUtils.extractValue(dataJson, "spawnCounter").toInt()
             
             // Parse defenders
             val defenders = mutableListOf<SavedDefender>()
-            val defendersSection = json.substringAfter("\"defenders\": [").substringBefore("],")
+            val defendersSection = dataJson.substringAfter("\"defenders\": [").substringBefore("],")
             if (defendersSection.isNotBlank()) {
                 val defenderEntries = JsonUtils.splitJsonArray(defendersSection)
                 for (entry in defenderEntries) {
@@ -210,7 +227,7 @@ object SaveJsonSerializer {
             
             // Parse attackers
             val attackers = mutableListOf<SavedAttacker>()
-            val attackersSection = json.substringAfter("\"attackers\": [").substringBefore("],")
+            val attackersSection = dataJson.substringAfter("\"attackers\": [").substringBefore("],")
             if (attackersSection.isNotBlank()) {
                 val attackerEntries = JsonUtils.splitJsonArray(attackersSection)
                 for (entry in attackerEntries) {
@@ -220,7 +237,7 @@ object SaveJsonSerializer {
             
             // Parse attackersToSpawn
             val attackersToSpawn = mutableListOf<AttackerType>()
-            val attackersToSpawnSection = json.substringAfter("\"attackersToSpawn\": [").substringBefore("],")
+            val attackersToSpawnSection = dataJson.substringAfter("\"attackersToSpawn\": [").substringBefore("],")
             if (attackersToSpawnSection.isNotBlank()) {
                 val types = attackersToSpawnSection.split(",").map { it.trim().removeSurrounding("\"") }
                 for (typeStr in types) {
@@ -232,7 +249,7 @@ object SaveJsonSerializer {
             
             // Parse field effects
             val fieldEffects = mutableListOf<SavedFieldEffect>()
-            val fieldEffectsSection = json.substringAfter("\"fieldEffects\": [").substringBefore("],")
+            val fieldEffectsSection = dataJson.substringAfter("\"fieldEffects\": [").substringBefore("],")
             if (fieldEffectsSection.isNotBlank()) {
                 val effectEntries = JsonUtils.splitJsonArray(fieldEffectsSection)
                 for (entry in effectEntries) {
@@ -243,7 +260,7 @@ object SaveJsonSerializer {
             // Parse traps
             val traps = mutableListOf<SavedTrap>()
             val trapsSection = try {
-                json.substringAfter("\"traps\": [").substringBefore("],")
+                dataJson.substringAfter("\"traps\": [").substringBefore("],")
             } catch (e: Exception) {
                 ""  // Handle old saves without rafts field
             }
@@ -256,9 +273,9 @@ object SaveJsonSerializer {
             
             // Parse rafts (optional field for backward compatibility with old saves)
             val rafts = mutableListOf<SavedRaft>()
-            if (json.contains("\"rafts\":")) {
+            if (dataJson.contains("\"rafts\":")) {
                 val raftsSection = try {
-                    json.substringAfter("\"rafts\": [").substringBefore("],")
+                    dataJson.substringAfter("\"rafts\": [").substringBefore("],")
                 } catch (e: Exception) {
                     ""  // Old saves don't have rafts
                 }
@@ -272,16 +289,16 @@ object SaveJsonSerializer {
             
             // Parse nextRaftId (optional field for backward compatibility)
             val nextRaftId = try {
-                JsonUtils.extractValue(json, "nextRaftId").toInt()
+                JsonUtils.extractValue(dataJson, "nextRaftId").toInt()
             } catch (e: Exception) {
                 1  // Default to 1 for old saves
             }
             
             // Parse barricades (optional field for backward compatibility with old saves)
             val barricades = mutableListOf<SavedBarricade>()
-            if (json.contains("\"barricades\":")) {
+            if (dataJson.contains("\"barricades\":")) {
                 val barricadesSection = try {
-                    json.substringAfter("\"barricades\": [").substringBefore("],")
+                    dataJson.substringAfter("\"barricades\": [").substringBefore("],")
                 } catch (e: Exception) {
                     ""  // Old saves don't have barricades
                 }
@@ -295,14 +312,14 @@ object SaveJsonSerializer {
             
             // Parse comment (optional field, may not exist in older saves)
             val comment = try {
-                extractCommentValue(json)
+                extractCommentValue(dataJson)
             } catch (e: Exception) {
                 null  // If comment field doesn't exist (old save), default to null
             }
             
             // Parse mapId (optional field, may not exist in older saves)
             val mapId = try {
-                val value = JsonUtils.extractValue(json, "mapId")
+                val value = JsonUtils.extractValue(dataJson, "mapId")
                 if (value.isBlank() || value == "null") null else value
             } catch (e: Exception) {
                 null  // If mapId field doesn't exist (old save), default to null
@@ -310,15 +327,16 @@ object SaveJsonSerializer {
             
             // Parse worldMapSave (optional field, may not exist in older saves)
             val worldMapSave = try {
-                if (json.contains("\"worldMapSave\":")) {
-                    val worldMapSection = json.substringAfter("\"worldMapSave\":")
+                if (dataJson.contains("\"worldMapSave\":")) {
+                    val worldMapSection = dataJson.substringAfter("\"worldMapSave\":")
                         .trim()
                     
                     // Check if it's null
                     if (worldMapSection.startsWith("null")) {
                         null
                     } else {
-                        // Extract the world map object
+                        // Extract the world map object (embedded without its own metadata wrapper;
+                        // deserializeWorldMapSave handles both wrapped and plain formats)
                         val worldMapJson = worldMapSection.substringAfter("{").substringBefore("}}")
                             .let { "{$it}" }
                         deserializeWorldMapSave(worldMapJson)
@@ -595,19 +613,26 @@ object SaveJsonSerializer {
         val lastUsedPlayerIdJson = profiles.lastUsedPlayerId?.let { "\"$it\"" } ?: "null"
         
         return """{
-  "profiles": [
-    $profilesJson
-  ],
-  "lastUsedPlayerId": $lastUsedPlayerIdJson
+  "metadata": {
+    "program": "$PROGRAM_NAME",
+    "type": "players"
+  },
+  "data": {
+    "profiles": [
+      $profilesJson
+    ],
+    "lastUsedPlayerId": $lastUsedPlayerIdJson
+  }
 }"""
     }
     
     fun deserializePlayerProfiles(json: String): PlayerProfiles? {
+        val dataJson = de.egril.defender.utils.JsonUtils.extractDataSection(json)
         try {
             val profiles = mutableListOf<PlayerProfile>()
             
             // Parse profiles array
-            val profilesSection = json.substringAfter("\"profiles\": [").substringBefore("],")
+            val profilesSection = dataJson.substringAfter("\"profiles\": [").substringBefore("],")
             if (profilesSection.isNotBlank()) {
                 val profileEntries = JsonUtils.splitJsonArray(profilesSection)
                 for (entry in profileEntries) {
@@ -647,7 +672,7 @@ object SaveJsonSerializer {
             
             // Parse lastUsedPlayerId
             val lastUsedPlayerId = try {
-                val value = JsonUtils.extractValue(json, "lastUsedPlayerId")
+                val value = JsonUtils.extractValue(dataJson, "lastUsedPlayerId")
                 if (value == "null") null else value
             } catch (e: Exception) {
                 null

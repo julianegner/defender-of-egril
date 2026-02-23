@@ -18,27 +18,7 @@ object EditorJsonSerializer {
      * Extracts the "data" section from a file with metadata wrapper.
      * If the JSON has no metadata wrapper (old format), returns the JSON as-is for backward compatibility.
      */
-    internal fun extractDataSection(json: String): String {
-        if (!json.contains("\"metadata\"")) {
-            return json  // Old format - no wrapper, return as-is
-        }
-        val dataKeyIndex = json.indexOf("\"data\"")
-        if (dataKeyIndex == -1) return json
-        val colonIndex = json.indexOf(":", dataKeyIndex + 6)
-        if (colonIndex == -1) return json
-        val openBrace = json.indexOf("{", colonIndex + 1)
-        if (openBrace == -1) return json
-        var depth = 1
-        var endIndex = openBrace + 1
-        while (endIndex < json.length && depth > 0) {
-            when (json[endIndex]) {
-                '{' -> depth++
-                '}' -> depth--
-            }
-            endIndex++
-        }
-        return json.substring(openBrace, endIndex)
-    }
+    internal fun extractDataSection(json: String): String = de.egril.defender.utils.JsonUtils.extractDataSection(json)
 
     fun serializeMap(map: EditorMap): String {
         val tilesJson = map.tiles.entries.joinToString(",\n    ") { (pos, type) ->
