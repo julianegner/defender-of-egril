@@ -255,15 +255,17 @@ fun GameGrid(
             },
             focusTrigger = gameState.phase.value,  // Request focus when game phase changes (e.g., after "Start Battle")
             modifier = Modifier.fillMaxSize(),
-            backgroundContent = if (hasMapImage) { { contentSize ->
+            backgroundContent = if (hasMapImage) { { measuredContentSize ->
                 val density = androidx.compose.ui.platform.LocalDensity.current
+                val targetWidthPx = maxOf(hexMapSizePx.first, measuredContentSize.width)
+                val targetHeightPx = maxOf(hexMapSizePx.second, measuredContentSize.height)
                 with(density) {
                     androidx.compose.foundation.Image(
                         painter = mapImagePainter!!,
                         contentDescription = null,
                         modifier = Modifier
-                            .width(contentSize.width.toDp())
-                            .height(contentSize.height.toDp()),
+                            .requiredWidth(targetWidthPx.toDp())
+                            .requiredHeight(targetHeightPx.toDp()),
                         contentScale = androidx.compose.ui.layout.ContentScale.FillBounds
                     )
                 }
