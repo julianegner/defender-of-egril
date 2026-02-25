@@ -31,7 +31,8 @@ object MapImageGenerator {
     private const val HORIZONTAL_SPACING = -10.0
     private const val ODD_ROW_OFFSET_RATIO = 0.42
     private const val PADDING = 20.0
-    private val BLEND_SIGMA = HEX_WIDTH * 0.6                // ~41.6 px
+    // Slightly lower sigma to sharpen biome transitions while keeping soft edges
+    private val BLEND_SIGMA = HEX_WIDTH * 0.45               // ~31.2 px
 
     // --- Rendering constants (mapgen4 style) ---
     private const val SHADING_SCALE = 160.0
