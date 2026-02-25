@@ -78,10 +78,24 @@ object MapImageGenerator {
     }
 
     fun imageSize(gridWidth: Int, gridHeight: Int): Pair<Int, Int> {
-        val (lastColX, _) = tileCenter(gridWidth - 1, 0)
-        val width = (lastColX + HEX_WIDTH / 2f).toInt() + 2
-        val (_, lastRowY) = tileCenter(0, gridHeight - 1)
-        val height = (lastRowY + HEX_HEIGHT / 2f).toInt() + 2
+        val rowSpacing = -HEX_HEIGHT + VERTICAL_SPACING + VERTICAL_SPACING_ADJUSTMENT
+        val colSpacing = HORIZONTAL_SPACING
+
+        var maxRight = 0f
+        var maxBottom = 0f
+
+        for (y in 0 until gridHeight) {
+            val startX = if (y % 2 == 1) ODD_ROW_OFFSET else 0f
+            val rowWidth = startX + (gridWidth * HEX_WIDTH) + ((gridWidth - 1) * colSpacing)
+            if (rowWidth > maxRight) maxRight = rowWidth
+
+            val topY = y * (HEX_HEIGHT + rowSpacing) + (-(y - 1))
+            val bottomY = topY + HEX_HEIGHT
+            if (bottomY > maxBottom) maxBottom = bottomY
+        }
+
+        val width = ceil(maxRight).toInt() + 2
+        val height = ceil(maxBottom).toInt() + 2
         return Pair(width, height)
     }
 
