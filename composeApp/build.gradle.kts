@@ -343,6 +343,22 @@ dependencies {
     debugImplementation(compose.uiTooling)
 }
 
+// Task to generate map PNG images from map JSON files using the Kotlin MapImageGenerator
+tasks.register<JavaExec>("generateMapImages") {
+    group = "mapgen"
+    description = "Generate PNG map images for all map JSON files in the repository"
+    dependsOn("compileKotlinDesktop")
+    classpath = files(
+        kotlin.targets.named("desktop").map { target ->
+            (target as org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget)
+                .compilations["main"].output.classesDirs
+        },
+        configurations.named("desktopRuntimeClasspath")
+    )
+    mainClass.set("de.egril.defender.mapgen.GenerateMapImagesKt")
+    workingDir = rootDir
+}
+
 compose.desktop {
     application {
         mainClass = "de.egril.defender.MainKt"
