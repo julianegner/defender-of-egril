@@ -1225,4 +1225,6 @@
     <string name="debug_options">Debug Options</string>
     <string name="debug_display_tile_borders">Display Tile Borders</string>
     <string name="debug_display_tile_positions">Display Tile Positions</string>
+    <string name="debug_display_map_size">Display Map Size</string>
+    <string name="debug_map_size_overlay">Map size: %1$ddp × %2$ddp / %3$dpx × %4$dpx</string>
 </resources>

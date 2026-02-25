@@ -206,6 +206,7 @@ object AppSettings {
     // Session-only debug states (not persisted)
     val showTileBorders: MutableState<Boolean> = mutableStateOf(false)
     val showTilePositions: MutableState<Boolean> = mutableStateOf(false)
+    val showMapSizeOverlay: MutableState<Boolean> = mutableStateOf(false)
 
     /**
      * Level header text size - controls the size of text and icons in the game header

@@ -2,6 +2,7 @@ package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -17,6 +18,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Dp
@@ -295,32 +297,65 @@ fun GameGrid(
                 offsetY = constrainedY
             }
         ) {
-            // Minimap
-            Box(
-                modifier = Modifier.size(120.dp)
+            val density = androidx.compose.ui.platform.LocalDensity.current
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalAlignment = Alignment.End
             ) {
-                HexagonMinimap(
-                    level = gameState.level,
-                    config = MinimapConfig(
-                        showSpawnPoints = true,
-                        showTarget = true,
-                        showTowers = true,
-                        showEnemies = true,
-                        showViewport = true,
-                        minimapSizeDp = 120f
-                    ),
-                    gameState = gameState,
-                    scale = scale,
-                    offsetX = offsetX,
-                    offsetY = offsetY,
-                    containerSize = containerSize,
-                    contentSize = contentSize,
-                    modifier = Modifier.fillMaxSize(),
-                    onViewportDrag = { newOffsetX, newOffsetY ->
-                        offsetX = newOffsetX
-                        offsetY = newOffsetY
+                if (AppSettings.showMapSizeOverlay.value && contentSize.width > 0 && contentSize.height > 0) {
+                    val widthPx = contentSize.width
+                    val heightPx = contentSize.height
+                    val (widthDp, heightDp) = with(density) {
+                        widthPx.toDp() to heightPx.toDp()
                     }
-                )
+                    Surface(
+                        tonalElevation = 2.dp,
+                        shadowElevation = 4.dp,
+                        shape = RoundedCornerShape(6.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                    ) {
+                        Text(
+                            text = stringResource(
+                                Res.string.debug_map_size_overlay,
+                                widthDp.roundToInt(),
+                                heightDp.roundToInt(),
+                                widthPx,
+                                heightPx
+                            ),
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                }
+
+                // Minimap
+                Box(
+                    modifier = Modifier.size(120.dp)
+                ) {
+                    HexagonMinimap(
+                        level = gameState.level,
+                        config = MinimapConfig(
+                            showSpawnPoints = true,
+                            showTarget = true,
+                            showTowers = true,
+                            showEnemies = true,
+                            showViewport = true,
+                            minimapSizeDp = 120f
+                        ),
+                        gameState = gameState,
+                        scale = scale,
+                        offsetX = offsetX,
+                        offsetY = offsetY,
+                        containerSize = containerSize,
+                        contentSize = contentSize,
+                        modifier = Modifier.fillMaxSize(),
+                        onViewportDrag = { newOffsetX, newOffsetY ->
+                            offsetX = newOffsetX
+                            offsetY = newOffsetY
+                        }
+                    )
+                }
             }
         }
     }

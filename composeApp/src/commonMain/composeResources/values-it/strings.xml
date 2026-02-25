@@ -1225,4 +1225,6 @@
     <string name="debug_options">Opzioni di debug</string>
     <string name="debug_display_tile_borders">Mostra bordi delle celle</string>
     <string name="debug_display_tile_positions">Mostra posizioni delle celle</string>
+    <string name="debug_display_map_size">Mostra dimensione mappa</string>
+    <string name="debug_map_size_overlay">Dimensione mappa: %1$ddp × %2$ddp / %3$dpx × %4$dpx</string>
 </resources>

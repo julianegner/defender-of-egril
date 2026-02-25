@@ -31,7 +31,8 @@ object MapImageGenerator {
     private const val ODD_ROW_OFFSET_RATIO = 0.42f
 
     // Row step = hexHeight + rowSpacing - 1 (from HexUtils.kt)
-    val ROW_STEP = HEX_HEIGHT + (-HEX_HEIGHT + VERTICAL_SPACING + VERTICAL_SPACING_ADJUSTMENT) - 1f  // 52 dp
+    // Matches HexagonalMapView row stacking: each row is hexHeight tall with -27dp spacing and a +1dp offset per row
+    val ROW_STEP = HEX_HEIGHT + (-HEX_HEIGHT + VERTICAL_SPACING + VERTICAL_SPACING_ADJUSTMENT) // 53 dp
     val COL_STEP = HEX_WIDTH + HORIZONTAL_SPACING  // ≈ 59.28 dp
     val ODD_ROW_OFFSET = HEX_WIDTH * ODD_ROW_OFFSET_RATIO  // ≈ 29.1 dp
 
@@ -89,13 +90,14 @@ object MapImageGenerator {
             val rowWidth = startX + (gridWidth * HEX_WIDTH) + ((gridWidth - 1) * colSpacing)
             if (rowWidth > maxRight) maxRight = rowWidth
 
-            val topY = y * (HEX_HEIGHT + rowSpacing) + (-(y - 1))
+            val topY = y * (HEX_HEIGHT + rowSpacing)
             val bottomY = topY + HEX_HEIGHT
             if (bottomY > maxBottom) maxBottom = bottomY
         }
 
-        val width = ceil(maxRight).toInt() + 2
-        val height = ceil(maxBottom).toInt() + 2
+        // Add 1px guard padding to match Compose layout rounding
+        val width = ceil(maxRight).toInt() + 1
+        val height = ceil(maxBottom).toInt() + 1
         return Pair(width, height)
     }
 

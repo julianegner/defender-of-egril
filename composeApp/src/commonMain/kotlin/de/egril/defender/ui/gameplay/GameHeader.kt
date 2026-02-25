@@ -161,6 +161,23 @@ fun GameHeader(
                                 },
                                 onClick = { AppSettings.showTilePositions.value = !AppSettings.showTilePositions.value }
                             )
+
+                            DropdownMenuItem(
+                                text = {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(stringResource(Res.string.debug_display_map_size))
+                                        Spacer(modifier = Modifier.weight(1f))
+                                        Switch(
+                                            checked = AppSettings.showMapSizeOverlay.value,
+                                            onCheckedChange = { AppSettings.showMapSizeOverlay.value = it }
+                                        )
+                                    }
+                                },
+                                onClick = { AppSettings.showMapSizeOverlay.value = !AppSettings.showMapSizeOverlay.value }
+                            )
                         }
                     }
                 }

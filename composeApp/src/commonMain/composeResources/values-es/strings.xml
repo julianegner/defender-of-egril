@@ -1224,4 +1224,6 @@
     <string name="debug_options">Opciones de depuración</string>
     <string name="debug_display_tile_borders">Mostrar bordes de celdas</string>
     <string name="debug_display_tile_positions">Mostrar posiciones de celdas</string>
+    <string name="debug_display_map_size">Mostrar tamaño del mapa</string>
+    <string name="debug_map_size_overlay">Tamaño del mapa: %1$ddp × %2$ddp / %3$dpx × %4$dpx</string>
 </resources>

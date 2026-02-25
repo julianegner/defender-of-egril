@@ -1222,4 +1222,6 @@
     <string name="debug_options">Debug-Optionen</string>
     <string name="debug_display_tile_borders">Kachel-Umrandungen anzeigen</string>
     <string name="debug_display_tile_positions">Kachel-Positionen anzeigen</string>
+    <string name="debug_display_map_size">Kartengröße anzeigen</string>
+    <string name="debug_map_size_overlay">Kartengröße: %1$ddp × %2$ddp / %3$dpx × %4$dpx</string>
 </resources>

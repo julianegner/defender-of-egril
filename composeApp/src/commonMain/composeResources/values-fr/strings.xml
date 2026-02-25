@@ -1224,4 +1224,6 @@
     <string name="debug_options">Options de débogage</string>
     <string name="debug_display_tile_borders">Afficher les bordures des tuiles</string>
     <string name="debug_display_tile_positions">Afficher les positions des tuiles</string>
+    <string name="debug_display_map_size">Afficher la taille de la carte</string>
+    <string name="debug_map_size_overlay">Taille de la carte : %1$ddp × %2$ddp / %3$dpx × %4$dpx</string>
 </resources>
