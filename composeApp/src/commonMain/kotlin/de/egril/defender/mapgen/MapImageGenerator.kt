@@ -2,6 +2,7 @@ package de.egril.defender.mapgen
 
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.TileType
+import de.egril.defender.model.RiverFlow
 import kotlin.math.ceil
 import kotlin.math.exp
 import kotlin.math.floor
@@ -44,12 +45,18 @@ object MapImageGenerator {
     private val NOISE_BASE_PX = HEX_WIDTH * 3.0
 
     // --- Biomes (from generate_map_image.ts.txt) ---
-    private data class Biome(val elevation: Double, val moisture: Double, val noiseAmp: Double)
+    private data class Biome(
+        val elevation: Double,
+        val moisture: Double,
+        val noiseAmp: Double,
+        val blendWeight: Double = 1.0
+    )
 
     private val DEFAULT_BIOME = Biome(0.60, 0.0, 0.45)
     private val TILE_BIOME: Map<TileType, Biome> = mapOf(
         TileType.NO_PLAY to Biome(0.60, 0.0, 0.45),
-        TileType.RIVER to Biome(-0.30, 0.0, 0.05),
+        // Lower blend weight reduces how far river blue bleeds into adjacent path tiles
+        TileType.RIVER to Biome(-0.30, 0.0, 0.05, blendWeight = 0.6),
         TileType.PATH to Biome(0.06, 0.08, 0.04),
         TileType.BUILD_AREA to Biome(0.05, 1.00, 0.04),
         TileType.SPAWN_POINT to Biome(0.06, 0.08, 0.04),
@@ -138,6 +145,9 @@ object MapImageGenerator {
         val elevBase = DoubleArray(n)
         val moistBase = DoubleArray(n)
         val noiseAmps = DoubleArray(n)
+        val blendWeights = DoubleArray(n)
+
+        val maelstromCenters = mutableListOf<Pair<Double, Double>>()
 
         val grid = SpatialGrid(BLEND_SIGMA, imgW)
         var idx = 0
@@ -146,11 +156,16 @@ object MapImageGenerator {
                 val (cx, cy) = hexCenter(gx, gy)
                 cX[idx] = cx
                 cY[idx] = cy
-                val biome = TILE_BIOME[map.tiles["$gx,$gy"] ?: TileType.NO_PLAY] ?: DEFAULT_BIOME
+                val tileType = map.tiles["$gx,$gy"] ?: TileType.NO_PLAY
+                val biome = TILE_BIOME[tileType] ?: DEFAULT_BIOME
                 elevBase[idx] = biome.elevation
                 moistBase[idx] = biome.moisture
                 noiseAmps[idx] = biome.noiseAmp
+                blendWeights[idx] = biome.blendWeight
                 grid.insert(cx, cy, idx)
+                if (tileType == TileType.RIVER && map.riverTiles["$gx,$gy"]?.flowDirection == RiverFlow.MAELSTROM) {
+                    maelstromCenters.add(cx to cy)
+                }
                 idx++
             }
         }
@@ -177,7 +192,7 @@ object MapImageGenerator {
                     val dx = px - cX[hi]
                     val dy = py - cY[hi]
                     val moistureW = 1.0 + moistBase[hi] * MOISTURE_DOMINANCE
-                    val w = moistureW * exp(-(dx * dx + dy * dy) / sigma2)
+                    val w = blendWeights[hi] * moistureW * exp(-(dx * dx + dy * dy) / sigma2)
                     aE += w * elevBase[hi]
                     aM += w * moistBase[hi]
                     aNA += w * noiseAmps[hi]
@@ -247,7 +262,56 @@ object MapImageGenerator {
             }
         }
 
+        if (maelstromCenters.isNotEmpty()) {
+            overlayMaelstrom(pixels, imgW, imgH, maelstromCenters)
+        }
+
         return Triple(pixels, imgW, imgH)
+    }
+
+    private fun overlayMaelstrom(
+        pixels: IntArray,
+        width: Int,
+        height: Int,
+        centers: List<Pair<Double, Double>>
+    ) {
+        val outerR = HEX_WIDTH * 0.6
+        val innerR = outerR * 0.45
+        val outerR2 = outerR * outerR
+        val innerR2 = innerR * innerR
+        for ((cx, cy) in centers) {
+            val minX = max(0, floor(cx - outerR).toInt())
+            val maxX = min(width - 1, ceil(cx + outerR).toInt())
+            val minY = max(0, floor(cy - outerR).toInt())
+            val maxY = min(height - 1, ceil(cy + outerR).toInt())
+            for (py in minY..maxY) {
+                val dy = py - cy
+                val dy2 = dy * dy
+                if (dy2 > outerR2) continue
+                for (px in minX..maxX) {
+                    val dx = px - cx
+                    val dist2 = dx * dx + dy2
+                    if (dist2 > outerR2) continue
+                    val i = py * width + px
+                    val argb = pixels[i]
+                    val a = (argb ushr 24) and 0xFF
+                    val r = (argb ushr 16) and 0xFF
+                    val g = (argb ushr 8) and 0xFF
+                    val b = argb and 0xFF
+
+                    // Radial whirlpool accent: brighter center, darker rim.
+                    val t = if (dist2 <= innerR2) 1.0 else 1.0 - (dist2 - innerR2) / (outerR2 - innerR2)
+                    val accent = 0.35 + 0.45 * t
+                    val rim = 0.20 * (1.0 - t)
+
+                    val rOut = (r * (1.0 - rim) * (1.0 - accent) + 110 * accent).coerceIn(0.0, 255.0)
+                    val gOut = (g * (1.0 - rim) * (1.0 - accent) + 170 * accent).coerceIn(0.0, 255.0)
+                    val bOut = (b * (1.0 - rim) * (1.0 - accent) + 230 * accent).coerceIn(0.0, 255.0)
+
+                    pixels[i] = (a shl 24) or (rOut.roundToInt() shl 16) or (gOut.roundToInt() shl 8) or bOut.roundToInt()
+                }
+            }
+        }
     }
 
     // --- Helpers (hash + PRNG) ---
