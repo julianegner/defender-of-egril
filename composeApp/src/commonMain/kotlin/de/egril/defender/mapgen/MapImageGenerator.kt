@@ -37,8 +37,9 @@ object MapImageGenerator {
     val ODD_ROW_OFFSET = HEX_WIDTH * ODD_ROW_OFFSET_RATIO  // ≈ 29.1 dp
 
     // --- Mapgen parameters (mirroring mapgen4 style) ---
-    private const val BLEND_SIGMA = 40f               // Gaussian sigma for biome blending
-    private const val MOISTURE_DOMINANCE = 0.6f       // Moist biomes dominate transitions
+    private const val BLEND_SIGMA = 30f               // Gaussian sigma for biome blending
+    private const val MOISTURE_DOMINANCE = 0.35f      // Moist biomes dominate transitions
+    private const val NEAREST_ANCHOR_WEIGHT = 6f      // Ensures center tile stays dominant
     private val NOISE_SCALES = floatArrayOf(1f, 2f, 4f)
     private val NOISE_WEIGHTS = floatArrayOf(0.6f, 0.3f, 0.1f)
     private const val NOISE_BASE_PX = 256f
@@ -153,14 +154,28 @@ object MapImageGenerator {
                 var aE = 0f
                 var aM = 0f
                 var aNA = 0f
+                var nearestIdx = -1
+                var nearestDist2 = Float.MAX_VALUE
                 for (hi in nearby) {
                     val dx = px - cX[hi]
                     val dy = py - cY[hi]
                     val moistureW = 1f + moistBase[hi] * MOISTURE_DOMINANCE
                     val w = moistureW * exp(-(dx * dx + dy * dy) / sigma2)
+                    val d2 = dx * dx + dy * dy
+                    if (d2 < nearestDist2) {
+                        nearestDist2 = d2
+                        nearestIdx = hi
+                    }
                     aE += w * elevBase[hi]
                     aM += w * moistBase[hi]
                     aNA += w * noiseAmps[hi]
+                    tW += w
+                }
+                if (nearestIdx >= 0) {
+                    val w = NEAREST_ANCHOR_WEIGHT
+                    aE += w * elevBase[nearestIdx]
+                    aM += w * moistBase[nearestIdx]
+                    aNA += w * noiseAmps[nearestIdx]
                     tW += w
                 }
                 var e = aE / tW
