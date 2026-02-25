@@ -318,8 +318,8 @@ fun GameGrid(
                         Text(
                             text = stringResource(
                                 Res.string.debug_map_size_overlay,
-                                widthDp.roundToInt(),
-                                heightDp.roundToInt(),
+                                widthDp.value.toInt(),
+                                heightDp.value.toInt(),
                                 widthPx,
                                 heightPx
                             ),
