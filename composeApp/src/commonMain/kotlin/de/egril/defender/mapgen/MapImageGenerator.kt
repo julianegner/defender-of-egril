@@ -37,9 +37,8 @@ object MapImageGenerator {
     val ODD_ROW_OFFSET = HEX_WIDTH * ODD_ROW_OFFSET_RATIO  // ≈ 29.1 dp
 
     // --- Mapgen parameters (mirroring mapgen4 style) ---
-    private const val BLEND_SIGMA = 30f               // Gaussian sigma for biome blending
-    private const val MOISTURE_DOMINANCE = 0.35f      // Moist biomes dominate transitions
-    private const val NEAREST_ANCHOR_WEIGHT = 6f      // Ensures center tile stays dominant
+    private const val BLEND_SIGMA = 40f               // Gaussian sigma for biome blending
+    private const val MOISTURE_DOMINANCE = 0.6f       // Moist biomes dominate transitions
     private val NOISE_SCALES = floatArrayOf(1f, 2f, 4f)
     private val NOISE_WEIGHTS = floatArrayOf(0.6f, 0.3f, 0.1f)
     private const val NOISE_BASE_PX = 256f
@@ -154,28 +153,14 @@ object MapImageGenerator {
                 var aE = 0f
                 var aM = 0f
                 var aNA = 0f
-                var nearestIdx = -1
-                var nearestDist2 = Float.MAX_VALUE
                 for (hi in nearby) {
                     val dx = px - cX[hi]
                     val dy = py - cY[hi]
                     val moistureW = 1f + moistBase[hi] * MOISTURE_DOMINANCE
                     val w = moistureW * exp(-(dx * dx + dy * dy) / sigma2)
-                    val d2 = dx * dx + dy * dy
-                    if (d2 < nearestDist2) {
-                        nearestDist2 = d2
-                        nearestIdx = hi
-                    }
                     aE += w * elevBase[hi]
                     aM += w * moistBase[hi]
                     aNA += w * noiseAmps[hi]
-                    tW += w
-                }
-                if (nearestIdx >= 0) {
-                    val w = NEAREST_ANCHOR_WEIGHT
-                    aE += w * elevBase[nearestIdx]
-                    aM += w * moistBase[nearestIdx]
-                    aNA += w * noiseAmps[nearestIdx]
                     tW += w
                 }
                 var e = aE / tW
@@ -264,20 +249,20 @@ object MapImageGenerator {
         }
 
         // Water stack (deep → shallow → shore glow)
-        val deepWater = Color(0xFF0B274B.toInt())
-        val midWater = Color(0xFF124B8A.toInt())
-        val shallowWater = Color(0xFF1E7AC0.toInt())
-        val shoreWater = Color(0xFF48A7D5.toInt())
-        val shore = Color(0xFFE3C78F.toInt())
+        val deepWater = Color(0xFF0A264A.toInt())
+        val midWater = Color(0xFF1A4478.toInt())
+        val shallowWater = Color(0xFF1F6CA4.toInt())
+        val shoreWater = Color(0xFF41A6D9.toInt())
+        val shore = Color(0xFFDCC68A.toInt())
 
         // Land stack (sand → grass → forest → rock → snow)
-        val drySand = Color(0xFFDCC68A.toInt())
-        val duneSand = Color(0xFFE4D09E.toInt())
-        val dryGrass = Color(0xFF9BB575.toInt())
-        val lushGrass = Color(0xFF6CA064.toInt())
-        val forest = Color(0xFF3C7A4D.toInt())
-        val rock = Color(0xFF8A7D6C.toInt())
-        val snow = Color(0xFFF5F7FA.toInt())
+        val drySand = Color(0xFFD9C48B.toInt())
+        val duneSand = Color(0xFFE6D8AB.toInt())
+        val dryGrass = Color(0xFF9BBF7B.toInt())
+        val lushGrass = Color(0xFF78A968.toInt())
+        val forest = Color(0xFF4D7D4F.toInt())
+        val rock = Color(0xFF9A8E82.toInt())
+        val snow = Color(0xFFF6F7FA.toInt())
 
         return when {
             elev < -0.6f -> lerp(deepWater, midWater, (elev + 1f) / 0.4f)
