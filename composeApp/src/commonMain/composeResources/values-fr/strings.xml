@@ -1225,5 +1225,5 @@
     <string name="debug_display_tile_borders">Afficher les bordures des tuiles</string>
     <string name="debug_display_tile_positions">Afficher les positions des tuiles</string>
     <string name="debug_display_map_size">Afficher la taille de la carte</string>
-    <string name="debug_map_size_overlay">Réel : %1$ddp × %2$ddp / %3$dpx × %4$dpx\nContenu : %5$ddp × %6$ddp / %7$dpx × %8$dpx\nVue : %9$ddp × %10$ddp / %11$dpx × %12$dpx\nDécalage : %13$d, %14$d</string>
+    <string name="debug_map_size_overlay">Carte hex : %1$ddp × %2$ddp / %3$dpx × %4$dpx\nContenu : %5$ddp × %6$ddp / %7$dpx × %8$dpx\nVue : %9$ddp × %10$ddp / %11$dpx × %12$dpx\nDécalage : %13$d, %14$d</string>
 </resources>

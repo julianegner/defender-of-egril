@@ -35,7 +35,6 @@ import de.egril.defender.ui.icon.GateIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
 import com.hyperether.resources.stringResource
-import de.egril.defender.mapgen.MapImageGenerator
 import de.egril.defender.ui.editor.map.MapControlState
 import de.egril.defender.ui.editor.map.MapControls
 import defender_of_egril.composeapp.generated.resources.*
@@ -46,6 +45,7 @@ import de.egril.defender.ui.hexagon.BaseGridCell
 import de.egril.defender.ui.hexagon.HexagonMinimap
 import de.egril.defender.ui.hexagon.HexagonShape
 import de.egril.defender.ui.hexagon.HexagonalMapConfig
+import de.egril.defender.ui.hexagon.HexagonalGridConstants
 import de.egril.defender.ui.hexagon.HexagonalMapView
 import de.egril.defender.ui.hexagon.MinimapConfig
 import de.egril.defender.ui.icon.PentagramIcon
@@ -215,8 +215,20 @@ fun GameGrid(
     val mapImagePainter = rememberMapImagePainter(mapId)
     val useLevelMapImage = AppSettings.useLevelMapImage.value
     val hasMapImage = mapImagePainter != null && useLevelMapImage
-    val realMapSizePx = remember(gameState.level.gridWidth, gameState.level.gridHeight) {
-        MapImageGenerator.imageSize(gameState.level.gridWidth, gameState.level.gridHeight)
+    val hexMapSizePx = remember(gameState.level.gridWidth, gameState.level.gridHeight, hexSize) {
+        val hexSizePx = hexSize.value
+        val hexWidthPx = hexSizePx * sqrt(3.0).toFloat()
+        val hexHeightPx = hexSizePx * 2f
+        val verticalSpacingPx = hexHeightPx * 0.75f
+        val rowSpacingPx = -hexHeightPx + verticalSpacingPx + HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT
+        val oddOffsetPx = hexWidthPx * HexagonalGridConstants.ODD_ROW_OFFSET_RATIO
+        val colSpacingPx = HexagonalGridConstants.HORIZONTAL_SPACING
+
+        val maxOddOffset = if (gameState.level.gridHeight > 1) oddOffsetPx else 0f
+        val widthPx = (gameState.level.gridWidth * hexWidthPx) + ((gameState.level.gridWidth - 1) * colSpacingPx) + maxOddOffset
+        val heightPx = ((gameState.level.gridHeight - 1) * (hexHeightPx + rowSpacingPx)) + hexHeightPx
+
+        widthPx.roundToInt() to heightPx.roundToInt()
     }
 
     Box(modifier = modifier
@@ -310,8 +322,8 @@ fun GameGrid(
                 if (AppSettings.showMapSizeOverlay.value && contentSize.width > 0 && contentSize.height > 0) {
                     val contentWidthPx = contentSize.width
                     val contentHeightPx = contentSize.height
-                    val realWidthPx = realMapSizePx.first
-                    val realHeightPx = realMapSizePx.second
+                    val realWidthPx = hexMapSizePx.first
+                    val realHeightPx = hexMapSizePx.second
                     val viewportWidthPx = containerSize.width
                     val viewportHeightPx = containerSize.height
                     val contentWidthDp = with(density) { contentWidthPx.toDp() }
