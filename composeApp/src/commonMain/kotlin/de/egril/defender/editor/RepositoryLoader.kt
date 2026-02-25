@@ -163,6 +163,14 @@ object RepositoryLoader {
                     val mapJson = EditorJsonSerializer.serializeMap(officialMap)
                     storage.writeFile("gamedata/official/maps/$mapId.json", mapJson)
                     println("Loaded and saved official map: $mapId")
+                    // Also copy the map image PNG if available
+                    try {
+                        val pngBytes = Res.readBytes("files/repository/maps/$mapId.png")
+                        storage.writeBinaryFile("gamedata/official/maps/$mapId.png", pngBytes)
+                        println("Loaded and saved official map image: $mapId.png")
+                    } catch (e: Exception) {
+                        // PNG might not exist, that's OK
+                    }
                     mapCount++
                 } else {
                     println("WARNING: Could not load map $mapId from repository")

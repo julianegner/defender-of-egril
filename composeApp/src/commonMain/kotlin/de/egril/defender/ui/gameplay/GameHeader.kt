@@ -18,8 +18,10 @@ import androidx.compose.ui.zIndex
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.SaveIcon
+import de.egril.defender.ui.icon.ToolsIcon
 import de.egril.defender.ui.icon.TriangleLeftIcon
 import de.egril.defender.ui.icon.TriangleRightIcon
+import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.DifficultyDisplay
 import com.hyperether.resources.stringResource
@@ -36,6 +38,8 @@ fun GameHeader(
     onEnemyCountClick: (() -> Unit)? = null
 ) {
     val headerTextSize = de.egril.defender.ui.settings.AppSettings.headerTextSize.value
+    var showDebugMenu by remember { mutableStateOf(false) }
+    val showDebugOptions = AppSettings.showDebugOptions.value
     
     Box(
         modifier = Modifier
@@ -109,7 +113,58 @@ fun GameHeader(
                 DifficultyDisplay(
                     isClickable = false
                 )
-                
+
+                // Debug options button (only visible when debug options enabled)
+                if (showDebugOptions) {
+                    Box {
+                        IconButton(
+                            onClick = { showDebugMenu = !showDebugMenu },
+                            modifier = Modifier.size(buttonHeight)
+                        ) {
+                            ToolsIcon(size = buttonIconSize)
+                        }
+
+                        DropdownMenu(
+                            expanded = showDebugMenu,
+                            onDismissRequest = { showDebugMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(stringResource(Res.string.debug_display_tile_borders))
+                                        Spacer(modifier = Modifier.weight(1f))
+                                        Switch(
+                                            checked = AppSettings.showTileBorders.value,
+                                            onCheckedChange = { AppSettings.showTileBorders.value = it }
+                                        )
+                                    }
+                                },
+                                onClick = { AppSettings.showTileBorders.value = !AppSettings.showTileBorders.value }
+                            )
+
+                            DropdownMenuItem(
+                                text = {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(stringResource(Res.string.debug_display_tile_positions))
+                                        Spacer(modifier = Modifier.weight(1f))
+                                        Switch(
+                                            checked = AppSettings.showTilePositions.value,
+                                            onCheckedChange = { AppSettings.showTilePositions.value = it }
+                                        )
+                                    }
+                                },
+                                onClick = { AppSettings.showTilePositions.value = !AppSettings.showTilePositions.value }
+                            )
+                        }
+                    }
+                }
+
                 // Settings button (icon only to save space)
                 SettingsButton(
                     modifier = Modifier.size(buttonHeight)

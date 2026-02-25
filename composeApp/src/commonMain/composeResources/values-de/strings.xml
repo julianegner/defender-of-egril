@@ -1216,4 +1216,10 @@
     <string name="tower_info_title">Turminformationen</string>
     <string name="special_towers_info_title">Spezielle Türme</string>
     <string name="special_towers_info_reopen">Sie können diese Information jederzeit erneut öffnen, indem Sie auf das Turmsymbol im Level-Header klicken.</string>
+
+    <!-- Map Image and Debug Options -->
+    <string name="level_map_image">Karten-Hintergrundbild</string>
+    <string name="debug_options">Debug-Optionen</string>
+    <string name="debug_display_tile_borders">Kachel-Umrandungen anzeigen</string>
+    <string name="debug_display_tile_positions">Kachel-Positionen anzeigen</string>
 </resources>

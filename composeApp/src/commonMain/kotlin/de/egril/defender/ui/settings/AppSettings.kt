@@ -63,6 +63,8 @@ object AppSettings {
     private const val KEY_USE_TILE_SMOOTH_TRANSITIONS = "use_tile_smooth_transitions"
     private const val KEY_SHOW_TESTING_LEVELS = "show_testing_levels"
     private const val KEY_HEADER_TEXT_SIZE = "header_text_size"
+    private const val KEY_USE_LEVEL_MAP_IMAGE = "use_level_map_image"
+    private const val KEY_SHOW_DEBUG_OPTIONS = "show_debug_options"
     
     private val settings: Settings = Settings()
     
@@ -185,6 +187,26 @@ object AppSettings {
         settings.getBoolean(KEY_SHOW_TESTING_LEVELS, false)
     )
     
+    /**
+     * Use level map image - show PNG map image behind the hexagonal grid
+     * Default is true (level map image ON)
+     */
+    val useLevelMapImage: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_USE_LEVEL_MAP_IMAGE, true)
+    )
+
+    /**
+     * Show debug options - show debug icon in level header
+     * Default is false (debug options hidden)
+     */
+    val showDebugOptions: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_SHOW_DEBUG_OPTIONS, false)
+    )
+
+    // Session-only debug states (not persisted)
+    val showTileBorders: MutableState<Boolean> = mutableStateOf(false)
+    val showTilePositions: MutableState<Boolean> = mutableStateOf(false)
+
     /**
      * Level header text size - controls the size of text and icons in the game header
      * Default is SMALL (current size)
@@ -418,6 +440,16 @@ object AppSettings {
     fun saveHeaderTextSize(size: HeaderTextSize) {
         headerTextSize.value = size
         settings[KEY_HEADER_TEXT_SIZE] = size.name
+    }
+
+    fun saveUseLevelMapImage(use: Boolean) {
+        useLevelMapImage.value = use
+        settings.putBoolean(KEY_USE_LEVEL_MAP_IMAGE, use)
+    }
+
+    fun saveShowDebugOptions(show: Boolean) {
+        showDebugOptions.value = show
+        settings.putBoolean(KEY_SHOW_DEBUG_OPTIONS, show)
     }
     
     /**

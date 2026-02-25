@@ -136,6 +136,15 @@ class WasmJsFileStorage : FileStorage {
         // For browser storage, return a descriptive path
         return "Browser Storage: $path"
     }
+
+    override fun writeBinaryFile(path: String, content: ByteArray) {
+        // Binary file writing not supported in browser localStorage
+    }
+
+    override fun readBinaryFile(path: String): ByteArray? {
+        // Binary file reading not supported in browser localStorage
+        return null
+    }
 }
 
 actual fun getFileStorage(): FileStorage = WasmJsFileStorage()

@@ -1219,4 +1219,10 @@
     <string name="tower_info_title">Informazioni sulla Torre</string>
     <string name="special_towers_info_title">Torri Speciali</string>
     <string name="special_towers_info_reopen">Puoi riaprire queste informazioni in qualsiasi momento cliccando sull\'icona della torre nell\'intestazione del livello.</string>
+
+    <!-- Map Image and Debug Options -->
+    <string name="level_map_image">Immagine mappa</string>
+    <string name="debug_options">Opzioni di debug</string>
+    <string name="debug_display_tile_borders">Mostra bordi delle celle</string>
+    <string name="debug_display_tile_positions">Mostra posizioni delle celle</string>
 </resources>

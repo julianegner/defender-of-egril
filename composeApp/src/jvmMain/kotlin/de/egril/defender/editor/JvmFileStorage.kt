@@ -102,4 +102,21 @@ abstract class JvmFileStorage : FileStorage {
         val dir = baseDir ?: return path
         return File(dir, path).absolutePath
     }
+
+    override fun writeBinaryFile(path: String, content: ByteArray) {
+        val dir = baseDir ?: return
+        val file = File(dir, path)
+        file.parentFile?.mkdirs()
+        file.writeBytes(content)
+    }
+
+    override fun readBinaryFile(path: String): ByteArray? {
+        val dir = baseDir ?: return null
+        val file = File(dir, path)
+        return if (file.exists()) {
+            file.readBytes()
+        } else {
+            null
+        }
+    }
 }

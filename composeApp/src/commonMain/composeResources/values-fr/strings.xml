@@ -1218,4 +1218,10 @@
     <string name="tower_info_title">Informations sur la Tour</string>
     <string name="special_towers_info_title">Tours Spéciales</string>
     <string name="special_towers_info_reopen">Vous pouvez rouvrir ces informations à tout moment en cliquant sur l\'icône de tour dans l\'en-tête du niveau.</string>
+
+    <!-- Map Image and Debug Options -->
+    <string name="level_map_image">Image de la carte</string>
+    <string name="debug_options">Options de débogage</string>
+    <string name="debug_display_tile_borders">Afficher les bordures des tuiles</string>
+    <string name="debug_display_tile_positions">Afficher les positions des tuiles</string>
 </resources>
