@@ -35,6 +35,7 @@ import de.egril.defender.ui.icon.GateIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
 import com.hyperether.resources.stringResource
+import de.egril.defender.mapgen.MapImageGenerator
 import de.egril.defender.ui.editor.map.MapControlState
 import de.egril.defender.ui.editor.map.MapControls
 import defender_of_egril.composeapp.generated.resources.*
@@ -50,6 +51,7 @@ import de.egril.defender.ui.hexagon.MinimapConfig
 import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.rememberMapImagePainter
+import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -213,6 +215,9 @@ fun GameGrid(
     val mapImagePainter = rememberMapImagePainter(mapId)
     val useLevelMapImage = AppSettings.useLevelMapImage.value
     val hasMapImage = mapImagePainter != null && useLevelMapImage
+    val realMapSizePx = remember(gameState.level.gridWidth, gameState.level.gridHeight) {
+        MapImageGenerator.imageSize(gameState.level.gridWidth, gameState.level.gridHeight)
+    }
 
     Box(modifier = modifier
         .onSizeChanged { containerSize = it }
@@ -303,11 +308,18 @@ fun GameGrid(
                 horizontalAlignment = Alignment.End
             ) {
                 if (AppSettings.showMapSizeOverlay.value && contentSize.width > 0 && contentSize.height > 0) {
-                    val widthPx = contentSize.width
-                    val heightPx = contentSize.height
-                    val (widthDp, heightDp) = with(density) {
-                        widthPx.toDp() to heightPx.toDp()
-                    }
+                    val contentWidthPx = contentSize.width
+                    val contentHeightPx = contentSize.height
+                    val realWidthPx = realMapSizePx.first
+                    val realHeightPx = realMapSizePx.second
+                    val viewportWidthPx = containerSize.width
+                    val viewportHeightPx = containerSize.height
+                    val contentWidthDp = with(density) { contentWidthPx.toDp() }
+                    val contentHeightDp = with(density) { contentHeightPx.toDp() }
+                    val realWidthDp = with(density) { realWidthPx.toDp() }
+                    val realHeightDp = with(density) { realHeightPx.toDp() }
+                    val viewportWidthDp = with(density) { viewportWidthPx.toDp() }
+                    val viewportHeightDp = with(density) { viewportHeightPx.toDp() }
                     Surface(
                         tonalElevation = 2.dp,
                         shadowElevation = 4.dp,
@@ -318,10 +330,20 @@ fun GameGrid(
                         Text(
                             text = stringResource(
                                 Res.string.debug_map_size_overlay,
-                                widthDp.value.toInt(),
-                                heightDp.value.toInt(),
-                                widthPx,
-                                heightPx
+                                realWidthDp.value.roundToInt(),
+                                realHeightDp.value.roundToInt(),
+                                realWidthPx,
+                                realHeightPx,
+                                contentWidthDp.value.roundToInt(),
+                                contentHeightDp.value.roundToInt(),
+                                contentWidthPx,
+                                contentHeightPx,
+                                viewportWidthDp.value.roundToInt(),
+                                viewportHeightDp.value.roundToInt(),
+                                viewportWidthPx,
+                                viewportHeightPx,
+                                offsetX.roundToInt(),
+                                offsetY.roundToInt()
                             ),
                             style = MaterialTheme.typography.labelSmall,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)

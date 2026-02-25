@@ -1226,5 +1226,5 @@
     <string name="debug_display_tile_borders">Mostra bordi delle celle</string>
     <string name="debug_display_tile_positions">Mostra posizioni delle celle</string>
     <string name="debug_display_map_size">Mostra dimensione mappa</string>
-    <string name="debug_map_size_overlay">Dimensione mappa: %1$ddp × %2$ddp / %3$dpx × %4$dpx</string>
+    <string name="debug_map_size_overlay">Reale: %1$ddp × %2$ddp / %3$dpx × %4$dpx\nContenuto: %5$ddp × %6$ddp / %7$dpx × %8$dpx\nVista: %9$ddp × %10$ddp / %11$dpx × %12$dpx\nOffset: %13$d, %14$d</string>
 </resources>
