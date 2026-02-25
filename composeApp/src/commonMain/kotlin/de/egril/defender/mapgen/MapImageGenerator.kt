@@ -41,11 +41,13 @@ object MapImageGenerator {
     private val NOISE_SCALES = floatArrayOf(1f, 2f, 4f)
     private val NOISE_WEIGHTS = floatArrayOf(0.6f, 0.3f, 0.1f)
     private const val NOISE_BASE_PX = 256f
+    private const val LAND_FBM_FREQ = 1f / 220f
+    private const val MOUNTAIN_RIDGE_FREQ = 1f / 180f
 
     private const val SHADING_SCALE = 1.4f
     private const val AMBIENT = 0.45f
-    private const val OUTLINE_STRENGTH = 3.2f
-    private const val OUTLINE_THRESHOLD = 0.08f
+    private const val OUTLINE_STRENGTH = 3.6f
+    private const val OUTLINE_THRESHOLD = 0.06f
     private val LIGHT = floatArrayOf(-0.7f, 0.5f, 0.5f) // mapgen4-ish light dir
 
     // --- Biome definitions (elevation/moisture/noiseAmp) ---
@@ -150,17 +152,21 @@ object MapImageGenerator {
                 val na = aNA / tW
 
                 if (na > 0.005f) {
-                    var noiseVal = 0f
-                    for (oct in NOISE_SCALES.indices) {
-                        val f = NOISE_SCALES[oct] / NOISE_BASE_PX
-                        noiseVal += NOISE_WEIGHTS[oct] * noise2D.noise(px * f, py * f)
-                    }
-                    e = (e + na * noiseVal).coerceIn(-1f, 1f)
+                    val ridge = ridgeNoise(noise2D, px.toFloat(), py.toFloat(), baseFreq = MOUNTAIN_RIDGE_FREQ, octaves = 5, gain = 0.55f, lacunarity = 2.05f)
+                    val detail = fbm(noise2D, px.toFloat(), py.toFloat(), baseFreq = LAND_FBM_FREQ, octaves = 4, gain = 0.5f, lacunarity = 1.9f)
+                    // Ridge dominates mountains (NO_PLAY noiseAmp is high); detail adds surface variation
+                    e = (e + na * (0.85f * ridge + 0.35f * detail)).coerceIn(-1f, 1f)
+                } else {
+                    // Light surface variation for flat biomes
+                    val subtle = fbm(noise2D, px.toFloat(), py.toFloat(), baseFreq = LAND_FBM_FREQ, octaves = 3, gain = 0.55f, lacunarity = 1.9f)
+                    e = (e + 0.05f * subtle).coerceIn(-1f, 1f)
                 }
 
                 val i = py * imgW + px
+                // Slight moisture variation for richer palette
+                val mDetail = fbm(noise2D, px.toFloat(), py.toFloat(), baseFreq = LAND_FBM_FREQ * 0.8f, octaves = 3, gain = 0.55f, lacunarity = 2f) * 0.08f
                 elevMap[i] = e
-                moistMap[i] = m
+                moistMap[i] = (m + mDetail).coerceIn(0f, 1f)
                 naMap[i] = na
             }
         }
@@ -194,7 +200,7 @@ object MapImageGenerator {
 
                 val slopeDiff = kotlin.math.abs(eR - eL) + kotlin.math.abs(eD - eU)
                 val outlineRaw = max(0f, slopeDiff * OUTLINE_STRENGTH - OUTLINE_THRESHOLD)
-                val outlineMask = min(1f, na / 0.25f)
+                val outlineMask = min(1f, na * 4f) // Mountains dominate outline; fades on flats
                 val outline = min(1f, outlineRaw * outlineRaw) * outlineMask
 
                 val base = sampleColormap(e, m)
@@ -213,7 +219,6 @@ object MapImageGenerator {
 
     // --- Colormap approximation (mapgen4-style elevation/moisture map) ---
     private fun sampleColormap(e: Float, m: Float): Color {
-        // Approximate mapgen4 palette without external assets.
         val elev = e.coerceIn(-1f, 1f)
         val moist = m.coerceIn(0f, 1f)
 
@@ -227,35 +232,42 @@ object MapImageGenerator {
             )
         }
 
-        val deepWater = Color(0xFF0B3A57)
-        val shallowWater = Color(0xFF2D6A8A)
-        val shore = Color(0xFFCBAF7A)
+        // Water stack (deep → shallow → shore glow)
+        val deepWater = Color(0xFF0B274B.toInt())
+        val midWater = Color(0xFF124B8A.toInt())
+        val shallowWater = Color(0xFF1E7AC0.toInt())
+        val shoreWater = Color(0xFF48A7D5.toInt())
+        val shore = Color(0xFFE3C78F.toInt())
 
-        val drySand = Color(0xFFD6C385)
-        val dryGrass = Color(0xFF9BAF68)
-        val lushGrass = Color(0xFF5D9C58)
-        val forest = Color(0xFF2F6B3C)
-        val rock = Color(0xFF7C7465)
-        val snow = Color(0xFFF4F6F8)
+        // Land stack (sand → grass → forest → rock → snow)
+        val drySand = Color(0xFFDCC68A.toInt())
+        val duneSand = Color(0xFFE4D09E.toInt())
+        val dryGrass = Color(0xFF9BB575.toInt())
+        val lushGrass = Color(0xFF6CA064.toInt())
+        val forest = Color(0xFF3C7A4D.toInt())
+        val rock = Color(0xFF8A7D6C.toInt())
+        val snow = Color(0xFFF5F7FA.toInt())
 
         return when {
-            elev < -0.2f -> lerp(deepWater, shallowWater, (elev + 1f) / 0.8f)
-            elev < 0f -> lerp(shallowWater, shore, (elev + 0.2f) / 0.2f)
-            elev < 0.15f -> {
-                // Lowland: sand to grass based on moisture
-                val base = lerp(drySand, dryGrass, moist)
-                lerp(base, lushGrass, moist.pow(0.6f))
+            elev < -0.6f -> lerp(deepWater, midWater, (elev + 1f) / 0.4f)
+            elev < -0.35f -> lerp(midWater, shallowWater, (elev + 0.6f) / 0.25f)
+            elev < -0.1f -> lerp(shallowWater, shoreWater, (elev + 0.35f) / 0.25f)
+            elev < 0f -> lerp(shoreWater, shore, (elev + 0.1f) / 0.1f)
+            elev < 0.14f -> {
+                // Beaches to lowland; moisture pushes green inland
+                val base = lerp(duneSand, dryGrass, moist.pow(0.8f))
+                lerp(base, lushGrass, moist.pow(0.5f))
             }
-            elev < 0.45f -> {
+            elev < 0.38f -> {
                 val g = lerp(dryGrass, lushGrass, moist)
-                lerp(g, forest, moist.pow(1.2f))
+                lerp(g, forest, moist.pow(1.1f))
             }
-            elev < 0.7f -> {
-                val f = lerp(forest, rock, (elev - 0.45f) / 0.25f)
-                lerp(f, lushGrass, (1f - moist) * 0.3f)
+            elev < 0.62f -> {
+                val f = lerp(forest, rock, (elev - 0.38f) / 0.24f)
+                lerp(f, lushGrass, (1f - moist) * 0.25f)
             }
             else -> {
-                lerp(rock, snow, ((elev - 0.7f) / 0.3f).coerceIn(0f, 1f))
+                lerp(rock, snow, ((elev - 0.62f) / 0.38f).coerceIn(0f, 1f))
             }
         }
     }
@@ -267,6 +279,54 @@ object MapImageGenerator {
             h = (31 * h + c.code) and 0x7fffffff
         }
         return h
+    }
+
+    private fun fbm(
+        noise: SimplexNoise2D,
+        x: Float,
+        y: Float,
+        baseFreq: Float,
+        octaves: Int,
+        gain: Float,
+        lacunarity: Float
+    ): Float {
+        var freq = baseFreq
+        var amp = 1f
+        var sum = 0f
+        var norm = 0f
+        repeat(octaves) {
+            val n = noise.noise(x * freq, y * freq)
+            sum += n * amp
+            norm += amp
+            freq *= lacunarity
+            amp *= gain
+        }
+        return if (norm > 0f) sum / norm else 0f
+    }
+
+    private fun ridgeNoise(
+        noise: SimplexNoise2D,
+        x: Float,
+        y: Float,
+        baseFreq: Float,
+        octaves: Int,
+        gain: Float,
+        lacunarity: Float
+    ): Float {
+        var freq = baseFreq
+        var amp = 1f
+        var sum = 0f
+        var norm = 0f
+        repeat(octaves) {
+            val n = noise.noise(x * freq, y * freq)
+            val r = 1f - kotlin.math.abs(n)
+            val ridge = r * r
+            sum += ridge * amp
+            norm += amp
+            freq *= lacunarity
+            amp *= gain
+        }
+        return if (norm > 0f) sum / norm else 0f
     }
 }
 
