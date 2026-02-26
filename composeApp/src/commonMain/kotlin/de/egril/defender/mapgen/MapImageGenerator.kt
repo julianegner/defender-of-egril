@@ -30,9 +30,9 @@ object MapImageGenerator {
     private const val VERTICAL_SPACING = HEX_HEIGHT * 0.75   // 60 px
     private const val HORIZONTAL_SPACING = -10.0
     private const val ODD_ROW_OFFSET_RATIO = 0.42
-    // Nudge river tile centers slightly north when blending so water doesn't
-    // bleed as far into the southern neighbours.
-    private const val RIVER_Y_BIAS = -HEX_HEIGHT * 0.10      // -8 px
+    // Nudge river tile centers north when blending so water stays aligned with
+    // hexes and doesn't bleed into southern neighbours.
+    private const val RIVER_Y_BIAS = -HEX_HEIGHT * 0.25      // -20 px
     private const val PADDING = 20.0
     // Slightly lower sigma to sharpen biome transitions while keeping soft edges
     private val BLEND_SIGMA = HEX_WIDTH * 0.45               // ~31.2 px
@@ -164,7 +164,7 @@ object MapImageGenerator {
                 moistBase[idx] = biome.moisture
                 noiseAmps[idx] = biome.noiseAmp
                 blendWeights[idx] = biome.blendWeight
-                grid.insert(cx, cy, idx)
+                grid.insert(cx, cY[idx], idx)
                 idx++
             }
         }
