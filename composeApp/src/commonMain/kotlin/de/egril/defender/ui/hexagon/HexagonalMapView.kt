@@ -84,6 +84,7 @@ fun HexagonalMapView(
     onBrushPaint: ((Position) -> Unit)? = null,
     focusTrigger: Any? = null,
     modifier: Modifier = Modifier,
+    backgroundContent: (@Composable BoxScope.(contentSize: IntSize) -> Unit)? = null,
     content: @Composable (
         position: Position
     ) -> Unit
@@ -295,6 +296,21 @@ fun HexagonalMapView(
                 }
             )
     ) {
+        // Background content (e.g., map image) at same position as hex grid
+        backgroundContent?.let { bgContent ->
+            Box(
+                modifier = Modifier
+                    .graphicsLayer(
+                        scaleX = scale,
+                        scaleY = scale,
+                        translationX = offsetX,
+                        translationY = offsetY
+                    )
+            ) {
+                bgContent(actualContentSize)
+            }
+        }
+
         // Map content with pan and zoom applied
         Column(
             modifier = Modifier

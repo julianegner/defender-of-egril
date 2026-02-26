@@ -374,6 +374,14 @@
     <string name="add_turn">Runde hinzufügen</string>
     <string name="copy_turn">Runde kopieren</string>
     <string name="remove">Entfernen</string>
+    <string name="map_image_generation_title">Kartenbild wird generiert: %1$s</string>
+    <string name="map_image_generation_running">Kartenbild wird erzeugt...</string>
+    <string name="map_image_generation_done">Kartenbild fertiggestellt.</string>
+    <string name="map_image_generation_path">Ziel: %1$s</string>
+    <string name="map_image_generation_show_image">Bild anzeigen</string>
+    <string name="map_image_generation_close">Schließen</string>
+    <string name="map_image_generation_error">Generierung fehlgeschlagen: %1$s</string>
+    <string name="map_image_generation_preview_label">Kartenbild-Vorschau</string>
     <string name="add">Hinzufügen</string>
     <string name="turn_x">Runde %d</string>
     <string name="x_enemies">(%d Gegner)</string>
@@ -1128,7 +1136,7 @@
     <string name="achievement_player_level_10_desc">Erreiche Spieler-Level 10 durch das Sammeln von EP</string>
     <string name="achievement_player_level_100_name">Legendärer Verteidiger</string>
     <string name="achievement_player_level_100_desc">Erreiche Spieler-Level 100 durch das Sammeln von EP</string>
-    
+
     <!-- Official Content Badges -->
     <string name="official">Offiziell</string>
     <string name="user_levels">Benutzer-Level</string>
@@ -1228,13 +1236,21 @@
     <string name="tower_info_title">Turminformationen</string>
     <string name="special_towers_info_title">Spezielle Türme</string>
     <string name="special_towers_info_reopen">Sie können diese Information jederzeit erneut öffnen, indem Sie auf das Turmsymbol im Level-Header klicken.</string>
-    
+
+    <!-- Map Image and Debug Options -->
+    <string name="level_map_image">Karten-Hintergrundbild</string>
+    <string name="debug_options">Debug-Optionen</string>
+    <string name="debug_display_tile_borders">Kachel-Umrandungen anzeigen</string>
+    <string name="debug_display_tile_positions">Kachel-Positionen anzeigen</string>
+    <string name="debug_display_map_size">Kartengröße anzeigen</string>
+    <string name="debug_map_size_overlay">Hexkarte: %1$ddp × %2$ddp / %3$dpx × %4$dpx\nInhalt: %5$ddp × %6$ddp / %7$dpx × %8$dpx\nAnsicht: %9$ddp × %10$ddp / %11$dpx × %12$dpx\nOffset: %13$d, %14$d</string>
+
     <!-- XP System -->
     <string name="xp_earned">Verdiente XP: %d</string>
     <string name="xp_info_brief">Verdienen Sie XP durch das Besiegen von Feinden.\nLeveln Sie auf, um Stat-Punkte zu erhalten und mächtige Fähigkeiten freizuschalten!</string>
     <string name="xp_system_unlocked">XP-System freigeschaltet!</string>
     <string name="xp_system_unlock_message">Sie können jetzt XP verwenden, um Ihre Statistiken zu verbessern und mächtige Fähigkeiten freizuschalten!\n\nGreifen Sie auf den Upgrade-Bildschirm über das Spielerprofil zu.</string>
-    
+
     <!-- Stats Upgrade Screen -->
     <string name="available_stat_points">Verfügbare Stat-Punkte: %d</string>
     <string name="stats">Statistiken</string>
@@ -1278,7 +1294,7 @@
     <string name="spell_targeting_enemy">Wähle einen Feind als Ziel</string>
     <string name="spell_targeting_tower">Wähle einen Turm zum Verstärken</string>
     <string name="spell_targeting_cancel">Hier klicken zum Abbrechen</string>
-    
+
     <!-- Spell Names -->
     <string name="spell_attack_area_name">Flächenangriff</string>
     <string name="spell_attack_aimed_name">Gezielter Angriff</string>
@@ -1289,7 +1305,7 @@
     <string name="spell_cooling_spell_name">Verlangsamungszauber</string>
     <string name="spell_freeze_spell_name">Eingefrierende</string>
     <string name="spell_double_tower_reach_name">Turmreichweite verdoppeln</string>
-    
+
     <!-- Spell Descriptions -->
     <string name="spell_attack_area_desc">Fügt allen Feinden in 2 Hex-Reichweite 50 Schaden zu</string>
     <string name="spell_attack_aimed_desc">Fügt einem einzelnen Feind 80 Schaden zu</string>
@@ -1300,7 +1316,7 @@
     <string name="spell_cooling_spell_desc">Erzeugt ein Gebiet, das die Bewegungsgeschwindigkeit von Feinden für 3 Runden um 1 verringert</string>
     <string name="spell_freeze_spell_desc">Friert einen Feind für 1 Runde ein (Immunität: Dämonen, Drachen, Ewhad)</string>
     <string name="spell_double_tower_reach_desc">Verdoppelt die Angriffsreichweite eines Turms für 1 Runde</string>
-    
+
     <!-- Construction Info -->
     <string name="construction_info_intro">Jede Konstruktionsstufe schaltet mächtige Turmfähigkeiten frei:</string>
     <string name="construction_level_1_title">Konstruktion Stufe 1</string>
@@ -1310,7 +1326,7 @@
     <string name="construction_level_3_title">Konstruktion Stufe 3</string>
     <string name="construction_level_3_desc">Turmbasis: Barrikaden Level 100+ können Türme tragen</string>
 
-    
+
     <!-- Cheat Codes -->
     <string name="cheat_codes_title">Cheat-Codes</string>
     <string name="cheat_section_general">Allgemein</string>
@@ -1321,7 +1337,7 @@
     <string name="cheat_section_xp_stats">XP &amp; Statistiken</string>
     <string name="cheat_section_spells">Zauber</string>
     <string name="cheat_section_levels">Level-Freischaltung</string>
-    
+
     <!-- Cheat code descriptions -->
     <string name="cheat_help_desc">Diese Hilfe anzeigen</string>
     <string name="cheat_platform_desc">Plattforminformationen anzeigen</string>
@@ -1348,7 +1364,7 @@
     <string name="cheat_unlock_desc">Bestimmtes Level freischalten</string>
     <string name="cheat_lockall_desc">Alle Level sperren</string>
     <string name="cheat_lock_desc">Bestimmtes Level sperren</string>
-    
+
     <!-- Freeze status labels -->
     <string name="frozen_label">Eingefroren</string>
     <string name="frozen_turns_remaining">Eingefroren: %d Runden verbleibend</string>

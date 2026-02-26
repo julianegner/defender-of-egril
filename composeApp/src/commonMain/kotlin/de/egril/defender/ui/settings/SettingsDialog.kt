@@ -169,6 +169,28 @@ fun SettingsDialog(
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
+
+                    // Level map image switch
+                    GenericSwitch(
+                        state = AppSettings.useLevelMapImage,
+                        checkedText = stringResource(Res.string.level_map_image),
+                        uncheckedText = stringResource(Res.string.level_map_image),
+                        onCheckedChange = { enabled ->
+                            AppSettings.saveUseLevelMapImage(enabled)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Debug options switch
+                    GenericSwitch(
+                        state = AppSettings.showDebugOptions,
+                        checkedText = stringResource(Res.string.debug_options),
+                        uncheckedText = stringResource(Res.string.debug_options),
+                        onCheckedChange = { enabled ->
+                            AppSettings.saveShowDebugOptions(enabled)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
                     
                     // Level header text size slider
                     Row(

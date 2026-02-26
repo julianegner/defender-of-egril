@@ -374,6 +374,14 @@
     <string name="add_turn">Ajouter un tour</string>
     <string name="copy_turn">Copier le tour</string>
     <string name="remove">Retirer</string>
+    <string name="map_image_generation_title">Génération de carte : %1$s</string>
+    <string name="map_image_generation_running">Génération de l'image de la carte...</string>
+    <string name="map_image_generation_done">Image de carte générée.</string>
+    <string name="map_image_generation_path">Cible : %1$s</string>
+    <string name="map_image_generation_show_image">Afficher l'image</string>
+    <string name="map_image_generation_close">Fermer</string>
+    <string name="map_image_generation_error">Échec de génération : %1$s</string>
+    <string name="map_image_generation_preview_label">Aperçu de l'image de carte</string>
     <string name="add">Ajouter</string>
     <string name="turn_x">Tour %d</string>
     <string name="x_enemies">(%d ennemis)</string>
@@ -1131,7 +1139,7 @@
     <string name="achievement_player_level_10_desc">Atteignez le niveau 10 de joueur en gagnant de l\'XP</string>
     <string name="achievement_player_level_100_name">Défenseur Légendaire</string>
     <string name="achievement_player_level_100_desc">Atteignez le niveau 100 de joueur en gagnant de l\'XP</string>
-    
+
     <!-- Official Content Badges -->
     <string name="official">Officiel</string>
     <string name="user_levels">Niveaux Utilisateur</string>
@@ -1230,13 +1238,21 @@
     <string name="tower_info_title">Informations sur la Tour</string>
     <string name="special_towers_info_title">Tours Spéciales</string>
     <string name="special_towers_info_reopen">Vous pouvez rouvrir ces informations à tout moment en cliquant sur l\'icône de tour dans l\'en-tête du niveau.</string>
-    
+
+    <!-- Map Image and Debug Options -->
+    <string name="level_map_image">Image de la carte</string>
+    <string name="debug_options">Options de débogage</string>
+    <string name="debug_display_tile_borders">Afficher les bordures des tuiles</string>
+    <string name="debug_display_tile_positions">Afficher les positions des tuiles</string>
+    <string name="debug_display_map_size">Afficher la taille de la carte</string>
+    <string name="debug_map_size_overlay">Carte hex : %1$ddp × %2$ddp / %3$dpx × %4$dpx\nContenu : %5$ddp × %6$ddp / %7$dpx × %8$dpx\nVue : %9$ddp × %10$ddp / %11$dpx × %12$dpx\nDécalage : %13$d, %14$d</string>
+
     <!-- XP System -->
     <string name="xp_earned">XP Gagnée: %d</string>
     <string name="xp_info_brief">Gagnez de l\'XP en battant des ennemis.\nMontez de niveau pour obtenir des points de statistiques et débloquer des capacités puissantes!</string>
     <string name="xp_system_unlocked">Système d\'XP Débloqué!</string>
     <string name="xp_system_unlock_message">Vous pouvez maintenant utiliser l\'XP pour améliorer vos statistiques et débloquer des capacités puissantes!\n\nAccédez à l\'écran d\'amélioration depuis le Profil du Joueur.</string>
-    
+
     <!-- Stats Upgrade Screen -->
     <string name="available_stat_points">Points de Statistiques Disponibles: %d</string>
     <string name="stats">Statistiques</string>
@@ -1280,7 +1296,7 @@
     <string name="spell_targeting_enemy">Sélectionnez un ennemi à cibler</string>
     <string name="spell_targeting_tower">Sélectionnez une tour à améliorer</string>
     <string name="spell_targeting_cancel">Cliquez ici pour annuler</string>
-    
+
     <!-- Spell Names -->
     <string name="spell_attack_area_name">Attaque de Zone</string>
     <string name="spell_attack_aimed_name">Attaque Ciblée</string>
@@ -1291,7 +1307,7 @@
     <string name="spell_cooling_spell_name">Sort de Refroidissement</string>
     <string name="spell_freeze_spell_name">Sort de Gel</string>
     <string name="spell_double_tower_reach_name">Doubler Portée de Tour</string>
-    
+
     <!-- Spell Descriptions -->
     <string name="spell_attack_area_desc">Inflige 50 dégâts à tous les ennemis dans une portée de 2 hex</string>
     <string name="spell_attack_aimed_desc">Inflige 80 dégâts à un seul ennemi</string>
@@ -1302,7 +1318,7 @@
     <string name="spell_cooling_spell_desc">Crée une zone qui réduit la vitesse de mouvement des ennemis de 1 pendant 3 tours</string>
     <string name="spell_freeze_spell_desc">Gèle un ennemi pendant 1 tour (immunité: Démons, Dragons, Ewhad)</string>
     <string name="spell_double_tower_reach_desc">Double la portée d\'attaque d\'une tour pendant 1 tour</string>
-    
+
     <!-- Construction Info -->
     <string name="construction_info_intro">Chaque niveau de Construction débloque de puissantes capacités de tour:</string>
     <string name="construction_level_1_title">Construction Niveau 1</string>
@@ -1312,7 +1328,7 @@
     <string name="construction_level_3_title">Construction Niveau 3</string>
     <string name="construction_level_3_desc">Base de Tour: Les barricades de niveau 100+ peuvent supporter des tours</string>
 
-    
+
     <!-- Cheat Codes -->
     <string name="cheat_codes_title">Codes de triche</string>
     <string name="cheat_section_general">Général</string>
@@ -1323,7 +1339,7 @@
     <string name="cheat_section_xp_stats">XP et statistiques</string>
     <string name="cheat_section_spells">Sorts</string>
     <string name="cheat_section_levels">Déverrouillage de niveaux</string>
-    
+
     <!-- Cheat code descriptions -->
     <string name="cheat_help_desc">Afficher cet écran d\'aide</string>
     <string name="cheat_platform_desc">Afficher les informations de la plateforme</string>
@@ -1350,7 +1366,7 @@
     <string name="cheat_unlock_desc">Déverrouiller un niveau spécifique</string>
     <string name="cheat_lockall_desc">Verrouiller tous les niveaux</string>
     <string name="cheat_lock_desc">Verrouiller un niveau spécifique</string>
-    
+
     <!-- Freeze status labels -->
     <string name="frozen_label">Gelé</string>
     <string name="frozen_turns_remaining">Gelé: %d tours restants</string>

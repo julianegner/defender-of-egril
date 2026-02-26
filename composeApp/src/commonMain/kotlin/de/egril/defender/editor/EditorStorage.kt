@@ -124,14 +124,31 @@ object EditorStorage {
         val validatedMap = map.copy(readyToUse = map.validateReadyToUse())
         mapsCache[validatedMap.id] = validatedMap
         val json = EditorJsonSerializer.serializeMap(validatedMap)
-        
+
         // Save to appropriate directory based on isOfficial flag
         val targetDir = if (validatedMap.isOfficial) OFFICIAL_MAPS_DIR else USER_MAPS_DIR
         fileStorage.writeFile("$targetDir/${validatedMap.id}.json", json)
-        
+
+        // Generate and save map image PNG
+        generateAndSaveMapImage(validatedMap)
+
         // Track changes to official data
         if (validatedMap.isOfficial) {
             OfficialDataChangeTracker.trackMapModified(validatedMap.id)
+        }
+    }
+
+    private fun generateAndSaveMapImage(map: EditorMap) {
+        try {
+            val (pixels, width, height) = de.egril.defender.mapgen.MapImageGenerator.generatePixels(map)
+            val pngBytes = de.egril.defender.mapgen.MapImageEncoder.encodeToPng(pixels, width, height)
+            if (pngBytes != null) {
+                val targetDir = if (map.isOfficial) OFFICIAL_MAPS_DIR else USER_MAPS_DIR
+                fileStorage.writeBinaryFile("$targetDir/${map.id}.png", pngBytes)
+                println("Generated map image: ${map.id}.png")
+            }
+        } catch (e: Exception) {
+            println("Failed to generate map image for ${map.id}: ${e.message}")
         }
     }
     

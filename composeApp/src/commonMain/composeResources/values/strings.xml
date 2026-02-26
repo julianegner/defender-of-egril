@@ -378,6 +378,14 @@
     <string name="add_turn">Add Turn</string>
     <string name="copy_turn">Copy Turn</string>
     <string name="remove">Remove</string>
+    <string name="map_image_generation_title">Generating map image: %1$s</string>
+    <string name="map_image_generation_running">Generating map image...</string>
+    <string name="map_image_generation_done">Map image generation completed.</string>
+    <string name="map_image_generation_path">Target: %1$s</string>
+    <string name="map_image_generation_show_image">Show image</string>
+    <string name="map_image_generation_close">Close</string>
+    <string name="map_image_generation_error">Generation failed: %1$s</string>
+    <string name="map_image_generation_preview_label">Map image preview</string>
     <string name="add">Add</string>
     <string name="turn_x">Turn %d</string>
     <string name="x_enemies">(%d enemies)</string>
@@ -1085,7 +1093,7 @@
     <string name="achievement_construction_level_3_name">Master Builder</string>
     <string name="achievement_player_level_10_name">Experienced Defender</string>
     <string name="achievement_player_level_100_name">Legendary Defender</string>
-    
+
     <!-- Achievement Descriptions -->
     <string name="achievement_build_tower_desc">Build your first tower</string>
     <string name="achievement_upgrade_tower_desc">Upgrade a tower to the next level</string>
@@ -1133,7 +1141,7 @@
     <string name="achievement_construction_level_3_desc">Reach Construction level 3 to unlock Tower Bases</string>
     <string name="achievement_player_level_10_desc">Reach player level 10 through earning XP</string>
     <string name="achievement_player_level_100_desc">Reach player level 100 through earning XP</string>
-    
+
     <!-- Official Content Badges -->
     <string name="official">Official</string>
     <string name="user_levels">User Levels</string>
@@ -1232,13 +1240,21 @@
     <string name="tower_info_title">Tower Information</string>
     <string name="special_towers_info_title">Special Towers</string>
     <string name="special_towers_info_reopen">You can reopen this information at any time by clicking the tower icon in the level header.</string>
-    
+
+    <!-- Map Image and Debug Options -->
+    <string name="level_map_image">Level Map Image</string>
+    <string name="debug_options">Debug Options</string>
+    <string name="debug_display_tile_borders">Display Tile Borders</string>
+    <string name="debug_display_tile_positions">Display Tile Positions</string>
+    <string name="debug_display_map_size">Display Map Size</string>
+    <string name="debug_map_size_overlay">Hexmap: %1$ddp × %2$ddp / %3$dpx × %4$dpx\nContent: %5$ddp × %6$ddp / %7$dpx × %8$dpx\nViewport: %9$ddp × %10$ddp / %11$dpx × %12$dpx\nOffset: %13$d, %14$d</string>
+
     <!-- XP System -->
     <string name="xp_earned">XP Earned: %d</string>
     <string name="xp_info_brief">Earn XP by defeating enemies.\nLevel up to gain stat points and unlock powerful abilities!</string>
     <string name="xp_system_unlocked">XP System Unlocked!</string>
     <string name="xp_system_unlock_message">You can now use XP to upgrade your stats and unlock powerful abilities!\n\nAccess the upgrade screen from the Player Profile.</string>
-    
+
     <!-- Stats Upgrade Screen -->
     <string name="available_stat_points">Available Stat Points: %d</string>
     <string name="stats">Stats</string>
@@ -1282,7 +1298,7 @@
     <string name="spell_targeting_enemy">Select an enemy to target</string>
     <string name="spell_targeting_tower">Select a tower to enhance</string>
     <string name="spell_targeting_cancel">Click here to cancel</string>
-    
+
     <!-- Spell Names -->
     <string name="spell_attack_area_name">Attack Area</string>
     <string name="spell_attack_aimed_name">Attack Aimed</string>
@@ -1293,7 +1309,7 @@
     <string name="spell_cooling_spell_name">Cooling Spell</string>
     <string name="spell_freeze_spell_name">Freeze Spell</string>
     <string name="spell_double_tower_reach_name">Double Tower Reach</string>
-    
+
     <!-- Spell Descriptions -->
     <string name="spell_attack_area_desc">Deal 50 damage to all enemies within 2 hex range</string>
     <string name="spell_attack_aimed_desc">Deal 80 damage to a single enemy</string>
@@ -1304,7 +1320,7 @@
     <string name="spell_cooling_spell_desc">Create an area that reduces enemy movement speed by 1 for 3 turns</string>
     <string name="spell_freeze_spell_desc">Freeze an enemy for 1 turn (immunity: Demons, Dragons, Ewhad)</string>
     <string name="spell_double_tower_reach_desc">Double a tower's attack range for 1 turn</string>
-    
+
     <!-- Construction Info -->
     <string name="construction_info_intro">Each Construction level unlocks powerful tower abilities:</string>
     <string name="construction_level_1_title">Construction Level 1</string>
@@ -1314,7 +1330,7 @@
     <string name="construction_level_3_title">Construction Level 3</string>
     <string name="construction_level_3_desc">Tower Base: Barricades level 100+ can hold towers</string>
 
-    
+
     <!-- Cheat Codes -->
     <string name="cheat_codes_title">Cheat Codes</string>
     <string name="cheat_section_general">General</string>
@@ -1325,7 +1341,7 @@
     <string name="cheat_section_xp_stats">XP &amp; Stats</string>
     <string name="cheat_section_spells">Spells</string>
     <string name="cheat_section_levels">Level Unlocking</string>
-    
+
     <!-- Cheat code descriptions -->
     <string name="cheat_help_desc">Show this help screen</string>
     <string name="cheat_platform_desc">Show platform information</string>
@@ -1352,7 +1368,7 @@
     <string name="cheat_unlock_desc">Unlock specific level</string>
     <string name="cheat_lockall_desc">Lock all levels</string>
     <string name="cheat_lock_desc">Lock specific level</string>
-    
+
     <!-- Freeze status labels -->
     <string name="frozen_label">Frozen</string>
     <string name="frozen_turns_remaining">Frozen: %d turns remaining</string>

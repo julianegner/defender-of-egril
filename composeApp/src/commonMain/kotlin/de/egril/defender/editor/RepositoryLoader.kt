@@ -138,7 +138,7 @@ object RepositoryLoader {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Loading repository files...")
             }
-            
+
             // Load sequence first
             val sequence = loadSequence()
             if (sequence == null || sequence.sequence.isEmpty()) {
@@ -149,7 +149,7 @@ object RepositoryLoader {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Found ${sequence.sequence.size} levels in repository sequence")
             }
-            
+
             // Track which maps we need to load
             val mapsToLoad = mutableSetOf<String>()
             
@@ -165,7 +165,7 @@ object RepositoryLoader {
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("Loaded and saved official level: $levelId")
                     }
-                    
+
                     // Track the map ID
                     mapsToLoad.add(level.mapId)
                     successCount++
@@ -186,12 +186,20 @@ object RepositoryLoader {
                     val mapJson = EditorJsonSerializer.serializeMap(officialMap)
                     storage.writeFile("gamedata/official/maps/$mapId.json", mapJson)
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                    println("Loaded and saved official map: $mapId")
+                        println("Loaded and saved official map: $mapId")
+                    }
+                    // Also copy the map image PNG if available
+                    try {
+                        val pngBytes = Res.readBytes("files/repository/maps/$mapId.png")
+                        storage.writeBinaryFile("gamedata/official/maps/$mapId.png", pngBytes)
+                        println("Loaded and saved official map image: $mapId.png")
+                    } catch (e: Exception) {
+                        // PNG might not exist, that's OK
                     }
                     mapCount++
                 } else {
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                    println("WARNING: Could not load map $mapId from repository")
+                        println("WARNING: Could not load map $mapId from repository")
                     }
                 }
             }
@@ -202,7 +210,7 @@ object RepositoryLoader {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Saved official sequence")
             }
-            
+
             // Load and save world map data from repository to official directory
             val worldMapData = loadWorldMapData()
             if (worldMapData != null) {

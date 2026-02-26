@@ -374,6 +374,14 @@
     <string name="add_turn">Añadir turno</string>
     <string name="copy_turn">Copiar turno</string>
     <string name="remove">Eliminar</string>
+    <string name="map_image_generation_title">Generando mapa: %1$s</string>
+    <string name="map_image_generation_running">Generando imagen del mapa...</string>
+    <string name="map_image_generation_done">Generación de imagen completada.</string>
+    <string name="map_image_generation_path">Destino: %1$s</string>
+    <string name="map_image_generation_show_image">Mostrar imagen</string>
+    <string name="map_image_generation_close">Cerrar</string>
+    <string name="map_image_generation_error">Generación fallida: %1$s</string>
+    <string name="map_image_generation_preview_label">Vista previa de imagen del mapa</string>
     <string name="add">Añadir</string>
     <string name="turn_x">Turno %d</string>
     <string name="x_enemies">(%d enemigos)</string>
@@ -1131,7 +1139,7 @@
     <string name="achievement_player_level_10_desc">Alcanza el nivel 10 de jugador ganando XP</string>
     <string name="achievement_player_level_100_name">Defensor Legendario</string>
     <string name="achievement_player_level_100_desc">Alcanza el nivel 100 de jugador ganando XP</string>
-    
+
     <!-- Official Content Badges -->
     <string name="official">Oficial</string>
     <string name="user_levels">Niveles de Usuario</string>
@@ -1230,13 +1238,21 @@
     <string name="tower_info_title">Información de la Torre</string>
     <string name="special_towers_info_title">Torres Especiales</string>
     <string name="special_towers_info_reopen">Puedes volver a abrir esta información en cualquier momento haciendo clic en el ícono de torre en el encabezado del nivel.</string>
-    
+
+    <!-- Map Image and Debug Options -->
+    <string name="level_map_image">Imagen del mapa</string>
+    <string name="debug_options">Opciones de depuración</string>
+    <string name="debug_display_tile_borders">Mostrar bordes de celdas</string>
+    <string name="debug_display_tile_positions">Mostrar posiciones de celdas</string>
+    <string name="debug_display_map_size">Mostrar tamaño del mapa</string>
+    <string name="debug_map_size_overlay">Mapa hex: %1$ddp × %2$ddp / %3$dpx × %4$dpx\nContenido: %5$ddp × %6$ddp / %7$dpx × %8$dpx\nVista: %9$ddp × %10$ddp / %11$dpx × %12$dpx\nDesplazamiento: %13$d, %14$d</string>
+
     <!-- XP System -->
     <string name="xp_earned">XP Ganada: %d</string>
     <string name="xp_info_brief">Gana XP derrotando enemigos.\n¡Sube de nivel para obtener puntos de estadísticas y desbloquear habilidades poderosas!</string>
     <string name="xp_system_unlocked">¡Sistema de XP Desbloqueado!</string>
     <string name="xp_system_unlock_message">¡Ahora puedes usar XP para mejorar tus estadísticas y desbloquear habilidades poderosas!\n\nAccede a la pantalla de mejora desde el Perfil del Jugador.</string>
-    
+
     <!-- Stats Upgrade Screen -->
     <string name="available_stat_points">Puntos de Estadísticas Disponibles: %d</string>
     <string name="stats">Estadísticas</string>
@@ -1280,7 +1296,7 @@
     <string name="spell_targeting_enemy">Selecciona un enemigo como objetivo</string>
     <string name="spell_targeting_tower">Selecciona una torre para mejorar</string>
     <string name="spell_targeting_cancel">Haz clic aquí para cancelar</string>
-    
+
     <!-- Spell Names -->
     <string name="spell_attack_area_name">Ataque de Área</string>
     <string name="spell_attack_aimed_name">Ataque Dirigido</string>
@@ -1291,7 +1307,7 @@
     <string name="spell_cooling_spell_name">Hechizo de Enfriamiento</string>
     <string name="spell_freeze_spell_name">Hechizo de Congelación</string>
     <string name="spell_double_tower_reach_name">Duplicar Alcance de Torre</string>
-    
+
     <!-- Spell Descriptions -->
     <string name="spell_attack_area_desc">Inflige 50 de daño a todos los enemigos en un rango de 2 hexágonos</string>
     <string name="spell_attack_aimed_desc">Inflige 80 de daño a un solo enemigo</string>
@@ -1302,7 +1318,7 @@
     <string name="spell_cooling_spell_desc">Crea un área que reduce la velocidad de movimiento del enemigo en 1 durante 3 turnos</string>
     <string name="spell_freeze_spell_desc">Congela a un enemigo durante 1 turno (inmunidad: Demonios, Dragones, Ewhad)</string>
     <string name="spell_double_tower_reach_desc">Duplica el alcance de ataque de una torre durante 1 turno</string>
-    
+
     <!-- Construction Info -->
     <string name="construction_info_intro">Cada nivel de Construcción desbloquea poderosas habilidades de torre:</string>
     <string name="construction_level_1_title">Construcción Nivel 1</string>
@@ -1311,7 +1327,7 @@
     <string name="construction_level_2_desc">Torre de Pinchos (nivel 20+): Construir barricadas</string>
     <string name="construction_level_3_title">Construcción Nivel 3</string>
     <string name="construction_level_3_desc">Base de Torre: Las barricadas de nivel 100+ pueden sostener torres</string>
-    
+
     <!-- Cheat Codes -->
     <string name="cheat_codes_title">Códigos de trucos</string>
     <string name="cheat_section_general">General</string>
@@ -1322,7 +1338,7 @@
     <string name="cheat_section_xp_stats">XP y estadísticas</string>
     <string name="cheat_section_spells">Hechizos</string>
     <string name="cheat_section_levels">Desbloqueo de niveles</string>
-    
+
     <!-- Cheat code descriptions -->
     <string name="cheat_help_desc">Mostrar esta pantalla de ayuda</string>
     <string name="cheat_platform_desc">Mostrar información de la plataforma</string>
@@ -1349,7 +1365,7 @@
     <string name="cheat_unlock_desc">Desbloquear nivel específico</string>
     <string name="cheat_lockall_desc">Bloquear todos los niveles</string>
     <string name="cheat_lock_desc">Bloquear nivel específico</string>
-    
+
     <!-- Freeze status labels -->
     <string name="frozen_label">Congelado</string>
     <string name="frozen_turns_remaining">Congelado: %d turnos restantes</string>
