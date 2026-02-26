@@ -30,9 +30,11 @@ import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.*
 import de.egril.defender.ui.animations.AnimationType
 import de.egril.defender.ui.animations.LottieAnimation
+import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.GateIcon
 import de.egril.defender.ui.icon.HeartIcon
+import de.egril.defender.ui.icon.PlusIcon
 import de.egril.defender.ui.icon.SwordIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
@@ -898,7 +900,14 @@ private fun BoxScope.GridCellContent(
                                 )
                             } else {
                                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                    HeartIcon(size = GamePlayConstants.TileIconSizes.HealingEffect)
+                                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                        repeat(3) {
+                                            PlusIcon(
+                                                size = GamePlayConstants.TileIconSizes.HealingEffect,
+                                                tint = Color(0xFF4CAF50)
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -1051,7 +1060,14 @@ private fun BoxScope.GridCellContent(
                             )
                         } else {
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                SwordIcon(size = GamePlayConstants.TileIconSizes.DamageEffect)
+                                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                    repeat(3) {
+                                        CrossIcon(
+                                            size = GamePlayConstants.TileIconSizes.DamageEffect,
+                                            tint = Color(0xFFE53935)
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
