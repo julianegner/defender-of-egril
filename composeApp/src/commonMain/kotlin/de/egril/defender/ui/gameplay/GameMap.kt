@@ -449,7 +449,7 @@ fun GridCell(
     // Get tile background painter (will be null if images are disabled or not available)
     // For ready towers on build areas or islands, don't show tile background to make towers more visible
     val shouldShowTileImage = !(defender != null && defender.isReady && isBuildArea)
-    val tilePainter = if (shouldShowTileImage && !useTransparentBackground) {
+    val tilePainter = if (shouldShowTileImage && (!useTransparentBackground || isMaelstrom)) {
         TileImageProvider.getTilePainter(tileType, isMaelstrom = isMaelstrom)
     } else {
         null
