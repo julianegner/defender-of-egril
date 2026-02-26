@@ -9,13 +9,21 @@ import kotlinx.browser.window
  */
 class WasmJsFileStorage : FileStorage {
     private val PREFIX = "defender-of-egril:"
+    private val memoryFiles = mutableMapOf<String, String>()
     
     override fun writeFile(path: String, content: String) {
-        localStorage.setItem(PREFIX + path, content)
+        val key = PREFIX + path
+        try {
+            localStorage.setItem(key, content)
+        } catch (_: Throwable) {
+            memoryFiles[key] = content
+        }
     }
     
     override fun readFile(path: String): String? {
-        return localStorage.getItem(PREFIX + path)
+        val key = PREFIX + path
+        memoryFiles[key]?.let { return it }
+        return localStorage.getItem(key)
     }
     
     override fun listFiles(directory: String): List<String> {
@@ -34,11 +42,22 @@ class WasmJsFileStorage : FileStorage {
                 }
             }
         }
+
+        // Include in-memory files
+        memoryFiles.keys.filter { it.startsWith(prefix) }.forEach { key ->
+            val filename = key.removePrefix(prefix)
+            if (!filename.contains("/")) {
+                files.add(filename)
+            }
+        }
         
         return files
     }
     
     override fun fileExists(path: String): Boolean {
+        if (memoryFiles.containsKey(PREFIX + path)) {
+            return true
+        }
         // Check if it exists as a file
         if (localStorage.getItem(PREFIX + path) != null) {
             return true
@@ -66,7 +85,9 @@ class WasmJsFileStorage : FileStorage {
     }
     
     override fun deleteFile(path: String) {
-        localStorage.removeItem(PREFIX + path)
+        val key = PREFIX + path
+        memoryFiles.remove(key)
+        localStorage.removeItem(key)
     }
     
     override fun renameDirectory(oldPath: String, newPath: String): Boolean {
@@ -82,13 +103,24 @@ class WasmJsFileStorage : FileStorage {
                 keysToRename.add(key to newKey)
             }
         }
+
+        // In-memory entries
+        memoryFiles.keys.filter { it.startsWith(oldPrefix) }.forEach { key ->
+            val newKey = key.replaceFirst(oldPrefix, newPrefix)
+            keysToRename.add(key to newKey)
+        }
         
         // Perform the rename
         keysToRename.forEach { (oldKey, newKey) ->
-            val content = localStorage.getItem(oldKey)
+            val content = memoryFiles.remove(oldKey) ?: localStorage.getItem(oldKey)
             if (content != null) {
-                localStorage.setItem(newKey, content)
-                localStorage.removeItem(oldKey)
+                try {
+                    localStorage.setItem(newKey, content)
+                    localStorage.removeItem(oldKey)
+                } catch (_: Throwable) {
+                    memoryFiles[newKey] = content
+                    localStorage.removeItem(oldKey)
+                }
             }
         }
         
@@ -110,6 +142,18 @@ class WasmJsFileStorage : FileStorage {
                 copied = true
             }
         }
+
+        // In-memory entries
+        memoryFiles.keys.filter { it.startsWith(sourcePrefix) }.forEach { key ->
+            val content = memoryFiles[key] ?: return@forEach
+            val newKey = key.replaceFirst(sourcePrefix, targetPrefix)
+            try {
+                localStorage.setItem(newKey, content)
+            } catch (_: Throwable) {
+                memoryFiles[newKey] = content
+            }
+            copied = true
+        }
         
         return copied
     }
@@ -125,8 +169,14 @@ class WasmJsFileStorage : FileStorage {
                 keysToDelete.add(key)
             }
         }
+
+        // In-memory entries
+        memoryFiles.keys.filter { it.startsWith(prefix) }.forEach { key ->
+            keysToDelete.add(key)
+        }
         
         keysToDelete.forEach { key ->
+            memoryFiles.remove(key)
             localStorage.removeItem(key)
         }
         
@@ -144,11 +194,18 @@ class WasmJsFileStorage : FileStorage {
             builder.append((byte.toInt() and 0xFF).toChar())
         }
         val base64 = window.btoa(builder.toString())
-        localStorage.setItem(PREFIX + path, "base64:$base64")
+        val key = PREFIX + path
+        val payload = "base64:$base64"
+        try {
+            localStorage.setItem(key, payload)
+        } catch (_: Throwable) {
+            memoryFiles[key] = payload
+        }
     }
 
     override fun readBinaryFile(path: String): ByteArray? {
-        val stored = localStorage.getItem(PREFIX + path) ?: return null
+        val key = PREFIX + path
+        val stored = memoryFiles[key] ?: localStorage.getItem(key) ?: return null
         if (!stored.startsWith("base64:")) return null
         val base64 = stored.removePrefix("base64:")
         val binary = window.atob(base64)
