@@ -32,6 +32,8 @@ import de.egril.defender.ui.animations.AnimationType
 import de.egril.defender.ui.animations.LottieAnimation
 import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.GateIcon
+import de.egril.defender.ui.icon.HeartIcon
+import de.egril.defender.ui.icon.SwordIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
 import com.hyperether.resources.stringResource
@@ -887,12 +889,18 @@ private fun BoxScope.GridCellContent(
                         EnemyIcon(attacker = attacker)
                         // Show healing effect overlay if present
                         if (healingEffect != null) {
-                            // Show Lottie animation for green witch healing - repeats until turn ends
-                            LottieAnimation(
-                                animationType = AnimationType.GREEN_WITCH_HEALING,
-                                modifier = Modifier.fillMaxSize(),
-                                iterations = Int.MAX_VALUE
-                            )
+                            if (AppSettings.enableAnimations.value) {
+                                // Show Lottie animation for green witch healing - repeats until turn ends
+                                LottieAnimation(
+                                    animationType = AnimationType.GREEN_WITCH_HEALING,
+                                    modifier = Modifier.fillMaxSize(),
+                                    iterations = Int.MAX_VALUE
+                                )
+                            } else {
+                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    HeartIcon(size = GamePlayConstants.TileIconSizes.HealingEffect)
+                                }
+                            }
                         }
                         // Show barb effect indicators if affected (show up to 5 arrows in center)
                         if (attacker.movementPenalty.value > 0) {
@@ -1034,12 +1042,18 @@ private fun BoxScope.GridCellContent(
                     }
                     // Show damage effect overlay if present
                     if (damageEffect != null) {
-                        // Show Lottie animation for barricade damage - repeats until turn ends
-                        LottieAnimation(
-                            animationType = AnimationType.BARRICADE_DAMAGE,
-                            modifier = Modifier.fillMaxSize(),
-                            iterations = Int.MAX_VALUE
-                        )
+                        if (AppSettings.enableAnimations.value) {
+                            // Show Lottie animation for barricade damage - repeats until turn ends
+                            LottieAnimation(
+                                animationType = AnimationType.BARRICADE_DAMAGE,
+                                modifier = Modifier.fillMaxSize(),
+                                iterations = Int.MAX_VALUE
+                            )
+                        } else {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                SwordIcon(size = GamePlayConstants.TileIconSizes.DamageEffect)
+                            }
+                        }
                     }
                 }
             }

@@ -159,6 +159,17 @@ fun SettingsDialog(
                         )
                     }
                     
+                    // Animations switch
+                    DualLabelSwitch(
+                        state = AppSettings.enableAnimations,
+                        leftText = stringResource(Res.string.animations_off),
+                        rightText = stringResource(Res.string.animations_on),
+                        onCheckedChange = { enabled ->
+                            AppSettings.saveEnableAnimations(enabled)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
                     // Show testing levels switch
                     GenericSwitch(
                         state = AppSettings.showTestingLevels,
