@@ -38,7 +38,7 @@ object MapImageGenerator {
     private val BLEND_SIGMA = HEX_WIDTH * 0.45               // ~31.2 px
 
     // --- Rendering constants (mapgen4 style) ---
-    private const val SHADING_SCALE = 160.0
+    private const val SHADING_SCALE = 70.0
     private const val AMBIENT = 0.22
     private val LIGHT = doubleArrayOf(-0.5, -0.5, 0.707)
     private const val OUTLINE_STRENGTH = 15.0
@@ -46,7 +46,7 @@ object MapImageGenerator {
     private const val MOISTURE_DOMINANCE = 3.0
     private val NOISE_SCALES = doubleArrayOf(1.0, 2.0, 4.0)
     private val NOISE_WEIGHTS = doubleArrayOf(0.70, 0.22, 0.08)
-    private val NOISE_BASE_PX = HEX_WIDTH * 3.0
+    private val NOISE_BASE_PX = HEX_WIDTH // * 3.0
 
     // --- Biomes (from generate_map_image.ts.txt) ---
     private data class Biome(
