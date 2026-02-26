@@ -9,7 +9,13 @@ import kotlinx.browser.window
  */
 class WasmJsFileStorage : FileStorage {
     private val PREFIX = "defender-of-egril:"
-    private val memoryFiles = mutableMapOf<String, String>()
+    /**
+     * Shared in-memory fallback so different FileStorage instances (e.g., EditorStorage
+     * vs. MapImageProvider) can see the same data when localStorage quota is exceeded.
+     */
+    private companion object {
+        val memoryFiles = mutableMapOf<String, String>()
+    }
     
     override fun writeFile(path: String, content: String) {
         val key = PREFIX + path
