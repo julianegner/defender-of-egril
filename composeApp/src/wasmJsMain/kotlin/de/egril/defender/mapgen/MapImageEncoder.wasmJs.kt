@@ -20,10 +20,10 @@ actual object MapImageEncoder {
             var p = 0
             for (i in pixels.indices) {
                 val c = pixels[i]
-                data[p++] = ((c shr 16) and 0xFF).toByte()
-                data[p++] = ((c shr 8) and 0xFF).toByte()
-                data[p++] = (c and 0xFF).toByte()
-                data[p++] = ((c ushr 24) and 0xFF).toByte()
+                data[p++] = ((c shr 16) and 0xFF).toShort()
+                data[p++] = ((c shr 8) and 0xFF).toShort()
+                data[p++] = (c and 0xFF).toShort()
+                data[p++] = ((c ushr 24) and 0xFF).toShort()
             }
 
             ctx.putImageData(ImageData(data, width), 0.0, 0.0)
