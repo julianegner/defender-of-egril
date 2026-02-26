@@ -374,6 +374,14 @@
     <string name="add_turn">Aggiungi turno</string>
     <string name="copy_turn">Copia turno</string>
     <string name="remove">Rimuovi</string>
+    <string name="map_image_generation_title">Generazione mappa: %1$s</string>
+    <string name="map_image_generation_running">Generazione dell'immagine della mappa...</string>
+    <string name="map_image_generation_done">Immagine mappa completata.</string>
+    <string name="map_image_generation_path">Destinazione: %1$s</string>
+    <string name="map_image_generation_show_image">Mostra immagine</string>
+    <string name="map_image_generation_close">Chiudi</string>
+    <string name="map_image_generation_error">Generazione non riuscita: %1$s</string>
+    <string name="map_image_generation_preview_label">Anteprima immagine mappa</string>
     <string name="add">Aggiungi</string>
     <string name="turn_x">Turno %d</string>
     <string name="x_enemies">(%d nemici)</string>
