@@ -15,6 +15,12 @@ import de.egril.defender.ui.editor.CreateMapDialog
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import kotlin.random.Random
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import de.egril.defender.ui.MapImageProvider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Main content for the Map Editor tab
@@ -25,16 +31,60 @@ fun MapEditorContent() {
     var selectedMapId by remember { mutableStateOf<String?>(null) }
     var editingMap by remember { mutableStateOf<EditorMap?>(null) }
     var showCreateDialog by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+
+    var showGenerationDialog by remember { mutableStateOf(false) }
+    var generationRunning by remember { mutableStateOf(false) }
+    var generationSuccess by remember { mutableStateOf<Boolean?>(null) }
+    var generationError by remember { mutableStateOf<String?>(null) }
+    var generatedPainter by remember { mutableStateOf<Painter?>(null) }
+    var showPreview by remember { mutableStateOf(false) }
+    var generatorMapName by remember { mutableStateOf("") }
+    var generatorTargetPath by remember { mutableStateOf("") }
+
+    fun targetPath(map: EditorMap): String {
+        return if (map.isOfficial) {
+            "gamedata/official/maps/${map.id}.png"
+        } else {
+            "gamedata/user/maps/${map.id}.png"
+        }
+    }
+
+    fun handleSave(mapToSave: EditorMap) {
+        generatorMapName = mapToSave.name
+        generatorTargetPath = targetPath(mapToSave)
+        showGenerationDialog = true
+        showPreview = false
+        generationRunning = true
+        generationSuccess = null
+        generationError = null
+        generatedPainter = null
+
+        coroutineScope.launch {
+            try {
+                withContext(Dispatchers.Default) {
+                    EditorStorage.saveMap(mapToSave)
+                }
+                generationSuccess = true
+                maps.value = EditorStorage.getAllMaps()
+                editingMap = null
+                val bytes = MapImageProvider.loadMapImageBytes(mapToSave.id)
+                val bitmap = bytes?.let { MapImageProvider.decodeImageBitmap(it) }
+                generatedPainter = bitmap?.let { BitmapPainter(it) }
+            } catch (e: Exception) {
+                generationSuccess = false
+                generationError = e.message
+            } finally {
+                generationRunning = false
+            }
+        }
+    }
     
     if (editingMap != null) {
         // Map editing view
         MapEditorView(
             map = editingMap!!,
-            onSave = { updatedMap ->
-                EditorStorage.saveMap(updatedMap)
-                maps.value = EditorStorage.getAllMaps()
-                editingMap = null
-            },
+            onSave = { updatedMap -> handleSave(updatedMap) },
             onCancel = { editingMap = null }
         )
     } else {
@@ -134,6 +184,69 @@ fun MapEditorContent() {
                 maps.value = EditorStorage.getAllMaps()
                 showCreateDialog = false
                 editingMap = newMap
+            }
+        )
+    }
+
+    if (showGenerationDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                if (!generationRunning) {
+                    showGenerationDialog = false
+                }
+            },
+            title = {
+                Text(stringResource(Res.string.map_image_generation_title, generatorMapName))
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(stringResource(Res.string.map_image_generation_path, generatorTargetPath))
+
+                    when {
+                        generationRunning -> {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                                Text(stringResource(Res.string.map_image_generation_running))
+                            }
+                        }
+                        generationSuccess == true -> {
+                            Text(stringResource(Res.string.map_image_generation_done))
+                        }
+                        generationSuccess == false -> {
+                            Text(stringResource(Res.string.map_image_generation_error, generationError ?: ""))
+                        }
+                    }
+
+                    if (showPreview && generatedPainter != null) {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Text(stringResource(Res.string.map_image_generation_preview_label))
+                            androidx.compose.foundation.Image(
+                                painter = generatedPainter!!,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(max = 240.dp)
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    val canShowImage = !generationRunning && generationSuccess == true && generatedPainter != null
+                    TextButton(
+                        onClick = { showPreview = true },
+                        enabled = canShowImage
+                    ) {
+                        Text(stringResource(Res.string.map_image_generation_show_image))
+                    }
+                    TextButton(onClick = { showGenerationDialog = false }) {
+                        Text(stringResource(Res.string.map_image_generation_close))
+                    }
+                }
             }
         )
     }

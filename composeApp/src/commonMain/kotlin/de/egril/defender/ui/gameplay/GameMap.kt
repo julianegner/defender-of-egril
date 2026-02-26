@@ -1,6 +1,9 @@
 package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,6 +18,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Dp
@@ -39,11 +43,15 @@ import de.egril.defender.ui.icon.enemy.EnemyIcon
 import de.egril.defender.ui.editor.RiverFlowIndicator
 import de.egril.defender.ui.hexagon.BaseGridCell
 import de.egril.defender.ui.hexagon.HexagonMinimap
+import de.egril.defender.ui.hexagon.HexagonShape
 import de.egril.defender.ui.hexagon.HexagonalMapConfig
+import de.egril.defender.ui.hexagon.HexagonalGridConstants
 import de.egril.defender.ui.hexagon.HexagonalMapView
 import de.egril.defender.ui.hexagon.MinimapConfig
 import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.rememberMapImagePainter
+import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -203,6 +211,26 @@ fun GameGrid(
         }
     }
 
+    val mapId = gameState.level.mapId
+    val mapImagePainter = rememberMapImagePainter(mapId)
+    val useLevelMapImage = AppSettings.useLevelMapImage.value
+    val hasMapImage = mapImagePainter != null && useLevelMapImage
+    val hexMapSizePx = remember(gameState.level.gridWidth, gameState.level.gridHeight, hexSize) {
+        val hexSizePx = hexSize.value
+        val hexWidthPx = hexSizePx * sqrt(3.0).toFloat()
+        val hexHeightPx = hexSizePx * 2f
+        val verticalSpacingPx = hexHeightPx * 0.75f
+        val rowSpacingPx = -hexHeightPx + verticalSpacingPx + HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT
+        val oddOffsetPx = hexWidthPx * HexagonalGridConstants.ODD_ROW_OFFSET_RATIO
+        val colSpacingPx = HexagonalGridConstants.HORIZONTAL_SPACING
+
+        val maxOddOffset = if (gameState.level.gridHeight > 1) oddOffsetPx else 0f
+        val widthPx = (gameState.level.gridWidth * hexWidthPx) + ((gameState.level.gridWidth - 1) * colSpacingPx) + maxOddOffset
+        val heightPx = ((gameState.level.gridHeight - 1) * (hexHeightPx + rowSpacingPx)) + hexHeightPx
+
+        widthPx.roundToInt() to heightPx.roundToInt()
+    }
+
     Box(modifier = modifier
         .onSizeChanged { containerSize = it }
     ) {
@@ -226,7 +254,22 @@ fun GameGrid(
                 contentSize = newContentSize
             },
             focusTrigger = gameState.phase.value,  // Request focus when game phase changes (e.g., after "Start Battle")
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            backgroundContent = if (hasMapImage) { { measuredContentSize ->
+                val density = androidx.compose.ui.platform.LocalDensity.current
+                val targetWidthPx = maxOf(hexMapSizePx.first, measuredContentSize.width)
+                val targetHeightPx = maxOf(hexMapSizePx.second, measuredContentSize.height)
+                with(density) {
+                    androidx.compose.foundation.Image(
+                        painter = mapImagePainter!!,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .requiredWidth(targetWidthPx.toDp())
+                            .requiredHeight(targetHeightPx.toDp()),
+                        contentScale = androidx.compose.ui.layout.ContentScale.FillBounds
+                    )
+                }
+            } } else null
         ) { position ->
             GridCell(
                 position = position,
@@ -248,7 +291,8 @@ fun GameGrid(
                 hoveredPosition = hoveredPosition,
                 onHoverChange = { isHovering ->
                     hoveredPosition = if (isHovering) position else null
-                }
+                },
+                useTransparentBackground = hasMapImage
             )
         }
 
@@ -272,32 +316,82 @@ fun GameGrid(
                 offsetY = constrainedY
             }
         ) {
-            // Minimap
-            Box(
-                modifier = Modifier.size(120.dp)
+            val density = androidx.compose.ui.platform.LocalDensity.current
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalAlignment = Alignment.End
             ) {
-                HexagonMinimap(
-                    level = gameState.level,
-                    config = MinimapConfig(
-                        showSpawnPoints = true,
-                        showTarget = true,
-                        showTowers = true,
-                        showEnemies = true,
-                        showViewport = true,
-                        minimapSizeDp = 120f
-                    ),
-                    gameState = gameState,
-                    scale = scale,
-                    offsetX = offsetX,
-                    offsetY = offsetY,
-                    containerSize = containerSize,
-                    contentSize = contentSize,
-                    modifier = Modifier.fillMaxSize(),
-                    onViewportDrag = { newOffsetX, newOffsetY ->
-                        offsetX = newOffsetX
-                        offsetY = newOffsetY
+                if (AppSettings.showMapSizeOverlay.value && contentSize.width > 0 && contentSize.height > 0) {
+                    val contentWidthPx = contentSize.width
+                    val contentHeightPx = contentSize.height
+                    val realWidthPx = hexMapSizePx.first
+                    val realHeightPx = hexMapSizePx.second
+                    val viewportWidthPx = containerSize.width
+                    val viewportHeightPx = containerSize.height
+                    val contentWidthDp = with(density) { contentWidthPx.toDp() }
+                    val contentHeightDp = with(density) { contentHeightPx.toDp() }
+                    val realWidthDp = with(density) { realWidthPx.toDp() }
+                    val realHeightDp = with(density) { realHeightPx.toDp() }
+                    val viewportWidthDp = with(density) { viewportWidthPx.toDp() }
+                    val viewportHeightDp = with(density) { viewportHeightPx.toDp() }
+                    Surface(
+                        tonalElevation = 2.dp,
+                        shadowElevation = 4.dp,
+                        shape = RoundedCornerShape(6.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                    ) {
+                        Text(
+                            text = stringResource(
+                                Res.string.debug_map_size_overlay,
+                                realWidthDp.value.roundToInt(),
+                                realHeightDp.value.roundToInt(),
+                                realWidthPx,
+                                realHeightPx,
+                                contentWidthDp.value.roundToInt(),
+                                contentHeightDp.value.roundToInt(),
+                                contentWidthPx,
+                                contentHeightPx,
+                                viewportWidthDp.value.roundToInt(),
+                                viewportHeightDp.value.roundToInt(),
+                                viewportWidthPx,
+                                viewportHeightPx,
+                                offsetX.roundToInt(),
+                                offsetY.roundToInt()
+                            ),
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
                     }
-                )
+                }
+
+                // Minimap
+                Box(
+                    modifier = Modifier.size(120.dp)
+                ) {
+                    HexagonMinimap(
+                        level = gameState.level,
+                        config = MinimapConfig(
+                            showSpawnPoints = true,
+                            showTarget = true,
+                            showTowers = true,
+                            showEnemies = true,
+                            showViewport = true,
+                            minimapSizeDp = 120f
+                        ),
+                        gameState = gameState,
+                        scale = scale,
+                        offsetX = offsetX,
+                        offsetY = offsetY,
+                        containerSize = containerSize,
+                        contentSize = contentSize,
+                        modifier = Modifier.fillMaxSize(),
+                        onViewportDrag = { newOffsetX, newOffsetY ->
+                            offsetX = newOffsetX
+                            offsetY = newOffsetY
+                        }
+                    )
+                }
             }
         }
     }
@@ -320,7 +414,8 @@ fun GridCell(
     hexSize: androidx.compose.ui.unit.Dp = 48.dp,
     selectedDefenderType: DefenderType? = null,
     hoveredPosition: Position? = null,
-    onHoverChange: ((Boolean) -> Unit)? = null
+    onHoverChange: ((Boolean) -> Unit)? = null,
+    useTransparentBackground: Boolean = false
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
     
@@ -354,7 +449,7 @@ fun GridCell(
     // Get tile background painter (will be null if images are disabled or not available)
     // For ready towers on build areas or islands, don't show tile background to make towers more visible
     val shouldShowTileImage = !(defender != null && defender.isReady && isBuildArea)
-    val tilePainter = if (shouldShowTileImage) {
+    val tilePainter = if (shouldShowTileImage && (!useTransparentBackground || isMaelstrom)) {
         TileImageProvider.getTilePainter(tileType, isMaelstrom = isMaelstrom)
     } else {
         null
@@ -527,6 +622,12 @@ fun GridCell(
         else -> baseBackgroundColor  // No selection highlighting during placement or in initial phase
     }
 
+    val finalBackgroundColor = if (useTransparentBackground && attacker == null && defender == null && fieldEffect == null && trap == null && barricade == null) {
+        Color.Transparent
+    } else {
+        backgroundColor
+    }
+
     // Border color - use borders to indicate entities instead of background
     // For range visualization, show green border on path tiles OR river tiles in range (only if tower has actions)
     val showRange = selectedDefenderId?.let { defenderId ->
@@ -661,7 +762,7 @@ fun GridCell(
             hexSize = hexSize,
             position = position,
             tileType = tileType,
-            backgroundColor = backgroundColor,
+            backgroundColor = finalBackgroundColor,
             borderColor = if (useDashedBorder) Color.Transparent else borderColor,
             borderWidth = if (useDashedBorder) 0.dp else borderWidth,
             backgroundPainter = tilePainter,
@@ -701,7 +802,7 @@ fun GridCell(
     } else {
         BaseGridCell(
             hexSize = hexSize,
-            backgroundColor = backgroundColor,
+            backgroundColor = finalBackgroundColor,
             borderColor = if (useDashedBorder) Color.Transparent else borderColor,
             borderWidth = if (useDashedBorder) 0.dp else borderWidth,
             backgroundPainter = tilePainter,
@@ -1231,6 +1332,40 @@ private fun BoxScope.GridCellContent(
                 }
                 
                 drawContext.canvas.restore()
+            }
+        }
+
+        // Debug overlay: tile borders by type
+        if (AppSettings.showTileBorders.value) {
+            val debugBorderColor = when {
+                isSpawnPoint -> Color(0xFFFF4400)
+                isTarget -> Color(0xFF00DD00)
+                isRiverTile -> Color(0xFF0066FF)
+                gameState.level.isOnPath(position) -> Color(0xFFFFAA00)
+                gameState.level.isBuildArea(position) -> Color(0xFF44BB44)
+                else -> Color(0xFF888888)
+            }
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .border(2.dp, debugBorderColor, HexagonShape())
+            )
+        }
+
+        // Debug overlay: tile position text
+        if (AppSettings.showTilePositions.value) {
+            Box(
+                modifier = Modifier
+                    .background(Color.White.copy(alpha = 0.8f))
+                    .padding(1.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "${position.x},${position.y}",
+                    fontSize = 8.sp,
+                    color = Color.Black,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }

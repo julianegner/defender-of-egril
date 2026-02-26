@@ -1,0 +1,54 @@
+/*
+ * Hexagonal grid geometry for Defender of Egril maps.
+ * Constants from docs/reference/defender-of-egril/level-map-definition/MAP_TILE_ARRANGEMENT.md
+ *
+ * Uses a pointy-top hexagonal grid with odd-row offset layout
+ * (odd-r horizontal layout from Red Blob Games hexagon guide).
+ */
+
+// Fundamental hex size: distance from centre to any corner (pixels)
+export const HEX_SIZE = 40;
+export const SQRT3 = Math.sqrt(3);
+
+// Derived measurements
+export const HEX_WIDTH = HEX_SIZE * SQRT3;       // 69.28 px  flat-to-flat
+export const HEX_HEIGHT = HEX_SIZE * 2;           // 80 px     point-to-point
+export const VERTICAL_SPACING = HEX_HEIGHT * 0.75; // 60 px    row-to-row
+
+// Spacing adjustments (from HexagonalGridConstants.kt)
+export const HORIZONTAL_SPACING = -10;
+export const ODD_ROW_OFFSET_RATIO = 0.42;
+
+// Border padding around the rendered image
+export const PADDING = 20;
+
+// Blend sigma: controls how wide the biome transition zone is.
+// ≈ 0.6 × HEX_WIDTH means each hex's colour fades out over roughly half a hex distance.
+export const BLEND_SIGMA = HEX_WIDTH * 0.6; // ~41.6 px
+
+/**
+ * Return the pixel centre (cx, cy) of hex tile at grid position (gx, gy).
+ * Coordinates include the PADDING offset so they sit directly inside the image.
+ */
+export function hexCenter(gx: number, gy: number): [number, number] {
+    const rowOffset = (gy % 2 === 1) ? HEX_WIDTH * ODD_ROW_OFFSET_RATIO : 0;
+    const cx = gx * (HEX_WIDTH + HORIZONTAL_SPACING) + rowOffset + HEX_WIDTH / 2 + PADDING;
+    const cy = gy * VERTICAL_SPACING + HEX_HEIGHT / 2 + PADDING;
+    return [cx, cy];
+}
+
+/**
+ * Return the total image dimensions (width, height) in pixels for a map of
+ * the given grid size. Includes PADDING on all sides.
+ */
+export function imageSize(gridWidth: number, gridHeight: number): [number, number] {
+    const lastCol = gridWidth - 1;
+    const lastRow = gridHeight - 1;
+    const maxRowOffset = (lastRow % 2 === 1) ? HEX_WIDTH * ODD_ROW_OFFSET_RATIO : 0;
+    const rightEdge = lastCol * (HEX_WIDTH + HORIZONTAL_SPACING) + maxRowOffset + HEX_WIDTH;
+    const bottomEdge = lastRow * VERTICAL_SPACING + HEX_HEIGHT;
+    return [
+        Math.ceil(rightEdge + PADDING * 2),
+        Math.ceil(bottomEdge + PADDING * 2),
+    ];
+}

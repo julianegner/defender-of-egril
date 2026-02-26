@@ -374,6 +374,14 @@
     <string name="add_turn">Runde hinzufügen</string>
     <string name="copy_turn">Runde kopieren</string>
     <string name="remove">Entfernen</string>
+    <string name="map_image_generation_title">Kartenbild wird generiert: %1$s</string>
+    <string name="map_image_generation_running">Kartenbild wird erzeugt...</string>
+    <string name="map_image_generation_done">Kartenbild fertiggestellt.</string>
+    <string name="map_image_generation_path">Ziel: %1$s</string>
+    <string name="map_image_generation_show_image">Bild anzeigen</string>
+    <string name="map_image_generation_close">Schließen</string>
+    <string name="map_image_generation_error">Generierung fehlgeschlagen: %1$s</string>
+    <string name="map_image_generation_preview_label">Kartenbild-Vorschau</string>
     <string name="add">Hinzufügen</string>
     <string name="turn_x">Runde %d</string>
     <string name="x_enemies">(%d Gegner)</string>
@@ -1216,4 +1224,12 @@
     <string name="tower_info_title">Turminformationen</string>
     <string name="special_towers_info_title">Spezielle Türme</string>
     <string name="special_towers_info_reopen">Sie können diese Information jederzeit erneut öffnen, indem Sie auf das Turmsymbol im Level-Header klicken.</string>
+
+    <!-- Map Image and Debug Options -->
+    <string name="level_map_image">Karten-Hintergrundbild</string>
+    <string name="debug_options">Debug-Optionen</string>
+    <string name="debug_display_tile_borders">Kachel-Umrandungen anzeigen</string>
+    <string name="debug_display_tile_positions">Kachel-Positionen anzeigen</string>
+    <string name="debug_display_map_size">Kartengröße anzeigen</string>
+    <string name="debug_map_size_overlay">Hexkarte: %1$ddp × %2$ddp / %3$dpx × %4$dpx\nInhalt: %5$ddp × %6$ddp / %7$dpx × %8$dpx\nAnsicht: %9$ddp × %10$ddp / %11$dpx × %12$dpx\nOffset: %13$d, %14$d</string>
 </resources>
