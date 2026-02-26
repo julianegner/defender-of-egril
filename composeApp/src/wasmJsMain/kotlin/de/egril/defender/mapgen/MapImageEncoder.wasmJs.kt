@@ -20,14 +20,15 @@ actual object MapImageEncoder {
             }
             val ctx = canvas.getContext("2d") as? CanvasRenderingContext2D ?: return null
 
-            val data = Uint8ClampedArray(width * height * 4)
-            var p = 0
-            for (c in pixels) {
-                setByte(data, p++, (c ushr 24) and 0xFF)
-                setByte(data, p++, (c ushr 16) and 0xFF)
-                setByte(data, p++, (c ushr 8) and 0xFF)
-                setByte(data, p++, c and 0xFF)
-            }
+        val data = Uint8ClampedArray(width * height * 4)
+        var p = 0
+        for (c in pixels) {
+            // Kotlin Int pixel is ARGB; canvas ImageData expects RGBA.
+            setByte(data, p++, (c ushr 16) and 0xFF) // R
+            setByte(data, p++, (c ushr 8) and 0xFF)  // G
+            setByte(data, p++, c and 0xFF)           // B
+            setByte(data, p++, (c ushr 24) and 0xFF) // A
+        }
 
             ctx.putImageData(ImageData(data, width), 0.0, 0.0)
             val dataUrl = canvas.toDataURL("image/png") ?: return null
