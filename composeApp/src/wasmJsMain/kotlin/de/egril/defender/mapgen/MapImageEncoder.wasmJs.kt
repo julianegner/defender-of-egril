@@ -1,3 +1,4 @@
+@file:OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
 package de.egril.defender.mapgen
 
 import kotlinx.browser.document
@@ -6,6 +7,9 @@ import org.w3c.dom.CanvasRenderingContext2D
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.ImageData
 import org.khronos.webgl.Uint8ClampedArray
+
+@JsFun("(arr, idx, value) => { arr[idx] = value; }")
+private external fun setByte(arr: Uint8ClampedArray, idx: Int, value: Int)
 
 actual object MapImageEncoder {
     actual fun encodeToPng(pixels: IntArray, width: Int, height: Int): ByteArray? {
@@ -18,12 +22,11 @@ actual object MapImageEncoder {
 
             val data = Uint8ClampedArray(width * height * 4)
             var p = 0
-            for (i in pixels.indices) {
-                val c = pixels[i]
-                data.set(array = Uint8ClampedArray(c shr 24 and 0xFF), offset = p++)
-                data.set(array = Uint8ClampedArray(c shr 16 and 0xFF), offset = p++)
-                data.set(array = Uint8ClampedArray(c shr 8 and 0xFF), offset = p++)
-                data.set(array = Uint8ClampedArray(c and 0xFF), offset = p++)
+            for (c in pixels) {
+                setByte(data, p++, (c ushr 24) and 0xFF)
+                setByte(data, p++, (c ushr 16) and 0xFF)
+                setByte(data, p++, (c ushr 8) and 0xFF)
+                setByte(data, p++, c and 0xFF)
             }
 
             ctx.putImageData(ImageData(data, width), 0.0, 0.0)
@@ -32,8 +35,7 @@ actual object MapImageEncoder {
             if (commaIndex < 0) return null
             val base64 = dataUrl.substring(commaIndex + 1)
             val binary = window.atob(base64)
-            val bytes = ByteArray(binary.length) { idx -> binary[idx].code.toByte() }
-            bytes
+            ByteArray(binary.length) { idx -> binary[idx].code.toByte() }
         } catch (_: Throwable) {
             null
         }

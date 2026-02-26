@@ -1,6 +1,7 @@
 package de.egril.defender.editor
 
 import kotlinx.browser.localStorage
+import kotlinx.browser.window
 
 /**
  * WasmJs implementation of FileStorage using browser localStorage.
@@ -138,12 +139,20 @@ class WasmJsFileStorage : FileStorage {
     }
 
     override fun writeBinaryFile(path: String, content: ByteArray) {
-        // Binary file writing not supported in browser localStorage
+        val builder = StringBuilder(content.size)
+        content.forEach { byte ->
+            builder.append((byte.toInt() and 0xFF).toChar())
+        }
+        val base64 = window.btoa(builder.toString())
+        localStorage.setItem(PREFIX + path, "base64:$base64")
     }
 
     override fun readBinaryFile(path: String): ByteArray? {
-        // Binary file reading not supported in browser localStorage
-        return null
+        val stored = localStorage.getItem(PREFIX + path) ?: return null
+        if (!stored.startsWith("base64:")) return null
+        val base64 = stored.removePrefix("base64:")
+        val binary = window.atob(base64)
+        return ByteArray(binary.length) { idx -> binary[idx].code.toByte() }
     }
 }
 
