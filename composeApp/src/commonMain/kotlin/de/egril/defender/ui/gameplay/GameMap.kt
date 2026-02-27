@@ -899,15 +899,36 @@ private fun BoxScope.GridCellContent(
                                     iterations = Int.MAX_VALUE
                                 )
                             } else {
-                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                                        repeat(3) {
-                                            PlusIcon(
-                                                size = GamePlayConstants.TileIconSizes.HealingEffect,
-                                                tint = Color(0xFF4CAF50)
-                                            )
-                                        }
-                                    }
+                                // Show 3 green "+" symbols in different sizes
+                                // Positioned with smaller symbols higher than larger ones
+                                // TODO HERE
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    // Large + symbol at center
+                                    Text(
+                                        "+",
+                                        style = MaterialTheme.typography.headlineLarge,
+                                        color = Color(0xFF4CAF50), // Green
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    // Medium + symbol - offset left and higher
+                                    Text(
+                                        "+",
+                                        style = MaterialTheme.typography.headlineMedium,
+                                        color = Color(0xFF4CAF50), // Green
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.offset(x = (-12).dp, y = (-8).dp)
+                                    )
+                                    // Small + symbol - offset right and even higher
+                                    Text(
+                                        "+",
+                                        style = MaterialTheme.typography.headlineSmall,
+                                        color = Color(0xFF4CAF50), // Green
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.offset(x = 12.dp, y = (-16).dp)
+                                    )
                                 }
                             }
                         }
@@ -1059,15 +1080,36 @@ private fun BoxScope.GridCellContent(
                                 iterations = Int.MAX_VALUE
                             )
                         } else {
-                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                                    repeat(3) {
-                                        CrossIcon(
-                                            size = GamePlayConstants.TileIconSizes.DamageEffect,
-                                            tint = Color(0xFFE53935)
-                                        )
-                                    }
-                                }
+                            // Show 3 red "-" symbols in different sizes
+                            // Positioned with smaller symbols higher than larger ones
+                            // TODO HERE
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                // Large - symbol at center
+                                Text(
+                                    "-",
+                                    style = MaterialTheme.typography.headlineLarge,
+                                    color = Color.Red,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                // Medium - symbol - offset left and higher
+                                Text(
+                                    "-",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = Color.Red,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.offset(x = (-10).dp, y = (-12).dp)
+                                )
+                                // Small - symbol - offset right and higher
+                                Text(
+                                    "-",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = Color.Red,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.offset(x = 8.dp, y = (-15).dp)
+                                )
                             }
                         }
                     }
