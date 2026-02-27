@@ -57,6 +57,7 @@ import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.rememberMapImagePainter
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
+import de.egril.defender.config.LogConfig
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -207,7 +208,9 @@ fun GameGrid(
                                 }
                             }
                         }
+                        if (LogConfig.ENABLE_UI_LOGGING) {
                         println("Target circle map: $result")
+                        }
                         result
                     }
                 }
@@ -931,6 +934,15 @@ private fun BoxScope.GridCellContent(
                                     )
                                 }
                             }
+                        }
+                        // Show snowflake animation if enemy is frozen
+                        val freezeEffect = gameState.activeSpellEffects.find {
+                            it.spell == SpellType.FREEZE_SPELL && it.attackerId == attacker.id
+                        }
+                        if (freezeEffect != null) {
+                            SnowflakeAnimation(
+                                modifier = Modifier.fillMaxSize()
+                            )
                         }
                         // Show barb effect indicators if affected (show up to 5 arrows in center)
                         if (attacker.movementPenalty.value > 0) {

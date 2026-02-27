@@ -1041,6 +1041,7 @@
     <!-- Player Profile Screen -->
     <string name="player_profile">Perfil del Jugador</string>
     <string name="player_created">Jugador Creado</string>
+    <string name="abilities">Habilidades</string>
     <string name="achievements">Logros</string>
     <string name="achievements_earned">Logros Obtenidos</string>
     <string name="no_achievements_yet">No hay logros aún</string>
@@ -1131,6 +1132,17 @@
     <string name="achievement_add_health_barricade_name">Fortificado</string>
     <string name="achievement_add_health_barricade_desc">Añade puntos de salud a una barricada existente</string>
     
+    <string name="achievement_first_stat_upgrade_name">Primera Mejora</string>
+    <string name="achievement_first_stat_upgrade_desc">Gasta tu primer punto de estadística para mejorar una estadística</string>
+    <string name="achievement_first_spell_unlock_name">Hechicero</string>
+    <string name="achievement_first_spell_unlock_desc">Desbloquea tu primer hechizo usando puntos de estadística</string>
+    <string name="achievement_construction_level_3_name">Maestro Constructor</string>
+    <string name="achievement_construction_level_3_desc">Alcanza el nivel 3 de Construcción para desbloquear Bases de Torres</string>
+    <string name="achievement_player_level_10_name">Defensor Experimentado</string>
+    <string name="achievement_player_level_10_desc">Alcanza el nivel 10 de jugador ganando XP</string>
+    <string name="achievement_player_level_100_name">Defensor Legendario</string>
+    <string name="achievement_player_level_100_desc">Alcanza el nivel 100 de jugador ganando XP</string>
+
     <!-- Official Content Badges -->
     <string name="official">Oficial</string>
     <string name="user_levels">Niveles de Usuario</string>
@@ -1237,4 +1249,139 @@
     <string name="debug_display_tile_positions">Mostrar posiciones de celdas</string>
     <string name="debug_display_map_size">Mostrar tamaño del mapa</string>
     <string name="debug_map_size_overlay">Mapa hex: %1$ddp × %2$ddp / %3$dpx × %4$dpx\nContenido: %5$ddp × %6$ddp / %7$dpx × %8$dpx\nVista: %9$ddp × %10$ddp / %11$dpx × %12$dpx\nDesplazamiento: %13$d, %14$d</string>
+
+    <!-- XP System -->
+    <string name="xp_earned">XP Ganada: %d</string>
+    <string name="xp_info_brief">Gana XP derrotando enemigos.\n¡Sube de nivel para obtener puntos de estadísticas y desbloquear habilidades poderosas!</string>
+    <string name="xp_system_unlocked">¡Sistema de XP Desbloqueado!</string>
+    <string name="xp_system_unlock_message">¡Ahora puedes usar XP para mejorar tus estadísticas y desbloquear habilidades poderosas!\n\nAccede a la pantalla de mejora desde el Perfil del Jugador.</string>
+
+    <!-- Stats Upgrade Screen -->
+    <string name="available_stat_points">Puntos de Estadísticas Disponibles: %d</string>
+    <string name="stats">Estadísticas</string>
+    <string name="spells">Hechizos</string>
+    <string name="unlock">Desbloquear</string>
+    <string name="stat_health">Salud</string>
+    <string name="stat_health_desc">+1 PV de bonificación por nivel</string>
+    <string name="stat_health_effect">+%d PV</string>
+    <string name="stat_treasury">Tesoro</string>
+    <string name="stat_treasury_desc">+50 monedas iniciales por nivel</string>
+    <string name="stat_treasury_effect">+%d monedas</string>
+    <string name="stat_income">Ingresos</string>
+    <string name="stat_income_desc">+10%% de monedas de todas las fuentes</string>
+    <string name="stat_income_effect">+%d%%</string>
+    <string name="stat_construction">Construcción</string>
+    <string name="stat_construction_desc">Desbloquea habilidades de torres</string>
+    <string name="stat_construction_effect_none">Sin habilidades</string>
+    <string name="stat_construction_effect_level1">Barricadas de lanza, Púas con púas</string>
+    <string name="stat_construction_effect_level2">Barricadas de púas</string>
+    <string name="stat_construction_effect_level3">Todas las habilidades desbloqueadas</string>
+    <string name="stat_mana">Maná</string>
+    <string name="stat_mana_desc">+5 de maná máximo por nivel</string>
+    <string name="stat_mana_effect">%d de maná máximo</string>
+    <string name="spells_description">Desbloquea hechizos poderosos para lanzar durante la batalla</string>
+    <string name="spell_unlocked">Desbloqueado</string>
+    <string name="spell_mana_cost">%d Maná</string>
+    <string name="player_level">Nivel %d</string>
+    <string name="xp_progress">%d / %d XP</string>
+    <string name="stat_level_effect">Nivel %d: %s</string>
+    <string name="generate_mana">Generar Maná</string>
+    <string name="mana_label">Maná</string>
+    <string name="magic_panel_title">Hechizos Mágicos</string>
+    <string name="magic_panel_description">Selecciona un hechizo para lanzar en batalla</string>
+    <string name="no_spells_unlocked">Aún no hay hechizos desbloqueados. ¡Mejora tus estadísticas para desbloquear hechizos!</string>
+    <string name="cast">Lanzar</string>
+    <string name="confirm_spell_cast">Confirmar Hechizo</string>
+    <string name="cast_spell_confirmation">¿Lanzar %s?</string>
+    <string name="mana_cost_label">Coste de Maná:</string>
+    <string name="remaining_mana_label">Restante:</string>
+    <string name="spell_targeting_position">Selecciona una posición en el mapa</string>
+    <string name="spell_targeting_enemy">Selecciona un enemigo como objetivo</string>
+    <string name="spell_targeting_tower">Selecciona una torre para mejorar</string>
+    <string name="spell_targeting_cancel">Haz clic aquí para cancelar</string>
+
+    <!-- Spell Names -->
+    <string name="spell_attack_area_name">Ataque de Área</string>
+    <string name="spell_attack_aimed_name">Ataque Dirigido</string>
+    <string name="spell_heal_name">Curación</string>
+    <string name="spell_instant_tower_name">Torre Instantánea</string>
+    <string name="spell_bomb_name">Bomba</string>
+    <string name="spell_double_tower_level_name">Duplicar Nivel de Torre</string>
+    <string name="spell_cooling_spell_name">Hechizo de Enfriamiento</string>
+    <string name="spell_freeze_spell_name">Hechizo de Congelación</string>
+    <string name="spell_double_tower_reach_name">Duplicar Alcance de Torre</string>
+
+    <!-- Spell Descriptions -->
+    <string name="spell_attack_area_desc">Inflige 50 de daño a todos los enemigos en un rango de 2 hexágonos</string>
+    <string name="spell_attack_aimed_desc">Inflige 80 de daño a un solo enemigo</string>
+    <string name="spell_heal_desc">Restaura 3 puntos de salud</string>
+    <string name="spell_instant_tower_desc">Omite el tiempo de construcción de una torre en construcción</string>
+    <string name="spell_bomb_desc">Coloca una bomba que explota después de 2 turnos, infligiendo 100 de daño a enemigos y estructuras</string>
+    <string name="spell_double_tower_level_desc">Duplica el daño de una torre durante 1 turno</string>
+    <string name="spell_cooling_spell_desc">Crea un área que reduce la velocidad de movimiento del enemigo en 1 durante 3 turnos</string>
+    <string name="spell_freeze_spell_desc">Congela a un enemigo durante 1 turno (inmunidad: Demonios, Dragones, Ewhad)</string>
+    <string name="spell_double_tower_reach_desc">Duplica el alcance de ataque de una torre durante 1 turno</string>
+
+    <!-- Construction Info -->
+    <string name="construction_info_intro">Cada nivel de Construcción desbloquea poderosas habilidades de torre:</string>
+    <string name="construction_level_1_title">Construcción Nivel 1</string>
+    <string name="construction_level_1_desc">Torre de Lanza (nivel 10+): Construir barricadas\nTorre de Pinchos (nivel 10+): Púas con púas (los enemigos pierden 1 punto de movimiento)</string>
+    <string name="construction_level_2_title">Construcción Nivel 2</string>
+    <string name="construction_level_2_desc">Torre de Pinchos (nivel 20+): Construir barricadas</string>
+    <string name="construction_level_3_title">Construcción Nivel 3</string>
+    <string name="construction_level_3_desc">Base de Torre: Las barricadas de nivel 100+ pueden sostener torres</string>
+
+    <!-- Cheat Codes -->
+    <string name="cheat_codes_title">Códigos de trucos</string>
+    <string name="cheat_section_general">General</string>
+    <string name="cheat_section_coins">Monedas y recursos</string>
+    <string name="cheat_section_mana">Maná (durante el nivel)</string>
+    <string name="cheat_section_enemies">Enemigos</string>
+    <string name="cheat_section_mining">Minería</string>
+    <string name="cheat_section_xp_stats">XP y estadísticas</string>
+    <string name="cheat_section_spells">Hechizos</string>
+    <string name="cheat_section_levels">Desbloqueo de niveles</string>
+
+    <!-- Cheat code descriptions -->
+    <string name="cheat_help_desc">Mostrar esta pantalla de ayuda</string>
+    <string name="cheat_platform_desc">Mostrar información de la plataforma</string>
+    <string name="cheat_cash_desc">Agregar 1,000 monedas</string>
+    <string name="cheat_mmmoney_desc">Agregar 1,000,000 de monedas</string>
+    <string name="cheat_emptypocket_desc">Establecer monedas en 0</string>
+    <string name="cheat_addmana_desc">Agregar maná (ej. addmana 50)</string>
+    <string name="cheat_removemana_desc">Quitar maná (ej. removemana 20)</string>
+    <string name="cheat_spawn_desc">Generar enemigo (ej. spawn goblin 5)</string>
+    <string name="cheat_spawn_types">Tipos de enemigos: goblin, ork, ogre, skeleton, wizard, greenwitch, redwitch</string>
+    <string name="cheat_dig_nothing_desc">Resultado de excavación: nada</string>
+    <string name="cheat_dig_treasure_desc">Resultado de excavación: tesoro</string>
+    <string name="cheat_dig_gems_desc">Resultado de excavación: gemas/diamante</string>
+    <string name="cheat_dig_dragon_desc">Resultado de excavación: dragón</string>
+    <string name="cheat_addxp_desc">Agregar XP (ej. addxp 500)</string>
+    <string name="cheat_removexp_desc">Quitar XP (ej. removexp 100)</string>
+    <string name="cheat_addstat_desc">Agregar niveles de estadística (ej. addstat health 5)</string>
+    <string name="cheat_removestat_desc">Quitar niveles de estadística (ej. removestat mana 2)</string>
+    <string name="cheat_stat_types">Estadísticas: health, treasury, income, construction, mana</string>
+    <string name="cheat_unlockspell_desc">Desbloquear un hechizo (ej. unlockspell fireball)</string>
+    <string name="cheat_lockspell_desc">Bloquear un hechizo (ej. lockspell heal)</string>
+    <string name="cheat_spell_types">Hechizos: attack_aimed, attack_area, heal, instant_tower, bomb, double_level, cooling, freeze, double_reach</string>
+    <string name="cheat_unlockall_desc">Desbloquear todos los niveles</string>
+    <string name="cheat_unlock_desc">Desbloquear nivel específico</string>
+    <string name="cheat_lockall_desc">Bloquear todos los niveles</string>
+    <string name="cheat_lock_desc">Bloquear nivel específico</string>
+
+    <!-- Freeze status labels -->
+    <string name="frozen_label">Congelado</string>
+    <string name="frozen_turns_remaining">Congelado: %d turnos restantes</string>
+
+
+    <!-- Task 3: Post-target spell confirmation -->
+    <string name="cast_spell_on_target">Lanzar %1$s</string>
+    <string name="target_enemy_details">Enemigo objetivo:</string>
+    <string name="target_tower_details">Torre objetivo:</string>
+    <string name="target_position">Posición objetivo:</string>
+    <string name="enemy_type_level_hp">%1$s (Nivel %2$s, PV: %3$s)</string>
+    <string name="tower_type_level">%1$s (Nivel %2$s)</string>
+    <string name="freeze_immune_warning_title">No se puede congelar al enemigo</string>
+    <string name="freeze_immune_warning_message">¡%1$s es inmune al hechizo de congelación!</string>
+
 </resources>

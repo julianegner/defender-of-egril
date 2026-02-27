@@ -49,7 +49,8 @@ fun DefenderInfo(
     selectedTargetPosition: Position? = null,
     onDefenderAttack: ((Int, Int) -> Boolean)? = null,
     onDefenderAttackPosition: ((Int, Position) -> Boolean)? = null,
-    isPlayerTurn: Boolean = false
+    isPlayerTurn: Boolean = false,
+    hasUnlockedSpells: Boolean = false  // Whether player has unlocked any spells
 ) {
     val locale = com.hyperether.resources.currentLanguage.value
     val buttonHeight = if (isMobile) 100.dp else 60.dp
@@ -305,6 +306,25 @@ fun DefenderInfo(
                                 }
                             }
 
+                            // Generate Mana button for wizard tower (when mana is below max)
+                            if (isPlayerTurn &&
+                                defender.type == DefenderType.WIZARD_TOWER &&
+                                gameState.currentMana.value < gameState.maxMana.value &&
+                                onWizardAction != null) {
+
+                                Spacer(modifier = Modifier.width(horizontalSpacing))
+                                Column(modifier = Modifier.weight(1.3f)) {
+                                    GenerateManaButton(
+                                        defender = defender,
+                                        gameState = gameState,
+                                        onWizardAction = onWizardAction,
+                                        modifier = Modifier
+                                            .width(240.dp)
+                                            .height(buttonHeight)
+                                    )
+                                }
+                            }
+
                             // Magical trap button for wizard tower level 10+
                             if (isPlayerTurn &&
                                 defender.type == DefenderType.WIZARD_TOWER &&
@@ -325,10 +345,15 @@ fun DefenderInfo(
                             }
 
                             // Barricade button for spike tower (level 20+) or spear tower (level 10+)
+                            // Requires Construction level 1 for spear, level 2 for spike
                             if (isPlayerTurn && onBarricadeAction != null) {
                                 val canBuildBarricade = when (defender.type) {
-                                    DefenderType.SPIKE_TOWER -> defender.level.value >= 20
-                                    DefenderType.SPEAR_TOWER -> defender.level.value >= 10
+                                    DefenderType.SPIKE_TOWER -> 
+                                        defender.level.value >= 20 && 
+                                        gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_2
+                                    DefenderType.SPEAR_TOWER -> 
+                                        defender.level.value >= 10 && 
+                                        gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_1
                                     else -> false
                                 }
                                 
@@ -516,6 +541,66 @@ fun DefenderActionsInfo(defender: Defender) {
                 "${defender.actionsRemaining.value}/${defender.actionsPerTurnCalculated}",
                 style = MaterialTheme.typography.titleMedium,
             )
+        }
+    }
+}
+
+/**
+ * Button for wizard tower to generate mana
+ * Generates base 5 mana + (level / 5) bonus mana
+ * Always available when wizard has actions
+ */
+@Composable
+fun GenerateManaButton(
+    defender: Defender,
+    gameState: GameState,
+    onWizardAction: (Int, WizardAction) -> Unit,
+    modifier: Modifier = Modifier.fillMaxWidth().height(56.dp)
+) {
+    if (defender.isReady) {
+        // Calculate mana generation amount
+        val manaAmount = 5 + (defender.level.value / 5)
+        val isAtMaxMana = gameState.currentMana.value >= gameState.maxMana.value
+        
+        // Button to generate mana - enabled when wizard has actions and not at max mana
+        Button(
+            onClick = { onWizardAction(defender.id, WizardAction.GENERATE_MANA) },
+            enabled = defender.actionsRemaining.value > 0 && !isAtMaxMana,
+            modifier = modifier,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF9C27B0)  // Purple color for mana
+            )
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().padding(start = 0.dp, end = 4.dp)
+            ) {
+                // Mana icon on the left
+                de.egril.defender.ui.icon.PentagramIcon(size = 40.dp)
+                Spacer(modifier = Modifier.width(4.dp))
+                // Two rows on the right
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    // Upper row: "Generate Mana"
+                    Text(
+                        stringResource(Res.string.generate_mana),
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Clip
+                    )
+                    // Lower row: "+X Mana"
+                    Text(
+                        "+$manaAmount ${stringResource(Res.string.mana_label)}",
+                        fontSize = 13.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Visible
+                    )
+                }
+            }
         }
     }
 }
@@ -727,7 +812,7 @@ private data class TowerInfoMessage(
  * Get all relevant info messages for a specific tower
  */
 @Composable
-private fun getTowerInfoMessages(defender: Defender): List<TowerInfoMessage> {
+private fun getTowerInfoMessages(defender: Defender, gameState: GameState): List<TowerInfoMessage> {
     val messages = mutableListOf<TowerInfoMessage>()
     
     // Add first-use info message for the tower type
@@ -837,8 +922,10 @@ private fun getTowerInfoMessages(defender: Defender): List<TowerInfoMessage> {
     
     // Add ability info messages based on tower level
     
-    // Spike barbs info (spike tower level 10+)
-    if (defender.type == DefenderType.SPIKE_TOWER && defender.level.value >= 10) {
+    // Spike barbs info (spike tower level 10+ AND Construction level 1+)
+    if (defender.type == DefenderType.SPIKE_TOWER && 
+        defender.level.value >= 10 && 
+        gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_1) {
         messages.add(
             TowerInfoMessage(
                 title = stringResource(Res.string.spike_barbs_info_title),
@@ -849,10 +936,14 @@ private fun getTowerInfoMessages(defender: Defender): List<TowerInfoMessage> {
         )
     }
     
-    // Barricade info (spike tower level 20+ or spear tower level 10+)
+    // Barricade info (spike tower level 20+ with Construction 2+ or spear tower level 10+ with Construction 1+)
     val hasBarricadeAbility = when (defender.type) {
-        DefenderType.SPIKE_TOWER -> defender.level.value >= 20
-        DefenderType.SPEAR_TOWER -> defender.level.value >= 10
+        DefenderType.SPIKE_TOWER -> 
+            defender.level.value >= 20 && 
+            gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_2
+        DefenderType.SPEAR_TOWER -> 
+            defender.level.value >= 10 && 
+            gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_1
         else -> false
     }
     if (hasBarricadeAbility) {
@@ -900,7 +991,7 @@ private fun getTowerInfoMessages(defender: Defender): List<TowerInfoMessage> {
  */
 @Composable
 private fun TowerInfoButtonArea(defender: Defender, gameState: GameState) {
-    val messages = getTowerInfoMessages(defender)
+    val messages = getTowerInfoMessages(defender, gameState)
     
     // Only show info icon if there are info messages for this tower
     if (messages.isEmpty()) {
@@ -928,9 +1019,10 @@ private fun TowerInfoButtonArea(defender: Defender, gameState: GameState) {
 @Composable
 internal fun TowerInfoDialog(
     defender: Defender,
+    gameState: GameState,
     onDismiss: () -> Unit
 ) {
-    val messages = getTowerInfoMessages(defender)
+    val messages = getTowerInfoMessages(defender, gameState)
     
     ScrollableInfoCard(
         title = {

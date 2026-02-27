@@ -2,10 +2,6 @@
 
 package de.egril.defender.ui.infopage
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -13,19 +9,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.Achievement
 import de.egril.defender.model.AchievementDefinitions
-import de.egril.defender.model.AchievementId
 import de.egril.defender.save.PlayerProfile
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.getLocalizedDescription
-import de.egril.defender.ui.icon.ChevronRightIcon
 import de.egril.defender.ui.icon.TrophyIcon
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.utils.formatTimestamp
@@ -38,7 +30,10 @@ import defender_of_egril.composeapp.generated.resources.*
 fun PlayerProfileScreen(
     playerProfile: PlayerProfile,
     onBack: () -> Unit,
-    onEditName: () -> Unit
+    onEditName: () -> Unit,
+    onNavigateToStats: (() -> Unit)? = null,  // Optional callback to navigate to stats screen
+    onUpgradeAbility: ((de.egril.defender.model.AbilityType) -> Unit)? = null,  // Optional callback for ability upgrades
+    onUnlockSpell: ((de.egril.defender.model.SpellType) -> Unit)? = null  // Optional callback for unlocking spells
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -75,10 +70,11 @@ fun PlayerProfileScreen(
                 }
                 
                 // Scrollable content
+                var selectedTabIndex by remember { mutableStateOf(0) }
+                
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .verticalScroll(rememberScrollState())
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                 ) {
@@ -90,8 +86,76 @@ fun PlayerProfileScreen(
                     
                     Spacer(modifier = Modifier.height(24.dp))
                     
-                    // Achievements Section
-                    AchievementsSection(achievements = playerProfile.achievements)
+                    // Tabs (only show if stats callback is provided)
+                    if (onNavigateToStats != null) {
+                        TabRow(
+                            selectedTabIndex = selectedTabIndex,
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        ) {
+                            Tab(
+                                selected = selectedTabIndex == 0,
+                                onClick = { selectedTabIndex = 0 },
+                                text = { Text(stringResource(Res.string.achievements)) }
+                            )
+                            Tab(
+                                selected = selectedTabIndex == 1,
+                                onClick = { selectedTabIndex = 1 },
+                                text = { Text(stringResource(Res.string.abilities)) }
+                            )
+                        }
+                        
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        // Tab content (scrollable)
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .verticalScroll(rememberScrollState())
+                                .fillMaxWidth()
+                        ) {
+                            when (selectedTabIndex) {
+                                0 -> {
+                                    // Achievements tab - show achievements directly
+                                    AchievementsListDirect(achievements = playerProfile.achievements)
+                                }
+                                1 -> {
+                                    // Stats & Abilities tab - show stats directly if callbacks provided
+                                    if (onUpgradeAbility != null && onUnlockSpell != null) {
+                                        StatsAndAbilitiesContent(
+                                            playerProfile = playerProfile,
+                                            onUpgradeAbility = onUpgradeAbility,
+                                            onUnlockSpell = onUnlockSpell
+                                        )
+                                    } else if (onNavigateToStats != null) {
+                                        // Fallback to button if callbacks not provided
+                                        Button(
+                                            onClick = onNavigateToStats,
+                                            modifier = Modifier.fillMaxWidth().height(56.dp),
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = MaterialTheme.colorScheme.secondary
+                                            )
+                                        ) {
+                                            Text(
+                                                text = stringResource(Res.string.abilities),
+                                                style = MaterialTheme.typography.titleMedium
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        // No stats callback - just show achievements directly (old behavior)
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .verticalScroll(rememberScrollState())
+                                .fillMaxWidth()
+                        ) {
+                            AchievementsListDirect(achievements = playerProfile.achievements)
+                        }
+                    }
                 }
                 
                 // Back button
@@ -223,81 +287,206 @@ private fun PlayerInfoCard(
 }
 
 /**
- * Collapsible achievements section
+ * Direct achievements list (no collapsible wrapper)
  */
 @Composable
-private fun AchievementsSection(achievements: List<Achievement>) {
-    var isExpanded by remember { mutableStateOf(false) }
-    val rotation by animateFloatAsState(if (isExpanded) 90f else 0f)
-    
-    Card(
+private fun AchievementsListDirect(achievements: List<Achievement>) {
+    Column(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            // Header - clickable to expand/collapse
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { isExpanded = !isExpanded }
-                    .padding(20.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+        if (achievements.isEmpty()) {
+            // No achievements yet
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    TrophyIcon(size = 24.dp, tint = MaterialTheme.colorScheme.primary)
-                    Text(
-                        text = stringResource(Res.string.achievements),
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-                
-                ChevronRightIcon(
-                    size = 24.dp,
-                    modifier = Modifier.rotate(rotation),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                Text(
+                    text = stringResource(Res.string.no_achievements_yet),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(20.dp)
                 )
             }
+        } else {
+            // Show achievements directly
+            val sortedAchievements = achievements.sortedByDescending { it.earnedAt }
             
-            // Achievements list - shown when expanded
-            AnimatedVisibility(visible = isExpanded) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 8.dp)
-                ) {
-                    if (achievements.isEmpty()) {
-                        // No achievements yet
-                        Text(
-                            text = stringResource(Res.string.no_achievements_yet),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(vertical = 16.dp)
-                        )
-                    } else {
-                        // Group achievements by earned status
-                        val sortedAchievements = achievements.sortedByDescending { it.earnedAt }
-                        
-                        sortedAchievements.forEachIndexed { index, achievement ->
-                            if (index > 0) {
-                                Spacer(modifier = Modifier.height(8.dp))
-                            }
-                            AchievementItem(achievement = achievement)
-                        }
-                        
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
+            sortedAchievements.forEach { achievement ->
+                AchievementItem(achievement = achievement)
+            }
+        }
+    }
+}
+
+/**
+ * Stats and abilities content (embedded version for tab)
+ */
+@Composable
+private fun StatsAndAbilitiesContent(
+    playerProfile: PlayerProfile,
+    onUpgradeAbility: (de.egril.defender.model.AbilityType) -> Unit,
+    onUnlockSpell: (de.egril.defender.model.SpellType) -> Unit
+) {
+    val stats = playerProfile.abilities
+    
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Player Level Info
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            )
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = stringResource(Res.string.player_level, stats.level),
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                // XP Progress
+                val currentLevelXP = de.egril.defender.model.PlayerAbilities.getXPForLevel(stats.level)
+                val nextLevelXP = de.egril.defender.model.PlayerAbilities.getXPForNextLevel(stats.level)
+                val progressInLevel = stats.totalXP - currentLevelXP
+                val requiredForLevel = nextLevelXP - currentLevelXP
+                val progress = if (requiredForLevel > 0) progressInLevel.toFloat() / requiredForLevel.toFloat() else 1f
+                
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    LinearProgressIndicator(
+                        progress = progress,
+                        modifier = Modifier.fillMaxWidth().height(12.dp)
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(Res.string.xp_progress, progressInLevel, requiredForLevel),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
                 }
             }
+        }
+        
+        // Available stat points
+        if (stats.availableAbilityPoints > 0) {
+            Text(
+                text = stringResource(Res.string.available_stat_points, stats.availableAbilityPoints),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+        
+        // Stats Section Header
+        Text(
+            text = stringResource(Res.string.abilities),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+        
+        // Stat Cards (same as StatsUpgradeScreen)
+        de.egril.defender.ui.AbilityCard(
+            name = stringResource(Res.string.stat_health),
+            description = stringResource(Res.string.stat_health_desc),
+            currentLevel = stats.healthAbility,
+            effect = stringResource(Res.string.stat_health_effect, stats.getBonusHealth()),
+            canUpgrade = stats.availableAbilityPoints > 0,
+            onUpgrade = { onUpgradeAbility(de.egril.defender.model.AbilityType.HEALTH) },
+            icon = { de.egril.defender.ui.icon.HeartIcon(size = 32.dp) }
+        )
+        
+        Spacer(modifier = Modifier.height(1.dp))
+        
+        de.egril.defender.ui.AbilityCard(
+            name = stringResource(Res.string.stat_treasury),
+            description = stringResource(Res.string.stat_treasury_desc),
+            currentLevel = stats.treasuryAbility,
+            effect = stringResource(Res.string.stat_treasury_effect, stats.getBonusStartCoins()),
+            canUpgrade = stats.availableAbilityPoints > 0,
+            onUpgrade = { onUpgradeAbility(de.egril.defender.model.AbilityType.TREASURY) },
+            icon = { de.egril.defender.ui.icon.MoneyIcon(size = 32.dp) }
+        )
+        
+        Spacer(modifier = Modifier.height(1.dp))
+        
+        de.egril.defender.ui.AbilityCard(
+            name = stringResource(Res.string.stat_income),
+            description = stringResource(Res.string.stat_income_desc),
+            currentLevel = stats.incomeAbility,
+            effect = stringResource(Res.string.stat_income_effect, stats.incomeAbility * 10),
+            canUpgrade = stats.availableAbilityPoints > 0,
+            onUpgrade = { onUpgradeAbility(de.egril.defender.model.AbilityType.INCOME) },
+            icon = { de.egril.defender.ui.icon.MoneyIcon(size = 32.dp) }
+        )
+        
+        Spacer(modifier = Modifier.height(1.dp))
+        
+        // Construction stat with info icon
+        var showConstructionInfo by remember { mutableStateOf(false) }
+        de.egril.defender.ui.AbilityCardWithInfo(
+            name = stringResource(Res.string.stat_construction),
+            description = stringResource(Res.string.stat_construction_desc),
+            currentLevel = stats.constructionAbility,
+            effect = de.egril.defender.ui.buildConstructionEffect(stats.constructionAbility),
+            canUpgrade = stats.availableAbilityPoints > 0,
+            onUpgrade = { onUpgradeAbility(de.egril.defender.model.AbilityType.CONSTRUCTION) },
+            icon = { de.egril.defender.ui.icon.HammerIcon(size = 32.dp) },
+            onShowInfo = { showConstructionInfo = true }
+        )
+        
+        if (showConstructionInfo) {
+            de.egril.defender.ui.ConstructionInfoDialog(
+                onDismiss = { showConstructionInfo = false }
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(1.dp))
+        
+        de.egril.defender.ui.AbilityCard(
+            name = stringResource(Res.string.stat_mana),
+            description = stringResource(Res.string.stat_mana_desc),
+            currentLevel = stats.manaAbility,
+            effect = stringResource(Res.string.stat_mana_effect, stats.getMaxMana()),
+            canUpgrade = stats.availableAbilityPoints > 0,
+            onUpgrade = { onUpgradeAbility(de.egril.defender.model.AbilityType.MANA) },
+            icon = { de.egril.defender.ui.icon.StarIcon(size = 32.dp) }
+        )
+        
+        Spacer(modifier = Modifier.height(4.dp))
+        
+        // Spells Section
+        Text(
+            text = stringResource(Res.string.spells),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+        
+        Text(
+            text = stringResource(Res.string.spells_description),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(bottom = 3.dp)
+        )
+        
+        de.egril.defender.model.SpellType.values().forEach { spell ->
+            val isUnlocked = stats.isSpellUnlocked(spell)
+            de.egril.defender.ui.SpellCard(
+                spell = spell,
+                isUnlocked = isUnlocked,
+                canUnlock = !isUnlocked && stats.availableAbilityPoints > 0,
+                onUnlock = { onUnlockSpell(spell) }
+            )
+            Spacer(modifier = Modifier.height(1.dp))
         }
     }
 }

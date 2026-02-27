@@ -3,6 +3,7 @@ package de.egril.defender.ui
 import de.egril.defender.model.AttackType
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.model.SpellType
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.LocalizedStrings
 
@@ -19,6 +20,42 @@ fun DefenderType.getLocalizedName(locale: AppLocale = com.hyperether.resources.c
         DefenderType.BALLISTA_TOWER -> "ballista_tower_name"
         DefenderType.DWARVEN_MINE -> "dwarven_mine_name"
         DefenderType.DRAGONS_LAIR -> "dragons_lair_name"
+    }
+    return LocalizedStrings.get(key, locale)
+}
+
+/**
+ * Get localized name for a SpellType
+ */
+fun SpellType.getLocalizedName(locale: AppLocale = com.hyperether.resources.currentLanguage.value): String {
+    val key = when (this) {
+        SpellType.ATTACK_AREA -> "spell_attack_area_name"
+        SpellType.ATTACK_AIMED -> "spell_attack_aimed_name"
+        SpellType.HEAL -> "spell_heal_name"
+        SpellType.INSTANT_TOWER -> "spell_instant_tower_name"
+        SpellType.BOMB -> "spell_bomb_name"
+        SpellType.DOUBLE_TOWER_LEVEL -> "spell_double_tower_level_name"
+        SpellType.COOLING_SPELL -> "spell_cooling_spell_name"
+        SpellType.FREEZE_SPELL -> "spell_freeze_spell_name"
+        SpellType.DOUBLE_TOWER_REACH -> "spell_double_tower_reach_name"
+    }
+    return LocalizedStrings.get(key, locale)
+}
+
+/**
+ * Get localized description for a SpellType
+ */
+fun SpellType.getLocalizedDescription(locale: AppLocale = com.hyperether.resources.currentLanguage.value): String {
+    val key = when (this) {
+        SpellType.ATTACK_AREA -> "spell_attack_area_desc"
+        SpellType.ATTACK_AIMED -> "spell_attack_aimed_desc"
+        SpellType.HEAL -> "spell_heal_desc"
+        SpellType.INSTANT_TOWER -> "spell_instant_tower_desc"
+        SpellType.BOMB -> "spell_bomb_desc"
+        SpellType.DOUBLE_TOWER_LEVEL -> "spell_double_tower_level_desc"
+        SpellType.COOLING_SPELL -> "spell_cooling_spell_desc"
+        SpellType.FREEZE_SPELL -> "spell_freeze_spell_desc"
+        SpellType.DOUBLE_TOWER_REACH -> "spell_double_tower_reach_desc"
     }
     return LocalizedStrings.get(key, locale)
 }

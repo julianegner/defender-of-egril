@@ -17,6 +17,8 @@ import de.egril.defender.ui.icon.WarningIcon
 import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.HeartIcon
 import de.egril.defender.ui.icon.LockIcon
+import de.egril.defender.ui.icon.SnowflakeIcon
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -26,6 +28,7 @@ import defender_of_egril.composeapp.generated.resources.*
 @Composable
 fun AttackerInfo(
     attacker: Attacker,
+    activeSpellEffects: SnapshotStateList<ActiveSpellEffect> = androidx.compose.runtime.mutableStateListOf(),
     isMobile: Boolean = false,
     onShowDragonInfo: () -> Unit = {}
 ) {
@@ -141,6 +144,30 @@ fun AttackerInfo(
                                 stringResource(Res.string.slowed_by_barbs),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.Red,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                    
+                    // Show freeze status if enemy is frozen
+                    val freezeEffect = activeSpellEffects.find { 
+                        it.spell == SpellType.FREEZE_SPELL && it.attackerId == attacker.id 
+                    }
+                    if (freezeEffect != null) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.padding(top = 4.dp)
+                        ) {
+                            SnowflakeIcon(size = 14.dp, tint = Color.Cyan)
+                            Text(
+                                if (freezeEffect.turnsRemaining > 0) {
+                                    stringResource(Res.string.frozen_turns_remaining, freezeEffect.turnsRemaining)
+                                } else {
+                                    stringResource(Res.string.frozen_label)
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Cyan,
                                 fontWeight = FontWeight.Bold
                             )
                         }

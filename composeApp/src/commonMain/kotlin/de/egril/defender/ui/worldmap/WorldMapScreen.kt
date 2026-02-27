@@ -26,6 +26,7 @@ import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 import kotlinx.coroutines.launch
 import androidx.compose.ui.text.font.FontStyle
+import de.egril.defender.config.LogConfig
 
 // Button sizing constants for world map bottom bar
 private val BUTTON_WIDTH_MOBILE_IMAGE_MAP = 133.dp  // ~33% smaller than default for compact mobile layout
@@ -46,7 +47,9 @@ fun WorldMapScreen(
     onEditPlayerName: (() -> Unit)? = null,  // Callback to edit player name
     currentPlayerName: String? = null,  // Current player name for display
     showPlatformInfo: Boolean = false,  // Show platform info from cheat code
-    onClearPlatformInfo: (() -> Unit)? = null  // Callback to clear platform info
+    onClearPlatformInfo: (() -> Unit)? = null,  // Callback to clear platform info
+    showCheatHelp: Boolean = false,  // Show cheat code help screen
+    onClearCheatHelp: (() -> Unit)? = null  // Callback to clear cheat help
 ) {
     var showCheatDialog by remember { mutableStateOf(false) }
     var selectedLocation by remember { mutableStateOf<Pair<WorldMapLocation, List<WorldLevel>>?>(null) }
@@ -107,19 +110,25 @@ fun WorldMapScreen(
                     val detectedData = RepositoryManager.detectNewRepositoryFiles()
                     if (detectedData != null) {
                         // Automatically sync official content without asking
+                        if (LogConfig.ENABLE_UI_LOGGING) {
                         println("Detected new official content, auto-syncing...")
+                        }
                         val success = RepositoryManager.syncNewRepositoryFiles()
                         if (success) {
                             println("Successfully synced new official content")
                             // Reload the world map to show the new levels
                             onReloadWorldMap?.invoke()
                         } else {
+                            if (LogConfig.ENABLE_UI_LOGGING) {
                             println("Failed to sync official content")
+                            }
                         }
                     }
                 } catch (e: Exception) {
                     // Silently ignore repository check errors to avoid disrupting the user experience
+                    if (LogConfig.ENABLE_UI_LOGGING) {
                     println("Info: Repository check skipped - ${e.message}")
+                    }
                 }
             }
         }
@@ -482,6 +491,14 @@ fun WorldMapScreen(
             platformInfo = de.egril.defender.utils.getPlatform().name,
             windowSize = windowSize,
             onDismiss = onClearPlatformInfo
+        )
+    }
+    
+    // Cheat code help screen (from cheat/cheats/help cheat code)
+    if (showCheatHelp && onClearCheatHelp != null) {
+        de.egril.defender.ui.CheatCodeHelpScreen(
+            onDismiss = onClearCheatHelp,
+            isInGameplay = false
         )
     }
     }

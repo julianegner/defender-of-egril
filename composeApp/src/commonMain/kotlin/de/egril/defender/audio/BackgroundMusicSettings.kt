@@ -1,5 +1,7 @@
 package de.egril.defender.audio
 
+import de.egril.defender.config.LogConfig
+
 /**
  * Configuration for relative volume levels of background music tracks
  * These values are multiplied by the user's music volume setting
@@ -42,7 +44,9 @@ object BackgroundMusicSettings {
             BackgroundMusic.GAMEPLAY_NORMAL -> GAMEPLAY_NORMAL_VOLUME
             BackgroundMusic.GAMEPLAY_LOW_HEALTH -> GAMEPLAY_LOW_HEALTH_VOLUME
         }
+        if (LogConfig.ENABLE_UI_LOGGING) {
         println("BackgroundMusicSettings.getRelativeVolume(${music.name}) = $volume")
+        }
         return volume
     }
     

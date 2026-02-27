@@ -1,6 +1,7 @@
 package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -9,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -40,17 +42,38 @@ fun GamePlayScreen(
     onMineDig: ((Int) -> DigOutcome?)? = null,  // Add mine dig callback
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null,  // Add mine build trap callback
     onWizardPlaceMagicalTrap: ((Int, Position) -> Boolean)? = null,  // Add wizard magical trap callback
+    onWizardGenerateMana: ((Int) -> Boolean)? = null,  // Add wizard mana generation callback
     onBuildBarricade: ((Int, Position) -> Boolean)? = null,  // Add barricade building callback
     onRemoveBarricade: ((Position) -> Int)? = null,  // Add barricade removal callback - returns coin refund
     cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
     onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
     showPlatformInfo: Boolean = false,  // Show platform info from cheat code
     onClearPlatformInfo: (() -> Unit)? = null,  // Callback to clear platform info
+    showCheatHelp: Boolean = false,  // Show cheat code help screen
+    onClearCheatHelp: (() -> Unit)? = null,  // Callback to clear cheat help
     hasUnsavedChanges: (() -> Boolean)? = null,  // Callback to check for unsaved changes
     specialActionsRemaining: List<DefenderType> = emptyList(),  // List of defender types with remaining special actions
     onClearSpecialActionsWarning: (() -> Unit)? = null,  // Callback to clear special actions warning
     reminderMessage: ReminderMessage? = null,  // Time reminder message
-    onClearReminderMessage: (() -> Unit)? = null  // Callback to clear reminder message
+    onClearReminderMessage: (() -> Unit)? = null,  // Callback to clear reminder message
+    // Magic panel parameters
+    showMagicPanel: Boolean = false,  // Show magic panel overlay
+    playerStats: PlayerAbilities? = null,  // Player stats for spell list
+    selectedSpell: SpellType? = null,  // Currently selected spell (highlighted with border)
+    onOpenMagicPanel: (() -> Unit)? = null,  // Callback to open magic panel
+    onCloseMagicPanel: (() -> Unit)? = null,  // Callback to close magic panel
+    onCastSpell: ((SpellType) -> Unit)? = null,  // Callback to cast/select spell
+    pendingSpellCast: SpellType? = null,  // Spell awaiting confirmation
+    onConfirmSpellCast: (() -> Unit)? = null,  // Callback to confirm spell cast
+    onCancelSpellCast: (() -> Unit)? = null,  // Callback to cancel spell cast
+    onSelectSpellTarget: ((Any) -> Unit)? = null,  // Callback to select spell target
+    onExitSpellTargeting: (() -> Unit)? = null,  // Callback to exit targeting mode
+    // Post-target confirmation dialogs
+    showSpellTargetConfirmation: Pair<SpellType, Any>? = null,  // Show confirmation after target selected
+    onConfirmTargetSpell: (() -> Unit)? = null,  // Callback to confirm spell on target
+    onDismissTargetConfirmation: (() -> Unit)? = null,  // Callback to dismiss target confirmation
+    showFreezeImmuneWarning: de.egril.defender.model.Attacker? = null,  // Show warning for immune enemy
+    onDismissFreezeWarning: (() -> Unit)? = null  // Callback to dismiss freeze warning
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -69,17 +92,36 @@ fun GamePlayScreen(
         onMineDig = onMineDig,
         onMineBuildTrap = onMineBuildTrap,
         onWizardPlaceMagicalTrap = onWizardPlaceMagicalTrap,
+        onWizardGenerateMana = onWizardGenerateMana,
         onBuildBarricade = onBuildBarricade,
         onRemoveBarricade = onRemoveBarricade,
         cheatDigOutcome = cheatDigOutcome,
         onClearCheatDigOutcome = onClearCheatDigOutcome,
         showPlatformInfo = showPlatformInfo,
         onClearPlatformInfo = onClearPlatformInfo,
+        showCheatHelp = showCheatHelp,
+        onClearCheatHelp = onClearCheatHelp,
         hasUnsavedChanges = hasUnsavedChanges,
         specialActionsRemaining = specialActionsRemaining,
         onClearSpecialActionsWarning = onClearSpecialActionsWarning,
         reminderMessage = reminderMessage,
-        onClearReminderMessage = onClearReminderMessage
+        onClearReminderMessage = onClearReminderMessage,
+        showMagicPanel = showMagicPanel,
+        playerStats = playerStats,
+        selectedSpell = selectedSpell,
+        onOpenMagicPanel = onOpenMagicPanel,
+        onCloseMagicPanel = onCloseMagicPanel,
+        onCastSpell = onCastSpell,
+        pendingSpellCast = pendingSpellCast,
+        onConfirmSpellCast = onConfirmSpellCast,
+        onCancelSpellCast = onCancelSpellCast,
+        onSelectSpellTarget = onSelectSpellTarget,
+        onExitSpellTargeting = onExitSpellTargeting,
+        showSpellTargetConfirmation = showSpellTargetConfirmation,
+        onConfirmTargetSpell = onConfirmTargetSpell,
+        onDismissTargetConfirmation = onDismissTargetConfirmation,
+        showFreezeImmuneWarning = showFreezeImmuneWarning,
+        onDismissFreezeWarning = onDismissFreezeWarning
     )
 }
 
@@ -101,17 +143,37 @@ private fun GamePlayScreenContent(
     onMineDig: ((Int) -> DigOutcome?)? = null,
     onMineBuildTrap: ((Int, Position) -> Boolean)? = null,
     onWizardPlaceMagicalTrap: ((Int, Position) -> Boolean)? = null,  // Add wizard magical trap callback
+    onWizardGenerateMana: ((Int) -> Boolean)? = null,  // Add wizard mana generation callback
     onBuildBarricade: ((Int, Position) -> Boolean)? = null,  // Add barricade building callback
     onRemoveBarricade: ((Position) -> Int)? = null,  // Add barricade removal callback - returns coin refund
     cheatDigOutcome: DigOutcome? = null,  // Dig outcome from cheat code
     onClearCheatDigOutcome: (() -> Unit)? = null,  // Callback to clear cheat dig outcome
     showPlatformInfo: Boolean = false,  // Show platform info from cheat code
     onClearPlatformInfo: (() -> Unit)? = null,  // Callback to clear platform info
+    showCheatHelp: Boolean = false,  // Show cheat code help screen
+    onClearCheatHelp: (() -> Unit)? = null,  // Callback to clear cheat help
     hasUnsavedChanges: (() -> Boolean)? = null,  // Callback to check for unsaved changes
     specialActionsRemaining: List<DefenderType> = emptyList(),  // List of defender types with remaining special actions
     onClearSpecialActionsWarning: (() -> Unit)? = null,  // Callback to clear special actions warning
     reminderMessage: ReminderMessage? = null,  // Time reminder message
-    onClearReminderMessage: (() -> Unit)? = null  // Callback to clear reminder message
+    onClearReminderMessage: (() -> Unit)? = null,  // Callback to clear reminder message
+    // Magic panel parameters
+    showMagicPanel: Boolean = false,
+    playerStats: PlayerAbilities? = null,
+    selectedSpell: SpellType? = null,
+    onOpenMagicPanel: (() -> Unit)? = null,
+    onCloseMagicPanel: (() -> Unit)? = null,
+    onCastSpell: ((SpellType) -> Unit)? = null,
+    pendingSpellCast: SpellType? = null,
+    onConfirmSpellCast: (() -> Unit)? = null,
+    onCancelSpellCast: (() -> Unit)? = null,
+    onSelectSpellTarget: ((Any) -> Unit)? = null,
+    onExitSpellTargeting: (() -> Unit)? = null,
+    showSpellTargetConfirmation: Pair<SpellType, Any>? = null,
+    onConfirmTargetSpell: (() -> Unit)? = null,
+    onDismissTargetConfirmation: (() -> Unit)? = null,
+    showFreezeImmuneWarning: de.egril.defender.model.Attacker? = null,
+    onDismissFreezeWarning: (() -> Unit)? = null
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
@@ -359,6 +421,10 @@ private fun GamePlayScreenContent(
     // Wizard action handler - similar to mine action, click button first then select on map
     val handleWizardAction: (Int, WizardAction) -> Unit = { wizardId, action ->
         when (action) {
+            WizardAction.GENERATE_MANA -> {
+                // Generate mana - immediate action
+                onWizardGenerateMana?.invoke(wizardId)
+            }
             WizardAction.PLACE_MAGICAL_TRAP -> {
                 // Toggle trap placement mode - if already selected, deselect it
                 selectedWizardAction = if (selectedWizardAction == action) null else action
@@ -439,7 +505,10 @@ private fun GamePlayScreenContent(
             },
             onSaveGame = if (onSaveGame != null) {{ showSaveDialog = true }} else null,
             onCheatCode = if (onCheatCode != null) {{ showCheatDialog = true }} else null,
-            onEnemyCountClick = { showOverlay = !showOverlay }
+            onEnemyCountClick = { showOverlay = !showOverlay },
+            onManaClick = if (onOpenMagicPanel != null && gameState.maxMana.value > 0) {
+                { onOpenMagicPanel.invoke() }
+            } else null
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -457,6 +526,36 @@ private fun GamePlayScreenContent(
                 selectedWizardAction = selectedWizardAction,
                 selectedBarricadeAction = selectedBarricadeAction,
                 onCellClick = { position ->
+                    // Handle spell targeting mode first
+                    val targeting = gameState.spellTargeting.value
+                    if (targeting != null) {
+                        // Check if this position is a valid target
+                        when (targeting.activeSpell.targetType) {
+                            de.egril.defender.model.SpellTargetType.POSITION -> {
+                                // Position click - cast spell on position
+                                onSelectSpellTarget?.invoke(position)
+                            }
+                            de.egril.defender.model.SpellTargetType.ENEMY -> {
+                                // Check if there's an enemy at this position
+                                val enemy = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
+                                if (enemy != null && targeting.validTargets.contains(enemy)) {
+                                    onSelectSpellTarget?.invoke(enemy)
+                                }
+                            }
+                            de.egril.defender.model.SpellTargetType.TOWER -> {
+                                // Check if there's a tower at this position
+                                val tower = gameState.defenders.find { it.position.value == position }
+                                if (tower != null && targeting.validTargets.contains(tower)) {
+                                    onSelectSpellTarget?.invoke(tower)
+                                }
+                            }
+                            else -> {
+                                // Invalid targeting type, should not happen
+                            }
+                        }
+                        return@GameGrid
+                    }
+                    
                     // Try to place defender if one is selected
                     selectedDefenderType?.let { type ->
                         if (onPlaceDefender(type, position)) {
@@ -734,6 +833,7 @@ private fun GamePlayScreenContent(
                         if (defender != null) {
                             TowerInfoDialog(
                                 defender = defender,
+                                gameState = gameState,
                                 onDismiss = {
                                     val currentInfoState = gameState.infoState.value
                                     val dismissedInfo = currentInfoState.dismissInfo()
@@ -994,6 +1094,14 @@ private fun GamePlayScreenContent(
             )
         }
         
+        // Cheat code help screen (from cheat/cheats/help cheat code)
+        if (showCheatHelp && onClearCheatHelp != null) {
+            de.egril.defender.ui.CheatCodeHelpScreen(
+                onDismiss = onClearCheatHelp,
+                isInGameplay = true
+            )
+        }
+        
         // Remove barricade confirmation dialog
         // Note: This dialog only shows for barricades without towers
         if (showRemoveBarricadeDialog && barricadeToRemove != null) {
@@ -1109,6 +1217,108 @@ private fun GamePlayScreenContent(
                     onClearReminderMessage?.invoke()
                 }
             )
+        }
+        
+        // Magic panel overlay
+        if (showMagicPanel && playerStats != null && onCloseMagicPanel != null && onCastSpell != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    .clickable(onClick = { onCloseMagicPanel.invoke() })
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .align(Alignment.Center)
+                        .clickable(onClick = {})  // Prevent clicks from passing through
+                ) {
+                    MagicPanel(
+                        playerStats = playerStats,
+                        currentMana = gameState.currentMana.value,
+                        maxMana = gameState.maxMana.value,
+                        gamePhase = gameState.phase.value,
+                        selectedSpell = selectedSpell,
+                        onCastSpell = onCastSpell,
+                        onClose = { onCloseMagicPanel.invoke() }
+                    )
+                }
+            }
+        }
+        
+        // Post-target spell confirmation dialog (shows after target is selected)
+        if (showSpellTargetConfirmation != null && onConfirmTargetSpell != null && onDismissTargetConfirmation != null) {
+            val (spell, target) = showSpellTargetConfirmation
+            SpellTargetConfirmationDialog(
+                spell = spell,
+                target = target,
+                currentMana = gameState.currentMana.value,
+                onConfirm = { onConfirmTargetSpell.invoke() },
+                onDismiss = { onDismissTargetConfirmation.invoke() }
+            )
+        }
+        
+        // Freeze immune warning dialog
+        if (showFreezeImmuneWarning != null && onDismissFreezeWarning != null) {
+            FreezeImmuneWarningDialog(
+                enemy = showFreezeImmuneWarning,
+                onDismiss = { onDismissFreezeWarning.invoke() }
+            )
+        }
+        
+        // Spell targeting overlay
+        gameState.spellTargeting.value?.let { targeting ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    // Removed semi-transparent overlay - keep map fully clickable
+                    .clickable(enabled = false, onClick = {}),  // Disable background click to exit
+                contentAlignment = Alignment.TopCenter
+            ) {
+                // Targeting instruction banner
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth(0.9f)
+                        .padding(16.dp)
+                        .clickable(onClick = {}),  // Prevent clicks from passing through
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = targeting.activeSpell.displayName,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = when (targeting.activeSpell.targetType) {
+                                de.egril.defender.model.SpellTargetType.POSITION -> 
+                                    stringResource(Res.string.spell_targeting_position)
+                                de.egril.defender.model.SpellTargetType.ENEMY -> 
+                                    stringResource(Res.string.spell_targeting_enemy)
+                                de.egril.defender.model.SpellTargetType.TOWER -> 
+                                    stringResource(Res.string.spell_targeting_tower)
+                                else -> ""
+                            },
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(Res.string.spell_targeting_cancel),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                        )
+                    }
+                }
+            }
         }
             }
         }

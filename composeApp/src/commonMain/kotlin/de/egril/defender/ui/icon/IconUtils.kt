@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Path
@@ -1041,5 +1043,173 @@ fun WaterIcon(
             color = tint,
             style = Stroke(width = width * 0.1f, cap = StrokeCap.Round, join = StrokeJoin.Round)
         )
+    }
+}
+
+/**
+ * Displays a simple star icon using Canvas
+ */
+@Composable
+fun StarIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 24.dp,
+    color: Color = Color(0xFFFFD700)  // Gold color
+) {
+    Canvas(
+        modifier = modifier.size(size)
+    ) {
+        val canvasWidth = this.size.width
+        val canvasHeight = this.size.height
+        val centerX = canvasWidth / 2f
+        val centerY = canvasHeight / 2f
+        val outerRadius = minOf(canvasWidth, canvasHeight) / 2f * 0.9f
+        val innerRadius = outerRadius * 0.4f
+        
+        // Calculate the 5 points of the star (outer and inner)
+        val points = mutableListOf<Offset>()
+        for (i in 0 until 10) {
+            val angle = (i * 36 - 90) * (PI / 180.0)  // Convert degrees to radians
+            val radius = if (i % 2 == 0) outerRadius else innerRadius
+            val x = centerX + (radius * cos(angle)).toFloat()
+            val y = centerY + (radius * sin(angle)).toFloat()
+            points.add(Offset(x, y))
+        }
+        
+        // Draw the star
+        val path = Path().apply {
+            moveTo(points[0].x, points[0].y)
+            for (i in 1 until points.size) {
+                lineTo(points[i].x, points[i].y)
+            }
+            close()
+        }
+        
+        // Fill the star
+        drawPath(
+            path = path,
+            color = color,
+            alpha = 0.3f
+        )
+        
+        // Draw the outline
+        drawPath(
+            path = path,
+            color = color,
+            style = Stroke(width = 2f)
+        )
+    }
+}
+
+/**
+ * Displays a simple hammer icon using Canvas for construction/building
+ */
+@Composable
+fun HammerIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 24.dp,
+    color: Color = Color(0xFF795548)  // Brown color
+) {
+    Canvas(
+        modifier = modifier.size(size)
+    ) {
+        val canvasWidth = this.size.width
+        val canvasHeight = this.size.height
+        
+        // Draw hammer head (rectangle)
+        val headWidth = canvasWidth * 0.5f
+        val headHeight = canvasHeight * 0.2f
+        val headLeft = canvasWidth * 0.1f
+        val headTop = canvasHeight * 0.15f
+        
+        drawRect(
+            color = color,
+            topLeft = Offset(headLeft, headTop),
+            size = Size(headWidth, headHeight)
+        )
+        
+        // Draw hammer handle (line)
+        val handleStartX = canvasWidth * 0.5f
+        val handleStartY = headTop + headHeight
+        val handleEndX = canvasWidth * 0.8f
+        val handleEndY = canvasHeight * 0.85f
+        
+        drawLine(
+            color = color,
+            start = Offset(handleStartX, handleStartY),
+            end = Offset(handleEndX, handleEndY),
+            strokeWidth = canvasWidth * 0.1f,
+            cap = StrokeCap.Round
+        )
+    }
+}
+
+/**
+ * Displays a snowflake icon using Canvas for freeze effects
+ */
+@Composable
+fun SnowflakeIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 24.dp,
+    tint: Color = Color.Cyan
+) {
+    Canvas(
+        modifier = modifier.size(size)
+    ) {
+        val center = Offset(this.size.width / 2f, this.size.height / 2f)
+        val radius = this.size.minDimension / 2.5f
+        val strokeWidth = this.size.minDimension * 0.08f
+        
+        // Draw 6 arms of the snowflake (60 degrees apart)
+        for (i in 0 until 6) {
+            val angle = i * PI.toFloat() / 3f
+            val cos = kotlin.math.cos(angle)
+            val sin = kotlin.math.sin(angle)
+            
+            // Main arm
+            drawLine(
+                color = tint,
+                start = center,
+                end = Offset(
+                    center.x + cos * radius,
+                    center.y + sin * radius
+                ),
+                strokeWidth = strokeWidth,
+                cap = StrokeCap.Round
+            )
+            
+            // Small branches on each arm
+            val branchLength = radius * 0.3f
+            val branchPos = radius * 0.7f
+            
+            // Branch point
+            val branchX = center.x + cos * branchPos
+            val branchY = center.y + sin * branchPos
+            
+            // Left branch
+            val leftAngle = angle - PI.toFloat() / 6f
+            drawLine(
+                color = tint,
+                start = Offset(branchX, branchY),
+                end = Offset(
+                    branchX + kotlin.math.cos(leftAngle) * branchLength,
+                    branchY + kotlin.math.sin(leftAngle) * branchLength
+                ),
+                strokeWidth = strokeWidth * 0.7f,
+                cap = StrokeCap.Round
+            )
+            
+            // Right branch
+            val rightAngle = angle + PI.toFloat() / 6f
+            drawLine(
+                color = tint,
+                start = Offset(branchX, branchY),
+                end = Offset(
+                    branchX + kotlin.math.cos(rightAngle) * branchLength,
+                    branchY + kotlin.math.sin(rightAngle) * branchLength
+                ),
+                strokeWidth = strokeWidth * 0.7f,
+                cap = StrokeCap.Round
+            )
+        }
     }
 }

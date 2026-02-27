@@ -8,6 +8,7 @@ enum class AttackerType(
     val health: Int,
     val speed: Int, // cells per turn
     val reward: Int, // coins when defeated
+    val xp: Int, // XP when defeated (multiplied by level for non-dragons)
     val immuneToAcid: Boolean = false,
     val immuneToFireball: Boolean = false,
     val canSummon: Boolean = false,
@@ -17,18 +18,18 @@ enum class AttackerType(
     val isDragon: Boolean = false,
     val canBuildBridge: Boolean = false  // Can build bridges (Ork, Troll, Evil Wizard, Ewhad)
 ) {
-    GOBLIN("Goblin", health = 20, speed = 5, reward = 5),
-    ORK("Ork", health = 40, speed = 2, reward = 10, canBuildBridge = true),
-    OGRE("Ogre", health = 80, speed = 1, reward = 20, canBuildBridge = true),
-    SKELETON("Skeleton", health = 15, speed = 5, reward = 7),
-    EVIL_WIZARD("Evil Wizard", health = 30, speed = 2, reward = 15, canBuildBridge = true),
-    BLUE_DEMON("Blue Demon", health = 15, speed = 6, reward = 10, immuneToAcid = true),
-    RED_DEMON("Red Demon", health = 60, speed = 1, reward = 15, immuneToFireball = true),
-    EVIL_MAGE("Evil Mage", health = 40, speed = 2, reward = 20, canSummon = true),
-    RED_WITCH("Red Witch", health = 30, speed = 5, reward = 18, canDisableTowers = true),
-    GREEN_WITCH("Green Witch", health = 25, speed = 5, reward = 15, canHeal = true),
-    EWHAD("Ewhad", health = 200, speed = 1, reward = 100, canSummon = true, isBoss = true, canBuildBridge = true),
-    DRAGON("Dragon", health = 500, speed = 2, reward = 0, isDragon = true, isBoss = true)  // Speed will be overridden: 2 on turn 1, 10 on turn 2+
+    GOBLIN("Goblin", health = 20, speed = 5, reward = 5, xp = 3),
+    ORK("Ork", health = 40, speed = 2, reward = 10, xp = 6, canBuildBridge = true),
+    OGRE("Ogre", health = 80, speed = 1, reward = 20, xp = 12, canBuildBridge = true),
+    SKELETON("Skeleton", health = 15, speed = 5, reward = 7, xp = 4),
+    EVIL_WIZARD("Evil Wizard", health = 30, speed = 2, reward = 15, xp = 9, canBuildBridge = true),
+    BLUE_DEMON("Blue Demon", health = 15, speed = 6, reward = 10, xp = 6, immuneToAcid = true),
+    RED_DEMON("Red Demon", health = 60, speed = 1, reward = 15, xp = 9, immuneToFireball = true),
+    EVIL_MAGE("Evil Mage", health = 40, speed = 2, reward = 20, xp = 12, canSummon = true),
+    RED_WITCH("Red Witch", health = 30, speed = 5, reward = 18, xp = 11, canDisableTowers = true),
+    GREEN_WITCH("Green Witch", health = 25, speed = 5, reward = 15, xp = 9, canHeal = true),
+    EWHAD("Ewhad", health = 200, speed = 1, reward = 100, xp = 60, canSummon = true, isBoss = true, canBuildBridge = true),
+    DRAGON("Dragon", health = 500, speed = 2, reward = 0, xp = 50, isDragon = true, isBoss = true)  // Speed will be overridden: 2 on turn 1, 10 on turn 2+. XP is given per level lost, not multiplied
 }
 
 data class Attacker(

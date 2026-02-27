@@ -1040,6 +1040,7 @@
     <!-- Player Profile Screen -->
     <string name="player_profile">Spielerprofil</string>
     <string name="player_created">Erstellt</string>
+    <string name="abilities">Fähigkeiten</string>
     <string name="achievements">Errungenschaften</string>
     <string name="achievements_earned">Errungenschaften erhalten</string>
     <string name="no_achievements_yet">Noch keine Errungenschaften erhalten. Spiele das Spiel, um Errungenschaften zu erhalten!</string>
@@ -1128,6 +1129,17 @@
     <string name="achievement_add_health_barricade_name">Verstärkt</string>
     <string name="achievement_add_health_barricade_desc">Füge einer bestehenden Barrikade Lebenspunkte hinzu</string>
     
+    <string name="achievement_first_stat_upgrade_name">Erstes Upgrade</string>
+    <string name="achievement_first_stat_upgrade_desc">Gib deinen ersten Stat-Punkt aus, um einen Stat zu verbessern</string>
+    <string name="achievement_first_spell_unlock_name">Zauberer</string>
+    <string name="achievement_first_spell_unlock_desc">Schalte deinen ersten Zauber mit Stat-Punkten frei</string>
+    <string name="achievement_construction_level_3_name">Meisterbaumeister</string>
+    <string name="achievement_construction_level_3_desc">Erreiche Bau-Level 3, um Turmbasen freizuschalten</string>
+    <string name="achievement_player_level_10_name">Erfahrener Verteidiger</string>
+    <string name="achievement_player_level_10_desc">Erreiche Spieler-Level 10 durch das Sammeln von EP</string>
+    <string name="achievement_player_level_100_name">Legendärer Verteidiger</string>
+    <string name="achievement_player_level_100_desc">Erreiche Spieler-Level 100 durch das Sammeln von EP</string>
+
     <!-- Official Content Badges -->
     <string name="official">Offiziell</string>
     <string name="user_levels">Benutzer-Level</string>
@@ -1235,4 +1247,140 @@
     <string name="debug_display_tile_positions">Kachel-Positionen anzeigen</string>
     <string name="debug_display_map_size">Kartengröße anzeigen</string>
     <string name="debug_map_size_overlay">Hexkarte: %1$ddp × %2$ddp / %3$dpx × %4$dpx\nInhalt: %5$ddp × %6$ddp / %7$dpx × %8$dpx\nAnsicht: %9$ddp × %10$ddp / %11$dpx × %12$dpx\nOffset: %13$d, %14$d</string>
+
+    <!-- XP System -->
+    <string name="xp_earned">Verdiente XP: %d</string>
+    <string name="xp_info_brief">Verdienen Sie XP durch das Besiegen von Feinden.\nLeveln Sie auf, um Stat-Punkte zu erhalten und mächtige Fähigkeiten freizuschalten!</string>
+    <string name="xp_system_unlocked">XP-System freigeschaltet!</string>
+    <string name="xp_system_unlock_message">Sie können jetzt XP verwenden, um Ihre Statistiken zu verbessern und mächtige Fähigkeiten freizuschalten!\n\nGreifen Sie auf den Upgrade-Bildschirm über das Spielerprofil zu.</string>
+
+    <!-- Stats Upgrade Screen -->
+    <string name="available_stat_points">Verfügbare Stat-Punkte: %d</string>
+    <string name="stats">Statistiken</string>
+    <string name="spells">Zauber</string>
+    <string name="unlock">Freischalten</string>
+    <string name="stat_health">Gesundheit</string>
+    <string name="stat_health_desc">+1 Bonus-LP pro Level</string>
+    <string name="stat_health_effect">+%d LP</string>
+    <string name="stat_treasury">Schatzkammer</string>
+    <string name="stat_treasury_desc">+50 Startmünzen pro Level</string>
+    <string name="stat_treasury_effect">+%d Münzen</string>
+    <string name="stat_income">Einkommen</string>
+    <string name="stat_income_desc">+10%% Münzen aus allen Quellen</string>
+    <string name="stat_income_effect">+%d%%</string>
+    <string name="stat_construction">Konstruktion</string>
+    <string name="stat_construction_desc">Schaltet Turmfähigkeiten frei</string>
+    <string name="stat_construction_effect_none">Keine Fähigkeiten</string>
+    <string name="stat_construction_effect_level1">Speer-Barrikaden, Stachel-Widerhaken</string>
+    <string name="stat_construction_effect_level2">Stachel-Barrikaden</string>
+    <string name="stat_construction_effect_level3">Alle Fähigkeiten freigeschaltet</string>
+    <string name="stat_mana">Mana</string>
+    <string name="stat_mana_desc">+5 max Mana pro Level</string>
+    <string name="stat_mana_effect">%d max Mana</string>
+    <string name="spells_description">Schalten Sie mächtige Zauber frei, um sie im Kampf einzusetzen</string>
+    <string name="spell_unlocked">Freigeschaltet</string>
+    <string name="spell_mana_cost">%d Mana</string>
+    <string name="player_level">Level %d</string>
+    <string name="xp_progress">%d / %d XP</string>
+    <string name="stat_level_effect">Level %d: %s</string>
+    <string name="generate_mana">Mana erzeugen</string>
+    <string name="mana_label">Mana</string>
+    <string name="magic_panel_title">Magische Zauber</string>
+    <string name="magic_panel_description">Wähle einen Zauber für die Schlacht</string>
+    <string name="no_spells_unlocked">Noch keine Zauber freigeschaltet. Verbessere deine Werte, um Zauber freizuschalten!</string>
+    <string name="cast">Wirken</string>
+    <string name="confirm_spell_cast">Zauber bestätigen</string>
+    <string name="cast_spell_confirmation">%s wirken?</string>
+    <string name="mana_cost_label">Manakosten:</string>
+    <string name="remaining_mana_label">Verbleibend:</string>
+    <string name="spell_targeting_position">Wähle eine Position auf der Karte</string>
+    <string name="spell_targeting_enemy">Wähle einen Feind als Ziel</string>
+    <string name="spell_targeting_tower">Wähle einen Turm zum Verstärken</string>
+    <string name="spell_targeting_cancel">Hier klicken zum Abbrechen</string>
+
+    <!-- Spell Names -->
+    <string name="spell_attack_area_name">Flächenangriff</string>
+    <string name="spell_attack_aimed_name">Gezielter Angriff</string>
+    <string name="spell_heal_name">Heilung</string>
+    <string name="spell_instant_tower_name">Sofortiger Turm</string>
+    <string name="spell_bomb_name">Bombe</string>
+    <string name="spell_double_tower_level_name">Turmstärke verdoppeln</string>
+    <string name="spell_cooling_spell_name">Verlangsamungszauber</string>
+    <string name="spell_freeze_spell_name">Eingefrierende</string>
+    <string name="spell_double_tower_reach_name">Turmreichweite verdoppeln</string>
+
+    <!-- Spell Descriptions -->
+    <string name="spell_attack_area_desc">Fügt allen Feinden in 2 Hex-Reichweite 50 Schaden zu</string>
+    <string name="spell_attack_aimed_desc">Fügt einem einzelnen Feind 80 Schaden zu</string>
+    <string name="spell_heal_desc">Stellt 3 Gesundheitspunkte wieder her</string>
+    <string name="spell_instant_tower_desc">Überspringe Bauzeit für einen im Bau befindlichen Turm</string>
+    <string name="spell_bomb_desc">Platziere eine Bombe, die nach 2 Runden explodiert und Feinden und Strukturen 100 Schaden zufügt</string>
+    <string name="spell_double_tower_level_desc">Verdoppelt die Schadensleistung eines Turms für 1 Runde</string>
+    <string name="spell_cooling_spell_desc">Erzeugt ein Gebiet, das die Bewegungsgeschwindigkeit von Feinden für 3 Runden um 1 verringert</string>
+    <string name="spell_freeze_spell_desc">Friert einen Feind für 1 Runde ein (Immunität: Dämonen, Drachen, Ewhad)</string>
+    <string name="spell_double_tower_reach_desc">Verdoppelt die Angriffsreichweite eines Turms für 1 Runde</string>
+
+    <!-- Construction Info -->
+    <string name="construction_info_intro">Jede Konstruktionsstufe schaltet mächtige Turmfähigkeiten frei:</string>
+    <string name="construction_level_1_title">Konstruktion Stufe 1</string>
+    <string name="construction_level_1_desc">Speerturm (Level 10+): Barrikaden bauen\nStachelturm (Level 10+): Stachelwiderhaken (Feinde verlieren 1 Bewegungspunkt)</string>
+    <string name="construction_level_2_title">Konstruktion Stufe 2</string>
+    <string name="construction_level_2_desc">Stachelturm (Level 20+): Barrikaden bauen</string>
+    <string name="construction_level_3_title">Konstruktion Stufe 3</string>
+    <string name="construction_level_3_desc">Turmbasis: Barrikaden Level 100+ können Türme tragen</string>
+
+
+    <!-- Cheat Codes -->
+    <string name="cheat_codes_title">Cheat-Codes</string>
+    <string name="cheat_section_general">Allgemein</string>
+    <string name="cheat_section_coins">Münzen &amp; Ressourcen</string>
+    <string name="cheat_section_mana">Mana (während des Levels)</string>
+    <string name="cheat_section_enemies">Gegner</string>
+    <string name="cheat_section_mining">Bergbau</string>
+    <string name="cheat_section_xp_stats">XP &amp; Statistiken</string>
+    <string name="cheat_section_spells">Zauber</string>
+    <string name="cheat_section_levels">Level-Freischaltung</string>
+
+    <!-- Cheat code descriptions -->
+    <string name="cheat_help_desc">Diese Hilfe anzeigen</string>
+    <string name="cheat_platform_desc">Plattforminformationen anzeigen</string>
+    <string name="cheat_cash_desc">1.000 Münzen hinzufügen</string>
+    <string name="cheat_mmmoney_desc">1.000.000 Münzen hinzufügen</string>
+    <string name="cheat_emptypocket_desc">Münzen auf 0 setzen</string>
+    <string name="cheat_addmana_desc">Mana hinzufügen (z.B. addmana 50)</string>
+    <string name="cheat_removemana_desc">Mana entfernen (z.B. removemana 20)</string>
+    <string name="cheat_spawn_desc">Gegner erschaffen (z.B. spawn goblin 5)</string>
+    <string name="cheat_spawn_types">Gegnertypen: goblin, ork, ogre, skeleton, wizard, greenwitch, redwitch</string>
+    <string name="cheat_dig_nothing_desc">Grabungsergebnis: nichts</string>
+    <string name="cheat_dig_treasure_desc">Grabungsergebnis: Schatz</string>
+    <string name="cheat_dig_gems_desc">Grabungsergebnis: Edelsteine/Diamant</string>
+    <string name="cheat_dig_dragon_desc">Grabungsergebnis: Drache</string>
+    <string name="cheat_addxp_desc">XP hinzufügen (z.B. addxp 500)</string>
+    <string name="cheat_removexp_desc">XP entfernen (z.B. removexp 100)</string>
+    <string name="cheat_addstat_desc">Statistik-Level hinzufügen (z.B. addstat health 5)</string>
+    <string name="cheat_removestat_desc">Statistik-Level entfernen (z.B. removestat mana 2)</string>
+    <string name="cheat_stat_types">Statistiken: health, treasury, income, construction, mana</string>
+    <string name="cheat_unlockspell_desc">Zauber freischalten (z.B. unlockspell fireball)</string>
+    <string name="cheat_lockspell_desc">Zauber sperren (z.B. lockspell heal)</string>
+    <string name="cheat_spell_types">Zauber: attack_aimed, attack_area, heal, instant_tower, bomb, double_level, cooling, freeze, double_reach</string>
+    <string name="cheat_unlockall_desc">Alle Level freischalten</string>
+    <string name="cheat_unlock_desc">Bestimmtes Level freischalten</string>
+    <string name="cheat_lockall_desc">Alle Level sperren</string>
+    <string name="cheat_lock_desc">Bestimmtes Level sperren</string>
+
+    <!-- Freeze status labels -->
+    <string name="frozen_label">Eingefroren</string>
+    <string name="frozen_turns_remaining">Eingefroren: %d Runden verbleibend</string>
+
+
+    <!-- Task 3: Post-target spell confirmation -->
+    <string name="cast_spell_on_target">%1$s wirken</string>
+    <string name="target_enemy_details">Ziel-Gegner:</string>
+    <string name="target_tower_details">Ziel-Turm:</string>
+    <string name="target_position">Zielposition:</string>
+    <string name="enemy_type_level_hp">%1$s (Stufe %2$s, LP: %3$s)</string>
+    <string name="tower_type_level">%1$s (Stufe %2$s)</string>
+    <string name="freeze_immune_warning_title">Gegner kann nicht eingefroren werden</string>
+    <string name="freeze_immune_warning_message">%1$s ist immun gegen den Gefrierzauber!</string>
+
 </resources>

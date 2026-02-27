@@ -5,6 +5,7 @@ import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.model.*
 import de.egril.defender.model.DifficultyModifiers
+import de.egril.defender.config.LogConfig
 
 /**
  * Manages tower/defender placement, upgrades, undo, and selling operations.
@@ -222,7 +223,9 @@ class TowerManager(private val state: GameState) {
             currentPosition = mutableStateOf(defender.position.value)
         )
         state.rafts.add(raft)
+        if (LogConfig.ENABLE_TOWER_LOGGING) {
         println("Created raft $raftId for tower ${defender.type} at ${defender.position.value}")
+        }
         return raftId
     }
 }
