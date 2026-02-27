@@ -1311,6 +1311,8 @@
     <string name="spell_cooling_spell_name">Incantesimo di Raffreddamento</string>
     <string name="spell_freeze_spell_name">Incantesimo di Congelamento</string>
     <string name="spell_double_tower_reach_name">Raddoppia Portata Torre</string>
+    <string name="spell_fear_spell_name">Incantesimo della Paura</string>
+    <string name="spell_fear_spell_area_name">Incantesimo della Paura (Area)</string>
 
     <!-- Spell Descriptions -->
     <string name="spell_attack_area_desc">Infligge 50 danni a tutti i nemici entro 2 esagoni</string>
@@ -1322,6 +1324,8 @@
     <string name="spell_cooling_spell_desc">Crea un\'area che riduce la velocità di movimento dei nemici di 1 per 3 turni</string>
     <string name="spell_freeze_spell_desc">Congela un nemico per 1 turno (immunità: Demoni, Draghi, Ewhad)</string>
     <string name="spell_double_tower_reach_desc">Raddoppia la portata di attacco di una torre per 1 turno</string>
+    <string name="spell_fear_spell_desc">Fa fuggire un singolo nemico verso il suo punto di partenza per 3 turni</string>
+    <string name="spell_fear_spell_area_desc">Crea una zona di paura che fa fuggire i nemici verso i punti di partenza per 3 turni</string>
 
     <!-- Construction Info -->
     <string name="construction_info_intro">Ogni livello di Costruzione sblocca potenti abilità delle torri:</string>
@@ -1365,7 +1369,7 @@
     <string name="cheat_stat_types">Statistiche: health, treasury, income, construction, mana</string>
     <string name="cheat_unlockspell_desc">Sblocca un incantesimo (es. unlockspell fireball)</string>
     <string name="cheat_lockspell_desc">Blocca un incantesimo (es. lockspell heal)</string>
-    <string name="cheat_spell_types">Incantesimi: attack_aimed, attack_area, heal, instant_tower, bomb, double_level, cooling, freeze, double_reach</string>
+    <string name="cheat_spell_types">Incantesimi: attack_aimed, attack_area, heal, instant_tower, bomb, double_level, cooling, freeze, double_reach, fear, fear_area</string>
     <string name="cheat_unlockall_desc">Sblocca tutti i livelli</string>
     <string name="cheat_unlock_desc">Sblocca livello specifico</string>
     <string name="cheat_lockall_desc">Blocca tutti i livelli</string>
@@ -1374,6 +1378,9 @@
     <!-- Freeze status labels -->
     <string name="frozen_label">Congelato</string>
     <string name="frozen_turns_remaining">Congelato: %d turni rimanenti</string>
+    <!-- Fear status labels -->
+    <string name="feared_label">Spaventato</string>
+    <string name="feared_turns_remaining">Paura: %d turni rimanenti</string>
 
 
     <!-- Task 3: Post-target spell confirmation -->

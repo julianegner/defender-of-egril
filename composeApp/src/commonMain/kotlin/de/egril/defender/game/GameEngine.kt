@@ -656,7 +656,21 @@ class GameEngine(private val state: GameState) {
                 // Use the attacker's current target if set, otherwise use level target
                 // Special case: Green Witch moves towards damaged enemies (especially Ewhad)
                 // Special case: Red Witch moves towards closest not-disabled tower
-                val target = if (attacker.type == AttackerType.GREEN_WITCH) {
+                // Special case: Feared enemy flees towards nearest spawn point
+                val isFeared = state.activeSpellEffects.any { effect ->
+                    (effect.spell == SpellType.FEAR_SPELL && effect.attackerId == attacker.id) ||
+                    (effect.spell == SpellType.FEAR_SPELL_AREA && effect.position != null &&
+                        currentPos.hexDistanceTo(effect.position) <= 2)
+                }
+                val target = if (isFeared) {
+                    val nearestSpawn = state.level.startPositions.minByOrNull { spawnPos ->
+                        currentPos.hexDistanceTo(spawnPos)
+                    } ?: state.level.startPositions.first()
+                    if (stepIndex == 0) {
+                        println("Attacker ${attacker.id} (${attacker.type}) is FEARED, fleeing to spawn: $nearestSpawn")
+                    }
+                    nearestSpawn
+                } else if (attacker.type == AttackerType.GREEN_WITCH) {
                     val healingTarget = enemyAbilities.findHealingTarget(attacker)
                     if (healingTarget != null) {
                         // Move towards the healing target

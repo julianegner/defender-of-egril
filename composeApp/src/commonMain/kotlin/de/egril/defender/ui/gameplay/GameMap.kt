@@ -961,6 +961,19 @@ private fun BoxScope.GridCellContent(
                                 )
                             }
                         }
+                        // Show fear effect overlay (black scribble cloud at top of icon)
+                        val fearEffect = gameState.activeSpellEffects.find { effect ->
+                            (effect.spell == SpellType.FEAR_SPELL && effect.attackerId == attacker.id) ||
+                            (effect.spell == SpellType.FEAR_SPELL_AREA && effect.position != null &&
+                                attacker.position.value.hexDistanceTo(effect.position) <= 2)
+                        }
+                        if (fearEffect != null) {
+                            if (AppSettings.enableAnimations.value) {
+                                AnimatedFearCloud(modifier = Modifier.fillMaxSize())
+                            } else {
+                                FearScribble(modifier = Modifier.fillMaxSize())
+                            }
+                        }
                         // Show barb effect indicators if affected (show up to 5 arrows in center)
                         if (attacker.movementPenalty.value > 0) {
                             val barbCount = minOf(attacker.movementPenalty.value, 5)

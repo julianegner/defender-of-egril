@@ -38,6 +38,8 @@ fun SpellType.getLocalizedName(locale: AppLocale = com.hyperether.resources.curr
         SpellType.COOLING_SPELL -> "spell_cooling_spell_name"
         SpellType.FREEZE_SPELL -> "spell_freeze_spell_name"
         SpellType.DOUBLE_TOWER_REACH -> "spell_double_tower_reach_name"
+        SpellType.FEAR_SPELL -> "spell_fear_spell_name"
+        SpellType.FEAR_SPELL_AREA -> "spell_fear_spell_area_name"
     }
     return LocalizedStrings.get(key, locale)
 }
@@ -56,6 +58,8 @@ fun SpellType.getLocalizedDescription(locale: AppLocale = com.hyperether.resourc
         SpellType.COOLING_SPELL -> "spell_cooling_spell_desc"
         SpellType.FREEZE_SPELL -> "spell_freeze_spell_desc"
         SpellType.DOUBLE_TOWER_REACH -> "spell_double_tower_reach_desc"
+        SpellType.FEAR_SPELL -> "spell_fear_spell_desc"
+        SpellType.FEAR_SPELL_AREA -> "spell_fear_spell_area_desc"
     }
     return LocalizedStrings.get(key, locale)
 }

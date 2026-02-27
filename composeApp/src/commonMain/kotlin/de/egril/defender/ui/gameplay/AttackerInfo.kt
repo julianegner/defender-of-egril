@@ -173,6 +173,32 @@ fun AttackerInfo(
                         }
                     }
                     
+                    // Show fear status if enemy is feared
+                    val fearEffect = activeSpellEffects.find { effect ->
+                        (effect.spell == SpellType.FEAR_SPELL && effect.attackerId == attacker.id) ||
+                        (effect.spell == SpellType.FEAR_SPELL_AREA && effect.position != null &&
+                            attacker.position.value.hexDistanceTo(effect.position) <= 2)
+                    }
+                    if (fearEffect != null) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.padding(top = 4.dp)
+                        ) {
+                            WarningIcon(size = 14.dp)
+                            Text(
+                                if (fearEffect.turnsRemaining > 0) {
+                                    stringResource(Res.string.feared_turns_remaining, fearEffect.turnsRemaining)
+                                } else {
+                                    stringResource(Res.string.feared_label)
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFF8B4513), // Dark brown / fear color
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                    
                     // Dragon-specific information
                     if (attacker.type.isDragon) {
                         // Greed level display
