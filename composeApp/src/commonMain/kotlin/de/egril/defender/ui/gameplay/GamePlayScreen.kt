@@ -872,6 +872,62 @@ private fun GamePlayScreenContent(
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Show magic panel inline (non-overlay) when open - map remains accessible
+        if (showMagicPanel && playerStats != null && onCloseMagicPanel != null && onCastSpell != null) {
+            MagicPanel(
+                playerStats = playerStats,
+                currentMana = gameState.currentMana.value,
+                maxMana = gameState.maxMana.value,
+                gamePhase = gameState.phase.value,
+                selectedSpell = selectedSpell,
+                onCastSpell = onCastSpell,
+                onClose = {
+                    onCloseMagicPanel.invoke()
+                    // Also exit targeting mode if active when closing the panel
+                    if (gameState.spellTargeting.value != null) {
+                        onExitSpellTargeting?.invoke()
+                    }
+                }
+            )
+        } else if (gameState.spellTargeting.value != null) {
+            // Spell targeting mode: show compact instruction in bottom panel so map stays accessible
+            val targeting = gameState.spellTargeting.value!!
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = targeting.activeSpell.displayName,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = when (targeting.activeSpell.targetType) {
+                            de.egril.defender.model.SpellTargetType.POSITION ->
+                                stringResource(Res.string.spell_targeting_position)
+                            de.egril.defender.model.SpellTargetType.ENEMY ->
+                                stringResource(Res.string.spell_targeting_enemy)
+                            de.egril.defender.model.SpellTargetType.TOWER ->
+                                stringResource(Res.string.spell_targeting_tower)
+                            else -> ""
+                        },
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    OutlinedButton(onClick = { onExitSpellTargeting?.invoke() }) {
+                        Text(stringResource(Res.string.spell_targeting_cancel))
+                    }
+                }
+            }
+        } else {
+
         // Control Panel based on phase
         when (gameState.phase.value) {
             GamePhase.INITIAL_BUILDING -> {
@@ -1031,6 +1087,7 @@ private fun GamePlayScreenContent(
             GamePhase.ENEMY_TURN -> {
                 EnemyTurnInfo()
             }
+        }
         }
 
         // Dig outcome dialog
@@ -1219,33 +1276,6 @@ private fun GamePlayScreenContent(
             )
         }
         
-        // Magic panel overlay
-        if (showMagicPanel && playerStats != null && onCloseMagicPanel != null && onCastSpell != null) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.5f))
-                    .clickable(onClick = { onCloseMagicPanel.invoke() })
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(0.9f)
-                        .align(Alignment.Center)
-                        .clickable(onClick = {})  // Prevent clicks from passing through
-                ) {
-                    MagicPanel(
-                        playerStats = playerStats,
-                        currentMana = gameState.currentMana.value,
-                        maxMana = gameState.maxMana.value,
-                        gamePhase = gameState.phase.value,
-                        selectedSpell = selectedSpell,
-                        onCastSpell = onCastSpell,
-                        onClose = { onCloseMagicPanel.invoke() }
-                    )
-                }
-            }
-        }
-        
         // Post-target spell confirmation dialog (shows after target is selected)
         if (showSpellTargetConfirmation != null && onConfirmTargetSpell != null && onDismissTargetConfirmation != null) {
             val (spell, target) = showSpellTargetConfirmation
@@ -1266,60 +1296,6 @@ private fun GamePlayScreenContent(
             )
         }
         
-        // Spell targeting overlay
-        gameState.spellTargeting.value?.let { targeting ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    // Removed semi-transparent overlay - keep map fully clickable
-                    .clickable(enabled = false, onClick = {}),  // Disable background click to exit
-                contentAlignment = Alignment.TopCenter
-            ) {
-                // Targeting instruction banner
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth(0.9f)
-                        .padding(16.dp)
-                        .clickable(onClick = {}),  // Prevent clicks from passing through
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = targeting.activeSpell.displayName,
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = when (targeting.activeSpell.targetType) {
-                                de.egril.defender.model.SpellTargetType.POSITION -> 
-                                    stringResource(Res.string.spell_targeting_position)
-                                de.egril.defender.model.SpellTargetType.ENEMY -> 
-                                    stringResource(Res.string.spell_targeting_enemy)
-                                de.egril.defender.model.SpellTargetType.TOWER -> 
-                                    stringResource(Res.string.spell_targeting_tower)
-                                else -> ""
-                            },
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = stringResource(Res.string.spell_targeting_cancel),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                        )
-                    }
-                }
-            }
-        }
             }
         }
         }
