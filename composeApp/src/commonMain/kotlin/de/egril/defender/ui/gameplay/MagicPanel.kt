@@ -30,6 +30,8 @@ fun MagicPanel(
     playerStats: PlayerAbilities,
     currentMana: Int,
     maxMana: Int,
+    currentHealthPoints: Int,
+    maxHealthPoints: Int,
     gamePhase: GamePhase,
     selectedSpell: SpellType?,
     onCastSpell: (SpellType) -> Unit,
@@ -119,6 +121,8 @@ fun MagicPanel(
                         SpellCard(
                             spell = spell,
                             currentMana = currentMana,
+                            currentHealthPoints = currentHealthPoints,
+                            maxHealthPoints = maxHealthPoints,
                             gamePhase = gamePhase,
                             isSelected = spell == selectedSpell,
                             onCast = { onCastSpell(spell) }
@@ -147,12 +151,16 @@ fun MagicPanel(
 private fun SpellCard(
     spell: SpellType,
     currentMana: Int,
+    currentHealthPoints: Int,
+    maxHealthPoints: Int,
     gamePhase: GamePhase,
     isSelected: Boolean,
     onCast: () -> Unit
 ) {
     // Spells can only be cast when the level has started (not during initial build phase)
-    val canCast = currentMana >= spell.manaCost && gamePhase != GamePhase.INITIAL_BUILDING
+    // Heal spell is also disabled when the player is already at full health
+    val canCast = currentMana >= spell.manaCost && gamePhase != GamePhase.INITIAL_BUILDING &&
+            (spell != SpellType.HEAL || currentHealthPoints < maxHealthPoints)
     
     Card(
         modifier = Modifier.fillMaxWidth(),
