@@ -1668,7 +1668,9 @@ class GameViewModel {
      * Shows confirmation or warning dialog based on target validity
      */
     fun onSpellTargetSelected(target: Any) {
-        val spell = _pendingSpellCast.value ?: return
+        val gameState = _gameState.value ?: return
+        // Use activeSpell from targeting state (pendingSpellCast was cleared when targeting mode was entered)
+        val spell = gameState.spellTargeting.value?.activeSpell ?: return
 
         // Check for freeze immunity
         if (spell == SpellType.FREEZE_SPELL && target is Attacker) {
@@ -1977,6 +1979,8 @@ class GameViewModel {
 
         // Clear pending spell cast (we're now in targeting mode)
         _pendingSpellCast.value = null
+        // Close magic panel so the targeting instruction card becomes visible
+        _showMagicPanel.value = false
     }
 
     /**

@@ -899,28 +899,33 @@ private fun GamePlayScreenContent(
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text(
-                        text = targeting.activeSpell.displayName,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = when (targeting.activeSpell.targetType) {
-                            de.egril.defender.model.SpellTargetType.POSITION ->
-                                stringResource(Res.string.spell_targeting_position)
-                            de.egril.defender.model.SpellTargetType.ENEMY ->
-                                stringResource(Res.string.spell_targeting_enemy)
-                            de.egril.defender.model.SpellTargetType.TOWER ->
-                                stringResource(Res.string.spell_targeting_tower)
-                            else -> ""
-                        },
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    // Spell type icon
+                    SpellTargetIcon(spell = targeting.activeSpell, size = 32.dp)
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = targeting.activeSpell.displayName,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = when (targeting.activeSpell.targetType) {
+                                de.egril.defender.model.SpellTargetType.POSITION ->
+                                    stringResource(Res.string.spell_targeting_position)
+                                de.egril.defender.model.SpellTargetType.ENEMY ->
+                                    stringResource(Res.string.spell_targeting_enemy)
+                                de.egril.defender.model.SpellTargetType.TOWER ->
+                                    stringResource(Res.string.spell_targeting_tower)
+                                else -> ""
+                            },
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                     OutlinedButton(onClick = { onExitSpellTargeting?.invoke() }) {
                         Text(stringResource(Res.string.spell_targeting_cancel))
                     }

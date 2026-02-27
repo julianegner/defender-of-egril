@@ -471,7 +471,24 @@ fun GridCell(
     // Check for barricades at this position
     val barricade = gameState.barricades.find { it.position == position }
 
-    // Check if this cell is in range of the selected defender
+    // Check if this tile is a valid spell target
+    val spellTargeting = gameState.spellTargeting.value
+    val isValidSpellTarget = if (spellTargeting != null) {
+        when (spellTargeting.activeSpell.targetType) {
+            de.egril.defender.model.SpellTargetType.ENEMY -> {
+                val enemyHere = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
+                enemyHere != null && spellTargeting.validTargets.contains(enemyHere)
+            }
+            de.egril.defender.model.SpellTargetType.TOWER -> {
+                val towerHere = gameState.defenders.find { it.position.value == position }
+                towerHere != null && spellTargeting.validTargets.contains(towerHere)
+            }
+            de.egril.defender.model.SpellTargetType.POSITION -> {
+                spellTargeting.validTargets.contains(position)
+            }
+            else -> false
+        }
+    } else false
     val cellIsInRange = selectedDefenderId?.let { defenderId ->
         val selectedDefender = gameState.defenders.find { it.id == defenderId }
         selectedDefender?.let { sel ->
@@ -624,6 +641,9 @@ fun GridCell(
         showPlacementPreview -> GamePlayColors.Yellow.copy(alpha = 0.4f)  // Light yellow for the build tile being hovered
         isInPreviewRange -> GamePlayColors.Success.copy(alpha = 0.2f)  // Very light green for range preview tiles
         
+        // Spell targeting highlight - purple tint for valid spell target position tiles
+        isValidSpellTarget -> Color(0xFF9C27B0).copy(alpha = 0.25f)  // Light purple for valid spell target positions
+        
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.7f)
         isTargetSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.8f)
         else -> baseBackgroundColor  // No selection highlighting during placement or in initial phase
@@ -673,6 +693,10 @@ fun GridCell(
         
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (path or river for area attacks)
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow  // Yellow border for selected defender (not during initial building)
+        
+        // Spell targeting highlight - purple border for valid spell targets (enemies, towers, positions)
+        isValidSpellTarget -> Color(0xFF9C27B0)  // Purple border for valid spell targets
+        
         isSpawnPoint -> GamePlayColors.WarningDark  // Darker orange border for spawn in dark mode
         isTarget -> GamePlayColors.Success  // Green border for target (adapts to dark mode automatically)
         attacker != null -> GamePlayColors.ErrorDark  // Darker red border for enemies
@@ -697,6 +721,7 @@ fun GridCell(
         isBuildableAndEmpty || canBeUsedAsTowerBase -> 3.dp  // Medium border for buildable tiles and tower bases
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> 4.dp  // Thick border for cells in range (path or river for area attacks)
+        isValidSpellTarget -> 4.dp  // Thick purple border for valid spell targets
         isSpawnPoint || isTarget -> 3.dp
         attacker != null || defender != null -> 3.dp
         fieldEffect != null -> 3.dp  // Thick border for field effects
