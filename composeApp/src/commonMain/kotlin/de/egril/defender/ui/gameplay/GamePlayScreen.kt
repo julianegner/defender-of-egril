@@ -1237,6 +1237,8 @@ private fun GamePlayScreenContent(
                         playerStats = playerStats,
                         currentMana = gameState.currentMana.value,
                         maxMana = gameState.maxMana.value,
+                        currentHealthPoints = gameState.healthPoints.value,
+                        maxHealthPoints = gameState.level.healthPoints,
                         gamePhase = gameState.phase.value,
                         selectedSpell = selectedSpell,
                         onCastSpell = onCastSpell,
