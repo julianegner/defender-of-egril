@@ -191,7 +191,9 @@ object SaveJsonSerializer {
   ],
   "comment": $commentJson,
   "mapId": $mapIdJson,
-  "worldMapSave": $worldMapSaveJson
+  "worldMapSave": $worldMapSaveJson,
+  "currentMana": ${savedGame.currentMana},
+  "maxMana": ${savedGame.maxMana}
 }"""
         return """{
   "metadata": {
@@ -377,7 +379,9 @@ object SaveJsonSerializer {
                 rafts = rafts,
                 nextRaftId = nextRaftId,
                 barricades = barricades,
-                worldMapSave = worldMapSave
+                worldMapSave = worldMapSave,
+                currentMana = try { JsonUtils.extractValue(dataJson, "currentMana").toInt() } catch (e: Exception) { 0 },
+                maxMana = try { JsonUtils.extractValue(dataJson, "maxMana").toInt() } catch (e: Exception) { 0 }
             )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
