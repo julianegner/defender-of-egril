@@ -969,7 +969,12 @@ private fun BoxScope.GridCellContent(
                         }
                         if (fearEffect != null) {
                             if (AppSettings.enableAnimations.value) {
-                                AnimatedFearCloud(modifier = Modifier.fillMaxSize())
+                                // Show Lottie animation for fear spell - repeats until effect ends
+                                LottieAnimation(
+                                    animationType = AnimationType.FEAR_SPELL,
+                                    modifier = Modifier.fillMaxSize(),
+                                    iterations = Int.MAX_VALUE
+                                )
                             } else {
                                 FearScribble(modifier = Modifier.fillMaxSize())
                             }
