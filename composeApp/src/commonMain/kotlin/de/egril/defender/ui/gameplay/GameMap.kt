@@ -30,8 +30,12 @@ import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.*
 import de.egril.defender.ui.animations.AnimationType
 import de.egril.defender.ui.animations.LottieAnimation
+import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.GateIcon
+import de.egril.defender.ui.icon.HeartIcon
+import de.egril.defender.ui.icon.PlusIcon
+import de.egril.defender.ui.icon.SwordIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
 import com.hyperether.resources.stringResource
@@ -887,12 +891,25 @@ private fun BoxScope.GridCellContent(
                         EnemyIcon(attacker = attacker)
                         // Show healing effect overlay if present
                         if (healingEffect != null) {
-                            // Show Lottie animation for green witch healing - repeats until turn ends
-                            LottieAnimation(
-                                animationType = AnimationType.GREEN_WITCH_HEALING,
-                                modifier = Modifier.fillMaxSize(),
-                                iterations = Int.MAX_VALUE
-                            )
+                            if (AppSettings.enableAnimations.value) {
+                                // Show Lottie animation for green witch healing - repeats until turn ends
+                                LottieAnimation(
+                                    animationType = AnimationType.GREEN_WITCH_HEALING,
+                                    modifier = Modifier.fillMaxSize(),
+                                    iterations = Int.MAX_VALUE
+                                )
+                            } else {
+                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                        repeat(3) {
+                                            PlusIcon(
+                                                size = GamePlayConstants.TileIconSizes.HealingEffect,
+                                                tint = Color(0xFF4CAF50)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
                         }
                         // Show barb effect indicators if affected (show up to 5 arrows in center)
                         if (attacker.movementPenalty.value > 0) {
@@ -1034,12 +1051,25 @@ private fun BoxScope.GridCellContent(
                     }
                     // Show damage effect overlay if present
                     if (damageEffect != null) {
-                        // Show Lottie animation for barricade damage - repeats until turn ends
-                        LottieAnimation(
-                            animationType = AnimationType.BARRICADE_DAMAGE,
-                            modifier = Modifier.fillMaxSize(),
-                            iterations = Int.MAX_VALUE
-                        )
+                        if (AppSettings.enableAnimations.value) {
+                            // Show Lottie animation for barricade damage - repeats until turn ends
+                            LottieAnimation(
+                                animationType = AnimationType.BARRICADE_DAMAGE,
+                                modifier = Modifier.fillMaxSize(),
+                                iterations = Int.MAX_VALUE
+                            )
+                        } else {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                    repeat(3) {
+                                        CrossIcon(
+                                            size = GamePlayConstants.TileIconSizes.DamageEffect,
+                                            tint = Color(0xFFE53935)
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

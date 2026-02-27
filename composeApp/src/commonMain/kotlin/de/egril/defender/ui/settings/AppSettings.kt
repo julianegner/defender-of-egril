@@ -65,6 +65,7 @@ object AppSettings {
     private const val KEY_HEADER_TEXT_SIZE = "header_text_size"
     private const val KEY_USE_LEVEL_MAP_IMAGE = "use_level_map_image"
     private const val KEY_SHOW_DEBUG_OPTIONS = "show_debug_options"
+    private const val KEY_ENABLE_ANIMATIONS = "enable_animations"
     
     private val settings: Settings = Settings()
     
@@ -201,6 +202,14 @@ object AppSettings {
      */
     val showDebugOptions: MutableState<Boolean> = mutableStateOf(
         settings.getBoolean(KEY_SHOW_DEBUG_OPTIONS, false)
+    )
+
+    /**
+     * Enable animations - show Lottie animations (e.g. green witch healing, barricade damage)
+     * Default is true (animations ON)
+     */
+    val enableAnimations: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_ENABLE_ANIMATIONS, true)
     )
 
     // Session-only debug states (not persisted)
@@ -452,6 +461,14 @@ object AppSettings {
         showDebugOptions.value = show
         settings.putBoolean(KEY_SHOW_DEBUG_OPTIONS, show)
     }
+
+    /**
+     * Save enable animations preference
+     */
+    fun saveEnableAnimations(enabled: Boolean) {
+        enableAnimations.value = enabled
+        settings.putBoolean(KEY_ENABLE_ANIMATIONS, enabled)
+    }
     
     /**
      * Reset all settings to defaults
@@ -495,6 +512,9 @@ object AppSettings {
         
         // Reset header text size to default (SMALL)
         saveHeaderTextSize(HeaderTextSize.DEFAULT)
+        
+        // Reset animations to ON
+        saveEnableAnimations(true)
         
         // Note: Don't reset settings hint shown state when resetting settings
         // as user has already seen it once

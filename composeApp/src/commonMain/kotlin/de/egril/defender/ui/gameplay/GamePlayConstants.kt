@@ -108,5 +108,11 @@ object GamePlayConstants {
         
         /** Icon size for trap preview when hovering during placement mode */
         val TrapPreview = 48.dp
+
+        /** Icon size for static healing effect overlay (shown when animations are disabled) */
+        val HealingEffect = 24.dp
+
+        /** Icon size for static damage effect overlay (shown when animations are disabled) */
+        val DamageEffect = 24.dp
     }
 }
