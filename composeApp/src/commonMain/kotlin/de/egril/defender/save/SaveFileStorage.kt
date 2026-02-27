@@ -361,7 +361,9 @@ object SaveFileStorage {
             rafts = rafts,
             nextRaftId = gameState.nextRaftId.value,
             barricades = barricades,
-            worldMapSave = null  // Don't automatically include world map - only on explicit export
+            worldMapSave = null,  // Don't automatically include world map - only on explicit export
+            currentMana = gameState.currentMana.value,
+            maxMana = gameState.maxMana.value
         )
     }
     
@@ -381,6 +383,10 @@ object SaveFileStorage {
         gameState.spawnCounter.value = savedGame.spawnCounter
         gameState.turnNumber.value = savedGame.turnNumber
         gameState.nextRaftId.value = savedGame.nextRaftId
+        
+        // Restore mana
+        gameState.currentMana.value = savedGame.currentMana
+        gameState.maxMana.value = savedGame.maxMana
         
         // Restore rafts first
         gameState.rafts.clear()
