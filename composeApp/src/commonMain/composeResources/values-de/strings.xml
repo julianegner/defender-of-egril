@@ -45,6 +45,9 @@
     <string name="tile_smooth_transitions">Weiche Kachel-Übergänge</string>
     <string name="tile_smooth_transitions_on">Weiche Übergänge An</string>
     <string name="tile_smooth_transitions_off">Scharfe Kanten</string>
+    <string name="animations">Animationen</string>
+    <string name="animations_on">Animationen An</string>
+    <string name="animations_off">Statische Symbole</string>
     <string name="header_text_size">Level-Header-Textgröße</string>
     <string name="header_text_size_small">Klein</string>
     <string name="header_text_size_medium">Mittel</string>

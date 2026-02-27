@@ -45,6 +45,9 @@
     <string name="tile_smooth_transitions">Transitions Douces de Tuiles</string>
     <string name="tile_smooth_transitions_on">Transitions Douces Activées</string>
     <string name="tile_smooth_transitions_off">Bords Nets</string>
+    <string name="animations">Animations</string>
+    <string name="animations_on">Animations Activées</string>
+    <string name="animations_off">Icônes Statiques</string>
     <string name="header_text_size">Taille du Texte de l'En-tête du Niveau</string>
     <string name="header_text_size_small">Petit</string>
     <string name="header_text_size_medium">Moyen</string>

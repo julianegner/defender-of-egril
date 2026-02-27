@@ -45,6 +45,9 @@
     <string name="tile_smooth_transitions">Transiciones Suaves de Casillas</string>
     <string name="tile_smooth_transitions_on">Transiciones Suaves Activadas</string>
     <string name="tile_smooth_transitions_off">Bordes Nítidos</string>
+    <string name="animations">Animaciones</string>
+    <string name="animations_on">Animaciones Activadas</string>
+    <string name="animations_off">Iconos Estáticos</string>
     <string name="header_text_size">Tamaño de Texto del Encabezado del Nivel</string>
     <string name="header_text_size_small">Pequeño</string>
     <string name="header_text_size_medium">Mediano</string>

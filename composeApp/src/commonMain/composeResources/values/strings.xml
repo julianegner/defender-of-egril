@@ -45,6 +45,9 @@
     <string name="tile_smooth_transitions">Tile Smooth Transitions</string>
     <string name="tile_smooth_transitions_on">Smooth Transitions On</string>
     <string name="tile_smooth_transitions_off">Sharp Edges</string>
+    <string name="animations">Animations</string>
+    <string name="animations_on">Animations On</string>
+    <string name="animations_off">Static Icons</string>
     <string name="header_text_size">Level Header Text Size</string>
     <string name="header_text_size_small">Small</string>
     <string name="header_text_size_medium">Medium</string>

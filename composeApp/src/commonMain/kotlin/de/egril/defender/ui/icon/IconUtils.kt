@@ -894,12 +894,14 @@ fun GateIcon(
 @Composable
 fun PlusIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
+    tint: Color? = null
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_plus),
         contentDescription = "Plus",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
+        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
     )
 }
 

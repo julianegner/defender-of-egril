@@ -1383,7 +1383,7 @@
         "flowSpeed": 1
       },
       "30,10": {
-        "flowDirection": "NORTH_WEST",
+        "flowDirection": "WEST",
         "flowSpeed": 1
       },
       "29,13": {
