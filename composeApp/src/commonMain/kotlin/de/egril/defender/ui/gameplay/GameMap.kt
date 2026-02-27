@@ -956,7 +956,7 @@ private fun BoxScope.GridCellContent(
                                 )
                             } else {
                                 // Show 3 static white snowflakes at different heights
-                                SnowflakeAnimation(
+                                Snowflakes(
                                     modifier = Modifier.fillMaxSize()
                                 )
                             }

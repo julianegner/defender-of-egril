@@ -18,7 +18,7 @@ import kotlin.math.sin
  * AnimationType.FREEZE_SPELL is used instead.
  */
 @Composable
-fun SnowflakeAnimation(
+fun Snowflakes(
     modifier: Modifier = Modifier
 ) {
     // Three static snowflakes at different fixed heights (top, middle, lower)
