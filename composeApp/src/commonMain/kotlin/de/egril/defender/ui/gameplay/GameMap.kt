@@ -890,7 +890,17 @@ private fun BoxScope.GridCellContent(
                     attacker.currentHealth.value,
                     attacker.movementPenalty.value
                 ) {
-                    Box(contentAlignment = Alignment.Center) {
+                    // Detect freeze effect before Box so it can be used in modifier for outline
+                    val freezeEffect = gameState.activeSpellEffects.find {
+                        it.spell == SpellType.FREEZE_SPELL && it.attackerId == attacker.id
+                    }
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = if (freezeEffect != null)
+                            Modifier.border(2.dp, Color.Cyan, RoundedCornerShape(4.dp))
+                        else
+                            Modifier
+                    ) {
                         EnemyIcon(attacker = attacker)
                         // Show healing effect overlay if present
                         if (healingEffect != null) {
@@ -935,14 +945,21 @@ private fun BoxScope.GridCellContent(
                                 }
                             }
                         }
-                        // Show snowflake animation if enemy is frozen
-                        val freezeEffect = gameState.activeSpellEffects.find {
-                            it.spell == SpellType.FREEZE_SPELL && it.attackerId == attacker.id
-                        }
+                        // Show freeze effect overlay
                         if (freezeEffect != null) {
-                            SnowflakeAnimation(
-                                modifier = Modifier.fillMaxSize()
-                            )
+                            if (AppSettings.enableAnimations.value) {
+                                // Show Lottie animation for freeze spell - repeats until effect ends
+                                LottieAnimation(
+                                    animationType = AnimationType.FREEZE_SPELL,
+                                    modifier = Modifier.fillMaxSize(),
+                                    iterations = Int.MAX_VALUE
+                                )
+                            } else {
+                                // Show 3 static white snowflakes at different heights
+                                Snowflakes(
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
                         }
                         // Show barb effect indicators if affected (show up to 5 arrows in center)
                         if (attacker.movementPenalty.value > 0) {

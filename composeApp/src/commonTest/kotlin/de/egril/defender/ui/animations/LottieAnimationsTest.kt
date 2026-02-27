@@ -14,15 +14,17 @@ class LottieAnimationsTest {
         // Verify that animation types are defined correctly
         val healingType = AnimationType.GREEN_WITCH_HEALING
         val damageType = AnimationType.BARRICADE_DAMAGE
+        val freezeType = AnimationType.FREEZE_SPELL
         
         assertNotNull(healingType, "Green witch healing animation type should exist")
         assertNotNull(damageType, "Barricade damage animation type should exist")
+        assertNotNull(freezeType, "Freeze spell animation type should exist")
     }
     
     @Test
     fun testAnimationTypeCount() {
-        // Verify we have exactly 2 animation types as specified
+        // Verify we have exactly 3 animation types as specified
         val animationTypes = AnimationType.values()
-        assertEquals(2, animationTypes.size, "Should have exactly 2 animation types")
+        assertEquals(3, animationTypes.size, "Should have exactly 3 animation types")
     }
 }
