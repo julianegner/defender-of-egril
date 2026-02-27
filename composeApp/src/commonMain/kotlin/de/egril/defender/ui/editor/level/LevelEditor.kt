@@ -343,6 +343,7 @@ fun LevelEditorView(
 ) {
     var title by remember { mutableStateOf(level.title) }
     var subtitle by remember { mutableStateOf(level.subtitle) }
+    var author by remember { mutableStateOf(level.author) }
     var startCoins by remember { mutableStateOf(level.startCoins.toString()) }
     var startHP by remember { mutableStateOf(level.startHealthPoints.toString()) }
     var selectedMapId by remember { mutableStateOf(level.mapId) }
@@ -541,6 +542,8 @@ fun LevelEditorView(
                     onTitleChange = { title = it },
                     subtitle = subtitle,
                     onSubtitleChange = { subtitle = it },
+                    author = author,
+                    onAuthorChange = { author = it },
                     selectedMapId = selectedMapId,
                     onMapChange = { selectedMapId = it },
                     maps = maps,
@@ -600,6 +603,7 @@ fun LevelEditorView(
                         val updatedLevel = level.copy(
                             title = title,
                             subtitle = subtitle,
+                            author = author,
                             mapId = selectedMapId,
                             startCoins = startCoins.toIntOrNull() ?: 100,
                             startHealthPoints = startHP.toIntOrNull() ?: 10,
@@ -692,6 +696,7 @@ fun LevelEditorView(
                     id = newId,
                     title = newTitle,
                     subtitle = subtitle,
+                    author = author,
                     mapId = selectedMapId,
                     startCoins = startCoins.toIntOrNull() ?: 100,
                     startHealthPoints = startHP.toIntOrNull() ?: 10,
