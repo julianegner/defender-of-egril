@@ -218,6 +218,44 @@ fun GameGrid(
         }
     }
 
+    // Calculate spell area circle preview for ATTACK_AREA spell in targeting mode
+    val spellAreaTargeting = gameState.spellTargeting.value
+    val currentHoveredPosition = hoveredPosition
+    val spellAreaCircleMap = remember(currentHoveredPosition, spellAreaTargeting?.activeSpell) {
+        if (spellAreaTargeting?.activeSpell != SpellType.ATTACK_AREA || currentHoveredPosition == null) {
+            emptyMap<Position, TargetCircleInfo>()
+        } else {
+            val spellColor = TargetCircleConstants.ATTACK_AREA_SPELL_COLOR
+            val result = mutableMapOf<Position, TargetCircleInfo>()
+            result[currentHoveredPosition] = TargetCircleInfo.CentralTarget(
+                color = spellColor,
+                attackType = AttackType.AREA,
+                isExtendedArea = true
+            )
+            val allNeighbors = currentHoveredPosition.getHexNeighborsWithinRadius(
+                TargetCircleConstants.ATTACK_AREA_SPELL_RADIUS,
+                gameState.level.gridWidth,
+                gameState.level.gridHeight
+            ).filter { neighbor ->
+                gameState.level.isOnPath(neighbor) ||
+                gameState.isBridgeAt(neighbor) ||
+                gameState.attackers.any { it.position.value == neighbor && !it.isDefeated.value }
+            }
+            for (neighbor in allNeighbors) {
+                val distance = currentHoveredPosition.hexDistanceTo(neighbor)
+                result[neighbor] = TargetCircleInfo.NeighborTarget(
+                    color = spellColor,
+                    attackType = AttackType.AREA,
+                    centerPosition = currentHoveredPosition,
+                    thisPosition = neighbor,
+                    distanceFromCenter = distance,
+                    isExtendedArea = true
+                )
+            }
+            result
+        }
+    }
+
     val mapId = gameState.level.mapId
     val mapImagePainter = rememberMapImagePainter(mapId)
     val useLevelMapImage = AppSettings.useLevelMapImage.value
@@ -291,7 +329,7 @@ fun GameGrid(
                 selectedMineAction = selectedMineAction,
                 selectedWizardAction = selectedWizardAction,
                 selectedBarricadeAction = selectedBarricadeAction,
-                targetCircleInfo = targetCircleMap[position],
+                targetCircleInfo = spellAreaCircleMap[position] ?: targetCircleMap[position],
                 onClick = { onCellClick(position) },
                 hexSize = hexSize,
                 selectedDefenderType = selectedDefenderType,
