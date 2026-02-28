@@ -1386,4 +1386,7 @@
     <string name="freeze_immune_warning_title">Impossibile congelare il nemico</string>
     <string name="freeze_immune_warning_message">%1$s è immune all'incantesimo di congelamento!</string>
 
+    <!-- Double Tower Level spell status label -->
+    <string name="double_level_active">Livello raddoppiato questo turno!</string>
+
 </resources>

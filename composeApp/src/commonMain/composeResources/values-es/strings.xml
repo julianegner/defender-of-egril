@@ -1384,4 +1384,7 @@
     <string name="freeze_immune_warning_title">No se puede congelar al enemigo</string>
     <string name="freeze_immune_warning_message">¡%1$s es inmune al hechizo de congelación!</string>
 
+    <!-- Double Tower Level spell status label -->
+    <string name="double_level_active">¡Nivel duplicado este turno!</string>
+
 </resources>

@@ -1387,4 +1387,7 @@
     <string name="freeze_immune_warning_title">Cannot Freeze Enemy</string>
     <string name="freeze_immune_warning_message">%1$s is immune to the Freeze spell!</string>
 
+    <!-- Double Tower Level spell status label -->
+    <string name="double_level_active">Level doubled this turn!</string>
+
 </resources>

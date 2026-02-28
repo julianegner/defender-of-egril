@@ -1002,6 +1002,9 @@ private fun BoxScope.GridCellContent(
             defender != null -> {
                 // Use graphical icon for towers
                 // Key by id, position, level and actionsRemaining to force recomposition when these change
+                val doubleLevelActive = gameState.activeSpellEffects.any {
+                    it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == defender.id
+                }
                 key(
                     defender.id,
                     defender.position.value.x,
@@ -1010,10 +1013,18 @@ private fun BoxScope.GridCellContent(
                     defender.actionsRemaining.value,
                     defender.buildTimeRemaining.value,
                     defender.isDisabled.value,
-                    defender.disabledTurnsRemaining.value
+                    defender.disabledTurnsRemaining.value,
+                    doubleLevelActive
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         TowerIcon(defender = defender, gameState = gameState)
+                        // Show Double Tower Level spell animation overlay
+                        if (doubleLevelActive) {
+                            DoubleLevelSpellAnimation(
+                                animate = AppSettings.enableAnimations.value,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
                         // Show red "XT" overlay if tower is disabled by Red Witch
                         if (defender.isDisabled.value && defender.disabledTurnsRemaining.value > 0) {
                             Text(
