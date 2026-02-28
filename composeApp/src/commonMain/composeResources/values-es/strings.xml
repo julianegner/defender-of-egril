@@ -1313,7 +1313,7 @@
 
     <!-- Spell Descriptions -->
     <string name="spell_attack_area_desc">Inflige 50 de daño a todos los enemigos en un rango de 2 hexágonos</string>
-    <string name="spell_attack_aimed_desc">Inflige 80 de daño a un solo enemigo</string>
+    <string name="spell_attack_aimed_desc">Inflige 80 de daño al enemigo en una casilla objetivo</string>
     <string name="spell_heal_desc">Restaura 3 puntos de salud</string>
     <string name="spell_instant_tower_desc">Construye la próxima torre al instante, sin tiempo de construcción</string>
     <string name="spell_bomb_desc">Coloca una bomba que explota después de 2 turnos, infligiendo 100 de daño a enemigos y estructuras</string>

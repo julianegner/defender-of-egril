@@ -1857,12 +1857,15 @@ class GameViewModel {
     private fun executeSpellEffect(spell: SpellType, target: Any?, gameState: GameState) {
         when (spell) {
             SpellType.ATTACK_AIMED -> {
-                // Attack Aimed: Deal 80 damage to single enemy
-                val attacker = target as? Attacker
-                if (attacker != null) {
-                    attacker.currentHealth.value = (attacker.currentHealth.value - 80).coerceAtLeast(0)
-                    if (LogConfig.ENABLE_SPELL_LOGGING) {
-                    println("Attack Aimed: Dealt 80 damage to ${attacker.type.displayName} (HP: ${attacker.currentHealth.value})")
+                // Attack Aimed: Deal 80 damage to the enemy on a targeted tile
+                val position = target as? Position
+                if (position != null) {
+                    val attacker = gameState.attackers.find { !it.isDefeated.value && it.position.value == position }
+                    if (attacker != null) {
+                        attacker.currentHealth.value = (attacker.currentHealth.value - 80).coerceAtLeast(0)
+                        if (LogConfig.ENABLE_SPELL_LOGGING) {
+                        println("Attack Aimed: Dealt 80 damage to ${attacker.type.displayName} at $position (HP: ${attacker.currentHealth.value})")
+                        }
                     }
                 }
             }

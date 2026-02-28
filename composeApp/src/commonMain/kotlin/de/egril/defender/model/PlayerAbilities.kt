@@ -198,9 +198,9 @@ enum class SpellType(
     ATTACK_AIMED(
         displayName = "Attack Aimed",
         manaCost = 15,
-        description = "Deal heavy damage to a single enemy",
+        description = "Deal heavy damage to the enemy on a targeted tile",
         requiresTarget = true,
-        targetType = SpellTargetType.ENEMY
+        targetType = SpellTargetType.POSITION
     ),
     HEAL(
         displayName = "Heal",
