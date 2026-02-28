@@ -51,6 +51,12 @@ data class DamageEffect(
     val turnNumber: Int  // Track which turn this damage occurred for display timing
 )
 
+data class BombExplosionEffect(
+    val center: Position,        // Center of the explosion
+    val affectedPositions: List<Position>,  // All affected tile positions
+    val turnNumber: Int          // Turn when this explosion occurred
+)
+
 data class GameState(
     val level: Level,
     val phase: MutableState<GamePhase> = mutableStateOf(GamePhase.INITIAL_BUILDING),
@@ -75,6 +81,7 @@ data class GameState(
     val barricades: SnapshotStateList<Barricade> = mutableStateListOf(),  // Track active barricades
     val bridges: SnapshotStateList<Bridge> = mutableStateListOf(),  // Track active bridges
     val rafts: SnapshotStateList<Raft> = mutableStateListOf(),  // Track active rafts (towers on rivers)
+    val bombExplosionEffects: SnapshotStateList<BombExplosionEffect> = mutableStateListOf(),  // Track bomb explosion visual effects
     val difficulty: DifficultyLevel = DifficultyLevel.MEDIUM,  // Track difficulty for this game session
     val tutorialState: MutableState<TutorialState> = mutableStateOf(
         // Enable tutorial only for the tutorial level (id=1, title contains "Welcome")

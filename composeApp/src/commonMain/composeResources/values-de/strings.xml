@@ -1314,7 +1314,7 @@
     <string name="spell_attack_aimed_desc">Fügt einem einzelnen Feind 80 Schaden zu</string>
     <string name="spell_heal_desc">Stellt 3 Gesundheitspunkte wieder her</string>
     <string name="spell_instant_tower_desc">Überspringe Bauzeit für einen im Bau befindlichen Turm</string>
-    <string name="spell_bomb_desc">Platziere eine Bombe, die nach 2 Runden explodiert und Feinden und Strukturen 100 Schaden zufügt</string>
+    <string name="spell_bomb_desc">Platziert eine Bombe, die nach 2 Runden explodiert und schweren Schaden (200/150/100/50) je nach Distanz an Feinden, Barrikaden und Brücken verursacht. Feinde fliehen vor kurz vor der Explosion stehenden Bomben.</string>
     <string name="spell_double_tower_level_desc">Verdoppelt die Schadensleistung eines Turms für 1 Runde</string>
     <string name="spell_cooling_spell_desc">Erzeugt ein Gebiet, das die Bewegungsgeschwindigkeit von Feinden für 3 Runden um 1 verringert</string>
     <string name="spell_freeze_spell_desc">Friert einen Feind für 1 Runde ein (Immunität: Dämonen, Drachen, Ewhad)</string>

@@ -71,7 +71,9 @@ fun GameGrid(
     selectedWizardAction: WizardAction? = null,
     selectedBarricadeAction: BarricadeAction? = null,
     onCellClick: (Position) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    scrollToPosition: Position? = null,
+    onScrollToPositionConsumed: (() -> Unit)? = null
 ) {
     // State for pan and zoom
     var scale by remember { mutableStateOf(1f) }
@@ -108,6 +110,32 @@ fun GameGrid(
             }
             
             isInitialized = true
+        }
+    }
+
+    // Scroll to position when requested (e.g. bomb explosion)
+    LaunchedEffect(scrollToPosition) {
+        if (scrollToPosition != null && containerSize.width > 0 && contentSize.width > 0) {
+            // Calculate pixel position of the target hex
+            val hexSizePx = hexSize.value
+            val hexWidthPx = hexSizePx * kotlin.math.sqrt(3.0).toFloat()
+            val hexHeightPx = hexSizePx * 2f
+            val colSpacingPx = HexagonalGridConstants.HORIZONTAL_SPACING
+            val rowSpacingPx = -hexHeightPx + hexHeightPx * 0.75f + HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT
+            val oddOffsetPx = hexWidthPx * HexagonalGridConstants.ODD_ROW_OFFSET_RATIO
+            val col = scrollToPosition.x
+            val row = scrollToPosition.y
+            val oddRowOffset = if (row % 2 == 1) oddOffsetPx else 0f
+            val cellCenterX = col * (hexWidthPx + colSpacingPx) + hexWidthPx / 2f + oddRowOffset
+            val cellCenterY = row * (hexHeightPx + rowSpacingPx) + hexHeightPx / 2f
+            // Clamp offset so the cell is centered in the viewport
+            val maxOffsetX = maxOf(0f, (contentSize.width * scale - containerSize.width) / 2f)
+            val maxOffsetY = maxOf(0f, (contentSize.height * scale - containerSize.height) / 2f)
+            val targetOffsetX = (contentSize.width * scale / 2f - cellCenterX * scale).coerceIn(-maxOffsetX, maxOffsetX)
+            val targetOffsetY = (contentSize.height * scale / 2f - cellCenterY * scale).coerceIn(-maxOffsetY, maxOffsetY)
+            offsetX = targetOffsetX
+            offsetY = targetOffsetY
+            onScrollToPositionConsumed?.invoke()
         }
     }
 
@@ -471,6 +499,16 @@ fun GridCell(
     // Check for barricades at this position
     val barricade = gameState.barricades.find { it.position == position }
 
+    // Check for active bomb spell effect at this position
+    val bombEffect = gameState.activeSpellEffects.find {
+        it.spell == SpellType.BOMB && it.position == position
+    }
+
+    // Check for bomb explosion visual effect at this position
+    val bombExplosion = gameState.bombExplosionEffects.find { explosion ->
+        explosion.center == position || explosion.affectedPositions.contains(position)
+    }
+
     // Check if this tile is a valid spell target
     val spellTargeting = gameState.spellTargeting.value
     val isValidSpellTarget = if (spellTargeting != null) {
@@ -634,6 +672,12 @@ fun GridCell(
         
         barricade != null -> Color(0xFF795548).copy(alpha = 0.5f)  // Brown tint for barricade
         
+        // Bomb explosion overlay - bright orange/red when explosion is happening
+        bombExplosion != null -> Color(0xFFFF3D00).copy(alpha = 0.7f)  // Bright red-orange for explosion
+        
+        // Active bomb on tile - dark red/amber tint with countdown
+        bombEffect != null -> Color(0xFFFF6F00).copy(alpha = 0.4f)  // Amber tint for bomb
+        
         // Barricade placement range - yellow tint for tiles in range
         cellIsInBarricadeRange -> GamePlayColors.Yellow.copy(alpha = 0.3f)  // Light yellow for barricade placement range
         
@@ -649,7 +693,7 @@ fun GridCell(
         else -> baseBackgroundColor  // No selection highlighting during placement or in initial phase
     }
 
-    val finalBackgroundColor = if (useTransparentBackground && attacker == null && defender == null && fieldEffect == null && trap == null && barricade == null) {
+    val finalBackgroundColor = if (useTransparentBackground && attacker == null && defender == null && fieldEffect == null && trap == null && barricade == null && bombEffect == null && bombExplosion == null) {
         Color.Transparent
     } else {
         backgroundColor
@@ -828,7 +872,9 @@ fun GridCell(
                 selectedMineAction = selectedMineAction,
                 selectedWizardAction = selectedWizardAction,
                 isBuildableAndEmpty = isBuildableAndEmpty,
-                canBeUsedAsTowerBase = canBeUsedAsTowerBase
+                canBeUsedAsTowerBase = canBeUsedAsTowerBase,
+                bombEffect = bombEffect,
+                bombExplosion = bombExplosion
             )
         }
     } else {
@@ -866,7 +912,9 @@ fun GridCell(
                 selectedMineAction = selectedMineAction,
                 selectedWizardAction = selectedWizardAction,
                 isBuildableAndEmpty = isBuildableAndEmpty,
-                canBeUsedAsTowerBase = canBeUsedAsTowerBase
+                canBeUsedAsTowerBase = canBeUsedAsTowerBase,
+                bombEffect = bombEffect,
+                bombExplosion = bombExplosion
             )
         }
     }
@@ -901,7 +949,9 @@ private fun BoxScope.GridCellContent(
     selectedMineAction: MineAction? = null,
     selectedWizardAction: WizardAction? = null,
     isBuildableAndEmpty: Boolean = false,
-    canBeUsedAsTowerBase: Boolean = false
+    canBeUsedAsTowerBase: Boolean = false,
+    bombEffect: ActiveSpellEffect? = null,
+    bombExplosion: BombExplosionEffect? = null
 ) {
         when {
             attacker != null -> {
@@ -1183,6 +1233,23 @@ private fun BoxScope.GridCellContent(
                 }
             }
 
+            bombEffect != null -> {
+                // Show bomb icon with countdown number
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    ExplosionIcon(size = 28.dp)
+                    Text(
+                        "${bombEffect.turnsRemaining}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color(0xFFFF6F00),  // Amber
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.offset(y = (-6).dp)
+                    )
+                }
+            }
+
             isSpawnPoint -> {
                 // Show spawn indicator when cell is empty
                 Text(
@@ -1261,6 +1328,46 @@ private fun BoxScope.GridCellContent(
                         // Magical trap - show pentagram icon
                         PentagramIcon(size = GamePlayConstants.TileIconSizes.TrapPreview)
                     }
+                }
+            }
+        }
+
+        // Show bomb explosion animation overlay on affected tiles (highest priority, above everything)
+        if (bombExplosion != null) {
+            if (AppSettings.enableAnimations.value) {
+                LottieAnimation(
+                    animationType = AnimationType.BOMB_EXPLOSION,
+                    modifier = Modifier.fillMaxSize().zIndex(20f),
+                    iterations = 1
+                )
+            } else {
+                // Static fallback: starburst pattern in red/orange
+                Box(
+                    modifier = Modifier.fillMaxSize().zIndex(20f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ExplosionIcon(size = 36.dp)
+                }
+            }
+        }
+
+        // Show small bomb countdown overlay when an enemy is on the same bomb tile
+        if (bombEffect != null && attacker != null) {
+            Box(
+                modifier = Modifier.fillMaxSize().zIndex(15f),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    ExplosionIcon(size = 12.dp)
+                    Text(
+                        "${bombEffect.turnsRemaining}",
+                        fontSize = 10.sp,
+                        color = Color(0xFFFF6F00),
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }

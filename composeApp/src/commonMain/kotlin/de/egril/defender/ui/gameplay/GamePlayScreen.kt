@@ -73,7 +73,9 @@ fun GamePlayScreen(
     onConfirmTargetSpell: (() -> Unit)? = null,  // Callback to confirm spell on target
     onDismissTargetConfirmation: (() -> Unit)? = null,  // Callback to dismiss target confirmation
     showFreezeImmuneWarning: de.egril.defender.model.Attacker? = null,  // Show warning for immune enemy
-    onDismissFreezeWarning: (() -> Unit)? = null  // Callback to dismiss freeze warning
+    onDismissFreezeWarning: (() -> Unit)? = null,  // Callback to dismiss freeze warning
+    scrollToPosition: de.egril.defender.model.Position? = null,  // Scroll map to position (e.g. bomb explosion)
+    onScrollToPositionConsumed: (() -> Unit)? = null  // Callback after scroll consumed
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -121,7 +123,9 @@ fun GamePlayScreen(
         onConfirmTargetSpell = onConfirmTargetSpell,
         onDismissTargetConfirmation = onDismissTargetConfirmation,
         showFreezeImmuneWarning = showFreezeImmuneWarning,
-        onDismissFreezeWarning = onDismissFreezeWarning
+        onDismissFreezeWarning = onDismissFreezeWarning,
+        scrollToPosition = scrollToPosition,
+        onScrollToPositionConsumed = onScrollToPositionConsumed
     )
 }
 
@@ -173,7 +177,9 @@ private fun GamePlayScreenContent(
     onConfirmTargetSpell: (() -> Unit)? = null,
     onDismissTargetConfirmation: (() -> Unit)? = null,
     showFreezeImmuneWarning: de.egril.defender.model.Attacker? = null,
-    onDismissFreezeWarning: (() -> Unit)? = null
+    onDismissFreezeWarning: (() -> Unit)? = null,
+    scrollToPosition: de.egril.defender.model.Position? = null,
+    onScrollToPositionConsumed: (() -> Unit)? = null
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
@@ -731,7 +737,9 @@ private fun GamePlayScreenContent(
                         }
                     }
                 },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                scrollToPosition = scrollToPosition,
+                onScrollToPositionConsumed = onScrollToPositionConsumed
             )
 
             // Overlay panel with Legend and Enemy List (conditionally shown)

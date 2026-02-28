@@ -1317,7 +1317,7 @@
     <string name="spell_attack_aimed_desc">Infligge 80 danni a un singolo nemico</string>
     <string name="spell_heal_desc">Ripristina 3 punti vita</string>
     <string name="spell_instant_tower_desc">Salta il tempo di costruzione per una torre in costruzione</string>
-    <string name="spell_bomb_desc">Piazza una bomba che esplode dopo 2 turni, infliggendo 100 danni a nemici e strutture</string>
+    <string name="spell_bomb_desc">Piazza una bomba che esplode dopo 2 turni, infliggendo danni pesanti (200/150/100/50) in base alla distanza a nemici, barricate e ponti. I nemici fuggono dalle bombe in procinto di esplodere.</string>
     <string name="spell_double_tower_level_desc">Raddoppia i danni di una torre per 1 turno</string>
     <string name="spell_cooling_spell_desc">Crea un\'area che riduce la velocità di movimento dei nemici di 1 per 3 turni</string>
     <string name="spell_freeze_spell_desc">Congela un nemico per 1 turno (immunità: Demoni, Draghi, Ewhad)</string>

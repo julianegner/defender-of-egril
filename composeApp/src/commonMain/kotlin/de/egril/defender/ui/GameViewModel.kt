@@ -17,6 +17,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import de.egril.defender.config.LogConfig
+import de.egril.defender.audio.GlobalSoundManager
+import de.egril.defender.audio.SoundEvent
 
 sealed class Screen {
     object MainMenu : Screen()
@@ -112,6 +114,10 @@ class GameViewModel {
 
     private val _pendingSpellCast = MutableStateFlow<SpellType?>(null)
     val pendingSpellCast: StateFlow<SpellType?> = _pendingSpellCast.asStateFlow()
+
+    // Position to scroll to (e.g., bomb explosion)
+    private val _pendingScrollToPosition = MutableStateFlow<Position?>(null)
+    val pendingScrollToPosition: StateFlow<Position?> = _pendingScrollToPosition.asStateFlow()
 
     // Post-target confirmation dialog state
     private val _showSpellTargetConfirmation = MutableStateFlow<Pair<SpellType, Any>?>(null)
@@ -752,6 +758,12 @@ class GameViewModel {
             
             // Complete enemy turn: apply effects and return to player turn
             engine.completeEnemyTurn()
+            
+            // Trigger camera pan to bomb explosion position if any bomb exploded this turn
+            val currentStateForBombs = _gameState.value
+            if (currentStateForBombs != null && currentStateForBombs.bombExplosionEffects.isNotEmpty()) {
+                _pendingScrollToPosition.value = currentStateForBombs.bombExplosionEffects.first().center
+            }
             
             // Autosave at the beginning of the new player turn (after enemy turn completes)
             // This ensures the phase is PLAYER_TURN when the save is created
@@ -1611,6 +1623,13 @@ class GameViewModel {
     }
 
     /**
+     * Clear pending scroll to position (called after UI has consumed it)
+     */
+    fun clearPendingScrollPosition() {
+        _pendingScrollToPosition.value = null
+    }
+
+    /**
      * Toggle spell selection (select or deselect)
      * No confirmation dialog - enters targeting mode directly
      */
@@ -1884,6 +1903,8 @@ class GameViewModel {
                         castTurn = gameState.turnNumber.value
                     )
                     gameState.activeSpellEffects.add(effect)
+                    // Play ticking sound when bomb is placed
+                    GlobalSoundManager.playSound(SoundEvent.BOMB_TICKING)
                     if (LogConfig.ENABLE_SPELL_LOGGING) {
                     println("Bomb: Placed at $position, will explode in 2 turns!")
                     }

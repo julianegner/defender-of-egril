@@ -1316,7 +1316,7 @@
     <string name="spell_attack_aimed_desc">Inflige 80 de daño a un solo enemigo</string>
     <string name="spell_heal_desc">Restaura 3 puntos de salud</string>
     <string name="spell_instant_tower_desc">Omite el tiempo de construcción de una torre en construcción</string>
-    <string name="spell_bomb_desc">Coloca una bomba que explota después de 2 turnos, infligiendo 100 de daño a enemigos y estructuras</string>
+    <string name="spell_bomb_desc">Coloca una bomba que explota después de 2 turnos, causando daño pesado (200/150/100/50) según distancia a enemigos, barricadas y puentes. Los enemigos huyen de las bombas a punto de explotar.</string>
     <string name="spell_double_tower_level_desc">Duplica el daño de una torre durante 1 turno</string>
     <string name="spell_cooling_spell_desc">Crea un área que reduce la velocidad de movimiento del enemigo en 1 durante 3 turnos</string>
     <string name="spell_freeze_spell_desc">Congela a un enemigo durante 1 turno (inmunidad: Demonios, Dragones, Ewhad)</string>
