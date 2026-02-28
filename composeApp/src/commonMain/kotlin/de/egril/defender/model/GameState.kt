@@ -93,7 +93,8 @@ data class GameState(
     val activeSpellEffects: SnapshotStateList<ActiveSpellEffect> = mutableStateListOf(),  // Active spell effects
     val incomeMultiplier: Double = 1.0,  // Income multiplier from player stats (default 1.0, e.g. 1.2 for 20% bonus)
     val constructionLevel: Int = 0,  // Construction level from player stats (0-3+, gates tower abilities)
-    val spellTargeting: MutableState<SpellTargetingState?> = mutableStateOf(null)  // Active spell targeting state (null when not targeting)
+    val spellTargeting: MutableState<SpellTargetingState?> = mutableStateOf(null),  // Active spell targeting state (null when not targeting)
+    val instantTowerSpellActive: MutableState<Boolean> = mutableStateOf(false)  // True when Instant Tower spell is active (waiting for next tower placement)
 ) {
     fun isLevelWon(): Boolean {
         // Check if all planned spawns have occurred and all enemies are defeated

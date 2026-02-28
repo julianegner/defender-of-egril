@@ -1313,7 +1313,7 @@
     <string name="spell_attack_area_desc">Fügt allen Feinden in 2 Hex-Reichweite 50 Schaden zu</string>
     <string name="spell_attack_aimed_desc">Fügt einem einzelnen Feind 80 Schaden zu</string>
     <string name="spell_heal_desc">Stellt 3 Gesundheitspunkte wieder her</string>
-    <string name="spell_instant_tower_desc">Überspringe Bauzeit für einen im Bau befindlichen Turm</string>
+    <string name="spell_instant_tower_desc">Der nächste gebaute Turm wird sofort ohne Bauzeit eingesetzt</string>
     <string name="spell_bomb_desc">Platziere eine Bombe, die nach 2 Runden explodiert und Feinden und Strukturen 100 Schaden zufügt</string>
     <string name="spell_double_tower_level_desc">Verdoppelt die Schadensleistung eines Turms für 1 Runde</string>
     <string name="spell_cooling_spell_desc">Erzeugt ein Gebiet, das die Bewegungsgeschwindigkeit von Feinden für 3 Runden um 1 verringert</string>
@@ -1385,5 +1385,11 @@
 
     <!-- Double Tower Level spell status label -->
     <string name="double_level_active">Stufe verdoppelt diese Runde!</string>
+
+    <!-- Instant Tower spell abort dialog -->
+    <string name="instant_tower_spell_abort_title">Sofortiger Turmbau aktiv</string>
+    <string name="instant_tower_spell_abort_message">Ein Turm wird sofort gebaut. Möchten Sie den Zauber abbrechen oder weiter einen Turm platzieren?</string>
+    <string name="instant_tower_spell_abort_confirm">Zauber abbrechen</string>
+    <string name="instant_tower_spell_abort_cancel">Turm weiter platzieren</string>
 
 </resources>

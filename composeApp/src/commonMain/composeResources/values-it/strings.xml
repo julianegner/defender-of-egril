@@ -1316,7 +1316,7 @@
     <string name="spell_attack_area_desc">Infligge 50 danni a tutti i nemici entro 2 esagoni</string>
     <string name="spell_attack_aimed_desc">Infligge 80 danni a un singolo nemico</string>
     <string name="spell_heal_desc">Ripristina 3 punti vita</string>
-    <string name="spell_instant_tower_desc">Salta il tempo di costruzione per una torre in costruzione</string>
+    <string name="spell_instant_tower_desc">La prossima torre costruita viene schierata istantaneamente senza tempo di costruzione</string>
     <string name="spell_bomb_desc">Piazza una bomba che esplode dopo 2 turni, infliggendo 100 danni a nemici e strutture</string>
     <string name="spell_double_tower_level_desc">Raddoppia i danni di una torre per 1 turno</string>
     <string name="spell_cooling_spell_desc">Crea un\'area che riduce la velocità di movimento dei nemici di 1 per 3 turni</string>
@@ -1388,5 +1388,11 @@
 
     <!-- Double Tower Level spell status label -->
     <string name="double_level_active">Livello raddoppiato questo turno!</string>
+
+    <!-- Instant Tower spell abort dialog -->
+    <string name="instant_tower_spell_abort_title">Incantesimo torre istantanea attivo</string>
+    <string name="instant_tower_spell_abort_message">Una torre verrà costruita istantaneamente. Vuoi annullare l'incantesimo o continuare a posizionare una torre?</string>
+    <string name="instant_tower_spell_abort_confirm">Annulla incantesimo</string>
+    <string name="instant_tower_spell_abort_cancel">Continua a posizionare la torre</string>
 
 </resources>

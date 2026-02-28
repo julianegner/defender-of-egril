@@ -14,15 +14,19 @@ class LottieAnimationsTest {
         // Verify that animation types are defined correctly
         val healingType = AnimationType.GREEN_WITCH_HEALING
         val damageType = AnimationType.BARRICADE_DAMAGE
+        val doubleLevelType = AnimationType.DOUBLE_LEVEL_SPELL
+        val instantTowerType = AnimationType.INSTANT_TOWER_SPELL
         
         assertNotNull(healingType, "Green witch healing animation type should exist")
         assertNotNull(damageType, "Barricade damage animation type should exist")
+        assertNotNull(doubleLevelType, "Double level spell animation type should exist")
+        assertNotNull(instantTowerType, "Instant tower spell animation type should exist")
     }
     
     @Test
     fun testAnimationTypeCount() {
-        // Verify we have exactly 2 animation types as specified
+        // Verify we have exactly 4 animation types
         val animationTypes = AnimationType.values()
-        assertEquals(2, animationTypes.size, "Should have exactly 2 animation types")
+        assertEquals(4, animationTypes.size, "Should have exactly 4 animation types")
     }
 }

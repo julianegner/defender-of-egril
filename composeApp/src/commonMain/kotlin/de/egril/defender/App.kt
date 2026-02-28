@@ -338,6 +338,7 @@ fun App() {
                         onOpenMagicPanel = { viewModel.openMagicPanel() },
                         onCloseMagicPanel = { viewModel.closeMagicPanel() },
                         onCastSpell = { spell -> viewModel.setPendingSpell(spell) },
+                        onCancelInstantTowerSpell = { viewModel.cancelInstantTowerSpell() },
                         pendingSpellCast = pendingSpellCast,
                         onConfirmSpellCast = { 
                             viewModel.pendingSpellCast.value?.let { spell ->

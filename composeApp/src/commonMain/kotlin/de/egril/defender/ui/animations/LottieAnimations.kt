@@ -22,7 +22,8 @@ import kotlinx.coroutines.launch
 enum class AnimationType {
     GREEN_WITCH_HEALING,
     BARRICADE_DAMAGE,
-    DOUBLE_LEVEL_SPELL
+    DOUBLE_LEVEL_SPELL,
+    INSTANT_TOWER_SPELL
 }
 
 /**
@@ -41,6 +42,7 @@ fun LottieAnimation(
         AnimationType.GREEN_WITCH_HEALING -> "files/animations/green_witch_healing.json"
         AnimationType.BARRICADE_DAMAGE -> "files/animations/barricade_damage.json"
         AnimationType.DOUBLE_LEVEL_SPELL -> "files/animations/double_level_spell.json"
+        AnimationType.INSTANT_TOWER_SPELL -> "files/animations/instant_tower_spell.json"
     }
     
     // Load the animation JSON asynchronously
@@ -88,6 +90,7 @@ fun LottieAnimation(
                     AnimationType.GREEN_WITCH_HEALING -> "Green witch healing animation"
                     AnimationType.BARRICADE_DAMAGE -> "Barricade damage animation"
                     AnimationType.DOUBLE_LEVEL_SPELL -> "Double tower level spell animation"
+                    AnimationType.INSTANT_TOWER_SPELL -> "Instant tower spell animation"
                 },
                 modifier = Modifier.fillMaxSize()
             )
