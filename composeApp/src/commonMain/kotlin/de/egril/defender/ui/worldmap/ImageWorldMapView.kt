@@ -344,7 +344,7 @@ private fun BoxScope.RoadConnectionsOverlay(
                     // Calculate control point at midpoint for smooth curve
                     val controlX = (current.x + next.x) / 2
                     val controlY = (current.y + next.y) / 2
-                    path.quadraticBezierTo(current.x, current.y, controlX, controlY)
+                    path.quadraticTo(current.x, current.y, controlX, controlY)
                     path.lineTo(next.x, next.y)
                     
                     drawPath(

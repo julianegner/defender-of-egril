@@ -1,6 +1,7 @@
 package de.egril.defender.audio
 
 import defender_of_egril.composeapp.generated.resources.Res
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -17,6 +18,7 @@ actual fun initializeAudioSystem() {
     // Initialize audio system - nothing specific needed for desktop
 }
 
+@OptIn(DelicateCoroutinesApi::class)
 actual fun playSoundFile(fileName: String, volume: Float) {
     GlobalScope.launch(Dispatchers.IO) {
         try {

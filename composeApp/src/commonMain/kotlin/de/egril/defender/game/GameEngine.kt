@@ -648,7 +648,7 @@ class GameEngine(private val state: GameState) {
                 
                 // Check if there's a barricade at the new position (non-flying units only)
                 // If so, this unit will attack the barricade and stop moving for the rest of this turn
-                val isFlying = attacker.isFlying?.value == true
+                val isFlying = attacker.isFlying.value == true
                 if (!isFlying) {
                     val barricadeAtNewPos = barricadeSystem.getBarricadeAt(newPos)
                     if (barricadeAtNewPos != null && !barricadeAtNewPos.isDestroyed()) {
@@ -1245,7 +1245,7 @@ class GameEngine(private val state: GameState) {
                 
                 // Check if there's a barricade at the new position (non-flying units only)
                 // If so, this unit will attack the barricade and stop moving for the rest of this turn
-                val isFlying = attacker.isFlying?.value == true
+                val isFlying = attacker.isFlying.value == true
                 if (!isFlying) {
                     val barricadeAtNewPos = barricadeSystem.getBarricadeAt(newPos)
                     if (barricadeAtNewPos != null && !barricadeAtNewPos.isDestroyed()) {

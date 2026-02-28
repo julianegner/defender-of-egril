@@ -431,7 +431,7 @@ private fun GamePlayScreenContent(
             onShowOverlayChange = { showOverlay = it },
             onBackToMap = {
                 // Check for unsaved changes before navigating back
-                if (unsavedChangesEnabled && hasUnsavedChanges!!.invoke()) {
+                if (unsavedChangesEnabled && hasUnsavedChanges.invoke()) {
                     showUnsavedChangesDialog = true
                 } else {
                     onBackToMap()
@@ -1039,7 +1039,7 @@ private fun GamePlayScreenContent(
             UnsavedChangesDialog(
                 onSaveAndExit = {
                     // Save the game first
-                    onSaveGame!!(null)
+                    onSaveGame(null)
                     showUnsavedChangesDialog = false
                     // Then navigate back to map
                     onBackToMap()
