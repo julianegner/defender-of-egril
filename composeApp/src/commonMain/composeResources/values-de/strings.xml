@@ -1383,4 +1383,7 @@
     <string name="freeze_immune_warning_title">Gegner kann nicht eingefroren werden</string>
     <string name="freeze_immune_warning_message">%1$s ist immun gegen den Gefrierzauber!</string>
 
+    <!-- Double Tower Level spell status label -->
+    <string name="double_level_active">Stufe verdoppelt diese Runde!</string>
+
 </resources>

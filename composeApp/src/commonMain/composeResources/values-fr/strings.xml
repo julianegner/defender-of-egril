@@ -1385,4 +1385,7 @@
     <string name="freeze_immune_warning_title">Impossible de geler l'ennemi</string>
     <string name="freeze_immune_warning_message">%1$s est immunisé contre le sort de gel!</string>
 
+    <!-- Double Tower Level spell status label -->
+    <string name="double_level_active">Niveau doublé ce tour!</string>
+
 </resources>
