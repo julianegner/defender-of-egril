@@ -1390,4 +1390,10 @@
     <!-- Double Tower Level spell status label -->
     <string name="double_level_active">Level doubled this turn!</string>
 
+    <!-- Instant Tower spell abort dialog -->
+    <string name="instant_tower_spell_abort_title">Instant Tower Spell Active</string>
+    <string name="instant_tower_spell_abort_message">A tower will be built instantly. Do you want to abort the spell or continue placing a tower?</string>
+    <string name="instant_tower_spell_abort_confirm">Abort Spell</string>
+    <string name="instant_tower_spell_abort_cancel">Continue Placing Tower</string>
+
 </resources>

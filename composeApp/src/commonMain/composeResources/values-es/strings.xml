@@ -1387,4 +1387,10 @@
     <!-- Double Tower Level spell status label -->
     <string name="double_level_active">¡Nivel duplicado este turno!</string>
 
+    <!-- Instant Tower spell abort dialog -->
+    <string name="instant_tower_spell_abort_title">Hechizo de torre instantánea activo</string>
+    <string name="instant_tower_spell_abort_message">Una torre se construirá al instante. ¿Desea cancelar el hechizo o continuar colocando una torre?</string>
+    <string name="instant_tower_spell_abort_confirm">Cancelar hechizo</string>
+    <string name="instant_tower_spell_abort_cancel">Continuar colocando torre</string>
+
 </resources>

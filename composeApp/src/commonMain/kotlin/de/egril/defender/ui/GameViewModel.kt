@@ -1632,6 +1632,20 @@ class GameViewModel {
     }
 
     /**
+     * Cancel the active Instant Tower spell and return mana (mana was never consumed).
+     * Called when the player chooses to abort from the abort dialog.
+     */
+    fun cancelInstantTowerSpell() {
+        val state = _gameState.value ?: return
+        if (state.instantTowerSpellActive.value) {
+            state.instantTowerSpellActive.value = false
+            if (LogConfig.ENABLE_SPELL_LOGGING) {
+                println("=== SPELL: Instant Tower spell cancelled by player (no mana consumed)")
+            }
+        }
+    }
+
+    /**
      * Toggle spell selection (select or deselect)
      * No confirmation dialog - enters targeting mode directly
      */

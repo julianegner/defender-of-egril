@@ -1389,4 +1389,10 @@
     <!-- Double Tower Level spell status label -->
     <string name="double_level_active">Livello raddoppiato questo turno!</string>
 
+    <!-- Instant Tower spell abort dialog -->
+    <string name="instant_tower_spell_abort_title">Incantesimo torre istantanea attivo</string>
+    <string name="instant_tower_spell_abort_message">Una torre verrà costruita istantaneamente. Vuoi annullare l'incantesimo o continuare a posizionare una torre?</string>
+    <string name="instant_tower_spell_abort_confirm">Annulla incantesimo</string>
+    <string name="instant_tower_spell_abort_cancel">Continua a posizionare la torre</string>
+
 </resources>

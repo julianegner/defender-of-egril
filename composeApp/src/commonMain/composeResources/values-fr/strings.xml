@@ -1388,4 +1388,10 @@
     <!-- Double Tower Level spell status label -->
     <string name="double_level_active">Niveau doublé ce tour!</string>
 
+    <!-- Instant Tower spell abort dialog -->
+    <string name="instant_tower_spell_abort_title">Sort de tour instantanée actif</string>
+    <string name="instant_tower_spell_abort_message">Une tour sera construite instantanément. Voulez-vous annuler le sort ou continuer à placer une tour?</string>
+    <string name="instant_tower_spell_abort_confirm">Annuler le sort</string>
+    <string name="instant_tower_spell_abort_cancel">Continuer à placer la tour</string>
+
 </resources>
