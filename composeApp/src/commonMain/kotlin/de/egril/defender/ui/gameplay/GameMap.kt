@@ -471,6 +471,13 @@ fun GridCell(
     // Check for barricades at this position
     val barricade = gameState.barricades.find { it.position == position }
 
+    // Check if this tile is in a cooling spell area (show snowflake on affected path tiles)
+    val isInCoolingArea = (isOnPath || isSpawnPoint) && gameState.activeSpellEffects.any { effect ->
+        effect.spell == SpellType.COOLING_SPELL &&
+        effect.position != null &&
+        position.hexDistanceTo(effect.position) <= 2
+    }
+
     // Check if this tile is a valid spell target
     val spellTargeting = gameState.spellTargeting.value
     val isValidSpellTarget = if (spellTargeting != null) {
@@ -828,7 +835,8 @@ fun GridCell(
                 selectedMineAction = selectedMineAction,
                 selectedWizardAction = selectedWizardAction,
                 isBuildableAndEmpty = isBuildableAndEmpty,
-                canBeUsedAsTowerBase = canBeUsedAsTowerBase
+                canBeUsedAsTowerBase = canBeUsedAsTowerBase,
+                isInCoolingArea = isInCoolingArea
             )
         }
     } else {
@@ -866,7 +874,8 @@ fun GridCell(
                 selectedMineAction = selectedMineAction,
                 selectedWizardAction = selectedWizardAction,
                 isBuildableAndEmpty = isBuildableAndEmpty,
-                canBeUsedAsTowerBase = canBeUsedAsTowerBase
+                canBeUsedAsTowerBase = canBeUsedAsTowerBase,
+                isInCoolingArea = isInCoolingArea
             )
         }
     }
@@ -901,7 +910,8 @@ private fun BoxScope.GridCellContent(
     selectedMineAction: MineAction? = null,
     selectedWizardAction: WizardAction? = null,
     isBuildableAndEmpty: Boolean = false,
-    canBeUsedAsTowerBase: Boolean = false
+    canBeUsedAsTowerBase: Boolean = false,
+    isInCoolingArea: Boolean = false
 ) {
         when {
             attacker != null -> {
@@ -1224,6 +1234,23 @@ private fun BoxScope.GridCellContent(
                             )
                         }
                     }
+                }
+            }
+        }
+
+        // Show cooling spell snowflake animation on affected tiles
+        if (isInCoolingArea) {
+            if (AppSettings.enableAnimations.value) {
+                SnowflakeAnimation(modifier = Modifier.fillMaxSize())
+            } else {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    de.egril.defender.ui.icon.SnowflakeIcon(
+                        size = 24.dp,
+                        tint = Color.Cyan.copy(alpha = 0.7f)
+                    )
                 }
             }
         }
