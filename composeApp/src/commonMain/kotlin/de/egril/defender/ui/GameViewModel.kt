@@ -705,7 +705,8 @@ class GameViewModel {
             setCoins = { amount -> gameEngine?.setCoins(amount) },
             performMineDigWithOutcome = { outcome -> performMineDigWithOutcome(outcome) },
             spawnEnemy = { attackerType, level -> gameEngine?.spawnEnemy(attackerType, level) },
-            showPlatformInfo = { _showPlatformInfo.value = true }
+            showPlatformInfo = { _showPlatformInfo.value = true },
+            setBigHeadMode = { enabled -> de.egril.defender.utils.BigHeadMode.isEnabled.value = enabled }
         )
         
         if (digOutcome != null) {

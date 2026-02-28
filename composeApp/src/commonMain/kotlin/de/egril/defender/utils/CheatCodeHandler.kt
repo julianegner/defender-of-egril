@@ -29,7 +29,8 @@ object CheatCodeHandler {
         setCoins: (Int) -> Unit,
         performMineDigWithOutcome: (DigOutcome) -> DigOutcome?,
         spawnEnemy: (AttackerType, Int) -> Unit,
-        showPlatformInfo: (() -> Unit)? = null
+        showPlatformInfo: (() -> Unit)? = null,
+        setBigHeadMode: ((Boolean) -> Unit)? = null
     ): Pair<Boolean, DigOutcome?> {
         val lowercaseCode = code.lowercase().trim()
         
@@ -59,6 +60,14 @@ object CheatCodeHandler {
             }
             "platform" -> {
                 showPlatformInfo?.invoke()
+                return Pair(true, null)
+            }
+            "bighead" -> {
+                setBigHeadMode?.invoke(true)
+                return Pair(true, null)
+            }
+            "smallhead" -> {
+                setBigHeadMode?.invoke(false)
                 return Pair(true, null)
             }
             // Dig outcome cheat codes
