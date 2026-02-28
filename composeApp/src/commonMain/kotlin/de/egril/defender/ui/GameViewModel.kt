@@ -481,11 +481,13 @@ class GameViewModel {
         val result = gameEngine?.placeDefender(type, position, isInstantDeploy) ?: false
         if (result) {
             if (isInstantDeploy) {
-                // Consume mana now that the tower was placed instantly (gameState != null implied by isInstantDeploy)
-                gameState!!.currentMana.value = (gameState.currentMana.value - SpellType.INSTANT_TOWER.manaCost).coerceAtLeast(0)
-                gameState.instantTowerSpellActive.value = false
-                if (LogConfig.ENABLE_SPELL_LOGGING) {
-                    println("=== SPELL: Instant Tower spell consumed - tower placed instantly, mana deducted")
+                // isInstantDeploy=true implies gameState!=null (see initialization above)
+                gameState?.let { gs ->
+                    gs.currentMana.value = (gs.currentMana.value - SpellType.INSTANT_TOWER.manaCost).coerceAtLeast(0)
+                    gs.instantTowerSpellActive.value = false
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
+                        println("=== SPELL: Instant Tower spell consumed - tower placed instantly, mana deducted")
+                    }
                 }
             }
             // Track achievement
@@ -1878,12 +1880,11 @@ class GameViewModel {
                 }
             }
             SpellType.INSTANT_TOWER -> {
-                // Instant Tower is now handled via instantTowerSpellActive mode in GameState.
-                // Mana is deferred and consumed only when a tower is placed (in placeDefender).
-                // This path should not be reached in normal gameplay.
-                if (LogConfig.ENABLE_SPELL_LOGGING) {
-                println("Instant Tower: activated via setPendingSpell (this path is a fallback)")
-                }
+                // Instant Tower is handled via instantTowerSpellActive mode in GameState.
+                // Mana is deferred and only consumed when a tower is placed (see placeDefender).
+                // This fallback path activates the mode if called directly (e.g., from cheat codes).
+                println("=== SPELL: WARN - Instant Tower executeSpellEffect fallback triggered; activating mode")
+                gameState.instantTowerSpellActive.value = true
             }
             SpellType.DOUBLE_TOWER_LEVEL -> {
                 // Double Tower Level: Double tower level for 1 turn
