@@ -1,5 +1,7 @@
 package de.egril.defender.ui.gameplay
 
+import androidx.compose.ui.graphics.Color
+
 /**
  * Constants for target circle visualization on tiles.
  * These circles indicate which enemy is selected for attack.
@@ -26,4 +28,10 @@ object TargetCircleConstants {
     const val EXTENDED_OUTER_CIRCLE_3_RADIUS = 153f   // Outer ring for distance 2
 
     const val OUTER_CIRCLE_STROKE_WIDTH = 3f
+
+    // ATTACK_AREA spell targeting preview constants
+    /** Hex radius of the ATTACK_AREA spell effect (matches the range in executeSpellEffect) */
+    const val ATTACK_AREA_SPELL_RADIUS = 2
+    /** Color used for the ATTACK_AREA spell targeting preview circles */
+    val ATTACK_AREA_SPELL_COLOR = Color(0xFF9C27B0)  // Purple to distinguish spell from tower attacks
 }
