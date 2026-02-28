@@ -212,9 +212,9 @@ enum class SpellType(
     INSTANT_TOWER(
         displayName = "Instant Tower",
         manaCost = 20,
-        description = "Deploy a tower instantly without build time",
-        requiresTarget = true,
-        targetType = SpellTargetType.TOWER
+        description = "Deploy the next tower you build instantly without any build time",
+        requiresTarget = false,
+        targetType = SpellTargetType.NONE
     ),
     BOMB(
         displayName = "Bomb",
