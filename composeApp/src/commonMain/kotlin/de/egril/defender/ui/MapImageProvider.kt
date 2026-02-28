@@ -60,19 +60,27 @@ object MapImageProvider {
 expect fun decodeMapImageBitmap(bytes: ByteArray): ImageBitmap?
 
 /**
- * Composable that loads a map image painter for the given mapId.
+ * Holds the state of a map image load: the painter (once loaded) and whether loading is still in progress.
+ */
+data class MapImageState(val painter: Painter?, val isLoading: Boolean)
+
+/**
+ * Composable that loads a map image painter for the given mapId and exposes the loading state.
  */
 @Composable
-fun rememberMapImagePainter(mapId: String?): Painter? {
+fun rememberMapImageState(mapId: String?): MapImageState {
     val useLevelMapImage = AppSettings.useLevelMapImage.value
     var painter by remember(mapId, useLevelMapImage) { mutableStateOf<Painter?>(null) }
+    var isLoading by remember(mapId, useLevelMapImage) { mutableStateOf(useLevelMapImage && mapId != null) }
 
     LaunchedEffect(mapId, useLevelMapImage) {
         if (!useLevelMapImage || mapId == null) {
             painter = null
+            isLoading = false
             return@LaunchedEffect
         }
 
+        isLoading = true
         val bytes = MapImageProvider.loadMapImageBytes(mapId)
         if (bytes != null) {
             val bitmap = MapImageProvider.decodeImageBitmap(bytes)
@@ -80,7 +88,14 @@ fun rememberMapImagePainter(mapId: String?): Painter? {
         } else {
             painter = null
         }
+        isLoading = false
     }
 
-    return if (useLevelMapImage) painter else null
+    return if (useLevelMapImage && mapId != null) MapImageState(painter, isLoading) else MapImageState(null, false)
 }
+
+/**
+ * Composable that loads a map image painter for the given mapId.
+ */
+@Composable
+fun rememberMapImagePainter(mapId: String?): Painter? = rememberMapImageState(mapId).painter

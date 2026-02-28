@@ -1230,6 +1230,9 @@
     <string name="special_towers_info_title">Tours Spéciales</string>
     <string name="special_towers_info_reopen">Vous pouvez rouvrir ces informations à tout moment en cliquant sur l\'icône de tour dans l\'en-tête du niveau.</string>
 
+    <!-- Level Loading -->
+    <string name="loading_level">Chargement du niveau…</string>
+
     <!-- Map Image and Debug Options -->
     <string name="level_map_image">Image de la carte</string>
     <string name="debug_options">Options de débogage</string>

@@ -1228,6 +1228,9 @@
     <string name="special_towers_info_title">Spezielle Türme</string>
     <string name="special_towers_info_reopen">Sie können diese Information jederzeit erneut öffnen, indem Sie auf das Turmsymbol im Level-Header klicken.</string>
 
+    <!-- Level Loading -->
+    <string name="loading_level">Level wird geladen…</string>
+
     <!-- Map Image and Debug Options -->
     <string name="level_map_image">Karten-Hintergrundbild</string>
     <string name="debug_options">Debug-Optionen</string>
