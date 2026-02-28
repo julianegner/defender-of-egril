@@ -42,6 +42,7 @@ import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.official_level_saved_warning_title
 import defender_of_egril.composeapp.generated.resources.official_level_saved_warning_message
 import kotlin.random.Random
+import de.egril.defender.utils.getCurrentUsername
 
 /**
  * Main content for the Level Editor tab
@@ -175,7 +176,8 @@ fun LevelEditorContent() {
                     enemySpawns = emptyList(),
                     availableTowers = DefenderType.entries.filter {
                         it != DefenderType.DRAGONS_LAIR
-                    }.toSet()
+                    }.toSet(),
+                    author = getCurrentUsername()
                 )
                 EditorStorage.saveLevel(newLevel)
                 levels.value = EditorStorage.getAllLevels()
