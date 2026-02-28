@@ -1315,7 +1315,7 @@
 
     <!-- Spell Descriptions -->
     <string name="spell_attack_area_desc">Deal 50 damage to all enemies within 2 hex range</string>
-    <string name="spell_attack_aimed_desc">Deal 80 damage to a single enemy</string>
+    <string name="spell_attack_aimed_desc">Deal 80 damage to the enemy on a targeted tile</string>
     <string name="spell_heal_desc">Restore 3 health points</string>
     <string name="spell_instant_tower_desc">Deploy the next tower you build instantly without any build time</string>
     <string name="spell_bomb_desc">Place a bomb that explodes after 2 turns, dealing 100 damage to enemies and structures in range</string>

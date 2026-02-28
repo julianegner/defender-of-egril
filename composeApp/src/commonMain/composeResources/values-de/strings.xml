@@ -1311,7 +1311,7 @@
 
     <!-- Spell Descriptions -->
     <string name="spell_attack_area_desc">Fügt allen Feinden in 2 Hex-Reichweite 50 Schaden zu</string>
-    <string name="spell_attack_aimed_desc">Fügt einem einzelnen Feind 80 Schaden zu</string>
+    <string name="spell_attack_aimed_desc">Fügt dem Feind auf einem gezielten Feld 80 Schaden zu</string>
     <string name="spell_heal_desc">Stellt 3 Gesundheitspunkte wieder her</string>
     <string name="spell_instant_tower_desc">Der nächste gebaute Turm wird sofort ohne Bauzeit eingesetzt</string>
     <string name="spell_bomb_desc">Platziere eine Bombe, die nach 2 Runden explodiert und Feinden und Strukturen 100 Schaden zufügt</string>

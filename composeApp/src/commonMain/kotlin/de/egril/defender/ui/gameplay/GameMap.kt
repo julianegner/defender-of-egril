@@ -218,11 +218,12 @@ fun GameGrid(
         }
     }
 
-    // Calculate spell area circle preview for ATTACK_AREA spell in targeting mode
+    // Calculate spell area circle preview for ATTACK_AREA and ATTACK_AIMED spells in targeting mode
     val spellAreaTargeting = gameState.spellTargeting.value
     val currentHoveredPosition = hoveredPosition
     val spellAreaCircleMap = remember(currentHoveredPosition, spellAreaTargeting?.activeSpell) {
-        if (spellAreaTargeting?.activeSpell != SpellType.ATTACK_AREA || currentHoveredPosition == null) {
+        val activeSpell = spellAreaTargeting?.activeSpell
+        if ((activeSpell != SpellType.ATTACK_AREA && activeSpell != SpellType.ATTACK_AIMED) || currentHoveredPosition == null) {
             emptyMap<Position, TargetCircleInfo>()
         } else {
             val spellColor = TargetCircleConstants.ATTACK_AREA_SPELL_COLOR
@@ -232,25 +233,27 @@ fun GameGrid(
                 attackType = AttackType.AREA,
                 isExtendedArea = true
             )
-            val allNeighbors = currentHoveredPosition.getHexNeighborsWithinRadius(
-                TargetCircleConstants.ATTACK_AREA_SPELL_RADIUS,
-                gameState.level.gridWidth,
-                gameState.level.gridHeight
-            ).filter { neighbor ->
-                gameState.level.isOnPath(neighbor) ||
-                gameState.isBridgeAt(neighbor) ||
-                gameState.attackers.any { it.position.value == neighbor && !it.isDefeated.value }
-            }
-            for (neighbor in allNeighbors) {
-                val distance = currentHoveredPosition.hexDistanceTo(neighbor)
-                result[neighbor] = TargetCircleInfo.NeighborTarget(
-                    color = spellColor,
-                    attackType = AttackType.AREA,
-                    centerPosition = currentHoveredPosition,
-                    thisPosition = neighbor,
-                    distanceFromCenter = distance,
-                    isExtendedArea = true
-                )
+            if (activeSpell == SpellType.ATTACK_AREA) {
+                val allNeighbors = currentHoveredPosition.getHexNeighborsWithinRadius(
+                    TargetCircleConstants.ATTACK_AREA_SPELL_RADIUS,
+                    gameState.level.gridWidth,
+                    gameState.level.gridHeight
+                ).filter { neighbor ->
+                    gameState.level.isOnPath(neighbor) ||
+                    gameState.isBridgeAt(neighbor) ||
+                    gameState.attackers.any { it.position.value == neighbor && !it.isDefeated.value }
+                }
+                for (neighbor in allNeighbors) {
+                    val distance = currentHoveredPosition.hexDistanceTo(neighbor)
+                    result[neighbor] = TargetCircleInfo.NeighborTarget(
+                        color = spellColor,
+                        attackType = AttackType.AREA,
+                        centerPosition = currentHoveredPosition,
+                        thisPosition = neighbor,
+                        distanceFromCenter = distance,
+                        isExtendedArea = true
+                    )
+                }
             }
             result
         }

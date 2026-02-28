@@ -1313,7 +1313,7 @@
 
     <!-- Spell Descriptions -->
     <string name="spell_attack_area_desc">Inflige 50 dégâts à tous les ennemis dans une portée de 2 hex</string>
-    <string name="spell_attack_aimed_desc">Inflige 80 dégâts à un seul ennemi</string>
+    <string name="spell_attack_aimed_desc">Inflige 80 dégâts à l\'ennemi sur une case ciblée</string>
     <string name="spell_heal_desc">Restaure 3 points de vie</string>
     <string name="spell_instant_tower_desc">La prochaine tour construite est déployée instantanément sans délai</string>
     <string name="spell_bomb_desc">Place une bombe qui explose après 2 tours, infligeant 100 dégâts aux ennemis et structures</string>
