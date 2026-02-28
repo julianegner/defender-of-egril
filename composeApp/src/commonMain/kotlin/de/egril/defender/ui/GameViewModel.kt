@@ -8,6 +8,8 @@ import de.egril.defender.game.LevelData
 import de.egril.defender.model.*
 import de.egril.defender.model.DifficultyModifiers
 import de.egril.defender.ui.settings.AppSettings
+import com.hyperether.resources.LocalizedStrings
+import com.hyperether.resources.currentLanguage
 import de.egril.defender.utils.CheatCodeHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -1244,16 +1246,17 @@ class GameViewModel {
     private fun formatElapsedTime(elapsedMs: Long): String {
         val hours = elapsedMs / (60 * 60 * 1000)
         val minutes = (elapsedMs % (60 * 60 * 1000)) / (60 * 1000)
-        
+        val locale = currentLanguage.value
+
         return buildString {
             if (hours > 0) {
-                append("$hours ")
-                append(if (hours == 1L) "hour" else "hours")
+                val key = if (hours == 1L) "hour" else "hours"
+                append(LocalizedStrings.get(key, locale).replace("%d", hours.toString()))
             }
             if (minutes > 0) {
                 if (hours > 0) append(" ")
-                append("$minutes ")
-                append(if (minutes == 1L) "minute" else "minutes")
+                val key = if (minutes == 1L) "minute" else "minutes"
+                append(LocalizedStrings.get(key, locale).replace("%d", minutes.toString()))
             }
         }
     }
