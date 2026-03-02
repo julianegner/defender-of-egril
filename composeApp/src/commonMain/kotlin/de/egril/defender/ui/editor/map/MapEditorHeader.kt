@@ -32,6 +32,8 @@ fun MapEditorHeader(
     map: EditorMap,
     mapName: String,
     onMapNameChange: (String) -> Unit,
+    mapAuthor: String,
+    onMapAuthorChange: (String) -> Unit,
     selectedTileType: TileType,
     onTileTypeChange: (TileType) -> Unit,
     selectedRiverFlow: de.egril.defender.model.RiverFlow,
@@ -50,6 +52,8 @@ fun MapEditorHeader(
             map = map,
             mapName = mapName,
             onMapNameChange = onMapNameChange,
+            mapAuthor = mapAuthor,
+            onMapAuthorChange = onMapAuthorChange,
             selectedTileType = selectedTileType,
             onTileTypeChange = onTileTypeChange,
             selectedRiverFlow = selectedRiverFlow,
@@ -83,6 +87,8 @@ private fun ExpandedMapEditorHeader(
     map: EditorMap,
     mapName: String,
     onMapNameChange: (String) -> Unit,
+    mapAuthor: String,
+    onMapAuthorChange: (String) -> Unit,
     selectedTileType: TileType,
     onTileTypeChange: (TileType) -> Unit,
     selectedRiverFlow: de.egril.defender.model.RiverFlow,
@@ -182,6 +188,15 @@ private fun ExpandedMapEditorHeader(
                 value = mapName,
                 onValueChange = onMapNameChange,
                 label = { Text(stringResource(Res.string.map_name)) },
+                enabled = !map.isOfficial || de.egril.defender.OfficialEditMode.enabled,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+            )
+            
+            // Author input
+            OutlinedTextField(
+                value = mapAuthor,
+                onValueChange = onMapAuthorChange,
+                label = { Text(stringResource(Res.string.author_optional)) },
                 enabled = !map.isOfficial || de.egril.defender.OfficialEditMode.enabled,
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
             )

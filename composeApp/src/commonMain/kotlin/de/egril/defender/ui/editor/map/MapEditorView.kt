@@ -47,6 +47,7 @@ fun MapEditorView(
     var selectedRiverFlow by remember { mutableStateOf(de.egril.defender.model.RiverFlow.EAST) }
     var selectedRiverSpeed by remember { mutableStateOf(1) }
     var mapName by remember { mutableStateOf(map.name) }
+    var mapAuthor by remember { mutableStateOf(map.author) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
     var showChangeAllDialog by remember { mutableStateOf(false) }
     var showRiverPropertiesDialog by remember { mutableStateOf(false) }
@@ -324,6 +325,7 @@ fun MapEditorView(
                     onClick = {
                         val updatedMap = map.copy(
                             name = mapName,
+                            author = mapAuthor,
                             tiles = tiles.toMap(),
                             riverTiles = riverTiles.toMap()
                         )
@@ -358,6 +360,8 @@ fun MapEditorView(
             map = map,
             mapName = mapName,
             onMapNameChange = { mapName = it },
+            mapAuthor = mapAuthor,
+            onMapAuthorChange = { mapAuthor = it },
             selectedTileType = selectedTileType,
             onTileTypeChange = { selectedTileType = it },
             selectedRiverFlow = selectedRiverFlow,
@@ -390,6 +394,7 @@ fun MapEditorView(
                 val newMap = map.copy(
                     id = newId,
                     name = newName,
+                    author = mapAuthor,
                     tiles = tiles.toMap(),
                     riverTiles = riverTiles.toMap()
                 )

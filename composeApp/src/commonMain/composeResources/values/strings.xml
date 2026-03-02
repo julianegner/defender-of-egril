@@ -355,6 +355,7 @@
     <string name="map_name">Map Name</string>
     <string name="level_title">Level Title</string>
     <string name="subtitle_optional">Subtitle (optional)</string>
+    <string name="author_optional">Author (optional)</string>
     <string name="width">Width</string>
     <string name="height">Height</string>
     <string name="select_map_to_edit">Select a map to edit:</string>
@@ -1312,17 +1313,21 @@
     <string name="spell_cooling_spell_name">Cooling Spell</string>
     <string name="spell_freeze_spell_name">Freeze Spell</string>
     <string name="spell_double_tower_reach_name">Double Tower Reach</string>
+    <string name="spell_fear_spell_name">Fear Spell</string>
+    <string name="spell_fear_spell_area_name">Fear Spell (Area)</string>
 
     <!-- Spell Descriptions -->
     <string name="spell_attack_area_desc">Deal 50 damage to all enemies within 2 hex range</string>
-    <string name="spell_attack_aimed_desc">Deal 80 damage to a single enemy</string>
+    <string name="spell_attack_aimed_desc">Deal 80 damage to the enemy on a targeted tile</string>
     <string name="spell_heal_desc">Restore 3 health points</string>
-    <string name="spell_instant_tower_desc">Skip build time for a tower under construction</string>
+    <string name="spell_instant_tower_desc">Deploy the next tower you build instantly without any build time</string>
     <string name="spell_bomb_desc">Place a bomb that explodes after 2 turns, dealing heavy damage (200/150/100/50) based on distance to enemies, barricades and bridges. Enemies flee from bombs about to explode.</string>
     <string name="spell_double_tower_level_desc">Double a tower's damage output for 1 turn</string>
     <string name="spell_cooling_spell_desc">Create an area that reduces enemy movement speed by 1 for 3 turns</string>
     <string name="spell_freeze_spell_desc">Freeze an enemy for 1 turn (immunity: Demons, Dragons, Ewhad)</string>
     <string name="spell_double_tower_reach_desc">Double a tower's attack range for 1 turn</string>
+    <string name="spell_fear_spell_desc">Make a single enemy flee towards its spawn point for 3 turns</string>
+    <string name="spell_fear_spell_area_desc">Create a fear zone that makes enemies flee towards spawn points for 3 turns</string>
 
     <!-- Construction Info -->
     <string name="construction_info_intro">Each Construction level unlocks powerful tower abilities:</string>
@@ -1366,7 +1371,7 @@
     <string name="cheat_stat_types">Stats: health, treasury, income, construction, mana</string>
     <string name="cheat_unlockspell_desc">Unlock a spell (e.g., unlockspell fireball)</string>
     <string name="cheat_lockspell_desc">Lock a spell (e.g., lockspell heal)</string>
-    <string name="cheat_spell_types">Spells: attack_aimed, attack_area, heal, instant_tower, bomb, double_level, cooling, freeze, double_reach</string>
+    <string name="cheat_spell_types">Spells: attack_aimed, attack_area, heal, instant_tower, bomb, double_level, cooling, freeze, double_reach, fear, fear_area</string>
     <string name="cheat_unlockall_desc">Unlock all levels</string>
     <string name="cheat_unlock_desc">Unlock specific level</string>
     <string name="cheat_lockall_desc">Lock all levels</string>
@@ -1375,6 +1380,10 @@
     <!-- Freeze status labels -->
     <string name="frozen_label">Frozen</string>
     <string name="frozen_turns_remaining">Frozen: %d turns remaining</string>
+
+    <!-- Fear status labels -->
+    <string name="feared_label">Feared</string>
+    <string name="feared_turns_remaining">Feared: %d turns remaining</string>
 
 
     <!-- Task 3: Post-target spell confirmation -->
@@ -1389,5 +1398,11 @@
 
     <!-- Double Tower Level spell status label -->
     <string name="double_level_active">Level doubled this turn!</string>
+
+    <!-- Instant Tower spell abort dialog -->
+    <string name="instant_tower_spell_abort_title">Instant Tower Spell Active</string>
+    <string name="instant_tower_spell_abort_message">A tower will be built instantly. Do you want to abort the spell or continue placing a tower?</string>
+    <string name="instant_tower_spell_abort_confirm">Abort Spell</string>
+    <string name="instant_tower_spell_abort_cancel">Continue Placing Tower</string>
 
 </resources>

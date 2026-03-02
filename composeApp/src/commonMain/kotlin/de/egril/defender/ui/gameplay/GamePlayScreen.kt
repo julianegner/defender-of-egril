@@ -63,6 +63,7 @@ fun GamePlayScreen(
     onOpenMagicPanel: (() -> Unit)? = null,  // Callback to open magic panel
     onCloseMagicPanel: (() -> Unit)? = null,  // Callback to close magic panel
     onCastSpell: ((SpellType) -> Unit)? = null,  // Callback to cast/select spell
+    onCancelInstantTowerSpell: (() -> Unit)? = null,  // Callback to cancel instant tower spell (abort dialog)
     pendingSpellCast: SpellType? = null,  // Spell awaiting confirmation
     onConfirmSpellCast: (() -> Unit)? = null,  // Callback to confirm spell cast
     onCancelSpellCast: (() -> Unit)? = null,  // Callback to cancel spell cast
@@ -114,6 +115,7 @@ fun GamePlayScreen(
         onOpenMagicPanel = onOpenMagicPanel,
         onCloseMagicPanel = onCloseMagicPanel,
         onCastSpell = onCastSpell,
+        onCancelInstantTowerSpell = onCancelInstantTowerSpell,
         pendingSpellCast = pendingSpellCast,
         onConfirmSpellCast = onConfirmSpellCast,
         onCancelSpellCast = onCancelSpellCast,
@@ -168,6 +170,7 @@ private fun GamePlayScreenContent(
     onOpenMagicPanel: (() -> Unit)? = null,
     onCloseMagicPanel: (() -> Unit)? = null,
     onCastSpell: ((SpellType) -> Unit)? = null,
+    onCancelInstantTowerSpell: (() -> Unit)? = null,
     pendingSpellCast: SpellType? = null,
     onConfirmSpellCast: (() -> Unit)? = null,
     onCancelSpellCast: (() -> Unit)? = null,
@@ -208,7 +211,8 @@ private fun GamePlayScreenContent(
     var showSaveConfirmation by remember { mutableStateOf(false) }  // Save confirmation
     var showUnsavedChangesDialog by remember { mutableStateOf(false) }  // Unsaved changes dialog
     var showEndTurnConfirmation by remember { mutableStateOf(false) }  // End turn confirmation dialog
-    
+    var showAbortInstantTowerDialog by remember { mutableStateOf(false) }  // Abort instant tower spell dialog
+
     // Check if unsaved changes feature is enabled (both hasUnsavedChanges and onSaveGame must be available)
     val unsavedChangesEnabled = hasUnsavedChanges != null && onSaveGame != null
 
@@ -503,7 +507,7 @@ private fun GamePlayScreenContent(
             onShowOverlayChange = { showOverlay = it },
             onBackToMap = {
                 // Check for unsaved changes before navigating back
-                if (unsavedChangesEnabled && hasUnsavedChanges!!.invoke()) {
+                if (unsavedChangesEnabled && hasUnsavedChanges.invoke()) {
                     showUnsavedChangesDialog = true
                 } else {
                     onBackToMap()
@@ -513,7 +517,13 @@ private fun GamePlayScreenContent(
             onCheatCode = if (onCheatCode != null) {{ showCheatDialog = true }} else null,
             onEnemyCountClick = { showOverlay = !showOverlay },
             onManaClick = if (onOpenMagicPanel != null && gameState.maxMana.value > 0) {
-                { onOpenMagicPanel.invoke() }
+                {
+                    if (gameState.instantTowerSpellActive.value) {
+                        showAbortInstantTowerDialog = true
+                    } else {
+                        onOpenMagicPanel.invoke()
+                    }
+                }
             } else null
         )
 
@@ -886,6 +896,8 @@ private fun GamePlayScreenContent(
                 playerStats = playerStats,
                 currentMana = gameState.currentMana.value,
                 maxMana = gameState.maxMana.value,
+                currentHealthPoints = gameState.healthPoints.value,
+                maxHealthPoints = gameState.level.healthPoints,
                 gamePhase = gameState.phase.value,
                 selectedSpell = selectedSpell,
                 onCastSpell = onCastSpell,
@@ -1115,7 +1127,19 @@ private fun GamePlayScreenContent(
                 dragonName = currentDragonName
             )
         }
-        
+
+        // Abort Instant Tower spell dialog
+        if (showAbortInstantTowerDialog) {
+            AbortInstantTowerSpellDialog(
+                onAbort = {
+                    showAbortInstantTowerDialog = false
+                    onCancelInstantTowerSpell?.invoke()
+                    onOpenMagicPanel?.invoke()
+                },
+                onContinue = { showAbortInstantTowerDialog = false }
+            )
+        }
+
         // Save game dialog (with optional comment input)
         if (showSaveDialog && onSaveGame != null) {
             SaveGameDialog(
@@ -1217,7 +1241,7 @@ private fun GamePlayScreenContent(
             UnsavedChangesDialog(
                 onSaveAndExit = {
                     // Save the game first
-                    onSaveGame!!(null)
+                    onSaveGame(null)
                     showUnsavedChangesDialog = false
                     // Then navigate back to map
                     onBackToMap()
@@ -1288,7 +1312,7 @@ private fun GamePlayScreenContent(
                 }
             )
         }
-        
+
         // Post-target spell confirmation dialog (shows after target is selected)
         if (showSpellTargetConfirmation != null && onConfirmTargetSpell != null && onDismissTargetConfirmation != null) {
             val (spell, target) = showSpellTargetConfirmation
@@ -1308,7 +1332,7 @@ private fun GamePlayScreenContent(
                 onDismiss = { onDismissFreezeWarning.invoke() }
             )
         }
-        
+
             }
         }
         }

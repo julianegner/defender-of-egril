@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.Attacker
 import de.egril.defender.model.AttackerType
+import de.egril.defender.utils.BigHeadMode
 
 /**
  * Composable that draws an enemy unit icon
@@ -30,24 +31,25 @@ fun EnemyIcon(
         contentAlignment = Alignment.Center
     ) {
         // Draw enemy graphics first (will be behind text)
+        val headScale = if (BigHeadMode.isEnabled.value) 2f else 1f
         Canvas(modifier = Modifier.fillMaxSize()) {
             val centerX = size.width / 2
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
             
             when (attacker.type) {
-                AttackerType.GOBLIN -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f)
-                AttackerType.ORK -> drawOrkSymbol(centerX, centerY, iconSize * 0.7f)
-                AttackerType.OGRE -> drawOgreSymbol(centerX, centerY, iconSize * 0.75f)
-                AttackerType.SKELETON -> drawSkeletonSymbol(centerX, centerY, iconSize * 0.7f)
-                AttackerType.EVIL_WIZARD -> drawEvilWizardSymbol(centerX, centerY, iconSize * 0.7f)
-                AttackerType.BLUE_DEMON -> drawBlueDemonSymbol(centerX, centerY, iconSize * 0.7f)
-                AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, iconSize * 0.75f)
-                AttackerType.EVIL_MAGE -> drawEvilMageSymbol(centerX, centerY, iconSize * 0.7f)
-                AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f)
-                AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f)
-                AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f)
-                AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f)
+                AttackerType.GOBLIN -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.ORK -> drawOrkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.OGRE -> drawOgreSymbol(centerX, centerY, iconSize * 0.75f, headScale = headScale)
+                AttackerType.SKELETON -> drawSkeletonSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.EVIL_WIZARD -> drawEvilWizardSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.BLUE_DEMON -> drawBlueDemonSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, iconSize * 0.75f, headScale = headScale)
+                AttackerType.EVIL_MAGE -> drawEvilMageSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
+                AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)
             }
         }
         
@@ -92,24 +94,25 @@ fun EnemyTypeIcon(
         contentAlignment = Alignment.Center
     ) {
         // Draw enemy graphics
+        val headScale = if (BigHeadMode.isEnabled.value) 2f else 1f
         Canvas(modifier = Modifier.fillMaxSize()) {
             val centerX = size.width / 2
             val centerY = size.height / 2
             val iconSize = minOf(size.width, size.height)
             
             when (attackerType) {
-                AttackerType.GOBLIN -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f)
-                AttackerType.ORK -> drawOrkSymbol(centerX, centerY, iconSize * 0.7f)
-                AttackerType.OGRE -> drawOgreSymbol(centerX, centerY, iconSize * 0.75f)
-                AttackerType.SKELETON -> drawSkeletonSymbol(centerX, centerY, iconSize * 0.7f)
-                AttackerType.EVIL_WIZARD -> drawEvilWizardSymbol(centerX, centerY, iconSize * 0.7f)
-                AttackerType.BLUE_DEMON -> drawBlueDemonSymbol(centerX, centerY, iconSize * 0.7f)
-                AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, iconSize * 0.75f)
-                AttackerType.EVIL_MAGE -> drawEvilMageSymbol(centerX, centerY, iconSize * 0.7f)
-                AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f)
-                AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f)
-                AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f)
-                AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f)
+                AttackerType.GOBLIN -> drawGoblinSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.ORK -> drawOrkSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.OGRE -> drawOgreSymbol(centerX, centerY, iconSize * 0.75f, headScale = headScale)
+                AttackerType.SKELETON -> drawSkeletonSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.EVIL_WIZARD -> drawEvilWizardSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.BLUE_DEMON -> drawBlueDemonSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.RED_DEMON -> drawRedDemonSymbol(centerX, centerY, iconSize * 0.75f, headScale = headScale)
+                AttackerType.EVIL_MAGE -> drawEvilMageSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.RED_WITCH -> drawRedWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.GREEN_WITCH -> drawGreenWitchSymbol(centerX, centerY, iconSize * 0.7f, headScale = headScale)
+                AttackerType.EWHAD -> drawEwhadSymbol(centerX, centerY, iconSize * 0.8f, headScale = headScale)
+                AttackerType.DRAGON -> drawDragonSymbol(centerX, centerY, iconSize * 0.9f, headScale = headScale)
             }
         }
     }

@@ -351,6 +351,7 @@
     <string name="map_name">Kartenname</string>
     <string name="level_title">Level-Titel</string>
     <string name="subtitle_optional">Untertitel (optional)</string>
+    <string name="author_optional">Autor (optional)</string>
     <string name="width">Breite</string>
     <string name="height">Höhe</string>
     <string name="select_map_to_edit">Wähle eine Karte zum Bearbeiten:</string>
@@ -1308,17 +1309,21 @@
     <string name="spell_cooling_spell_name">Verlangsamungszauber</string>
     <string name="spell_freeze_spell_name">Eingefrierende</string>
     <string name="spell_double_tower_reach_name">Turmreichweite verdoppeln</string>
+    <string name="spell_fear_spell_name">Angstzauber</string>
+    <string name="spell_fear_spell_area_name">Angstzauber (Bereich)</string>
 
     <!-- Spell Descriptions -->
     <string name="spell_attack_area_desc">Fügt allen Feinden in 2 Hex-Reichweite 50 Schaden zu</string>
-    <string name="spell_attack_aimed_desc">Fügt einem einzelnen Feind 80 Schaden zu</string>
+    <string name="spell_attack_aimed_desc">Fügt dem Feind auf einem gezielten Feld 80 Schaden zu</string>
     <string name="spell_heal_desc">Stellt 3 Gesundheitspunkte wieder her</string>
-    <string name="spell_instant_tower_desc">Überspringe Bauzeit für einen im Bau befindlichen Turm</string>
+    <string name="spell_instant_tower_desc">Der nächste gebaute Turm wird sofort ohne Bauzeit eingesetzt</string>
     <string name="spell_bomb_desc">Platziert eine Bombe, die nach 2 Runden explodiert und schweren Schaden (200/150/100/50) je nach Distanz an Feinden, Barrikaden und Brücken verursacht. Feinde fliehen vor kurz vor der Explosion stehenden Bomben.</string>
     <string name="spell_double_tower_level_desc">Verdoppelt die Schadensleistung eines Turms für 1 Runde</string>
     <string name="spell_cooling_spell_desc">Erzeugt ein Gebiet, das die Bewegungsgeschwindigkeit von Feinden für 3 Runden um 1 verringert</string>
     <string name="spell_freeze_spell_desc">Friert einen Feind für 1 Runde ein (Immunität: Dämonen, Drachen, Ewhad)</string>
     <string name="spell_double_tower_reach_desc">Verdoppelt die Angriffsreichweite eines Turms für 1 Runde</string>
+    <string name="spell_fear_spell_desc">Lässt einen einzelnen Feind für 3 Runden zu seinem Startpunkt fliehen</string>
+    <string name="spell_fear_spell_area_desc">Erzeugt eine Angstzone, die Feinde für 3 Runden zu Startpunkten fliehen lässt</string>
 
     <!-- Construction Info -->
     <string name="construction_info_intro">Jede Konstruktionsstufe schaltet mächtige Turmfähigkeiten frei:</string>
@@ -1362,7 +1367,7 @@
     <string name="cheat_stat_types">Statistiken: health, treasury, income, construction, mana</string>
     <string name="cheat_unlockspell_desc">Zauber freischalten (z.B. unlockspell fireball)</string>
     <string name="cheat_lockspell_desc">Zauber sperren (z.B. lockspell heal)</string>
-    <string name="cheat_spell_types">Zauber: attack_aimed, attack_area, heal, instant_tower, bomb, double_level, cooling, freeze, double_reach</string>
+    <string name="cheat_spell_types">Zauber: attack_aimed, attack_area, heal, instant_tower, bomb, double_level, cooling, freeze, double_reach, fear, fear_area</string>
     <string name="cheat_unlockall_desc">Alle Level freischalten</string>
     <string name="cheat_unlock_desc">Bestimmtes Level freischalten</string>
     <string name="cheat_lockall_desc">Alle Level sperren</string>
@@ -1371,6 +1376,9 @@
     <!-- Freeze status labels -->
     <string name="frozen_label">Eingefroren</string>
     <string name="frozen_turns_remaining">Eingefroren: %d Runden verbleibend</string>
+    <!-- Fear status labels -->
+    <string name="feared_label">Ängstlich</string>
+    <string name="feared_turns_remaining">Angst: %d Runden verbleibend</string>
 
 
     <!-- Task 3: Post-target spell confirmation -->
@@ -1385,5 +1393,11 @@
 
     <!-- Double Tower Level spell status label -->
     <string name="double_level_active">Stufe verdoppelt diese Runde!</string>
+
+    <!-- Instant Tower spell abort dialog -->
+    <string name="instant_tower_spell_abort_title">Sofortiger Turmbau aktiv</string>
+    <string name="instant_tower_spell_abort_message">Ein Turm wird sofort gebaut. Möchten Sie den Zauber abbrechen oder weiter einen Turm platzieren?</string>
+    <string name="instant_tower_spell_abort_confirm">Zauber abbrechen</string>
+    <string name="instant_tower_spell_abort_cancel">Turm weiter platzieren</string>
 
 </resources>

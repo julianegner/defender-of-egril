@@ -78,7 +78,7 @@ class SpawnDistributionTest {
             )
             
             // Verify at least one spawn on turn 1
-            val firstTurnSpawns = spawnPlan!!.count { it.spawnTurn == 1 }
+            val firstTurnSpawns = spawnPlan.count { it.spawnTurn == 1 }
             assertTrue(
                 firstTurnSpawns > 0,
                 "Level ${level.id} should have at least one spawn on turn 1"

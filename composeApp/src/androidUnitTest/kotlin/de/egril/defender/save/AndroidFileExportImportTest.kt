@@ -23,7 +23,6 @@ class AndroidFileExportImportTest {
     fun `getInstance returns AndroidFileExportImport instance`() {
         val instance = AndroidFileExportImport.getInstance()
         assertNotNull(instance)
-        assertTrue(instance is AndroidFileExportImport)
     }
     
     @Test

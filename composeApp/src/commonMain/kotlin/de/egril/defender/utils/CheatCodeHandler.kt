@@ -23,7 +23,7 @@ object CheatCodeHandler {
      * @param addMana Callback to add mana during gameplay (optional)
      * @param removeMana Callback to remove mana during gameplay (optional)
      * @param showCheatHelp Callback to show cheat code help screen (optional)
-     * @return Pair of (success: Boolean, digOutcome: DigOutcome?). Success is true if the cheat code 
+     * @return Pair of (success: Boolean, digOutcome: DigOutcome?). Success is true if the cheat code
      *         was recognized and applied. DigOutcome is non-null if a dig cheat was applied.
      */
     fun applyCheatCode(
@@ -33,6 +33,7 @@ object CheatCodeHandler {
         performMineDigWithOutcome: (DigOutcome) -> DigOutcome?,
         spawnEnemy: (AttackerType, Int) -> Unit,
         showPlatformInfo: (() -> Unit)? = null,
+        setBigHeadMode: ((Boolean) -> Unit)? = null,
         addMana: ((Int) -> Unit)? = null,
         removeMana: ((Int) -> Unit)? = null,
         showCheatHelp: (() -> Unit)? = null
@@ -65,6 +66,14 @@ object CheatCodeHandler {
             }
             "platform" -> {
                 showPlatformInfo?.invoke()
+                return Pair(true, null)
+            }
+            "bighead" -> {
+                setBigHeadMode?.invoke(true)
+                return Pair(true, null)
+            }
+            "smallhead" -> {
+                setBigHeadMode?.invoke(false)
                 return Pair(true, null)
             }
             "cheat", "cheats", "help" -> {
@@ -105,7 +114,7 @@ object CheatCodeHandler {
             }
         }
         
-        // Handle "addmana <amount>" cheatcode  
+        // Handle "addmana <amount>" cheatcode
         if (lowercaseCode.startsWith("addmana ") && addMana != null) {
             val parts = lowercaseCode.split(" ").filter { it.isNotBlank() }
             if (parts.size >= 2) {
@@ -114,7 +123,7 @@ object CheatCodeHandler {
                 return Pair(true, null)
             }
         }
-        
+
         // Handle "removemana <amount>" cheatcode
         if (lowercaseCode.startsWith("removemana ") && removeMana != null) {
             val parts = lowercaseCode.split(" ").filter { it.isNotBlank() }
@@ -124,7 +133,7 @@ object CheatCodeHandler {
                 return Pair(true, null)
             }
         }
-        
+
         return Pair(false, null)
     }
     
@@ -268,7 +277,7 @@ object CheatCodeHandler {
                 return true
             }
         }
-        
+
         // Handle "removexp <amount>" cheatcode
         if (lowercaseCode.startsWith("removexp ") && removeXP != null) {
             val parts = lowercaseCode.split(" ").filter { it.isNotBlank() }
@@ -278,7 +287,7 @@ object CheatCodeHandler {
                 return true
             }
         }
-        
+
         // Handle "addstat <statname> <amount>" cheatcode
         if (lowercaseCode.startsWith("addstat ") && addStatLevel != null) {
             val parts = lowercaseCode.split(" ").filter { it.isNotBlank() }
@@ -289,7 +298,7 @@ object CheatCodeHandler {
                 return true
             }
         }
-        
+
         // Handle "removestat <statname> <amount>" cheatcode
         if (lowercaseCode.startsWith("removestat ") && removeStatLevel != null) {
             val parts = lowercaseCode.split(" ").filter { it.isNotBlank() }
@@ -300,7 +309,7 @@ object CheatCodeHandler {
                 return true
             }
         }
-        
+
         // Handle "unlockspell <spellname>" cheatcode
         if (lowercaseCode.startsWith("unlockspell ") && unlockSpell != null) {
             val parts = lowercaseCode.split(" ", limit = 2).filter { it.isNotBlank() }
@@ -310,7 +319,7 @@ object CheatCodeHandler {
                 return true
             }
         }
-        
+
         // Handle "lockspell <spellname>" cheatcode
         if (lowercaseCode.startsWith("lockspell ") && lockSpell != null) {
             val parts = lowercaseCode.split(" ", limit = 2).filter { it.isNotBlank() }
@@ -320,7 +329,7 @@ object CheatCodeHandler {
                 return true
             }
         }
-        
+
         // Legacy support: bare "unlock" still unlocks all levels
         if (lowercaseCode == "unlock") {
             unlockAllLevels()

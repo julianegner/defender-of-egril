@@ -8,6 +8,8 @@ import de.egril.defender.game.LevelData
 import de.egril.defender.model.*
 import de.egril.defender.model.DifficultyModifiers
 import de.egril.defender.ui.settings.AppSettings
+import com.hyperether.resources.LocalizedStrings
+import com.hyperether.resources.currentLanguage
 import de.egril.defender.utils.CheatCodeHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -481,10 +483,23 @@ class GameViewModel {
     }
     
     fun placeDefender(type: DefenderType, position: Position): Boolean {
-        val result = gameEngine?.placeDefender(type, position) ?: false
+        val gameState = _gameState.value
+        val isInstantDeploy = gameState?.instantTowerSpellActive?.value == true
+
+        val result = gameEngine?.placeDefender(type, position, isInstantDeploy) ?: false
         if (result) {
+            if (isInstantDeploy) {
+                // isInstantDeploy=true implies gameState!=null (see initialization above)
+                gameState?.let { gs ->
+                    gs.currentMana.value = (gs.currentMana.value - SpellType.INSTANT_TOWER.manaCost).coerceAtLeast(0)
+                    gs.instantTowerSpellActive.value = false
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
+                        println("=== SPELL: Instant Tower spell consumed - tower placed instantly, mana deducted")
+                    }
+                }
+            }
             // Track achievement
-            val isRiverTile = _gameState.value?.level?.isRiverTile(position) ?: false
+            val isRiverTile = gameState?.level?.isRiverTile(position) ?: false
             if (isRiverTile) {
                 achievementManager?.onBuildRaft()
             } else {
@@ -700,7 +715,15 @@ class GameViewModel {
 
         // NOTE: Auto-attacks are NOT triggered here when clicking "End Turn".
         // They only happen when clicking "Auto-Attack and End Turn" button (see autoAttackAndEndTurn()).
-        
+
+        // Cancel instant tower spell if active (mana was never consumed, so nothing to refund)
+        if (state.instantTowerSpellActive.value) {
+            state.instantTowerSpellActive.value = false
+            if (LogConfig.ENABLE_SPELL_LOGGING) {
+                println("=== SPELL: Instant Tower spell cancelled on end turn (no mana consumed)")
+            }
+        }
+
         // Process enemy turn with animations
         viewModelScope.launch(Dispatchers.Default) {
             // Start enemy turn: change phase to ENEMY_TURN
@@ -764,7 +787,7 @@ class GameViewModel {
             if (currentStateForBombs != null && currentStateForBombs.bombExplosionEffects.isNotEmpty()) {
                 _pendingScrollToPosition.value = currentStateForBombs.bombExplosionEffects.first().center
             }
-            
+
             // Autosave at the beginning of the new player turn (after enemy turn completes)
             // This ensures the phase is PLAYER_TURN when the save is created
             autoSaveGame()
@@ -842,7 +865,7 @@ class GameViewModel {
                 for (i in updatedLevels.indices) {
                     val worldLevel = updatedLevels[i]
                     if (worldLevel.status == LevelStatus.LOCKED && worldLevel.level.editorLevelId != null) {
-                        if (de.egril.defender.editor.EditorStorage.isLevelUnlocked(worldLevel.level.editorLevelId!!, wonLevelIds)) {
+                        if (de.egril.defender.editor.EditorStorage.isLevelUnlocked(worldLevel.level.editorLevelId, wonLevelIds)) {
                             updatedLevels[i] = worldLevel.copy(status = LevelStatus.UNLOCKED)
                         }
                     }
@@ -903,6 +926,7 @@ class GameViewModel {
             performMineDigWithOutcome = { outcome -> performMineDigWithOutcome(outcome) },
             spawnEnemy = { attackerType, level -> gameEngine?.spawnEnemy(attackerType, level) },
             showPlatformInfo = { _showPlatformInfo.value = true },
+            setBigHeadMode = { enabled -> de.egril.defender.utils.BigHeadMode.isEnabled.value = enabled },
             addMana = { amount -> gameEngine?.addMana(amount) },
             removeMana = { amount -> gameEngine?.removeMana(amount) },
             showCheatHelp = { _showCheatHelp.value = true }
@@ -940,7 +964,8 @@ class GameViewModel {
         val currentPlayer = _currentPlayer.value ?: return
         val currentXP = currentPlayer.abilities.totalXP
         val newXP = maxOf(0, currentXP - amount)
-        val updatedStats = currentPlayer.abilities.copy(totalXP = newXP)
+        val newLevel = de.egril.defender.model.PlayerAbilities.calculateLevel(newXP)
+        val updatedStats = currentPlayer.abilities.copy(totalXP = newXP, level = newLevel)
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
@@ -997,6 +1022,8 @@ class GameViewModel {
             "cooling", "cooling_spell", "coolingspell" -> de.egril.defender.model.SpellType.COOLING_SPELL
             "freeze", "freeze_spell", "freezespell" -> de.egril.defender.model.SpellType.FREEZE_SPELL
             "double_reach", "doublereach", "double_tower_reach", "doubletowerreach" -> de.egril.defender.model.SpellType.DOUBLE_TOWER_REACH
+            "fear", "fear_spell", "fearspell" -> de.egril.defender.model.SpellType.FEAR_SPELL
+            "fear_area", "feararea", "fear_spell_area", "fearspellarea" -> de.egril.defender.model.SpellType.FEAR_SPELL_AREA
             else -> return  // Invalid spell name
         }
 
@@ -1021,6 +1048,8 @@ class GameViewModel {
             "cooling", "cooling_spell", "coolingspell" -> de.egril.defender.model.SpellType.COOLING_SPELL
             "freeze", "freeze_spell", "freezespell" -> de.egril.defender.model.SpellType.FREEZE_SPELL
             "double_reach", "doublereach", "double_tower_reach", "doubletowerreach" -> de.egril.defender.model.SpellType.DOUBLE_TOWER_REACH
+            "fear", "fear_spell", "fearspell" -> de.egril.defender.model.SpellType.FEAR_SPELL
+            "fear_area", "feararea", "fear_spell_area", "fearspellarea" -> de.egril.defender.model.SpellType.FEAR_SPELL_AREA
             else -> return  // Invalid spell name
         }
 
@@ -1566,16 +1595,17 @@ class GameViewModel {
     private fun formatElapsedTime(elapsedMs: Long): String {
         val hours = elapsedMs / (60 * 60 * 1000)
         val minutes = (elapsedMs % (60 * 60 * 1000)) / (60 * 1000)
-        
+        val locale = currentLanguage.value
+
         return buildString {
             if (hours > 0) {
-                append("$hours ")
-                append(if (hours == 1L) "hour" else "hours")
+                val key = if (hours == 1L) "hour" else "hours"
+                append(LocalizedStrings.get(key, locale).replace("%d", hours.toString()))
             }
             if (minutes > 0) {
                 if (hours > 0) append(" ")
-                append("$minutes ")
-                append(if (minutes == 1L) "minute" else "minutes")
+                val key = if (minutes == 1L) "minute" else "minutes"
+                append(LocalizedStrings.get(key, locale).replace("%d", minutes.toString()))
             }
         }
     }
@@ -1623,6 +1653,20 @@ class GameViewModel {
     }
 
     /**
+     * Cancel the active Instant Tower spell and return mana (mana was never consumed).
+     * Called when the player chooses to abort from the abort dialog.
+     */
+    fun cancelInstantTowerSpell() {
+        val state = _gameState.value ?: return
+        if (state.instantTowerSpellActive.value) {
+            state.instantTowerSpellActive.value = false
+            if (LogConfig.ENABLE_SPELL_LOGGING) {
+                println("=== SPELL: Instant Tower spell cancelled by player (no mana consumed)")
+            }
+        }
+    }
+
+    /**
      * Clear pending scroll to position (called after UI has consumed it)
      */
     fun clearPendingScrollPosition() {
@@ -1635,6 +1679,33 @@ class GameViewModel {
      */
     fun setPendingSpell(spell: SpellType) {
         val gameState = _gameState.value
+
+        // INSTANT_TOWER: toggle the instant deploy mode directly without confirmation dialog.
+        // Mana is deferred and only consumed when a tower is actually placed.
+        if (spell == SpellType.INSTANT_TOWER) {
+            if (gameState == null || gameState.currentMana.value < spell.manaCost) {
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("=== SPELL: Cannot cast ${spell.displayName} - Insufficient mana (Need: ${spell.manaCost}, Have: ${gameState?.currentMana?.value ?: 0})")
+                }
+                return
+            }
+            if (gameState.instantTowerSpellActive.value) {
+                // Already active - cancel the spell mode (mana was never consumed)
+                gameState.instantTowerSpellActive.value = false
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("=== SPELL: Instant Tower spell cancelled (no mana consumed)")
+                }
+            } else {
+                // Activate instant tower mode (mana deferred until tower is placed)
+                gameState.instantTowerSpellActive.value = true
+                closeMagicPanel()
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("=== SPELL: Instant Tower spell activated - next tower will be built instantly")
+                }
+            }
+            return
+        }
+
         if (gameState != null && gameState.currentMana.value >= spell.manaCost) {
             // Toggle selection: if same spell clicked again, deselect it
             if (_selectedSpell.value == spell) {
@@ -1814,12 +1885,15 @@ class GameViewModel {
     private fun executeSpellEffect(spell: SpellType, target: Any?, gameState: GameState) {
         when (spell) {
             SpellType.ATTACK_AIMED -> {
-                // Attack Aimed: Deal 80 damage to single enemy
-                val attacker = target as? Attacker
-                if (attacker != null) {
-                    attacker.currentHealth.value = (attacker.currentHealth.value - 80).coerceAtLeast(0)
-                    if (LogConfig.ENABLE_SPELL_LOGGING) {
-                    println("Attack Aimed: Dealt 80 damage to ${attacker.type.displayName} (HP: ${attacker.currentHealth.value})")
+                // Attack Aimed: Deal 80 damage to the enemy on a targeted tile
+                val position = target as? Position
+                if (position != null) {
+                    val attacker = gameState.attackers.find { !it.isDefeated.value && it.position.value == position }
+                    if (attacker != null) {
+                        attacker.currentHealth.value = (attacker.currentHealth.value - 80).coerceAtLeast(0)
+                        if (LogConfig.ENABLE_SPELL_LOGGING) {
+                        println("Attack Aimed: Dealt 80 damage to ${attacker.type.displayName} at $position (HP: ${attacker.currentHealth.value})")
+                        }
                     }
                 }
             }
@@ -1851,14 +1925,11 @@ class GameViewModel {
                 }
             }
             SpellType.INSTANT_TOWER -> {
-                // Instant Tower: Skip build time for one tower under construction
-                val defender = target as? Defender
-                if (defender != null && defender.buildTimeRemaining.value > 0) {
-                    defender.buildTimeRemaining.value = 0
-                    if (LogConfig.ENABLE_SPELL_LOGGING) {
-                    println("Instant Tower: ${defender.type.displayName} at ${defender.position.value} is now ready!")
-                    }
-                }
+                // Instant Tower is handled via instantTowerSpellActive mode in GameState.
+                // Mana is deferred and only consumed when a tower is placed (see placeDefender).
+                // This fallback path activates the mode if called directly (e.g., from cheat codes).
+                println("=== SPELL: WARN - Instant Tower executeSpellEffect fallback triggered; activating mode")
+                gameState.instantTowerSpellActive.value = true
             }
             SpellType.DOUBLE_TOWER_LEVEL -> {
                 // Double Tower Level: Double tower level for 1 turn
@@ -1954,10 +2025,36 @@ class GameViewModel {
                     }
                 }
             }
-            else -> {
-                // Other spells not yet implemented
-                if (LogConfig.ENABLE_SPELL_LOGGING) {
-                println("Cast ${spell.displayName} - Effect not yet implemented")
+            SpellType.FEAR_SPELL -> {
+                // Fear Spell: Single target enemy flees towards spawn for 3 turns
+                val attacker = target as? Attacker
+                if (attacker != null) {
+                    val effect = ActiveSpellEffect(
+                        spell = SpellType.FEAR_SPELL,
+                        attackerId = attacker.id,
+                        turnsRemaining = 3,
+                        castTurn = gameState.turnNumber.value
+                    )
+                    gameState.activeSpellEffects.add(effect)
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("Fear Spell: ${attacker.type.displayName} flees for 3 turns!")
+                    }
+                }
+            }
+            SpellType.FEAR_SPELL_AREA -> {
+                // Fear Spell (Area): Create fear zone that makes enemies flee for 3 turns
+                val position = target as? Position
+                if (position != null) {
+                    val effect = ActiveSpellEffect(
+                        spell = SpellType.FEAR_SPELL_AREA,
+                        position = position,
+                        turnsRemaining = 3,
+                        castTurn = gameState.turnNumber.value
+                    )
+                    gameState.activeSpellEffects.add(effect)
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("Fear Spell (Area): Created fear zone at $position for 3 turns!")
+                    }
                 }
             }
         }

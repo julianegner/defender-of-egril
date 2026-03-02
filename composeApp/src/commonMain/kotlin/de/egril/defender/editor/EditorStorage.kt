@@ -162,7 +162,7 @@ object EditorStorage {
         if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
         println("EditorStorage: Retrieving map with ID: $id")
         }
-        
+
         // Check cache first
         if (mapsCache.containsKey(id)) {
             return mapsCache[id]
@@ -266,10 +266,11 @@ object EditorStorage {
         // Ensure all enemy spawns have spawn points
         val levelWithSpawnPoints = ensureSpawnPoints(level)
         
+        val initData = levelWithSpawnPoints.getEffectiveInitialData()
         if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
         println("EditorStorage.saveLevel: Saving level ${levelWithSpawnPoints.id} with ${levelWithSpawnPoints.initialDefenders.size} defenders, ${levelWithSpawnPoints.initialAttackers.size} attackers, ${levelWithSpawnPoints.initialTraps.size} traps, ${levelWithSpawnPoints.initialBarricades.size} barricades")
         }
-        
+
         levelsCache[levelWithSpawnPoints.id] = levelWithSpawnPoints
         val json = EditorJsonSerializer.serializeLevel(levelWithSpawnPoints)
         
@@ -280,7 +281,7 @@ object EditorStorage {
         if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
         println("EditorStorage.saveLevel: Saved to $targetDir/${levelWithSpawnPoints.id}.json")
         }
-        
+
         // Track changes to official data
         if (levelWithSpawnPoints.isOfficial) {
             OfficialDataChangeTracker.trackLevelModified(levelWithSpawnPoints.id)

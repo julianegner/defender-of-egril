@@ -12,7 +12,7 @@ import de.egril.defender.config.LogConfig
  */
 class TowerManager(private val state: GameState) {
     
-    fun placeDefender(type: DefenderType, position: Position): Boolean {
+    fun placeDefender(type: DefenderType, position: Position, instantDeploy: Boolean = false): Boolean {
         if (!state.canPlaceDefender(type)) return false
         
         // Check if position is on a barricade with at least 100 HP (tower base)
@@ -43,7 +43,7 @@ class TowerManager(private val state: GameState) {
         // Can place in build areas OR on river tiles (for rafts, except mines) OR on tower bases
         if (!state.level.isBuildArea(position) && !isRiverPlacement && !isOnTowerBase) return false
         
-        val buildTime = if (state.phase.value == GamePhase.INITIAL_BUILDING) 0 else type.buildTime
+        val buildTime = if (state.phase.value == GamePhase.INITIAL_BUILDING || instantDeploy) 0 else type.buildTime
         
         // Get initial tower level based on difficulty
         val initialLevel = DifficultyModifiers.getInitialTowerLevel(state.difficulty)
@@ -59,7 +59,7 @@ class TowerManager(private val state: GameState) {
         
         // If placed on tower base, link the tower and barricade
         if (isOnTowerBase) {
-            defender.towerBaseBarricadeId.value = barricadeAtPosition!!.id
+            defender.towerBaseBarricadeId.value = barricadeAtPosition.id
             barricadeAtPosition.supportedTowerId.value = defender.id
         }
         

@@ -351,6 +351,7 @@
     <string name="map_name">Nom de la carte</string>
     <string name="level_title">Titre du niveau</string>
     <string name="subtitle_optional">Sous-titre (optionnel)</string>
+    <string name="author_optional">Auteur (optionnel)</string>
     <string name="width">Largeur</string>
     <string name="height">Hauteur</string>
     <string name="select_map_to_edit">Sélectionner une carte à modifier:</string>
@@ -1310,17 +1311,21 @@
     <string name="spell_cooling_spell_name">Sort de Refroidissement</string>
     <string name="spell_freeze_spell_name">Sort de Gel</string>
     <string name="spell_double_tower_reach_name">Doubler Portée de Tour</string>
+    <string name="spell_fear_spell_name">Sort de Peur</string>
+    <string name="spell_fear_spell_area_name">Sort de Peur (Zone)</string>
 
     <!-- Spell Descriptions -->
     <string name="spell_attack_area_desc">Inflige 50 dégâts à tous les ennemis dans une portée de 2 hex</string>
-    <string name="spell_attack_aimed_desc">Inflige 80 dégâts à un seul ennemi</string>
+    <string name="spell_attack_aimed_desc">Inflige 80 dégâts à l\'ennemi sur une case ciblée</string>
     <string name="spell_heal_desc">Restaure 3 points de vie</string>
-    <string name="spell_instant_tower_desc">Ignore le temps de construction pour une tour en construction</string>
+    <string name="spell_instant_tower_desc">La prochaine tour construite est déployée instantanément sans délai</string>
     <string name="spell_bomb_desc">Place une bombe qui explose après 2 tours, infligeant de lourds dégâts (200/150/100/50) selon la distance aux ennemis, barricades et ponts. Les ennemis fuient les bombes sur le point d\'exploser.</string>
     <string name="spell_double_tower_level_desc">Double les dégâts d\'une tour pendant 1 tour</string>
     <string name="spell_cooling_spell_desc">Crée une zone qui réduit la vitesse de mouvement des ennemis de 1 pendant 3 tours</string>
     <string name="spell_freeze_spell_desc">Gèle un ennemi pendant 1 tour (immunité: Démons, Dragons, Ewhad)</string>
     <string name="spell_double_tower_reach_desc">Double la portée d\'attaque d\'une tour pendant 1 tour</string>
+    <string name="spell_fear_spell_desc">Force un ennemi à fuir vers son point d\'apparition pendant 3 tours</string>
+    <string name="spell_fear_spell_area_desc">Crée une zone de peur qui force les ennemis à fuir vers leurs points d\'apparition pendant 3 tours</string>
 
     <!-- Construction Info -->
     <string name="construction_info_intro">Chaque niveau de Construction débloque de puissantes capacités de tour:</string>
@@ -1364,7 +1369,7 @@
     <string name="cheat_stat_types">Statistiques: health, treasury, income, construction, mana</string>
     <string name="cheat_unlockspell_desc">Déverrouiller un sort (ex. unlockspell fireball)</string>
     <string name="cheat_lockspell_desc">Verrouiller un sort (ex. lockspell heal)</string>
-    <string name="cheat_spell_types">Sorts: attack_aimed, attack_area, heal, instant_tower, bomb, double_level, cooling, freeze, double_reach</string>
+    <string name="cheat_spell_types">Sorts: attack_aimed, attack_area, heal, instant_tower, bomb, double_level, cooling, freeze, double_reach, fear, fear_area</string>
     <string name="cheat_unlockall_desc">Déverrouiller tous les niveaux</string>
     <string name="cheat_unlock_desc">Déverrouiller un niveau spécifique</string>
     <string name="cheat_lockall_desc">Verrouiller tous les niveaux</string>
@@ -1373,6 +1378,9 @@
     <!-- Freeze status labels -->
     <string name="frozen_label">Gelé</string>
     <string name="frozen_turns_remaining">Gelé: %d tours restants</string>
+    <!-- Fear status labels -->
+    <string name="feared_label">Effrayé</string>
+    <string name="feared_turns_remaining">Peur: %d tours restants</string>
 
 
     <!-- Task 3: Post-target spell confirmation -->
@@ -1387,5 +1395,11 @@
 
     <!-- Double Tower Level spell status label -->
     <string name="double_level_active">Niveau doublé ce tour!</string>
+
+    <!-- Instant Tower spell abort dialog -->
+    <string name="instant_tower_spell_abort_title">Sort de tour instantanée actif</string>
+    <string name="instant_tower_spell_abort_message">Une tour sera construite instantanément. Voulez-vous annuler le sort ou continuer à placer une tour?</string>
+    <string name="instant_tower_spell_abort_confirm">Annuler le sort</string>
+    <string name="instant_tower_spell_abort_cancel">Continuer à placer la tour</string>
 
 </resources>
