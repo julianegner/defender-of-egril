@@ -8,6 +8,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -172,7 +173,14 @@ private fun BargeHexIcon(defenderType: DefenderType, size: androidx.compose.ui.u
         modifier = Modifier
             .size(size)
             .clip(HexagonShape())
-            .background(Color(0xFF00796B)),
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFFD4A55A),  // light brown (wood/raft) at top
+                        Color(0xFF1565C0),  // blue (water) at bottom
+                    )
+                )
+            ),
         contentAlignment = Alignment.Center
     ) {
         DrawRaft(defenderType = defenderType)
