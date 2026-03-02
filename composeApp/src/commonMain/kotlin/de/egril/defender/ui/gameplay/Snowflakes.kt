@@ -13,20 +13,21 @@ import kotlin.math.sin
 
 /**
  * Static snowflakes overlay for frozen enemies when animations are disabled
- * (AppSettings.enableAnimations = false). Shows three white snowflakes at
- * different fixed heights. When animations are enabled, LottieAnimation with
- * AnimationType.FREEZE_SPELL is used instead.
+ * (AppSettings.enableAnimations = false). Shows four white snowflakes at
+ * different heights and with different sizes, spread horizontally.
+ * When animations are enabled, LottieAnimation with AnimationType.FREEZE_SPELL is used instead.
  */
 @Composable
 fun Snowflakes(
     modifier: Modifier = Modifier
 ) {
-    // Three static snowflakes at different fixed heights (top, middle, lower)
-    val snowflakePositions = remember {
+    // Four static snowflakes: (xFrac, yFrac, radiusFrac) – different sizes and heights
+    val snowflakeConfigs = remember {
         listOf(
-            Pair(0.22f, 0.18f),  // left, high
-            Pair(0.50f, 0.50f),  // center, mid
-            Pair(0.78f, 0.80f)   // right, low
+            Triple(0.20f, 0.10f, 0.09f),   // left, high, large
+            Triple(0.42f, 0.38f, 0.04f),   // center-left, upper-mid, small
+            Triple(0.65f, 0.58f, 0.065f),  // center-right, mid, medium
+            Triple(0.83f, 0.82f, 0.033f)   // right, lower, tiny
         )
     }
 
@@ -34,10 +35,10 @@ fun Snowflakes(
         val canvasWidth = size.width
         val canvasHeight = size.height
 
-        snowflakePositions.forEach { (xFrac, yFrac) ->
+        snowflakeConfigs.forEach { (xFrac, yFrac, radiusFrac) ->
             drawSnowflake(
                 center = Offset(xFrac * canvasWidth, yFrac * canvasHeight),
-                radius = canvasWidth * 0.06f,
+                radius = canvasWidth * radiusFrac,
                 color = Color.White.copy(alpha = 0.9f)
             )
         }
