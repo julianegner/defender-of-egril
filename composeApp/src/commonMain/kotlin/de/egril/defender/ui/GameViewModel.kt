@@ -28,6 +28,7 @@ sealed class Screen {
     object LoadGame : Screen()
     object Sticker : Screen()
     object PlayerProfile : Screen()
+    object LoadingSpinnerDemo : Screen()
     data class GamePlay(val levelId: Int) : Screen()
     data class LevelComplete(val levelId: Int, val won: Boolean, val isLastLevel: Boolean) : Screen()
 }
@@ -268,6 +269,10 @@ class GameViewModel {
     
     fun navigateToSticker() {
         _currentScreen.value = Screen.Sticker
+    }
+    
+    fun navigateToLoadingSpinnerDemo() {
+        _currentScreen.value = Screen.LoadingSpinnerDemo
     }
     
     fun navigateToPlayerProfile() {
@@ -727,6 +732,12 @@ class GameViewModel {
         // Check for "sticker" cheat code first (navigation cheat)
         if (code.lowercase().trim() == "sticker") {
             navigateToSticker()
+            return true
+        }
+        
+        // Check for "spinner" cheat code (shows loading spinner demo for 30s)
+        if (code.lowercase().trim() == "spinner") {
+            navigateToLoadingSpinnerDemo()
             return true
         }
         

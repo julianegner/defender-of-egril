@@ -1,5 +1,11 @@
 package de.egril.defender.ui.gameplay
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -7,12 +13,14 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -116,12 +124,24 @@ fun LevelLoadingScreen(modifier: Modifier = Modifier) {
 
 /**
  * A spinner surrounded by 8 icons (3 enemy, 3 tower, 2 barge) in a circle.
+ * The ring of icons rotates continuously, and the CircularProgressIndicator spins at the centre.
  */
 @Composable
 private fun LoadingCircleWithIcons() {
     val circleRadius = 90.dp
     val iconSize = 44.dp
     val totalSize = circleRadius * 2 + iconSize
+
+    val infiniteTransition = rememberInfiniteTransition(label = "loadingRotation")
+    val rotationDeg by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 8000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "iconRingRotation"
+    )
 
     // Items arranged clockwise starting from the top:
     // index 0 = top (0°), each step is 45°
@@ -141,20 +161,30 @@ private fun LoadingCircleWithIcons() {
         modifier = Modifier.size(totalSize),
         contentAlignment = Alignment.Center
     ) {
-        val count = items.size
-        items.forEachIndexed { index, itemContent ->
-            val angleDeg = -90.0 + index * (360.0 / count)   // start at top
-            val angleRad = angleDeg * PI / 180.0
-            val offsetX = (cos(angleRad) * circleRadius.value).dp
-            val offsetY = (sin(angleRad) * circleRadius.value).dp
-            Box(
-                modifier = Modifier
-                    .size(iconSize)
-                    .offset(x = offsetX, y = offsetY)
-                    .align(Alignment.Center),
-                contentAlignment = Alignment.Center
-            ) {
-                itemContent()
+        // Rotating ring of icons
+        Box(
+            modifier = Modifier
+                .size(totalSize)
+                .graphicsLayer { rotationZ = rotationDeg },
+            contentAlignment = Alignment.Center
+        ) {
+            val count = items.size
+            items.forEachIndexed { index, itemContent ->
+                val angleDeg = -90.0 + index * (360.0 / count)   // start at top
+                val angleRad = angleDeg * PI / 180.0
+                val offsetX = (cos(angleRad) * circleRadius.value).dp
+                val offsetY = (sin(angleRad) * circleRadius.value).dp
+                Box(
+                    modifier = Modifier
+                        .size(iconSize)
+                        .offset(x = offsetX, y = offsetY)
+                        .align(Alignment.Center)
+                        // Counter-rotate so icons stay upright as ring rotates
+                        .graphicsLayer { rotationZ = -rotationDeg },
+                    contentAlignment = Alignment.Center
+                ) {
+                    itemContent()
+                }
             }
         }
 

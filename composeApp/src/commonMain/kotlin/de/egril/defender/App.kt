@@ -1,15 +1,19 @@
 package de.egril.defender
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
 import de.egril.defender.ui.*
 import de.egril.defender.ui.editor.level.LevelEditorScreen
 import de.egril.defender.ui.gameplay.GamePlayScreen
+import de.egril.defender.ui.gameplay.LevelLoadingScreen
 import de.egril.defender.ui.infopage.InfoPageScreen
 import de.egril.defender.ui.loadgame.LoadGameScreen
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.worldmap.WorldMapScreen
 import de.egril.defender.utils.WindowCloseHandler
+import kotlinx.coroutines.delay
 
 @Composable
 fun App() {
@@ -324,6 +328,14 @@ fun App() {
                 StickerScreen(
                     onBack = { viewModel.navigateToWorldMap() }
                 )
+            }
+            
+            is Screen.LoadingSpinnerDemo -> {
+                LaunchedEffect(Unit) {
+                    delay(30_000L)
+                    viewModel.navigateToWorldMap()
+                }
+                LevelLoadingScreen(modifier = Modifier.fillMaxSize())
             }
         }
     }
