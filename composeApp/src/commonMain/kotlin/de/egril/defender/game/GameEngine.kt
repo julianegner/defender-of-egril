@@ -591,6 +591,21 @@ class GameEngine(private val state: GameState) {
         // Track which attackers encountered a barricade and should stop moving
         val attackersStoppedByBarricade = mutableSetOf<Pair<Attacker, Position>>()
         
+        // Compute which attackers are feared at the START of this turn (based on initial position).
+        // Previously, fear was checked per-step using currentPos, which caused area-fear enemies at
+        // the edge of the 2-hex radius to exit the zone mid-turn (for speed>1 units) and stop fleeing.
+        // By computing this once up front, enemies feared at turn start flee for their full movement.
+        val fearedAttackerIds = mutableSetOf<Int>()
+        regularAttackers.forEach { attacker ->
+            val startPos = attacker.position.value
+            val isFearedAtStart = state.activeSpellEffects.any { effect ->
+                (effect.spell == SpellType.FEAR_SPELL && effect.attackerId == attacker.id) ||
+                (effect.spell == SpellType.FEAR_SPELL_AREA && effect.position != null &&
+                    startPos.hexDistanceTo(effect.position) <= 2)
+            }
+            if (isFearedAtStart) fearedAttackerIds.add(attacker.id)
+        }
+        
         // Find the maximum speed to know how many steps to simulate
         val maxSpeed = regularAttackers.maxOfOrNull { it.type.speed } ?: 0
         
@@ -656,12 +671,8 @@ class GameEngine(private val state: GameState) {
                 // Use the attacker's current target if set, otherwise use level target
                 // Special case: Green Witch moves towards damaged enemies (especially Ewhad)
                 // Special case: Red Witch moves towards closest not-disabled tower
-                // Special case: Feared enemy flees towards nearest spawn point
-                val isFeared = state.activeSpellEffects.any { effect ->
-                    (effect.spell == SpellType.FEAR_SPELL && effect.attackerId == attacker.id) ||
-                    (effect.spell == SpellType.FEAR_SPELL_AREA && effect.position != null &&
-                        currentPos.hexDistanceTo(effect.position) <= 2)
-                }
+                // Special case: Feared enemy flees towards nearest spawn point (determined once at turn start)
+                val isFeared = fearedAttackerIds.contains(attacker.id)
                 val target = if (isFeared) {
                     val nearestSpawn = state.level.startPositions.minByOrNull { spawnPos ->
                         currentPos.hexDistanceTo(spawnPos)
