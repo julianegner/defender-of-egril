@@ -12,6 +12,8 @@ import androidx.compose.ui.graphics.painter.Painter
 import de.egril.defender.editor.getFileStorage
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * Provides map background image painters for game levels.
@@ -81,13 +83,16 @@ fun rememberMapImageState(mapId: String?): MapImageState {
         }
 
         isLoading = true
-        val bytes = MapImageProvider.loadMapImageBytes(mapId)
-        if (bytes != null) {
-            val bitmap = MapImageProvider.decodeImageBitmap(bytes)
-            painter = if (bitmap != null) BitmapPainter(bitmap) else null
-        } else {
-            painter = null
+        val result = withContext(Dispatchers.Default) {
+            val bytes = MapImageProvider.loadMapImageBytes(mapId)
+            if (bytes != null) {
+                val bitmap = MapImageProvider.decodeImageBitmap(bytes)
+                if (bitmap != null) BitmapPainter(bitmap) else null
+            } else {
+                null
+            }
         }
+        painter = result
         isLoading = false
     }
 
