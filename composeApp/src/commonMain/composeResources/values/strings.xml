@@ -1316,9 +1316,9 @@
 
     <!-- Spell Descriptions -->
     <string name="spell_attack_area_desc">Deal 50 damage to all enemies within 2 hex range</string>
-    <string name="spell_attack_aimed_desc">Deal 80 damage to a single enemy</string>
+    <string name="spell_attack_aimed_desc">Deal 80 damage to the enemy on a targeted tile</string>
     <string name="spell_heal_desc">Restore 3 health points</string>
-    <string name="spell_instant_tower_desc">Skip build time for a tower under construction</string>
+    <string name="spell_instant_tower_desc">Deploy the next tower you build instantly without any build time</string>
     <string name="spell_bomb_desc">Place a bomb that explodes after 2 turns, dealing 100 damage to enemies and structures in range</string>
     <string name="spell_double_tower_level_desc">Double a tower's damage output for 1 turn</string>
     <string name="spell_cooling_spell_desc">Create an area that reduces enemy movement speed by 1 for 3 turns</string>
@@ -1387,5 +1387,14 @@
     <string name="tower_type_level">%1$s (Level %2$s)</string>
     <string name="freeze_immune_warning_title">Cannot Freeze Enemy</string>
     <string name="freeze_immune_warning_message">%1$s is immune to the Freeze spell!</string>
+
+    <!-- Double Tower Level spell status label -->
+    <string name="double_level_active">Level doubled this turn!</string>
+
+    <!-- Instant Tower spell abort dialog -->
+    <string name="instant_tower_spell_abort_title">Instant Tower Spell Active</string>
+    <string name="instant_tower_spell_abort_message">A tower will be built instantly. Do you want to abort the spell or continue placing a tower?</string>
+    <string name="instant_tower_spell_abort_confirm">Abort Spell</string>
+    <string name="instant_tower_spell_abort_cancel">Continue Placing Tower</string>
 
 </resources>

@@ -218,6 +218,47 @@ fun GameGrid(
         }
     }
 
+    // Calculate spell area circle preview for ATTACK_AREA and ATTACK_AIMED spells in targeting mode
+    val spellAreaTargeting = gameState.spellTargeting.value
+    val currentHoveredPosition = hoveredPosition
+    val spellAreaCircleMap = remember(currentHoveredPosition, spellAreaTargeting?.activeSpell) {
+        val activeSpell = spellAreaTargeting?.activeSpell
+        if ((activeSpell != SpellType.ATTACK_AREA && activeSpell != SpellType.ATTACK_AIMED) || currentHoveredPosition == null) {
+            emptyMap<Position, TargetCircleInfo>()
+        } else {
+            val spellColor = TargetCircleConstants.ATTACK_AREA_SPELL_COLOR
+            val result = mutableMapOf<Position, TargetCircleInfo>()
+            result[currentHoveredPosition] = TargetCircleInfo.CentralTarget(
+                color = spellColor,
+                attackType = AttackType.AREA,
+                isExtendedArea = true
+            )
+            if (activeSpell == SpellType.ATTACK_AREA) {
+                val allNeighbors = currentHoveredPosition.getHexNeighborsWithinRadius(
+                    TargetCircleConstants.ATTACK_AREA_SPELL_RADIUS,
+                    gameState.level.gridWidth,
+                    gameState.level.gridHeight
+                ).filter { neighbor ->
+                    gameState.level.isOnPath(neighbor) ||
+                    gameState.isBridgeAt(neighbor) ||
+                    gameState.attackers.any { it.position.value == neighbor && !it.isDefeated.value }
+                }
+                for (neighbor in allNeighbors) {
+                    val distance = currentHoveredPosition.hexDistanceTo(neighbor)
+                    result[neighbor] = TargetCircleInfo.NeighborTarget(
+                        color = spellColor,
+                        attackType = AttackType.AREA,
+                        centerPosition = currentHoveredPosition,
+                        thisPosition = neighbor,
+                        distanceFromCenter = distance,
+                        isExtendedArea = true
+                    )
+                }
+            }
+            result
+        }
+    }
+
     val mapId = gameState.level.mapId
     val mapImagePainter = rememberMapImagePainter(mapId)
     val useLevelMapImage = AppSettings.useLevelMapImage.value
@@ -291,7 +332,7 @@ fun GameGrid(
                 selectedMineAction = selectedMineAction,
                 selectedWizardAction = selectedWizardAction,
                 selectedBarricadeAction = selectedBarricadeAction,
-                targetCircleInfo = targetCircleMap[position],
+                targetCircleInfo = spellAreaCircleMap[position] ?: targetCircleMap[position],
                 onClick = { onCellClick(position) },
                 hexSize = hexSize,
                 selectedDefenderType = selectedDefenderType,
@@ -471,7 +512,31 @@ fun GridCell(
     // Check for barricades at this position
     val barricade = gameState.barricades.find { it.position == position }
 
-    // Check if this cell is in range of the selected defender
+    // Check if this tile is in a cooling spell area (show snowflake on affected path tiles)
+    val isInCoolingArea = (isOnPath || isSpawnPoint) && gameState.activeSpellEffects.any { effect ->
+        effect.spell == SpellType.COOLING_SPELL &&
+        effect.position != null &&
+        position.hexDistanceTo(effect.position) <= 2
+    }
+
+    // Check if this tile is a valid spell target
+    val spellTargeting = gameState.spellTargeting.value
+    val isValidSpellTarget = if (spellTargeting != null) {
+        when (spellTargeting.activeSpell.targetType) {
+            de.egril.defender.model.SpellTargetType.ENEMY -> {
+                val enemyHere = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
+                enemyHere != null && spellTargeting.validTargets.contains(enemyHere)
+            }
+            de.egril.defender.model.SpellTargetType.TOWER -> {
+                val towerHere = gameState.defenders.find { it.position.value == position }
+                towerHere != null && spellTargeting.validTargets.contains(towerHere)
+            }
+            de.egril.defender.model.SpellTargetType.POSITION -> {
+                spellTargeting.validTargets.contains(position)
+            }
+            else -> false
+        }
+    } else false
     val cellIsInRange = selectedDefenderId?.let { defenderId ->
         val selectedDefender = gameState.defenders.find { it.id == defenderId }
         selectedDefender?.let { sel ->
@@ -593,7 +658,7 @@ fun GridCell(
     } else {
         false
     }
-    
+
     // Check if this tile should be highlighted as buildable when a tower type is selected
     val isBuildableAndEmpty = selectedDefenderType != null && 
                               isBuildableTile && 
@@ -644,11 +709,14 @@ fun GridCell(
         trap != null -> GamePlayColors.Trap.copy(alpha = 0.6f)  // Brown tint for trap
         
         barricade != null -> Color(0xFF795548).copy(alpha = 0.5f)  // Brown tint for barricade
-        
+
         // Tower placement preview - highlight the hovered build tile differently than range tiles
         showPlacementPreview -> GamePlayColors.Yellow.copy(alpha = 0.4f)  // Light yellow for the build tile being hovered
         isInPreviewRange -> GamePlayColors.Success.copy(alpha = 0.2f)  // Very light green for range preview tiles
         
+        // Spell targeting highlight - purple tint for valid spell target position tiles
+        isValidSpellTarget -> Color(0xFF9C27B0).copy(alpha = 0.25f)  // Light purple for valid spell target positions
+
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.7f)
         isTargetSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.8f)
         else -> baseBackgroundColor  // No selection highlighting during placement or in initial phase
@@ -692,7 +760,7 @@ fun GridCell(
         
         // Barricade and trap placement range - brown borders (light brown diagonal stripes)
         cellIsInBarricadeRange || cellIsValidForMineTrapPlacement -> GamePlayColors.TrapPlacementHighlight  // Brown border for barricade/trap placement range
-        
+
         // Magical trap placement range - lilac borders
         cellIsValidForMagicalTrapPlacement -> GamePlayColors.MagicalTrapPlacementHighlight  // Lilac border for magical trap placement range
         
@@ -701,6 +769,10 @@ fun GridCell(
         
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (path or river for area attacks)
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow  // Yellow border for selected defender (not during initial building)
+
+        // Spell targeting highlight - purple border for valid spell targets (enemies, towers, positions)
+        isValidSpellTarget -> Color(0xFF9C27B0)  // Purple border for valid spell targets
+
         isSpawnPoint -> GamePlayColors.WarningDark  // Darker orange border for spawn in dark mode
         isTarget -> GamePlayColors.Success  // Green border for target (adapts to dark mode automatically)
         attacker != null -> GamePlayColors.ErrorDark  // Darker red border for enemies
@@ -725,6 +797,7 @@ fun GridCell(
         isBuildableAndEmpty || canBeUsedAsTowerBase -> 3.dp  // Medium border for buildable tiles and tower bases
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> 4.dp  // Thick border for cells in range (path or river for area attacks)
+        isValidSpellTarget -> 4.dp  // Thick purple border for valid spell targets
         isSpawnPoint || isTarget -> 3.dp
         attacker != null || defender != null -> 3.dp
         fieldEffect != null -> 3.dp  // Thick border for field effects
@@ -736,7 +809,7 @@ fun GridCell(
     // Flag to indicate dashed border (for preview and buildable tiles)
     val useDashedBorder = showPlacementPreview || isInPreviewRange || isBuildableAndEmpty || canBeUsedAsTowerBase ||
                           cellIsInBarricadeRange || cellIsValidForMineTrapPlacement || cellIsValidForMagicalTrapPlacement
-    
+
     val showDiagonalStripes = isBuildableAndEmpty || canBeUsedAsTowerBase ||
                               cellIsInBarricadeRange || cellIsValidForMineTrapPlacement || cellIsValidForMagicalTrapPlacement
     
@@ -836,7 +909,8 @@ fun GridCell(
                 selectedWizardAction = selectedWizardAction,
                 isBuildableAndEmpty = isBuildableAndEmpty,
                 canBeUsedAsTowerBase = canBeUsedAsTowerBase,
-                showDiagonalStripes = showDiagonalStripes
+                showDiagonalStripes = showDiagonalStripes,
+                isInCoolingArea = isInCoolingArea
             )
         }
     } else {
@@ -875,7 +949,8 @@ fun GridCell(
                 selectedWizardAction = selectedWizardAction,
                 isBuildableAndEmpty = isBuildableAndEmpty,
                 canBeUsedAsTowerBase = canBeUsedAsTowerBase,
-                showDiagonalStripes = showDiagonalStripes
+                showDiagonalStripes = showDiagonalStripes,
+                isInCoolingArea = isInCoolingArea
             )
         }
     }
@@ -911,7 +986,8 @@ private fun BoxScope.GridCellContent(
     selectedWizardAction: WizardAction? = null,
     isBuildableAndEmpty: Boolean = false,
     canBeUsedAsTowerBase: Boolean = false,
-    showDiagonalStripes: Boolean = false
+    showDiagonalStripes: Boolean = false,
+    isInCoolingArea: Boolean = false
 ) {
         when {
             attacker != null -> {
@@ -1029,6 +1105,9 @@ private fun BoxScope.GridCellContent(
             defender != null -> {
                 // Use graphical icon for towers
                 // Key by id, position, level and actionsRemaining to force recomposition when these change
+                val doubleLevelActive = gameState.activeSpellEffects.any {
+                    it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == defender.id
+                }
                 key(
                     defender.id,
                     defender.position.value.x,
@@ -1037,10 +1116,18 @@ private fun BoxScope.GridCellContent(
                     defender.actionsRemaining.value,
                     defender.buildTimeRemaining.value,
                     defender.isDisabled.value,
-                    defender.disabledTurnsRemaining.value
+                    defender.disabledTurnsRemaining.value,
+                    doubleLevelActive
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         TowerIcon(defender = defender, gameState = gameState)
+                        // Show Double Tower Level spell animation overlay
+                        if (doubleLevelActive) {
+                            DoubleLevelSpellAnimation(
+                                animate = AppSettings.enableAnimations.value,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
                         // Show red "XT" overlay if tower is disabled by Red Witch
                         if (defender.isDisabled.value && defender.disabledTurnsRemaining.value > 0) {
                             Text(
@@ -1240,6 +1327,23 @@ private fun BoxScope.GridCellContent(
                             )
                         }
                     }
+                }
+            }
+        }
+
+        // Show cooling spell snowflake animation on affected tiles
+        if (isInCoolingArea) {
+            if (AppSettings.enableAnimations.value) {
+                Snowflakes(modifier = Modifier.fillMaxSize())
+            } else {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    de.egril.defender.ui.icon.SnowflakeIcon(
+                        size = 24.dp,
+                        tint = Color.Cyan.copy(alpha = 0.7f)
+                    )
                 }
             }
         }

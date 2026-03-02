@@ -32,8 +32,8 @@ class GameEngine(private val state: GameState) {
     private var dragonLevelChangeCallback: ((oldLevel: Int, newLevel: Int) -> Unit)? = null
     
     // Tower Management - delegated to TowerManager
-    fun placeDefender(type: DefenderType, position: Position): Boolean =
-        towerManager.placeDefender(type, position)
+    fun placeDefender(type: DefenderType, position: Position, instantDeploy: Boolean = false): Boolean =
+        towerManager.placeDefender(type, position, instantDeploy)
     
     fun upgradeDefender(defenderId: Int): Boolean =
         towerManager.upgradeDefender(defenderId)

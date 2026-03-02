@@ -477,10 +477,23 @@ class GameViewModel {
     }
     
     fun placeDefender(type: DefenderType, position: Position): Boolean {
-        val result = gameEngine?.placeDefender(type, position) ?: false
+        val gameState = _gameState.value
+        val isInstantDeploy = gameState?.instantTowerSpellActive?.value == true
+
+        val result = gameEngine?.placeDefender(type, position, isInstantDeploy) ?: false
         if (result) {
+            if (isInstantDeploy) {
+                // isInstantDeploy=true implies gameState!=null (see initialization above)
+                gameState?.let { gs ->
+                    gs.currentMana.value = (gs.currentMana.value - SpellType.INSTANT_TOWER.manaCost).coerceAtLeast(0)
+                    gs.instantTowerSpellActive.value = false
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
+                        println("=== SPELL: Instant Tower spell consumed - tower placed instantly, mana deducted")
+                    }
+                }
+            }
             // Track achievement
-            val isRiverTile = _gameState.value?.level?.isRiverTile(position) ?: false
+            val isRiverTile = gameState?.level?.isRiverTile(position) ?: false
             if (isRiverTile) {
                 achievementManager?.onBuildRaft()
             } else {
@@ -696,7 +709,15 @@ class GameViewModel {
 
         // NOTE: Auto-attacks are NOT triggered here when clicking "End Turn".
         // They only happen when clicking "Auto-Attack and End Turn" button (see autoAttackAndEndTurn()).
-        
+
+        // Cancel instant tower spell if active (mana was never consumed, so nothing to refund)
+        if (state.instantTowerSpellActive.value) {
+            state.instantTowerSpellActive.value = false
+            if (LogConfig.ENABLE_SPELL_LOGGING) {
+                println("=== SPELL: Instant Tower spell cancelled on end turn (no mana consumed)")
+            }
+        }
+
         // Process enemy turn with animations
         viewModelScope.launch(Dispatchers.Default) {
             // Start enemy turn: change phase to ENEMY_TURN
@@ -1615,11 +1636,52 @@ class GameViewModel {
     }
 
     /**
+     * Cancel the active Instant Tower spell and return mana (mana was never consumed).
+     * Called when the player chooses to abort from the abort dialog.
+     */
+    fun cancelInstantTowerSpell() {
+        val state = _gameState.value ?: return
+        if (state.instantTowerSpellActive.value) {
+            state.instantTowerSpellActive.value = false
+            if (LogConfig.ENABLE_SPELL_LOGGING) {
+                println("=== SPELL: Instant Tower spell cancelled by player (no mana consumed)")
+            }
+        }
+    }
+
+    /**
      * Toggle spell selection (select or deselect)
      * No confirmation dialog - enters targeting mode directly
      */
     fun setPendingSpell(spell: SpellType) {
         val gameState = _gameState.value
+
+        // INSTANT_TOWER: toggle the instant deploy mode directly without confirmation dialog.
+        // Mana is deferred and only consumed when a tower is actually placed.
+        if (spell == SpellType.INSTANT_TOWER) {
+            if (gameState == null || gameState.currentMana.value < spell.manaCost) {
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("=== SPELL: Cannot cast ${spell.displayName} - Insufficient mana (Need: ${spell.manaCost}, Have: ${gameState?.currentMana?.value ?: 0})")
+                }
+                return
+            }
+            if (gameState.instantTowerSpellActive.value) {
+                // Already active - cancel the spell mode (mana was never consumed)
+                gameState.instantTowerSpellActive.value = false
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("=== SPELL: Instant Tower spell cancelled (no mana consumed)")
+                }
+            } else {
+                // Activate instant tower mode (mana deferred until tower is placed)
+                gameState.instantTowerSpellActive.value = true
+                closeMagicPanel()
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("=== SPELL: Instant Tower spell activated - next tower will be built instantly")
+                }
+            }
+            return
+        }
+
         if (gameState != null && gameState.currentMana.value >= spell.manaCost) {
             // Toggle selection: if same spell clicked again, deselect it
             if (_selectedSpell.value == spell) {
@@ -1672,7 +1734,9 @@ class GameViewModel {
      * Shows confirmation or warning dialog based on target validity
      */
     fun onSpellTargetSelected(target: Any) {
-        val spell = _pendingSpellCast.value ?: return
+        val gameState = _gameState.value ?: return
+        // Use activeSpell from targeting state (pendingSpellCast was cleared when targeting mode was entered)
+        val spell = gameState.spellTargeting.value?.activeSpell ?: return
 
         // Check for freeze immunity
         if (spell == SpellType.FREEZE_SPELL && target is Attacker) {
@@ -1797,12 +1861,15 @@ class GameViewModel {
     private fun executeSpellEffect(spell: SpellType, target: Any?, gameState: GameState) {
         when (spell) {
             SpellType.ATTACK_AIMED -> {
-                // Attack Aimed: Deal 80 damage to single enemy
-                val attacker = target as? Attacker
-                if (attacker != null) {
-                    attacker.currentHealth.value = (attacker.currentHealth.value - 80).coerceAtLeast(0)
-                    if (LogConfig.ENABLE_SPELL_LOGGING) {
-                    println("Attack Aimed: Dealt 80 damage to ${attacker.type.displayName} (HP: ${attacker.currentHealth.value})")
+                // Attack Aimed: Deal 80 damage to the enemy on a targeted tile
+                val position = target as? Position
+                if (position != null) {
+                    val attacker = gameState.attackers.find { !it.isDefeated.value && it.position.value == position }
+                    if (attacker != null) {
+                        attacker.currentHealth.value = (attacker.currentHealth.value - 80).coerceAtLeast(0)
+                        if (LogConfig.ENABLE_SPELL_LOGGING) {
+                        println("Attack Aimed: Dealt 80 damage to ${attacker.type.displayName} at $position (HP: ${attacker.currentHealth.value})")
+                        }
                     }
                 }
             }
@@ -1834,14 +1901,11 @@ class GameViewModel {
                 }
             }
             SpellType.INSTANT_TOWER -> {
-                // Instant Tower: Skip build time for one tower under construction
-                val defender = target as? Defender
-                if (defender != null && defender.buildTimeRemaining.value > 0) {
-                    defender.buildTimeRemaining.value = 0
-                    if (LogConfig.ENABLE_SPELL_LOGGING) {
-                    println("Instant Tower: ${defender.type.displayName} at ${defender.position.value} is now ready!")
-                    }
-                }
+                // Instant Tower is handled via instantTowerSpellActive mode in GameState.
+                // Mana is deferred and only consumed when a tower is placed (see placeDefender).
+                // This fallback path activates the mode if called directly (e.g., from cheat codes).
+                println("=== SPELL: WARN - Instant Tower executeSpellEffect fallback triggered; activating mode")
+                gameState.instantTowerSpellActive.value = true
             }
             SpellType.DOUBLE_TOWER_LEVEL -> {
                 // Double Tower Level: Double tower level for 1 turn
@@ -1981,6 +2045,8 @@ class GameViewModel {
 
         // Clear pending spell cast (we're now in targeting mode)
         _pendingSpellCast.value = null
+        // Close magic panel so the targeting instruction card becomes visible
+        _showMagicPanel.value = false
     }
 
     /**
