@@ -16,8 +16,8 @@ fun DrawScope.drawGoblinSymbol(centerX: Float, centerY: Float, size: Float, outl
     val pathOutlineWidth = 3f  // Thicker for paths to match visual appearance
     val headCenterY = centerY - size * 0.1f
 
-    // Body outline (not scaled)
-    if (outlineColor != null) {
+    // Body outline (not scaled, hidden in bighead mode)
+    if (outlineColor != null && headScale == 1.0f) {
         val bodyPath = Path().apply {
             addRect(androidx.compose.ui.geometry.Rect(
                 left = centerX - size * 0.15f,
@@ -85,10 +85,12 @@ fun DrawScope.drawGoblinSymbol(centerX: Float, centerY: Float, size: Float, outl
         drawCircle(color = Color.Red, radius = size * 0.05f, center = Offset(centerX + size * 0.1f, centerY - size * 0.15f))
     }
 
-    // Body (small, not scaled)
-    drawRect(
-        color = Color(0xFF8B4513), // Brown
-        topLeft = Offset(centerX - size * 0.15f, centerY + size * 0.15f),
-        size = Size(size * 0.3f, size * 0.25f)
-    )
+    // Body (small, not scaled) - hidden in bighead mode
+    if (headScale == 1.0f) {
+        drawRect(
+            color = Color(0xFF8B4513), // Brown
+            topLeft = Offset(centerX - size * 0.15f, centerY + size * 0.15f),
+            size = Size(size * 0.3f, size * 0.25f)
+        )
+    }
 }
