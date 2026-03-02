@@ -339,7 +339,7 @@ class AchievementSystemTest {
         // Verify achievements were saved
         val profile = PlayerProfileStorage.getProfile(testPlayerId)
         assertNotNull(profile, "Profile should exist")
-        assertEquals(2, profile!!.achievements.size, "Should have 2 achievements saved")
+        assertEquals(2, profile.achievements.size, "Should have 2 achievements saved")
         
         assertTrue(profile.achievements.any { it.id == AchievementId.BUILD_TOWER },
             "Should have BUILD_TOWER achievement saved")
