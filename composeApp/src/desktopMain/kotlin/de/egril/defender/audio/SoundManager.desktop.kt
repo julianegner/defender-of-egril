@@ -1,5 +1,6 @@
 package de.egril.defender.audio
 
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -17,6 +18,7 @@ actual fun createSoundManager(): SoundManager = FileSoundManager()
 /**
  * Desktop implementation of tone playback using javax.sound
  */
+@OptIn(DelicateCoroutinesApi::class)
 actual fun playToneImpl(frequency: Int, durationMs: Int, volume: Float) {
     // Play tone asynchronously to avoid blocking UI
     GlobalScope.launch(Dispatchers.IO) {

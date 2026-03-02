@@ -63,6 +63,7 @@ fun GamePlayScreen(
     onOpenMagicPanel: (() -> Unit)? = null,  // Callback to open magic panel
     onCloseMagicPanel: (() -> Unit)? = null,  // Callback to close magic panel
     onCastSpell: ((SpellType) -> Unit)? = null,  // Callback to cast/select spell
+    onCancelInstantTowerSpell: (() -> Unit)? = null,  // Callback to cancel instant tower spell (abort dialog)
     pendingSpellCast: SpellType? = null,  // Spell awaiting confirmation
     onConfirmSpellCast: (() -> Unit)? = null,  // Callback to confirm spell cast
     onCancelSpellCast: (() -> Unit)? = null,  // Callback to cancel spell cast
@@ -112,6 +113,7 @@ fun GamePlayScreen(
         onOpenMagicPanel = onOpenMagicPanel,
         onCloseMagicPanel = onCloseMagicPanel,
         onCastSpell = onCastSpell,
+        onCancelInstantTowerSpell = onCancelInstantTowerSpell,
         pendingSpellCast = pendingSpellCast,
         onConfirmSpellCast = onConfirmSpellCast,
         onCancelSpellCast = onCancelSpellCast,
@@ -164,6 +166,7 @@ private fun GamePlayScreenContent(
     onOpenMagicPanel: (() -> Unit)? = null,
     onCloseMagicPanel: (() -> Unit)? = null,
     onCastSpell: ((SpellType) -> Unit)? = null,
+    onCancelInstantTowerSpell: (() -> Unit)? = null,
     pendingSpellCast: SpellType? = null,
     onConfirmSpellCast: (() -> Unit)? = null,
     onCancelSpellCast: (() -> Unit)? = null,
@@ -202,7 +205,8 @@ private fun GamePlayScreenContent(
     var showSaveConfirmation by remember { mutableStateOf(false) }  // Save confirmation
     var showUnsavedChangesDialog by remember { mutableStateOf(false) }  // Unsaved changes dialog
     var showEndTurnConfirmation by remember { mutableStateOf(false) }  // End turn confirmation dialog
-    
+    var showAbortInstantTowerDialog by remember { mutableStateOf(false) }  // Abort instant tower spell dialog
+
     // Check if unsaved changes feature is enabled (both hasUnsavedChanges and onSaveGame must be available)
     val unsavedChangesEnabled = hasUnsavedChanges != null && onSaveGame != null
 
@@ -497,7 +501,7 @@ private fun GamePlayScreenContent(
             onShowOverlayChange = { showOverlay = it },
             onBackToMap = {
                 // Check for unsaved changes before navigating back
-                if (unsavedChangesEnabled && hasUnsavedChanges!!.invoke()) {
+                if (unsavedChangesEnabled && hasUnsavedChanges.invoke()) {
                     showUnsavedChangesDialog = true
                 } else {
                     onBackToMap()
@@ -507,7 +511,13 @@ private fun GamePlayScreenContent(
             onCheatCode = if (onCheatCode != null) {{ showCheatDialog = true }} else null,
             onEnemyCountClick = { showOverlay = !showOverlay },
             onManaClick = if (onOpenMagicPanel != null && gameState.maxMana.value > 0) {
-                { onOpenMagicPanel.invoke() }
+                {
+                    if (gameState.instantTowerSpellActive.value) {
+                        showAbortInstantTowerDialog = true
+                    } else {
+                        onOpenMagicPanel.invoke()
+                    }
+                }
             } else null
         )
 
@@ -872,6 +882,69 @@ private fun GamePlayScreenContent(
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // Show magic panel inline (non-overlay) when open - map remains accessible
+        if (showMagicPanel && playerStats != null && onCloseMagicPanel != null && onCastSpell != null) {
+            MagicPanel(
+                playerStats = playerStats,
+                currentMana = gameState.currentMana.value,
+                maxMana = gameState.maxMana.value,
+                currentHealthPoints = gameState.healthPoints.value,
+                maxHealthPoints = gameState.level.healthPoints,
+                gamePhase = gameState.phase.value,
+                selectedSpell = selectedSpell,
+                onCastSpell = onCastSpell,
+                onClose = {
+                    onCloseMagicPanel.invoke()
+                    // Also exit targeting mode if active when closing the panel
+                    if (gameState.spellTargeting.value != null) {
+                        onExitSpellTargeting?.invoke()
+                    }
+                }
+            )
+        } else if (gameState.spellTargeting.value != null) {
+            // Spell targeting mode: show compact instruction in bottom panel so map stays accessible
+            val targeting = gameState.spellTargeting.value!!
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // Spell type icon
+                    SpellTargetIcon(spell = targeting.activeSpell, size = 32.dp)
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = targeting.activeSpell.displayName,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = when (targeting.activeSpell.targetType) {
+                                de.egril.defender.model.SpellTargetType.POSITION ->
+                                    stringResource(Res.string.spell_targeting_position)
+                                de.egril.defender.model.SpellTargetType.ENEMY ->
+                                    stringResource(Res.string.spell_targeting_enemy)
+                                de.egril.defender.model.SpellTargetType.TOWER ->
+                                    stringResource(Res.string.spell_targeting_tower)
+                                else -> ""
+                            },
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                    OutlinedButton(onClick = { onExitSpellTargeting?.invoke() }) {
+                        Text(stringResource(Res.string.spell_targeting_cancel))
+                    }
+                }
+            }
+        } else {
+
         // Control Panel based on phase
         when (gameState.phase.value) {
             GamePhase.INITIAL_BUILDING -> {
@@ -1032,6 +1105,7 @@ private fun GamePlayScreenContent(
                 EnemyTurnInfo()
             }
         }
+        }
 
         // Dig outcome dialog
         if (showDigOutcomeDialog && currentDigOutcome != null) {
@@ -1045,7 +1119,19 @@ private fun GamePlayScreenContent(
                 dragonName = currentDragonName
             )
         }
-        
+
+        // Abort Instant Tower spell dialog
+        if (showAbortInstantTowerDialog) {
+            AbortInstantTowerSpellDialog(
+                onAbort = {
+                    showAbortInstantTowerDialog = false
+                    onCancelInstantTowerSpell?.invoke()
+                    onOpenMagicPanel?.invoke()
+                },
+                onContinue = { showAbortInstantTowerDialog = false }
+            )
+        }
+
         // Save game dialog (with optional comment input)
         if (showSaveDialog && onSaveGame != null) {
             SaveGameDialog(
@@ -1147,7 +1233,7 @@ private fun GamePlayScreenContent(
             UnsavedChangesDialog(
                 onSaveAndExit = {
                     // Save the game first
-                    onSaveGame!!(null)
+                    onSaveGame(null)
                     showUnsavedChangesDialog = false
                     // Then navigate back to map
                     onBackToMap()
@@ -1218,36 +1304,7 @@ private fun GamePlayScreenContent(
                 }
             )
         }
-        
-        // Magic panel overlay
-        if (showMagicPanel && playerStats != null && onCloseMagicPanel != null && onCastSpell != null) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.5f))
-                    .clickable(onClick = { onCloseMagicPanel.invoke() })
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(0.9f)
-                        .align(Alignment.Center)
-                        .clickable(onClick = {})  // Prevent clicks from passing through
-                ) {
-                    MagicPanel(
-                        playerStats = playerStats,
-                        currentMana = gameState.currentMana.value,
-                        maxMana = gameState.maxMana.value,
-                        currentHealthPoints = gameState.healthPoints.value,
-                        maxHealthPoints = gameState.level.healthPoints,
-                        gamePhase = gameState.phase.value,
-                        selectedSpell = selectedSpell,
-                        onCastSpell = onCastSpell,
-                        onClose = { onCloseMagicPanel.invoke() }
-                    )
-                }
-            }
-        }
-        
+
         // Post-target spell confirmation dialog (shows after target is selected)
         if (showSpellTargetConfirmation != null && onConfirmTargetSpell != null && onDismissTargetConfirmation != null) {
             val (spell, target) = showSpellTargetConfirmation
@@ -1267,61 +1324,7 @@ private fun GamePlayScreenContent(
                 onDismiss = { onDismissFreezeWarning.invoke() }
             )
         }
-        
-        // Spell targeting overlay
-        gameState.spellTargeting.value?.let { targeting ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    // Removed semi-transparent overlay - keep map fully clickable
-                    .clickable(enabled = false, onClick = {}),  // Disable background click to exit
-                contentAlignment = Alignment.TopCenter
-            ) {
-                // Targeting instruction banner
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth(0.9f)
-                        .padding(16.dp)
-                        .clickable(onClick = {}),  // Prevent clicks from passing through
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = targeting.activeSpell.displayName,
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = when (targeting.activeSpell.targetType) {
-                                de.egril.defender.model.SpellTargetType.POSITION -> 
-                                    stringResource(Res.string.spell_targeting_position)
-                                de.egril.defender.model.SpellTargetType.ENEMY -> 
-                                    stringResource(Res.string.spell_targeting_enemy)
-                                de.egril.defender.model.SpellTargetType.TOWER -> 
-                                    stringResource(Res.string.spell_targeting_tower)
-                                else -> ""
-                            },
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = stringResource(Res.string.spell_targeting_cancel),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                        )
-                    }
-                }
-            }
-        }
+
             }
         }
         }

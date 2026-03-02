@@ -123,14 +123,28 @@ fun DefenderInfo(
                             maxLines = 1,
                             overflow = TextOverflow.Clip
                         )
+                        // Compute spell effect once and reuse below
+                        val doubleLevelEffect = gameState.activeSpellEffects.find {
+                            it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == defender.id
+                        }
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Text(
-                                "Level ${defender.level.value}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = GamePlayColors.Success
-                            )
+                            if (doubleLevelEffect != null) {
+                                val effectiveLevel = defender.level.value * 2
+                                Text(
+                                    "Level $effectiveLevel (×2)",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = SpellDoubleLevelColor,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            } else {
+                                Text(
+                                    "Level ${defender.level.value}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = GamePlayColors.Success
+                                )
+                            }
                             Row(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -141,6 +155,22 @@ fun DefenderInfo(
                                     style = MaterialTheme.typography.bodySmall,
                                     maxLines = 1,
                                     overflow = TextOverflow.Clip
+                                )
+                            }
+                        }
+                        // Show Double Tower Level spell active description
+                        if (doubleLevelEffect != null) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                modifier = Modifier.padding(top = 2.dp)
+                            ) {
+                                LightningIcon(size = 12.dp)
+                                Text(
+                                    stringResource(Res.string.double_level_active),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = SpellDoubleLevelColor,
+                                    fontWeight = FontWeight.Bold
                                 )
                             }
                         }

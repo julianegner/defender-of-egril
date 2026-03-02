@@ -184,6 +184,7 @@ fun GameControlsPanel(
                                 type = type,
                                 isSelected = selectedDefenderType == type,
                                 canAfford = coinsState.value >= type.baseCost,
+                                instantTowerActive = gameState.instantTowerSpellActive.value,
                                 modifier = compactDefenderButtonModifier,
                                 onClick = {
                                     onSelectDefenderType(if (selectedDefenderType == type) null else type)
@@ -222,6 +223,7 @@ fun GameControlsPanel(
                         isSelected = selectedDefenderType == type,
                         canAfford = canAfford,
                         coinsState = coinsState,
+                        instantTowerActive = gameState.instantTowerSpellActive.value,
                         onClick = {
                             onSelectDefenderType(if (selectedDefenderType == type) null else type)
                         }

@@ -74,6 +74,14 @@ object GamePlayColors {
     // Buildable tile highlight colors (dark mode) - lighter green for better distinction
     private val BuildableHighlightDarkMode = Color(0xFF4CAF50)  // Medium green - buildable tiles when tower selected
     
+    // Trap/barricade placement highlight colors - light warm brown
+    private val TrapPlacementHighlightLight = Color(0xFFBCA06A)  // Light warm brown - trap/barricade placement tiles
+    private val TrapPlacementHighlightDarkMode = Color(0xFF9E7A4A)  // Darker warm brown - trap/barricade placement tiles (dark mode)
+    
+    // Magical trap placement highlight colors - light lilac
+    private val MagicalTrapPlacementHighlightLight = Color(0xFFB39DDB)  // Light lilac - magical trap placement tiles
+    private val MagicalTrapPlacementHighlightDarkMode = Color(0xFF9575CD)  // Medium purple - magical trap placement tiles (dark mode)
+    
     // Disabled button colors (light mode)
     private val DisabledButtonLight = Color(0xFF9E9E9E)        // Gray - disabled button background
     private val DisabledButtonTextLight = Color(0xFF757575)    // Dark gray - disabled button text
@@ -148,4 +156,10 @@ object GamePlayColors {
     
     val BuildableHighlight: Color
         @Composable get() = if (AppSettings.isDarkMode.value) BuildableHighlightDarkMode else BuildableHighlightLight
+    
+    val TrapPlacementHighlight: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) TrapPlacementHighlightDarkMode else TrapPlacementHighlightLight
+    
+    val MagicalTrapPlacementHighlight: Color
+        @Composable get() = if (AppSettings.isDarkMode.value) MagicalTrapPlacementHighlightDarkMode else MagicalTrapPlacementHighlightLight
 }

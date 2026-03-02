@@ -198,9 +198,9 @@ enum class SpellType(
     ATTACK_AIMED(
         displayName = "Attack Aimed",
         manaCost = 15,
-        description = "Deal heavy damage to a single enemy",
+        description = "Deal heavy damage to the enemy on a targeted tile",
         requiresTarget = true,
-        targetType = SpellTargetType.ENEMY
+        targetType = SpellTargetType.POSITION
     ),
     HEAL(
         displayName = "Heal",
@@ -212,9 +212,9 @@ enum class SpellType(
     INSTANT_TOWER(
         displayName = "Instant Tower",
         manaCost = 20,
-        description = "Deploy a tower instantly without build time",
-        requiresTarget = true,
-        targetType = SpellTargetType.TOWER
+        description = "Deploy the next tower you build instantly without any build time",
+        requiresTarget = false,
+        targetType = SpellTargetType.NONE
     ),
     BOMB(
         displayName = "Bomb",

@@ -351,6 +351,7 @@
     <string name="map_name">Nom de la carte</string>
     <string name="level_title">Titre du niveau</string>
     <string name="subtitle_optional">Sous-titre (optionnel)</string>
+    <string name="author_optional">Auteur (optionnel)</string>
     <string name="width">Largeur</string>
     <string name="height">Hauteur</string>
     <string name="select_map_to_edit">Sélectionner une carte à modifier:</string>
@@ -1315,9 +1316,9 @@
 
     <!-- Spell Descriptions -->
     <string name="spell_attack_area_desc">Inflige 50 dégâts à tous les ennemis dans une portée de 2 hex</string>
-    <string name="spell_attack_aimed_desc">Inflige 80 dégâts à un seul ennemi</string>
+    <string name="spell_attack_aimed_desc">Inflige 80 dégâts à l\'ennemi sur une case ciblée</string>
     <string name="spell_heal_desc">Restaure 3 points de vie</string>
-    <string name="spell_instant_tower_desc">Ignore le temps de construction pour une tour en construction</string>
+    <string name="spell_instant_tower_desc">La prochaine tour construite est déployée instantanément sans délai</string>
     <string name="spell_bomb_desc">Place une bombe qui explose après 2 tours, infligeant 100 dégâts aux ennemis et structures</string>
     <string name="spell_double_tower_level_desc">Double les dégâts d\'une tour pendant 1 tour</string>
     <string name="spell_cooling_spell_desc">Crée une zone qui réduit la vitesse de mouvement des ennemis de 1 pendant 3 tours</string>
@@ -1391,5 +1392,14 @@
     <string name="tower_type_level">%1$s (Niveau %2$s)</string>
     <string name="freeze_immune_warning_title">Impossible de geler l'ennemi</string>
     <string name="freeze_immune_warning_message">%1$s est immunisé contre le sort de gel!</string>
+
+    <!-- Double Tower Level spell status label -->
+    <string name="double_level_active">Niveau doublé ce tour!</string>
+
+    <!-- Instant Tower spell abort dialog -->
+    <string name="instant_tower_spell_abort_title">Sort de tour instantanée actif</string>
+    <string name="instant_tower_spell_abort_message">Une tour sera construite instantanément. Voulez-vous annuler le sort ou continuer à placer une tour?</string>
+    <string name="instant_tower_spell_abort_confirm">Annuler le sort</string>
+    <string name="instant_tower_spell_abort_cancel">Continuer à placer la tour</string>
 
 </resources>

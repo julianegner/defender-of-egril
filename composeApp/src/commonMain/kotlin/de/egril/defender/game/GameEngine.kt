@@ -32,8 +32,8 @@ class GameEngine(private val state: GameState) {
     private var dragonLevelChangeCallback: ((oldLevel: Int, newLevel: Int) -> Unit)? = null
     
     // Tower Management - delegated to TowerManager
-    fun placeDefender(type: DefenderType, position: Position): Boolean =
-        towerManager.placeDefender(type, position)
+    fun placeDefender(type: DefenderType, position: Position, instantDeploy: Boolean = false): Boolean =
+        towerManager.placeDefender(type, position, instantDeploy)
     
     fun upgradeDefender(defenderId: Int): Boolean =
         towerManager.upgradeDefender(defenderId)
@@ -744,7 +744,7 @@ class GameEngine(private val state: GameState) {
                 
                 // Check if there's a barricade at the new position (non-flying units only)
                 // If so, this unit will attack the barricade and stop moving for the rest of this turn
-                val isFlying = attacker.isFlying?.value == true
+                val isFlying = attacker.isFlying.value == true
                 if (!isFlying) {
                     val barricadeAtNewPos = barricadeSystem.getBarricadeAt(newPos)
                     if (barricadeAtNewPos != null && !barricadeAtNewPos.isDestroyed()) {
@@ -1391,7 +1391,7 @@ class GameEngine(private val state: GameState) {
                 
                 // Check if there's a barricade at the new position (non-flying units only)
                 // If so, this unit will attack the barricade and stop moving for the rest of this turn
-                val isFlying = attacker.isFlying?.value == true
+                val isFlying = attacker.isFlying.value == true
                 if (!isFlying) {
                     val barricadeAtNewPos = barricadeSystem.getBarricadeAt(newPos)
                     if (barricadeAtNewPos != null && !barricadeAtNewPos.isDestroyed()) {

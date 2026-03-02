@@ -398,8 +398,8 @@ private fun HexagonMinimapContent(
                                     detectDragGestures(
                                         onDragStart = {
                                             // Capture the current offset when drag starts
-                                            dragStartOffsetX = offsetX ?: 0f
-                                            dragStartOffsetY = offsetY ?: 0f
+                                            dragStartOffsetX = offsetX
+                                            dragStartOffsetY = offsetY
                                         },
                                         onDrag = { change, dragAmount ->
                                             change.consume()
