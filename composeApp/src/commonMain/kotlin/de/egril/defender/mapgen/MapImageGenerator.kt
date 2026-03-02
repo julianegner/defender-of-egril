@@ -172,7 +172,7 @@ object MapImageGenerator {
         val sigma2 = 2 * BLEND_SIGMA * BLEND_SIGMA
         val searchR = ceil(4 * BLEND_SIGMA / BLEND_SIGMA).toInt()
 
-        val noiseId = map.id ?: "egril-default"
+        val noiseId = map.id
         val noise2D = SimplexNoise2D.fromRandom(makeRandFloat(hashString(noiseId)))
 
         val elevMap = DoubleArray(imgW * imgH)

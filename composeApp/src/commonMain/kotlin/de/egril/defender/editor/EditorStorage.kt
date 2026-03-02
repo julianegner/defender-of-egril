@@ -257,7 +257,8 @@ object EditorStorage {
         // Ensure all enemy spawns have spawn points
         val levelWithSpawnPoints = ensureSpawnPoints(level)
         
-        println("EditorStorage.saveLevel: Saving level ${levelWithSpawnPoints.id} with ${levelWithSpawnPoints.initialDefenders.size} defenders, ${levelWithSpawnPoints.initialAttackers.size} attackers, ${levelWithSpawnPoints.initialTraps.size} traps, ${levelWithSpawnPoints.initialBarricades.size} barricades")
+        val initData = levelWithSpawnPoints.getEffectiveInitialData()
+        println("EditorStorage.saveLevel: Saving level ${levelWithSpawnPoints.id} with ${initData.defenders.size} defenders, ${initData.attackers.size} attackers, ${initData.traps.size} traps, ${initData.barricades.size} barricades")
         
         levelsCache[levelWithSpawnPoints.id] = levelWithSpawnPoints
         val json = EditorJsonSerializer.serializeLevel(levelWithSpawnPoints)
