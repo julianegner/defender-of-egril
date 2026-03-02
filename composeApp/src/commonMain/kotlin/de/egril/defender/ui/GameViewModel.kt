@@ -952,7 +952,8 @@ class GameViewModel {
         val currentPlayer = _currentPlayer.value ?: return
         val currentXP = currentPlayer.abilities.totalXP
         val newXP = maxOf(0, currentXP - amount)
-        val updatedStats = currentPlayer.abilities.copy(totalXP = newXP)
+        val newLevel = de.egril.defender.model.PlayerAbilities.calculateLevel(newXP)
+        val updatedStats = currentPlayer.abilities.copy(totalXP = newXP, level = newLevel)
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
