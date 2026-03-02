@@ -26,6 +26,7 @@ import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.loading_level
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.math.PI
 
 /**
  * Draws a simple barge (flat-bottomed boat) icon using Canvas.
@@ -143,7 +144,7 @@ private fun LoadingCircleWithIcons() {
         val count = items.size
         items.forEachIndexed { index, itemContent ->
             val angleDeg = -90.0 + index * (360.0 / count)   // start at top
-            val angleRad = Math.toRadians(angleDeg)
+            val angleRad = angleDeg * PI / 180.0
             val offsetX = (cos(angleRad) * circleRadius.value).dp
             val offsetY = (sin(angleRad) * circleRadius.value).dp
             Box(
