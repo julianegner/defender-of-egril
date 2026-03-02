@@ -431,7 +431,7 @@ fun WorldMapPositionEditorContent() {
                         }
                     }
                     
-                    Divider(modifier = Modifier.padding(vertical = 8.dp))
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                     
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -1230,7 +1230,7 @@ private fun AddLocationDialog(
                     }
                 }
                 
-                Divider(modifier = Modifier.padding(vertical = 16.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
                 
                 // Icon Selection Section
                 Text(stringResource(Res.string.location_icon_optional), style = MaterialTheme.typography.bodyMedium)
@@ -1413,7 +1413,7 @@ private fun EditLocationDialog(
                     }
                 }
                 
-                Divider(modifier = Modifier.padding(vertical = 16.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
                 
                 // Icon Selection Section
                 Text(stringResource(Res.string.location_icon_optional), style = MaterialTheme.typography.bodyMedium)
@@ -1615,7 +1615,7 @@ private fun EditPathDialog(
                     }
                 }
 
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                 // Segment types editor
                 Text(stringResource(Res.string.segment_types, segmentTypes.size), style = MaterialTheme.typography.bodySmall)
@@ -1681,7 +1681,7 @@ private fun EditPathDialog(
                     }
                 }
 
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                 Text(stringResource(Res.string.waypoints_range), style = MaterialTheme.typography.bodySmall)
                 
@@ -1705,7 +1705,7 @@ private fun EditPathDialog(
                     }
                 }
                 
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                 Text(stringResource(Res.string.add_control_point), style = MaterialTheme.typography.bodySmall)
                 Row(
@@ -1839,7 +1839,7 @@ private fun AddConnectionDialog(
                     }
                 }
 
-                Divider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
                 // Connection type selector
                 Text(stringResource(Res.string.connection_type), style = MaterialTheme.typography.bodySmall)

@@ -309,7 +309,7 @@ fun GameGrid(
                 val targetHeightPx = maxOf(hexMapSizePx.second, measuredContentSize.height)
                 with(density) {
                     androidx.compose.foundation.Image(
-                        painter = mapImagePainter!!,
+                        painter = mapImagePainter,
                         contentDescription = null,
                         modifier = Modifier
                             .requiredWidth(targetWidthPx.toDp())
@@ -631,6 +631,34 @@ fun GridCell(
     // Show barricade preview when hovering over valid barricade placement tile
     val showBarricadePreview = isBarricadePlacement && hoveredPosition == position && cellIsInBarricadeRange
     
+    // Mine trap placement range detection (path tiles within range of selected mine)
+    val isMineTrapPlacement = selectedMineAction == MineAction.BUILD_TRAP
+    val cellIsValidForMineTrapPlacement = if (isMineTrapPlacement && selectedDefenderId != null) {
+        val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
+        selectedDefender?.let { sel ->
+            val distance = sel.position.value.distanceTo(position)
+            val isInRange = distance > 0 && distance <= sel.range
+            val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null
+            isInRange && isEmptyPath
+        } ?: false
+    } else {
+        false
+    }
+
+    // Magical trap placement range detection (path tiles within range of selected wizard)
+    val isMagicalTrapPlacement = selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP
+    val cellIsValidForMagicalTrapPlacement = if (isMagicalTrapPlacement && selectedDefenderId != null) {
+        val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
+        selectedDefender?.let { sel ->
+            val distance = sel.position.value.distanceTo(position)
+            val isInRange = distance > 0 && distance <= sel.range
+            val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null
+            isInRange && isEmptyPath
+        } ?: false
+    } else {
+        false
+    }
+
     // Check if this tile should be highlighted as buildable when a tower type is selected
     val isBuildableAndEmpty = selectedDefenderType != null && 
                               isBuildableTile && 
@@ -681,17 +709,14 @@ fun GridCell(
         trap != null -> GamePlayColors.Trap.copy(alpha = 0.6f)  // Brown tint for trap
         
         barricade != null -> Color(0xFF795548).copy(alpha = 0.5f)  // Brown tint for barricade
-        
-        // Barricade placement range - yellow tint for tiles in range
-        cellIsInBarricadeRange -> GamePlayColors.Yellow.copy(alpha = 0.3f)  // Light yellow for barricade placement range
-        
+
         // Tower placement preview - highlight the hovered build tile differently than range tiles
         showPlacementPreview -> GamePlayColors.Yellow.copy(alpha = 0.4f)  // Light yellow for the build tile being hovered
         isInPreviewRange -> GamePlayColors.Success.copy(alpha = 0.2f)  // Very light green for range preview tiles
         
         // Spell targeting highlight - purple tint for valid spell target position tiles
         isValidSpellTarget -> Color(0xFF9C27B0).copy(alpha = 0.25f)  // Light purple for valid spell target positions
-        
+
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.7f)
         isTargetSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.8f)
         else -> baseBackgroundColor  // No selection highlighting during placement or in initial phase
@@ -733,18 +758,21 @@ fun GridCell(
         showPlacementPreview -> GamePlayColors.Yellow  // Yellow border for hovered build tile
         isInPreviewRange -> GamePlayColors.Success  // Green border for range preview tiles
         
-        // Barricade placement range - yellow borders
-        cellIsInBarricadeRange -> GamePlayColors.Yellow  // Yellow border for barricade placement range
+        // Barricade and trap placement range - brown borders (light brown diagonal stripes)
+        cellIsInBarricadeRange || cellIsValidForMineTrapPlacement -> GamePlayColors.TrapPlacementHighlight  // Brown border for barricade/trap placement range
+
+        // Magical trap placement range - lilac borders
+        cellIsValidForMagicalTrapPlacement -> GamePlayColors.MagicalTrapPlacementHighlight  // Lilac border for magical trap placement range
         
         // Buildable tile highlighting - lighter green borders with dashed line when tower type is selected
         isBuildableAndEmpty || canBeUsedAsTowerBase -> GamePlayColors.BuildableHighlight  // Lighter green border for buildable tiles and tower bases
         
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (path or river for area attacks)
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow  // Yellow border for selected defender (not during initial building)
-        
+
         // Spell targeting highlight - purple border for valid spell targets (enemies, towers, positions)
         isValidSpellTarget -> Color(0xFF9C27B0)  // Purple border for valid spell targets
-        
+
         isSpawnPoint -> GamePlayColors.WarningDark  // Darker orange border for spawn in dark mode
         isTarget -> GamePlayColors.Success  // Green border for target (adapts to dark mode automatically)
         attacker != null -> GamePlayColors.ErrorDark  // Darker red border for enemies
@@ -765,7 +793,7 @@ fun GridCell(
     val borderWidth = when {
         showPlacementPreview -> 6.dp  // Double thickness for hovered build tile
         isInPreviewRange -> 3.dp  // Medium border for range preview
-        cellIsInBarricadeRange -> 4.dp  // Thick border for barricade placement range
+        cellIsInBarricadeRange || cellIsValidForMineTrapPlacement || cellIsValidForMagicalTrapPlacement -> 3.dp  // Medium border for trap/barricade placement range
         isBuildableAndEmpty || canBeUsedAsTowerBase -> 3.dp  // Medium border for buildable tiles and tower bases
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> 4.dp  // Thick border for cells in range (path or river for area attacks)
@@ -779,7 +807,11 @@ fun GridCell(
     }
     
     // Flag to indicate dashed border (for preview and buildable tiles)
-    val useDashedBorder = showPlacementPreview || isInPreviewRange || isBuildableAndEmpty || canBeUsedAsTowerBase
+    val useDashedBorder = showPlacementPreview || isInPreviewRange || isBuildableAndEmpty || canBeUsedAsTowerBase ||
+                          cellIsInBarricadeRange || cellIsValidForMineTrapPlacement || cellIsValidForMagicalTrapPlacement
+
+    val showDiagonalStripes = isBuildableAndEmpty || canBeUsedAsTowerBase ||
+                              cellIsInBarricadeRange || cellIsValidForMineTrapPlacement || cellIsValidForMagicalTrapPlacement
     
     // Determine if we should use gradient blending
     val useTileImages = de.egril.defender.ui.settings.AppSettings.useTileImages.value
@@ -877,6 +909,7 @@ fun GridCell(
                 selectedWizardAction = selectedWizardAction,
                 isBuildableAndEmpty = isBuildableAndEmpty,
                 canBeUsedAsTowerBase = canBeUsedAsTowerBase,
+                showDiagonalStripes = showDiagonalStripes,
                 isInCoolingArea = isInCoolingArea
             )
         }
@@ -916,6 +949,7 @@ fun GridCell(
                 selectedWizardAction = selectedWizardAction,
                 isBuildableAndEmpty = isBuildableAndEmpty,
                 canBeUsedAsTowerBase = canBeUsedAsTowerBase,
+                showDiagonalStripes = showDiagonalStripes,
                 isInCoolingArea = isInCoolingArea
             )
         }
@@ -952,6 +986,7 @@ private fun BoxScope.GridCellContent(
     selectedWizardAction: WizardAction? = null,
     isBuildableAndEmpty: Boolean = false,
     canBeUsedAsTowerBase: Boolean = false,
+    showDiagonalStripes: Boolean = false,
     isInCoolingArea: Boolean = false
 ) {
         when {
@@ -966,7 +1001,17 @@ private fun BoxScope.GridCellContent(
                     attacker.currentHealth.value,
                     attacker.movementPenalty.value
                 ) {
-                    Box(contentAlignment = Alignment.Center) {
+                    // Detect freeze effect before Box so it can be used in modifier for outline
+                    val freezeEffect = gameState.activeSpellEffects.find {
+                        it.spell == SpellType.FREEZE_SPELL && it.attackerId == attacker.id
+                    }
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = if (freezeEffect != null)
+                            Modifier.border(2.dp, Color.Cyan, RoundedCornerShape(4.dp))
+                        else
+                            Modifier
+                    ) {
                         EnemyIcon(attacker = attacker)
                         // Show healing effect overlay if present
                         if (healingEffect != null) {
@@ -1011,14 +1056,21 @@ private fun BoxScope.GridCellContent(
                                 }
                             }
                         }
-                        // Show snowflake animation if enemy is frozen
-                        val freezeEffect = gameState.activeSpellEffects.find {
-                            it.spell == SpellType.FREEZE_SPELL && it.attackerId == attacker.id
-                        }
+                        // Show freeze effect overlay
                         if (freezeEffect != null) {
-                            SnowflakeAnimation(
-                                modifier = Modifier.fillMaxSize()
-                            )
+                            if (AppSettings.enableAnimations.value) {
+                                // Show Lottie animation for freeze spell - repeats until effect ends
+                                LottieAnimation(
+                                    animationType = AnimationType.FREEZE_SPELL,
+                                    modifier = Modifier.fillMaxSize(),
+                                    iterations = Int.MAX_VALUE
+                                )
+                            } else {
+                                // Show 3 static white snowflakes at different heights
+                                Snowflakes(
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
                         }
                         // Show barb effect indicators if affected (show up to 5 arrows in center)
                         if (attacker.movementPenalty.value > 0) {
@@ -1474,8 +1526,8 @@ private fun BoxScope.GridCellContent(
             }
         }
         
-        // Draw diagonal stripes for buildable tiles and tower bases
-        if (isBuildableAndEmpty || canBeUsedAsTowerBase) {
+        // Draw diagonal stripes for buildable tiles, tower bases, and placement tiles (trap/barricade/magical trap)
+        if (showDiagonalStripes) {
             Canvas(
                 modifier = Modifier
                     .matchParentSize()

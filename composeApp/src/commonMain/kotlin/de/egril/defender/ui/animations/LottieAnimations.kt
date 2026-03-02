@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 enum class AnimationType {
     GREEN_WITCH_HEALING,
     BARRICADE_DAMAGE,
+    FREEZE_SPELL,
     DOUBLE_LEVEL_SPELL,
     INSTANT_TOWER_SPELL
 }
@@ -41,6 +42,7 @@ fun LottieAnimation(
     val animationPath = when (animationType) {
         AnimationType.GREEN_WITCH_HEALING -> "files/animations/green_witch_healing.json"
         AnimationType.BARRICADE_DAMAGE -> "files/animations/barricade_damage.json"
+        AnimationType.FREEZE_SPELL -> "files/animations/freeze_spell.json"
         AnimationType.DOUBLE_LEVEL_SPELL -> "files/animations/double_level_spell.json"
         AnimationType.INSTANT_TOWER_SPELL -> "files/animations/instant_tower_spell.json"
     }
@@ -89,6 +91,7 @@ fun LottieAnimation(
                 contentDescription = when (animationType) {
                     AnimationType.GREEN_WITCH_HEALING -> "Green witch healing animation"
                     AnimationType.BARRICADE_DAMAGE -> "Barricade damage animation"
+                    AnimationType.FREEZE_SPELL -> "Freeze spell snowflakes animation"
                     AnimationType.DOUBLE_LEVEL_SPELL -> "Double tower level spell animation"
                     AnimationType.INSTANT_TOWER_SPELL -> "Instant tower spell animation"
                 },

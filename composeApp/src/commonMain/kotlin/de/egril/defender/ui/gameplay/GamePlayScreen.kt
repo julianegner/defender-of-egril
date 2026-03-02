@@ -206,7 +206,7 @@ private fun GamePlayScreenContent(
     var showUnsavedChangesDialog by remember { mutableStateOf(false) }  // Unsaved changes dialog
     var showEndTurnConfirmation by remember { mutableStateOf(false) }  // End turn confirmation dialog
     var showAbortInstantTowerDialog by remember { mutableStateOf(false) }  // Abort instant tower spell dialog
-    
+
     // Check if unsaved changes feature is enabled (both hasUnsavedChanges and onSaveGame must be available)
     val unsavedChangesEnabled = hasUnsavedChanges != null && onSaveGame != null
 
@@ -501,7 +501,7 @@ private fun GamePlayScreenContent(
             onShowOverlayChange = { showOverlay = it },
             onBackToMap = {
                 // Check for unsaved changes before navigating back
-                if (unsavedChangesEnabled && hasUnsavedChanges!!.invoke()) {
+                if (unsavedChangesEnabled && hasUnsavedChanges.invoke()) {
                     showUnsavedChangesDialog = true
                 } else {
                     onBackToMap()
@@ -1129,7 +1129,7 @@ private fun GamePlayScreenContent(
                 onContinue = { showAbortInstantTowerDialog = false }
             )
         }
-        
+
         // Save game dialog (with optional comment input)
         if (showSaveDialog && onSaveGame != null) {
             SaveGameDialog(
@@ -1231,7 +1231,7 @@ private fun GamePlayScreenContent(
             UnsavedChangesDialog(
                 onSaveAndExit = {
                     // Save the game first
-                    onSaveGame!!(null)
+                    onSaveGame(null)
                     showUnsavedChangesDialog = false
                     // Then navigate back to map
                     onBackToMap()
@@ -1302,7 +1302,7 @@ private fun GamePlayScreenContent(
                 }
             )
         }
-        
+
         // Post-target spell confirmation dialog (shows after target is selected)
         if (showSpellTargetConfirmation != null && onConfirmTargetSpell != null && onDismissTargetConfirmation != null) {
             val (spell, target) = showSpellTargetConfirmation
@@ -1322,7 +1322,7 @@ private fun GamePlayScreenContent(
                 onDismiss = { onDismissFreezeWarning.invoke() }
             )
         }
-        
+
             }
         }
         }

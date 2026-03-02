@@ -18,6 +18,7 @@ import kotlin.random.Random
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import de.egril.defender.ui.MapImageProvider
+import de.egril.defender.utils.getCurrentUsername
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -178,7 +179,8 @@ fun MapEditorContent() {
                     name = name,
                     width = width,
                     height = height,
-                    tiles = emptyMap()
+                    tiles = emptyMap(),
+                    author = getCurrentUsername()
                 )
                 EditorStorage.saveMap(newMap)
                 maps.value = EditorStorage.getAllMaps()

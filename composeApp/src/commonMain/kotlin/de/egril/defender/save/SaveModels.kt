@@ -37,7 +37,9 @@ data class SavedGame(
     val nextRaftId: Int = 1,  // Next raft ID to use
     val barricades: List<SavedBarricade> = emptyList(),  // Barricades placed by spike/spear towers
     val worldMapSave: WorldMapSave? = null,  // World map progress at the time of saving (for conflict detection on load)
-    val playerProfileData: PlayerProfileData? = null  // Player profile data (achievements, XP, stats) when game data transfer is ON
+    val playerProfileData: PlayerProfileData? = null,  // Player profile data (achievements, XP, stats) when game data transfer is ON
+    val currentMana: Int = 0,  // Current mana at the time of saving
+    val maxMana: Int = 0  // Maximum mana at the time of saving
 )
 
 /**
