@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.ui.DrawRaft
 import de.egril.defender.ui.TowerTypeIcon
 import de.egril.defender.ui.hexagon.HexagonShape
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
@@ -174,6 +175,6 @@ private fun BargeHexIcon(defenderType: DefenderType, size: androidx.compose.ui.u
             .background(Color(0xFF00796B)),
         contentAlignment = Alignment.Center
     ) {
-        TowerTypeIcon(defenderType = defenderType)
+        DrawRaft(defenderType = defenderType)
     }
 }
