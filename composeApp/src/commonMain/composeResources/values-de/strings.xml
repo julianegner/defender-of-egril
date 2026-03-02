@@ -351,6 +351,7 @@
     <string name="map_name">Kartenname</string>
     <string name="level_title">Level-Titel</string>
     <string name="subtitle_optional">Untertitel (optional)</string>
+    <string name="author_optional">Autor (optional)</string>
     <string name="width">Breite</string>
     <string name="height">Höhe</string>
     <string name="select_map_to_edit">Wähle eine Karte zum Bearbeiten:</string>

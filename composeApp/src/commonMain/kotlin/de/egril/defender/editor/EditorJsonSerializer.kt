@@ -41,13 +41,17 @@ object EditorJsonSerializer {
             ",\n  \"riverTiles\": {\n    $riverData\n  }"
         } else ""
         
+        val authorJson = if (map.author.isNotEmpty()) {
+            ",\n  \"author\": \"${map.author}\""
+        } else ""
+        
         val data = """{
   "id": "${map.id}",
   "name": "${map.name}"$nameKeyJson,
   "width": ${map.width},
   "height": ${map.height},
   "readyToUse": ${map.readyToUse},
-  "isOfficial": ${map.isOfficial}$worldMapPositionJson,
+  "isOfficial": ${map.isOfficial}$worldMapPositionJson$authorJson,
   "tiles": {
     $tilesJson
   }$riverTilesJson
@@ -82,6 +86,11 @@ object EditorJsonSerializer {
                 JsonUtils.extractBooleanValue(dataJson, "isOfficial")
             } catch (e: Exception) {
                 false  // Default to false for backward compatibility
+            }
+            val author = try {
+                JsonUtils.extractValue(dataJson, "author")
+            } catch (e: Exception) {
+                ""  // Optional field
             }
             
             // Parse optional world map position
@@ -166,7 +175,7 @@ object EditorJsonSerializer {
                 // River tiles are optional, continue without them
             }
             
-            return EditorMap(id, name, nameKey, width, height, tiles, readyToUse, worldMapPosition, riverTiles, isOfficial)
+            return EditorMap(id, name, nameKey, width, height, tiles, readyToUse, worldMapPosition, riverTiles, isOfficial, author)
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Error deserializing map: ${e.message}")
@@ -221,6 +230,12 @@ object EditorJsonSerializer {
         
         val isOfficialJson = if (level.isOfficial) {
             ",\n  \"isOfficial\": true"
+        } else {
+            ""
+        }
+        
+        val authorJson = if (level.author.isNotEmpty()) {
+            ",\n  \"author\": \"${level.author}\""
         } else {
             ""
         }
@@ -303,7 +318,7 @@ object EditorJsonSerializer {
   "waypoints": [
     $waypointsJson
   ],
-  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$isOfficialJson$initialDataJson
+  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$isOfficialJson$authorJson$initialDataJson
 }"""
         return """{
   "metadata": {
@@ -509,6 +524,13 @@ object EditorJsonSerializer {
                 JsonUtils.extractBooleanValue(dataJson, "isOfficial")
             } catch (e: Exception) {
                 false  // Default to false for backward compatibility
+            }
+            
+            // Parse author (optional, defaults to empty)
+            val author = try {
+                JsonUtils.extractValue(dataJson, "author")
+            } catch (e: Exception) {
+                ""  // Optional field
             }
             
             // Parse initial data (new nested format preferred, with backward compatibility for old flat format)
@@ -952,7 +974,8 @@ object EditorJsonSerializer {
                 startCoins, startHealthPoints, spawns, towers, waypoints, 
                 prerequisites, requiredPrerequisiteCount, testingOnly, 
                 allowAutoAttack, isOfficial,
-                initialData  // Pass the new InitialData object
+                author = author,
+                initialData = initialData
             )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {

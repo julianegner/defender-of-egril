@@ -351,6 +351,7 @@
     <string name="map_name">Nombre del mapa</string>
     <string name="level_title">Título del nivel</string>
     <string name="subtitle_optional">Subtítulo (opcional)</string>
+    <string name="author_optional">Autor (opcional)</string>
     <string name="width">Ancho</string>
     <string name="height">Alto</string>
     <string name="select_map_to_edit">Seleccionar un mapa para editar:</string>
