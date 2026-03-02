@@ -1232,6 +1232,9 @@
     <string name="special_towers_info_title">Special Towers</string>
     <string name="special_towers_info_reopen">You can reopen this information at any time by clicking the tower icon in the level header.</string>
 
+    <!-- Level Loading -->
+    <string name="loading_level">Loading level…</string>
+
     <!-- Map Image and Debug Options -->
     <string name="level_map_image">Level Map Image</string>
     <string name="debug_options">Debug Options</string>

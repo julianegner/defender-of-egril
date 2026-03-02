@@ -1232,6 +1232,9 @@
     <string name="special_towers_info_title">Torri Speciali</string>
     <string name="special_towers_info_reopen">Puoi riaprire queste informazioni in qualsiasi momento cliccando sull\'icona della torre nell\'intestazione del livello.</string>
 
+    <!-- Level Loading -->
+    <string name="loading_level">Caricamento livello…</string>
+
     <!-- Map Image and Debug Options -->
     <string name="level_map_image">Immagine mappa</string>
     <string name="debug_options">Opzioni di debug</string>

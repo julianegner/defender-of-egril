@@ -12,6 +12,8 @@ import androidx.compose.ui.graphics.painter.Painter
 import de.egril.defender.editor.getFileStorage
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  * Provides map background image painters for game levels.
@@ -60,27 +62,45 @@ object MapImageProvider {
 expect fun decodeMapImageBitmap(bytes: ByteArray): ImageBitmap?
 
 /**
- * Composable that loads a map image painter for the given mapId.
+ * Holds the state of a map image load: the painter (once loaded) and whether loading is still in progress.
+ */
+data class MapImageState(val painter: Painter?, val isLoading: Boolean)
+
+/**
+ * Composable that loads a map image painter for the given mapId and exposes the loading state.
  */
 @Composable
-fun rememberMapImagePainter(mapId: String?): Painter? {
+fun rememberMapImageState(mapId: String?): MapImageState {
     val useLevelMapImage = AppSettings.useLevelMapImage.value
     var painter by remember(mapId, useLevelMapImage) { mutableStateOf<Painter?>(null) }
+    var isLoading by remember(mapId, useLevelMapImage) { mutableStateOf(useLevelMapImage && mapId != null) }
 
     LaunchedEffect(mapId, useLevelMapImage) {
         if (!useLevelMapImage || mapId == null) {
             painter = null
+            isLoading = false
             return@LaunchedEffect
         }
 
-        val bytes = MapImageProvider.loadMapImageBytes(mapId)
-        if (bytes != null) {
-            val bitmap = MapImageProvider.decodeImageBitmap(bytes)
-            painter = if (bitmap != null) BitmapPainter(bitmap) else null
-        } else {
-            painter = null
+        isLoading = true
+        val result = withContext(Dispatchers.Default) {
+            val bytes = MapImageProvider.loadMapImageBytes(mapId)
+            if (bytes != null) {
+                val bitmap = MapImageProvider.decodeImageBitmap(bytes)
+                if (bitmap != null) BitmapPainter(bitmap) else null
+            } else {
+                null
+            }
         }
+        painter = result
+        isLoading = false
     }
 
-    return if (useLevelMapImage) painter else null
+    return if (useLevelMapImage && mapId != null) MapImageState(painter, isLoading) else MapImageState(null, false)
 }
+
+/**
+ * Composable that loads a map image painter for the given mapId.
+ */
+@Composable
+fun rememberMapImagePainter(mapId: String?): Painter? = rememberMapImageState(mapId).painter
