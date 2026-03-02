@@ -268,7 +268,7 @@ fun GameGrid(
                 val targetHeightPx = maxOf(hexMapSizePx.second, measuredContentSize.height)
                 with(density) {
                     androidx.compose.foundation.Image(
-                        painter = mapImagePainter!!,
+                        painter = mapImagePainter,
                         contentDescription = null,
                         modifier = Modifier
                             .requiredWidth(targetWidthPx.toDp())

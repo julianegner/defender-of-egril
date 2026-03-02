@@ -59,7 +59,7 @@ class TowerManager(private val state: GameState) {
         
         // If placed on tower base, link the tower and barricade
         if (isOnTowerBase) {
-            defender.towerBaseBarricadeId.value = barricadeAtPosition!!.id
+            defender.towerBaseBarricadeId.value = barricadeAtPosition.id
             barricadeAtPosition.supportedTowerId.value = defender.id
         }
         

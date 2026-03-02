@@ -832,7 +832,7 @@ class GameViewModel {
                 for (i in updatedLevels.indices) {
                     val worldLevel = updatedLevels[i]
                     if (worldLevel.status == LevelStatus.LOCKED && worldLevel.level.editorLevelId != null) {
-                        if (de.egril.defender.editor.EditorStorage.isLevelUnlocked(worldLevel.level.editorLevelId!!, wonLevelIds)) {
+                        if (de.egril.defender.editor.EditorStorage.isLevelUnlocked(worldLevel.level.editorLevelId, wonLevelIds)) {
                             updatedLevels[i] = worldLevel.copy(status = LevelStatus.UNLOCKED)
                         }
                     }
