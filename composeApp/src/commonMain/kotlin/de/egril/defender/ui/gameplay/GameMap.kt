@@ -246,13 +246,16 @@ fun GameGrid(
         }
     }
 
-    // Calculate spell area circle preview for ATTACK_AREA, ATTACK_AIMED, FEAR_SPELL, FEAR_SPELL_AREA in targeting mode
+    // Calculate spell area circle preview for ATTACK_AREA, ATTACK_AIMED, FEAR_SPELL, FEAR_SPELL_AREA, BOMB in targeting mode
     val spellAreaTargeting = gameState.spellTargeting.value
     val currentHoveredPosition = hoveredPosition
     val spellAreaCircleMap = remember(currentHoveredPosition, spellAreaTargeting?.activeSpell) {
         val activeSpell = spellAreaTargeting?.activeSpell
         // All spell targeting previews use the same magic (purple) color to distinguish them from tower attacks
         val spellColor = TargetCircleConstants.ATTACK_AREA_SPELL_COLOR
+        // Bomb uses a distinct orange/red color to represent fire/explosion
+        val bombColor = TargetCircleConstants.BOMB_SPELL_COLOR
+        val bombExplosionRange = TargetCircleConstants.BOMB_SPELL_RADIUS
         when {
             (activeSpell == SpellType.ATTACK_AREA || activeSpell == SpellType.ATTACK_AIMED) && currentHoveredPosition != null -> {
                 val result = mutableMapOf<Position, TargetCircleInfo>()
@@ -282,6 +285,32 @@ fun GameGrid(
                             isExtendedArea = true
                         )
                     }
+                }
+                result
+            }
+            activeSpell == SpellType.BOMB && currentHoveredPosition != null -> {
+                // Show explosion range (3 hex tiles) around hovered position in orange
+                val result = mutableMapOf<Position, TargetCircleInfo>()
+                result[currentHoveredPosition] = TargetCircleInfo.CentralTarget(
+                    color = bombColor,
+                    attackType = AttackType.AREA,
+                    isExtendedArea = true
+                )
+                val allNeighbors = currentHoveredPosition.getHexNeighborsWithinRadius(
+                    bombExplosionRange,
+                    gameState.level.gridWidth,
+                    gameState.level.gridHeight
+                )
+                for (neighbor in allNeighbors) {
+                    val distance = currentHoveredPosition.hexDistanceTo(neighbor)
+                    result[neighbor] = TargetCircleInfo.NeighborTarget(
+                        color = bombColor,
+                        attackType = AttackType.AREA,
+                        centerPosition = currentHoveredPosition,
+                        thisPosition = neighbor,
+                        distanceFromCenter = distance,
+                        isExtendedArea = true
+                    )
                 }
                 result
             }
@@ -332,6 +361,43 @@ fun GameGrid(
             }
             else -> emptyMap()
         }
+    }
+
+    // Calculate range circles for already-placed bombs (show explosion range at all times)
+    val activeBombEffects = gameState.activeSpellEffects.filter { it.spell == SpellType.BOMB && it.position != null }
+    val placedBombCircleMap = remember(activeBombEffects.map { it.position }) {
+        val bombColor = TargetCircleConstants.BOMB_SPELL_COLOR
+        val bombExplosionRange = TargetCircleConstants.BOMB_SPELL_RADIUS
+        val result = mutableMapOf<Position, TargetCircleInfo>()
+        for (effect in activeBombEffects) {
+            val bombPos = effect.position ?: continue
+            if (!result.containsKey(bombPos)) {
+                result[bombPos] = TargetCircleInfo.CentralTarget(
+                    color = bombColor,
+                    attackType = AttackType.AREA,
+                    isExtendedArea = true
+                )
+            }
+            val allNeighbors = bombPos.getHexNeighborsWithinRadius(
+                bombExplosionRange,
+                gameState.level.gridWidth,
+                gameState.level.gridHeight
+            )
+            for (neighbor in allNeighbors) {
+                if (!result.containsKey(neighbor)) {
+                    val distance = bombPos.hexDistanceTo(neighbor)
+                    result[neighbor] = TargetCircleInfo.NeighborTarget(
+                        color = bombColor,
+                        attackType = AttackType.AREA,
+                        centerPosition = bombPos,
+                        thisPosition = neighbor,
+                        distanceFromCenter = distance,
+                        isExtendedArea = true
+                    )
+                }
+            }
+        }
+        result
     }
 
     val mapId = gameState.level.mapId
@@ -407,7 +473,7 @@ fun GameGrid(
                 selectedMineAction = selectedMineAction,
                 selectedWizardAction = selectedWizardAction,
                 selectedBarricadeAction = selectedBarricadeAction,
-                targetCircleInfo = spellAreaCircleMap[position] ?: targetCircleMap[position],
+                targetCircleInfo = spellAreaCircleMap[position] ?: targetCircleMap[position] ?: placedBombCircleMap[position],
                 onClick = { onCellClick(position) },
                 hexSize = hexSize,
                 selectedDefenderType = selectedDefenderType,

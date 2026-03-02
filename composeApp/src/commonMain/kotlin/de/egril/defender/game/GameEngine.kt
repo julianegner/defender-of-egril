@@ -1717,6 +1717,10 @@ class GameEngine(private val state: GameState) {
                     val dmg = damageAt(distance)
                     attacker.currentHealth.value = (attacker.currentHealth.value - dmg).coerceAtLeast(0)
                     enemiesDamaged++
+                    // Mark as defeated if health reaches 0
+                    if (attacker.currentHealth.value <= 0) {
+                        attacker.isDefeated.value = true
+                    }
                     // Update dragon level if it's a dragon
                     if (attacker.type.isDragon) {
                         attacker.updateDragonLevel()
@@ -1745,6 +1749,9 @@ class GameEngine(private val state: GameState) {
         bridgesToRemove.forEach { bridge ->
             state.bridges.remove(bridge)
         }
+
+        // Process defeated enemies (grant coins, remove from map, etc.)
+        combatSystem.processDefeatedAttackers()
 
         // Collect affected positions for the explosion visual effect
         val affectedPositions = position.getHexNeighborsWithinRadius(

@@ -61,9 +61,9 @@ class FileSoundManager : SoundManager {
             // Game phase sounds
             SoundEvent.BATTLE_START -> "battle_start.wav"
             
-            // Bomb spell sounds
-            SoundEvent.BOMB_TICKING -> "bomb_ticking.wav"
-            SoundEvent.BOMB_EXPLOSION -> "bomb_explosion.wav"
+            // Bomb spell sounds: mapped to closest-matching existing files until dedicated sounds are added
+            SoundEvent.BOMB_TICKING -> "trap_trigger.wav"    // Click/tick sound stand-in
+            SoundEvent.BOMB_EXPLOSION -> "attack_area.wav"   // Explosion stand-in
         }
         
         // Play the sound file on the platform
