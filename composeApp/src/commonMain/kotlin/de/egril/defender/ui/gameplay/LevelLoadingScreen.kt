@@ -6,7 +6,6 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.CircularProgressIndicator
@@ -18,8 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -35,60 +32,6 @@ import defender_of_egril.composeapp.generated.resources.loading_level
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.PI
-
-/**
- * Draws a simple barge (flat-bottomed boat) icon using Canvas.
- */
-@Composable
-fun BargeIcon(modifier: Modifier = Modifier, size: androidx.compose.ui.unit.Dp = 40.dp) {
-    Canvas(modifier = modifier.size(size)) {
-        val w = this.size.width
-        val h = this.size.height
-        val hullColor = Color(0xFF8B6914)
-        val structureColor = Color(0xFFD4A820)
-        val waterColor = Color(0xFF1E88E5)
-        val strokeColor = Color(0xFF5D4037)
-
-        // Water line
-        drawRect(
-            color = waterColor,
-            topLeft = androidx.compose.ui.geometry.Offset(0f, h * 0.72f),
-            size = androidx.compose.ui.geometry.Size(w, h * 0.28f)
-        )
-
-        // Hull (trapezoid: wider at top, narrower at bottom)
-        val hullPath = Path().apply {
-            moveTo(w * 0.08f, h * 0.45f)      // top-left
-            lineTo(w * 0.92f, h * 0.45f)      // top-right
-            lineTo(w * 0.82f, h * 0.72f)      // bottom-right
-            lineTo(w * 0.18f, h * 0.72f)      // bottom-left
-            close()
-        }
-        drawPath(hullPath, hullColor)
-        drawPath(hullPath, strokeColor, style = Stroke(width = w * 0.04f))
-
-        // Deck structure (small rectangle on top of hull)
-        drawRect(
-            color = structureColor,
-            topLeft = androidx.compose.ui.geometry.Offset(w * 0.30f, h * 0.25f),
-            size = androidx.compose.ui.geometry.Size(w * 0.40f, h * 0.20f)
-        )
-        drawRect(
-            color = strokeColor,
-            topLeft = androidx.compose.ui.geometry.Offset(w * 0.30f, h * 0.25f),
-            size = androidx.compose.ui.geometry.Size(w * 0.40f, h * 0.20f),
-            style = Stroke(width = w * 0.04f)
-        )
-
-        // Mast
-        drawLine(
-            color = strokeColor,
-            start = androidx.compose.ui.geometry.Offset(w * 0.50f, h * 0.05f),
-            end = androidx.compose.ui.geometry.Offset(w * 0.50f, h * 0.25f),
-            strokeWidth = w * 0.05f
-        )
-    }
-}
 
 /**
  * Loading screen shown while a level's map image is being loaded.
@@ -145,14 +88,14 @@ private fun LoadingCircleWithIcons() {
 
     // Items arranged clockwise starting from the top:
     // index 0 = top (0°), each step is 45°
-    // Order: Goblin (enemy), Spike (tower), Barge, Ork (enemy), Bow (tower), Barge, Red Witch (enemy), Wizard (tower)
+    // Order: Goblin (enemy), Spike (tower), Spear barge, Ork (enemy), Bow (tower), Wizard barge, Red Witch (enemy), Wizard (tower)
     val items = listOf<@Composable () -> Unit>(
         { EnemyHexIcon(AttackerType.GOBLIN, iconSize) },
         { TowerHexIcon(DefenderType.SPIKE_TOWER, iconSize) },
-        { BargeHexIcon(iconSize) },
+        { BargeHexIcon(DefenderType.SPEAR_TOWER, iconSize) },
         { EnemyHexIcon(AttackerType.ORK, iconSize) },
         { TowerHexIcon(DefenderType.BOW_TOWER, iconSize) },
-        { BargeHexIcon(iconSize) },
+        { BargeHexIcon(DefenderType.WIZARD_TOWER, iconSize) },
         { EnemyHexIcon(AttackerType.RED_WITCH, iconSize) },
         { TowerHexIcon(DefenderType.WIZARD_TOWER, iconSize) },
     )
@@ -223,7 +166,7 @@ private fun TowerHexIcon(defenderType: DefenderType, size: androidx.compose.ui.u
 }
 
 @Composable
-private fun BargeHexIcon(size: androidx.compose.ui.unit.Dp) {
+private fun BargeHexIcon(defenderType: DefenderType, size: androidx.compose.ui.unit.Dp) {
     Box(
         modifier = Modifier
             .size(size)
@@ -231,6 +174,6 @@ private fun BargeHexIcon(size: androidx.compose.ui.unit.Dp) {
             .background(Color(0xFF00796B)),
         contentAlignment = Alignment.Center
     ) {
-        BargeIcon(size = size * 0.75f)
+        TowerTypeIcon(defenderType = defenderType)
     }
 }
