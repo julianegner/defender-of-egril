@@ -893,6 +893,7 @@ class GameViewModel {
             performMineDigWithOutcome = { outcome -> performMineDigWithOutcome(outcome) },
             spawnEnemy = { attackerType, level -> gameEngine?.spawnEnemy(attackerType, level) },
             showPlatformInfo = { _showPlatformInfo.value = true },
+            setBigHeadMode = { enabled -> de.egril.defender.utils.BigHeadMode.isEnabled.value = enabled },
             addMana = { amount -> gameEngine?.addMana(amount) },
             removeMana = { amount -> gameEngine?.removeMana(amount) },
             showCheatHelp = { _showCheatHelp.value = true }
