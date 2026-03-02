@@ -16,3 +16,5 @@ private external fun getBrowserLanguage(): String?
 actual fun getSystemLanguageCode(): String? {
     return getBrowserLanguage()
 }
+
+actual fun getCurrentUsername(): String = ""

@@ -16,3 +16,11 @@ actual fun getSystemLanguageCode(): String? {
         null
     }
 }
+
+actual fun getCurrentUsername(): String {
+    return try {
+        System.getProperty("user.name") ?: ""
+    } catch (e: Exception) {
+        ""
+    }
+}
