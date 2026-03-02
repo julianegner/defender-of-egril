@@ -1334,7 +1334,7 @@ private fun BoxScope.GridCellContent(
         // Show cooling spell snowflake animation on affected tiles
         if (isInCoolingArea) {
             if (AppSettings.enableAnimations.value) {
-                SnowflakeAnimation(modifier = Modifier.fillMaxSize())
+                Snowflakes(modifier = Modifier.fillMaxSize())
             } else {
                 Box(
                     modifier = Modifier.fillMaxSize(),
