@@ -952,7 +952,8 @@ class GameViewModel {
         val currentPlayer = _currentPlayer.value ?: return
         val currentXP = currentPlayer.abilities.totalXP
         val newXP = maxOf(0, currentXP - amount)
-        val updatedStats = currentPlayer.abilities.copy(totalXP = newXP)
+        val newLevel = de.egril.defender.model.PlayerAbilities.calculateLevel(newXP)
+        val updatedStats = currentPlayer.abilities.copy(totalXP = newXP, level = newLevel)
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
@@ -1009,6 +1010,8 @@ class GameViewModel {
             "cooling", "cooling_spell", "coolingspell" -> de.egril.defender.model.SpellType.COOLING_SPELL
             "freeze", "freeze_spell", "freezespell" -> de.egril.defender.model.SpellType.FREEZE_SPELL
             "double_reach", "doublereach", "double_tower_reach", "doubletowerreach" -> de.egril.defender.model.SpellType.DOUBLE_TOWER_REACH
+            "fear", "fear_spell", "fearspell" -> de.egril.defender.model.SpellType.FEAR_SPELL
+            "fear_area", "feararea", "fear_spell_area", "fearspellarea" -> de.egril.defender.model.SpellType.FEAR_SPELL_AREA
             else -> return  // Invalid spell name
         }
 
@@ -1033,6 +1036,8 @@ class GameViewModel {
             "cooling", "cooling_spell", "coolingspell" -> de.egril.defender.model.SpellType.COOLING_SPELL
             "freeze", "freeze_spell", "freezespell" -> de.egril.defender.model.SpellType.FREEZE_SPELL
             "double_reach", "doublereach", "double_tower_reach", "doubletowerreach" -> de.egril.defender.model.SpellType.DOUBLE_TOWER_REACH
+            "fear", "fear_spell", "fearspell" -> de.egril.defender.model.SpellType.FEAR_SPELL
+            "fear_area", "feararea", "fear_spell_area", "fearspellarea" -> de.egril.defender.model.SpellType.FEAR_SPELL_AREA
             else -> return  // Invalid spell name
         }
 
@@ -1999,10 +2004,36 @@ class GameViewModel {
                     }
                 }
             }
-            else -> {
-                // Other spells not yet implemented
-                if (LogConfig.ENABLE_SPELL_LOGGING) {
-                println("Cast ${spell.displayName} - Effect not yet implemented")
+            SpellType.FEAR_SPELL -> {
+                // Fear Spell: Single target enemy flees towards spawn for 3 turns
+                val attacker = target as? Attacker
+                if (attacker != null) {
+                    val effect = ActiveSpellEffect(
+                        spell = SpellType.FEAR_SPELL,
+                        attackerId = attacker.id,
+                        turnsRemaining = 3,
+                        castTurn = gameState.turnNumber.value
+                    )
+                    gameState.activeSpellEffects.add(effect)
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("Fear Spell: ${attacker.type.displayName} flees for 3 turns!")
+                    }
+                }
+            }
+            SpellType.FEAR_SPELL_AREA -> {
+                // Fear Spell (Area): Create fear zone that makes enemies flee for 3 turns
+                val position = target as? Position
+                if (position != null) {
+                    val effect = ActiveSpellEffect(
+                        spell = SpellType.FEAR_SPELL_AREA,
+                        position = position,
+                        turnsRemaining = 3,
+                        castTurn = gameState.turnNumber.value
+                    )
+                    gameState.activeSpellEffects.add(effect)
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("Fear Spell (Area): Created fear zone at $position for 3 turns!")
+                    }
                 }
             }
         }

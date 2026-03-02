@@ -250,6 +250,20 @@ enum class SpellType(
         description = "Double a tower's range for one turn",
         requiresTarget = true,
         targetType = SpellTargetType.TOWER
+    ),
+    FEAR_SPELL(
+        displayName = "Fear Spell",
+        manaCost = 15,
+        description = "Make a single enemy flee towards its spawn point for 3 turns",
+        requiresTarget = true,
+        targetType = SpellTargetType.ENEMY
+    ),
+    FEAR_SPELL_AREA(
+        displayName = "Fear Spell (Area)",
+        manaCost = 30,
+        description = "Create a fear zone that makes enemies flee towards spawn points for 3 turns",
+        requiresTarget = true,
+        targetType = SpellTargetType.POSITION
     )
 }
 

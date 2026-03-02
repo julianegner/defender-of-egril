@@ -1311,6 +1311,8 @@
     <string name="spell_cooling_spell_name">Sort de Refroidissement</string>
     <string name="spell_freeze_spell_name">Sort de Gel</string>
     <string name="spell_double_tower_reach_name">Doubler Portée de Tour</string>
+    <string name="spell_fear_spell_name">Sort de Peur</string>
+    <string name="spell_fear_spell_area_name">Sort de Peur (Zone)</string>
 
     <!-- Spell Descriptions -->
     <string name="spell_attack_area_desc">Inflige 50 dégâts à tous les ennemis dans une portée de 2 hex</string>
@@ -1322,6 +1324,8 @@
     <string name="spell_cooling_spell_desc">Crée une zone qui réduit la vitesse de mouvement des ennemis de 1 pendant 3 tours</string>
     <string name="spell_freeze_spell_desc">Gèle un ennemi pendant 1 tour (immunité: Démons, Dragons, Ewhad)</string>
     <string name="spell_double_tower_reach_desc">Double la portée d\'attaque d\'une tour pendant 1 tour</string>
+    <string name="spell_fear_spell_desc">Force un ennemi à fuir vers son point d\'apparition pendant 3 tours</string>
+    <string name="spell_fear_spell_area_desc">Crée une zone de peur qui force les ennemis à fuir vers leurs points d\'apparition pendant 3 tours</string>
 
     <!-- Construction Info -->
     <string name="construction_info_intro">Chaque niveau de Construction débloque de puissantes capacités de tour:</string>
@@ -1365,7 +1369,7 @@
     <string name="cheat_stat_types">Statistiques: health, treasury, income, construction, mana</string>
     <string name="cheat_unlockspell_desc">Déverrouiller un sort (ex. unlockspell fireball)</string>
     <string name="cheat_lockspell_desc">Verrouiller un sort (ex. lockspell heal)</string>
-    <string name="cheat_spell_types">Sorts: attack_aimed, attack_area, heal, instant_tower, bomb, double_level, cooling, freeze, double_reach</string>
+    <string name="cheat_spell_types">Sorts: attack_aimed, attack_area, heal, instant_tower, bomb, double_level, cooling, freeze, double_reach, fear, fear_area</string>
     <string name="cheat_unlockall_desc">Déverrouiller tous les niveaux</string>
     <string name="cheat_unlock_desc">Déverrouiller un niveau spécifique</string>
     <string name="cheat_lockall_desc">Verrouiller tous les niveaux</string>
@@ -1374,6 +1378,9 @@
     <!-- Freeze status labels -->
     <string name="frozen_label">Gelé</string>
     <string name="frozen_turns_remaining">Gelé: %d tours restants</string>
+    <!-- Fear status labels -->
+    <string name="feared_label">Effrayé</string>
+    <string name="feared_turns_remaining">Peur: %d tours restants</string>
 
 
     <!-- Task 3: Post-target spell confirmation -->

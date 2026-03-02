@@ -218,22 +218,53 @@ fun GameGrid(
         }
     }
 
-    // Calculate spell area circle preview for ATTACK_AREA and ATTACK_AIMED spells in targeting mode
+    // Calculate spell area circle preview for ATTACK_AREA, ATTACK_AIMED, FEAR_SPELL, FEAR_SPELL_AREA in targeting mode
     val spellAreaTargeting = gameState.spellTargeting.value
     val currentHoveredPosition = hoveredPosition
     val spellAreaCircleMap = remember(currentHoveredPosition, spellAreaTargeting?.activeSpell) {
         val activeSpell = spellAreaTargeting?.activeSpell
-        if ((activeSpell != SpellType.ATTACK_AREA && activeSpell != SpellType.ATTACK_AIMED) || currentHoveredPosition == null) {
-            emptyMap<Position, TargetCircleInfo>()
-        } else {
-            val spellColor = TargetCircleConstants.ATTACK_AREA_SPELL_COLOR
-            val result = mutableMapOf<Position, TargetCircleInfo>()
-            result[currentHoveredPosition] = TargetCircleInfo.CentralTarget(
-                color = spellColor,
-                attackType = AttackType.AREA,
-                isExtendedArea = true
-            )
-            if (activeSpell == SpellType.ATTACK_AREA) {
+        // All spell targeting previews use the same magic (purple) color to distinguish them from tower attacks
+        val spellColor = TargetCircleConstants.ATTACK_AREA_SPELL_COLOR
+        when {
+            (activeSpell == SpellType.ATTACK_AREA || activeSpell == SpellType.ATTACK_AIMED) && currentHoveredPosition != null -> {
+                val result = mutableMapOf<Position, TargetCircleInfo>()
+                result[currentHoveredPosition] = TargetCircleInfo.CentralTarget(
+                    color = spellColor,
+                    attackType = AttackType.AREA,
+                    isExtendedArea = true
+                )
+                if (activeSpell == SpellType.ATTACK_AREA) {
+                    val allNeighbors = currentHoveredPosition.getHexNeighborsWithinRadius(
+                        TargetCircleConstants.ATTACK_AREA_SPELL_RADIUS,
+                        gameState.level.gridWidth,
+                        gameState.level.gridHeight
+                    ).filter { neighbor ->
+                        gameState.level.isOnPath(neighbor) ||
+                        gameState.isBridgeAt(neighbor) ||
+                        gameState.attackers.any { it.position.value == neighbor && !it.isDefeated.value }
+                    }
+                    for (neighbor in allNeighbors) {
+                        val distance = currentHoveredPosition.hexDistanceTo(neighbor)
+                        result[neighbor] = TargetCircleInfo.NeighborTarget(
+                            color = spellColor,
+                            attackType = AttackType.AREA,
+                            centerPosition = currentHoveredPosition,
+                            thisPosition = neighbor,
+                            distanceFromCenter = distance,
+                            isExtendedArea = true
+                        )
+                    }
+                }
+                result
+            }
+            activeSpell == SpellType.FEAR_SPELL_AREA && currentHoveredPosition != null -> {
+                // Area circles in magic color at radius 2 (like ATTACK_AREA)
+                val result = mutableMapOf<Position, TargetCircleInfo>()
+                result[currentHoveredPosition] = TargetCircleInfo.CentralTarget(
+                    color = spellColor,
+                    attackType = AttackType.AREA,
+                    isExtendedArea = true
+                )
                 val allNeighbors = currentHoveredPosition.getHexNeighborsWithinRadius(
                     TargetCircleConstants.ATTACK_AREA_SPELL_RADIUS,
                     gameState.level.gridWidth,
@@ -254,8 +285,24 @@ fun GameGrid(
                         isExtendedArea = true
                     )
                 }
+                result
             }
-            result
+            activeSpell == SpellType.FEAR_SPELL && currentHoveredPosition != null -> {
+                // Single-target circles on hovered enemy tile in magic color (like tower attack)
+                val enemyAtHover = gameState.attackers.find {
+                    it.position.value == currentHoveredPosition && !it.isDefeated.value
+                }
+                if (enemyAtHover != null) {
+                    mapOf(currentHoveredPosition to TargetCircleInfo.CentralTarget(
+                        color = spellColor,
+                        attackType = AttackType.RANGED,
+                        isExtendedArea = false
+                    ))
+                } else {
+                    emptyMap()
+                }
+            }
+            else -> emptyMap()
         }
     }
 
@@ -715,7 +762,10 @@ fun GridCell(
         isInPreviewRange -> GamePlayColors.Success.copy(alpha = 0.2f)  // Very light green for range preview tiles
         
         // Spell targeting highlight - purple tint for valid spell target position tiles
-        isValidSpellTarget -> Color(0xFF9C27B0).copy(alpha = 0.25f)  // Light purple for valid spell target positions
+        // Not shown for fear spells (target circles provide the visual indicator)
+        isValidSpellTarget &&
+            spellTargeting?.activeSpell != SpellType.FEAR_SPELL &&
+            spellTargeting?.activeSpell != SpellType.FEAR_SPELL_AREA -> Color(0xFF9C27B0).copy(alpha = 0.25f)  // Light purple for valid spell target positions
 
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.7f)
         isTargetSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> baseBackgroundColor.copy(alpha = 0.8f)
@@ -771,7 +821,10 @@ fun GridCell(
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow  // Yellow border for selected defender (not during initial building)
 
         // Spell targeting highlight - purple border for valid spell targets (enemies, towers, positions)
-        isValidSpellTarget -> Color(0xFF9C27B0)  // Purple border for valid spell targets
+        // Not shown for fear spells (target circles provide the visual indicator)
+        isValidSpellTarget &&
+            spellTargeting?.activeSpell != SpellType.FEAR_SPELL &&
+            spellTargeting?.activeSpell != SpellType.FEAR_SPELL_AREA -> Color(0xFF9C27B0)  // Purple border for valid spell targets
 
         isSpawnPoint -> GamePlayColors.WarningDark  // Darker orange border for spawn in dark mode
         isTarget -> GamePlayColors.Success  // Green border for target (adapts to dark mode automatically)
@@ -797,7 +850,9 @@ fun GridCell(
         isBuildableAndEmpty || canBeUsedAsTowerBase -> 3.dp  // Medium border for buildable tiles and tower bases
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> 4.dp  // Thick border for cells in range (path or river for area attacks)
-        isValidSpellTarget -> 4.dp  // Thick purple border for valid spell targets
+        isValidSpellTarget &&
+            spellTargeting?.activeSpell != SpellType.FEAR_SPELL &&
+            spellTargeting?.activeSpell != SpellType.FEAR_SPELL_AREA -> 4.dp  // Thick purple border for valid spell targets
         isSpawnPoint || isTarget -> 3.dp
         attacker != null || defender != null -> 3.dp
         fieldEffect != null -> 3.dp  // Thick border for field effects
@@ -1070,6 +1125,24 @@ private fun BoxScope.GridCellContent(
                                 Snowflakes(
                                     modifier = Modifier.fillMaxSize()
                                 )
+                            }
+                        }
+                        // Show fear effect overlay (black scribble cloud at top of icon)
+                        val fearEffect = gameState.activeSpellEffects.find { effect ->
+                            (effect.spell == SpellType.FEAR_SPELL && effect.attackerId == attacker.id) ||
+                            (effect.spell == SpellType.FEAR_SPELL_AREA && effect.position != null &&
+                                attacker.position.value.hexDistanceTo(effect.position) <= 2)
+                        }
+                        if (fearEffect != null) {
+                            if (AppSettings.enableAnimations.value) {
+                                // Show Lottie animation for fear spell - repeats until effect ends
+                                LottieAnimation(
+                                    animationType = AnimationType.FEAR_SPELL,
+                                    modifier = Modifier.fillMaxSize(),
+                                    iterations = Int.MAX_VALUE
+                                )
+                            } else {
+                                FearScribble(modifier = Modifier.fillMaxSize())
                             }
                         }
                         // Show barb effect indicators if affected (show up to 5 arrows in center)
