@@ -363,7 +363,7 @@ fun GameGrid(
         }
     }
 
-    // Calculate range circles for already-placed bombs (show explosion range at all times)
+    // Calculate range circles for already-placed bombs (show explosion range, but no center rings)
     val activeBombEffects = gameState.activeSpellEffects.filter { it.spell == SpellType.BOMB && it.position != null }
     val placedBombCircleMap = remember(activeBombEffects.map { it.position }) {
         val bombColor = TargetCircleConstants.BOMB_SPELL_COLOR
@@ -371,13 +371,7 @@ fun GameGrid(
         val result = mutableMapOf<Position, TargetCircleInfo>()
         for (effect in activeBombEffects) {
             val bombPos = effect.position ?: continue
-            if (!result.containsKey(bombPos)) {
-                result[bombPos] = TargetCircleInfo.CentralTarget(
-                    color = bombColor,
-                    attackType = AttackType.AREA,
-                    isExtendedArea = true
-                )
-            }
+            // Intentionally skip the bomb tile itself (no center rings on placed bombs)
             val allNeighbors = bombPos.getHexNeighborsWithinRadius(
                 bombExplosionRange,
                 gameState.level.gridWidth,
@@ -1479,19 +1473,29 @@ private fun BoxScope.GridCellContent(
             }
 
             bombEffect != null -> {
-                // Show bomb icon with countdown number
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    ExplosionIcon(size = 28.dp)
-                    Text(
-                        "${bombEffect.turnsRemaining}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color(0xFFFF6F00),  // Amber
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.offset(y = (-6).dp)
-                    )
+                // Show bomb icon with countdown number overlaid prominently
+                Box(contentAlignment = Alignment.Center) {
+                    ExplosionIcon(size = 36.dp)
+                    // Countdown badge in bottom-right corner of icon
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .offset(x = 4.dp, y = 4.dp)
+                            .background(
+                                color = Color(0xFFCC0000),
+                                shape = androidx.compose.foundation.shape.CircleShape
+                            )
+                            .padding(horizontal = 4.dp, vertical = 1.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "${bombEffect.turnsRemaining}",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Color.White,
+                            fontWeight = FontWeight.ExtraBold,
+                            lineHeight = MaterialTheme.typography.labelMedium.fontSize
+                        )
+                    }
                 }
             }
 
@@ -1617,18 +1621,23 @@ private fun BoxScope.GridCellContent(
         if (bombEffect != null && attacker != null) {
             Box(
                 modifier = Modifier.fillMaxSize().zIndex(15f),
-                contentAlignment = Alignment.BottomCenter
+                contentAlignment = Alignment.BottomEnd
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                Box(
+                    modifier = Modifier
+                        .padding(2.dp)
+                        .background(
+                            color = Color(0xFFCC0000),
+                            shape = androidx.compose.foundation.shape.CircleShape
+                        )
+                        .padding(horizontal = 3.dp, vertical = 1.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    ExplosionIcon(size = 12.dp)
                     Text(
                         "${bombEffect.turnsRemaining}",
                         fontSize = 10.sp,
-                        color = Color(0xFFFF6F00),
-                        fontWeight = FontWeight.Bold
+                        color = Color.White,
+                        fontWeight = FontWeight.ExtraBold
                     )
                 }
             }
