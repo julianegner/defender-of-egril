@@ -1261,6 +1261,7 @@
 
     <!-- Stats Upgrade Screen -->
     <string name="available_stat_points">Verfügbare Stat-Punkte: %d</string>
+    <string name="available_stat_points_label">Verfügbare Fähigkeitspunkte</string>
     <string name="stats">Statistiken</string>
     <string name="spells">Zauber</string>
     <string name="unlock">Freischalten</string>

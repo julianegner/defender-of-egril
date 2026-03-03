@@ -1265,6 +1265,7 @@
 
     <!-- Stats Upgrade Screen -->
     <string name="available_stat_points">Available Stat Points: %d</string>
+    <string name="available_stat_points_label">Available Ability Points</string>
     <string name="stats">Stats</string>
     <string name="spells">Spells</string>
     <string name="unlock">Unlock</string>

@@ -1264,6 +1264,7 @@
 
     <!-- Stats Upgrade Screen -->
     <string name="available_stat_points">Punti Statistiche Disponibili: %d</string>
+    <string name="available_stat_points_label">Punti Abilità Disponibili</string>
     <string name="stats">Statistiche</string>
     <string name="spells">Incantesimi</string>
     <string name="unlock">Sblocca</string>

@@ -1263,6 +1263,7 @@
 
     <!-- Stats Upgrade Screen -->
     <string name="available_stat_points">Puntos de Estadísticas Disponibles: %d</string>
+    <string name="available_stat_points_label">Puntos de Habilidad Disponibles</string>
     <string name="stats">Estadísticas</string>
     <string name="spells">Hechizos</string>
     <string name="unlock">Desbloquear</string>

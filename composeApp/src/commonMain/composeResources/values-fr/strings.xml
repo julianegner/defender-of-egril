@@ -1263,6 +1263,7 @@
 
     <!-- Stats Upgrade Screen -->
     <string name="available_stat_points">Points de Statistiques Disponibles: %d</string>
+    <string name="available_stat_points_label">Points de Capacité Disponibles</string>
     <string name="stats">Statistiques</string>
     <string name="spells">Sorts</string>
     <string name="unlock">Débloquer</string>

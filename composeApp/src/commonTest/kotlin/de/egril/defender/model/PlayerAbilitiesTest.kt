@@ -52,6 +52,29 @@ class PlayerAbilitiesTest {
     }
 
     @Test
+    fun testCalculateLevelBeyond30() {
+        // Level 30 requires exactly 23200 XP
+        assertEquals(30, PlayerAbilities.calculateLevel(23200))
+        // Level 31 requires 23200 + 1550 = 24750 XP
+        assertEquals(30, PlayerAbilities.calculateLevel(24749))
+        assertEquals(31, PlayerAbilities.calculateLevel(24750))
+        // Level 32 requires 23200 + 2*1550 = 26300 XP
+        assertEquals(32, PlayerAbilities.calculateLevel(26300))
+        // Level 40 requires 23200 + 10*1550 = 38700 XP
+        assertEquals(40, PlayerAbilities.calculateLevel(38700))
+    }
+
+    @Test
+    fun testAddXPBeyondLevel30() {
+        // Start at level 30 with 23200 XP
+        val atLevel30 = PlayerAbilities(totalXP = 23200, level = 30, availableAbilityPoints = 0)
+        // Add enough XP to reach level 31 (need 1550 more)
+        val updated = atLevel30.addXP(1550)
+        assertEquals(31, updated.level)
+        assertEquals(1, updated.availableAbilityPoints)
+    }
+
+    @Test
     fun testLevelSyncAfterXPRemovalThenAddition() {
         // Regression test: removing XP must keep level in sync so subsequent addXP works correctly
         // Step 1: start fresh and add enough XP for level 3

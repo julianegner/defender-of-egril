@@ -41,6 +41,11 @@ data class PlayerAbilities(
                     break
                 }
             }
+            // Support levels beyond the predefined table using the exponential formula
+            if (level == XP_PER_LEVEL.size) {
+                val excessXP = xp - XP_PER_LEVEL.last()
+                level += excessXP / 1550
+            }
             return level
         }
         
