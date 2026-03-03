@@ -8,6 +8,8 @@ import de.egril.defender.game.LevelData
 import de.egril.defender.model.*
 import de.egril.defender.model.DifficultyModifiers
 import de.egril.defender.ui.settings.AppSettings
+import com.hyperether.resources.LocalizedStrings
+import com.hyperether.resources.currentLanguage
 import de.egril.defender.utils.CheatCodeHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,6 +28,7 @@ sealed class Screen {
     object LoadGame : Screen()
     object Sticker : Screen()
     object PlayerProfile : Screen()
+    object LoadingSpinnerDemo : Screen()
     data class GamePlay(val levelId: Int) : Screen()
     data class LevelComplete(val levelId: Int, val won: Boolean, val isLastLevel: Boolean) : Screen()
 }
@@ -199,7 +202,7 @@ class GameViewModel {
         val wonLevelIds = savedStatuses?.filter { it.value == LevelStatus.WON }?.keys?.toSet() ?: emptySet()
         
         _worldLevels.value = allLevels.mapIndexed { index, level ->
-            println("DEBUG: Loaded Level ${level.id} - Name: ${level.name} - Path Cells: ${level.pathCells.size} - Build Islands: ${level.buildIslands.size}")
+            println("DEBUG: Loaded Level ${level.id} - Name: ${level.name} - Path Cells: ${level.pathCells.size}")
 
             // Look up status by editorLevelId if available
             val status = if (level.editorLevelId != null) {
@@ -266,6 +269,10 @@ class GameViewModel {
     
     fun navigateToSticker() {
         _currentScreen.value = Screen.Sticker
+    }
+    
+    fun navigateToLoadingSpinnerDemo() {
+        _currentScreen.value = Screen.LoadingSpinnerDemo
     }
     
     fun navigateToPlayerProfile() {
@@ -643,7 +650,7 @@ class GameViewModel {
                 for (i in updatedLevels.indices) {
                     val worldLevel = updatedLevels[i]
                     if (worldLevel.status == LevelStatus.LOCKED && worldLevel.level.editorLevelId != null) {
-                        if (de.egril.defender.editor.EditorStorage.isLevelUnlocked(worldLevel.level.editorLevelId!!, wonLevelIds)) {
+                        if (de.egril.defender.editor.EditorStorage.isLevelUnlocked(worldLevel.level.editorLevelId, wonLevelIds)) {
                             updatedLevels[i] = worldLevel.copy(status = LevelStatus.UNLOCKED)
                         }
                     }
@@ -703,7 +710,8 @@ class GameViewModel {
             setCoins = { amount -> gameEngine?.setCoins(amount) },
             performMineDigWithOutcome = { outcome -> performMineDigWithOutcome(outcome) },
             spawnEnemy = { attackerType, level -> gameEngine?.spawnEnemy(attackerType, level) },
-            showPlatformInfo = { _showPlatformInfo.value = true }
+            showPlatformInfo = { _showPlatformInfo.value = true },
+            setBigHeadMode = { enabled -> de.egril.defender.utils.BigHeadMode.isEnabled.value = enabled }
         )
         
         if (digOutcome != null) {
@@ -725,6 +733,12 @@ class GameViewModel {
         // Check for "sticker" cheat code first (navigation cheat)
         if (code.lowercase().trim() == "sticker") {
             navigateToSticker()
+            return true
+        }
+        
+        // Check for "spinner" cheat code (shows loading spinner demo for 30s)
+        if (code.lowercase().trim() == "spinner") {
+            navigateToLoadingSpinnerDemo()
             return true
         }
         
@@ -1244,16 +1258,17 @@ class GameViewModel {
     private fun formatElapsedTime(elapsedMs: Long): String {
         val hours = elapsedMs / (60 * 60 * 1000)
         val minutes = (elapsedMs % (60 * 60 * 1000)) / (60 * 1000)
-        
+        val locale = currentLanguage.value
+
         return buildString {
             if (hours > 0) {
-                append("$hours ")
-                append(if (hours == 1L) "hour" else "hours")
+                val key = if (hours == 1L) "hour" else "hours"
+                append(LocalizedStrings.get(key, locale).replace("%d", hours.toString()))
             }
             if (minutes > 0) {
                 if (hours > 0) append(" ")
-                append("$minutes ")
-                append(if (minutes == 1L) "minute" else "minutes")
+                val key = if (minutes == 1L) "minute" else "minutes"
+                append(LocalizedStrings.get(key, locale).replace("%d", minutes.toString()))
             }
         }
     }

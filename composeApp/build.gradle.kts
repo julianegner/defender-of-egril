@@ -171,6 +171,10 @@ kotlin {
         }
     }
     
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+    
     jvm("desktop")
     
     @OptIn(ExperimentalWasmDsl::class)
@@ -253,17 +257,17 @@ kotlin {
         }
         
         androidMain.dependencies {
-            implementation(compose.preview)
+            implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
         }
         commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material3)
-            implementation(compose.materialIconsExtended)
-            implementation(compose.ui)
-            implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.material3)
+            implementation(libs.compose.material.icons.extended)
+            implementation(libs.compose.ui)
+            implementation(libs.compose.components.resources)
+            implementation(libs.compose.ui.tooling.preview)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.flagkit)
             implementation(libs.multiplatform.settings)
@@ -275,15 +279,14 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
-            @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
-            implementation(compose.uiTest)
+            implementation(libs.compose.ui.test)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.jlayer)
         }
         desktopTest.dependencies {
-            implementation(compose.desktop.uiTestJUnit4)
+            implementation(libs.compose.ui.test.junit4)
             implementation(compose.desktop.currentOs)
         }
         wasmJsMain.dependencies {
@@ -340,7 +343,23 @@ android {
 }
 
 dependencies {
-    debugImplementation(compose.uiTooling)
+    debugImplementation(libs.compose.ui.tooling)
+}
+
+// Task to generate map PNG images from map JSON files using the Kotlin MapImageGenerator
+tasks.register<JavaExec>("generateMapImages") {
+    group = "mapgen"
+    description = "Generate PNG map images for all map JSON files in the repository"
+    dependsOn("compileKotlinDesktop")
+    classpath = files(
+        kotlin.targets.named("desktop").map { target ->
+            (target as org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget)
+                .compilations["main"].output.classesDirs
+        },
+        configurations.named("desktopRuntimeClasspath")
+    )
+    mainClass.set("de.egril.defender.mapgen.GenerateMapImagesKt")
+    workingDir = rootDir
 }
 
 compose.desktop {

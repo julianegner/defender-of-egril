@@ -796,7 +796,6 @@ class GamePlayScreenTest {
                 de.egril.defender.model.Position(6, 4),
                 de.egril.defender.model.Position(7, 4)
             ),
-            buildIslands = emptySet(),
             buildAreas = setOf(
                 de.egril.defender.model.Position(8, 3),
                 de.egril.defender.model.Position(9, 3),

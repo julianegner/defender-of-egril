@@ -159,6 +159,17 @@ fun SettingsDialog(
                         )
                     }
                     
+                    // Animations switch
+                    DualLabelSwitch(
+                        state = AppSettings.enableAnimations,
+                        leftText = stringResource(Res.string.animations_off),
+                        rightText = stringResource(Res.string.animations_on),
+                        onCheckedChange = { enabled ->
+                            AppSettings.saveEnableAnimations(enabled)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
                     // Show testing levels switch
                     GenericSwitch(
                         state = AppSettings.showTestingLevels,
@@ -166,6 +177,28 @@ fun SettingsDialog(
                         uncheckedText = stringResource(Res.string.show_testing_levels),
                         onCheckedChange = { enabled ->
                             AppSettings.saveShowTestingLevels(enabled)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Level map image switch
+                    GenericSwitch(
+                        state = AppSettings.useLevelMapImage,
+                        checkedText = stringResource(Res.string.level_map_image),
+                        uncheckedText = stringResource(Res.string.level_map_image),
+                        onCheckedChange = { enabled ->
+                            AppSettings.saveUseLevelMapImage(enabled)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Debug options switch
+                    GenericSwitch(
+                        state = AppSettings.showDebugOptions,
+                        checkedText = stringResource(Res.string.debug_options),
+                        uncheckedText = stringResource(Res.string.debug_options),
+                        onCheckedChange = { enabled ->
+                            AppSettings.saveShowDebugOptions(enabled)
                         },
                         modifier = Modifier.fillMaxWidth()
                     )

@@ -144,6 +144,15 @@ class IosFileStorage : FileStorage {
     override fun getAbsolutePath(path: String): String {
         return "$baseDir/$path"
     }
+
+    override fun writeBinaryFile(path: String, content: ByteArray) {
+        // Binary file writing not supported on iOS in this implementation
+    }
+
+    override fun readBinaryFile(path: String): ByteArray? {
+        // Binary file reading not supported on iOS in this implementation
+        return null
+    }
 }
 
 actual fun getFileStorage(): FileStorage = IosFileStorage()

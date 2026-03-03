@@ -648,7 +648,7 @@ class GameEngine(private val state: GameState) {
                 
                 // Check if there's a barricade at the new position (non-flying units only)
                 // If so, this unit will attack the barricade and stop moving for the rest of this turn
-                val isFlying = attacker.isFlying?.value == true
+                val isFlying = attacker.isFlying.value == true
                 if (!isFlying) {
                     val barricadeAtNewPos = barricadeSystem.getBarricadeAt(newPos)
                     if (barricadeAtNewPos != null && !barricadeAtNewPos.isDestroyed()) {
@@ -1245,7 +1245,7 @@ class GameEngine(private val state: GameState) {
                 
                 // Check if there's a barricade at the new position (non-flying units only)
                 // If so, this unit will attack the barricade and stop moving for the rest of this turn
-                val isFlying = attacker.isFlying?.value == true
+                val isFlying = attacker.isFlying.value == true
                 if (!isFlying) {
                     val barricadeAtNewPos = barricadeSystem.getBarricadeAt(newPos)
                     if (barricadeAtNewPos != null && !barricadeAtNewPos.isDestroyed()) {
@@ -1346,12 +1346,11 @@ class GameEngine(private val state: GameState) {
         // Get all hex neighbors
         val neighbors = currentPos.getHexNeighbors()
         
-        // Filter valid positions (on the map, on path, not blocked by islands)
+        // Filter valid positions (on the map, on path)
         val validNeighbors = neighbors.filter { neighbor ->
             neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
             neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
-            state.level.isOnPath(neighbor) &&
-            !state.level.isBuildIsland(neighbor)
+            state.level.isOnPath(neighbor)
         }
         
         // Find positions that are not occupied

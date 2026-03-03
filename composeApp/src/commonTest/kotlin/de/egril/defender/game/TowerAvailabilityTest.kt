@@ -18,7 +18,7 @@ class TowerAvailabilityTest {
             id = 1,
             name = "Test Level",
             pathCells = setOf(Position(0, 0), Position(1, 0)),
-            buildIslands = setOf(Position(0, 1)),
+            buildAreas = setOf(Position(0, 1)),
             attackerWaves = listOf(AttackerWave(listOf(AttackerType.GOBLIN))),
             availableTowers = DefenderType.entries.toSet()
         )
@@ -46,7 +46,7 @@ class TowerAvailabilityTest {
             id = 1,
             name = "Test Level",
             pathCells = setOf(Position(0, 0), Position(1, 0)),
-            buildIslands = setOf(Position(0, 1)),
+            buildAreas = setOf(Position(0, 1)),
             attackerWaves = listOf(AttackerWave(listOf(AttackerType.GOBLIN))),
             availableTowers = availableTowers
         )
@@ -82,7 +82,7 @@ class TowerAvailabilityTest {
             id = 1,
             name = "Test Level",
             pathCells = setOf(Position(0, 0), Position(1, 0)),
-            buildIslands = setOf(Position(0, 1)),
+            buildAreas = setOf(Position(0, 1)),
             attackerWaves = listOf(AttackerWave(listOf(AttackerType.GOBLIN))),
             availableTowers = setOf(DefenderType.SPIKE_TOWER)
         )
@@ -116,7 +116,7 @@ class TowerAvailabilityTest {
             id = 1,
             name = "Test Level",
             pathCells = setOf(Position(0, 0), Position(1, 0)),
-            buildIslands = setOf(Position(0, 1)),
+            buildAreas = setOf(Position(0, 1)),
             attackerWaves = listOf(AttackerWave(listOf(AttackerType.GOBLIN))),
             availableTowers = setOf(DefenderType.SPIKE_TOWER, DefenderType.WIZARD_TOWER)
         )
@@ -149,7 +149,7 @@ class TowerAvailabilityTest {
             id = 1,
             name = "Test Level",
             pathCells = setOf(Position(0, 0), Position(1, 0)),
-            buildIslands = setOf(Position(0, 1)),
+            buildAreas = setOf(Position(0, 1)),
             attackerWaves = listOf(AttackerWave(listOf(AttackerType.GOBLIN))),
             availableTowers = setOf(
                 DefenderType.SPIKE_TOWER,

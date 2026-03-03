@@ -45,6 +45,9 @@
     <string name="tile_smooth_transitions">Transitions Douces de Tuiles</string>
     <string name="tile_smooth_transitions_on">Transitions Douces Activées</string>
     <string name="tile_smooth_transitions_off">Bords Nets</string>
+    <string name="animations">Animations</string>
+    <string name="animations_on">Animations Activées</string>
+    <string name="animations_off">Icônes Statiques</string>
     <string name="header_text_size">Taille du Texte de l'En-tête du Niveau</string>
     <string name="header_text_size_small">Petit</string>
     <string name="header_text_size_medium">Moyen</string>
@@ -348,6 +351,7 @@
     <string name="map_name">Nom de la carte</string>
     <string name="level_title">Titre du niveau</string>
     <string name="subtitle_optional">Sous-titre (optionnel)</string>
+    <string name="author_optional">Auteur (optionnel)</string>
     <string name="width">Largeur</string>
     <string name="height">Hauteur</string>
     <string name="select_map_to_edit">Sélectionner une carte à modifier:</string>
@@ -374,6 +378,15 @@
     <string name="add_turn">Ajouter un tour</string>
     <string name="copy_turn">Copier le tour</string>
     <string name="remove">Retirer</string>
+    <string name="map_image_generation_title">Génération de carte : %1$s</string>
+    <string name="map_image_generation_running">Génération de l'image de la carte...</string>
+    <string name="map_image_generation_done">Image de carte générée.</string>
+    <string name="map_image_already_existed">L'image de la carte existait déjà.</string>
+    <string name="map_image_generation_path">Cible : %1$s</string>
+    <string name="map_image_generation_show_image">Afficher l'image</string>
+    <string name="map_image_generation_close">Fermer</string>
+    <string name="map_image_generation_error">Échec de génération : %1$s</string>
+    <string name="map_image_generation_preview_label">Aperçu de l'image de carte</string>
     <string name="add">Ajouter</string>
     <string name="turn_x">Tour %d</string>
     <string name="x_enemies">(%d ennemis)</string>
@@ -1218,4 +1231,15 @@
     <string name="tower_info_title">Informations sur la Tour</string>
     <string name="special_towers_info_title">Tours Spéciales</string>
     <string name="special_towers_info_reopen">Vous pouvez rouvrir ces informations à tout moment en cliquant sur l\'icône de tour dans l\'en-tête du niveau.</string>
+
+    <!-- Level Loading -->
+    <string name="loading_level">Chargement du niveau…</string>
+
+    <!-- Map Image and Debug Options -->
+    <string name="level_map_image">Image de la carte</string>
+    <string name="debug_options">Options de débogage</string>
+    <string name="debug_display_tile_borders">Afficher les bordures des tuiles</string>
+    <string name="debug_display_tile_positions">Afficher les positions des tuiles</string>
+    <string name="debug_display_map_size">Afficher la taille de la carte</string>
+    <string name="debug_map_size_overlay">Carte hex : %1$ddp × %2$ddp / %3$dpx × %4$dpx\nContenu : %5$ddp × %6$ddp / %7$dpx × %8$dpx\nVue : %9$ddp × %10$ddp / %11$dpx × %12$dpx\nDécalage : %13$d, %14$d</string>
 </resources>

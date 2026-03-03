@@ -45,6 +45,9 @@
     <string name="tile_smooth_transitions">Transizioni Morbide delle Tessere</string>
     <string name="tile_smooth_transitions_on">Transizioni Morbide Attive</string>
     <string name="tile_smooth_transitions_off">Bordi Netti</string>
+    <string name="animations">Animazioni</string>
+    <string name="animations_on">Animazioni Attive</string>
+    <string name="animations_off">Icone Statiche</string>
     <string name="header_text_size">Dimensione del Testo dell'Intestazione del Livello</string>
     <string name="header_text_size_small">Piccolo</string>
     <string name="header_text_size_medium">Medio</string>
@@ -348,6 +351,7 @@
     <string name="map_name">Nome mappa</string>
     <string name="level_title">Titolo livello</string>
     <string name="subtitle_optional">Sottotitolo (opzionale)</string>
+    <string name="author_optional">Autore (opzionale)</string>
     <string name="width">Larghezza</string>
     <string name="height">Altezza</string>
     <string name="select_map_to_edit">Seleziona una mappa da modificare:</string>
@@ -374,6 +378,15 @@
     <string name="add_turn">Aggiungi turno</string>
     <string name="copy_turn">Copia turno</string>
     <string name="remove">Rimuovi</string>
+    <string name="map_image_generation_title">Generazione mappa: %1$s</string>
+    <string name="map_image_generation_running">Generazione dell'immagine della mappa...</string>
+    <string name="map_image_generation_done">Immagine mappa completata.</string>
+    <string name="map_image_already_existed">L'immagine della mappa esisteva già.</string>
+    <string name="map_image_generation_path">Destinazione: %1$s</string>
+    <string name="map_image_generation_show_image">Mostra immagine</string>
+    <string name="map_image_generation_close">Chiudi</string>
+    <string name="map_image_generation_error">Generazione non riuscita: %1$s</string>
+    <string name="map_image_generation_preview_label">Anteprima immagine mappa</string>
     <string name="add">Aggiungi</string>
     <string name="turn_x">Turno %d</string>
     <string name="x_enemies">(%d nemici)</string>
@@ -1219,4 +1232,15 @@
     <string name="tower_info_title">Informazioni sulla Torre</string>
     <string name="special_towers_info_title">Torri Speciali</string>
     <string name="special_towers_info_reopen">Puoi riaprire queste informazioni in qualsiasi momento cliccando sull\'icona della torre nell\'intestazione del livello.</string>
+
+    <!-- Level Loading -->
+    <string name="loading_level">Caricamento livello…</string>
+
+    <!-- Map Image and Debug Options -->
+    <string name="level_map_image">Immagine mappa</string>
+    <string name="debug_options">Opzioni di debug</string>
+    <string name="debug_display_tile_borders">Mostra bordi delle celle</string>
+    <string name="debug_display_tile_positions">Mostra posizioni delle celle</string>
+    <string name="debug_display_map_size">Mostra dimensione mappa</string>
+    <string name="debug_map_size_overlay">Mappa esagonale: %1$ddp × %2$ddp / %3$dpx × %4$dpx\nContenuto: %5$ddp × %6$ddp / %7$dpx × %8$dpx\nVista: %9$ddp × %10$ddp / %11$dpx × %12$dpx\nOffset: %13$d, %14$d</string>
 </resources>

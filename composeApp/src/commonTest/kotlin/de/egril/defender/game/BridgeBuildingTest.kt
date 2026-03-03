@@ -44,7 +44,6 @@ class BridgeBuildingTest {
             startPositions = listOf(Position(0, 0)),
             targetPositions = listOf(Position(4, 0)),
             pathCells = map.getPathCells(),
-            buildIslands = emptySet(),
             attackerWaves = emptyList(),
             riverTiles = map.getRiverCells().associateWith { RiverTile(it) }
         )
@@ -113,7 +112,6 @@ class BridgeBuildingTest {
             startPositions = listOf(Position(0, 0)),
             targetPositions = listOf(Position(5, 0)),
             pathCells = map.getPathCells(),
-            buildIslands = emptySet(),
             attackerWaves = emptyList(),
             riverTiles = map.getRiverCells().associateWith { RiverTile(it) }
         )
@@ -179,7 +177,6 @@ class BridgeBuildingTest {
             startPositions = listOf(Position(0, 0)),
             targetPositions = listOf(Position(4, 0)),
             pathCells = map.getPathCells(),
-            buildIslands = emptySet(),
             attackerWaves = emptyList(),
             riverTiles = map.getRiverCells().associateWith { RiverTile(it) }
         )
@@ -247,7 +244,6 @@ class BridgeBuildingTest {
             startPositions = listOf(Position(0, 0)),
             targetPositions = listOf(Position(3, 0)),
             pathCells = map.getPathCells(),
-            buildIslands = emptySet(),
             attackerWaves = emptyList(),
             riverTiles = map.getRiverCells().associateWith { RiverTile(it) }
         )
@@ -283,7 +279,6 @@ class BridgeBuildingTest {
             startPositions = listOf(Position(0, 0)),
             targetPositions = listOf(Position(4, 0)),
             pathCells = setOf(Position(0, 0), Position(1, 0), Position(3, 0), Position(4, 0)),
-            buildIslands = emptySet(),
             attackerWaves = emptyList(),
             riverTiles = mapOf(Position(2, 0) to RiverTile(Position(2, 0)))
         )
@@ -339,7 +334,6 @@ class BridgeBuildingTest {
             startPositions = listOf(Position(0, 0)),
             targetPositions = listOf(Position(4, 0)),
             pathCells = setOf(Position(0, 0), Position(1, 0), Position(3, 0), Position(4, 0)),
-            buildIslands = emptySet(),
             attackerWaves = emptyList(),
             riverTiles = mapOf(Position(2, 0) to RiverTile(Position(2, 0)))
         )
@@ -412,7 +406,6 @@ class BridgeBuildingTest {
             startPositions = listOf(Position(0, 0)),
             targetPositions = listOf(Position(4, 0)),
             pathCells = map.getPathCells(),
-            buildIslands = emptySet(),
             attackerWaves = emptyList(),
             riverTiles = map.getRiverCells().associateWith { RiverTile(it) }
         )
@@ -455,7 +448,6 @@ class BridgeBuildingTest {
             startPositions = listOf(Position(0, 0)),
             targetPositions = listOf(Position(4, 0)),
             pathCells = setOf(Position(0, 0), Position(1, 0), Position(3, 0), Position(4, 0)),
-            buildIslands = emptySet(),
             attackerWaves = emptyList(),
             riverTiles = mapOf(Position(2, 0) to RiverTile(Position(2, 0))),
             directSpawnPlan = listOf(

@@ -14,6 +14,8 @@ interface FileStorage {
     fun copyDirectory(sourcePath: String, targetPath: String): Boolean
     fun deleteDirectory(path: String): Boolean
     fun getAbsolutePath(path: String): String
+    fun writeBinaryFile(path: String, content: ByteArray)
+    fun readBinaryFile(path: String): ByteArray?
 }
 
 expect fun getFileStorage(): FileStorage

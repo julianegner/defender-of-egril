@@ -6,7 +6,6 @@ import de.egril.defender.editor.TileType
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.tile_build_area
-import defender_of_egril.composeapp.generated.resources.tile_island
 import defender_of_egril.composeapp.generated.resources.tile_no_play
 import defender_of_egril.composeapp.generated.resources.tile_path
 import defender_of_egril.composeapp.generated.resources.tile_river
@@ -38,7 +37,6 @@ object TileImageProvider {
         return when (tileType) {
             TileType.PATH -> painterResource(Res.drawable.tile_path)
             TileType.BUILD_AREA -> painterResource(Res.drawable.tile_build_area)
-            TileType.ISLAND -> painterResource(Res.drawable.tile_island)
             TileType.NO_PLAY -> painterResource(Res.drawable.tile_no_play)
             TileType.RIVER -> if (isMaelstrom) {
                 painterResource(Res.drawable.tile_river_maelstrom)

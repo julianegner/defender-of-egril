@@ -44,3 +44,5 @@ actual fun getSystemLanguageCode(): String? {
         null
     }
 }
+
+actual fun getCurrentUsername(): String = ""

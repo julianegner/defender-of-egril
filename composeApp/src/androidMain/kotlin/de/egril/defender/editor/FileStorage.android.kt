@@ -131,6 +131,22 @@ class AndroidFileStorage : FileStorage {
             jvmStorage.getAbsolutePath(path)
         }
     }
+
+    override fun writeBinaryFile(path: String, content: ByteArray) {
+        if (useInMemory || baseDir == null) {
+            // No-op for tests
+        } else {
+            jvmStorage.writeBinaryFile(path, content)
+        }
+    }
+
+    override fun readBinaryFile(path: String): ByteArray? {
+        return if (useInMemory || baseDir == null) {
+            null
+        } else {
+            jvmStorage.readBinaryFile(path)
+        }
+    }
 }
 
 actual fun getFileStorage(): FileStorage = AndroidFileStorage()

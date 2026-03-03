@@ -172,7 +172,6 @@ class VariableDamageTest {
             startPositions = listOf(Position(0, 2)),
             targetPositions = listOf(Position(4, 2)),
             pathCells = setOf(Position(0, 2), Position(1, 2), Position(2, 2), Position(3, 2)),
-            buildIslands = emptySet(),
             attackerWaves = emptyList(),
             initialCoins = 100,
             healthPoints = 20
@@ -208,7 +207,6 @@ class VariableDamageTest {
             startPositions = listOf(Position(0, 2)),
             targetPositions = listOf(Position(4, 2)),
             pathCells = setOf(Position(0, 2), Position(1, 2), Position(2, 2), Position(3, 2)),
-            buildIslands = emptySet(),
             attackerWaves = emptyList(),
             initialCoins = 100,
             healthPoints = 50

@@ -94,12 +94,15 @@ object RepositoryLoader {
     }
     
     /**
-     * Parse dragon names from JSON
+     * Parse dragon names from JSON.
+     * Supports both old format (plain {"names": [...]}) and new format with metadata wrapper.
      */
     private fun parseDragonNames(json: String): List<String>? {
         return try {
+            // Handle new metadata wrapper format
+            val dataJson = EditorJsonSerializer.extractDataSection(json)
             // Extract the names array from JSON
-            val namesSection = json.substringAfter("\"names\": [").substringBefore("]")
+            val namesSection = dataJson.substringAfter("\"names\": [").substringBefore("]")
             val names = JsonUtils.splitJsonArray(namesSection)
                 .map { it.trim().removeSurrounding("\"") }
                 .filter { it.isNotBlank() }
@@ -160,6 +163,14 @@ object RepositoryLoader {
                     val mapJson = EditorJsonSerializer.serializeMap(officialMap)
                     storage.writeFile("gamedata/official/maps/$mapId.json", mapJson)
                     println("Loaded and saved official map: $mapId")
+                    // Also copy the map image PNG if available
+                    try {
+                        val pngBytes = Res.readBytes("files/repository/maps/$mapId.png")
+                        storage.writeBinaryFile("gamedata/official/maps/$mapId.png", pngBytes)
+                        println("Loaded and saved official map image: $mapId.png")
+                    } catch (e: Exception) {
+                        // PNG might not exist, that's OK
+                    }
                     mapCount++
                 } else {
                     println("WARNING: Could not load map $mapId from repository")
@@ -182,7 +193,7 @@ object RepositoryLoader {
             }
             
             // Save version file
-            storage.writeFile("gamedata/version.txt", "9")
+            storage.writeFile("gamedata/version.txt", "10")
             
             println("Repository files loaded successfully: $successCount levels, $mapCount maps")
             successCount > 0

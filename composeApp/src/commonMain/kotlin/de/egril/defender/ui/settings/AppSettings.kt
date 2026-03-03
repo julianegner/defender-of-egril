@@ -63,6 +63,9 @@ object AppSettings {
     private const val KEY_USE_TILE_SMOOTH_TRANSITIONS = "use_tile_smooth_transitions"
     private const val KEY_SHOW_TESTING_LEVELS = "show_testing_levels"
     private const val KEY_HEADER_TEXT_SIZE = "header_text_size"
+    private const val KEY_USE_LEVEL_MAP_IMAGE = "use_level_map_image"
+    private const val KEY_SHOW_DEBUG_OPTIONS = "show_debug_options"
+    private const val KEY_ENABLE_ANIMATIONS = "enable_animations"
     
     private val settings: Settings = Settings()
     
@@ -185,6 +188,35 @@ object AppSettings {
         settings.getBoolean(KEY_SHOW_TESTING_LEVELS, false)
     )
     
+    /**
+     * Use level map image - show PNG map image behind the hexagonal grid
+     * Default is true (level map image ON)
+     */
+    val useLevelMapImage: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_USE_LEVEL_MAP_IMAGE, true)
+    )
+
+    /**
+     * Show debug options - show debug icon in level header
+     * Default is false (debug options hidden)
+     */
+    val showDebugOptions: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_SHOW_DEBUG_OPTIONS, false)
+    )
+
+    /**
+     * Enable animations - show Lottie animations (e.g. green witch healing, barricade damage)
+     * Default is true (animations ON)
+     */
+    val enableAnimations: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_ENABLE_ANIMATIONS, true)
+    )
+
+    // Session-only debug states (not persisted)
+    val showTileBorders: MutableState<Boolean> = mutableStateOf(false)
+    val showTilePositions: MutableState<Boolean> = mutableStateOf(false)
+    val showMapSizeOverlay: MutableState<Boolean> = mutableStateOf(false)
+
     /**
      * Level header text size - controls the size of text and icons in the game header
      * Default is SMALL (current size)
@@ -419,6 +451,24 @@ object AppSettings {
         headerTextSize.value = size
         settings[KEY_HEADER_TEXT_SIZE] = size.name
     }
+
+    fun saveUseLevelMapImage(use: Boolean) {
+        useLevelMapImage.value = use
+        settings.putBoolean(KEY_USE_LEVEL_MAP_IMAGE, use)
+    }
+
+    fun saveShowDebugOptions(show: Boolean) {
+        showDebugOptions.value = show
+        settings.putBoolean(KEY_SHOW_DEBUG_OPTIONS, show)
+    }
+
+    /**
+     * Save enable animations preference
+     */
+    fun saveEnableAnimations(enabled: Boolean) {
+        enableAnimations.value = enabled
+        settings.putBoolean(KEY_ENABLE_ANIMATIONS, enabled)
+    }
     
     /**
      * Reset all settings to defaults
@@ -462,6 +512,9 @@ object AppSettings {
         
         // Reset header text size to default (SMALL)
         saveHeaderTextSize(HeaderTextSize.DEFAULT)
+        
+        // Reset animations to ON
+        saveEnableAnimations(true)
         
         // Note: Don't reset settings hint shown state when resetting settings
         // as user has already seen it once

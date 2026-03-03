@@ -31,7 +31,6 @@ class CheatCodeHandlerTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(9, 3)),
             pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = emptySet(),
             attackerWaves = listOf(AttackerWave(listOf(AttackerType.GOBLIN))),
             initialCoins = 100,
             healthPoints = 10,
@@ -210,7 +209,71 @@ class CheatCodeHandlerTest {
         
         assertFalse(success, "Invalid spawn type should not be recognized")
     }
-    
+
+    @Test
+    fun testBigHeadCheatCode() {
+        var bigHeadEnabled: Boolean? = null
+        val (success, digOutcome) = CheatCodeHandler.applyCheatCode(
+            code = "bighead",
+            addCoins = { },
+            setCoins = { },
+            performMineDigWithOutcome = { null },
+            spawnEnemy = { _, _ -> },
+            setBigHeadMode = { enabled -> bigHeadEnabled = enabled }
+        )
+
+        assertTrue(success, "Bighead cheat code should be recognized")
+        assertEquals(true, bigHeadEnabled, "Bighead cheat should enable big head mode")
+        assertEquals(null, digOutcome, "Bighead cheat should not return dig outcome")
+    }
+
+    @Test
+    fun testSmallHeadCheatCode() {
+        var bigHeadEnabled: Boolean? = null
+        val (success, digOutcome) = CheatCodeHandler.applyCheatCode(
+            code = "smallhead",
+            addCoins = { },
+            setCoins = { },
+            performMineDigWithOutcome = { null },
+            spawnEnemy = { _, _ -> },
+            setBigHeadMode = { enabled -> bigHeadEnabled = enabled }
+        )
+
+        assertTrue(success, "Smallhead cheat code should be recognized")
+        assertEquals(false, bigHeadEnabled, "Smallhead cheat should disable big head mode")
+        assertEquals(null, digOutcome, "Smallhead cheat should not return dig outcome")
+    }
+
+    @Test
+    fun testBigHeadCheatCodeCaseInsensitive() {
+        var bigHeadEnabled: Boolean? = null
+        val (success, _) = CheatCodeHandler.applyCheatCode(
+            code = "BIGHEAD",
+            addCoins = { },
+            setCoins = { },
+            performMineDigWithOutcome = { null },
+            spawnEnemy = { _, _ -> },
+            setBigHeadMode = { enabled -> bigHeadEnabled = enabled }
+        )
+
+        assertTrue(success, "Uppercase BIGHEAD cheat code should work")
+        assertEquals(true, bigHeadEnabled)
+    }
+
+    @Test
+    fun testBigHeadCheatCodeWithoutCallback() {
+        // Should succeed without callback (backward compatible)
+        val (success, _) = CheatCodeHandler.applyCheatCode(
+            code = "bighead",
+            addCoins = { },
+            setCoins = { },
+            performMineDigWithOutcome = { null },
+            spawnEnemy = { _, _ -> }
+        )
+
+        assertTrue(success, "Bighead cheat code should be recognized even without callback")
+    }
+
     @Test
     fun testUnlockCheatCode() {
         val testCases = listOf("unlock", "unlockall", "unlock all")
@@ -365,7 +428,6 @@ class CheatCodeHandlerTest {
             startPositions = listOf(Position(0, 3)),
             targetPositions = listOf(Position(9, 3)),
             pathCells = (0..9).map { Position(it, 3) }.toSet(),
-            buildIslands = emptySet(),
             attackerWaves = listOf(AttackerWave(listOf(AttackerType.GOBLIN))),
             initialCoins = 100,
             healthPoints = 10

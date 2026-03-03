@@ -11,7 +11,6 @@ import de.egril.defender.ui.common.LevelInfoEnemiesLevelData
 enum class TileType {
     PATH,           // Path where enemies walk
     BUILD_AREA,     // Area where towers can be built (adjacent to path)
-    ISLAND,         // Build islands
     NO_PLAY,        // Not playable area
     SPAWN_POINT,    // Enemy spawn points
     TARGET,         // Target position
@@ -31,7 +30,8 @@ data class EditorMap(
     val readyToUse: Boolean = false,  // True if map has valid path from spawn to target
     val worldMapPosition: Position? = null,  // Position on world map (x,y as permille 0-1000, null = auto-calculate)
     val riverTiles: Map<String, de.egril.defender.model.RiverTile> = emptyMap(),  // "x,y" -> RiverTile (for tiles with TileType.RIVER)
-    val isOfficial: Boolean = false  // True if map is from official repository (read-only in editor)
+    val isOfficial: Boolean = false,  // True if map is from official repository (read-only in editor)
+    val author: String = ""  // Optional author name
 ) {
     fun getTileType(x: Int, y: Int): TileType {
         return tiles["$x,$y"] ?: TileType.NO_PLAY
@@ -59,15 +59,6 @@ data class EditorMap(
     
     fun getPathCells(): Set<Position> {
         return tiles.filter { it.value == TileType.PATH }
-            .map { 
-                val parts = it.key.split(",")
-                Position(parts[0].toInt(), parts[1].toInt())
-            }
-            .toSet()
-    }
-    
-    fun getBuildIslands(): Set<Position> {
-        return tiles.filter { it.value == TileType.ISLAND }
             .map { 
                 val parts = it.key.split(",")
                 Position(parts[0].toInt(), parts[1].toInt())
@@ -292,6 +283,7 @@ data class EditorLevel(
     val testingOnly: Boolean = false,  // If true, level is only shown when "show testing levels" setting is enabled
     val allowAutoAttack: Boolean = false,  // If true, shows auto-attack button in end turn confirmation dialog
     val isOfficial: Boolean = false,  // True if level is from official repository (read-only in editor)
+    val author: String = "",  // Optional author name
     // Initial placements (optional) - new nested structure
     val initialData: InitialData? = null,
     // Legacy fields for backward compatibility (deprecated - use initialData instead)
