@@ -520,6 +520,8 @@ private fun GamePlayScreenContent(
                 {
                     if (gameState.instantTowerSpellActive.value) {
                         showAbortInstantTowerDialog = true
+                    } else if (showMagicPanel) {
+                        onCloseMagicPanel?.invoke()
                     } else {
                         onOpenMagicPanel.invoke()
                     }
@@ -624,6 +626,14 @@ private fun GamePlayScreenContent(
                             selectedDefenderId = null
                             selectedTargetId = null
                             selectedTargetPosition = null
+                            // Toggle magic panel when a target (attacker) is clicked
+                            if (onOpenMagicPanel != null && gameState.maxMana.value > 0) {
+                                if (showMagicPanel) {
+                                    onCloseMagicPanel?.invoke()
+                                } else {
+                                    onOpenMagicPanel?.invoke()
+                                }
+                            }
                             return@GameGrid
                         }
                     }
