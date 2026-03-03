@@ -32,7 +32,6 @@ import de.egril.defender.ui.animations.BarricadeDamageAnimation
 import de.egril.defender.ui.animations.BombExplosionAnimation
 import de.egril.defender.ui.animations.CoolingAreaAnimation
 import de.egril.defender.ui.animations.InstantTowerSpellAnimation
-import de.egril.defender.ui.animations.SpellDoubleLevelColor
 import de.egril.defender.ui.animations.SpellDoubleReachColor
 import de.egril.defender.ui.animations.FearSpellAnimation
 import de.egril.defender.ui.animations.FreezeSpellAnimation
@@ -1292,20 +1291,6 @@ private fun BoxScope.GridCellContent(
                                 animate = AppSettings.enableAnimations.value,
                                 modifier = Modifier.fillMaxSize()
                             )
-                        }
-                        // Show doubled level as purple text on the tile
-                        if (doubleLevelActive) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.BottomCenter
-                            ) {
-                                Text(
-                                    "${defender.level.value * 2}",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = SpellDoubleLevelColor,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
                         }
                         // Show red "XT" overlay if tower is disabled by Red Witch
                         if (defender.isDisabled.value && defender.disabledTurnsRemaining.value > 0) {
