@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
 import de.egril.defender.ui.animations.SpellDoubleLevelColor
+import de.egril.defender.ui.animations.SpellDoubleReachColor
 import de.egril.defender.ui.icon.HoleIcon
 import de.egril.defender.ui.icon.InfoIcon
 import de.egril.defender.ui.icon.LightningIcon
@@ -70,6 +71,13 @@ fun DefenderInfo(
                 .fillMaxWidth()
                 .padding(if (isMobile) 4.dp else 8.dp)
         ) {
+                // Compute active spell effects once for use throughout the card
+                val doubleLevelEffect = gameState.activeSpellEffects.find {
+                    it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == defender.id
+                }
+                val doubleReachEffect = gameState.activeSpellEffects.find {
+                    it.spell == SpellType.DOUBLE_TOWER_REACH && it.defenderId == defender.id
+                }
                 // Tower icon, name, and actions in one row
                 Row(
                     // modifier = Modifier.fillMaxWidth(),
@@ -125,9 +133,6 @@ fun DefenderInfo(
                             overflow = TextOverflow.Clip
                         )
                         // Compute spell effect once and reuse below
-                        val doubleLevelEffect = gameState.activeSpellEffects.find {
-                            it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == defender.id
-                        }
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
@@ -255,18 +260,39 @@ fun DefenderInfo(
                         val nextRange = calculateRange(defender, nextLevel)
                         val nextActions = calculateActionsPerTurn(defender, nextLevel)
 
+                        // Effective stats considering active spells
+                        val effectiveLevel = if (doubleLevelEffect != null) currentLevel * 2 else currentLevel
+                        val currentDisplayDamage = if (doubleLevelEffect != null) {
+                            if (defender.type == DefenderType.DWARVEN_MINE) calculateTrapDamage(defender, effectiveLevel)
+                            else calculateActualDamage(defender, effectiveLevel)
+                        } else {
+                            if (defender.type == DefenderType.DWARVEN_MINE) defender.trapDamage else defender.actualDamage
+                        }
+                        val currentDisplayRange = when {
+                            doubleReachEffect != null -> defender.range * 2
+                            doubleLevelEffect != null -> calculateRange(defender, effectiveLevel)
+                            else -> defender.range
+                        }
+                        val currentDisplayActions = if (doubleLevelEffect != null) {
+                            calculateActionsPerTurn(defender, effectiveLevel)
+                        } else {
+                            defender.actionsPerTurnCalculated
+                        }
+
                         // Current stats column
                             Column(modifier = Modifier.weight(0.5f)) {
                                 Text(
-                                    "Lvl ${defender.level.value}",
+                                    if (doubleLevelEffect != null) "Lvl $effectiveLevel (×2)" else "Lvl $currentLevel",
                                     style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
+                                    color = if (doubleLevelEffect != null) SpellDoubleLevelColor else Color.Unspecified
                                 )
                                 TowerStats(
                                     defender.type.minRange,
-                                    if (defender.type == DefenderType.DWARVEN_MINE) defender.trapDamage else defender.actualDamage,
-                                    defender.range,
-                                    defender.actionsPerTurnCalculated
+                                    currentDisplayDamage,
+                                    currentDisplayRange,
+                                    currentDisplayActions,
+                                    rangeColor = if (doubleReachEffect != null) SpellDoubleReachColor else Color.Unspecified
                                 )
                             }
 

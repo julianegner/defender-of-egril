@@ -12,6 +12,9 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 /** Spell color (lila/purple) used for Double Tower Level effects */
 val SpellDoubleLevelColor = Color(0xFFAB47BC)
 
+/** Spell color (purple) used for Double Tower Reach effects */
+val SpellDoubleReachColor = Color(0xFFAB47BC)
+
 /**
  * Animated wavering border overlay for towers under the Double Tower Level spell.
  *
