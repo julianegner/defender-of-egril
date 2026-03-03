@@ -115,8 +115,12 @@ object EditorStorage {
     /**
      * Save the map. Returns true if the map image was (re)generated, false if it was skipped
      * because the image already existed and no tile type changes were detected.
+     *
+     * @param map The map to save.
+     * @param oldId If the map was renamed (ID changed), pass the old ID here so that the old
+     *   JSON and PNG files are deleted after saving under the new name.
      */
-    fun saveMap(map: EditorMap): Boolean {
+    fun saveMap(map: EditorMap, oldId: String? = null): Boolean {
         // Validate and update readyToUse before saving
         val validatedMap = map.copy(readyToUse = map.validateReadyToUse())
 
@@ -143,12 +147,55 @@ object EditorStorage {
             println("Skipping map image regeneration for ${validatedMap.id} (no tile type changes)")
         }
 
+        // If the map was renamed (old ID differs from new ID), delete the old files
+        if (oldId != null && oldId != validatedMap.id) {
+            mapsCache.remove(oldId)
+            fileStorage.deleteFile("$USER_MAPS_DIR/$oldId.json")
+            fileStorage.deleteFile("$USER_MAPS_DIR/$oldId.png")
+            println("Deleted old map files for renamed map: $oldId -> ${validatedMap.id}")
+        }
+
         // Track changes to official data
         if (validatedMap.isOfficial) {
             OfficialDataChangeTracker.trackMapModified(validatedMap.id)
         }
 
         return imageRegenerated
+    }
+
+    /**
+     * Copy a map, reusing the existing PNG image instead of regenerating it.
+     * The copied map is always saved as a user map (isOfficial = false).
+     */
+    fun copyMap(sourceMap: EditorMap, copiedMap: EditorMap) {
+        val validatedMap = copiedMap.copy(readyToUse = copiedMap.validateReadyToUse())
+        mapsCache[validatedMap.id] = validatedMap
+        val json = EditorJsonSerializer.serializeMap(validatedMap)
+        fileStorage.writeFile("$USER_MAPS_DIR/${validatedMap.id}.json", json)
+
+        // Copy the PNG from the source map rather than regenerating it
+        val sourcePng = readMapImageBytes(sourceMap.id, sourceMap.isOfficial)
+        if (sourcePng != null) {
+            fileStorage.writeBinaryFile("$USER_MAPS_DIR/${validatedMap.id}.png", sourcePng)
+            println("Copied map image from ${sourceMap.id} to ${validatedMap.id}")
+        } else {
+            println("No source image found for ${sourceMap.id}, generating new image")
+            generateAndSaveMapImage(validatedMap)
+        }
+    }
+
+    /**
+     * Read the raw PNG bytes for a map image.
+     * Checks the expected directory first (based on [isOfficial]) to avoid unnecessary lookups.
+     */
+    private fun readMapImageBytes(mapId: String, isOfficial: Boolean): ByteArray? {
+        return if (isOfficial) {
+            fileStorage.readBinaryFile("$OFFICIAL_MAPS_DIR/$mapId.png")
+                ?: fileStorage.readBinaryFile("$USER_MAPS_DIR/$mapId.png")
+        } else {
+            fileStorage.readBinaryFile("$USER_MAPS_DIR/$mapId.png")
+                ?: fileStorage.readBinaryFile("$OFFICIAL_MAPS_DIR/$mapId.png")
+        } ?: fileStorage.readBinaryFile("$LEGACY_MAPS_DIR/$mapId.png")
     }
 
     private fun generateAndSaveMapImage(map: EditorMap) {
@@ -944,8 +991,9 @@ object EditorStorage {
         // Remove from cache
         mapsCache.remove(mapId)
         
-        // Delete file from user directory only
+        // Delete JSON and PNG files from user directory
         fileStorage.deleteFile("$USER_MAPS_DIR/$mapId.json")
+        fileStorage.deleteFile("$USER_MAPS_DIR/$mapId.png")
         return true
     }
     
