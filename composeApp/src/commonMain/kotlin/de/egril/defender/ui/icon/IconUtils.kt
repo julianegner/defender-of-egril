@@ -1160,7 +1160,7 @@ fun HammerIcon(
 }
 
 /**
- * Displays an Attack Area spell icon: 6 purple target circles in a 2x3 grid
+ * Displays an Attack Area spell icon: 3 purple target circles — 1 on top centered, 2 below
  */
 @Composable
 fun AttackAreaSpellIcon(
@@ -1170,35 +1170,29 @@ fun AttackAreaSpellIcon(
     Canvas(modifier = modifier.size(size)) {
         val w = this.size.width
         val h = this.size.height
-        val cellW = w / 3f
-        val cellH = h / 2f
-        val radius = minOf(cellW, cellH) * 0.33f
+        val radius = minOf(w, h) * 0.18f
         val innerRadius = radius * 0.4f
         val strokeWidth = radius * 0.3f
         val purple = Color(0xFFAA00FF)
 
-        for (row in 0 until 2) {
-            for (col in 0 until 3) {
-                val cx = cellW * (col + 0.5f)
-                val cy = cellH * (row + 0.5f)
-                drawCircle(
-                    color = purple,
-                    radius = radius,
-                    center = Offset(cx, cy),
-                    style = Stroke(width = strokeWidth)
-                )
-                drawCircle(
-                    color = purple,
-                    radius = innerRadius,
-                    center = Offset(cx, cy)
-                )
-            }
+        // 3 positions: 1 centered on top row, 2 on bottom row
+        val topRowY = h * 0.3f
+        val bottomRowY = h * 0.72f
+        val positions = listOf(
+            Offset(w / 2f, topRowY),            // top center
+            Offset(w * 0.27f, bottomRowY),       // bottom left
+            Offset(w * 0.73f, bottomRowY)        // bottom right
+        )
+
+        for (pos in positions) {
+            drawCircle(color = purple, radius = radius, center = pos, style = Stroke(width = strokeWidth))
+            drawCircle(color = purple, radius = innerRadius, center = pos)
         }
     }
 }
 
 /**
- * Displays an Attack Aimed spell icon: 3 purple target circles in a single centered row
+ * Displays an Attack Aimed spell icon: a single purple target circle
  */
 @Composable
 fun AttackAimedSpellIcon(
@@ -1208,27 +1202,14 @@ fun AttackAimedSpellIcon(
     Canvas(modifier = modifier.size(size)) {
         val w = this.size.width
         val h = this.size.height
-        val cellW = w / 3f
-        val radius = minOf(cellW, h) * 0.33f
+        val radius = minOf(w, h) * 0.33f
         val innerRadius = radius * 0.4f
         val strokeWidth = radius * 0.3f
         val purple = Color(0xFFAA00FF)
-        val cy = h / 2f
+        val center = Offset(w / 2f, h / 2f)
 
-        for (col in 0 until 3) {
-            val cx = cellW * (col + 0.5f)
-            drawCircle(
-                color = purple,
-                radius = radius,
-                center = Offset(cx, cy),
-                style = Stroke(width = strokeWidth)
-            )
-            drawCircle(
-                color = purple,
-                radius = innerRadius,
-                center = Offset(cx, cy)
-            )
-        }
+        drawCircle(color = purple, radius = radius, center = center, style = Stroke(width = strokeWidth))
+        drawCircle(color = purple, radius = innerRadius, center = center)
     }
 }
 
