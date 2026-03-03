@@ -1160,6 +1160,179 @@ fun HammerIcon(
 }
 
 /**
+ * Displays an Attack Area spell icon: 3 purple target circles — 1 on top centered, 2 below
+ */
+@Composable
+fun AttackAreaSpellIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 24.dp
+) {
+    Canvas(modifier = modifier.size(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val radius = minOf(w, h) * 0.18f
+        val innerRadius = radius * 0.4f
+        val strokeWidth = radius * 0.3f
+        val purple = Color(0xFFAA00FF)
+
+        // 3 positions: 1 centered on top row, 2 on bottom row
+        val topRowY = h * 0.3f
+        val bottomRowY = h * 0.72f
+        val positions = listOf(
+            Offset(w / 2f, topRowY),            // top center
+            Offset(w * 0.27f, bottomRowY),       // bottom left
+            Offset(w * 0.73f, bottomRowY)        // bottom right
+        )
+
+        for (pos in positions) {
+            drawCircle(color = purple, radius = radius, center = pos, style = Stroke(width = strokeWidth))
+            drawCircle(color = purple, radius = innerRadius, center = pos)
+        }
+    }
+}
+
+/**
+ * Displays an Attack Aimed spell icon: a single purple target circle
+ */
+@Composable
+fun AttackAimedSpellIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 24.dp
+) {
+    Canvas(modifier = modifier.size(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val radius = minOf(w, h) * 0.33f
+        val innerRadius = radius * 0.4f
+        val strokeWidth = radius * 0.3f
+        val purple = Color(0xFFAA00FF)
+        val center = Offset(w / 2f, h / 2f)
+
+        drawCircle(color = purple, radius = radius, center = center, style = Stroke(width = strokeWidth))
+        drawCircle(color = purple, radius = innerRadius, center = center)
+    }
+}
+
+/**
+ * Draws a small goblin head (green circle with pointy ears and red eyes) at the given center and scale.
+ */
+private fun DrawScope.drawSmallGoblinHead(cx: Float, cy: Float, headRadius: Float) {
+    val earW = headRadius * 0.55f
+    val earH = headRadius * 0.65f
+    val leftEar = Path().apply {
+        moveTo(cx - headRadius * 0.75f, cy - headRadius * 0.2f)
+        lineTo(cx - headRadius * 0.75f - earW, cy - headRadius * 0.2f - earH)
+        lineTo(cx - headRadius * 0.4f, cy - headRadius * 0.55f)
+        close()
+    }
+    val rightEar = Path().apply {
+        moveTo(cx + headRadius * 0.75f, cy - headRadius * 0.2f)
+        lineTo(cx + headRadius * 0.75f + earW, cy - headRadius * 0.2f - earH)
+        lineTo(cx + headRadius * 0.4f, cy - headRadius * 0.55f)
+        close()
+    }
+    drawPath(leftEar, Color(0xFF90EE90))
+    drawPath(rightEar, Color(0xFF90EE90))
+    drawCircle(color = Color(0xFF90EE90), radius = headRadius, center = Offset(cx, cy))
+    drawCircle(color = Color.Red, radius = headRadius * 0.18f, center = Offset(cx - headRadius * 0.32f, cy - headRadius * 0.1f))
+    drawCircle(color = Color.Red, radius = headRadius * 0.18f, center = Offset(cx + headRadius * 0.32f, cy - headRadius * 0.1f))
+}
+
+/**
+ * Draws a small ogre head (brown circle with white eyes) at the given center and scale.
+ */
+private fun DrawScope.drawSmallOgreHead(cx: Float, cy: Float, headRadius: Float) {
+    drawCircle(color = Color(0xFFA0522D), radius = headRadius, center = Offset(cx, cy))
+    drawCircle(color = Color.White, radius = headRadius * 0.22f, center = Offset(cx - headRadius * 0.35f, cy - headRadius * 0.1f))
+    drawCircle(color = Color.White, radius = headRadius * 0.22f, center = Offset(cx + headRadius * 0.35f, cy - headRadius * 0.1f))
+    drawCircle(color = Color.Black, radius = headRadius * 0.1f, center = Offset(cx - headRadius * 0.35f, cy - headRadius * 0.1f))
+    drawCircle(color = Color.Black, radius = headRadius * 0.1f, center = Offset(cx + headRadius * 0.35f, cy - headRadius * 0.1f))
+}
+
+/**
+ * Draws fear scribbles (chaotic zigzag lines in black) above a head center.
+ */
+private fun DrawScope.drawFearScribbles(cx: Float, topY: Float, width: Float, strokeWidth: Float) {
+    val halfW = width / 2f
+    val zigzagH = width * 0.35f
+    val scribblePaint = Color.Black
+
+    // Two zigzag scribble lines
+    for (i in 0..1) {
+        val yBase = topY + i * zigzagH * 0.9f
+        val scribble = Path().apply {
+            moveTo(cx - halfW, yBase)
+            lineTo(cx - halfW * 0.4f, yBase - zigzagH * 0.5f)
+            lineTo(cx + halfW * 0.2f, yBase + zigzagH * 0.3f)
+            lineTo(cx + halfW, yBase - zigzagH * 0.4f)
+        }
+        drawPath(scribble, scribblePaint, style = Stroke(width = strokeWidth, cap = StrokeCap.Round, join = StrokeJoin.Round))
+    }
+}
+
+/**
+ * Displays a Fear Spell icon: goblin head with black fear scribbles on top
+ */
+@Composable
+fun FearSpellIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 24.dp
+) {
+    Canvas(modifier = modifier.size(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val s = minOf(w, h)
+        val headRadius = s * 0.27f
+        val cx = w / 2f
+        // Position head in lower portion so scribbles fit above
+        val cy = h * 0.65f
+
+        drawSmallGoblinHead(cx, cy, headRadius)
+
+        // Fear scribbles above the head
+        val scribbleTopY = cy - headRadius - s * 0.05f
+        drawFearScribbles(cx, scribbleTopY - s * 0.12f, headRadius * 1.6f, s * 0.05f)
+    }
+}
+
+/**
+ * Displays a Fear Spell (Area) icon: 2 goblins and 1 ogre with black fear scribbles
+ */
+@Composable
+fun FearSpellAreaIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 24.dp
+) {
+    Canvas(modifier = modifier.size(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val s = minOf(w, h)
+
+        // Layout: 2 small goblins on the left (stacked), 1 ogre on the right
+        val goblinRadius = s * 0.18f
+        val ogreRadius = s * 0.22f
+        val leftX = w * 0.27f
+        val rightX = w * 0.73f
+        val topY = h * 0.3f
+        val bottomY = h * 0.72f
+        val ogreCY = (topY + bottomY) / 2f
+
+        // Draw 2 goblins
+        drawSmallGoblinHead(leftX, topY, goblinRadius)
+        drawSmallGoblinHead(leftX, bottomY, goblinRadius)
+
+        // Draw ogre
+        drawSmallOgreHead(rightX, ogreCY, ogreRadius)
+
+        // Fear scribbles above each head
+        val scribbleStroke = s * 0.045f
+        drawFearScribbles(leftX, topY - goblinRadius - s * 0.01f, goblinRadius * 1.5f, scribbleStroke)
+        drawFearScribbles(leftX, bottomY - goblinRadius - s * 0.01f, goblinRadius * 1.5f, scribbleStroke)
+        drawFearScribbles(rightX, ogreCY - ogreRadius - s * 0.01f, ogreRadius * 1.5f, scribbleStroke)
+    }
+}
+
+/**
  * Displays a snowflake icon using Canvas for freeze effects
  */
 @Composable
