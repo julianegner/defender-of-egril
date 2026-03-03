@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ContentScale
 import de.egril.defender.ui.animations.AnimationType
 import de.egril.defender.ui.animations.LottieAnimation
 
@@ -27,16 +28,17 @@ fun InstantTowerSpellAnimation(
         LottieAnimation(
             animationType = AnimationType.INSTANT_TOWER_SPELL,
             modifier = modifier.fillMaxSize(),
-            iterations = Int.MAX_VALUE
+            iterations = Int.MAX_VALUE,
+            contentScale = ContentScale.FillBounds
         )
     } else {
-        // Static fallback: three thin nested borders in white, gold and cyan
+        // Static fallback: three thin nested pill-shaped borders in gold, cyan and purple
         Canvas(modifier = modifier.fillMaxSize()) {
             val w = size.width
             val h = size.height
             val strokeWidth = 2f
             val cornerRadius = h / 2f  // Match Material3 Button's fully-rounded (pill) shape
-            val colors = listOf(Color.White, SpellInstantTowerColor, Color.Cyan)
+            val colors = listOf(SpellInstantTowerColor, Color.Cyan, Color(0xFFAA00FF))
             colors.forEachIndexed { i, color ->
                 val inset = strokeWidth / 2f + i * (strokeWidth + 1f)
                 drawRoundRect(
