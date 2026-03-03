@@ -19,6 +19,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import de.egril.defender.config.LogConfig
+import de.egril.defender.audio.GlobalSoundManager
+import de.egril.defender.audio.SoundEvent
 
 sealed class Screen {
     object MainMenu : Screen()
@@ -114,6 +116,10 @@ class GameViewModel {
 
     private val _pendingSpellCast = MutableStateFlow<SpellType?>(null)
     val pendingSpellCast: StateFlow<SpellType?> = _pendingSpellCast.asStateFlow()
+
+    // Position to scroll to (e.g., bomb explosion)
+    private val _pendingScrollToPosition = MutableStateFlow<Position?>(null)
+    val pendingScrollToPosition: StateFlow<Position?> = _pendingScrollToPosition.asStateFlow()
 
     // Post-target confirmation dialog state
     private val _showSpellTargetConfirmation = MutableStateFlow<Pair<SpellType, Any>?>(null)
@@ -776,6 +782,12 @@ class GameViewModel {
             // Complete enemy turn: apply effects and return to player turn
             engine.completeEnemyTurn()
             
+            // Trigger camera pan to bomb explosion position if any bomb exploded this turn
+            val currentStateForBombs = _gameState.value
+            if (currentStateForBombs != null && currentStateForBombs.bombExplosionEffects.isNotEmpty()) {
+                _pendingScrollToPosition.value = currentStateForBombs.bombExplosionEffects.first().center
+            }
+
             // Autosave at the beginning of the new player turn (after enemy turn completes)
             // This ensures the phase is PLAYER_TURN when the save is created
             autoSaveGame()
@@ -1655,6 +1667,13 @@ class GameViewModel {
     }
 
     /**
+     * Clear pending scroll to position (called after UI has consumed it)
+     */
+    fun clearPendingScrollPosition() {
+        _pendingScrollToPosition.value = null
+    }
+
+    /**
      * Toggle spell selection (select or deselect)
      * No confirmation dialog - enters targeting mode directly
      */
@@ -1955,6 +1974,8 @@ class GameViewModel {
                         castTurn = gameState.turnNumber.value
                     )
                     gameState.activeSpellEffects.add(effect)
+                    // Play ticking sound when bomb is placed
+                    GlobalSoundManager.playSound(SoundEvent.BOMB_TICKING)
                     if (LogConfig.ENABLE_SPELL_LOGGING) {
                     println("Bomb: Placed at $position, will explode in 2 turns!")
                     }
@@ -2048,14 +2069,42 @@ class GameViewModel {
         // Calculate valid targets based on spell type
         val validTargets: Set<Any> = when (spell.targetType) {
             SpellTargetType.POSITION -> {
-                // All tiles on the map are valid positions
-                val positions = mutableSetOf<Position>()
-                for (x in 0 until gameState.level.gridWidth) {
-                    for (y in 0 until gameState.level.gridHeight) {
-                        positions.add(Position(x, y))
+                if (spell == SpellType.BOMB) {
+                    // Bomb can only be placed on empty path tiles:
+                    // no enemies, no barricades, no field effects, no traps, no other bombs
+                    val occupiedByEnemy = gameState.attackers
+                        .filter { !it.isDefeated.value }
+                        .map { it.position.value }
+                        .toSet()
+                    val occupiedByBarricade = gameState.barricades.map { it.position }.toSet()
+                    val occupiedByFieldEffect = gameState.fieldEffects.map { it.position }.toSet()
+                    val occupiedByTrap = gameState.traps.map { it.position }.toSet()
+                    val occupiedByBomb = gameState.activeSpellEffects
+                        .filter { it.spell == SpellType.BOMB && it.position != null }
+                        .map { it.position!! }
+                        .toSet()
+                    val blocked = occupiedByEnemy + occupiedByBarricade + occupiedByFieldEffect +
+                            occupiedByTrap + occupiedByBomb
+                    val positions = mutableSetOf<Position>()
+                    for (x in 0 until gameState.level.gridWidth) {
+                        for (y in 0 until gameState.level.gridHeight) {
+                            val pos = Position(x, y)
+                            if (gameState.level.isOnPath(pos) && pos !in blocked) {
+                                positions.add(pos)
+                            }
+                        }
                     }
+                    positions
+                } else {
+                    // All tiles on the map are valid positions for other spells
+                    val positions = mutableSetOf<Position>()
+                    for (x in 0 until gameState.level.gridWidth) {
+                        for (y in 0 until gameState.level.gridHeight) {
+                            positions.add(Position(x, y))
+                        }
+                    }
+                    positions
                 }
-                positions
             }
             SpellTargetType.ENEMY -> {
                 // All active (non-defeated) enemies are valid targets

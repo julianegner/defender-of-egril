@@ -1321,7 +1321,7 @@
     <string name="spell_attack_aimed_desc">Deal 80 damage to the enemy on a targeted tile</string>
     <string name="spell_heal_desc">Restore 3 health points</string>
     <string name="spell_instant_tower_desc">Deploy the next tower you build instantly without any build time</string>
-    <string name="spell_bomb_desc">Place a bomb that explodes after 2 turns, dealing 100 damage to enemies and structures in range</string>
+    <string name="spell_bomb_desc">Place a bomb that explodes after 2 turns, dealing heavy damage (200/150/100/50) based on distance to enemies, barricades and bridges. Enemies flee from bombs about to explode.</string>
     <string name="spell_double_tower_level_desc">Double a tower's damage output for 1 turn</string>
     <string name="spell_cooling_spell_desc">Create an area that reduces enemy movement speed by 1 for 3 turns</string>
     <string name="spell_freeze_spell_desc">Freeze an enemy for 1 turn (immunity: Demons, Dragons, Ewhad)</string>

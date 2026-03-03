@@ -36,5 +36,9 @@ enum class SoundEvent {
     TOWER_SOLD,
     
     // Game phase sounds
-    BATTLE_START
+    BATTLE_START,
+    
+    // Bomb spell sounds
+    BOMB_TICKING,
+    BOMB_EXPLOSION
 }

@@ -80,6 +80,7 @@ fun App() {
         val pendingSpellCast by viewModel.pendingSpellCast.collectAsState()
         val showSpellTargetConfirmation by viewModel.showSpellTargetConfirmation.collectAsState()
         val showFreezeImmuneWarning by viewModel.showFreezeImmuneWarning.collectAsState()
+        val pendingScrollToPosition by viewModel.pendingScrollToPosition.collectAsState()
         
         // Show player selection dialog if needed
         var showPlayerSelection by remember { mutableStateOf(false) }
@@ -353,7 +354,9 @@ fun App() {
                         onConfirmTargetSpell = { viewModel.confirmSpellCast() },
                         onDismissTargetConfirmation = { viewModel.dismissSpellConfirmation() },
                         showFreezeImmuneWarning = showFreezeImmuneWarning,
-                        onDismissFreezeWarning = { viewModel.dismissFreezeImmuneWarning() }
+                        onDismissFreezeWarning = { viewModel.dismissFreezeImmuneWarning() },
+                        scrollToPosition = pendingScrollToPosition,
+                        onScrollToPositionConsumed = { viewModel.clearPendingScrollPosition() }
                     )
                 }
             }

@@ -34,4 +34,10 @@ object TargetCircleConstants {
     const val ATTACK_AREA_SPELL_RADIUS = 2
     /** Color used for the ATTACK_AREA spell targeting preview circles */
     val ATTACK_AREA_SPELL_COLOR = Color(0xFF9C27B0)  // Purple to distinguish spell from tower attacks
+    
+    // BOMB spell targeting/range preview constants
+    /** Hex radius of the BOMB spell explosion effect */
+    const val BOMB_SPELL_RADIUS = 3
+    /** Color used for bomb range preview circles (orange/fire) */
+    val BOMB_SPELL_COLOR = Color(0xFFFF6F00)
 }

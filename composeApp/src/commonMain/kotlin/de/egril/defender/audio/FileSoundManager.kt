@@ -60,6 +60,10 @@ class FileSoundManager : SoundManager {
             
             // Game phase sounds
             SoundEvent.BATTLE_START -> "battle_start.wav"
+            
+            // Bomb spell sounds
+            SoundEvent.BOMB_TICKING -> "bomb_ticking.wav"
+            SoundEvent.BOMB_EXPLOSION -> "bomb_exploding.wav"
         }
         
         // Play the sound file on the platform

@@ -17,6 +17,7 @@ import de.egril.defender.model.PlayerAbilities
 import de.egril.defender.model.AbilityType
 import de.egril.defender.model.SpellType
 import de.egril.defender.save.PlayerProfile
+import de.egril.defender.ui.icon.BombIcon
 import de.egril.defender.ui.icon.HeartIcon
 import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.HammerIcon
@@ -503,6 +504,10 @@ internal fun SpellCard(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    if (spell == SpellType.BOMB) {
+                        BombIcon(size = 20.dp)
+                        Spacer(modifier = Modifier.width(6.dp))
+                    }
                     Text(
                         text = spell.getLocalizedName(),
                         style = MaterialTheme.typography.titleMedium,

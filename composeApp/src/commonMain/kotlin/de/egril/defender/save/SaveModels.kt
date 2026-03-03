@@ -39,7 +39,8 @@ data class SavedGame(
     val worldMapSave: WorldMapSave? = null,  // World map progress at the time of saving (for conflict detection on load)
     val playerProfileData: PlayerProfileData? = null,  // Player profile data (achievements, XP, stats) when game data transfer is ON
     val currentMana: Int = 0,  // Current mana at the time of saving
-    val maxMana: Int = 0  // Maximum mana at the time of saving
+    val maxMana: Int = 0,  // Maximum mana at the time of saving
+    val spellEffects: List<SavedSpellEffect> = emptyList()  // Active spell effects (e.g. placed bombs)
 )
 
 /**
@@ -103,6 +104,15 @@ data class SavedBarricade(
     val defenderId: Int,  // The tower that built this barricade
     val id: Int = 0,  // Barricade ID (0 for old saves)
     val supportedTowerId: Int? = null  // ID of tower on this barricade (null if none)
+)
+
+data class SavedSpellEffect(
+    val spell: String,  // SpellType name
+    val position: Position? = null,
+    val defenderId: Int? = null,
+    val attackerId: Int? = null,
+    val turnsRemaining: Int = 0,
+    val castTurn: Int = 0
 )
 
 /**

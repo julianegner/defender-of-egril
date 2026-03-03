@@ -134,6 +134,20 @@ object SaveJsonSerializer {
     }"""
         }
         
+        val spellEffectsJson = savedGame.spellEffects.joinToString(",\n    ") { effect ->
+            val posStr = effect.position?.let { """{"x": ${it.x}, "y": ${it.y}}""" } ?: "null"
+            val defStr = effect.defenderId?.toString() ?: "null"
+            val atkStr = effect.attackerId?.toString() ?: "null"
+            """{
+      "spell": "${effect.spell}",
+      "position": $posStr,
+      "defenderId": $defStr,
+      "attackerId": $atkStr,
+      "turnsRemaining": ${effect.turnsRemaining},
+      "castTurn": ${effect.castTurn}
+    }"""
+        }
+        
         // Escape comment for JSON (handle quotes and newlines)
         val commentJson = savedGame.comment?.let { comment ->
             val escaped = comment
@@ -188,6 +202,9 @@ object SaveJsonSerializer {
   "nextRaftId": ${savedGame.nextRaftId},
   "barricades": [
     $barricadesJson
+  ],
+  "spellEffects": [
+    $spellEffectsJson
   ],
   "comment": $commentJson,
   "mapId": $mapIdJson,
@@ -315,6 +332,22 @@ object SaveJsonSerializer {
                 }
             }
             
+            // Parse spell effects (optional field for backward compatibility with old saves)
+            val spellEffects = mutableListOf<SavedSpellEffect>()
+            if (dataJson.contains("\"spellEffects\":")) {
+                val spellEffectsSection = try {
+                    dataJson.substringAfter("\"spellEffects\": [").substringBefore("],")
+                } catch (e: Exception) {
+                    ""  // Old saves don't have spellEffects
+                }
+                if (spellEffectsSection.isNotBlank()) {
+                    val effectEntries = JsonUtils.splitJsonArray(spellEffectsSection)
+                    for (entry in effectEntries) {
+                        spellEffects.add(parseSavedSpellEffect(entry))
+                    }
+                }
+            }
+            
             // Parse comment (optional field, may not exist in older saves)
             val comment = try {
                 extractCommentValue(dataJson)
@@ -381,7 +414,8 @@ object SaveJsonSerializer {
                 barricades = barricades,
                 worldMapSave = worldMapSave,
                 currentMana = try { JsonUtils.extractValue(dataJson, "currentMana").toInt() } catch (e: Exception) { 0 },
-                maxMana = try { JsonUtils.extractValue(dataJson, "maxMana").toInt() } catch (e: Exception) { 0 }
+                maxMana = try { JsonUtils.extractValue(dataJson, "maxMana").toInt() } catch (e: Exception) { 0 },
+                spellEffects = spellEffects
             )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
@@ -513,6 +547,28 @@ object SaveJsonSerializer {
             "DWARVEN"  // Default to dwarven trap for old saves
         }
         return SavedTrap(position, damage, defenderId, type)
+    }
+    
+    private fun parseSavedSpellEffect(json: String): SavedSpellEffect {
+        val spell = JsonUtils.extractValue(json, "spell")
+        val posSection = try {
+            val raw = json.substringAfter("\"position\":").trim()
+            if (raw.startsWith("null")) null else {
+                val inner = raw.substringAfter("{").substringBefore("}")
+                val x = JsonUtils.extractValue(inner, "x").toInt()
+                val y = JsonUtils.extractValue(inner, "y").toInt()
+                Position(x, y)
+            }
+        } catch (e: Exception) { null }
+        val defenderId = try {
+            val defStr = JsonUtils.extractValue(json, "defenderId"); if (defStr == "null") null else defStr.toInt()
+        } catch (e: Exception) { null }
+        val attackerId = try {
+            val atkStr = JsonUtils.extractValue(json, "attackerId"); if (atkStr == "null") null else atkStr.toInt()
+        } catch (e: Exception) { null }
+        val turnsRemaining = try { JsonUtils.extractValue(json, "turnsRemaining").toInt() } catch (e: Exception) { 0 }
+        val castTurn = try { JsonUtils.extractValue(json, "castTurn").toInt() } catch (e: Exception) { 0 }
+        return SavedSpellEffect(spell, posSection, defenderId, attackerId, turnsRemaining, castTurn)
     }
     
     private fun parsePosition(json: String): Position {

@@ -338,6 +338,17 @@ object SaveFileStorage {
             )
         }
         
+        val spellEffects = gameState.activeSpellEffects.map { effect ->
+            SavedSpellEffect(
+                spell = effect.spell.name,
+                position = effect.position,
+                defenderId = effect.defenderId,
+                attackerId = effect.attackerId,
+                turnsRemaining = effect.turnsRemaining,
+                castTurn = effect.castTurn
+            )
+        }
+        
         return SavedGame(
             id = saveId,
             timestamp = currentTimeMillis(),
@@ -363,7 +374,8 @@ object SaveFileStorage {
             barricades = barricades,
             worldMapSave = null,  // Don't automatically include world map - only on explicit export
             currentMana = gameState.currentMana.value,
-            maxMana = gameState.maxMana.value
+            maxMana = gameState.maxMana.value,
+            spellEffects = spellEffects
         )
     }
     
@@ -482,6 +494,29 @@ object SaveFileStorage {
                 supportedTowerId = mutableStateOf(barricade.supportedTowerId)
             )
         })
+        
+        // Restore active spell effects (e.g. bombs placed before save)
+        gameState.activeSpellEffects.clear()
+        for (savedEffect in savedGame.spellEffects) {
+            val spellType = try {
+                SpellType.valueOf(savedEffect.spell)
+            } catch (e: Exception) {
+                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Warning: Unknown spell type '${savedEffect.spell}' in saved spell effect, skipping")
+                }
+                continue
+            }
+            gameState.activeSpellEffects.add(
+                ActiveSpellEffect(
+                    spell = spellType,
+                    position = savedEffect.position,
+                    defenderId = savedEffect.defenderId,
+                    attackerId = savedEffect.attackerId,
+                    turnsRemaining = savedEffect.turnsRemaining,
+                    castTurn = savedEffect.castTurn
+                )
+            )
+        }
         
         return gameState
     }

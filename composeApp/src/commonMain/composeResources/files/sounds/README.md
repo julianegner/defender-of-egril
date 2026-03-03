@@ -105,6 +105,14 @@ battle_start
 https://freesound.org/people/Porphyr/sounds/188815/
 Attribution 4.0
 
+# bomb effects
+
+bomb ticking
+Ticking Timer 05 Sec.wav by LilMati -- https://freesound.org/s/487725/ -- License: Creative Commons 0
+
+bomb exploding
+impact_.wav by sangnamsa -- https://freesound.org/s/473941/ -- License: Creative Commons 0
+
 
 
 ## Recent Updates (November 2024)

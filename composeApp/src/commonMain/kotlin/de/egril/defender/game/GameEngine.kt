@@ -609,6 +609,9 @@ class GameEngine(private val state: GameState) {
         // Find the maximum speed to know how many steps to simulate
         val maxSpeed = regularAttackers.maxOfOrNull { it.type.speed } ?: 0
         
+        // Pre-compute imminent bombs (turnsRemaining <= 1) for flee behavior
+        val imminentBombs = state.activeSpellEffects.filter { it.spell == SpellType.BOMB && it.position != null && it.turnsRemaining <= 1 }
+        
         // Simulate movement step by step
         for (stepIndex in 0 until maxSpeed) {
             val movementsInThisStep = mutableListOf<Pair<Int, Position>>()
@@ -711,7 +714,35 @@ class GameEngine(private val state: GameState) {
                 if (stepIndex == 0) {
                     println("Enemy turn: Attacker ${attacker.id} (${attacker.type}) at $currentPos pathing to target: $target")
                 }
-                var path = pathfinding.findPath(currentPos, target, attacker)
+                
+                // Enemy flee behavior: if a bomb with 1 turn remaining is nearby, move away from it
+                val nearbyBomb = if (imminentBombs.isNotEmpty()) {
+                    imminentBombs.find { effect ->
+                        effect.position != null && currentPos.hexDistanceTo(effect.position) <= 3
+                    }
+                } else null
+                var path = if (nearbyBomb?.position != null) {
+                    val bombPos = nearbyBomb.position
+                    // Find a valid path tile neighbor that is farther from the bomb
+                    val neighbors = currentPos.getHexNeighbors().filter { neighbor ->
+                        neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
+                        neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
+                        (state.level.isOnPath(neighbor) || state.level.isSpawnPoint(neighbor)) &&
+                        state.barricades.none { b -> b.position == neighbor && !b.isDestroyed() } &&
+                        state.attackers.none { a -> !a.isDefeated.value && a.id != attacker.id && a.position.value == neighbor }
+                    }
+                    val fleeTo = neighbors.maxByOrNull { it.hexDistanceTo(bombPos) }
+                    if (fleeTo != null && fleeTo.hexDistanceTo(bombPos) > currentPos.hexDistanceTo(bombPos)) {
+                        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
+                            println("Attacker ${attacker.id} (${attacker.type}) fleeing from bomb at $bombPos to $fleeTo")
+                        }
+                        listOf(currentPos, fleeTo)
+                    } else {
+                        pathfinding.findPath(currentPos, target, attacker)
+                    }
+                } else {
+                    pathfinding.findPath(currentPos, target, attacker)
+                }
                 if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                 println("path: $path")
                 }
@@ -1269,6 +1300,12 @@ class GameEngine(private val state: GameState) {
         if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("GameEngine.startEnemyTurn: Completed raft movement processing")
         }
+        
+        // Play ticking sound if any bombs are active on the level
+        val hasBombs = state.activeSpellEffects.any { it.spell == SpellType.BOMB }
+        if (hasBombs) {
+            GlobalSoundManager.playSound(SoundEvent.BOMB_TICKING)
+        }
     }
     
     /**
@@ -1567,6 +1604,9 @@ class GameEngine(private val state: GameState) {
 
         // Update spell buff effects (decrement turns remaining, remove expired)
         updateSpellBuffs()
+        
+        // Clear bomb explosion visual effects from previous turn
+        state.bombExplosionEffects.clear()
 
         // Process special enemy abilities
         enemyAbilities.processEnemyAbilities()
@@ -1652,24 +1692,39 @@ class GameEngine(private val state: GameState) {
     }
     
     /**
-     * Execute bomb explosion: damage enemies, barricades, and bridges in 2-hex range
+     * Execute bomb explosion: damage enemies, barricades, and bridges in 3-hex range
+     * with distance-based damage (heavy at 0-1, medium at 2, lower at 3)
      */
     private fun executeBombExplosion(position: Position) {
-        val explosionDamage = 100
-        val explosionRange = 2
+        val explosionRange = 3
         var enemiesDamaged = 0
         var barricadesDamaged = 0
         var bridgesDestroyed = 0
-        
+
+        // Calculate damage based on distance from blast center
+        fun damageAt(distance: Int): Int = when (distance) {
+            0 -> 200  // Direct hit: heaviest
+            1 -> 150  // Adjacent: heavy
+            2 -> 100  // 2 steps: medium
+            else -> 50 // 3 steps: lower
+        }
+
         // Damage enemies in range
         state.attackers.forEach { attacker ->
-            val distance = attacker.position.value.hexDistanceTo(position)
-            if (distance <= explosionRange) {
-                attacker.currentHealth.value = (attacker.currentHealth.value - explosionDamage).coerceAtLeast(0)
-                enemiesDamaged++
-                // Update dragon level if it's a dragon
-                if (attacker.type.isDragon) {
-                    attacker.updateDragonLevel()
+            if (!attacker.isDefeated.value) {
+                val distance = attacker.position.value.hexDistanceTo(position)
+                if (distance <= explosionRange) {
+                    val dmg = damageAt(distance)
+                    attacker.currentHealth.value = (attacker.currentHealth.value - dmg).coerceAtLeast(0)
+                    enemiesDamaged++
+                    // Mark as defeated if health reaches 0
+                    if (attacker.currentHealth.value <= 0) {
+                        attacker.isDefeated.value = true
+                    }
+                    // Update dragon level if it's a dragon
+                    if (attacker.type.isDragon) {
+                        attacker.updateDragonLevel()
+                    }
                 }
             }
         }
@@ -1678,7 +1733,8 @@ class GameEngine(private val state: GameState) {
         state.barricades.forEach { barricade ->
             val distance = barricade.position.hexDistanceTo(position)
             if (distance <= explosionRange) {
-                barricade.healthPoints.value = (barricade.healthPoints.value - explosionDamage).coerceAtLeast(0)
+                val dmg = damageAt(distance)
+                barricade.healthPoints.value = (barricade.healthPoints.value - dmg).coerceAtLeast(0)
                 barricadesDamaged++
             }
         }
@@ -1693,11 +1749,31 @@ class GameEngine(private val state: GameState) {
         bridgesToRemove.forEach { bridge ->
             state.bridges.remove(bridge)
         }
-        
+
+        // Process defeated enemies (grant coins, remove from map, etc.)
+        combatSystem.processDefeatedAttackers()
+
+        // Collect affected positions for the explosion visual effect
+        val affectedPositions = position.getHexNeighborsWithinRadius(
+            explosionRange,
+            state.level.gridWidth,
+            state.level.gridHeight
+        ).toMutableList()
+        affectedPositions.add(position)
+
+        // Record explosion for UI animation (cleared next turn)
+        state.bombExplosionEffects.add(
+            BombExplosionEffect(
+                center = position,
+                affectedPositions = affectedPositions,
+                turnNumber = state.turnNumber.value
+            )
+        )
+
         if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("Bomb exploded at $position! Damaged $enemiesDamaged enemies, $barricadesDamaged barricades, destroyed $bridgesDestroyed bridges")
         }
-        GlobalSoundManager.playSound(SoundEvent.ATTACK_AREA)
+        GlobalSoundManager.playSound(SoundEvent.BOMB_EXPLOSION)
     }
     
     /**

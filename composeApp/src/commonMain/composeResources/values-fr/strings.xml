@@ -1319,7 +1319,7 @@
     <string name="spell_attack_aimed_desc">Inflige 80 dégâts à l\'ennemi sur une case ciblée</string>
     <string name="spell_heal_desc">Restaure 3 points de vie</string>
     <string name="spell_instant_tower_desc">La prochaine tour construite est déployée instantanément sans délai</string>
-    <string name="spell_bomb_desc">Place une bombe qui explose après 2 tours, infligeant 100 dégâts aux ennemis et structures</string>
+    <string name="spell_bomb_desc">Place une bombe qui explose après 2 tours, infligeant de lourds dégâts (200/150/100/50) selon la distance aux ennemis, barricades et ponts. Les ennemis fuient les bombes sur le point d\'exploser.</string>
     <string name="spell_double_tower_level_desc">Double les dégâts d\'une tour pendant 1 tour</string>
     <string name="spell_cooling_spell_desc">Crée une zone qui réduit la vitesse de mouvement des ennemis de 1 pendant 3 tours</string>
     <string name="spell_freeze_spell_desc">Gèle un ennemi pendant 1 tour (immunité: Démons, Dragons, Ewhad)</string>
