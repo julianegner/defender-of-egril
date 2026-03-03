@@ -1869,6 +1869,11 @@ class GameEngine(private val state: GameState) {
      * Get kills this turn for achievement tracking
      */
     fun getKillsThisTurn(): Int = combatSystem.getKillsThisTurn()
+
+    /**
+     * Process defeated attackers (award coins, remove from list). Used after spell effects.
+     */
+    fun processDefeatedAttackers() = combatSystem.processDefeatedAttackers()
     
     /**
      * Set callback for raft loss events (for achievements)
