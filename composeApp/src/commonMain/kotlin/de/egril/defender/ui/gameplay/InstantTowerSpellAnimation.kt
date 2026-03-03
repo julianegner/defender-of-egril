@@ -35,13 +35,15 @@ fun InstantTowerSpellAnimation(
             val w = size.width
             val h = size.height
             val strokeWidth = 2f
+            val cornerRadius = h / 2f  // Match Material3 Button's fully-rounded (pill) shape
             val colors = listOf(Color.White, SpellInstantTowerColor, Color.Cyan)
             colors.forEachIndexed { i, color ->
                 val inset = strokeWidth / 2f + i * (strokeWidth + 1f)
-                drawRect(
+                drawRoundRect(
                     color = color.copy(alpha = 0.85f),
                     topLeft = androidx.compose.ui.geometry.Offset(inset, inset),
                     size = androidx.compose.ui.geometry.Size(w - 2 * inset, h - 2 * inset),
+                    cornerRadius = androidx.compose.ui.geometry.CornerRadius(cornerRadius - inset),
                     style = Stroke(width = strokeWidth)
                 )
             }
