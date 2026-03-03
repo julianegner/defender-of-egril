@@ -883,12 +883,24 @@ fun GridCell(
         else -> GamePlayColors.NonPlayable  // Light gray for off-path areas (non-playable)
     }
 
+    // Check if attacker on this tile is frozen (freeze spell)
+    val attackerIsFrozen = attacker != null && gameState.activeSpellEffects.any {
+        it.spell == SpellType.FREEZE_SPELL && it.attackerId == attacker.id
+    }
+
+    // Check if cooling spell reduces this attacker's movement to 0
+    val coolingReducesAttackerToZero = attacker != null && isInCoolingArea && run {
+        val penalizedSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
+        maxOf(0, penalizedSpeed - 1) == 0
+    }
+
     // Apply slight tint for selection states, but keep base color visible
     // Override with red background for enemy units and colored background for defenders
     // During INITIAL_BUILDING phase, don't apply any selection tints
     // Field effects also modify the background color
     // Special case: Keep river background visible for defenders on rafts
     val backgroundColor = when {
+        attackerIsFrozen || coolingReducesAttackerToZero -> TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f)  // Turquoise background for frozen/cooled-to-zero enemies
         attacker != null -> if (isDarkMode) GamePlayColors.ErrorDark else GamePlayColors.Error  // Darker red background for enemies in dark mode
         defender != null && isRiverTile -> {
             // Keep river blue background visible for defenders on rafts
@@ -1547,7 +1559,7 @@ private fun BoxScope.GridCellContent(
                     style = MaterialTheme.typography.labelSmall,
                     color = TargetCircleConstants.COOLING_SPELL_COLOR,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 2.dp)
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
             }
         }
