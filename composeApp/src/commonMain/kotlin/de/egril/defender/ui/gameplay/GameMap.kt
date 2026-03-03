@@ -31,7 +31,8 @@ import de.egril.defender.ui.*
 import de.egril.defender.ui.animations.BarricadeDamageAnimation
 import de.egril.defender.ui.animations.BombExplosionAnimation
 import de.egril.defender.ui.animations.CoolingAreaAnimation
-import de.egril.defender.ui.animations.DoubleLevelSpellAnimation
+import de.egril.defender.ui.animations.InstantTowerSpellAnimation
+import de.egril.defender.ui.animations.SpellDoubleReachColor
 import de.egril.defender.ui.animations.FearSpellAnimation
 import de.egril.defender.ui.animations.FreezeSpellAnimation
 import de.egril.defender.ui.animations.GreenWitchHealingAnimation
@@ -740,17 +741,28 @@ fun GridCell(
             else -> false
         }
     } else false
-    val cellIsInRange = selectedDefenderId?.let { defenderId ->
-        val selectedDefender = gameState.defenders.find { it.id == defenderId }
-        selectedDefender?.let { sel ->
-            if (sel.position.value == position) {
-                false  // Don't highlight the defender's own cell
-            } else {
-                val distance = sel.position.value.distanceTo(position)
-                distance >= sel.type.minRange && distance <= sel.range
-            }
-        } ?: false
+    val selectedDefenderForRange = selectedDefenderId?.let { id -> gameState.defenders.find { it.id == id } }
+    val hasDoubleReachBuff = selectedDefenderForRange?.let { sel ->
+        gameState.activeSpellEffects.any { it.spell == SpellType.DOUBLE_TOWER_REACH && it.defenderId == sel.id }
     } ?: false
+    val cellIsInRange = selectedDefenderForRange?.let { sel ->
+        if (sel.position.value == position) {
+            false  // Don't highlight the defender's own cell
+        } else {
+            val distance = sel.position.value.distanceTo(position)
+            val effectiveRange = if (hasDoubleReachBuff) sel.range * 2 else sel.range
+            distance >= sel.type.minRange && distance <= effectiveRange
+        }
+    } ?: false
+    // Tiles that are in range ONLY because of the double-reach spell (beyond normal range)
+    val cellIsInDoubleReachOnlyRange = if (hasDoubleReachBuff) {
+        val sel = selectedDefenderForRange!!
+        if (sel.position.value == position) false
+        else {
+            val distance = sel.position.value.distanceTo(position)
+            distance >= sel.type.minRange && distance > sel.range && distance <= sel.range * 2
+        }
+    } else false
     
     // Calculate hover preview for tower placement
     val isHoveringForPreview = hoveredPosition == position && selectedDefenderType != null
@@ -994,6 +1006,9 @@ fun GridCell(
         // Buildable tile highlighting - lighter green borders with dashed line when tower type is selected
         isBuildableAndEmpty || canBeUsedAsTowerBase -> GamePlayColors.BuildableHighlight  // Lighter green border for buildable tiles and tower bases
         
+        // Double-reach-only tiles: thin purple solid border
+        cellIsInDoubleReachOnlyRange && isValidTargetTile && showRange && canPlaceTrapHere -> SpellDoubleReachColor
+        
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (path or river for area attacks)
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow  // Yellow border for selected defender (not during initial building)
 
@@ -1026,6 +1041,7 @@ fun GridCell(
         cellIsInBarricadeRange || cellIsValidForMineTrapPlacement || cellIsValidForMagicalTrapPlacement -> 3.dp  // Medium border for trap/barricade placement range
         isBuildableAndEmpty || canBeUsedAsTowerBase -> 3.dp  // Medium border for buildable tiles and tower bases
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
+        cellIsInDoubleReachOnlyRange && isValidTargetTile && showRange && canPlaceTrapHere -> 2.dp  // Thin purple border for double-reach-only tiles
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> 4.dp  // Thick border for cells in range (path or river for area attacks)
         isValidSpellTarget &&
             spellTargeting?.activeSpell != SpellType.FEAR_SPELL &&
@@ -1338,9 +1354,9 @@ private fun BoxScope.GridCellContent(
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         TowerIcon(defender = defender, gameState = gameState)
-                        // Show Double Tower Level spell animation overlay
+                        // Show Double Tower Level spell animation overlay (same animation as instant tower)
                         if (doubleLevelActive) {
-                            DoubleLevelSpellAnimation(
+                            InstantTowerSpellAnimation(
                                 animate = AppSettings.enableAnimations.value,
                                 modifier = Modifier.fillMaxSize()
                             )
@@ -1775,7 +1791,7 @@ private fun BoxScope.GridCellContent(
                 )
             }
         }
-        
+
         // Draw diagonal stripes for buildable tiles, tower bases, and placement tiles (trap/barricade/magical trap)
         if (showDiagonalStripes) {
             Canvas(

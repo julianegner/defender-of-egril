@@ -253,7 +253,7 @@ fun DefenderButton(
 }
 
 @Composable
-fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
+fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int, rangeColor: Color = Color.Unspecified) {
     Column {
         IconTextRow(
             icon = { size -> ExplosionIcon(size = size) },
@@ -262,20 +262,11 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
             spacerWidth = GamePlayConstants.Spacing.IconText
         )
         
-        if (minRange > 0) {
-            IconTextRow(
-                icon = { size -> TargetIcon(size = size) },
-                text = "$minRange-$range",
-                iconSize = GamePlayConstants.IconSizes.Small,
-                spacerWidth = GamePlayConstants.Spacing.IconText
-            )
-        } else {
-            IconTextRow(
-                icon = { size -> TargetIcon(size = size) },
-                text = range.toString(),
-                iconSize = GamePlayConstants.IconSizes.Small,
-                spacerWidth = GamePlayConstants.Spacing.IconText
-            )
+        val rangeText = if (minRange > 0) "$minRange-$range" else range.toString()
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            TargetIcon(size = GamePlayConstants.IconSizes.Small)
+            Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+            Text(rangeText, style = MaterialTheme.typography.bodySmall, color = rangeColor)
         }
         
         IconTextRow(
