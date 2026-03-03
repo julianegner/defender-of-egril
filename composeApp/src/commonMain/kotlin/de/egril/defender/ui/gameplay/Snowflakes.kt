@@ -13,7 +13,7 @@ import kotlin.math.sin
 
 /**
  * Static snowflakes overlay for frozen enemies when animations are disabled
- * (AppSettings.enableAnimations = false). Shows four white snowflakes at
+ * (AppSettings.enableAnimations = false). Shows six white snowflakes at
  * different heights and with different sizes, spread horizontally.
  * When animations are enabled, LottieAnimation with AnimationType.FREEZE_SPELL is used instead.
  */
@@ -21,13 +21,15 @@ import kotlin.math.sin
 fun Snowflakes(
     modifier: Modifier = Modifier
 ) {
-    // Four static snowflakes: (xFrac, yFrac, radiusFrac) – different sizes and heights
+    // Six static snowflakes: (xFrac, yFrac, radiusFrac) – different sizes and heights matching the Lottie animation
     val snowflakeConfigs = remember {
         listOf(
-            Triple(0.20f, 0.10f, 0.09f),   // left, high, large
-            Triple(0.42f, 0.38f, 0.04f),   // center-left, upper-mid, small
-            Triple(0.65f, 0.58f, 0.065f),  // center-right, mid, medium
-            Triple(0.83f, 0.82f, 0.033f)   // right, lower, tiny
+            Triple(0.15f, 0.04f, 0.09f),   // left, near top, large
+            Triple(0.32f, 0.83f, 0.04f),   // center-left, near bottom, small
+            Triple(0.50f, 0.35f, 0.065f),  // center, upper-mid, medium
+            Triple(0.67f, 0.21f, 0.033f),  // center-right, upper, tiny
+            Triple(0.82f, 0.54f, 0.072f),  // right, mid, medium-large
+            Triple(0.93f, 0.04f, 0.05f)    // far right, near top, small-medium
         )
     }
 
