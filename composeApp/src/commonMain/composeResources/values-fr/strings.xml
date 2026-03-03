@@ -381,6 +381,7 @@
     <string name="map_image_generation_title">Génération de carte : %1$s</string>
     <string name="map_image_generation_running">Génération de l'image de la carte...</string>
     <string name="map_image_generation_done">Image de carte générée.</string>
+    <string name="map_image_already_existed">L'image de la carte existait déjà.</string>
     <string name="map_image_generation_path">Cible : %1$s</string>
     <string name="map_image_generation_show_image">Afficher l'image</string>
     <string name="map_image_generation_close">Fermer</string>

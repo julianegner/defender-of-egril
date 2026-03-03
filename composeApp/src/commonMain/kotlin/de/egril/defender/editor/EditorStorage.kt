@@ -112,9 +112,17 @@ object EditorStorage {
         return missing
     }
     
-    fun saveMap(map: EditorMap) {
+    /**
+     * Save the map. Returns true if the map image was (re)generated, false if it was skipped
+     * because the image already existed and no tile type changes were detected.
+     */
+    fun saveMap(map: EditorMap): Boolean {
         // Validate and update readyToUse before saving
         val validatedMap = map.copy(readyToUse = map.validateReadyToUse())
+
+        // Get existing map BEFORE updating cache (for image regeneration decision)
+        val existingMap = mapsCache[validatedMap.id]
+
         mapsCache[validatedMap.id] = validatedMap
         val json = EditorJsonSerializer.serializeMap(validatedMap)
 
@@ -122,13 +130,25 @@ object EditorStorage {
         val targetDir = if (validatedMap.isOfficial) OFFICIAL_MAPS_DIR else USER_MAPS_DIR
         fileStorage.writeFile("$targetDir/${validatedMap.id}.json", json)
 
-        // Generate and save map image PNG
-        generateAndSaveMapImage(validatedMap)
+        // Only regenerate the map image if:
+        // - the PNG does not exist yet, OR
+        // - at least one tile's TileType has changed (river flow direction changes are ignored)
+        val pngPath = "$targetDir/${validatedMap.id}.png"
+        val pngExists = fileStorage.fileExists(pngPath)
+        val tilesChanged = existingMap == null || existingMap.tiles != validatedMap.tiles
+        val imageRegenerated = !pngExists || tilesChanged
+        if (imageRegenerated) {
+            generateAndSaveMapImage(validatedMap)
+        } else {
+            println("Skipping map image regeneration for ${validatedMap.id} (no tile type changes)")
+        }
 
         // Track changes to official data
         if (validatedMap.isOfficial) {
             OfficialDataChangeTracker.trackMapModified(validatedMap.id)
         }
+
+        return imageRegenerated
     }
 
     private fun generateAndSaveMapImage(map: EditorMap) {
