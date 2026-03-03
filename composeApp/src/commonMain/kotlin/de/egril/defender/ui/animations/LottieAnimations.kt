@@ -1,17 +1,18 @@
 package de.egril.defender.ui.animations
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.alexzhirkevich.compottie.LottieCompositionSpec
 import io.github.alexzhirkevich.compottie.animateLottieCompositionAsState
 import io.github.alexzhirkevich.compottie.rememberLottieComposition
 import io.github.alexzhirkevich.compottie.rememberLottiePainter
-import androidx.compose.foundation.Image
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import defender_of_egril.composeapp.generated.resources.Res
 import kotlinx.coroutines.launch
@@ -38,7 +39,8 @@ fun LottieAnimation(
     animationType: AnimationType,
     modifier: Modifier = Modifier,
     size: Dp = 40.dp,
-    iterations: Int = 1 // Number of times to play the animation (use Int.MAX_VALUE for infinite loop)
+    iterations: Int = 1, // Number of times to play the animation (use Int.MAX_VALUE for infinite loop)
+    contentScale: ContentScale = ContentScale.Fit
 ) {
     // Get the animation file path based on type
     val animationPath = when (animationType) {
@@ -101,6 +103,7 @@ fun LottieAnimation(
                     AnimationType.FEAR_SPELL -> "Fear spell dark cloud animation"
                     AnimationType.BOMB_EXPLOSION -> "Bomb explosion animation"
                 },
+                contentScale = contentScale,
                 modifier = Modifier.fillMaxSize()
             )
         }
