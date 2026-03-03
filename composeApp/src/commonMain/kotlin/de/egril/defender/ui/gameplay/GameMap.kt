@@ -31,6 +31,7 @@ import de.egril.defender.ui.*
 import de.egril.defender.ui.animations.AnimationType
 import de.egril.defender.ui.animations.LottieAnimation
 import de.egril.defender.ui.icon.CrossIcon
+import de.egril.defender.ui.icon.BombIcon
 import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.GateIcon
 import de.egril.defender.ui.icon.HeartIcon
@@ -1475,7 +1476,7 @@ private fun BoxScope.GridCellContent(
             bombEffect != null -> {
                 // Show bomb icon with countdown number overlaid prominently
                 Box(contentAlignment = Alignment.Center) {
-                    ExplosionIcon(size = 36.dp)
+                    BombIcon(size = 36.dp)
                     // Countdown badge in bottom-right corner of icon
                     Box(
                         modifier = Modifier

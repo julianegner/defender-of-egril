@@ -21,6 +21,7 @@ import de.egril.defender.model.SpellType
 import de.egril.defender.model.SpellTargetType
 import de.egril.defender.model.GamePhase
 import de.egril.defender.model.Position
+import de.egril.defender.ui.icon.BombIcon
 import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.MapIcon
 import de.egril.defender.ui.icon.PentagramIcon
@@ -218,11 +219,12 @@ private fun CompactSpellCard(
 @Composable
 fun SpellTargetIcon(spell: SpellType, size: androidx.compose.ui.unit.Dp, alpha: Float = 1f) {
     val modifier = Modifier.graphicsLayer { this.alpha = alpha }
-    when (spell.targetType) {
-        SpellTargetType.ENEMY -> TargetIcon(size = size, modifier = modifier)
-        SpellTargetType.TOWER -> TowerIcon(size = size, modifier = modifier)
-        SpellTargetType.POSITION -> MapIcon(size = size, modifier = modifier)
-        SpellTargetType.NONE -> LightningIcon(size = size, modifier = modifier)
+    when {
+        spell == SpellType.BOMB -> BombIcon(size = size, modifier = modifier)
+        spell.targetType == SpellTargetType.ENEMY -> TargetIcon(size = size, modifier = modifier)
+        spell.targetType == SpellTargetType.TOWER -> TowerIcon(size = size, modifier = modifier)
+        spell.targetType == SpellTargetType.POSITION -> MapIcon(size = size, modifier = modifier)
+        else -> LightningIcon(size = size, modifier = modifier)
     }
 }
 

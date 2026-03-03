@@ -2069,14 +2069,42 @@ class GameViewModel {
         // Calculate valid targets based on spell type
         val validTargets: Set<Any> = when (spell.targetType) {
             SpellTargetType.POSITION -> {
-                // All tiles on the map are valid positions
-                val positions = mutableSetOf<Position>()
-                for (x in 0 until gameState.level.gridWidth) {
-                    for (y in 0 until gameState.level.gridHeight) {
-                        positions.add(Position(x, y))
+                if (spell == SpellType.BOMB) {
+                    // Bomb can only be placed on empty path tiles:
+                    // no enemies, no barricades, no field effects, no traps, no other bombs
+                    val occupiedByEnemy = gameState.attackers
+                        .filter { !it.isDefeated.value }
+                        .map { it.position.value }
+                        .toSet()
+                    val occupiedByBarricade = gameState.barricades.map { it.position }.toSet()
+                    val occupiedByFieldEffect = gameState.fieldEffects.map { it.position }.toSet()
+                    val occupiedByTrap = gameState.traps.map { it.position }.toSet()
+                    val occupiedByBomb = gameState.activeSpellEffects
+                        .filter { it.spell == SpellType.BOMB && it.position != null }
+                        .map { it.position!! }
+                        .toSet()
+                    val blocked = occupiedByEnemy + occupiedByBarricade + occupiedByFieldEffect +
+                            occupiedByTrap + occupiedByBomb
+                    val positions = mutableSetOf<Position>()
+                    for (x in 0 until gameState.level.gridWidth) {
+                        for (y in 0 until gameState.level.gridHeight) {
+                            val pos = Position(x, y)
+                            if (gameState.level.isOnPath(pos) && pos !in blocked) {
+                                positions.add(pos)
+                            }
+                        }
                     }
+                    positions
+                } else {
+                    // All tiles on the map are valid positions for other spells
+                    val positions = mutableSetOf<Position>()
+                    for (x in 0 until gameState.level.gridWidth) {
+                        for (y in 0 until gameState.level.gridHeight) {
+                            positions.add(Position(x, y))
+                        }
+                    }
+                    positions
                 }
-                positions
             }
             SpellTargetType.ENEMY -> {
                 // All active (non-defeated) enemies are valid targets

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import de.egril.defender.model.DigOutcome
 import de.egril.defender.ui.drawTowerBase
 import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.bomb
 import defender_of_egril.composeapp.generated.resources.dig_outcome_brass
 import defender_of_egril.composeapp.generated.resources.dig_outcome_diamond
 import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_blue
@@ -174,6 +175,21 @@ fun ExplosionIcon(
     Image(
         painter = painterResource(Res.drawable.emoji_explosion),
         contentDescription = "Explosion",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays the bomb image icon using Image for cross-platform compatibility
+ */
+@Composable
+fun BombIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.bomb),
+        contentDescription = "Bomb",
         modifier = modifier.size(size)
     )
 }
