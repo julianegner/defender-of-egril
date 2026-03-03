@@ -1878,6 +1878,11 @@ class GameViewModel {
         // Execute spell effect
         executeSpellEffect(spell, target, gameState)
 
+        // Process any enemies defeated by the spell (award coins, remove from list)
+        if (spell == SpellType.ATTACK_AIMED || spell == SpellType.ATTACK_AREA) {
+            gameEngine?.processDefeatedAttackers()
+        }
+
         // Clear pending spell and targeting state
         _pendingSpellCast.value = null
         exitSpellTargetingMode()
@@ -1901,7 +1906,11 @@ class GameViewModel {
                 if (position != null) {
                     val attacker = gameState.attackers.find { !it.isDefeated.value && it.position.value == position }
                     if (attacker != null) {
-                        attacker.currentHealth.value = (attacker.currentHealth.value - 80).coerceAtLeast(0)
+                        attacker.currentHealth.value -= 80
+                        if (attacker.currentHealth.value <= 0) {
+                            attacker.currentHealth.value = 0
+                            attacker.isDefeated.value = true
+                        }
                         if (LogConfig.ENABLE_SPELL_LOGGING) {
                         println("Attack Aimed: Dealt 80 damage to ${attacker.type.displayName} at $position (HP: ${attacker.currentHealth.value})")
                         }
@@ -1923,10 +1932,14 @@ class GameViewModel {
                 val position = target as? Position
                 if (position != null) {
                     var damagedCount = 0
-                    gameState.attackers.forEach { attacker ->
+                    gameState.attackers.filter { !it.isDefeated.value }.forEach { attacker ->
                         val distance = attacker.position.value.hexDistanceTo(position)
                         if (distance <= 2) {
-                            attacker.currentHealth.value = (attacker.currentHealth.value - 50).coerceAtLeast(0)
+                            attacker.currentHealth.value -= 50
+                            if (attacker.currentHealth.value <= 0) {
+                                attacker.currentHealth.value = 0
+                                attacker.isDefeated.value = true
+                            }
                             damagedCount++
                         }
                     }
@@ -2120,6 +2133,28 @@ class GameViewModel {
                         }
                     }
                     positions
+                } else if (spell == SpellType.ATTACK_AREA) {
+                    // Attack Area: only path tiles without a barricade
+                    val occupiedByBarricade = gameState.barricades
+                        .filter { !it.isDestroyed() }
+                        .map { it.position }
+                        .toSet()
+                    val positions = mutableSetOf<Position>()
+                    for (x in 0 until gameState.level.gridWidth) {
+                        for (y in 0 until gameState.level.gridHeight) {
+                            val pos = Position(x, y)
+                            if (gameState.level.isOnPath(pos) && pos !in occupiedByBarricade) {
+                                positions.add(pos)
+                            }
+                        }
+                    }
+                    positions
+                } else if (spell == SpellType.ATTACK_AIMED) {
+                    // Attack Aimed: only tiles that have an enemy on them
+                    gameState.attackers
+                        .filter { !it.isDefeated.value }
+                        .map { it.position.value }
+                        .toSet()
                 } else {
                     // All tiles on the map are valid positions for other spells
                     val positions = mutableSetOf<Position>()
