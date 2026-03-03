@@ -112,7 +112,11 @@ object EditorStorage {
         return missing
     }
     
-    fun saveMap(map: EditorMap) {
+    /**
+     * Save the map. Returns true if the map image was (re)generated, false if it was skipped
+     * because the image already existed and no tile type changes were detected.
+     */
+    fun saveMap(map: EditorMap): Boolean {
         // Validate and update readyToUse before saving
         val validatedMap = map.copy(readyToUse = map.validateReadyToUse())
 
@@ -132,7 +136,8 @@ object EditorStorage {
         val pngPath = "$targetDir/${validatedMap.id}.png"
         val pngExists = fileStorage.fileExists(pngPath)
         val tilesChanged = existingMap == null || existingMap.tiles != validatedMap.tiles
-        if (!pngExists || tilesChanged) {
+        val imageRegenerated = !pngExists || tilesChanged
+        if (imageRegenerated) {
             generateAndSaveMapImage(validatedMap)
         } else {
             println("Skipping map image regeneration for ${validatedMap.id} (no tile type changes)")
@@ -142,6 +147,8 @@ object EditorStorage {
         if (validatedMap.isOfficial) {
             OfficialDataChangeTracker.trackMapModified(validatedMap.id)
         }
+
+        return imageRegenerated
     }
 
     private fun generateAndSaveMapImage(map: EditorMap) {

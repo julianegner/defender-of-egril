@@ -381,6 +381,7 @@
     <string name="map_image_generation_title">Generando mapa: %1$s</string>
     <string name="map_image_generation_running">Generando imagen del mapa...</string>
     <string name="map_image_generation_done">Generación de imagen completada.</string>
+    <string name="map_image_already_existed">La imagen del mapa ya existía.</string>
     <string name="map_image_generation_path">Destino: %1$s</string>
     <string name="map_image_generation_show_image">Mostrar imagen</string>
     <string name="map_image_generation_close">Cerrar</string>
