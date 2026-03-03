@@ -1,5 +1,6 @@
 package de.egril.defender.ui.gameplay
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -99,11 +100,15 @@ fun CompactDefenderButton(
                 }
             }
         }
-        // Show shimmer animation when Instant Tower spell is active and tower is affordable
+        // Show glow animation overlay + purple border when Instant Tower spell is active and tower is affordable
         if (instantTowerActive && canAfford) {
             InstantTowerSpellAnimation(
                 animate = AppSettings.enableAnimations.value,
-                modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(percent = 50))
+                modifier = Modifier.fillMaxSize()
+            )
+            Box(
+                modifier = Modifier.fillMaxSize()
+                    .border(2.dp, SpellInstantTowerColor, RoundedCornerShape(percent = 50))
             )
         }
     }
@@ -231,11 +236,15 @@ fun DefenderButton(
                 }
             }
         }
-        // Show shimmer animation when Instant Tower spell is active and tower is affordable
+        // Show glow animation overlay + purple border when Instant Tower spell is active and tower is affordable
         if (instantTowerActive && actuallyCanAfford) {
             InstantTowerSpellAnimation(
                 animate = AppSettings.enableAnimations.value,
-                modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(percent = 50))
+                modifier = Modifier.fillMaxSize()
+            )
+            Box(
+                modifier = Modifier.fillMaxSize()
+                    .border(2.dp, SpellInstantTowerColor, RoundedCornerShape(percent = 50))
             )
         }
     }
