@@ -28,6 +28,7 @@ import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.icon.TargetIcon
 import de.egril.defender.ui.icon.TowerIcon
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.getLocalizedName
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -185,7 +186,7 @@ private fun CompactSpellCard(
 
             // Spell name
             Text(
-                text = spell.displayName,
+                text = spell.getLocalizedName(),
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                 textAlign = TextAlign.Center,
@@ -252,7 +253,7 @@ fun SpellTargetConfirmationDialog(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = stringResource(Res.string.cast_spell_on_target, spell.displayName),
+                    text = stringResource(Res.string.cast_spell_on_target, spell.getLocalizedName()),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -270,7 +271,7 @@ fun SpellTargetConfirmationDialog(
                         Text(
                             text = stringResource(
                                 Res.string.enemy_type_level_hp,
-                                target.type.displayName,
+                                target.type.getLocalizedName(),
                                 target.level.value.toString(),
                                 target.currentHealth.value.toString()
                             ),
@@ -286,7 +287,7 @@ fun SpellTargetConfirmationDialog(
                         Text(
                             text = stringResource(
                                 Res.string.tower_type_level,
-                                target.type.displayName,
+                                target.type.getLocalizedName(),
                                 target.level.value.toString()
                             ),
                             style = MaterialTheme.typography.bodyMedium
@@ -384,7 +385,7 @@ fun FreezeImmuneWarningDialog(
             Text(
                 text = stringResource(
                     Res.string.freeze_immune_warning_message,
-                    enemy.type.displayName
+                    enemy.type.getLocalizedName()
                 ),
                 style = MaterialTheme.typography.bodyLarge
             )
