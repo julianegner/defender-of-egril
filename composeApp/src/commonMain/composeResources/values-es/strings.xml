@@ -1381,6 +1381,9 @@
     <!-- Freeze status labels -->
     <string name="frozen_label">Congelado</string>
     <string name="frozen_turns_remaining">Congelado: %d turnos restantes</string>
+    <!-- Cooling spell status labels -->
+    <string name="cooled_label">Enfriado</string>
+    <string name="cooled_turns_remaining">Enfriado: %d turnos restantes</string>
     <!-- Fear status labels -->
     <string name="feared_label">Asustado</string>
     <string name="feared_turns_remaining">Miedo: %d turnos restantes</string>

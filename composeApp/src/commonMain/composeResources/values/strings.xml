@@ -1385,6 +1385,10 @@
     <string name="frozen_label">Frozen</string>
     <string name="frozen_turns_remaining">Frozen: %d turns remaining</string>
 
+    <!-- Cooling spell status labels -->
+    <string name="cooled_label">Cooled</string>
+    <string name="cooled_turns_remaining">Cooled: %d turns remaining</string>
+
     <!-- Fear status labels -->
     <string name="feared_label">Feared</string>
     <string name="feared_turns_remaining">Feared: %d turns remaining</string>

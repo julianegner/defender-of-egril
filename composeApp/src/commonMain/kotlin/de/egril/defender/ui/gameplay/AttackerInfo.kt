@@ -69,6 +69,20 @@ fun AttackerInfo(
 
                 // Enemy name and level
                 Column(modifier = Modifier.weight(1f)) {
+                    // Pre-compute cooling effect for reuse throughout the Column
+                    val coolingEffect = activeSpellEffects.find { effect ->
+                        effect.spell == SpellType.COOLING_SPELL &&
+                        effect.position != null &&
+                        attacker.position.value.hexDistanceTo(effect.position) <= 2
+                    }
+                    val barbsSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
+                    val cooledSpeed = if (coolingEffect != null) maxOf(0, barbsSpeed - 1) else null
+
+                    // Pre-compute freeze effect for reuse throughout the Column
+                    val freezeEffect = activeSpellEffects.find {
+                        it.spell == SpellType.FREEZE_SPELL && it.attackerId == attacker.id
+                    }
+
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -102,7 +116,7 @@ fun AttackerInfo(
                             style = MaterialTheme.typography.bodySmall
                         )
                         
-                        // Speed display - show base speed and current speed if affected by barbs
+                        // Speed display - show base speed and current speed if affected by barbs or cooling
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
                             verticalAlignment = Alignment.CenterVertically
@@ -115,12 +129,31 @@ fun AttackerInfo(
                             
                             // If affected by barbs, show current speed in red
                             if (attacker.movementPenalty.value > 0) {
-                                val currentSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
                                 Text(
-                                    "→ $currentSpeed",
+                                    "→ $barbsSpeed",
                                     style = MaterialTheme.typography.bodySmall,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.Red
+                                )
+                            }
+
+                            // If in cooling area, show cooled speed in turquoise
+                            if (cooledSpeed != null) {
+                                Text(
+                                    "→ $cooledSpeed",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Cyan
+                                )
+                            }
+
+                            // If frozen, show speed → 0 in turquoise
+                            if (freezeEffect != null && cooledSpeed == null) {
+                                Text(
+                                    "→ 0",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Cyan
                                 )
                             }
                         }
@@ -150,9 +183,6 @@ fun AttackerInfo(
                     }
                     
                     // Show freeze status if enemy is frozen
-                    val freezeEffect = activeSpellEffects.find { 
-                        it.spell == SpellType.FREEZE_SPELL && it.attackerId == attacker.id 
-                    }
                     if (freezeEffect != null) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -169,6 +199,33 @@ fun AttackerInfo(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.Cyan,
                                 fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+
+                    // Show cooling status if enemy is in a cooling area (coolingEffect and cooledSpeed computed above)
+                    if (coolingEffect != null && cooledSpeed != null) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.padding(top = 4.dp)
+                        ) {
+                            SnowflakeIcon(size = 14.dp, tint = Color.Cyan)
+                            Text(
+                                if (coolingEffect.turnsRemaining > 0) {
+                                    stringResource(Res.string.cooled_turns_remaining, coolingEffect.turnsRemaining)
+                                } else {
+                                    stringResource(Res.string.cooled_label)
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Cyan,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                "→ $cooledSpeed",
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Cyan
                             )
                         }
                     }
