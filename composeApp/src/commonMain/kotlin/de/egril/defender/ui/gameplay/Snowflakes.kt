@@ -13,22 +13,28 @@ import kotlin.math.sin
 
 /**
  * Static snowflakes overlay for frozen enemies when animations are disabled
- * (AppSettings.enableAnimations = false). Shows six white snowflakes at
- * different heights and with different sizes, spread horizontally.
- * When animations are enabled, LottieAnimation with AnimationType.FREEZE_SPELL is used instead.
+ * (AppSettings.enableAnimations = false). Shows twelve white snowflakes spread
+ * across the canvas at different heights and with different sizes.
+ * When animations are enabled, two staggered LottieAnimation with AnimationType.FREEZE_SPELL are used instead.
  */
 @Composable
 fun Snowflakes(
     modifier: Modifier = Modifier
 ) {
-    // Six static snowflakes: (xFrac, yFrac, radiusFrac) – different sizes and heights matching the Lottie animation
+    // Twelve static snowflakes spread across the canvas at different heights and sizes
     val snowflakeConfigs = remember {
         listOf(
+            Triple(0.08f, 0.62f, 0.04f),   // far-left, lower-mid, small
             Triple(0.15f, 0.04f, 0.09f),   // left, near top, large
+            Triple(0.25f, 0.42f, 0.07f),   // center-left, mid, medium
             Triple(0.32f, 0.83f, 0.04f),   // center-left, near bottom, small
-            Triple(0.50f, 0.35f, 0.065f),  // center, upper-mid, medium
-            Triple(0.67f, 0.21f, 0.033f),  // center-right, upper, tiny
+            Triple(0.42f, 0.73f, 0.035f),  // center, lower-mid, tiny
+            Triple(0.50f, 0.20f, 0.065f),  // center, upper, medium
+            Triple(0.60f, 0.51f, 0.06f),   // center-right, mid, medium
+            Triple(0.67f, 0.88f, 0.033f),  // center-right, near bottom, tiny
+            Triple(0.75f, 0.18f, 0.08f),   // right, upper, large-medium
             Triple(0.82f, 0.54f, 0.072f),  // right, mid, medium-large
+            Triple(0.88f, 0.85f, 0.045f),  // far-right, near bottom, small
             Triple(0.93f, 0.04f, 0.05f)    // far right, near top, small-medium
         )
     }

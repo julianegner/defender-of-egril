@@ -58,6 +58,7 @@ import de.egril.defender.ui.rememberMapImagePainter
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 import de.egril.defender.config.LogConfig
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -1114,14 +1115,33 @@ private fun BoxScope.GridCellContent(
                         // Show freeze effect overlay
                         if (freezeEffect != null) {
                             if (AppSettings.enableAnimations.value) {
-                                // Show Lottie animation for freeze spell - repeats until effect ends
+                                // Two overlapping animations offset by half a loop (3 s) so that
+                                // when one resets to frame 0 the other is mid-fall — no gap at
+                                // the loop boundary.
                                 LottieAnimation(
                                     animationType = AnimationType.FREEZE_SPELL,
                                     modifier = Modifier.fillMaxSize(),
                                     iterations = Int.MAX_VALUE
                                 )
+                                // Delayed copy: starts after 3 s (= 180 frames / 30 fps / 2).
+                                // Keyed on attackerId so the delay resets if the enemy is
+                                // un-frozen and re-frozen.
+                                var showSecondAnimation by remember(freezeEffect.attackerId) {
+                                    mutableStateOf(false)
+                                }
+                                LaunchedEffect(freezeEffect.attackerId) {
+                                    delay(3000L)
+                                    showSecondAnimation = true
+                                }
+                                if (showSecondAnimation) {
+                                    LottieAnimation(
+                                        animationType = AnimationType.FREEZE_SPELL,
+                                        modifier = Modifier.fillMaxSize(),
+                                        iterations = Int.MAX_VALUE
+                                    )
+                                }
                             } else {
-                                // Show 3 static white snowflakes at different heights
+                                // Show static white snowflakes at different heights
                                 Snowflakes(
                                     modifier = Modifier.fillMaxSize()
                                 )
