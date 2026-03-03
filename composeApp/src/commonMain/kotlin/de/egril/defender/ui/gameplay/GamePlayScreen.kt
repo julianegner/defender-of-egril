@@ -626,16 +626,19 @@ private fun GamePlayScreenContent(
                             selectedDefenderId = null
                             selectedTargetId = null
                             selectedTargetPosition = null
-                            // Toggle magic panel when a target (attacker) is clicked
-                            if (onOpenMagicPanel != null && gameState.maxMana.value > 0) {
-                                if (showMagicPanel) {
-                                    onCloseMagicPanel?.invoke()
-                                } else {
-                                    onOpenMagicPanel?.invoke()
-                                }
-                            }
                             return@GameGrid
                         }
+                    }
+
+                    // Toggle magic panel when the Target tile is clicked
+                    if (gameState.level.isTargetPosition(position) &&
+                        onOpenMagicPanel != null && gameState.maxMana.value > 0) {
+                        if (showMagicPanel) {
+                            onCloseMagicPanel?.invoke()
+                        } else {
+                            onOpenMagicPanel?.invoke()
+                        }
+                        return@GameGrid
                     }
 
                     // Check if there's a barricade at this position
