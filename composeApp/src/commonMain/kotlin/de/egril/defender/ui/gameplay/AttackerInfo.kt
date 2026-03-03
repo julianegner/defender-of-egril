@@ -78,6 +78,11 @@ fun AttackerInfo(
                     val barbsSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
                     val cooledSpeed = if (coolingEffect != null) maxOf(0, barbsSpeed - 1) else null
 
+                    // Pre-compute freeze effect for reuse throughout the Column
+                    val freezeEffect = activeSpellEffects.find {
+                        it.spell == SpellType.FREEZE_SPELL && it.attackerId == attacker.id
+                    }
+
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -141,6 +146,16 @@ fun AttackerInfo(
                                     color = Color.Cyan
                                 )
                             }
+
+                            // If frozen, show speed → 0 in turquoise
+                            if (freezeEffect != null && cooledSpeed == null) {
+                                Text(
+                                    "→ 0",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.Cyan
+                                )
+                            }
                         }
                         
                         Text(
@@ -168,9 +183,6 @@ fun AttackerInfo(
                     }
                     
                     // Show freeze status if enemy is frozen
-                    val freezeEffect = activeSpellEffects.find { 
-                        it.spell == SpellType.FREEZE_SPELL && it.attackerId == attacker.id 
-                    }
                     if (freezeEffect != null) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
