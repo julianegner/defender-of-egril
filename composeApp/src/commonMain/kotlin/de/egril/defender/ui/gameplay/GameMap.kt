@@ -350,6 +350,37 @@ fun GameGrid(
                 }
                 result
             }
+            activeSpell == SpellType.COOLING_SPELL && currentHoveredPosition != null -> {
+                // Show turquoise circles at radius 2 around hovered position, only for path/spawn tiles
+                val coolingColor = TargetCircleConstants.COOLING_SPELL_COLOR
+                val result = mutableMapOf<Position, TargetCircleInfo>()
+                if (gameState.level.isOnPath(currentHoveredPosition) || gameState.level.isSpawnPoint(currentHoveredPosition)) {
+                    result[currentHoveredPosition] = TargetCircleInfo.CentralTarget(
+                        color = coolingColor,
+                        attackType = AttackType.AREA,
+                        isExtendedArea = true
+                    )
+                }
+                val allNeighbors = currentHoveredPosition.getHexNeighborsWithinRadius(
+                    TargetCircleConstants.COOLING_SPELL_RADIUS,
+                    gameState.level.gridWidth,
+                    gameState.level.gridHeight
+                ).filter { neighbor ->
+                    gameState.level.isOnPath(neighbor) || gameState.level.isSpawnPoint(neighbor)
+                }
+                for (neighbor in allNeighbors) {
+                    val distance = currentHoveredPosition.hexDistanceTo(neighbor)
+                    result[neighbor] = TargetCircleInfo.NeighborTarget(
+                        color = coolingColor,
+                        attackType = AttackType.AREA,
+                        centerPosition = currentHoveredPosition,
+                        thisPosition = neighbor,
+                        distanceFromCenter = distance,
+                        isExtendedArea = true
+                    )
+                }
+                result
+            }
             activeSpell == SpellType.FEAR_SPELL && currentHoveredPosition != null -> {
                 // Single-target circles on hovered enemy tile in magic color (like tower attack)
                 val enemyAtHover = gameState.attackers.find {
@@ -665,6 +696,21 @@ fun GridCell(
         effect.position != null &&
         position.hexDistanceTo(effect.position) <= 2
     }
+
+    // Cooling area turns remaining (for active cooling effects on this tile)
+    val coolingAreaTurnsRemaining: Int? = if (isInCoolingArea) {
+        gameState.activeSpellEffects
+            .filter { effect ->
+                effect.spell == SpellType.COOLING_SPELL &&
+                effect.position != null &&
+                position.hexDistanceTo(effect.position) <= 2
+            }
+            .minOfOrNull { it.turnsRemaining }
+    } else null
+
+    // Is this tile part of a cooling spell placement preview?
+    val isCoolingSpellPreview = targetCircleInfo != null &&
+        gameState.spellTargeting.value?.activeSpell == SpellType.COOLING_SPELL
 
     // Check for active bomb spell effect at this position
     val bombEffect = gameState.activeSpellEffects.find {
@@ -1085,6 +1131,8 @@ fun GridCell(
                 canBeUsedAsTowerBase = canBeUsedAsTowerBase,
                 showDiagonalStripes = showDiagonalStripes,
                 isInCoolingArea = isInCoolingArea,
+                coolingAreaTurnsRemaining = coolingAreaTurnsRemaining,
+                isCoolingSpellPreview = isCoolingSpellPreview,
                 bombEffect = bombEffect,
                 bombExplosion = bombExplosion
             )
@@ -1127,6 +1175,8 @@ fun GridCell(
                 canBeUsedAsTowerBase = canBeUsedAsTowerBase,
                 showDiagonalStripes = showDiagonalStripes,
                 isInCoolingArea = isInCoolingArea,
+                coolingAreaTurnsRemaining = coolingAreaTurnsRemaining,
+                isCoolingSpellPreview = isCoolingSpellPreview,
                 bombEffect = bombEffect,
                 bombExplosion = bombExplosion
             )
@@ -1166,6 +1216,8 @@ private fun BoxScope.GridCellContent(
     canBeUsedAsTowerBase: Boolean = false,
     showDiagonalStripes: Boolean = false,
     isInCoolingArea: Boolean = false,
+    coolingAreaTurnsRemaining: Int? = null,
+    isCoolingSpellPreview: Boolean = false,
     bombEffect: ActiveSpellEffect? = null,
     bombExplosion: BombExplosionEffect? = null
 ) {
@@ -1185,10 +1237,15 @@ private fun BoxScope.GridCellContent(
                     val freezeEffect = gameState.activeSpellEffects.find {
                         it.spell == SpellType.FREEZE_SPELL && it.attackerId == attacker.id
                     }
+                    // Detect if cooling spell reduces this enemy's movement to 0
+                    val coolingReducesToZero = isInCoolingArea && run {
+                        val barbsSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
+                        maxOf(0, barbsSpeed - 1) == 0
+                    }
                     Box(
                         contentAlignment = Alignment.Center,
-                        modifier = if (freezeEffect != null)
-                            Modifier.border(2.dp, Color.Cyan, RoundedCornerShape(4.dp))
+                        modifier = if (freezeEffect != null || coolingReducesToZero)
+                            Modifier.border(2.dp, TargetCircleConstants.COOLING_SPELL_COLOR, RoundedCornerShape(4.dp))
                         else
                             Modifier
                     ) {
@@ -1476,6 +1533,23 @@ private fun BoxScope.GridCellContent(
                 animate = AppSettings.enableAnimations.value,
                 modifier = Modifier.fillMaxSize()
             )
+        }
+
+        // Show turns count for cooling spell (placement preview: 3, active effect: actual remaining)
+        val coolingTurns = coolingAreaTurnsRemaining ?: if (isCoolingSpellPreview) 3 else null
+        if (coolingTurns != null) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                Text(
+                    "${coolingTurns}T",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = TargetCircleConstants.COOLING_SPELL_COLOR,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 2.dp)
+                )
+            }
         }
 
         // Show half-transparent tower icon on hovered build tile

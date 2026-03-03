@@ -1382,6 +1382,9 @@
     <!-- Freeze status labels -->
     <string name="frozen_label">Gelé</string>
     <string name="frozen_turns_remaining">Gelé: %d tours restants</string>
+    <!-- Cooling spell status labels -->
+    <string name="cooled_label">Refroidi</string>
+    <string name="cooled_turns_remaining">Refroidi: %d tours restants</string>
     <!-- Fear status labels -->
     <string name="feared_label">Effrayé</string>
     <string name="feared_turns_remaining">Peur: %d tours restants</string>

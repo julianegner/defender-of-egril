@@ -2106,6 +2106,20 @@ class GameViewModel {
                         }
                     }
                     positions
+                } else if (spell == SpellType.COOLING_SPELL) {
+                    // Cooling spell can only be placed on path/spawn tiles without barricades
+                    val occupiedByBarricade = gameState.barricades.map { it.position }.toSet()
+                    val positions = mutableSetOf<Position>()
+                    for (x in 0 until gameState.level.gridWidth) {
+                        for (y in 0 until gameState.level.gridHeight) {
+                            val pos = Position(x, y)
+                            if ((gameState.level.isOnPath(pos) || gameState.level.isSpawnPoint(pos)) &&
+                                pos !in occupiedByBarricade) {
+                                positions.add(pos)
+                            }
+                        }
+                    }
+                    positions
                 } else {
                     // All tiles on the map are valid positions for other spells
                     val positions = mutableSetOf<Position>()

@@ -1380,6 +1380,9 @@
     <!-- Freeze status labels -->
     <string name="frozen_label">Eingefroren</string>
     <string name="frozen_turns_remaining">Eingefroren: %d Runden verbleibend</string>
+    <!-- Cooling spell status labels -->
+    <string name="cooled_label">Abgekühlt</string>
+    <string name="cooled_turns_remaining">Abgekühlt: %d Runden verbleibend</string>
     <!-- Fear status labels -->
     <string name="feared_label">Ängstlich</string>
     <string name="feared_turns_remaining">Angst: %d Runden verbleibend</string>

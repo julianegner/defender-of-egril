@@ -645,7 +645,7 @@ class GameEngine(private val state: GameState) {
                     currentPos.hexDistanceTo(effect.position) <= 2
                 }
                 if (isInCoolingArea) {
-                    effectiveSpeed = maxOf(1, effectiveSpeed - 1)
+                    effectiveSpeed = maxOf(0, effectiveSpeed - 1)
                     if (stepIndex == 0) {
                         println("Attacker ${attacker.id} (${attacker.type}) is in cooling area, speed reduced to $effectiveSpeed")
                     }

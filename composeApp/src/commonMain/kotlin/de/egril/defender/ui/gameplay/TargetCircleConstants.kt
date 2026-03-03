@@ -40,4 +40,10 @@ object TargetCircleConstants {
     const val BOMB_SPELL_RADIUS = 3
     /** Color used for bomb range preview circles (orange/fire) */
     val BOMB_SPELL_COLOR = Color(0xFFFF6F00)
+
+    // COOLING_SPELL targeting/range preview constants
+    /** Hex radius of the COOLING_SPELL area effect */
+    const val COOLING_SPELL_RADIUS = 2
+    /** Color used for cooling spell targeting preview circles and status indicators (turquoise, matches freeze cyan) */
+    val COOLING_SPELL_COLOR = Color.Cyan
 }
