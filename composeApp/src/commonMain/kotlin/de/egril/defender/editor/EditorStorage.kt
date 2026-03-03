@@ -991,8 +991,9 @@ object EditorStorage {
         // Remove from cache
         mapsCache.remove(mapId)
         
-        // Delete file from user directory only
+        // Delete JSON and PNG files from user directory
         fileStorage.deleteFile("$USER_MAPS_DIR/$mapId.json")
+        fileStorage.deleteFile("$USER_MAPS_DIR/$mapId.png")
         return true
     }
     
