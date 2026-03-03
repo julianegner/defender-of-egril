@@ -18,14 +18,18 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.PlayerAbilities
 import de.egril.defender.model.SpellType
-import de.egril.defender.model.SpellTargetType
 import de.egril.defender.model.GamePhase
 import de.egril.defender.model.Position
+import androidx.compose.ui.graphics.Color
+import de.egril.defender.ui.icon.AttackAimedSpellIcon
+import de.egril.defender.ui.icon.AttackAreaSpellIcon
 import de.egril.defender.ui.icon.BombIcon
+import de.egril.defender.ui.icon.FearSpellAreaIcon
+import de.egril.defender.ui.icon.FearSpellIcon
+import de.egril.defender.ui.icon.HeartIcon
 import de.egril.defender.ui.icon.LightningIcon
-import de.egril.defender.ui.icon.MapIcon
 import de.egril.defender.ui.icon.PentagramIcon
-import de.egril.defender.ui.icon.TargetIcon
+import de.egril.defender.ui.icon.SnowflakeIcon
 import de.egril.defender.ui.icon.TowerIcon
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.getLocalizedName
@@ -220,12 +224,18 @@ private fun CompactSpellCard(
 @Composable
 fun SpellTargetIcon(spell: SpellType, size: androidx.compose.ui.unit.Dp, alpha: Float = 1f) {
     val modifier = Modifier.graphicsLayer { this.alpha = alpha }
-    when {
-        spell == SpellType.BOMB -> BombIcon(size = size, modifier = modifier)
-        spell.targetType == SpellTargetType.ENEMY -> TargetIcon(size = size, modifier = modifier)
-        spell.targetType == SpellTargetType.TOWER -> TowerIcon(size = size, modifier = modifier)
-        spell.targetType == SpellTargetType.POSITION -> MapIcon(size = size, modifier = modifier)
-        else -> LightningIcon(size = size, modifier = modifier)
+    when (spell) {
+        SpellType.ATTACK_AREA -> AttackAreaSpellIcon(size = size, modifier = modifier)
+        SpellType.ATTACK_AIMED -> AttackAimedSpellIcon(size = size, modifier = modifier)
+        SpellType.HEAL -> HeartIcon(size = size, modifier = modifier)
+        SpellType.COOLING_SPELL -> SnowflakeIcon(size = size, modifier = modifier, tint = Color.White)
+        SpellType.FREEZE_SPELL -> SnowflakeIcon(size = size, modifier = modifier, tint = Color(0xFF00BCD4))
+        SpellType.FEAR_SPELL -> FearSpellIcon(size = size, modifier = modifier)
+        SpellType.FEAR_SPELL_AREA -> FearSpellAreaIcon(size = size, modifier = modifier)
+        SpellType.BOMB -> BombIcon(size = size, modifier = modifier)
+        SpellType.INSTANT_TOWER -> LightningIcon(size = size, modifier = modifier)
+        SpellType.DOUBLE_TOWER_LEVEL -> TowerIcon(size = size, modifier = modifier)
+        SpellType.DOUBLE_TOWER_REACH -> TowerIcon(size = size, modifier = modifier)
     }
 }
 
