@@ -60,7 +60,7 @@ import de.egril.defender.ui.hexagon.HexagonalMapView
 import de.egril.defender.ui.hexagon.MinimapConfig
 import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.settings.AppSettings
-import de.egril.defender.ui.rememberMapImagePainter
+import de.egril.defender.ui.rememberMapImageState
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 import de.egril.defender.config.LogConfig
@@ -401,9 +401,11 @@ fun GameGrid(
     }
 
     val mapId = gameState.level.mapId
-    val mapImagePainter = rememberMapImagePainter(mapId)
+    val mapImageState = rememberMapImageState(mapId)
+    val mapImagePainter = mapImageState.painter
     val useLevelMapImage = AppSettings.useLevelMapImage.value
     val hasMapImage = mapImagePainter != null && useLevelMapImage
+    val isLoadingMapImage = mapImageState.isLoading
     val hexMapSizePx = remember(gameState.level.gridWidth, gameState.level.gridHeight, hexSize) {
         val hexSizePx = hexSize.value
         val hexWidthPx = hexSizePx * sqrt(3.0).toFloat()
@@ -423,6 +425,9 @@ fun GameGrid(
     Box(modifier = modifier
         .onSizeChanged { containerSize = it }
     ) {
+        if (useLevelMapImage && isLoadingMapImage) {
+            LevelLoadingScreen(modifier = Modifier.fillMaxSize())
+        } else {
         HexagonalMapView(
             gridWidth = gameState.level.gridWidth,
             gridHeight = gameState.level.gridHeight,
@@ -583,6 +588,7 @@ fun GameGrid(
                 }
             }
         }
+        } // end else !isLoadingMapImage
     }
 }
 

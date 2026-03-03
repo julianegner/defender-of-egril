@@ -31,6 +31,7 @@ sealed class Screen {
     object LoadGame : Screen()
     object Sticker : Screen()
     object PlayerProfile : Screen()
+    object LoadingSpinnerDemo : Screen()
     object StatsUpgrade : Screen()  // New screen for stats/spells upgrade
     data class GamePlay(val levelId: Int) : Screen()
     data class LevelComplete(
@@ -320,6 +321,10 @@ class GameViewModel {
         _currentScreen.value = Screen.Sticker
     }
     
+    fun navigateToLoadingSpinnerDemo() {
+        _currentScreen.value = Screen.LoadingSpinnerDemo
+    }
+
     fun navigateToPlayerProfile() {
         _currentScreen.value = Screen.PlayerProfile
     }
@@ -1065,7 +1070,13 @@ class GameViewModel {
             navigateToSticker()
             return true
         }
-        
+
+        // Check for "spinner" cheat code (shows loading spinner demo for 30s)
+        if (code.lowercase().trim() == "spinner") {
+            navigateToLoadingSpinnerDemo()
+            return true
+        }
+
         return CheatCodeHandler.applyWorldMapCheatCode(
             code = code,
             unlockAllLevels = { unlockAllLevels() },

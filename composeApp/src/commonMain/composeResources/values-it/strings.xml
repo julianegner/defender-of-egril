@@ -381,6 +381,7 @@
     <string name="map_image_generation_title">Generazione mappa: %1$s</string>
     <string name="map_image_generation_running">Generazione dell'immagine della mappa...</string>
     <string name="map_image_generation_done">Immagine mappa completata.</string>
+    <string name="map_image_already_existed">L'immagine della mappa esisteva già.</string>
     <string name="map_image_generation_path">Destinazione: %1$s</string>
     <string name="map_image_generation_show_image">Mostra immagine</string>
     <string name="map_image_generation_close">Chiudi</string>
@@ -1243,6 +1244,9 @@
     <string name="tower_info_title">Informazioni sulla Torre</string>
     <string name="special_towers_info_title">Torri Speciali</string>
     <string name="special_towers_info_reopen">Puoi riaprire queste informazioni in qualsiasi momento cliccando sull\'icona della torre nell\'intestazione del livello.</string>
+
+    <!-- Level Loading -->
+    <string name="loading_level">Caricamento livello…</string>
 
     <!-- Map Image and Debug Options -->
     <string name="level_map_image">Immagine mappa</string>

@@ -123,26 +123,21 @@ fun TowerIcon(
                 // If not on a raft, draw tower base (trapezoid shape) - except for dragon's lair and dwarven mine
                 drawTowerBase(centerX, adjustedCenterY, iconSize * 0.8f)
             }
-            
+
             // Draw tower type symbol inside
-            when (defender.type) {
-                DefenderType.SPIKE_TOWER -> drawSpikeSymbol(centerX, adjustedCenterY, iconSize * 0.4f)
-                DefenderType.SPEAR_TOWER -> drawSpearSymbol(centerX, adjustedCenterY + iconSize * 0.15f, iconSize * 0.5f)  // Move down 30% for better positioning
-                DefenderType.BOW_TOWER -> drawBowSymbol(centerX, adjustedCenterY, iconSize * 0.45f)
-                DefenderType.WIZARD_TOWER -> drawWizardSymbol(centerX, adjustedCenterY, iconSize * 0.4f)
-                DefenderType.ALCHEMY_TOWER -> drawAlchemySymbol(centerX, adjustedCenterY, iconSize * 0.4f)
-                DefenderType.BALLISTA_TOWER -> drawBallistaSymbol(centerX, adjustedCenterY, iconSize * 0.5f)
-                DefenderType.DWARVEN_MINE -> drawMineSymbol(centerX, adjustedCenterY, iconSize * 0.4f)
-                DefenderType.DRAGONS_LAIR -> {
+            drawDefenderSymbol(
+                defender.type, centerX, adjustedCenterY, iconSize,
+                dragonAlive = if (defender.type == DefenderType.DRAGONS_LAIR) {
                     // Check if the specific dragon from this lair is still alive
-                    val dragonAlive = defender.dragonId.value?.let { dragonId ->
-                        gameState?.attackers?.any { 
-                            it.id == dragonId && !it.isDefeated.value 
+                    defender.dragonId.value?.let { dragonId ->
+                        gameState?.attackers?.any {
+                            it.id == dragonId && !it.isDefeated.value
                         } ?: false
                     } ?: true
-                    drawDragonLairSymbol(centerX, adjustedCenterY, iconSize * 0.6f, dragonAlive)
+                } else {
+                    true
                 }
-            }
+            )
             // Draw tower base wood platform if on tower base
             if (isOnTowerBase) {
                 drawTowerBasePlatform(centerX, centerY, iconSize * 0.9f)
@@ -235,6 +230,49 @@ fun TowerIcon(
                 )
             }
         }
+    }
+}
+
+/**
+ * Draws the type-specific symbol for a defender type inside a Canvas.
+ * Extracted from [TowerIcon] so it can be reused (e.g. on rafts).
+ *
+ * @param dragonAlive Only relevant for [DefenderType.DRAGONS_LAIR]; defaults to true.
+ */
+fun DrawScope.drawDefenderSymbol(
+    defenderType: DefenderType,
+    centerX: Float,
+    centerY: Float,
+    iconSize: Float,
+    dragonAlive: Boolean = true
+) {
+    when (defenderType) {
+        DefenderType.SPIKE_TOWER -> drawSpikeSymbol(centerX, centerY, iconSize * 0.4f)
+        DefenderType.SPEAR_TOWER -> drawSpearSymbol(centerX, centerY + iconSize * 0.15f, iconSize * 0.5f)  // Move down for better positioning
+        DefenderType.BOW_TOWER -> drawBowSymbol(centerX, centerY, iconSize * 0.45f)
+        DefenderType.WIZARD_TOWER -> drawWizardSymbol(centerX, centerY, iconSize * 0.4f)
+        DefenderType.ALCHEMY_TOWER -> drawAlchemySymbol(centerX, centerY, iconSize * 0.4f)
+        DefenderType.BALLISTA_TOWER -> drawBallistaSymbol(centerX, centerY, iconSize * 0.5f)
+        DefenderType.DWARVEN_MINE -> drawMineSymbol(centerX, centerY, iconSize * 0.4f)
+        DefenderType.DRAGONS_LAIR -> drawDragonLairSymbol(centerX, centerY, iconSize * 0.6f, dragonAlive)
+    }
+}
+
+/**
+ * Composable that draws a tower on a raft: the raft base shape with the type-specific
+ * defender symbol on top.  Used to represent barge-mounted towers.
+ */
+@Composable
+fun DrawRaft(
+    defenderType: DefenderType,
+    modifier: Modifier = Modifier
+) {
+    Canvas(modifier = modifier.fillMaxSize()) {
+        val centerX = size.width / 2
+        val centerY = size.height / 2
+        val iconSize = minOf(size.width, size.height)
+        drawRaftBase(centerX, centerY, iconSize * 0.9f)
+        drawDefenderSymbol(defenderType, centerX, centerY, iconSize)
     }
 }
 

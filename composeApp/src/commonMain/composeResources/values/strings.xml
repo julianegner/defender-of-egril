@@ -385,6 +385,7 @@
     <string name="map_image_generation_title">Generating map image: %1$s</string>
     <string name="map_image_generation_running">Generating map image...</string>
     <string name="map_image_generation_done">Map image generation completed.</string>
+    <string name="map_image_already_existed">Map image already existed.</string>
     <string name="map_image_generation_path">Target: %1$s</string>
     <string name="map_image_generation_show_image">Show image</string>
     <string name="map_image_generation_close">Close</string>
@@ -1244,6 +1245,9 @@
     <string name="tower_info_title">Tower Information</string>
     <string name="special_towers_info_title">Special Towers</string>
     <string name="special_towers_info_reopen">You can reopen this information at any time by clicking the tower icon in the level header.</string>
+
+    <!-- Level Loading -->
+    <string name="loading_level">Loading level…</string>
 
     <!-- Map Image and Debug Options -->
     <string name="level_map_image">Level Map Image</string>

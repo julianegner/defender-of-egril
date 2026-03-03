@@ -610,6 +610,55 @@ class EditorStorageTest {
     }
 
     @Test
+    fun testMapImageRegenerationCondition() {
+        // Changing only river flow direction should NOT trigger image regeneration
+        // (tiles map stays the same; only riverTiles changes)
+        val baseTiles = mapOf(
+            "0,0" to TileType.SPAWN_POINT,
+            "1,0" to TileType.PATH,
+            "3,0" to TileType.RIVER,
+            "5,0" to TileType.TARGET
+        )
+        val riverPos = de.egril.defender.model.Position(3, 0)
+        val map = EditorMap(
+            id = "test_regen",
+            name = "Test",
+            width = 10,
+            height = 5,
+            tiles = baseTiles,
+            riverTiles = mapOf(
+                "3,0" to de.egril.defender.model.RiverTile(riverPos, de.egril.defender.model.RiverFlow.EAST, 1)
+            )
+        )
+
+        // Only river flow direction changed – tiles map is identical, no regen needed
+        val mapChangedFlow = map.copy(
+            riverTiles = mapOf(
+                "3,0" to de.egril.defender.model.RiverTile(riverPos, de.egril.defender.model.RiverFlow.WEST, 1)
+            )
+        )
+        assertEquals(map.tiles, mapChangedFlow.tiles)
+
+        // A tile type changed – tiles map differs, regen needed
+        val mapChangedType = map.copy(
+            tiles = baseTiles - "3,0" + ("3,0" to TileType.PATH)
+        )
+        assertTrue(map.tiles != mapChangedType.tiles)
+
+        // A new tile was added – tiles map differs, regen needed
+        val mapAddedTile = map.copy(
+            tiles = baseTiles + ("4,0" to TileType.PATH)
+        )
+        assertTrue(map.tiles != mapAddedTile.tiles)
+
+        // A tile was removed – tiles map differs, regen needed
+        val mapRemovedTile = map.copy(
+            tiles = baseTiles - "3,0"
+        )
+        assertTrue(map.tiles != mapRemovedTile.tiles)
+    }
+
+    @Test
     fun testExtractDataSection() {
         // Test with metadata wrapper
         val wrappedJson = """{
