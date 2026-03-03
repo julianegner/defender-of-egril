@@ -520,6 +520,8 @@ private fun GamePlayScreenContent(
                 {
                     if (gameState.instantTowerSpellActive.value) {
                         showAbortInstantTowerDialog = true
+                    } else if (showMagicPanel) {
+                        onCloseMagicPanel?.invoke()
                     } else {
                         onOpenMagicPanel.invoke()
                     }
@@ -626,6 +628,17 @@ private fun GamePlayScreenContent(
                             selectedTargetPosition = null
                             return@GameGrid
                         }
+                    }
+
+                    // Toggle magic panel when the Target tile is clicked
+                    if (gameState.level.isTargetPosition(position) &&
+                        onOpenMagicPanel != null && gameState.maxMana.value > 0) {
+                        if (showMagicPanel) {
+                            onCloseMagicPanel?.invoke()
+                        } else {
+                            onOpenMagicPanel?.invoke()
+                        }
+                        return@GameGrid
                     }
 
                     // Check if there's a barricade at this position
