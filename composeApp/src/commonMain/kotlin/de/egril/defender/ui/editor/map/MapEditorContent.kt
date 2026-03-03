@@ -52,7 +52,7 @@ fun MapEditorContent() {
         }
     }
 
-    fun handleSave(mapToSave: EditorMap) {
+    fun handleSave(mapToSave: EditorMap, oldId: String? = null) {
         generatorMapName = mapToSave.name
         generatorTargetPath = targetPath(mapToSave)
         showGenerationDialog = true
@@ -66,7 +66,7 @@ fun MapEditorContent() {
         coroutineScope.launch {
             try {
                 val regenerated = withContext(Dispatchers.Default) {
-                    EditorStorage.saveMap(mapToSave)
+                    EditorStorage.saveMap(mapToSave, oldId)
                 }
                 imageWasRegenerated = regenerated
                 generationSuccess = true
@@ -88,7 +88,7 @@ fun MapEditorContent() {
         // Map editing view
         MapEditorView(
             map = editingMap!!,
-            onSave = { updatedMap -> handleSave(updatedMap) },
+            onSave = { updatedMap, oldId -> handleSave(updatedMap, oldId) },
             onCancel = { editingMap = null }
         )
     } else {
@@ -152,7 +152,8 @@ fun MapEditorContent() {
                                 name = "${map.name} (Copy)",
                                 isOfficial = false  // Copied maps are never official
                             )
-                            EditorStorage.saveMap(copiedMap)
+                            // Copy the existing PNG image instead of regenerating it
+                            EditorStorage.copyMap(map, copiedMap)
                             maps.value = EditorStorage.getAllMaps()
                             selectedMapId = copyId
                             editingMap = copiedMap

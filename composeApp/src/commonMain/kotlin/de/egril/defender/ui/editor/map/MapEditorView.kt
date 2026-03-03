@@ -33,12 +33,23 @@ import de.egril.defender.ui.icon.InfoIcon
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
+ * Converts a human-readable map name into a stable map ID component, e.g. "My Map" → "my_map".
+ */
+private fun nameToMapId(name: String): String {
+    val sanitized = name.trim().lowercase()
+        .replace(" ", "_")
+        .replace(Regex("[^a-z0-9_]"), "")
+        .replace(Regex("_+"), "_")
+    return if (sanitized.isNotEmpty()) "map_$sanitized" else ""
+}
+
+/**
  * View for editing a map
  */
 @Composable
 fun MapEditorView(
     map: EditorMap,
-    onSave: (EditorMap) -> Unit,
+    onSave: (EditorMap, String?) -> Unit,
     onCancel: () -> Unit
 ) {
     var tiles by remember { mutableStateOf(map.tiles.toMutableMap()) }
@@ -323,7 +334,16 @@ fun MapEditorView(
             ) {
                 Button(
                     onClick = {
+                        // For user maps: if the name changed, derive a new ID from the new name
+                        // so that the JSON and PNG filenames match the new name.
+                        val (newId, oldId) = if (!map.isOfficial && mapName.trim() != map.name.trim()) {
+                            val derived = nameToMapId(mapName)
+                            if (derived.isNotEmpty() && derived != map.id) Pair(derived, map.id) else Pair(map.id, null)
+                        } else {
+                            Pair(map.id, null)
+                        }
                         val updatedMap = map.copy(
+                            id = newId,
                             name = mapName,
                             author = mapAuthor,
                             tiles = tiles.toMap(),
@@ -331,7 +351,7 @@ fun MapEditorView(
                         )
                         // Validate and set readyToUse flag
                         val validatedMap = updatedMap.copy(readyToUse = updatedMap.validateReadyToUse())
-                        onSave(validatedMap)
+                        onSave(validatedMap, oldId)
                     },
                     enabled = !map.isOfficial || de.egril.defender.OfficialEditMode.enabled,
                     modifier = Modifier.weight(1f)
@@ -385,10 +405,7 @@ fun MapEditorView(
             onDismiss = { showSaveAsDialog = false },
             onSave = { newName ->
                 // Save as new map with ID based on name
-                val sanitizedName = newName.trim().replace(" ", "_").replace(Regex("[^a-zA-Z0-9_]"), "")
-                val newId = if (sanitizedName.isNotEmpty()) {
-                    "map_$sanitizedName"
-                } else {
+                val newId = nameToMapId(newName).ifEmpty {
                     "map_copy_${kotlin.random.Random.nextInt(10000, 99999)}"
                 }
                 val newMap = map.copy(
@@ -396,11 +413,12 @@ fun MapEditorView(
                     name = newName,
                     author = mapAuthor,
                     tiles = tiles.toMap(),
-                    riverTiles = riverTiles.toMap()
+                    riverTiles = riverTiles.toMap(),
+                    isOfficial = false  // Save as new always creates a user map
                 )
                 // Validate and set readyToUse flag
                 val validatedMap = newMap.copy(readyToUse = newMap.validateReadyToUse())
-                onSave(validatedMap)
+                onSave(validatedMap, null)  // null oldId: this is a brand-new map, not a rename
                 showSaveAsDialog = false
             }
         )
