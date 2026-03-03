@@ -1,8 +1,8 @@
-package de.egril.defender.ui.gameplay
+package de.egril.defender.ui.animations
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -13,18 +13,33 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * Static black scribble/cloud overlay for feared enemies when animations are disabled.
- * Drawn at the upper third of the cell to represent a dark fear cloud around the head.
- * When animations are enabled, LottieAnimation with AnimationType.FEAR_SPELL is used instead.
+ * Fear spell overlay for feared enemies.
+ * When [animate] is true, shows a Lottie dark cloud animation.
+ * When [animate] is false, shows a static black scribble cloud in the upper portion of the tile.
  */
 @Composable
-fun FearScribble(
-    modifier: Modifier = Modifier
-) {
+fun FearSpellAnimation(animate: Boolean, modifier: Modifier = Modifier) {
+    if (animate) {
+        AnimatedFearSpell(modifier)
+    } else {
+        StaticFearSpell(modifier)
+    }
+}
+
+@Composable
+private fun AnimatedFearSpell(modifier: Modifier = Modifier) {
+    LottieAnimation(
+        animationType = AnimationType.FEAR_SPELL,
+        modifier = modifier.fillMaxSize(),
+        iterations = Int.MAX_VALUE
+    )
+}
+
+@Composable
+private fun StaticFearSpell(modifier: Modifier = Modifier) {
     Canvas(modifier = modifier.fillMaxSize()) {
         val w = size.width
         val h = size.height
-        // Draw in the upper ~30% of the cell
         drawFearCloud(
             topLeft = Offset(w * 0.08f, h * 0.03f),
             width = w * 0.84f,
@@ -34,9 +49,6 @@ fun FearScribble(
     }
 }
 
-/**
- * Draw a scribbled dark cloud shape using irregular jagged lines.
- */
 private fun DrawScope.drawFearCloud(
     topLeft: Offset,
     width: Float,

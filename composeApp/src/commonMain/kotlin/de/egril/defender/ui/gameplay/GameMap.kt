@@ -28,8 +28,13 @@ import androidx.compose.ui.zIndex
 import de.egril.defender.model.*
 import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.*
-import de.egril.defender.ui.animations.AnimationType
-import de.egril.defender.ui.animations.LottieAnimation
+import de.egril.defender.ui.animations.BarricadeDamageAnimation
+import de.egril.defender.ui.animations.BombExplosionAnimation
+import de.egril.defender.ui.animations.CoolingAreaAnimation
+import de.egril.defender.ui.animations.DoubleLevelSpellAnimation
+import de.egril.defender.ui.animations.FearSpellAnimation
+import de.egril.defender.ui.animations.FreezeSpellAnimation
+import de.egril.defender.ui.animations.GreenWitchHealingAnimation
 import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.icon.BombIcon
 import de.egril.defender.ui.icon.ExplosionIcon
@@ -59,7 +64,6 @@ import de.egril.defender.ui.rememberMapImagePainter
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 import de.egril.defender.config.LogConfig
-import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -1185,81 +1189,18 @@ private fun BoxScope.GridCellContent(
                         EnemyIcon(attacker = attacker)
                         // Show healing effect overlay if present
                         if (healingEffect != null) {
-                            if (AppSettings.enableAnimations.value) {
-                                // Show Lottie animation for green witch healing - repeats until turn ends
-                                LottieAnimation(
-                                    animationType = AnimationType.GREEN_WITCH_HEALING,
-                                    modifier = Modifier.fillMaxSize(),
-                                    iterations = Int.MAX_VALUE
-                                )
-                            } else {
-                                // Show 3 green "+" symbols in different sizes
-                                // Positioned with smaller symbols higher than larger ones
-                                // TODO HERE
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    // Large + symbol at center
-                                    Text(
-                                        "+",
-                                        style = MaterialTheme.typography.headlineLarge,
-                                        color = Color(0xFF4CAF50), // Green
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    // Medium + symbol - offset left and higher
-                                    Text(
-                                        "+",
-                                        style = MaterialTheme.typography.headlineMedium,
-                                        color = Color(0xFF4CAF50), // Green
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.offset(x = (-12).dp, y = (-8).dp)
-                                    )
-                                    // Small + symbol - offset right and even higher
-                                    Text(
-                                        "+",
-                                        style = MaterialTheme.typography.headlineSmall,
-                                        color = Color(0xFF4CAF50), // Green
-                                        fontWeight = FontWeight.Bold,
-                                        modifier = Modifier.offset(x = 12.dp, y = (-16).dp)
-                                    )
-                                }
-                            }
+                            GreenWitchHealingAnimation(
+                                animate = AppSettings.enableAnimations.value,
+                                modifier = Modifier.fillMaxSize()
+                            )
                         }
                         // Show freeze effect overlay
                         if (freezeEffect != null) {
-                            if (AppSettings.enableAnimations.value) {
-                                // Two overlapping animations offset by half a loop (3 s) so that
-                                // when one resets to frame 0 the other is mid-fall — no gap at
-                                // the loop boundary.
-                                LottieAnimation(
-                                    animationType = AnimationType.FREEZE_SPELL,
-                                    modifier = Modifier.fillMaxSize(),
-                                    iterations = Int.MAX_VALUE
-                                )
-                                // Delayed copy: starts after 3 s (= 180 frames / 30 fps / 2).
-                                // Keyed on attackerId so the delay resets if the enemy is
-                                // un-frozen and re-frozen.
-                                var showSecondAnimation by remember(freezeEffect.attackerId) {
-                                    mutableStateOf(false)
-                                }
-                                LaunchedEffect(freezeEffect.attackerId) {
-                                    delay(3000L)
-                                    showSecondAnimation = true
-                                }
-                                if (showSecondAnimation) {
-                                    LottieAnimation(
-                                        animationType = AnimationType.FREEZE_SPELL,
-                                        modifier = Modifier.fillMaxSize(),
-                                        iterations = Int.MAX_VALUE
-                                    )
-                                }
-                            } else {
-                                // Show static white snowflakes at different heights
-                                Snowflakes(
-                                    modifier = Modifier.fillMaxSize()
-                                )
-                            }
+                            FreezeSpellAnimation(
+                                animate = AppSettings.enableAnimations.value,
+                                modifier = Modifier.fillMaxSize(),
+                                animationKey = freezeEffect.attackerId
+                            )
                         }
                         // Show fear effect overlay (black scribble cloud at top of icon)
                         val fearEffect = gameState.activeSpellEffects.find { effect ->
@@ -1268,16 +1209,10 @@ private fun BoxScope.GridCellContent(
                                 attacker.position.value.hexDistanceTo(effect.position) <= 2)
                         }
                         if (fearEffect != null) {
-                            if (AppSettings.enableAnimations.value) {
-                                // Show Lottie animation for fear spell - repeats until effect ends
-                                LottieAnimation(
-                                    animationType = AnimationType.FEAR_SPELL,
-                                    modifier = Modifier.fillMaxSize(),
-                                    iterations = Int.MAX_VALUE
-                                )
-                            } else {
-                                FearScribble(modifier = Modifier.fillMaxSize())
-                            }
+                            FearSpellAnimation(
+                                animate = AppSettings.enableAnimations.value,
+                                modifier = Modifier.fillMaxSize()
+                            )
                         }
                         // Show barb effect indicators if affected (show up to 5 arrows in center)
                         if (attacker.movementPenalty.value > 0) {
@@ -1430,46 +1365,10 @@ private fun BoxScope.GridCellContent(
                     }
                     // Show damage effect overlay if present
                     if (damageEffect != null) {
-                        if (AppSettings.enableAnimations.value) {
-                            // Show Lottie animation for barricade damage - repeats until turn ends
-                            LottieAnimation(
-                                animationType = AnimationType.BARRICADE_DAMAGE,
-                                modifier = Modifier.fillMaxSize(),
-                                iterations = Int.MAX_VALUE
-                            )
-                        } else {
-                            // Show 3 red "-" symbols in different sizes
-                            // Positioned with smaller symbols higher than larger ones
-                            // TODO HERE
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                // Large - symbol at center
-                                Text(
-                                    "-",
-                                    style = MaterialTheme.typography.headlineLarge,
-                                    color = Color.Red,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                // Medium - symbol - offset left and higher
-                                Text(
-                                    "-",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = Color.Red,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.offset(x = (-10).dp, y = (-12).dp)
-                                )
-                                // Small - symbol - offset right and higher
-                                Text(
-                                    "-",
-                                    style = MaterialTheme.typography.titleSmall,
-                                    color = Color.Red,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.offset(x = 8.dp, y = (-15).dp)
-                                )
-                            }
-                        }
+                        BarricadeDamageAnimation(
+                            animate = AppSettings.enableAnimations.value,
+                            modifier = Modifier.fillMaxSize()
+                        )
                     }
                 }
             }
@@ -1567,19 +1466,10 @@ private fun BoxScope.GridCellContent(
 
         // Show cooling spell snowflake animation on affected tiles
         if (isInCoolingArea) {
-            if (AppSettings.enableAnimations.value) {
-                Snowflakes(modifier = Modifier.fillMaxSize())
-            } else {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    de.egril.defender.ui.icon.SnowflakeIcon(
-                        size = 24.dp,
-                        tint = Color.Cyan.copy(alpha = 0.7f)
-                    )
-                }
-            }
+            CoolingAreaAnimation(
+                animate = AppSettings.enableAnimations.value,
+                modifier = Modifier.fillMaxSize()
+            )
         }
 
         // Show half-transparent tower icon on hovered build tile
@@ -1621,21 +1511,10 @@ private fun BoxScope.GridCellContent(
 
         // Show bomb explosion animation overlay on affected tiles (highest priority, above everything)
         if (bombExplosion != null) {
-            if (AppSettings.enableAnimations.value) {
-                LottieAnimation(
-                    animationType = AnimationType.BOMB_EXPLOSION,
-                    modifier = Modifier.fillMaxSize().zIndex(20f),
-                    iterations = 1
-                )
-            } else {
-                // Static fallback: starburst pattern in red/orange
-                Box(
-                    modifier = Modifier.fillMaxSize().zIndex(20f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    ExplosionIcon(size = 36.dp)
-                }
-            }
+            BombExplosionAnimation(
+                animate = AppSettings.enableAnimations.value,
+                modifier = Modifier.fillMaxSize().zIndex(20f)
+            )
         }
 
         // Show small bomb countdown overlay when an enemy is on the same bomb tile
