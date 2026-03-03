@@ -949,8 +949,8 @@ fun GridCell(
         // Buildable tile highlighting - lighter green borders with dashed line when tower type is selected
         isBuildableAndEmpty || canBeUsedAsTowerBase -> GamePlayColors.BuildableHighlight  // Lighter green border for buildable tiles and tower bases
         
-        // Double-reach-only tiles: dual dashed green+purple border (drawn via Canvas, transparent solid border here)
-        cellIsInDoubleReachOnlyRange && isValidTargetTile && showRange && canPlaceTrapHere -> Color.Transparent
+        // Double-reach-only tiles: thin purple solid border
+        cellIsInDoubleReachOnlyRange && isValidTargetTile && showRange && canPlaceTrapHere -> SpellDoubleReachColor
         
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> GamePlayColors.Success  // Green border for tiles in range (path or river for area attacks)
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> GamePlayColors.Yellow  // Yellow border for selected defender (not during initial building)
@@ -984,7 +984,7 @@ fun GridCell(
         cellIsInBarricadeRange || cellIsValidForMineTrapPlacement || cellIsValidForMagicalTrapPlacement -> 3.dp  // Medium border for trap/barricade placement range
         isBuildableAndEmpty || canBeUsedAsTowerBase -> 3.dp  // Medium border for buildable tiles and tower bases
         isDefenderSelected && gameState.phase.value != GamePhase.INITIAL_BUILDING -> 5.dp  // Extra thick border for selected defender (not during initial building)
-        cellIsInDoubleReachOnlyRange && isValidTargetTile && showRange && canPlaceTrapHere -> 0.dp  // No solid border; dual Canvas border used instead
+        cellIsInDoubleReachOnlyRange && isValidTargetTile && showRange && canPlaceTrapHere -> 2.dp  // Thin purple border for double-reach-only tiles
         cellIsInRange && isValidTargetTile && showRange && canPlaceTrapHere -> 4.dp  // Thick border for cells in range (path or river for area attacks)
         isValidSpellTarget &&
             spellTargeting?.activeSpell != SpellType.FEAR_SPELL &&
@@ -1000,9 +1000,6 @@ fun GridCell(
     // Flag to indicate dashed border (for preview and buildable tiles)
     val useDashedBorder = showPlacementPreview || isInPreviewRange || isBuildableAndEmpty || canBeUsedAsTowerBase ||
                           cellIsInBarricadeRange || cellIsValidForMineTrapPlacement || cellIsValidForMagicalTrapPlacement
-
-    // Flag for dual green+purple dashed border (tiles in double-reach-spell range only)
-    val useDoubleReachBorder = cellIsInDoubleReachOnlyRange && isValidTargetTile && showRange && canPlaceTrapHere
 
     val showDiagonalStripes = isBuildableAndEmpty || canBeUsedAsTowerBase ||
                               cellIsInBarricadeRange || cellIsValidForMineTrapPlacement || cellIsValidForMagicalTrapPlacement
@@ -1069,8 +1066,8 @@ fun GridCell(
             position = position,
             tileType = tileType,
             backgroundColor = finalBackgroundColor,
-            borderColor = if (useDashedBorder || useDoubleReachBorder) Color.Transparent else borderColor,
-            borderWidth = if (useDashedBorder || useDoubleReachBorder) 0.dp else borderWidth,
+            borderColor = if (useDashedBorder) Color.Transparent else borderColor,
+            borderWidth = if (useDashedBorder) 0.dp else borderWidth,
             backgroundPainter = tilePainter,
             onClick = onClick,
             onHover = onHoverChange,
@@ -1106,16 +1103,15 @@ fun GridCell(
                 showDiagonalStripes = showDiagonalStripes,
                 isInCoolingArea = isInCoolingArea,
                 bombEffect = bombEffect,
-                bombExplosion = bombExplosion,
-                useDoubleReachBorder = useDoubleReachBorder
+                bombExplosion = bombExplosion
             )
         }
     } else {
         BaseGridCell(
             hexSize = hexSize,
             backgroundColor = finalBackgroundColor,
-            borderColor = if (useDashedBorder || useDoubleReachBorder) Color.Transparent else borderColor,
-            borderWidth = if (useDashedBorder || useDoubleReachBorder) 0.dp else borderWidth,
+            borderColor = if (useDashedBorder) Color.Transparent else borderColor,
+            borderWidth = if (useDashedBorder) 0.dp else borderWidth,
             backgroundPainter = tilePainter,
             onClick = onClick,
             onHover = onHoverChange
@@ -1149,8 +1145,7 @@ fun GridCell(
                 showDiagonalStripes = showDiagonalStripes,
                 isInCoolingArea = isInCoolingArea,
                 bombEffect = bombEffect,
-                bombExplosion = bombExplosion,
-                useDoubleReachBorder = useDoubleReachBorder
+                bombExplosion = bombExplosion
             )
         }
     }
@@ -1189,8 +1184,7 @@ private fun BoxScope.GridCellContent(
     showDiagonalStripes: Boolean = false,
     isInCoolingArea: Boolean = false,
     bombEffect: ActiveSpellEffect? = null,
-    bombExplosion: BombExplosionEffect? = null,
-    useDoubleReachBorder: Boolean = false
+    bombExplosion: BombExplosionEffect? = null
 ) {
         when {
             attacker != null -> {
@@ -1298,6 +1292,20 @@ private fun BoxScope.GridCellContent(
                                 animate = AppSettings.enableAnimations.value,
                                 modifier = Modifier.fillMaxSize()
                             )
+                        }
+                        // Show doubled level as purple text on the tile
+                        if (doubleLevelActive) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.BottomCenter
+                            ) {
+                                Text(
+                                    "${defender.level.value * 2}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = SpellDoubleLevelColor,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
                         // Show red "XT" overlay if tower is disabled by Red Witch
                         if (defender.isDisabled.value && defender.disabledTurnsRemaining.value > 0) {
@@ -1713,52 +1721,6 @@ private fun BoxScope.GridCellContent(
             }
         }
 
-        // Draw dual dashed green+purple border for tiles in double-reach-spell range
-        if (useDoubleReachBorder) {
-            val greenColor = GamePlayColors.Success  // Capture in composable scope
-            Canvas(
-                modifier = Modifier
-                    .matchParentSize()
-                    .zIndex(12f)
-            ) {
-                val sqrt3 = sqrt(3.0).toFloat()
-                val centerX = size.width / 2f
-                val centerY = size.height / 2f
-                val radius = minOf(size.width, size.height) / 2f
-                val strokeWidth = 3.5f
-
-                fun hexPath(inset: Float) = Path().apply {
-                    val r = radius - inset
-                    moveTo(centerX, centerY - r)
-                    lineTo(centerX + r * sqrt3 / 2f, centerY - r / 2f)
-                    lineTo(centerX + r * sqrt3 / 2f, centerY + r / 2f)
-                    lineTo(centerX, centerY + r)
-                    lineTo(centerX - r * sqrt3 / 2f, centerY + r / 2f)
-                    lineTo(centerX - r * sqrt3 / 2f, centerY - r / 2f)
-                    close()
-                }
-
-                // Green dashed border (outer)
-                drawPath(
-                    path = hexPath(0f),
-                    color = greenColor,
-                    style = Stroke(
-                        width = strokeWidth,
-                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 4f), 0f)
-                    )
-                )
-                // Purple dashed border (inner, offset in space and dash phase)
-                drawPath(
-                    path = hexPath(4f),
-                    color = SpellDoubleReachColor,
-                    style = Stroke(
-                        width = strokeWidth,
-                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 4f), 6f)
-                    )
-                )
-            }
-        }
-        
         // Draw diagonal stripes for buildable tiles, tower bases, and placement tiles (trap/barricade/magical trap)
         if (showDiagonalStripes) {
             Canvas(

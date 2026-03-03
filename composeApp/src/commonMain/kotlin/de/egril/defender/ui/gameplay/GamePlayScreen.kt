@@ -708,6 +708,12 @@ private fun GamePlayScreenContent(
                             }
 
                             // For AREA/LASTING (fireball and acid) attacks, allow targeting path tiles OR river tiles
+                            val effectiveRange = run {
+                                val hasDoubleReach = gameState.activeSpellEffects.any {
+                                    it.spell == SpellType.DOUBLE_TOWER_REACH && it.defenderId == selectedDefender.id
+                                }
+                                if (hasDoubleReach) selectedDefender.range * 2 else selectedDefender.range
+                            }
                             if (selectedDefender.type.attackType == AttackType.AREA ||
                                 selectedDefender.type.attackType == AttackType.LASTING
                             ) {
@@ -718,7 +724,7 @@ private fun GamePlayScreenContent(
 
                                 if ((isOnPath || isOnRiver) &&
                                     distance >= selectedDefender.type.minRange &&
-                                    distance <= selectedDefender.range
+                                    distance <= effectiveRange
                                 ) {
                                     selectedTargetPosition = position
                                     // Also set targetId if there's an enemy at this position
@@ -733,7 +739,7 @@ private fun GamePlayScreenContent(
                                     gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
                                 val bridgeAtPosition = gameState.getBridgeAt(position)
 
-                                if (distance >= selectedDefender.type.minRange && distance <= selectedDefender.range) {
+                                if (distance >= selectedDefender.type.minRange && distance <= effectiveRange) {
                                     if (attackerForTargeting != null) {
                                         selectedTargetId = attackerForTargeting.id
                                         selectedTargetPosition = position // to be able to show the 3 circles to highlight the target
