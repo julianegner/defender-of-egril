@@ -58,6 +58,10 @@ class SimpleSoundManager : SoundManager {
             
             // Game phase sounds
             SoundEvent.BATTLE_START -> 650 to 300  // Fanfare-like tone
+            
+            // Bomb spell sounds
+            SoundEvent.BOMB_TICKING -> 440 to 80   // Metallic tick
+            SoundEvent.BOMB_EXPLOSION -> 200 to 500 // Deep, long boom
         }
         
         // Play the tone on the platform

@@ -3,6 +3,7 @@
 package de.egril.defender.ui.worldmap
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -11,6 +12,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.LevelStatus
 import de.egril.defender.model.WorldLevel
@@ -26,6 +30,7 @@ import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 import kotlinx.coroutines.launch
 import androidx.compose.ui.text.font.FontStyle
+import de.egril.defender.config.LogConfig
 
 // Button sizing constants for world map bottom bar
 private val BUTTON_WIDTH_MOBILE_IMAGE_MAP = 133.dp  // ~33% smaller than default for compact mobile layout
@@ -46,10 +51,18 @@ fun WorldMapScreen(
     onEditPlayerName: (() -> Unit)? = null,  // Callback to edit player name
     currentPlayerName: String? = null,  // Current player name for display
     showPlatformInfo: Boolean = false,  // Show platform info from cheat code
-    onClearPlatformInfo: (() -> Unit)? = null  // Callback to clear platform info
+    onClearPlatformInfo: (() -> Unit)? = null,  // Callback to clear platform info
+    showCheatHelp: Boolean = false,  // Show cheat code help screen
+    onClearCheatHelp: (() -> Unit)? = null  // Callback to clear cheat help
 ) {
     var showCheatDialog by remember { mutableStateOf(false) }
     var selectedLocation by remember { mutableStateOf<Pair<WorldMapLocation, List<WorldLevel>>?>(null) }
+    val focusRequester = remember { FocusRequester() }
+
+    // Request focus on launch so keyboard events are dispatched to this screen
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
     
     // Track whether to show user levels tab view in image map mode
     // false = show image map with button, true = show tab view with user levels
@@ -107,26 +120,46 @@ fun WorldMapScreen(
                     val detectedData = RepositoryManager.detectNewRepositoryFiles()
                     if (detectedData != null) {
                         // Automatically sync official content without asking
+                        if (LogConfig.ENABLE_UI_LOGGING) {
                         println("Detected new official content, auto-syncing...")
+                        }
                         val success = RepositoryManager.syncNewRepositoryFiles()
                         if (success) {
                             println("Successfully synced new official content")
                             // Reload the world map to show the new levels
                             onReloadWorldMap?.invoke()
                         } else {
+                            if (LogConfig.ENABLE_UI_LOGGING) {
                             println("Failed to sync official content")
+                            }
                         }
                     }
                 } catch (e: Exception) {
                     // Silently ignore repository check errors to avoid disrupting the user experience
+                    if (LogConfig.ENABLE_UI_LOGGING) {
                     println("Info: Repository check skipped - ${e.message}")
+                    }
                 }
             }
         }
     }
     
     BoxWithConstraints(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .focusRequester(focusRequester)
+            .focusable()
+            .onPreviewKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown &&
+                    event.key == Key.C && !event.isCtrlPressed &&
+                    onCheatCode != null
+                ) {
+                    showCheatDialog = true
+                    true
+                } else {
+                    false
+                }
+            }
     ) {
         val windowSize = remember(maxWidth, maxHeight) {
             "Window: ${maxWidth.value.toInt()} x ${maxHeight.value.toInt()} dp"
@@ -482,6 +515,14 @@ fun WorldMapScreen(
             platformInfo = de.egril.defender.utils.getPlatform().name,
             windowSize = windowSize,
             onDismiss = onClearPlatformInfo
+        )
+    }
+    
+    // Cheat code help screen (from cheat/cheats/help cheat code)
+    if (showCheatHelp && onClearCheatHelp != null) {
+        de.egril.defender.ui.CheatCodeHelpScreen(
+            onDismiss = onClearCheatHelp,
+            isInGameplay = false
         )
     }
     }

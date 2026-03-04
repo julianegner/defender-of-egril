@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.*
+import de.egril.defender.ui.animations.SpellDoubleLevelColor
 import de.egril.defender.ui.gameplay.GamePlayColors
 import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.TimerIcon
@@ -96,6 +97,9 @@ fun TowerIcon(
     // Check if tower is on a tower base
     val towerBase = gameState?.barricades?.find { it.id == defender.towerBaseBarricadeId.value }
     val isOnTowerBase = towerBase != null
+    val doubleLevelActive = gameState?.activeSpellEffects?.any {
+        it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == defender.id
+    } ?: false
     
     Box(
         modifier = modifier.fillMaxSize(),
@@ -199,10 +203,10 @@ fun TowerIcon(
         } else {
             // Level indicator at bottom center - 10dp from bottom edge (only if not on tower base)
             Text(
-                text = "L${defender.level.value}",
+                text = if (doubleLevelActive) "L${defender.level.value * 2}" else "L${defender.level.value}",
                 style = MaterialTheme.typography.labelSmall,
                 fontSize = 11.sp,
-                color = Color.White,
+                color = if (doubleLevelActive) SpellDoubleLevelColor else Color.White,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)

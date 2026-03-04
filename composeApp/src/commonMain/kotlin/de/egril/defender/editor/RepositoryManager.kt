@@ -1,6 +1,7 @@
 package de.egril.defender.editor
 
 import de.egril.defender.utils.runBlockingCompat
+import de.egril.defender.config.LogConfig
 
 /**
  * Manages repository data operations, including detection and restoration.
@@ -36,7 +37,9 @@ object RepositoryManager {
                     println("Failed to backup gamedata folder")
                     return null
                 }
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                 println("Backed up gamedata to $backupFolderName")
+                }
             }
             
             // Create new gamedata directory
@@ -60,7 +63,9 @@ object RepositoryManager {
             // Return the absolute path to the backup folder
             return fileStorage.getAbsolutePath(backupFolderName)
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Error restoring from repository: ${e.message}")
+            }
             e.printStackTrace()
             return null
         }
@@ -201,7 +206,9 @@ object RepositoryManager {
                 return null
             }
             
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Detected new repository files: ${newMaps.size} maps, ${newLevels.size} levels, sequence changed: $hasNewSequence, worldmap changed: $hasNewWorldMap")
+            }
             return NewRepositoryData(
                 newMaps = newMaps.toList(),
                 newLevels = newLevels,
@@ -210,7 +217,9 @@ object RepositoryManager {
                 worldMapData = repoWorldMapData  // Cache the loaded worldmap data
             )
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Error detecting new repository files: ${e.message}")
+            }
             e.printStackTrace()
             return null
         }
@@ -252,7 +261,9 @@ object RepositoryManager {
                     val officialMap = map.copy(isOfficial = true)
                     val mapJson = EditorJsonSerializer.serializeMap(officialMap)
                     fileStorage.writeFile("$GAMEDATA_DIR/official/maps/$mapId.json", mapJson)
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("Added/updated official map: $mapId")
+                    }
                 }
             }
             
@@ -263,7 +274,9 @@ object RepositoryManager {
                     val officialLevel = level.copy(isOfficial = true)
                     val levelJson = EditorJsonSerializer.serializeLevel(officialLevel)
                     fileStorage.writeFile("$GAMEDATA_DIR/official/levels/$levelId.json", levelJson)
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("Added/updated official level: $levelId")
+                    }
                 }
             }
             
@@ -273,7 +286,9 @@ object RepositoryManager {
                 if (sequence != null) {
                     val sequenceJson = EditorJsonSerializer.serializeSequence(sequence)
                     fileStorage.writeFile("$GAMEDATA_DIR/official/sequence.json", sequenceJson)
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("Updated official sequence file")
+                    }
                 }
             }
             
@@ -284,24 +299,34 @@ object RepositoryManager {
                 if (worldMapData != null) {
                     val worldMapJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
                     fileStorage.writeFile("$GAMEDATA_DIR/official/worldmap.json", worldMapJson)
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("Updated official worldmap file")
+                    }
                 } else {
                     // Load from repository if not cached
                     val loadedWorldMapData = RepositoryLoader.loadWorldMapData()
                     if (loadedWorldMapData != null) {
                         val worldMapJson = EditorJsonSerializer.serializeWorldMapData(loadedWorldMapData)
                         fileStorage.writeFile("$GAMEDATA_DIR/official/worldmap.json", worldMapJson)
+                        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                         println("Updated official worldmap file (loaded from repository)")
+                        }
                     } else {
+                        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                         println("Error: Could not load worldmap from repository")
+                        }
                     }
                 }
             }
             
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Successfully synced ${newData.newMaps.size} maps and ${newData.newLevels.size} levels to official directory")
+            }
             return true
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Error syncing new repository files: ${e.message}")
+            }
             e.printStackTrace()
             return false
         }
@@ -329,7 +354,9 @@ object RepositoryManager {
         return if (counter <= maxBackups) {
             "sequence-$counter.json"
         } else {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Warning: Maximum number of sequence backups ($maxBackups) reached")
+            }
             null
         }
     }
@@ -347,7 +374,9 @@ object RepositoryManager {
         return if (counter <= maxBackups) {
             "worldmap-$counter.json"
         } else {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Warning: Maximum number of worldmap backups ($maxBackups) reached")
+            }
             null
         }
     }

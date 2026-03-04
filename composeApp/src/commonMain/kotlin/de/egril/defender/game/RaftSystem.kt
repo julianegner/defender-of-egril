@@ -2,6 +2,7 @@ package de.egril.defender.game
 
 import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.model.*
+import de.egril.defender.config.LogConfig
 
 /**
  * Event types for raft destruction
@@ -37,13 +38,17 @@ class RaftSystem(private val state: GameState) {
      */
     fun processRaftMovements() {
         val raftsToMove = state.rafts.filter { it.isActive }
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("RaftSystem: Processing ${raftsToMove.size} active rafts")
+        }
         if (raftsToMove.isEmpty()) return
         
         // Build a dependency graph to determine movement order
         // Rafts that block others should be moved first
         val movementOrder = determineMovementOrder(raftsToMove)
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("RaftSystem: Movement order determined for ${movementOrder.size} rafts")
+        }
         
         for (raft in movementOrder) {
             if (!raft.isActive) continue
@@ -171,7 +176,9 @@ class RaftSystem(private val state: GameState) {
             val riverTile = state.level.getRiverTile(currentPos)
             if (riverTile == null) {
                 // Not on a river tile, can't continue movement
+                if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                 println("Raft ${raft.id} reached non-river tile at $currentPos")
+                }
                 break
             }
             
@@ -188,7 +195,9 @@ class RaftSystem(private val state: GameState) {
             // Check if there's a bridge blocking the way
             if (state.isBridgeAt(nextStep)) {
                 // Blocked by bridge, cannot move further
+                if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                 println("Raft ${raft.id} blocked by bridge at $nextStep")
+                }
                 break
             }
             
@@ -196,14 +205,18 @@ class RaftSystem(private val state: GameState) {
             val nextRiverTile = state.level.getRiverTile(nextStep)
             if (nextRiverTile == null) {
                 // Next position is not a river tile, can't move there
+                if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                 println("Raft ${raft.id} cannot move to non-river tile at $nextStep")
+                }
                 break
             }
             
             // Check if another raft is at the destination
             if (state.isRaftAt(nextStep)) {
                 // Blocked by another raft, cannot move further
+                if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                 println("Raft ${raft.id} blocked by another raft at $nextStep")
+                }
                 break
             }
             
@@ -282,7 +295,9 @@ class RaftSystem(private val state: GameState) {
      */
     private fun destroyRaft(raft: Raft) {
         raft.isDestroyed.value = true
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("Raft ${raft.id} destroyed")
+        }
     }
     
     /**
@@ -291,7 +306,9 @@ class RaftSystem(private val state: GameState) {
     private fun destroyRaftAndTower(raft: Raft, defender: Defender, reason: RaftLossReason = RaftLossReason.OTHER) {
         destroyRaft(raft)
         state.defenders.remove(defender)
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("Tower ${defender.type} destroyed with raft ${raft.id} due to $reason")
+        }
         
         // Emit event for achievement tracking
         onRaftLost?.invoke(reason)

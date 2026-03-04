@@ -6,6 +6,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -129,10 +130,13 @@ fun GameStatsDisplay(
     turn: Int,
     activeEnemyCount: Int,
     remainingEnemyCount: Int,
+    currentMana: Int? = null,  // Optional mana display (null if not using mana)
+    maxMana: Int? = null,  // Optional max mana (null if not using mana)
     iconSize: Dp = GamePlayConstants.IconSizes.Large,
     textStyle: TextStyle = MaterialTheme.typography.bodyLarge,
     onCoinsClick: (() -> Unit)? = null,
-    onEnemyCountClick: (() -> Unit)? = null
+    onEnemyCountClick: (() -> Unit)? = null,
+    onManaClick: (() -> Unit)? = null  // Optional callback when mana is clicked
 ) {
 
     // Coins (clickable if callback provided)
@@ -154,6 +158,25 @@ fun GameStatsDisplay(
         HeartIcon(size = iconSize)
         Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
         Text("$health", style = textStyle)
+    }
+    
+    // Mana (only show if mana values are provided)
+    if (currentMana != null && maxMana != null && maxMana > 0) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = if (onManaClick != null) {
+                Modifier.clickable(onClick = onManaClick)
+            } else {
+                Modifier
+            }
+        ) {
+            de.egril.defender.ui.icon.PentagramIcon(
+                size = iconSize,
+                color = Color(0xFF9C27B0)  // Purple for mana
+            )
+            Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+            Text("$currentMana/$maxMana", style = textStyle)
+        }
     }
         
     // Turn

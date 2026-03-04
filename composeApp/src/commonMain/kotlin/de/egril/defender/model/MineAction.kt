@@ -9,10 +9,11 @@ enum class MineAction {
 }
 
 /**
- * Actions that can be performed by a wizard tower (level 10+)
+ * Actions that can be performed by a wizard tower
  */
 enum class WizardAction {
-    PLACE_MAGICAL_TRAP   // Place a magical trap that teleports enemies
+    PLACE_MAGICAL_TRAP,  // Place a magical trap that teleports enemies (level 10+)
+    GENERATE_MANA        // Generate mana for spell casting (always available)
 }
 
 /**

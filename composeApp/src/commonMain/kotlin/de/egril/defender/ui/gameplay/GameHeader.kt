@@ -35,7 +35,8 @@ fun GameHeader(
     onBackToMap: () -> Unit,
     onSaveGame: (() -> Unit)?,
     onCheatCode: (() -> Unit)?,
-    onEnemyCountClick: (() -> Unit)? = null
+    onEnemyCountClick: (() -> Unit)? = null,
+    onManaClick: (() -> Unit)? = null
 ) {
     val headerTextSize = de.egril.defender.ui.settings.AppSettings.headerTextSize.value
     var showDebugMenu by remember { mutableStateOf(false) }
@@ -63,7 +64,8 @@ fun GameHeader(
                     gameState = gameState,
                     onCheatCode = onCheatCode,
                     headerTextSize = headerTextSize,
-                    onEnemyCountClick = onEnemyCountClick
+                    onEnemyCountClick = onEnemyCountClick,
+                    onManaClick = onManaClick
                 )
             }
 
@@ -236,7 +238,8 @@ private fun GameStats(
     gameState: GameState,
     onCheatCode: (() -> Unit)?,
     headerTextSize: de.egril.defender.ui.settings.HeaderTextSize,
-    onEnemyCountClick: (() -> Unit)? = null
+    onEnemyCountClick: (() -> Unit)? = null,
+    onManaClick: (() -> Unit)? = null
 ) {
     val iconSize = when (headerTextSize) {
         de.egril.defender.ui.settings.HeaderTextSize.SMALL -> GamePlayConstants.IconSizes.Large
@@ -255,10 +258,13 @@ private fun GameStats(
         turn = gameState.turnNumber.value,
         activeEnemyCount = gameState.getActiveEnemyCount(),
         remainingEnemyCount = gameState.getRemainingEnemyCount(),
+        currentMana = if (gameState.maxMana.value > 0) gameState.currentMana.value else null,
+        maxMana = if (gameState.maxMana.value > 0) gameState.maxMana.value else null,
         iconSize = iconSize,
         textStyle = textStyle,
         onCoinsClick = onCheatCode,
-        onEnemyCountClick = onEnemyCountClick
+        onEnemyCountClick = onEnemyCountClick,
+        onManaClick = onManaClick
     )
 }
 

@@ -71,6 +71,7 @@ fun App() {
         val savedGames by viewModel.savedGames.collectAsState()
         val cheatDigOutcome by viewModel.cheatDigOutcome.collectAsState()
         val showPlatformInfo by viewModel.showPlatformInfo.collectAsState()
+        val showCheatHelp by viewModel.showCheatHelp.collectAsState()
         val needsPlayerSelection by viewModel.needsPlayerSelection.collectAsState()
         val currentPlayer by viewModel.currentPlayer.collectAsState()
         val allPlayers by viewModel.allPlayers.collectAsState()
@@ -78,6 +79,12 @@ fun App() {
         val specialActionsRemaining by viewModel.specialActionsRemaining.collectAsState()
         val reminderMessage by viewModel.reminderMessage.collectAsState()
         val newAchievement by viewModel.newAchievement.collectAsState()
+        val showMagicPanel by viewModel.showMagicPanel.collectAsState()
+        val selectedSpell by viewModel.selectedSpell.collectAsState()
+        val pendingSpellCast by viewModel.pendingSpellCast.collectAsState()
+        val showSpellTargetConfirmation by viewModel.showSpellTargetConfirmation.collectAsState()
+        val showFreezeImmuneWarning by viewModel.showFreezeImmuneWarning.collectAsState()
+        val pendingScrollToPosition by viewModel.pendingScrollToPosition.collectAsState()
         
         // Show player selection dialog if needed
         var showPlayerSelection by remember { mutableStateOf(false) }
@@ -231,7 +238,9 @@ fun App() {
                     onEditPlayerName = { viewModel.navigateToPlayerProfile() },
                     currentPlayerName = currentPlayer?.name,
                     showPlatformInfo = showPlatformInfo,
-                    onClearPlatformInfo = { viewModel.clearPlatformInfo() }
+                    onClearPlatformInfo = { viewModel.clearPlatformInfo() },
+                    showCheatHelp = showCheatHelp,
+                    onClearCheatHelp = { viewModel.clearCheatHelp() }
                 )
             }
             
@@ -252,7 +261,22 @@ fun App() {
                     de.egril.defender.ui.infopage.PlayerProfileScreen(
                         playerProfile = profile,
                         onBack = { viewModel.navigateToMainMenu() },
-                        onEditName = { showEditPlayer = true }
+                        onEditName = { showEditPlayer = true },
+                        onNavigateToStats = { viewModel.navigateToStatsUpgrade() },
+                        onUpgradeAbility = { abilityType -> viewModel.upgradeAbility(abilityType) },
+                        onUnlockSpell = { spell -> viewModel.unlockSpell(spell) }
+                    )
+                }
+            }
+            
+            is Screen.StatsUpgrade -> {
+                currentPlayer?.let { profile ->
+                    AbilitiesUpgradeScreen(
+                        playerProfile = profile,
+                        onUpgradeAbility = { abilityType -> viewModel.upgradeAbility(abilityType) },
+                        onUnlockSpell = { spell -> viewModel.unlockSpell(spell) },
+                        onBack = { viewModel.navigateToPlayerProfile() },
+                        onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) }
                     )
                 }
             }
@@ -299,17 +323,45 @@ fun App() {
                         onMineDig = { mineId -> viewModel.performMineDig(mineId) },
                         onMineBuildTrap = { mineId, trapPos -> viewModel.performMineBuildTrap(mineId, trapPos) },
                         onWizardPlaceMagicalTrap = { wizardId, trapPos -> viewModel.performWizardPlaceMagicalTrap(wizardId, trapPos) },
+                        onWizardGenerateMana = { wizardId -> viewModel.performWizardGenerateMana(wizardId) },
                         onBuildBarricade = { towerId, barricadePos -> viewModel.performBuildBarricade(towerId, barricadePos) },
                         onRemoveBarricade = { barricadePos -> viewModel.performRemoveBarricade(barricadePos) },
                         cheatDigOutcome = cheatDigOutcome,
                         onClearCheatDigOutcome = { viewModel.clearCheatDigOutcome() },
                         showPlatformInfo = showPlatformInfo,
                         onClearPlatformInfo = { viewModel.clearPlatformInfo() },
+                        showCheatHelp = showCheatHelp,
+                        onClearCheatHelp = { viewModel.clearCheatHelp() },
                         hasUnsavedChanges = { viewModel.hasUnsavedChanges() },
                         specialActionsRemaining = specialActionsRemaining,
                         onClearSpecialActionsWarning = { viewModel.clearSpecialActionsWarning() },
                         reminderMessage = reminderMessage,
-                        onClearReminderMessage = { viewModel.clearReminderMessage() }
+                        onClearReminderMessage = { viewModel.clearReminderMessage() },
+                        // Magic panel callbacks
+                        showMagicPanel = showMagicPanel,
+                        playerStats = currentPlayer?.abilities ?: de.egril.defender.model.PlayerAbilities(),
+                        selectedSpell = selectedSpell,
+                        onOpenMagicPanel = { viewModel.openMagicPanel() },
+                        onCloseMagicPanel = { viewModel.closeMagicPanel() },
+                        onCastSpell = { spell -> viewModel.setPendingSpell(spell) },
+                        onCancelInstantTowerSpell = { viewModel.cancelInstantTowerSpell() },
+                        pendingSpellCast = pendingSpellCast,
+                        onConfirmSpellCast = { 
+                            viewModel.pendingSpellCast.value?.let { spell ->
+                                viewModel.castSpell(spell)
+                            }
+                        },
+                        onCancelSpellCast = { viewModel.cancelPendingSpell() },
+                        onSelectSpellTarget = { target -> viewModel.selectSpellTarget(target) },
+                        onExitSpellTargeting = { viewModel.exitSpellTargetingMode() },
+                        // Post-target confirmation callbacks
+                        showSpellTargetConfirmation = showSpellTargetConfirmation,
+                        onConfirmTargetSpell = { viewModel.confirmSpellCast() },
+                        onDismissTargetConfirmation = { viewModel.dismissSpellConfirmation() },
+                        showFreezeImmuneWarning = showFreezeImmuneWarning,
+                        onDismissFreezeWarning = { viewModel.dismissFreezeImmuneWarning() },
+                        scrollToPosition = pendingScrollToPosition,
+                        onScrollToPositionConsumed = { viewModel.clearPendingScrollPosition() }
                     )
                 }
             }
@@ -319,6 +371,7 @@ fun App() {
                     levelId = screen.levelId,
                     won = screen.won,
                     isLastLevel = screen.isLastLevel,
+                    xpEarned = screen.xpEarned,
                     onRestart = { viewModel.restartLevel() },
                     onBackToMap = { viewModel.navigateToWorldMap() }
                 )

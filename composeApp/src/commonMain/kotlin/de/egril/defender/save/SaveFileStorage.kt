@@ -5,6 +5,7 @@ import de.egril.defender.editor.getFileStorage
 import de.egril.defender.game.LevelData
 import de.egril.defender.model.*
 import de.egril.defender.utils.currentTimeMillis
+import de.egril.defender.config.LogConfig
 
 /**
  * File-based storage for save games
@@ -252,7 +253,9 @@ object SaveFileStorage {
             fileStorage.writeFile(targetPath, jsonContent)
             true
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
             println("Error importing save game $filename: ${e.message}")
+            }
             e.printStackTrace()
             false
         }
@@ -335,6 +338,17 @@ object SaveFileStorage {
             )
         }
         
+        val spellEffects = gameState.activeSpellEffects.map { effect ->
+            SavedSpellEffect(
+                spell = effect.spell.name,
+                position = effect.position,
+                defenderId = effect.defenderId,
+                attackerId = effect.attackerId,
+                turnsRemaining = effect.turnsRemaining,
+                castTurn = effect.castTurn
+            )
+        }
+        
         return SavedGame(
             id = saveId,
             timestamp = currentTimeMillis(),
@@ -358,7 +372,10 @@ object SaveFileStorage {
             rafts = rafts,
             nextRaftId = gameState.nextRaftId.value,
             barricades = barricades,
-            worldMapSave = null  // Don't automatically include world map - only on explicit export
+            worldMapSave = null,  // Don't automatically include world map - only on explicit export
+            currentMana = gameState.currentMana.value,
+            maxMana = gameState.maxMana.value,
+            spellEffects = spellEffects
         )
     }
     
@@ -378,6 +395,10 @@ object SaveFileStorage {
         gameState.spawnCounter.value = savedGame.spawnCounter
         gameState.turnNumber.value = savedGame.turnNumber
         gameState.nextRaftId.value = savedGame.nextRaftId
+        
+        // Restore mana
+        gameState.currentMana.value = savedGame.currentMana
+        gameState.maxMana.value = savedGame.maxMana
         
         // Restore rafts first
         gameState.rafts.clear()
@@ -473,6 +494,29 @@ object SaveFileStorage {
                 supportedTowerId = mutableStateOf(barricade.supportedTowerId)
             )
         })
+        
+        // Restore active spell effects (e.g. bombs placed before save)
+        gameState.activeSpellEffects.clear()
+        for (savedEffect in savedGame.spellEffects) {
+            val spellType = try {
+                SpellType.valueOf(savedEffect.spell)
+            } catch (e: Exception) {
+                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Warning: Unknown spell type '${savedEffect.spell}' in saved spell effect, skipping")
+                }
+                continue
+            }
+            gameState.activeSpellEffects.add(
+                ActiveSpellEffect(
+                    spell = spellType,
+                    position = savedEffect.position,
+                    defenderId = savedEffect.defenderId,
+                    attackerId = savedEffect.attackerId,
+                    turnsRemaining = savedEffect.turnsRemaining,
+                    castTurn = savedEffect.castTurn
+                )
+            )
+        }
         
         return gameState
     }

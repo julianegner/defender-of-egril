@@ -4,6 +4,7 @@ import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.Position
 import de.egril.defender.utils.JsonUtils
+import de.egril.defender.config.LogConfig
 
 /**
  * Simple JSON serialization for editor data
@@ -168,13 +169,17 @@ object EditorJsonSerializer {
                     }
                 }
             } catch (e: Exception) {
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                 println("Error deserializing river tiles: ${e.message}")
+                }
                 // River tiles are optional, continue without them
             }
             
             return EditorMap(id, name, nameKey, width, height, tiles, readyToUse, worldMapPosition, riverTiles, isOfficial, author)
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Error deserializing map: ${e.message}")
+            }
             return null
         }
     }
@@ -452,7 +457,9 @@ object EditorJsonSerializer {
                         }
                     }
                 } catch (e: Exception) {
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("Error parsing waypoints (continuing without them): ${e.message}")
+                    }
                     e.printStackTrace()
                     // Continue without waypoints for backward compatibility
                 }
@@ -472,7 +479,9 @@ object EditorJsonSerializer {
                         }
                     }
                 } catch (e: Exception) {
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("Error parsing prerequisites (continuing without them): ${e.message}")
+                    }
                     // Continue without prerequisites for backward compatibility
                 }
             }
@@ -533,28 +542,44 @@ object EditorJsonSerializer {
 
             if (id == "t3") {
                 println("")
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                 println("---------------------------------- DEBUG DESERIALIZE LEVEL ----------------------------------")
+                }
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                 println("")
+                }
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                 println("Comeplete JSON Data")
                 println(dataJson)
                 println("")
+                }
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                 println("------------------------------------------------------------------------------------------------------")
+                }
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                 println("")
+                }
 
 
                 if (dataJson.contains("\"initialData\"")) {
                     println("EditorJsonSerializer: initialData found in JSON")
                 } else {
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("EditorJsonSerializer: initialData NOT found in JSON")
+                    }
                 }
 
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                 println("---------------------------------- END DEBUG DESERIALIZE LEVEL ----------------------------------")
+                }
             }
 
             // Try new nested format first
             if (dataJson.contains("\"initialData\"")) {
                 try {
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("EditorJsonSerializer: Found initialData in JSON")
+                    }
                     // Extract initialData section - find opening brace after "initialData":
                     val afterKey = dataJson.substringAfter("\"initialData\"")
                     
@@ -564,7 +589,9 @@ object EditorJsonSerializer {
                         println("EditorJsonSerializer: ERROR - No opening brace found after initialData")
                         ""
                     } else {
+                        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                         println("EditorJsonSerializer: Found opening brace at index $openBraceIndex")
+                        }
                         val afterInitialData = afterKey.substring(openBraceIndex + 1)
                         
                         // Find the closing } that matches the opening {
@@ -585,15 +612,21 @@ object EditorJsonSerializer {
                         if (endIndex > 0) {
                             afterInitialData.substring(0, endIndex)
                         } else {
+                            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                             println("EditorJsonSerializer: ERROR - Could not find matching closing brace, endIndex=$endIndex")
+                            }
                             afterInitialData.substringBefore("\n  }")  // Fallback to old method
                         }
                     }
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("EditorJsonSerializer: initialDataSection length = ${initialDataSection.length}")
+                    }
                     // println("EditorJsonSerializer: initialDataSection first 100 chars = ${initialDataSection.take(100)}")
 
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("EditorJsonSerializer: initialDataSection = ${initialDataSection}")
-                    
+                    }
+
                     // Parse defenders from new format
                     if (initialDataSection.contains("\"defenders\"")) {
                         println("EditorJsonSerializer: Found defenders in initialDataSection")
@@ -611,7 +644,9 @@ object EditorJsonSerializer {
                             afterBracket.substringBefore("]")
                         }
 
+                        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                         println("EditorJsonSerializer: defendersSection = ${defendersSection}")
+                        }
 
                         if (defendersSection.isNotBlank()) {
                             val defenderEntries = splitJsonArrayObjects(defendersSection)
@@ -634,10 +669,16 @@ object EditorJsonSerializer {
                                     false
                                 }
                                 initialDefenders.add(InitialDefender(type, position, level, dragonName, onTowerBase))
+                                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                                 println("EditorJsonSerializer: Added InitialDefender(type=$type, position=$position, level=$level, dragonName=$dragonName, onTowerBase=$onTowerBase)")
+                                }
                             }
+                            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                             println("EditorJsonSerializer: Parsed ${initialDefenders.size} initial defenders")
+                            }
+                            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                             println("EditorJsonSerializer: initialDefenders = $initialDefenders")
+                            }
                         }
                     }
                     
@@ -678,8 +719,12 @@ object EditorJsonSerializer {
                                 }
                                 initialAttackers.add(InitialAttacker(type, position, level, currentHealth, dragonName))
                             }
+                            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                             println("EditorJsonSerializer: Parsed ${initialAttackers.size} initial attackers")
+                            }
+                            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                             println("EditorJsonSerializer: initialAttackers = $initialAttackers")
+                            }
                         }
                     }
                     
@@ -714,8 +759,12 @@ object EditorJsonSerializer {
                                 }
                                 initialTraps.add(InitialTrap(position, damage, type))
                             }
+                            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                             println("EditorJsonSerializer: Parsed ${initialTraps.size} initial traps")
+                            }
+                            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                             println("EditorJsonSerializer: initialTraps = $initialTraps")
+                            }
                         }
                     }
                     
@@ -745,12 +794,18 @@ object EditorJsonSerializer {
                                 val healthPoints = JsonUtils.extractValue(entry, "healthPoints").toInt()
                                 initialBarricades.add(InitialBarricade(position, healthPoints))
                             }
+                            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                             println("EditorJsonSerializer: Parsed ${initialBarricades.size} initial barricades")
+                            }
+                            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                             println("EditorJsonSerializer: initialBarricades = $initialBarricades")
+                            }
                         }
                     }
                 } catch (e: Exception) {
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("Error parsing initial data (new format): ${e.message}")
+                    }
                 }
             }
             
@@ -792,7 +847,9 @@ object EditorJsonSerializer {
                         }
                     }
                 } catch (e: Exception) {
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("Error parsing initial defenders (continuing without them): ${e.message}")
+                    }
                 }
             }
             
@@ -830,7 +887,9 @@ object EditorJsonSerializer {
                         }
                     }
                 } catch (e: Exception) {
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("Error parsing initial attackers (continuing without them): ${e.message}")
+                    }
                 }
             }
             
@@ -862,7 +921,9 @@ object EditorJsonSerializer {
                         }
                     }
                 } catch (e: Exception) {
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("Error parsing initial traps (continuing without them): ${e.message}")
+                    }
                 }
             }
             
@@ -889,13 +950,17 @@ object EditorJsonSerializer {
                         }
                     }
                 } catch (e: Exception) {
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("Error parsing initial barricades (continuing without them): ${e.message}")
+                    }
                 }
             }
             }  // End of legacy format fallback
             
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("EditorJsonSerializer.deserializeLevel: Parsed level $id with ${initialDefenders.size} defenders, ${initialAttackers.size} attackers, ${initialTraps.size} traps, ${initialBarricades.size} barricades")
-            
+            }
+
             // Create InitialData object from parsed data
             val initialData = if (initialDefenders.isNotEmpty() || initialAttackers.isNotEmpty() || 
                                    initialTraps.isNotEmpty() || initialBarricades.isNotEmpty()) {
@@ -913,7 +978,9 @@ object EditorJsonSerializer {
                 initialData = initialData
             )
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Error deserializing level: ${e.message}")
+            }
             return null
         }
     }
@@ -941,7 +1008,9 @@ object EditorJsonSerializer {
             val ids = sequenceSection.split(",").map { it.trim().removeSurrounding("\"") }.filter { it.isNotBlank() }
             return LevelSequence(ids)
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Error deserializing sequence: ${e.message}")
+            }
             return null
         }
     }
@@ -1119,7 +1188,9 @@ object EditorJsonSerializer {
             
             return WorldMapData(locations, paths)
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Error deserializing world map data: ${e.message}")
+            }
             return null
         }
     }

@@ -29,10 +29,11 @@ class MineOperations(private val state: GameState) {
                 GlobalSoundManager.playSound(SoundEvent.MINE_DRAGON_SPAWN)
             }
             else -> {
-                // Add coins
-                state.coins.value += outcome.coins
-                mine.coinsGenerated.value += outcome.coins
-                if (outcome.coins > 0) {
+                // Add coins (with income multiplier from player stats)
+                val modifiedCoins = (outcome.coins * state.incomeMultiplier).toInt()
+                state.coins.value += modifiedCoins
+                mine.coinsGenerated.value += modifiedCoins
+                if (modifiedCoins > 0) {
                     GlobalSoundManager.playSound(SoundEvent.MINE_COIN_FOUND)
                 }
             }
@@ -65,10 +66,11 @@ class MineOperations(private val state: GameState) {
                 GlobalSoundManager.playSound(SoundEvent.MINE_DRAGON_SPAWN)
             }
             else -> {
-                // Add coins
-                state.coins.value += outcomeType.coins
-                mine.coinsGenerated.value += outcomeType.coins
-                if (outcomeType.coins > 0) {
+                // Add coins (with income multiplier from player stats)
+                val modifiedCoins = (outcomeType.coins * state.incomeMultiplier).toInt()
+                state.coins.value += modifiedCoins
+                mine.coinsGenerated.value += modifiedCoins
+                if (modifiedCoins > 0) {
                     GlobalSoundManager.playSound(SoundEvent.MINE_COIN_FOUND)
                 }
             }

@@ -2,6 +2,7 @@ package de.egril.defender.model
 
 import de.egril.defender.editor.RepositoryLoader
 import de.egril.defender.utils.runBlockingCompat
+import de.egril.defender.config.LogConfig
 
 /**
  * List of dragon names that can be loaded from repository or fall back to defaults
@@ -239,10 +240,14 @@ object DragonNames {
                 if (loadedNames != null) {
                     println("Loaded ${loadedNames!!.size} dragon names from repository")
                 } else {
+                    if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                     println("Using default dragon names (${defaultNames.size} names)")
+                    }
                 }
             } catch (e: Exception) {
+                if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                 println("Error loading dragon names from repository, using defaults: ${e.message}")
+                }
             }
             
             return loadedNames ?: defaultNames
