@@ -1270,5 +1270,4 @@
     <string name="gate_info_description">A gate guards the entrance. Enemies will attack and try to break through. Defend it to keep the path blocked.</string>
     <string name="barricade_info_panel_title">Barricade</string>
     <string name="gate_info_panel_title">Gate</string>
-    <string name="barricade_hp_label">HP: %d</string>
 </resources>

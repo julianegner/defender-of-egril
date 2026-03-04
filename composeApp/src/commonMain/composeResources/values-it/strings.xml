@@ -1270,5 +1270,4 @@
     <string name="gate_info_description">Un cancello sorveglia l\'ingresso. I nemici lo attaccheranno e cercheranno di sfondarlo. Difendilo per mantenere il percorso bloccato.</string>
     <string name="barricade_info_panel_title">Barricata</string>
     <string name="gate_info_panel_title">Cancello</string>
-    <string name="barricade_hp_label">PF: %d</string>
 </resources>

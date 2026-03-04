@@ -1269,5 +1269,4 @@
     <string name="gate_info_description">Una puerta guarda la entrada. Los enemigos la atacarán e intentarán abrirse paso. Defiéndela para mantener el camino bloqueado.</string>
     <string name="barricade_info_panel_title">Barricada</string>
     <string name="gate_info_panel_title">Puerta</string>
-    <string name="barricade_hp_label">PS: %d</string>
 </resources>

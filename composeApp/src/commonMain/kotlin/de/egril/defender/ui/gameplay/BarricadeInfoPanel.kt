@@ -62,9 +62,9 @@ fun BarricadeInfoPanel(
 
             // Name, HP, description column
             Column(modifier = Modifier.weight(1f)) {
-                // Title: named or generic
+                // Title: named or generic (localizedName already has \n for multi-line; no need to replace)
                 val title = if (!localizedName.isNullOrBlank()) {
-                    localizedName.replace("\\n", "\n")
+                    localizedName
                 } else if (isGate) {
                     stringResource(Res.string.gate_info_panel_title)
                 } else {
@@ -75,9 +75,9 @@ fun BarricadeInfoPanel(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
-                // HP row
+                // HP row — use string template instead of format()
                 Text(
-                    text = stringResource(Res.string.barricade_hp_label).format(barricade.healthPoints.value),
+                    text = "${stringResource(Res.string.health_points)}: ${barricade.healthPoints.value}",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color(0xFF795548)
                 )

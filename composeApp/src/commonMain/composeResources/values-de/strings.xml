@@ -1267,5 +1267,4 @@
     <string name="gate_info_description">Ein Tor bewacht den Eingang. Feinde werden es angreifen und versuchen, es zu durchbrechen. Verteidige es, um den Weg blockiert zu halten.</string>
     <string name="barricade_info_panel_title">Barrikade</string>
     <string name="gate_info_panel_title">Tor</string>
-    <string name="barricade_hp_label">LP: %d</string>
 </resources>
