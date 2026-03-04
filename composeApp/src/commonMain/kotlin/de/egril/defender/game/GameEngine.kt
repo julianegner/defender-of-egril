@@ -307,7 +307,7 @@ class GameEngine(private val state: GameState) {
     private fun findClosestTargetPosition(from: Position): Position {
         val active = state.getActiveTargetPositions()
         return (if (active.isNotEmpty()) active else state.level.targetPositions)
-            .minByOrNull { from.distanceTo(it) } ?: state.level.targetPositions.first()
+            .minByOrNull { from.distanceTo(it) } ?: state.level.targetPositions.firstOrNull() ?: from
     }
     
     /**

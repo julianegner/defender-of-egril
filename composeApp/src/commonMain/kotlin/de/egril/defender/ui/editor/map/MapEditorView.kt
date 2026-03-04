@@ -18,6 +18,8 @@ import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorTargetInfo
 import de.egril.defender.editor.TileType
 import de.egril.defender.model.Position
+import de.egril.defender.model.RiverTile
+import de.egril.defender.model.TargetType
 import de.egril.defender.ui.hexagon.BaseGridCell
 import de.egril.defender.ui.hexagon.HexagonMinimapFromEditorMap
 import de.egril.defender.ui.hexagon.HexagonalMapConfig
@@ -30,7 +32,6 @@ import de.egril.defender.ui.editor.getTileColor
 import de.egril.defender.ui.editor.RiverFlowIndicator
 import de.egril.defender.utils.screenToHexGridPosition
 import com.hyperether.resources.stringResource
-import de.egril.defender.model.RiverTile
 import de.egril.defender.ui.icon.InfoIcon
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -61,7 +62,7 @@ fun MapEditorView(
     var selectedRiverFlow by remember { mutableStateOf(de.egril.defender.model.RiverFlow.EAST) }
     var selectedRiverSpeed by remember { mutableStateOf(1) }
     var selectedTargetName by remember { mutableStateOf("") }
-    var selectedTargetType by remember { mutableStateOf(de.egril.defender.model.TargetType.STANDARD) }
+    var selectedTargetType by remember { mutableStateOf(TargetType.STANDARD) }
     var editTargetKey by remember { mutableStateOf<String?>(null) }  // Key of a tile being edited in the inline dialog
     var mapName by remember { mutableStateOf(map.name) }
     var mapAuthor by remember { mutableStateOf(map.author) }
@@ -500,7 +501,7 @@ fun MapEditorView(
     editTargetKey?.let { editKey ->
         val existingInfo = targetInfoMap[editKey]
         var editName by remember(editKey) { mutableStateOf(existingInfo?.name ?: "") }
-        var editType by remember(editKey) { mutableStateOf(existingInfo?.type ?: de.egril.defender.model.TargetType.STANDARD) }
+        var editType by remember(editKey) { mutableStateOf(existingInfo?.type ?: TargetType.STANDARD) }
         AlertDialog(
             onDismissRequest = { editTargetKey = null },
             title = { Text(stringResource(Res.string.target_name_label)) },
@@ -515,10 +516,10 @@ fun MapEditorView(
                     )
                     Text(stringResource(Res.string.target_type_label), style = MaterialTheme.typography.bodyMedium)
                     Row(horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(4.dp)) {
-                        de.egril.defender.model.TargetType.entries.forEach { type ->
+                        TargetType.entries.forEach { type ->
                             val label = when (type) {
-                                de.egril.defender.model.TargetType.STANDARD -> stringResource(Res.string.target_type_standard)
-                                de.egril.defender.model.TargetType.SINGLE_HIT -> stringResource(Res.string.target_type_single_hit)
+                                TargetType.STANDARD -> stringResource(Res.string.target_type_standard)
+                                TargetType.SINGLE_HIT -> stringResource(Res.string.target_type_single_hit)
                             }
                             Button(
                                 onClick = { editType = type },

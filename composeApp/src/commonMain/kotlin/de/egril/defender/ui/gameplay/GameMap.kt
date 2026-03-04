@@ -1109,13 +1109,13 @@ private fun BoxScope.GridCellContent(
                                 style = MaterialTheme.typography.labelSmall,
                                 color = Color(0xFF4E2600),  // Dark brown for gate name
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier.offset(y = (-8).dp)
+                                modifier = Modifier.offset(y = (-12).dp)
                             )
                             Text(
                                 "${barricade.healthPoints.value} HP",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = Color(0xFF795548),  // Brown color
-                                modifier = Modifier.offset(y = (-10).dp)
+                                modifier = Modifier.offset(y = (-8).dp)
                             )
                         } else {
                             // Show health points - moved up for better visibility

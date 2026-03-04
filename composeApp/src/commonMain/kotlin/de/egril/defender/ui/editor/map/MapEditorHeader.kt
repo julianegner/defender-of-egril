@@ -458,8 +458,12 @@ private fun CollapsedMapEditorHeader(
                             }
                             // Target type indicator if it's a target tile
                             if (selectedTileType == TileType.TARGET) {
+                                val typeLabel = when (selectedTargetType) {
+                                    de.egril.defender.model.TargetType.STANDARD -> stringResource(Res.string.target_type_standard)
+                                    de.egril.defender.model.TargetType.SINGLE_HIT -> stringResource(Res.string.target_type_single_hit)
+                                }
                                 Text(
-                                    text = selectedTargetType.name.replace("_", " "),
+                                    text = typeLabel,
                                     fontSize = 9.sp,
                                     color = MaterialTheme.colorScheme.primary
                                 )
