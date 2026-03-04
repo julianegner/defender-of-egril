@@ -1108,7 +1108,7 @@ private fun BoxScope.GridCellContent(
                         Text(
                             "${barricade.healthPoints.value} HP",
                             style = MaterialTheme.typography.labelSmall,
-                            color = Color(0xFF795548),  // Brown color
+                            color = Color(0xFFA1887F),  // Light brown for readability
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.offset(y = (-12).dp)
                         )

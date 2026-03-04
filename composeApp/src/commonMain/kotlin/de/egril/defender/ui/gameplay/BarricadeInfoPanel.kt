@@ -81,7 +81,7 @@ fun BarricadeInfoPanel(
                 Text(
                     text = "${stringResource(Res.string.health_points)}: ${barricade.healthPoints.value}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFF795548)
+                    color = Color(0xFFA1887F)  // Light brown for readability
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 // Description
