@@ -1263,9 +1263,9 @@
     <string name="xp_system_unlock_message">Ora puoi usare XP per migliorare le tue statistiche e sbloccare abilità potenti!\n\nAccedi alla schermata di potenziamento dal Profilo Giocatore.</string>
 
     <!-- Stats Upgrade Screen -->
-    <string name="available_stat_points">Punti Statistiche Disponibili: %d</string>
+    <string name="available_stat_points">Punti Abilità Disponibili: %d</string>
     <string name="available_stat_points_label">Punti Abilità Disponibili</string>
-    <string name="stats">Statistiche</string>
+    <string name="stats">Abilità</string>
     <string name="spells">Incantesimi</string>
     <string name="unlock">Sblocca</string>
     <string name="stat_health">Salute</string>
