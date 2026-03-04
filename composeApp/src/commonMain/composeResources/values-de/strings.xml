@@ -1252,4 +1252,20 @@
     <string name="target_name_label">Zielname (optional)</string>
     <string name="barricade_name_label">Barrikadenname (optional)</string>
     <string name="is_gate_label">Ist Tor</string>
+    <!-- Standardnamen für Ziele (können \n für mehrzeilige Anzeige enthalten) -->
+    <string name="target_name_marketplace">Markt-\nplatz</string>
+    <string name="target_name_townhall">Rat-\nhaus</string>
+    <string name="target_name_storehouse">Lager-\nhaus</string>
+    <string name="target_name_guildhouse">Gilden-\nhaus</string>
+    <!-- Standardnamen für Tore -->
+    <string name="gate_name_north_gate">Nord-\ntor</string>
+    <string name="gate_name_east_gate">Ost-\ntor</string>
+    <string name="gate_name_south_gate">Süd-\ntor</string>
+    <string name="gate_name_west_gate">West-\ntor</string>
+    <!-- Barrikaden-Info-Panel -->
+    <string name="barricade_info_description">Barrikaden blockieren die Bewegung von Feinden. Feinde greifen sie an, wenn sie benachbart sind. Baue oder verstärke sie mit Pikier- oder Speertürmen.</string>
+    <string name="gate_info_description">Ein Tor bewacht den Eingang. Feinde werden es angreifen und versuchen, es zu durchbrechen. Verteidige es, um den Weg blockiert zu halten.</string>
+    <string name="barricade_info_panel_title">Barrikade</string>
+    <string name="gate_info_panel_title">Tor</string>
+    <string name="barricade_hp_label">LP: %d</string>
 </resources>

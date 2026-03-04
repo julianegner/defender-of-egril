@@ -1254,4 +1254,20 @@
     <string name="target_name_label">Nom de l\'objectif (optionnel)</string>
     <string name="barricade_name_label">Nom de la barricade (optionnel)</string>
     <string name="is_gate_label">Est une porte</string>
+    <!-- Noms standard des objectifs (peuvent contenir \n pour l'affichage sur plusieurs lignes) -->
+    <string name="target_name_marketplace">Mar-\nché</string>
+    <string name="target_name_townhall">Mai-\nrie</string>
+    <string name="target_name_storehouse">Entre-\npôt</string>
+    <string name="target_name_guildhouse">Maison\nGuilde</string>
+    <!-- Noms standard des portes -->
+    <string name="gate_name_north_gate">Porte\nNord</string>
+    <string name="gate_name_east_gate">Porte\nEst</string>
+    <string name="gate_name_south_gate">Porte\nSud</string>
+    <string name="gate_name_west_gate">Porte\nOuest</string>
+    <!-- Panneau d'information de barricade -->
+    <string name="barricade_info_description">Les barricades bloquent le mouvement des ennemis. Les ennemis les attaquent lorsqu\'ils sont adjacents. Construisez-les ou renforcez-les avec des tours de pique ou de lance.</string>
+    <string name="gate_info_description">Une porte garde l\'entrée. Les ennemis l\'attaqueront et essaieront de passer. Défendez-la pour garder le chemin bloqué.</string>
+    <string name="barricade_info_panel_title">Barricade</string>
+    <string name="gate_info_panel_title">Porte</string>
+    <string name="barricade_hp_label">PV: %d</string>
 </resources>

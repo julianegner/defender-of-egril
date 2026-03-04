@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -1091,6 +1092,7 @@ private fun BoxScope.GridCellContent(
             
             barricade != null -> {
                 // Show barricade with HP
+                val barricadeLocale = com.hyperether.resources.currentLanguage.value
                 Box(contentAlignment = Alignment.Center) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -1102,14 +1104,20 @@ private fun BoxScope.GridCellContent(
                         } else {
                             WoodIcon(size = GamePlayConstants.TileIconSizes.Barricade)
                         }
-                        // Show gate name if available, otherwise show HP
-                        if (barricade.isGate && !barricade.name.isNullOrBlank()) {
+                        // Show gate/barricade name if available, then HP
+                        val barricadeDisplayName = barricade.name
+                            ?.takeIf { it.isNotBlank() }
+                            ?.let { localizeEntityName(it, barricadeLocale) }
+                        if (!barricadeDisplayName.isNullOrBlank()) {
                             Text(
-                                barricade.name,
+                                text = barricadeDisplayName,
                                 style = MaterialTheme.typography.labelSmall,
                                 color = Color(0xFF4E2600),  // Dark brown for gate name
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier.offset(y = (-12).dp)
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .widthIn(max = 50.dp)
+                                    .offset(y = (-12).dp)
                             )
                             Text(
                                 "${barricade.healthPoints.value} HP",
@@ -1204,17 +1212,25 @@ private fun BoxScope.GridCellContent(
 
             isTarget -> {
                 // Show target name (if set) or fallback to generic "Target" label
+                // Well-known names are translated; \n in the string gives multi-line tile display
                 // Taken targets (SINGLE_HIT) show with a red cross overlay
+                val locale = com.hyperether.resources.currentLanguage.value
                 val isTaken = gameState.takenTargets.contains(position)
-                val targetName = gameState.level.targetInfoMap[position]?.name?.takeIf { it.isNotBlank() }
-                    ?: stringResource(Res.string.target)
+                val rawName = gameState.level.targetInfoMap[position]?.name?.takeIf { it.isNotBlank() }
+                val targetName = if (rawName != null) {
+                    localizeEntityName(rawName, locale)
+                } else {
+                    stringResource(Res.string.target)
+                }
                 if (isTaken) {
                     // Show dimmed name with a red X cross on top
                     Box(contentAlignment = Alignment.Center) {
                         Text(
                             text = targetName,
                             style = MaterialTheme.typography.labelSmall,
-                            color = GamePlayColors.Success.copy(alpha = 0.3f)
+                            color = GamePlayColors.Success.copy(alpha = 0.3f),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.widthIn(max = 50.dp)
                         )
                         CrossIcon(size = 20.dp, tint = Color.Red)
                     }
@@ -1222,7 +1238,9 @@ private fun BoxScope.GridCellContent(
                     Text(
                         text = targetName,
                         style = MaterialTheme.typography.labelSmall,
-                        color = GamePlayColors.Success
+                        color = GamePlayColors.Success,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.widthIn(max = 50.dp)
                     )
                 }
             }

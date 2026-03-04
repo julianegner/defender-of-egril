@@ -1255,4 +1255,20 @@
     <string name="target_name_label">Target Name (optional)</string>
     <string name="barricade_name_label">Barricade Name (optional)</string>
     <string name="is_gate_label">Is Gate</string>
+    <!-- Standard target display names (may contain \n for multi-line tile display) -->
+    <string name="target_name_marketplace">Market-\nplace</string>
+    <string name="target_name_townhall">Town-\nhall</string>
+    <string name="target_name_storehouse">Store-\nhouse</string>
+    <string name="target_name_guildhouse">Guild-\nhouse</string>
+    <!-- Standard gate display names -->
+    <string name="gate_name_north_gate">North\nGate</string>
+    <string name="gate_name_east_gate">East\nGate</string>
+    <string name="gate_name_south_gate">South\nGate</string>
+    <string name="gate_name_west_gate">West\nGate</string>
+    <!-- Barricade info panel -->
+    <string name="barricade_info_description">Barricades block enemy movement. Enemies attack them when adjacent. Build or reinforce them with Spike or Spear towers.</string>
+    <string name="gate_info_description">A gate guards the entrance. Enemies will attack and try to break through. Defend it to keep the path blocked.</string>
+    <string name="barricade_info_panel_title">Barricade</string>
+    <string name="gate_info_panel_title">Gate</string>
+    <string name="barricade_hp_label">HP: %d</string>
 </resources>

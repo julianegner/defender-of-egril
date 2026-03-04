@@ -134,6 +134,7 @@ private fun GamePlayScreenContent(
     // Removal confirmation dialog states
     var showRemoveBarricadeDialog by remember { mutableStateOf(false) }
     var barricadeToRemove by remember { mutableStateOf<Position?>(null) }
+    var selectedBarricadePosition by remember { mutableStateOf<Position?>(null) }  // For barricade info panel
     var showRemoveTrapDialog by remember { mutableStateOf(false) }
     var trapToRemove by remember { mutableStateOf<Position?>(null) }
 
@@ -495,6 +496,7 @@ private fun GamePlayScreenContent(
                             selectedAttackerId = null
                             selectedTargetId = null
                             selectedTargetPosition = null
+                            selectedBarricadePosition = null
                             // Clear trap modes when selecting a different defender
                             selectedMineAction = null
                             selectedWizardAction = null
@@ -515,16 +517,19 @@ private fun GamePlayScreenContent(
                             selectedDefenderId = null
                             selectedTargetId = null
                             selectedTargetPosition = null
+                            selectedBarricadePosition = null
                             return@GameGrid
                         }
                     }
 
                     // Check if there's a barricade at this position
-                    // Don't show removal dialog if barricade has a tower - player must sell tower first
+                    // Don't show info panel if barricade has a tower - player must sell tower first
                     val barricade = gameState.barricades.find { it.position == position }
                     if (barricade != null && !barricade.hasTower() && selectedDefenderId == null && selectedAttackerId == null) {
-                        barricadeToRemove = position
-                        showRemoveBarricadeDialog = true
+                        selectedBarricadePosition = position
+                        // Clear other selections
+                        selectedDefenderId = null
+                        selectedAttackerId = null
                         return@GameGrid
                     }
 
@@ -790,6 +795,7 @@ private fun GamePlayScreenContent(
                     selectedAttackerId = selectedAttackerId,
                     selectedTargetId = null,
                     selectedTargetPosition = null,
+                    selectedBarricadePosition = selectedBarricadePosition,
                     onSelectDefenderType = { selectedDefenderType = it },
                     onUpgradeDefender = { onUpgradeDefender(it) },
                     onUndoTower = { defenderId ->
@@ -835,6 +841,10 @@ private fun GamePlayScreenContent(
                     selectedWizardAction = selectedWizardAction,
                     onBarricadeAction = handleBarricadeAction,
                     selectedBarricadeAction = selectedBarricadeAction,
+                    onRemoveBarricade = { pos ->
+                        onRemoveBarricade?.invoke(pos)
+                        selectedBarricadePosition = null
+                    },
                     uiScale = uiScale,
                     onShowDragonInfo = { 
                         gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
@@ -852,6 +862,7 @@ private fun GamePlayScreenContent(
                     selectedAttackerId = selectedAttackerId,
                     selectedTargetId = selectedTargetId,
                     selectedTargetPosition = selectedTargetPosition,
+                    selectedBarricadePosition = selectedBarricadePosition,
                     onSelectDefenderType = { selectedDefenderType = it },
                     onUpgradeDefender = { onUpgradeDefender(it) },
                     onUndoTower = { defenderId ->
@@ -927,6 +938,10 @@ private fun GamePlayScreenContent(
                     selectedWizardAction = selectedWizardAction,
                     onBarricadeAction = handleBarricadeAction,
                     selectedBarricadeAction = selectedBarricadeAction,
+                    onRemoveBarricade = { pos ->
+                        onRemoveBarricade?.invoke(pos)
+                        selectedBarricadePosition = null
+                    },
                     uiScale = uiScale,
                     onShowDragonInfo = { 
                         gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
@@ -1000,27 +1015,8 @@ private fun GamePlayScreenContent(
             )
         }
         
-        // Remove barricade confirmation dialog
-        // Note: This dialog only shows for barricades without towers
-        if (showRemoveBarricadeDialog && barricadeToRemove != null) {
-            ConfirmationDialog(
-                title = stringResource(Res.string.remove_barricade_title),
-                message = stringResource(Res.string.remove_barricade_message),
-                onConfirm = {
-                    val actualRefund = onRemoveBarricade?.invoke(barricadeToRemove!!) ?: 0
-                    if (actualRefund > 0) {
-                        // Add coins back to player (should be 0 for barricades without towers)
-                        gameState.coins.value += actualRefund
-                    }
-                    showRemoveBarricadeDialog = false
-                    barricadeToRemove = null
-                },
-                onDismiss = {
-                    showRemoveBarricadeDialog = false
-                    barricadeToRemove = null
-                }
-            )
-        }
+        // Remove barricade confirmation dialog (kept for barricades with towers via tower sell flow)
+        // Note: For plain barricades, the BarricadeInfoPanel is used instead of this dialog
 
         // Remove trap confirmation dialog
         if (showRemoveTrapDialog && trapToRemove != null) {

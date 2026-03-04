@@ -1255,4 +1255,20 @@
     <string name="target_name_label">Nome obiettivo (opzionale)</string>
     <string name="barricade_name_label">Nome barricata (opzionale)</string>
     <string name="is_gate_label">È un cancello</string>
+    <!-- Nomi standard degli obiettivi (possono contenere \n per la visualizzazione su più righe) -->
+    <string name="target_name_marketplace">Mer-\ncato</string>
+    <string name="target_name_townhall">Muni-\ncipio</string>
+    <string name="target_name_storehouse">Magaz-\nzino</string>
+    <string name="target_name_guildhouse">Casa\nGilda</string>
+    <!-- Nomi standard dei cancelli -->
+    <string name="gate_name_north_gate">Porta\nNord</string>
+    <string name="gate_name_east_gate">Porta\nEst</string>
+    <string name="gate_name_south_gate">Porta\nSud</string>
+    <string name="gate_name_west_gate">Porta\nOvest</string>
+    <!-- Pannello informazioni barricata -->
+    <string name="barricade_info_description">Le barricade bloccano il movimento nemico. I nemici le attaccano quando sono adiacenti. Costruiscile o rinforzale con torri di picca o lancia.</string>
+    <string name="gate_info_description">Un cancello sorveglia l\'ingresso. I nemici lo attaccheranno e cercheranno di sfondarlo. Difendilo per mantenere il percorso bloccato.</string>
+    <string name="barricade_info_panel_title">Barricata</string>
+    <string name="gate_info_panel_title">Cancello</string>
+    <string name="barricade_hp_label">PF: %d</string>
 </resources>
