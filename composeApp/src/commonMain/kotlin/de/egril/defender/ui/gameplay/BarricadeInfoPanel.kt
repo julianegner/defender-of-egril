@@ -62,16 +62,18 @@ fun BarricadeInfoPanel(
 
             // Name, HP, description column
             Column(modifier = Modifier.weight(1f)) {
-                // Title: named or generic (localizedName already has \n for multi-line; no need to replace)
-                val title = if (!localizedName.isNullOrBlank()) {
-                    localizedName
+                // Title: use the raw name for single-line display in the panel.
+                // Strip hyphenation used for tile wrapping (e.g. "Süd-\ntor" → "Südtor",
+                // "South\nGate" → "South Gate") by removing "-\n" and replacing bare "\n" with " ".
+                val panelTitle = if (!localizedName.isNullOrBlank()) {
+                    localizedName.replace("-\n", "").replace("\n", " ")
                 } else if (isGate) {
                     stringResource(Res.string.gate_info_panel_title)
                 } else {
                     stringResource(Res.string.barricade_info_panel_title)
                 }
                 Text(
-                    title,
+                    panelTitle,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )

@@ -1104,7 +1104,15 @@ private fun BoxScope.GridCellContent(
                         } else {
                             WoodIcon(size = GamePlayConstants.TileIconSizes.Barricade)
                         }
-                        // Show gate/barricade name if available, then HP
+                        // HP is primary — always shown prominently right after the icon
+                        Text(
+                            "${barricade.healthPoints.value} HP",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = Color(0xFF795548),  // Brown color
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.offset(y = (-12).dp)
+                        )
+                        // Show gate/barricade name below HP in smaller, secondary style
                         val barricadeDisplayName = barricade.name
                             ?.takeIf { it.isNotBlank() }
                             ?.let { localizeEntityName(it, barricadeLocale) }
@@ -1113,26 +1121,10 @@ private fun BoxScope.GridCellContent(
                                 text = barricadeDisplayName,
                                 style = MaterialTheme.typography.labelSmall,
                                 color = Color(0xFF4E2600),  // Dark brown for gate name
-                                fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
                                     .widthIn(max = 50.dp)
-                                    .offset(y = (-12).dp)
-                            )
-                            Text(
-                                "${barricade.healthPoints.value} HP",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color(0xFF795548),  // Brown color
-                                modifier = Modifier.offset(y = (-8).dp)
-                            )
-                        } else {
-                            // Show health points - moved up for better visibility
-                            Text(
-                                "${barricade.healthPoints.value} HP",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color(0xFF795548),  // Brown color
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.offset(y = (-12).dp)
+                                    .offset(y = (-8).dp)
                             )
                         }
                     }
