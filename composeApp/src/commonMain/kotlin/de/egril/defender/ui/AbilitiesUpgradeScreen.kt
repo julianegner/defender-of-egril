@@ -1,5 +1,6 @@
 package de.egril.defender.ui
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -7,7 +8,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -35,12 +39,34 @@ fun AbilitiesUpgradeScreen(
     playerProfile: PlayerProfile,
     onUpgradeAbility: (AbilityType) -> Unit,
     onUnlockSpell: (SpellType) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onCheatCode: ((String) -> Boolean)? = null
 ) {
     val abilities = playerProfile.abilities
-    
+    var showCheatDialog by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
+
+    // Request focus on launch so keyboard events are dispatched to this screen
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .focusRequester(focusRequester)
+            .focusable()
+            .onPreviewKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown &&
+                    event.key == Key.C && !event.isCtrlPressed &&
+                    onCheatCode != null
+                ) {
+                    showCheatDialog = true
+                    true
+                } else {
+                    false
+                }
+            },
         color = MaterialTheme.colorScheme.background
     ) {
         Box(
@@ -224,6 +250,14 @@ fun AbilitiesUpgradeScreen(
                 }
                 Spacer(modifier = Modifier.height(8.dp))
             }
+        }
+
+        // Cheat code dialog
+        if (showCheatDialog && onCheatCode != null) {
+            CheatCodeDialog(
+                onDismiss = { showCheatDialog = false },
+                onApplyCheatCode = onCheatCode
+            )
         }
     }
 }

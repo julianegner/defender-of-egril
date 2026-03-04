@@ -1170,6 +1170,27 @@
     <string name="info_tab_installation">Installation</string>
     <string name="info_tab_audio_licenses">Audio Licenses</string>
     <string name="info_tab_license">License</string>
+    <string name="info_tab_keyboard_shortcuts">Keyboard Shortcuts</string>
+
+    <!-- Keyboard Shortcuts Info -->
+    <string name="keyboard_shortcuts_title">Keyboard Shortcuts</string>
+    <string name="keyboard_shortcuts_gameplay_section">Gameplay Screen</string>
+    <string name="keyboard_shortcuts_worldmap_section">World Map</string>
+    <string name="keyboard_shortcuts_abilities_section">Abilities / XP Screen</string>
+    <string name="keyboard_shortcut_key_label">Key</string>
+    <string name="keyboard_shortcut_description_label">Action</string>
+    <string name="keyboard_shortcut_where_label">Where</string>
+    <string name="keyboard_shortcut_attack">Attack selected tower\'s current target</string>
+    <string name="keyboard_shortcut_auto_attack">Auto-attack all towers and end turn</string>
+    <string name="keyboard_shortcut_cheat">Open cheat code dialog</string>
+    <string name="keyboard_shortcut_enemy_list">Toggle enemy list overlay</string>
+    <string name="keyboard_shortcut_end_turn">End turn / Start battle</string>
+    <string name="keyboard_shortcut_save">Save game</string>
+    <string name="keyboard_shortcut_pan_up">Pan map up</string>
+    <string name="keyboard_shortcut_pan_down">Pan map down</string>
+    <string name="keyboard_shortcut_pan_left">Pan map left</string>
+    <string name="keyboard_shortcut_pan_right">Pan map right</string>
+    <string name="keyboard_shortcuts_note">Note: Keyboard shortcuts are available on desktop only.</string>
     
     <!-- License Info -->
     <string name="license_info_title">License Information</string>

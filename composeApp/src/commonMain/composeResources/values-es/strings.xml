@@ -1168,6 +1168,27 @@
     <string name="info_tab_installation">Instalación</string>
     <string name="info_tab_audio_licenses">Licencias de Audio</string>
     <string name="info_tab_license">Licencia</string>
+    <string name="info_tab_keyboard_shortcuts">Atajos de Teclado</string>
+
+    <!-- Keyboard Shortcuts Info -->
+    <string name="keyboard_shortcuts_title">Atajos de Teclado</string>
+    <string name="keyboard_shortcuts_gameplay_section">Pantalla de Juego</string>
+    <string name="keyboard_shortcuts_worldmap_section">Mapa del Mundo</string>
+    <string name="keyboard_shortcuts_abilities_section">Pantalla de Habilidades / XP</string>
+    <string name="keyboard_shortcut_key_label">Tecla</string>
+    <string name="keyboard_shortcut_description_label">Acción</string>
+    <string name="keyboard_shortcut_where_label">Dónde</string>
+    <string name="keyboard_shortcut_attack">Atacar con la torre seleccionada al objetivo actual</string>
+    <string name="keyboard_shortcut_auto_attack">Ataque automático de todas las torres y fin de turno</string>
+    <string name="keyboard_shortcut_cheat">Abrir diálogo de código trampa</string>
+    <string name="keyboard_shortcut_enemy_list">Mostrar/ocultar lista de enemigos</string>
+    <string name="keyboard_shortcut_end_turn">Fin de turno / Iniciar batalla</string>
+    <string name="keyboard_shortcut_save">Guardar partida</string>
+    <string name="keyboard_shortcut_pan_up">Desplazar mapa hacia arriba</string>
+    <string name="keyboard_shortcut_pan_down">Desplazar mapa hacia abajo</string>
+    <string name="keyboard_shortcut_pan_left">Desplazar mapa hacia la izquierda</string>
+    <string name="keyboard_shortcut_pan_right">Desplazar mapa hacia la derecha</string>
+    <string name="keyboard_shortcuts_note">Nota: Los atajos de teclado solo están disponibles en escritorio.</string>
     
     <!-- License Info -->
     <string name="license_info_title">Información de Licencia</string>

@@ -1165,6 +1165,27 @@
     <string name="info_tab_installation">Installation</string>
     <string name="info_tab_audio_licenses">Audio-Lizenzen</string>
     <string name="info_tab_license">Lizenz</string>
+    <string name="info_tab_keyboard_shortcuts">Tastenkürzel</string>
+
+    <!-- Keyboard Shortcuts Info -->
+    <string name="keyboard_shortcuts_title">Tastenkürzel</string>
+    <string name="keyboard_shortcuts_gameplay_section">Spielbildschirm</string>
+    <string name="keyboard_shortcuts_worldmap_section">Weltkarte</string>
+    <string name="keyboard_shortcuts_abilities_section">Fähigkeiten / EP-Bildschirm</string>
+    <string name="keyboard_shortcut_key_label">Taste</string>
+    <string name="keyboard_shortcut_description_label">Aktion</string>
+    <string name="keyboard_shortcut_where_label">Wo</string>
+    <string name="keyboard_shortcut_attack">Ausgewählten Turm angreifen</string>
+    <string name="keyboard_shortcut_auto_attack">Alle Türme automatisch angreifen und Runde beenden</string>
+    <string name="keyboard_shortcut_cheat">Cheatcode-Dialog öffnen</string>
+    <string name="keyboard_shortcut_enemy_list">Feindliste ein-/ausblenden</string>
+    <string name="keyboard_shortcut_end_turn">Runde beenden / Kampf starten</string>
+    <string name="keyboard_shortcut_save">Spiel speichern</string>
+    <string name="keyboard_shortcut_pan_up">Karte nach oben schwenken</string>
+    <string name="keyboard_shortcut_pan_down">Karte nach unten schwenken</string>
+    <string name="keyboard_shortcut_pan_left">Karte nach links schwenken</string>
+    <string name="keyboard_shortcut_pan_right">Karte nach rechts schwenken</string>
+    <string name="keyboard_shortcuts_note">Hinweis: Tastenkürzel sind nur auf dem Desktop verfügbar.</string>
     
     <!-- License Info -->
     <string name="license_info_title">Lizenzinformationen</string>
