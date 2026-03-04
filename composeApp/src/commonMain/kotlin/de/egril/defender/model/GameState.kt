@@ -129,6 +129,23 @@ data class GameState(
     fun getActiveTargetPositions(): List<Position> {
         return level.targetPositions.filter { !takenTargets.contains(it) }
     }
+
+    /**
+     * When a SINGLE_HIT target at [takenPosition] is taken, redirect all enemies
+     * whose currentTarget points to that position towards the nearest remaining active target.
+     */
+    fun retargetEnemiesFromTakenTarget(takenPosition: Position) {
+        val remaining = getActiveTargetPositions()
+        if (remaining.isEmpty()) return  // No active targets left – level will be lost
+        for (enemy in attackers) {
+            if (enemy.isDefeated.value) continue
+            if (enemy.currentTarget?.value == takenPosition) {
+                val newTarget = remaining.minByOrNull { enemy.position.value.distanceTo(it) } ?: remaining.first()
+                enemy.currentTarget!!.value = newTarget
+                println("Enemy ${enemy.id} (${enemy.type}) retargeted from $takenPosition to $newTarget")
+            }
+        }
+    }
     
     fun canPlaceDefender(type: DefenderType): Boolean {
         return coins.value >= type.baseCost && level.availableTowers.contains(type)

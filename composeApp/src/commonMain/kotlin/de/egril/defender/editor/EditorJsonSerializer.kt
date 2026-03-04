@@ -203,12 +203,16 @@ object EditorJsonSerializer {
                             for (match in entryRegex.findAll(targetSection)) {
                                 val pos = match.groupValues[1]
                                 val body = "{${match.groupValues[2]}}"
-                                val tName = try { de.egril.defender.utils.JsonUtils.extractValue(body, "name") } catch (e: Exception) { "" }
+                                val tName = try { de.egril.defender.utils.JsonUtils.extractValue(body, "name") } catch (e: Exception) {
+                                    println("Error parsing target name for pos '$pos': ${e.message}")
+                                    ""
+                                }
                                 val tType = try {
                                     de.egril.defender.model.TargetType.valueOf(
                                         de.egril.defender.utils.JsonUtils.extractValue(body, "type")
                                     )
                                 } catch (e: Exception) {
+                                    println("Error parsing target type for pos '$pos': ${e.message}, defaulting to STANDARD")
                                     de.egril.defender.model.TargetType.STANDARD
                                 }
                                 targetInfoMap[pos] = EditorTargetInfo(name = tName, type = tType)

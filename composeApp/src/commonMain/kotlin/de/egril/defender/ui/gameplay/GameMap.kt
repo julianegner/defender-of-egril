@@ -431,7 +431,6 @@ fun GridCell(
     
     val isSpawnPoint = gameState.level.isSpawnPoint(position)
     val isTarget = gameState.level.isTargetPosition(position)
-    val isTakenTarget = gameState.takenTargets.contains(position)
     val isOnPath = gameState.level.isOnPath(position)
     val isBuildArea = gameState.level.isBuildArea(position)
     val isRiverTile = gameState.level.isRiverTile(position)

@@ -893,7 +893,7 @@ class GameEngine(private val state: GameState) {
                 )
                 println("!!! SINGLE_HIT TARGET TAKEN !!! Turn ${state.turnNumber.value}: ${attacker.type} (ID ${attacker.id}) took target '${name ?: position}'")
                 // Redirect all enemies that were heading to this taken target
-                retargetEnemiesFromTakenTarget(position)
+                state.retargetEnemiesFromTakenTarget(position)
             }
         } else {
             // Standard target: deal HP damage
@@ -902,23 +902,6 @@ class GameEngine(private val state: GameState) {
             state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
         }
         attacker.isDefeated.value = true
-    }
-
-    /**
-     * When a SINGLE_HIT target at [takenPosition] is taken, redirect all enemies
-     * whose currentTarget points to that position towards the nearest remaining active target.
-     */
-    private fun retargetEnemiesFromTakenTarget(takenPosition: Position) {
-        val remaining = state.getActiveTargetPositions()
-        if (remaining.isEmpty()) return  // No active targets left – level will be lost
-        for (enemy in state.attackers) {
-            if (enemy.isDefeated.value) continue
-            if (enemy.currentTarget?.value == takenPosition) {
-                val newTarget = remaining.minByOrNull { enemy.position.value.distanceTo(it) } ?: remaining.first()
-                enemy.currentTarget?.value = newTarget
-                println("Enemy ${enemy.id} (${enemy.type}) retargeted from $takenPosition to $newTarget")
-            }
-        }
     }
     
     /**

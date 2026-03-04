@@ -342,15 +342,7 @@ class EnemyMovementSystem(
                     )
                 )
                 println("!!! SINGLE_HIT TARGET TAKEN !!! Turn ${state.turnNumber.value}: ${attacker.type} (ID ${attacker.id}) took target '${name ?: position}'")
-                // Redirect all enemies heading to this taken target
-                val remaining = state.getActiveTargetPositions()
-                for (enemy in state.attackers) {
-                    if (enemy.isDefeated.value || enemy.id == attacker.id) continue
-                    if (enemy.currentTarget?.value == position) {
-                        val newTarget = remaining.minByOrNull { enemy.position.value.distanceTo(it) } ?: remaining.firstOrNull() ?: return
-                        enemy.currentTarget?.value = newTarget
-                    }
-                }
+                state.retargetEnemiesFromTakenTarget(position)
             }
         } else {
             val damage = attacker.calculateTargetDamage()
