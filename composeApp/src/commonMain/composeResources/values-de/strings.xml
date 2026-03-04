@@ -1260,8 +1260,9 @@
     <string name="xp_system_unlock_message">Sie können jetzt XP verwenden, um Ihre Statistiken zu verbessern und mächtige Fähigkeiten freizuschalten!\n\nGreifen Sie auf den Upgrade-Bildschirm über das Spielerprofil zu.</string>
 
     <!-- Stats Upgrade Screen -->
-    <string name="available_stat_points">Verfügbare Stat-Punkte: %d</string>
-    <string name="stats">Statistiken</string>
+    <string name="available_stat_points">Verfügbare Fähigkeitspunkte: %d</string>
+    <string name="available_stat_points_label">Verfügbare Fähigkeitspunkte</string>
+    <string name="stats">Fähigkeiten</string>
     <string name="spells">Zauber</string>
     <string name="unlock">Freischalten</string>
     <string name="stat_health">Gesundheit</string>

@@ -17,7 +17,6 @@ import de.egril.defender.model.PlayerAbilities
 import de.egril.defender.model.AbilityType
 import de.egril.defender.model.SpellType
 import de.egril.defender.save.PlayerProfile
-import de.egril.defender.ui.icon.BombIcon
 import de.egril.defender.ui.icon.HeartIcon
 import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.HammerIcon
@@ -25,6 +24,7 @@ import de.egril.defender.ui.icon.StarIcon
 import de.egril.defender.ui.icon.InfoIcon
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.gameplay.ScrollableInfoCard
+import de.egril.defender.ui.gameplay.SpellTargetIcon
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -79,7 +79,7 @@ fun AbilitiesUpgradeScreen(
                         .verticalScroll(rememberScrollState())
                         .fillMaxWidth()
                 ) {
-                    // Available stat points
+                    // Available ability points
                     if (abilities.availableAbilityPoints > 0) {
                         Text(
                             text = stringResource(Res.string.available_stat_points, abilities.availableAbilityPoints),
@@ -90,7 +90,7 @@ fun AbilitiesUpgradeScreen(
                         )
                     }
                     
-                    // Stats Section
+                    // Abilities Section
                     Text(
                         text = stringResource(Res.string.abilities),
                         style = MaterialTheme.typography.titleLarge,
@@ -98,72 +98,79 @@ fun AbilitiesUpgradeScreen(
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     
-                    AbilityCard(
-                        name = stringResource(Res.string.stat_health),
-                        description = stringResource(Res.string.stat_health_desc),
-                        currentLevel = abilities.healthAbility,
-                        effect = stringResource(Res.string.stat_health_effect, abilities.getBonusHealth()),
-                        canUpgrade = abilities.availableAbilityPoints > 0,
-                        onUpgrade = { onUpgradeAbility(AbilityType.HEALTH) },
-                        icon = { HeartIcon(size = 32.dp) }
-                    )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    AbilityCard(
-                        name = stringResource(Res.string.stat_treasury),
-                        description = stringResource(Res.string.stat_treasury_desc),
-                        currentLevel = abilities.treasuryAbility,
-                        effect = stringResource(Res.string.stat_treasury_effect, abilities.getBonusStartCoins()),
-                        canUpgrade = abilities.availableAbilityPoints > 0,
-                        onUpgrade = { onUpgradeAbility(AbilityType.TREASURY) },
-                        icon = { MoneyIcon(size = 32.dp) }
-                    )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    AbilityCard(
-                        name = stringResource(Res.string.stat_income),
-                        description = stringResource(Res.string.stat_income_desc),
-                        currentLevel = abilities.incomeAbility,
-                        effect = stringResource(Res.string.stat_income_effect, abilities.incomeAbility * 10),
-                        canUpgrade = abilities.availableAbilityPoints > 0,
-                        onUpgrade = { onUpgradeAbility(AbilityType.INCOME) },
-                        icon = { MoneyIcon(size = 32.dp) }
-                    )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    // Construction stat with info icon
+                    // Abilities Grid (3 columns)
                     var showConstructionInfo by remember { mutableStateOf(false) }
-                    AbilityCardWithInfo(
-                        name = stringResource(Res.string.stat_construction),
-                        description = stringResource(Res.string.stat_construction_desc),
-                        currentLevel = abilities.constructionAbility,
-                        effect = buildConstructionEffect(abilities.constructionAbility),
-                        canUpgrade = abilities.availableAbilityPoints > 0,
-                        onUpgrade = { onUpgradeAbility(AbilityType.CONSTRUCTION) },
-                        icon = { HammerIcon(size = 32.dp) },
-                        onShowInfo = { showConstructionInfo = true }
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Box(modifier = Modifier.weight(1f)) {
+                            AbilityCardGrid(
+                                name = stringResource(Res.string.stat_health),
+                                currentLevel = abilities.healthAbility,
+                                effect = stringResource(Res.string.stat_health_effect, abilities.getBonusHealth()),
+                                canUpgrade = abilities.availableAbilityPoints > 0,
+                                onUpgrade = { onUpgradeAbility(AbilityType.HEALTH) },
+                                icon = { HeartIcon(size = 32.dp) }
+                            )
+                        }
+                        Box(modifier = Modifier.weight(1f)) {
+                            AbilityCardGrid(
+                                name = stringResource(Res.string.stat_treasury),
+                                currentLevel = abilities.treasuryAbility,
+                                effect = stringResource(Res.string.stat_treasury_effect, abilities.getBonusStartCoins()),
+                                canUpgrade = abilities.availableAbilityPoints > 0,
+                                onUpgrade = { onUpgradeAbility(AbilityType.TREASURY) },
+                                icon = { MoneyIcon(size = 32.dp) }
+                            )
+                        }
+                        Box(modifier = Modifier.weight(1f)) {
+                            AbilityCardGrid(
+                                name = stringResource(Res.string.stat_income),
+                                currentLevel = abilities.incomeAbility,
+                                effect = stringResource(Res.string.stat_income_effect, abilities.incomeAbility * 10),
+                                canUpgrade = abilities.availableAbilityPoints > 0,
+                                onUpgrade = { onUpgradeAbility(AbilityType.INCOME) },
+                                icon = { MoneyIcon(size = 32.dp) }
+                            )
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Box(modifier = Modifier.weight(1f)) {
+                            AbilityCardWithInfoGrid(
+                                name = stringResource(Res.string.stat_construction),
+                                currentLevel = abilities.constructionAbility,
+                                effect = buildConstructionEffect(abilities.constructionAbility),
+                                canUpgrade = abilities.availableAbilityPoints > 0,
+                                onUpgrade = { onUpgradeAbility(AbilityType.CONSTRUCTION) },
+                                icon = { HammerIcon(size = 32.dp) },
+                                onShowInfo = { showConstructionInfo = true }
+                            )
+                        }
+                        Box(modifier = Modifier.weight(1f)) {
+                            AbilityCardGrid(
+                                name = stringResource(Res.string.stat_mana),
+                                currentLevel = abilities.manaAbility,
+                                effect = stringResource(Res.string.stat_mana_effect, abilities.getMaxMana()),
+                                canUpgrade = abilities.availableAbilityPoints > 0,
+                                onUpgrade = { onUpgradeAbility(AbilityType.MANA) },
+                                icon = { StarIcon(size = 32.dp) }
+                            )
+                        }
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
                     
                     if (showConstructionInfo) {
                         ConstructionInfoDialog(
                             onDismiss = { showConstructionInfo = false }
                         )
                     }
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    AbilityCard(
-                        name = stringResource(Res.string.stat_mana),
-                        description = stringResource(Res.string.stat_mana_desc),
-                        currentLevel = abilities.manaAbility,
-                        effect = stringResource(Res.string.stat_mana_effect, abilities.getMaxMana()),
-                        canUpgrade = abilities.availableAbilityPoints > 0,
-                        onUpgrade = { onUpgradeAbility(AbilityType.MANA) },
-                        icon = { StarIcon(size = 32.dp) }
-                    )
                     
                     Spacer(modifier = Modifier.height(24.dp))
                     
@@ -182,14 +189,27 @@ fun AbilitiesUpgradeScreen(
                         modifier = Modifier.padding(bottom = 16.dp)
                     )
                     
-                    SpellType.values().forEach { spell ->
-                        val isUnlocked = abilities.isSpellUnlocked(spell)
-                        SpellCard(
-                            spell = spell,
-                            isUnlocked = isUnlocked,
-                            canUnlock = !isUnlocked && abilities.availableAbilityPoints > 0,
-                            onUnlock = { onUnlockSpell(spell) }
-                        )
+                    // Spells Grid (3 columns)
+                    SpellType.values().toList().chunked(3).forEach { chunk ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            chunk.forEach { spell ->
+                                val isUnlocked = abilities.isSpellUnlocked(spell)
+                                Box(modifier = Modifier.weight(1f)) {
+                                    SpellCardGrid(
+                                        spell = spell,
+                                        isUnlocked = isUnlocked,
+                                        canUnlock = !isUnlocked && abilities.availableAbilityPoints > 0,
+                                        onUnlock = { onUnlockSpell(spell) }
+                                    )
+                                }
+                            }
+                            repeat(3 - chunk.size) {
+                                Spacer(modifier = Modifier.weight(1f))
+                            }
+                        }
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
@@ -504,10 +524,8 @@ internal fun SpellCard(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (spell == SpellType.BOMB) {
-                        BombIcon(size = 20.dp)
-                        Spacer(modifier = Modifier.width(6.dp))
-                    }
+                    SpellTargetIcon(spell = spell, size = 20.dp)
+                    Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = spell.getLocalizedName(),
                         style = MaterialTheme.typography.titleMedium,
@@ -554,5 +572,160 @@ internal fun buildConstructionEffect(level: Int): String {
         level >= 2 -> stringResource(Res.string.stat_construction_effect_level2)
         level >= 1 -> stringResource(Res.string.stat_construction_effect_level1)
         else -> stringResource(Res.string.stat_construction_effect_none)
+    }
+}
+
+/**
+ * Compact ability card for 3-column grid layout
+ */
+@Composable
+internal fun AbilityCardGrid(
+    name: String,
+    currentLevel: Int,
+    effect: String,
+    canUpgrade: Boolean,
+    onUpgrade: () -> Unit,
+    icon: @Composable () -> Unit
+) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(8.dp).fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Box(modifier = Modifier.size(36.dp), contentAlignment = Alignment.Center) {
+                icon()
+            }
+            Text(
+                text = name,
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = stringResource(Res.string.stat_level_effect, currentLevel, effect),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center
+            )
+            Button(
+                onClick = onUpgrade,
+                enabled = canUpgrade,
+                modifier = Modifier.fillMaxWidth().height(32.dp),
+                contentPadding = PaddingValues(0.dp)
+            ) {
+                Text("+", style = MaterialTheme.typography.titleMedium)
+            }
+        }
+    }
+}
+
+/**
+ * Compact ability card with info button for 3-column grid layout
+ */
+@Composable
+internal fun AbilityCardWithInfoGrid(
+    name: String,
+    currentLevel: Int,
+    effect: String,
+    canUpgrade: Boolean,
+    onUpgrade: () -> Unit,
+    icon: @Composable () -> Unit,
+    onShowInfo: () -> Unit
+) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(8.dp).fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Box(modifier = Modifier.size(36.dp), contentAlignment = Alignment.Center) {
+                icon()
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+                IconButton(onClick = onShowInfo, modifier = Modifier.size(20.dp)) {
+                    InfoIcon(size = 12.dp)
+                }
+            }
+            Text(
+                text = stringResource(Res.string.stat_level_effect, currentLevel, effect),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center
+            )
+            Button(
+                onClick = onUpgrade,
+                enabled = canUpgrade,
+                modifier = Modifier.fillMaxWidth().height(32.dp),
+                contentPadding = PaddingValues(0.dp)
+            ) {
+                Text("+", style = MaterialTheme.typography.titleMedium)
+            }
+        }
+    }
+}
+
+/**
+ * Compact spell card for 3-column grid layout
+ */
+@Composable
+internal fun SpellCardGrid(
+    spell: SpellType,
+    isUnlocked: Boolean,
+    canUnlock: Boolean,
+    onUnlock: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = if (isUnlocked) {
+            CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+        } else {
+            CardDefaults.cardColors()
+        }
+    ) {
+        Column(
+            modifier = Modifier.padding(8.dp).fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            SpellTargetIcon(spell = spell, size = 28.dp)
+            Text(
+                text = spell.getLocalizedName(),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = stringResource(Res.string.spell_mana_cost, spell.manaCost),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            if (isUnlocked) {
+                Text(
+                    text = stringResource(Res.string.spell_unlocked),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center
+                )
+            } else {
+                Button(
+                    onClick = onUnlock,
+                    enabled = canUnlock,
+                    modifier = Modifier.fillMaxWidth().height(32.dp),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Text(
+                        stringResource(Res.string.unlock),
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+            }
+        }
     }
 }

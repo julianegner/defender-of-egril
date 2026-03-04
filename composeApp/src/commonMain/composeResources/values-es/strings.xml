@@ -1262,8 +1262,9 @@
     <string name="xp_system_unlock_message">¡Ahora puedes usar XP para mejorar tus estadísticas y desbloquear habilidades poderosas!\n\nAccede a la pantalla de mejora desde el Perfil del Jugador.</string>
 
     <!-- Stats Upgrade Screen -->
-    <string name="available_stat_points">Puntos de Estadísticas Disponibles: %d</string>
-    <string name="stats">Estadísticas</string>
+    <string name="available_stat_points">Puntos de Habilidad Disponibles: %d</string>
+    <string name="available_stat_points_label">Puntos de Habilidad Disponibles</string>
+    <string name="stats">Habilidades</string>
     <string name="spells">Hechizos</string>
     <string name="unlock">Desbloquear</string>
     <string name="stat_health">Salud</string>
