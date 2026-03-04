@@ -1132,9 +1132,9 @@
     <string name="achievement_add_health_barricade_desc">Füge einer bestehenden Barrikade Lebenspunkte hinzu</string>
     
     <string name="achievement_first_stat_upgrade_name">Erstes Upgrade</string>
-    <string name="achievement_first_stat_upgrade_desc">Gib deinen ersten Stat-Punkt aus, um einen Stat zu verbessern</string>
+    <string name="achievement_first_stat_upgrade_desc">Gib deinen ersten Fähigkeitspunkt aus, um eine Fähigkeit zu verbessern</string>
     <string name="achievement_first_spell_unlock_name">Zauberer</string>
-    <string name="achievement_first_spell_unlock_desc">Schalte deinen ersten Zauber mit Stat-Punkten frei</string>
+    <string name="achievement_first_spell_unlock_desc">Schalte deinen ersten Zauber mit Fähigkeitspunkten frei</string>
     <string name="achievement_construction_level_3_name">Meisterbaumeister</string>
     <string name="achievement_construction_level_3_desc">Erreiche Bau-Level 3, um Turmbasen freizuschalten</string>
     <string name="achievement_player_level_10_name">Erfahrener Verteidiger</string>
@@ -1276,9 +1276,9 @@
 
     <!-- XP System -->
     <string name="xp_earned">Verdiente XP: %d</string>
-    <string name="xp_info_brief">Verdienen Sie XP durch das Besiegen von Feinden.\nLeveln Sie auf, um Stat-Punkte zu erhalten und mächtige Fähigkeiten freizuschalten!</string>
+    <string name="xp_info_brief">Verdienen Sie XP durch das Besiegen von Feinden.\nLeveln Sie auf, um Fähigkeitspunkte zu erhalten und mächtige Fähigkeiten freizuschalten!</string>
     <string name="xp_system_unlocked">XP-System freigeschaltet!</string>
-    <string name="xp_system_unlock_message">Sie können jetzt XP verwenden, um Ihre Statistiken zu verbessern und mächtige Fähigkeiten freizuschalten!\n\nGreifen Sie auf den Upgrade-Bildschirm über das Spielerprofil zu.</string>
+    <string name="xp_system_unlock_message">Sie können jetzt XP verwenden, um Ihre Fähigkeiten zu verbessern und mächtige Fähigkeiten freizuschalten!\n\nGreifen Sie auf den Upgrade-Bildschirm über das Spielerprofil zu.</string>
 
     <!-- Stats Upgrade Screen -->
     <string name="available_stat_points">Verfügbare Fähigkeitspunkte: %d</string>
@@ -1368,7 +1368,7 @@
     <string name="cheat_section_mana">Mana (während des Levels)</string>
     <string name="cheat_section_enemies">Gegner</string>
     <string name="cheat_section_mining">Bergbau</string>
-    <string name="cheat_section_xp_stats">XP &amp; Statistiken</string>
+    <string name="cheat_section_xp_stats">XP &amp; Fähigkeiten</string>
     <string name="cheat_section_spells">Zauber</string>
     <string name="cheat_section_levels">Level-Freischaltung</string>
 
@@ -1388,9 +1388,9 @@
     <string name="cheat_dig_dragon_desc">Grabungsergebnis: Drache</string>
     <string name="cheat_addxp_desc">XP hinzufügen (z.B. addxp 500)</string>
     <string name="cheat_removexp_desc">XP entfernen (z.B. removexp 100)</string>
-    <string name="cheat_addstat_desc">Statistik-Level hinzufügen (z.B. addstat health 5)</string>
-    <string name="cheat_removestat_desc">Statistik-Level entfernen (z.B. removestat mana 2)</string>
-    <string name="cheat_stat_types">Statistiken: health, treasury, income, construction, mana</string>
+    <string name="cheat_addstat_desc">Fähigkeits-Level hinzufügen (z.B. addstat health 5)</string>
+    <string name="cheat_removestat_desc">Fähigkeits-Level entfernen (z.B. removestat mana 2)</string>
+    <string name="cheat_stat_types">Fähigkeiten: health, treasury, income, construction, mana</string>
     <string name="cheat_unlockspell_desc">Zauber freischalten (z.B. unlockspell fireball)</string>
     <string name="cheat_lockspell_desc">Zauber sperren (z.B. lockspell heal)</string>
     <string name="cheat_spell_types">Zauber: attack_aimed, attack_area, heal, instant_tower, bomb, double_level, cooling, freeze, double_reach, fear, fear_area</string>

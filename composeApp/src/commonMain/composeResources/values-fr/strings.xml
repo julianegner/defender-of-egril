@@ -1135,9 +1135,9 @@
     <string name="achievement_add_health_barricade_desc">Ajoutez des points de vie à une barricade existante</string>
     
     <string name="achievement_first_stat_upgrade_name">Première Amélioration</string>
-    <string name="achievement_first_stat_upgrade_desc">Dépensez votre premier point de statistique pour améliorer une statistique</string>
+    <string name="achievement_first_stat_upgrade_desc">Dépensez votre premier point de capacité pour améliorer une capacité</string>
     <string name="achievement_first_spell_unlock_name">Sorcier</string>
-    <string name="achievement_first_spell_unlock_desc">Débloquez votre premier sort en utilisant des points de statistique</string>
+    <string name="achievement_first_spell_unlock_desc">Débloquez votre premier sort en utilisant des points de capacité</string>
     <string name="achievement_construction_level_3_name">Maître Constructeur</string>
     <string name="achievement_construction_level_3_desc">Atteignez le niveau 3 de Construction pour débloquer les Bases de Tours</string>
     <string name="achievement_player_level_10_name">Défenseur Expérimenté</string>
@@ -1278,9 +1278,9 @@
 
     <!-- XP System -->
     <string name="xp_earned">XP Gagnée: %d</string>
-    <string name="xp_info_brief">Gagnez de l\'XP en battant des ennemis.\nMontez de niveau pour obtenir des points de statistiques et débloquer des capacités puissantes!</string>
+    <string name="xp_info_brief">Gagnez de l\'XP en battant des ennemis.\nMontez de niveau pour obtenir des points de capacités et débloquer des capacités puissantes!</string>
     <string name="xp_system_unlocked">Système d\'XP Débloqué!</string>
-    <string name="xp_system_unlock_message">Vous pouvez maintenant utiliser l\'XP pour améliorer vos statistiques et débloquer des capacités puissantes!\n\nAccédez à l\'écran d\'amélioration depuis le Profil du Joueur.</string>
+    <string name="xp_system_unlock_message">Vous pouvez maintenant utiliser l\'XP pour améliorer vos capacités et débloquer des capacités puissantes!\n\nAccédez à l\'écran d\'amélioration depuis le Profil du Joueur.</string>
 
     <!-- Stats Upgrade Screen -->
     <string name="available_stat_points">Points de Capacité Disponibles: %d</string>
@@ -1316,7 +1316,7 @@
     <string name="mana_label">Mana</string>
     <string name="magic_panel_title">Sorts Magiques</string>
     <string name="magic_panel_description">Sélectionnez un sort à lancer pendant la bataille</string>
-    <string name="no_spells_unlocked">Aucun sort débloqué pour l\'instant. Améliorez vos statistiques pour débloquer des sorts!</string>
+    <string name="no_spells_unlocked">Aucun sort débloqué pour l\'instant. Améliorez vos capacités pour débloquer des sorts!</string>
     <string name="cast">Lancer</string>
     <string name="confirm_spell_cast">Confirmer le Sort</string>
     <string name="cast_spell_confirmation">Lancer %s?</string>
@@ -1370,7 +1370,7 @@
     <string name="cheat_section_mana">Mana (pendant le niveau)</string>
     <string name="cheat_section_enemies">Ennemis</string>
     <string name="cheat_section_mining">Exploitation minière</string>
-    <string name="cheat_section_xp_stats">XP et statistiques</string>
+    <string name="cheat_section_xp_stats">XP et capacités</string>
     <string name="cheat_section_spells">Sorts</string>
     <string name="cheat_section_levels">Déverrouillage de niveaux</string>
 
@@ -1390,9 +1390,9 @@
     <string name="cheat_dig_dragon_desc">Résultat de creusement: dragon</string>
     <string name="cheat_addxp_desc">Ajouter de l\'XP (ex. addxp 500)</string>
     <string name="cheat_removexp_desc">Retirer de l\'XP (ex. removexp 100)</string>
-    <string name="cheat_addstat_desc">Ajouter des niveaux de statistique (ex. addstat health 5)</string>
-    <string name="cheat_removestat_desc">Retirer des niveaux de statistique (ex. removestat mana 2)</string>
-    <string name="cheat_stat_types">Statistiques: health, treasury, income, construction, mana</string>
+    <string name="cheat_addstat_desc">Ajouter des niveaux de capacité (ex. addstat health 5)</string>
+    <string name="cheat_removestat_desc">Retirer des niveaux de capacité (ex. removestat mana 2)</string>
+    <string name="cheat_stat_types">Capacités: health, treasury, income, construction, mana</string>
     <string name="cheat_unlockspell_desc">Déverrouiller un sort (ex. unlockspell fireball)</string>
     <string name="cheat_lockspell_desc">Verrouiller un sort (ex. lockspell heal)</string>
     <string name="cheat_spell_types">Sorts: attack_aimed, attack_area, heal, instant_tower, bomb, double_level, cooling, freeze, double_reach, fear, fear_area</string>
