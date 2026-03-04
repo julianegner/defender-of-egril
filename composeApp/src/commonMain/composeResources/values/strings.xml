@@ -1141,8 +1141,8 @@
     <string name="achievement_build_barricade_desc">Build your first barricade</string>
     <string name="achievement_add_health_barricade_desc">Add health points to an existing barricade</string>
     
-    <string name="achievement_first_stat_upgrade_desc">Spend your first stat point to upgrade a stat</string>
-    <string name="achievement_first_spell_unlock_desc">Unlock your first spell using stat points</string>
+    <string name="achievement_first_stat_upgrade_desc">Spend your first ability point to upgrade an ability</string>
+    <string name="achievement_first_spell_unlock_desc">Unlock your first spell using ability points</string>
     <string name="achievement_construction_level_3_desc">Reach Construction level 3 to unlock Tower Bases</string>
     <string name="achievement_player_level_10_desc">Reach player level 10 through earning XP</string>
     <string name="achievement_player_level_100_desc">Reach player level 100 through earning XP</string>
@@ -1280,9 +1280,9 @@
 
     <!-- XP System -->
     <string name="xp_earned">XP Earned: %d</string>
-    <string name="xp_info_brief">Earn XP by defeating enemies.\nLevel up to gain stat points and unlock powerful abilities!</string>
+    <string name="xp_info_brief">Earn XP by defeating enemies.\nLevel up to gain ability points and unlock powerful abilities!</string>
     <string name="xp_system_unlocked">XP System Unlocked!</string>
-    <string name="xp_system_unlock_message">You can now use XP to upgrade your stats and unlock powerful abilities!\n\nAccess the upgrade screen from the Player Profile.</string>
+    <string name="xp_system_unlock_message">You can now use XP to upgrade your abilities and unlock powerful abilities!\n\nAccess the upgrade screen from the Player Profile.</string>
 
     <!-- Stats Upgrade Screen -->
     <string name="available_stat_points">Available Ability Points: %d</string>
@@ -1318,7 +1318,7 @@
     <string name="mana_label">Mana</string>
     <string name="magic_panel_title">Magic Spells</string>
     <string name="magic_panel_description">Select a spell to cast during battle</string>
-    <string name="no_spells_unlocked">No spells unlocked yet. Upgrade your stats to unlock spells!</string>
+    <string name="no_spells_unlocked">No spells unlocked yet. Upgrade your abilities to unlock spells!</string>
     <string name="cast">Cast</string>
     <string name="confirm_spell_cast">Confirm Spell</string>
     <string name="cast_spell_confirmation">Cast %s?</string>
@@ -1372,7 +1372,7 @@
     <string name="cheat_section_mana">Mana (During Level)</string>
     <string name="cheat_section_enemies">Enemies</string>
     <string name="cheat_section_mining">Mining</string>
-    <string name="cheat_section_xp_stats">XP &amp; Stats</string>
+    <string name="cheat_section_xp_stats">XP &amp; Abilities</string>
     <string name="cheat_section_spells">Spells</string>
     <string name="cheat_section_levels">Level Unlocking</string>
 
@@ -1392,9 +1392,11 @@
     <string name="cheat_dig_dragon_desc">Dig outcome: dragon</string>
     <string name="cheat_addxp_desc">Add XP (e.g., addxp 500)</string>
     <string name="cheat_removexp_desc">Remove XP (e.g., removexp 100)</string>
-    <string name="cheat_addstat_desc">Add stat levels (e.g., addstat health 5)</string>
-    <string name="cheat_removestat_desc">Remove stat levels (e.g., removestat mana 2)</string>
-    <string name="cheat_stat_types">Stats: health, treasury, income, construction, mana</string>
+    <string name="cheat_addstat_desc">Add ability levels (e.g., addstat health 5)</string>
+    <string name="cheat_removestat_desc">Remove ability levels (e.g., removestat mana 2)</string>
+    <string name="cheat_addability_desc">Add ability levels (e.g., addability health 5)</string>
+    <string name="cheat_removeability_desc">Remove ability levels (e.g., removeability mana 2)</string>
+    <string name="cheat_stat_types">Abilities: health, treasury, income, construction, mana</string>
     <string name="cheat_unlockspell_desc">Unlock a spell (e.g., unlockspell fireball)</string>
     <string name="cheat_lockspell_desc">Lock a spell (e.g., lockspell heal)</string>
     <string name="cheat_spell_types">Spells: attack_aimed, attack_area, heal, instant_tower, bomb, double_level, cooling, freeze, double_reach, fear, fear_area</string>

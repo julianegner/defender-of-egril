@@ -40,6 +40,8 @@ import defender_of_egril.composeapp.generated.resources.cheat_addxp_desc
 import defender_of_egril.composeapp.generated.resources.cheat_removexp_desc
 import defender_of_egril.composeapp.generated.resources.cheat_addstat_desc
 import defender_of_egril.composeapp.generated.resources.cheat_removestat_desc
+import defender_of_egril.composeapp.generated.resources.cheat_addability_desc
+import defender_of_egril.composeapp.generated.resources.cheat_removeability_desc
 import defender_of_egril.composeapp.generated.resources.cheat_unlockspell_desc
 import defender_of_egril.composeapp.generated.resources.cheat_lockspell_desc
 import defender_of_egril.composeapp.generated.resources.cheat_unlockall_desc
@@ -231,7 +233,9 @@ fun CheatCodeHelpScreen(
                     CheatCodeItem("addxp <amount>", stringResource(Res.string.cheat_addxp_desc))
                     CheatCodeItem("removexp <amount>", stringResource(Res.string.cheat_removexp_desc))
                     CheatCodeItem("addstat <stat> <amount>", stringResource(Res.string.cheat_addstat_desc))
+                    CheatCodeItem("addability <stat> <amount>", stringResource(Res.string.cheat_addability_desc))
                     CheatCodeItem("removestat <stat> <amount>", stringResource(Res.string.cheat_removestat_desc))
+                    CheatCodeItem("removeability <stat> <amount>", stringResource(Res.string.cheat_removeability_desc))
                     Text(stringResource(Res.string.cheat_stat_types), 
                          style = MaterialTheme.typography.bodySmall,
                          modifier = Modifier.padding(start = 16.dp))
