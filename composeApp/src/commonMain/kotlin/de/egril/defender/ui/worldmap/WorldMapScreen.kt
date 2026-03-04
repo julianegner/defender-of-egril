@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.LevelStatus
 import de.egril.defender.model.WorldLevel
@@ -135,7 +136,19 @@ fun WorldMapScreen(
     }
     
     BoxWithConstraints(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .onPreviewKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown &&
+                    event.key == Key.C && !event.isCtrlPressed &&
+                    onCheatCode != null
+                ) {
+                    showCheatDialog = true
+                    true
+                } else {
+                    false
+                }
+            }
     ) {
         val windowSize = remember(maxWidth, maxHeight) {
             "Window: ${maxWidth.value.toInt()} x ${maxHeight.value.toInt()} dp"

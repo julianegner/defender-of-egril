@@ -464,20 +464,85 @@ private fun GamePlayScreenContent(
         }
     }
 
-    // Keyboard event handler for Ctrl+S save shortcut
+    // Keyboard event handler for shortcuts
     // Using onPreviewKeyEvent to intercept before HexagonalMapView handles it
     // This works in the "capture" phase and doesn't require focus on this element
-    val keyboardHandler: (KeyEvent) -> Boolean = remember(onSaveGame) {
+    val keyboardHandler: (KeyEvent) -> Boolean = remember(
+        onSaveGame, onCheatCode, onEndPlayerTurn, onAutoAttackAndEndTurn, onStartFirstPlayerTurn,
+        onDefenderAttack, onDefenderAttackPosition
+    ) {
         { event ->
-            if (event.type == KeyEventType.KeyDown && 
-                event.key == Key.S && 
-                event.isCtrlPressed &&
-                onSaveGame != null) {
-                // Trigger save dialog
-                showSaveDialog = true
-                true
-            } else {
-                false
+            when {
+                // Ctrl+S: Save game
+                event.type == KeyEventType.KeyDown &&
+                        event.key == Key.S && event.isCtrlPressed &&
+                        onSaveGame != null -> {
+                    showSaveDialog = true
+                    true
+                }
+                // Ctrl+A: Auto-attack all towers and end turn (player turn only)
+                event.type == KeyEventType.KeyDown &&
+                        event.key == Key.A && event.isCtrlPressed &&
+                        gameState.phase.value == GamePhase.PLAYER_TURN -> {
+                    onAutoAttackAndEndTurn()
+                    true
+                }
+                // F: Attack with selected tower's current target (player turn only)
+                event.type == KeyEventType.KeyDown &&
+                        event.key == Key.F && !event.isCtrlPressed &&
+                        gameState.phase.value == GamePhase.PLAYER_TURN -> {
+                    val defenderId = selectedDefenderId
+                    val targetId = selectedTargetId
+                    val targetPosition = selectedTargetPosition
+                    val defender = defenderId?.let { gameState.defenders.find { it.id == defenderId } }
+                    if (defender != null && defender.isReady && defender.actionsRemaining.value > 0) {
+                        when {
+                            targetId != null -> {
+                                onDefenderAttack(defenderId, targetId)
+                                true
+                            }
+                            targetPosition != null -> {
+                                onDefenderAttackPosition(defenderId, targetPosition)
+                                true
+                            }
+                            else -> false
+                        }
+                    } else {
+                        false
+                    }
+                }
+                // C: Open cheat code dialog
+                event.type == KeyEventType.KeyDown &&
+                        event.key == Key.C && !event.isCtrlPressed &&
+                        onCheatCode != null -> {
+                    showCheatDialog = true
+                    true
+                }
+                // E: Toggle enemy list overlay
+                event.type == KeyEventType.KeyDown &&
+                        event.key == Key.E && !event.isCtrlPressed -> {
+                    showOverlay = !showOverlay
+                    true
+                }
+                // Enter: End turn or Start battle
+                event.type == KeyEventType.KeyDown && event.key == Key.Enter && !event.isCtrlPressed -> {
+                    when (gameState.phase.value) {
+                        GamePhase.PLAYER_TURN -> {
+                            if (gameState.hasDefendersWithUnusedActions()) {
+                                showEndTurnConfirmation = true
+                            } else {
+                                onEndPlayerTurn()
+                            }
+                            true
+                        }
+                        GamePhase.INITIAL_BUILDING -> {
+                            onStartFirstPlayerTurn()
+                            true
+                        }
+                        else -> false
+                    }
+                }
+                else -> false
             }
         }
     }

@@ -275,7 +275,8 @@ fun App() {
                         playerProfile = profile,
                         onUpgradeAbility = { abilityType -> viewModel.upgradeAbility(abilityType) },
                         onUnlockSpell = { spell -> viewModel.unlockSpell(spell) },
-                        onBack = { viewModel.navigateToPlayerProfile() }
+                        onBack = { viewModel.navigateToPlayerProfile() },
+                        onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) }
                     )
                 }
             }

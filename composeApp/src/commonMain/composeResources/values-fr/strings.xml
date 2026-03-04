@@ -1168,6 +1168,27 @@
     <string name="info_tab_installation">Installation</string>
     <string name="info_tab_audio_licenses">Licences Audio</string>
     <string name="info_tab_license">Licence</string>
+    <string name="info_tab_keyboard_shortcuts">Raccourcis Clavier</string>
+
+    <!-- Keyboard Shortcuts Info -->
+    <string name="keyboard_shortcuts_title">Raccourcis Clavier</string>
+    <string name="keyboard_shortcuts_gameplay_section">Écran de Jeu</string>
+    <string name="keyboard_shortcuts_worldmap_section">Carte du Monde</string>
+    <string name="keyboard_shortcuts_abilities_section">Écran Capacités / XP</string>
+    <string name="keyboard_shortcut_key_label">Touche</string>
+    <string name="keyboard_shortcut_description_label">Action</string>
+    <string name="keyboard_shortcut_where_label">Où</string>
+    <string name="keyboard_shortcut_attack">Attaquer la cible actuelle avec la tour sélectionnée</string>
+    <string name="keyboard_shortcut_auto_attack">Attaque automatique de toutes les tours et fin de tour</string>
+    <string name="keyboard_shortcut_cheat">Ouvrir la boîte de dialogue des codes triche</string>
+    <string name="keyboard_shortcut_enemy_list">Afficher/masquer la liste des ennemis</string>
+    <string name="keyboard_shortcut_end_turn">Fin de tour / Commencer la bataille</string>
+    <string name="keyboard_shortcut_save">Sauvegarder la partie</string>
+    <string name="keyboard_shortcut_pan_up">Déplacer la carte vers le haut</string>
+    <string name="keyboard_shortcut_pan_down">Déplacer la carte vers le bas</string>
+    <string name="keyboard_shortcut_pan_left">Déplacer la carte vers la gauche</string>
+    <string name="keyboard_shortcut_pan_right">Déplacer la carte vers la droite</string>
+    <string name="keyboard_shortcuts_note">Remarque : Les raccourcis clavier ne sont disponibles que sur bureau.</string>
     
     <!-- License Info -->
     <string name="license_info_title">Informations sur la Licence</string>

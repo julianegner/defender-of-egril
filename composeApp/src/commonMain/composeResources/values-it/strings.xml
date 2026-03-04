@@ -1168,6 +1168,27 @@
     <string name="info_tab_installation">Installazione</string>
     <string name="info_tab_audio_licenses">Licenze Audio</string>
     <string name="info_tab_license">Licenza</string>
+    <string name="info_tab_keyboard_shortcuts">Scorciatoie da Tastiera</string>
+
+    <!-- Keyboard Shortcuts Info -->
+    <string name="keyboard_shortcuts_title">Scorciatoie da Tastiera</string>
+    <string name="keyboard_shortcuts_gameplay_section">Schermata di Gioco</string>
+    <string name="keyboard_shortcuts_worldmap_section">Mappa del Mondo</string>
+    <string name="keyboard_shortcuts_abilities_section">Schermata Abilità / XP</string>
+    <string name="keyboard_shortcut_key_label">Tasto</string>
+    <string name="keyboard_shortcut_description_label">Azione</string>
+    <string name="keyboard_shortcut_where_label">Dove</string>
+    <string name="keyboard_shortcut_attack">Attacca il bersaglio attuale con la torre selezionata</string>
+    <string name="keyboard_shortcut_auto_attack">Attacco automatico di tutte le torri e fine turno</string>
+    <string name="keyboard_shortcut_cheat">Apri il dialogo dei codici truffa</string>
+    <string name="keyboard_shortcut_enemy_list">Mostra/nascondi la lista dei nemici</string>
+    <string name="keyboard_shortcut_end_turn">Fine turno / Inizia battaglia</string>
+    <string name="keyboard_shortcut_save">Salva partita</string>
+    <string name="keyboard_shortcut_pan_up">Sposta la mappa verso l\'alto</string>
+    <string name="keyboard_shortcut_pan_down">Sposta la mappa verso il basso</string>
+    <string name="keyboard_shortcut_pan_left">Sposta la mappa a sinistra</string>
+    <string name="keyboard_shortcut_pan_right">Sposta la mappa a destra</string>
+    <string name="keyboard_shortcuts_note">Nota: Le scorciatoie da tastiera sono disponibili solo su desktop.</string>
     
     <!-- License Info -->
     <string name="license_info_title">Informazioni sulla Licenza</string>
