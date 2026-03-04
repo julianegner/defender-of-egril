@@ -12,6 +12,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.IntSize
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorTargetInfo
@@ -61,6 +62,7 @@ fun MapEditorView(
     var selectedRiverSpeed by remember { mutableStateOf(1) }
     var selectedTargetName by remember { mutableStateOf("") }
     var selectedTargetType by remember { mutableStateOf(de.egril.defender.model.TargetType.STANDARD) }
+    var editTargetKey by remember { mutableStateOf<String?>(null) }  // Key of a tile being edited in the inline dialog
     var mapName by remember { mutableStateOf(map.name) }
     var mapAuthor by remember { mutableStateOf(map.author) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
@@ -199,34 +201,39 @@ fun MapEditorView(
                         borderColor = Color.Black,
                         borderWidth = 1.5.dp,
                         onClick = {
-                            tiles = tiles.toMutableMap().apply {
-                                this[key] = selectedTileType
-                            }
-                            
-                            // If painting a river tile, add river data
-                            if (selectedTileType == TileType.RIVER) {
-                                riverTiles = riverTiles.toMutableMap().apply {
-                                    this[key] = RiverTile(
-                                        position = position,
-                                        flowDirection = selectedRiverFlow,
-                                        flowSpeed = selectedRiverSpeed
-                                    )
-                                }
+                            if (selectedTileType == TileType.TARGET && tileType == TileType.TARGET) {
+                                // Clicking an already-TARGET tile while in TARGET mode opens edit dialog
+                                editTargetKey = key
                             } else {
-                                // Remove river data if not a river tile
-                                riverTiles = riverTiles.toMutableMap().apply {
-                                    remove(key)
+                                tiles = tiles.toMutableMap().apply {
+                                    this[key] = selectedTileType
                                 }
-                            }
+                                
+                                // If painting a river tile, add river data
+                                if (selectedTileType == TileType.RIVER) {
+                                    riverTiles = riverTiles.toMutableMap().apply {
+                                        this[key] = RiverTile(
+                                            position = position,
+                                            flowDirection = selectedRiverFlow,
+                                            flowSpeed = selectedRiverSpeed
+                                        )
+                                    }
+                                } else {
+                                    // Remove river data if not a river tile
+                                    riverTiles = riverTiles.toMutableMap().apply {
+                                        remove(key)
+                                    }
+                                }
 
-                            // Update target info map
-                            if (selectedTileType == TileType.TARGET) {
-                                targetInfoMap = targetInfoMap.toMutableMap().apply {
-                                    this[key] = EditorTargetInfo(name = selectedTargetName, type = selectedTargetType)
-                                }
-                            } else {
-                                targetInfoMap = targetInfoMap.toMutableMap().apply {
-                                    remove(key)
+                                // Update target info map
+                                if (selectedTileType == TileType.TARGET) {
+                                    targetInfoMap = targetInfoMap.toMutableMap().apply {
+                                        this[key] = EditorTargetInfo(name = selectedTargetName, type = selectedTargetType)
+                                    }
+                                } else {
+                                    targetInfoMap = targetInfoMap.toMutableMap().apply {
+                                        remove(key)
+                                    }
                                 }
                             }
                         },
@@ -485,6 +492,64 @@ fun MapEditorView(
                     }
                 }
                 showChangeAllDialog = false
+            }
+        )
+    }
+
+    // Edit target dialog - opens when clicking an existing TARGET tile while in TARGET mode
+    editTargetKey?.let { editKey ->
+        val existingInfo = targetInfoMap[editKey]
+        var editName by remember(editKey) { mutableStateOf(existingInfo?.name ?: "") }
+        var editType by remember(editKey) { mutableStateOf(existingInfo?.type ?: de.egril.defender.model.TargetType.STANDARD) }
+        AlertDialog(
+            onDismissRequest = { editTargetKey = null },
+            title = { Text(stringResource(Res.string.target_name_label)) },
+            text = {
+                Column(verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = editName,
+                        onValueChange = { editName = it },
+                        label = { Text(stringResource(Res.string.target_name_label)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+                    Text(stringResource(Res.string.target_type_label), style = MaterialTheme.typography.bodyMedium)
+                    Row(horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(4.dp)) {
+                        de.egril.defender.model.TargetType.entries.forEach { type ->
+                            val label = when (type) {
+                                de.egril.defender.model.TargetType.STANDARD -> stringResource(Res.string.target_type_standard)
+                                de.egril.defender.model.TargetType.SINGLE_HIT -> stringResource(Res.string.target_type_single_hit)
+                            }
+                            Button(
+                                onClick = { editType = type },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (editType == type)
+                                        MaterialTheme.colorScheme.primary
+                                    else
+                                        MaterialTheme.colorScheme.secondary
+                                ),
+                                modifier = Modifier.height(36.dp)
+                            ) {
+                                Text(label, fontSize = 11.sp)
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    targetInfoMap = targetInfoMap.toMutableMap().apply {
+                        this[editKey] = EditorTargetInfo(name = editName, type = editType)
+                    }
+                    editTargetKey = null
+                }) {
+                    Text(stringResource(Res.string.ok))
+                }
+            },
+            dismissButton = {
+                Button(onClick = { editTargetKey = null }) {
+                    Text(stringResource(Res.string.cancel))
+                }
             }
         )
     }

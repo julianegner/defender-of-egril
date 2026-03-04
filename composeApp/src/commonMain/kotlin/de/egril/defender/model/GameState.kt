@@ -147,6 +147,18 @@ data class GameState(
         }
     }
     
+    /**
+     * Returns the effective next waypoint target, redirecting to the nearest active target
+     * if the waypoint's next target is a taken SINGLE_HIT target.
+     */
+    fun resolveWaypointNextTarget(waypointNextTarget: Position, from: Position): Position {
+        return if (takenTargets.contains(waypointNextTarget)) {
+            getActiveTargetPositions().minByOrNull { from.distanceTo(it) } ?: waypointNextTarget
+        } else {
+            waypointNextTarget
+        }
+    }
+    
     fun canPlaceDefender(type: DefenderType): Boolean {
         return coins.value >= type.baseCost && level.availableTowers.contains(type)
     }

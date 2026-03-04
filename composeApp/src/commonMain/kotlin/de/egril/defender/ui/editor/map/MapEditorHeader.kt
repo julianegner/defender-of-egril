@@ -82,7 +82,11 @@ fun MapEditorHeader(
             onRiverFlowChange = onRiverFlowChange,
             selectedRiverSpeed = selectedRiverSpeed,
             onRiverSpeedChange = onRiverSpeedChange,
-            onExpand = onToggleExpanded
+            onExpand = onToggleExpanded,
+            selectedTargetName = selectedTargetName,
+            onTargetNameChange = onTargetNameChange,
+            selectedTargetType = selectedTargetType,
+            onTargetTypeChange = onTargetTypeChange
         )
     }
 }
@@ -389,9 +393,14 @@ private fun CollapsedMapEditorHeader(
     onRiverFlowChange: (de.egril.defender.model.RiverFlow) -> Unit,
     selectedRiverSpeed: Int,
     onRiverSpeedChange: (Int) -> Unit,
-    onExpand: () -> Unit
+    onExpand: () -> Unit,
+    selectedTargetName: String = "",
+    onTargetNameChange: (String) -> Unit = {},
+    selectedTargetType: de.egril.defender.model.TargetType = de.egril.defender.model.TargetType.STANDARD,
+    onTargetTypeChange: (de.egril.defender.model.TargetType) -> Unit = {}
 ) {
     var showRiverPropertiesDialog by remember { mutableStateOf(false) }
+    var showTargetPropertiesDialog by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
     
     Card(
@@ -447,6 +456,14 @@ private fun CollapsedMapEditorHeader(
                                     size = 14.dp
                                 )
                             }
+                            // Target type indicator if it's a target tile
+                            if (selectedTileType == TileType.TARGET) {
+                                Text(
+                                    text = selectedTargetType.name.replace("_", " "),
+                                    fontSize = 9.sp,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
                         }
                         // Dropdown triangle
                         de.egril.defender.ui.icon.TriangleDownIcon(size = 10.dp)
@@ -478,13 +495,25 @@ private fun CollapsedMapEditorHeader(
                             onClick = {
                                 onTileTypeChange(tileType)
                                 expanded = false
-                                // Show river properties dialog if RIVER is selected
+                                // Show properties dialog if RIVER or TARGET is selected
                                 if (tileType == TileType.RIVER) {
                                     showRiverPropertiesDialog = true
+                                } else if (tileType == TileType.TARGET) {
+                                    showTargetPropertiesDialog = true
                                 }
                             }
                         )
                     }
+                }
+            }
+
+            // Show target properties button when TARGET is already selected
+            if (selectedTileType == TileType.TARGET) {
+                IconButton(
+                    onClick = { showTargetPropertiesDialog = true },
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    de.egril.defender.ui.icon.PencilIcon(size = 16.dp)
                 }
             }
             
@@ -595,6 +624,60 @@ private fun CollapsedMapEditorHeader(
             confirmButton = {
                 Button(onClick = { showRiverPropertiesDialog = false }) {
                     Text(stringResource(Res.string.ok))
+                }
+            }
+        )
+    }
+
+    // Target properties dialog
+    if (showTargetPropertiesDialog) {
+        var localName by remember(showTargetPropertiesDialog) { mutableStateOf(selectedTargetName) }
+        AlertDialog(
+            onDismissRequest = { showTargetPropertiesDialog = false },
+            title = { Text(stringResource(Res.string.target_name_label)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = localName,
+                        onValueChange = { localName = it },
+                        label = { Text(stringResource(Res.string.target_name_label)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+                    Text(stringResource(Res.string.target_type_label), style = MaterialTheme.typography.bodyMedium)
+                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        de.egril.defender.model.TargetType.entries.forEach { type ->
+                            val label = when (type) {
+                                de.egril.defender.model.TargetType.STANDARD -> stringResource(Res.string.target_type_standard)
+                                de.egril.defender.model.TargetType.SINGLE_HIT -> stringResource(Res.string.target_type_single_hit)
+                            }
+                            Button(
+                                onClick = { onTargetTypeChange(type) },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (selectedTargetType == type)
+                                        MaterialTheme.colorScheme.primary
+                                    else
+                                        MaterialTheme.colorScheme.secondary
+                                ),
+                                modifier = Modifier.height(36.dp)
+                            ) {
+                                Text(label, fontSize = 11.sp)
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    onTargetNameChange(localName)
+                    showTargetPropertiesDialog = false
+                }) {
+                    Text(stringResource(Res.string.ok))
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showTargetPropertiesDialog = false }) {
+                    Text(stringResource(Res.string.cancel))
                 }
             }
         )

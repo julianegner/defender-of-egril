@@ -1102,14 +1102,31 @@ private fun BoxScope.GridCellContent(
                         } else {
                             WoodIcon(size = GamePlayConstants.TileIconSizes.Barricade)
                         }
-                        // Show health points - moved up for better visibility
-                        Text(
-                            "${barricade.healthPoints.value} HP",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color(0xFF795548),  // Brown color
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.offset(y = (-12).dp)
-                        )
+                        // Show gate name if available, otherwise show HP
+                        if (barricade.isGate && !barricade.name.isNullOrBlank()) {
+                            Text(
+                                barricade.name,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color(0xFF4E2600),  // Dark brown for gate name
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.offset(y = (-8).dp)
+                            )
+                            Text(
+                                "${barricade.healthPoints.value} HP",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color(0xFF795548),  // Brown color
+                                modifier = Modifier.offset(y = (-10).dp)
+                            )
+                        } else {
+                            // Show health points - moved up for better visibility
+                            Text(
+                                "${barricade.healthPoints.value} HP",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color(0xFF795548),  // Brown color
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.offset(y = (-12).dp)
+                            )
+                        }
                     }
                     // Show damage effect overlay if present
                     if (damageEffect != null) {
@@ -1187,16 +1204,27 @@ private fun BoxScope.GridCellContent(
 
             isTarget -> {
                 // Show target name (if set) or fallback to generic "Target" label
-                // Taken targets (SINGLE_HIT) show with a strikethrough / dimmed appearance
+                // Taken targets (SINGLE_HIT) show with a red cross overlay
                 val isTaken = gameState.takenTargets.contains(position)
                 val targetName = gameState.level.targetInfoMap[position]?.name?.takeIf { it.isNotBlank() }
                     ?: stringResource(Res.string.target)
-                val targetColor = if (isTaken) GamePlayColors.Success.copy(alpha = 0.35f) else GamePlayColors.Success
-                Text(
-                    text = targetName,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = targetColor
-                )
+                if (isTaken) {
+                    // Show dimmed name with a red X cross on top
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            text = targetName,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = GamePlayColors.Success.copy(alpha = 0.3f)
+                        )
+                        CrossIcon(size = 20.dp, tint = Color.Red)
+                    }
+                } else {
+                    Text(
+                        text = targetName,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = GamePlayColors.Success
+                    )
+                }
             }
 
             isRiverTile -> {

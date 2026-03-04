@@ -300,13 +300,14 @@ class GameEngine(private val state: GameState) {
     }
     
     /**
-     * Find the closest target position from a given position.
+     * Find the closest active (non-taken) target position from a given position.
+     * Falls back to any target position if all are taken (level is then lost).
      * Used for dragons when not targeting mines.
      */
     private fun findClosestTargetPosition(from: Position): Position {
-        return state.level.targetPositions.minByOrNull { 
-            from.distanceTo(it) 
-        } ?: state.level.targetPositions.first()
+        val active = state.getActiveTargetPositions()
+        return (if (active.isNotEmpty()) active else state.level.targetPositions)
+            .minByOrNull { from.distanceTo(it) } ?: state.level.targetPositions.first()
     }
     
     /**
@@ -588,7 +589,9 @@ class GameEngine(private val state: GameState) {
                         healingTarget.position.value
                     } else {
                         // No damaged enemies, move towards normal target
-                        attacker.currentTarget?.value ?: state.level.targetPositions.first()
+                        attacker.currentTarget?.value
+                            ?: state.getActiveTargetPositions().minByOrNull { currentPos.distanceTo(it) }
+                            ?: state.level.targetPositions.first()
                     }
                 } else if (attacker.type == AttackerType.RED_WITCH) {
                     val towerTarget = enemyAbilities.findTowerTarget(attacker)
@@ -600,10 +603,14 @@ class GameEngine(private val state: GameState) {
                         towerTarget
                     } else {
                         // No towers to disable, move towards normal target
-                        attacker.currentTarget?.value ?: state.level.targetPositions.first()
+                        attacker.currentTarget?.value
+                            ?: state.getActiveTargetPositions().minByOrNull { currentPos.distanceTo(it) }
+                            ?: state.level.targetPositions.first()
                     }
                 } else {
-                    attacker.currentTarget?.value ?: state.level.targetPositions.first()
+                    attacker.currentTarget?.value
+                        ?: state.getActiveTargetPositions().minByOrNull { currentPos.distanceTo(it) }
+                        ?: state.level.targetPositions.first()
                 }
                 if (stepIndex == 0) {
                     println("Enemy turn: Attacker ${attacker.id} (${attacker.type}) at $currentPos pathing to target: $target")
@@ -939,8 +946,8 @@ class GameEngine(private val state: GameState) {
                     if (state.level.isWaypoint(newPosition) && attacker.currentTarget?.value == newPosition) {
                         val waypoint = state.level.getWaypointAt(newPosition)
                         if (waypoint != null) {
-                            attacker.currentTarget.value = waypoint.nextTarget
-                            println("Dragon ${attacker.id} reached waypoint at $newPosition, next target: ${waypoint.nextTarget}")
+                            attacker.currentTarget.value = state.resolveWaypointNextTarget(waypoint.nextTarget, newPosition)
+                            println("Dragon ${attacker.id} reached waypoint at $newPosition, next target: ${attacker.currentTarget.value}")
                         }
                     }
                 }
@@ -951,7 +958,10 @@ class GameEngine(private val state: GameState) {
                         state.level.isOnPath(pos) &&
                         state.attackers.none { it.position.value == pos && !it.isDefeated.value }
                     }
-                    .minByOrNull { it.distanceTo(state.level.targetPositions.first()) }
+                    .minByOrNull { it.distanceTo(
+                        state.getActiveTargetPositions().minByOrNull { t -> newPosition.distanceTo(t) }
+                            ?: state.level.targetPositions.first()
+                    ) }
                 
                 if (alternatePos != null) {
                     println("Dragon ${attacker.id} can't land on Ewhad, moving to alternate position $alternatePos")
@@ -967,8 +977,8 @@ class GameEngine(private val state: GameState) {
                         if (state.level.isWaypoint(alternatePos) && attacker.currentTarget?.value == alternatePos) {
                             val waypoint = state.level.getWaypointAt(alternatePos)
                             if (waypoint != null) {
-                                attacker.currentTarget.value = waypoint.nextTarget
-                                println("Dragon ${attacker.id} reached waypoint at $alternatePos, next target: ${waypoint.nextTarget}")
+                                attacker.currentTarget.value = state.resolveWaypointNextTarget(waypoint.nextTarget, alternatePos)
+                                println("Dragon ${attacker.id} reached waypoint at $alternatePos, next target: ${attacker.currentTarget.value}")
                             }
                         }
                     }
@@ -990,8 +1000,8 @@ class GameEngine(private val state: GameState) {
                 val waypoint = state.level.getWaypointAt(attacker.position.value)
                 if (waypoint != null) {
                     // Update target to the next waypoint or final target
-                    attacker.currentTarget.value = waypoint.nextTarget
-                    println("Dragon ${attacker.id} reached waypoint at ${attacker.position.value}, next target: ${waypoint.nextTarget}")
+                    attacker.currentTarget.value = state.resolveWaypointNextTarget(waypoint.nextTarget, attacker.position.value)
+                    println("Dragon ${attacker.id} reached waypoint at ${attacker.position.value}, next target: ${attacker.currentTarget.value}")
                 }
             }
             
@@ -1047,8 +1057,8 @@ class GameEngine(private val state: GameState) {
                     val waypoint = state.level.getWaypointAt(newPosition)
                     if (waypoint != null) {
                         // Update target to the next waypoint or final target
-                        attacker.currentTarget.value = waypoint.nextTarget
-                        println("Attacker ${attacker.id} reached waypoint at $newPosition, next target: ${waypoint.nextTarget}")
+                        attacker.currentTarget.value = state.resolveWaypointNextTarget(waypoint.nextTarget, newPosition)
+                        println("Attacker ${attacker.id} reached waypoint at $newPosition, next target: ${attacker.currentTarget.value}")
                     }
                 }
                 
@@ -1091,7 +1101,7 @@ class GameEngine(private val state: GameState) {
                     if (state.level.isWaypoint(newPosition) && attacker.currentTarget?.value == newPosition) {
                         val waypoint = state.level.getWaypointAt(newPosition)
                         if (waypoint != null) {
-                            attacker.currentTarget.value = waypoint.nextTarget
+                            attacker.currentTarget.value = state.resolveWaypointNextTarget(waypoint.nextTarget, newPosition)
                         }
                     }
 
@@ -1206,7 +1216,7 @@ class GameEngine(private val state: GameState) {
                     }
                 }
                 
-                // Use the attacker's current target if set, otherwise use level target
+                // Use the attacker's current target if set, otherwise use nearest active target
                 // Special case: Green Witch moves towards damaged enemies (especially Ewhad)
                 // Special case: Red Witch moves towards closest not-disabled tower
                 val target = if (attacker.type == AttackerType.GREEN_WITCH) {
@@ -1216,7 +1226,9 @@ class GameEngine(private val state: GameState) {
                         healingTarget.position.value
                     } else {
                         // No damaged enemies, move towards normal target
-                        attacker.currentTarget?.value ?: state.level.targetPositions.first()
+                        attacker.currentTarget?.value
+                            ?: state.getActiveTargetPositions().minByOrNull { currentPos.distanceTo(it) }
+                            ?: state.level.targetPositions.first()
                     }
                 } else if (attacker.type == AttackerType.RED_WITCH) {
                     val towerTarget = enemyAbilities.findTowerTarget(attacker)
@@ -1225,10 +1237,14 @@ class GameEngine(private val state: GameState) {
                         towerTarget
                     } else {
                         // No towers to disable, move towards normal target
-                        attacker.currentTarget?.value ?: state.level.targetPositions.first()
+                        attacker.currentTarget?.value
+                            ?: state.getActiveTargetPositions().minByOrNull { currentPos.distanceTo(it) }
+                            ?: state.level.targetPositions.first()
                     }
                 } else {
-                    attacker.currentTarget?.value ?: state.level.targetPositions.first()
+                    attacker.currentTarget?.value
+                        ?: state.getActiveTargetPositions().minByOrNull { currentPos.distanceTo(it) }
+                        ?: state.level.targetPositions.first()
                 }
                 println("Newly spawned attacker ${attacker.id} at $currentPos pathing to target: $target (currentTarget: ${attacker.currentTarget?.value})")
                 var path = pathfinding.findPath(currentPos, target, attacker)
@@ -1302,8 +1318,8 @@ class GameEngine(private val state: GameState) {
                     if (state.level.isWaypoint(newPos) && attacker.currentTarget?.value == newPos) {
                         val waypoint = state.level.getWaypointAt(newPos)
                         if (waypoint != null) {
-                            attacker.currentTarget.value = waypoint.nextTarget
-                            println("Attacker ${attacker.id} reached waypoint at $newPos during spawn movement, next target: ${waypoint.nextTarget}")
+                            attacker.currentTarget.value = state.resolveWaypointNextTarget(waypoint.nextTarget, newPos)
+                            println("Attacker ${attacker.id} reached waypoint at $newPos during spawn movement, next target: ${attacker.currentTarget.value}")
                         }
                     }
                 } else {
@@ -1322,8 +1338,8 @@ class GameEngine(private val state: GameState) {
                         if (state.level.isWaypoint(alternativePos) && attacker.currentTarget?.value == alternativePos) {
                             val waypoint = state.level.getWaypointAt(alternativePos)
                             if (waypoint != null) {
-                                attacker.currentTarget.value = waypoint.nextTarget
-                                println("Attacker ${attacker.id} reached waypoint at $alternativePos during spawn movement, next target: ${waypoint.nextTarget}")
+                                attacker.currentTarget.value = state.resolveWaypointNextTarget(waypoint.nextTarget, alternativePos)
+                                println("Attacker ${attacker.id} reached waypoint at $alternativePos during spawn movement, next target: ${attacker.currentTarget.value}")
                             }
                         }
                     } else {

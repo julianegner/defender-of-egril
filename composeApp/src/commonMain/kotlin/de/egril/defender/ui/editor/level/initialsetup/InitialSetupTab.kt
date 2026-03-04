@@ -56,6 +56,8 @@ fun InitialSetupTab(
     var barricadeName by remember { mutableStateOf("") }
     var barricadeIsGate by remember { mutableStateOf(false) }
     
+    var editBarricadeIndex by remember { mutableStateOf<Int?>(null) }  // Index of barricade being edited
+    
     var selectedElement by remember { mutableStateOf<SelectedElement?>(null) }
     
     Row(
@@ -131,7 +133,12 @@ fun InitialSetupTab(
                                     }
                                 }
                                 PlacementMode.BARRICADE -> {
-                                    if (canPlaceBarricade(position, initialData, map)) {
+                                    // Check if there's already a barricade at this position
+                                    val existingIndex = initialData.barricades.indexOfFirst { it.position == position }
+                                    if (existingIndex >= 0) {
+                                        // Edit existing barricade
+                                        editBarricadeIndex = existingIndex
+                                    } else if (canPlaceBarricade(position, initialData, map)) {
                                         val newBarricade = InitialBarricade(
                                             position = position,
                                             healthPoints = barricadeHealthPoints,
@@ -218,6 +225,72 @@ fun InitialSetupTab(
             selectedElement = selectedElement,
             onSelectedElementChange = { selectedElement = it }
         )
+    }
+
+    // Edit barricade dialog – opens when clicking an existing barricade in BARRICADE placement mode
+    editBarricadeIndex?.let { editIdx ->
+        val barricade = initialData.barricades.getOrNull(editIdx)
+        if (barricade != null) {
+            var editHP by remember(editIdx) { mutableStateOf(barricade.healthPoints.toString()) }
+            var editName by remember(editIdx) { mutableStateOf(barricade.name ?: "") }
+            var editIsGate by remember(editIdx) { mutableStateOf(barricade.isGate) }
+            AlertDialog(
+                onDismissRequest = { editBarricadeIndex = null },
+                title = { Text(stringResource(Res.string.barricade_configuration)) },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(
+                            value = editHP,
+                            onValueChange = { editHP = it },
+                            label = { Text(stringResource(Res.string.health_points)) },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true
+                        )
+                        OutlinedTextField(
+                            value = editName,
+                            onValueChange = { editName = it },
+                            label = { Text(stringResource(Res.string.barricade_name_label)) },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.is_gate_label),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Switch(checked = editIsGate, onCheckedChange = { editIsGate = it })
+                        }
+                    }
+                },
+                confirmButton = {
+                    Button(onClick = {
+                        val hp = editHP.toIntOrNull()?.coerceIn(1, 9999) ?: barricade.healthPoints
+                        val updated = barricade.copy(
+                            healthPoints = hp,
+                            name = editName.takeIf { it.isNotBlank() },
+                            isGate = editIsGate
+                        )
+                        val newList = initialData.barricades.toMutableList()
+                        newList[editIdx] = updated
+                        onInitialDataChange(initialData.copy(barricades = newList))
+                        editBarricadeIndex = null
+                    }) {
+                        Text(stringResource(Res.string.ok))
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = { editBarricadeIndex = null }) {
+                        Text(stringResource(Res.string.cancel))
+                    }
+                }
+            )
+        } else {
+            editBarricadeIndex = null
+        }
     }
 }
 

@@ -218,8 +218,10 @@ class EnemyMovementSystem(
         println("Speed: $speed")
         println("Start position: $startPos")
         
-        // Use currentTarget if set (for mine targeting), otherwise use level target
-        val target = dragon.currentTarget?.value ?: state.level.targetPositions.first()
+        // Use currentTarget if set (for mine targeting), otherwise use nearest active target
+        val target = dragon.currentTarget?.value
+            ?: state.getActiveTargetPositions().minByOrNull { dragon.position.value.distanceTo(it) }
+            ?: state.level.targetPositions.first()
         println("Target: $target")
         
         val result = mutableListOf<Position>()
@@ -365,7 +367,9 @@ class EnemyMovementSystem(
 
             while (remainingSpeed > 0) {
                 // Re-calculate path with current target for each step
-                val target = attacker.currentTarget?.value ?: state.level.targetPositions.first()
+                val target = attacker.currentTarget?.value
+                    ?: state.getActiveTargetPositions().minByOrNull { attacker.position.value.distanceTo(it) }
+                    ?: state.level.targetPositions.first()
                 println("Goblin ${attacker.id} at ${attacker.position.value} moving towards target: $target (remainingSpeed: $remainingSpeed)")
                 val path = pathfinding.findPath(attacker.position.value, target, attacker)
 
@@ -420,8 +424,13 @@ class EnemyMovementSystem(
                         if (state.level.isWaypoint(newPos) && attacker.currentTarget?.value == newPos) {
                             val waypoint = state.level.getWaypointAt(newPos)
                             if (waypoint != null) {
-                                attacker.currentTarget.value = waypoint.nextTarget
-                                println("Goblin ${attacker.id} reached waypoint at $newPos, next target: ${waypoint.nextTarget}")
+                                val nextTarget = waypoint.nextTarget
+                                // If the waypoint's next target is a taken SINGLE_HIT target, redirect to nearest active target
+                                val effectiveNext = if (state.takenTargets.contains(nextTarget)) {
+                                    state.getActiveTargetPositions().minByOrNull { newPos.distanceTo(it) } ?: nextTarget
+                                } else nextTarget
+                                attacker.currentTarget.value = effectiveNext
+                                println("Goblin ${attacker.id} reached waypoint at $newPos, next target: $effectiveNext")
                             }
                         }
                         
@@ -446,8 +455,13 @@ class EnemyMovementSystem(
                     if (state.level.isWaypoint(newPos) && attacker.currentTarget?.value == newPos) {
                         val waypoint = state.level.getWaypointAt(newPos)
                         if (waypoint != null) {
-                            attacker.currentTarget.value = waypoint.nextTarget
-                            println("Goblin ${attacker.id} reached waypoint at $newPos, next target: ${waypoint.nextTarget}")
+                            val nextTarget = waypoint.nextTarget
+                            // If the waypoint's next target is a taken SINGLE_HIT target, redirect to nearest active target
+                            val effectiveNext = if (state.takenTargets.contains(nextTarget)) {
+                                state.getActiveTargetPositions().minByOrNull { newPos.distanceTo(it) } ?: nextTarget
+                            } else nextTarget
+                            attacker.currentTarget.value = effectiveNext
+                            println("Goblin ${attacker.id} reached waypoint at $newPos, next target: $effectiveNext")
                         }
                     }
                     
