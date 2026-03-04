@@ -52,7 +52,14 @@ enum class AchievementId {
     // Bridge and barricade achievements
     DESTROY_BRIDGE,
     BUILD_BARRICADE,
-    ADD_HEALTH_BARRICADE
+    ADD_HEALTH_BARRICADE,
+    
+    // XP and stat achievements
+    FIRST_STAT_UPGRADE,
+    FIRST_SPELL_UNLOCK,
+    CONSTRUCTION_LEVEL_3,
+    PLAYER_LEVEL_10,
+    PLAYER_LEVEL_100
 }
 
 /**
@@ -126,7 +133,14 @@ object AchievementDefinitions {
         // Bridge and barricade achievements
         AchievementInfo(AchievementId.DESTROY_BRIDGE, "achievement_destroy_bridge_name", "achievement_destroy_bridge_desc"),
         AchievementInfo(AchievementId.BUILD_BARRICADE, "achievement_build_barricade_name", "achievement_build_barricade_desc"),
-        AchievementInfo(AchievementId.ADD_HEALTH_BARRICADE, "achievement_add_health_barricade_name", "achievement_add_health_barricade_desc")
+        AchievementInfo(AchievementId.ADD_HEALTH_BARRICADE, "achievement_add_health_barricade_name", "achievement_add_health_barricade_desc"),
+        
+        // XP and stat achievements
+        AchievementInfo(AchievementId.FIRST_STAT_UPGRADE, "achievement_first_stat_upgrade_name", "achievement_first_stat_upgrade_desc"),
+        AchievementInfo(AchievementId.FIRST_SPELL_UNLOCK, "achievement_first_spell_unlock_name", "achievement_first_spell_unlock_desc"),
+        AchievementInfo(AchievementId.CONSTRUCTION_LEVEL_3, "achievement_construction_level_3_name", "achievement_construction_level_3_desc"),
+        AchievementInfo(AchievementId.PLAYER_LEVEL_10, "achievement_player_level_10_name", "achievement_player_level_10_desc"),
+        AchievementInfo(AchievementId.PLAYER_LEVEL_100, "achievement_player_level_100_name", "achievement_player_level_100_desc")
     )
     
     /**

@@ -36,7 +36,20 @@ data class SavedGame(
     val rafts: List<SavedRaft> = emptyList(),  // Rafts on river tiles
     val nextRaftId: Int = 1,  // Next raft ID to use
     val barricades: List<SavedBarricade> = emptyList(),  // Barricades placed by spike/spear towers
-    val worldMapSave: WorldMapSave? = null  // World map progress at the time of saving (for conflict detection on load)
+    val worldMapSave: WorldMapSave? = null,  // World map progress at the time of saving (for conflict detection on load)
+    val playerProfileData: PlayerProfileData? = null,  // Player profile data (achievements, XP, stats) when game data transfer is ON
+    val currentMana: Int = 0,  // Current mana at the time of saving
+    val maxMana: Int = 0,  // Maximum mana at the time of saving
+    val spellEffects: List<SavedSpellEffect> = emptyList()  // Active spell effects (e.g. placed bombs)
+)
+
+/**
+ * Player profile data for export/import with save files
+ * Includes achievements, XP, and abilities
+ */
+data class PlayerProfileData(
+    val achievements: List<Achievement>,
+    val abilities: PlayerAbilities
 )
 
 data class SavedDefender(
@@ -91,6 +104,15 @@ data class SavedBarricade(
     val defenderId: Int,  // The tower that built this barricade
     val id: Int = 0,  // Barricade ID (0 for old saves)
     val supportedTowerId: Int? = null  // ID of tower on this barricade (null if none)
+)
+
+data class SavedSpellEffect(
+    val spell: String,  // SpellType name
+    val position: Position? = null,
+    val defenderId: Int? = null,
+    val attackerId: Int? = null,
+    val turnsRemaining: Int = 0,
+    val castTurn: Int = 0
 )
 
 /**

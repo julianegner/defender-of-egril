@@ -1,6 +1,7 @@
 package de.egril.defender.game
 
 import de.egril.defender.model.*
+import de.egril.defender.config.LogConfig
 
 /**
  * Handles pathfinding for enemy movement using A* algorithm.
@@ -241,7 +242,9 @@ class PathfindingSystem(private val state: GameState) {
             return validNeighbors.minByOrNull { it.distanceTo(to) } ?: from
         }
 
+        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
         println("Barricade selection XX")
+        }
         
         // No valid neighbors without barricades, check if there are neighbors with barricades
         // Flying dragons can move over barricades, so this only applies to non-flying units

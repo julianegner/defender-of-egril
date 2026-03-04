@@ -50,6 +50,7 @@ import defender_of_egril.composeapp.generated.resources.waypoint_tree_view
 import defender_of_egril.composeapp.generated.resources.waypoint_validation_error
 import defender_of_egril.composeapp.generated.resources.waypoint_validation_success
 import defender_of_egril.composeapp.generated.resources.waypoints_description
+import de.egril.defender.config.LogConfig
 
 /**
  * Tab 4: Waypoints Configuration
@@ -164,9 +165,15 @@ fun WaypointsTab(
                                     selectedSource != null && isValidTarget && selectedSource != clickedPos -> {
                                         // Create waypoint from source to target
                                         val newWaypoint = EditorWaypoint(selectedSource!!, clickedPos)
+                                        if (LogConfig.ENABLE_UI_LOGGING) {
                                         println("=== CREATING WAYPOINT ===")
+                                        }
+                                        if (LogConfig.ENABLE_UI_LOGGING) {
                                         println("Source: $selectedSource, Target: $clickedPos")
+                                        }
+                                        if (LogConfig.ENABLE_UI_LOGGING) {
                                         println("Current waypoints before: ${localWaypoints.map { "(${it.position.x},${it.position.y})->(${it.nextTargetPosition.x},${it.nextTargetPosition.y})" }}")
+                                        }
                                         
                                         // Create a NEW mutableList from LOCAL waypoints to accumulate changes
                                         val newWaypoints = localWaypoints.toMutableList()
@@ -177,11 +184,15 @@ fun WaypointsTab(
                                             println("Replacing existing waypoint at index $existingIndex")
                                             newWaypoints[existingIndex] = newWaypoint
                                         } else {
+                                            if (LogConfig.ENABLE_UI_LOGGING) {
                                             println("Adding new waypoint (no existing waypoint at position $selectedSource)")
+                                            }
                                             newWaypoints.add(newWaypoint)
                                         }
                                         
+                                        if (LogConfig.ENABLE_UI_LOGGING) {
                                         println("New waypoints after: ${newWaypoints.map { "(${it.position.x},${it.position.y})->(${it.nextTargetPosition.x},${it.nextTargetPosition.y})" }}")
+                                        }
                                         
                                         // Update local state immediately so next click sees the change
                                         localWaypoints = newWaypoints.toList()

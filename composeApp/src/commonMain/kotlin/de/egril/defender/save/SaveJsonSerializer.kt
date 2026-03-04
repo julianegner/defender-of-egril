@@ -3,6 +3,7 @@ package de.egril.defender.save
 import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.model.*
 import de.egril.defender.utils.JsonUtils
+import de.egril.defender.config.LogConfig
 
 /**
  * JSON serialization for save data
@@ -11,7 +12,7 @@ import de.egril.defender.utils.JsonUtils
 object SaveJsonSerializer {
 
     private const val PROGRAM_NAME = "Defender of Egril"
-    
+
     fun serializeWorldMapSave(worldMap: WorldMapSave): String {
         val statusesJson = worldMap.levelStatuses.entries.joinToString(",\n    ") { (editorLevelId, status) ->
             "\"$editorLevelId\": \"${status.name}\""
@@ -51,7 +52,9 @@ object SaveJsonSerializer {
             
             return WorldMapSave(statuses)
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
             println("Error deserializing world map save: ${e.message}")
+            }
             return null
         }
     }
@@ -131,6 +134,20 @@ object SaveJsonSerializer {
     }"""
         }
         
+        val spellEffectsJson = savedGame.spellEffects.joinToString(",\n    ") { effect ->
+            val posStr = effect.position?.let { """{"x": ${it.x}, "y": ${it.y}}""" } ?: "null"
+            val defStr = effect.defenderId?.toString() ?: "null"
+            val atkStr = effect.attackerId?.toString() ?: "null"
+            """{
+      "spell": "${effect.spell}",
+      "position": $posStr,
+      "defenderId": $defStr,
+      "attackerId": $atkStr,
+      "turnsRemaining": ${effect.turnsRemaining},
+      "castTurn": ${effect.castTurn}
+    }"""
+        }
+        
         // Escape comment for JSON (handle quotes and newlines)
         val commentJson = savedGame.comment?.let { comment ->
             val escaped = comment
@@ -186,9 +203,14 @@ object SaveJsonSerializer {
   "barricades": [
     $barricadesJson
   ],
+  "spellEffects": [
+    $spellEffectsJson
+  ],
   "comment": $commentJson,
   "mapId": $mapIdJson,
-  "worldMapSave": $worldMapSaveJson
+  "worldMapSave": $worldMapSaveJson,
+  "currentMana": ${savedGame.currentMana},
+  "maxMana": ${savedGame.maxMana}
 }"""
         return """{
   "metadata": {
@@ -310,6 +332,22 @@ object SaveJsonSerializer {
                 }
             }
             
+            // Parse spell effects (optional field for backward compatibility with old saves)
+            val spellEffects = mutableListOf<SavedSpellEffect>()
+            if (dataJson.contains("\"spellEffects\":")) {
+                val spellEffectsSection = try {
+                    dataJson.substringAfter("\"spellEffects\": [").substringBefore("],")
+                } catch (e: Exception) {
+                    ""  // Old saves don't have spellEffects
+                }
+                if (spellEffectsSection.isNotBlank()) {
+                    val effectEntries = JsonUtils.splitJsonArray(spellEffectsSection)
+                    for (entry in effectEntries) {
+                        spellEffects.add(parseSavedSpellEffect(entry))
+                    }
+                }
+            }
+            
             // Parse comment (optional field, may not exist in older saves)
             val comment = try {
                 extractCommentValue(dataJson)
@@ -345,7 +383,9 @@ object SaveJsonSerializer {
                     null  // Field doesn't exist in old saves
                 }
             } catch (e: Exception) {
+                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                 println("Warning: Failed to parse worldMapSave: ${e.message}")
+                }
                 null  // If worldMapSave field doesn't exist or is malformed, default to null
             }
             
@@ -372,10 +412,15 @@ object SaveJsonSerializer {
                 rafts = rafts,
                 nextRaftId = nextRaftId,
                 barricades = barricades,
-                worldMapSave = worldMapSave
+                worldMapSave = worldMapSave,
+                currentMana = try { JsonUtils.extractValue(dataJson, "currentMana").toInt() } catch (e: Exception) { 0 },
+                maxMana = try { JsonUtils.extractValue(dataJson, "maxMana").toInt() } catch (e: Exception) { 0 },
+                spellEffects = spellEffects
             )
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
             println("Error deserializing saved game: ${e.message}")
+            }
             e.printStackTrace()
             return null
         }
@@ -504,6 +549,28 @@ object SaveJsonSerializer {
         return SavedTrap(position, damage, defenderId, type)
     }
     
+    private fun parseSavedSpellEffect(json: String): SavedSpellEffect {
+        val spell = JsonUtils.extractValue(json, "spell")
+        val posSection = try {
+            val raw = json.substringAfter("\"position\":").trim()
+            if (raw.startsWith("null")) null else {
+                val inner = raw.substringAfter("{").substringBefore("}")
+                val x = JsonUtils.extractValue(inner, "x").toInt()
+                val y = JsonUtils.extractValue(inner, "y").toInt()
+                Position(x, y)
+            }
+        } catch (e: Exception) { null }
+        val defenderId = try {
+            val defStr = JsonUtils.extractValue(json, "defenderId"); if (defStr == "null") null else defStr.toInt()
+        } catch (e: Exception) { null }
+        val attackerId = try {
+            val atkStr = JsonUtils.extractValue(json, "attackerId"); if (atkStr == "null") null else atkStr.toInt()
+        } catch (e: Exception) { null }
+        val turnsRemaining = try { JsonUtils.extractValue(json, "turnsRemaining").toInt() } catch (e: Exception) { 0 }
+        val castTurn = try { JsonUtils.extractValue(json, "castTurn").toInt() } catch (e: Exception) { 0 }
+        return SavedSpellEffect(spell, posSection, defenderId, attackerId, turnsRemaining, castTurn)
+    }
+    
     private fun parsePosition(json: String): Position {
         val posSection = json.substringAfter("\"position\": {").substringBefore("}")
         val x = JsonUtils.extractValue(posSection, "x").toInt()
@@ -601,12 +668,14 @@ object SaveJsonSerializer {
             val achievementsJson = profile.achievements.joinToString(", ") { achievement ->
                 """{"id": "${achievement.id.name}", "earnedAt": ${achievement.earnedAt}}"""
             }
+            val abilitiesJson = serializePlayerAbilities(profile.abilities)
             """{
       "id": "${profile.id}",
       "name": "${profile.name}",
       "createdAt": ${profile.createdAt},
       "lastPlayedAt": ${profile.lastPlayedAt},
-      "achievements": [$achievementsJson]
+      "achievements": [$achievementsJson],
+      "abilities": $abilitiesJson
     }"""
         }
         
@@ -625,14 +694,30 @@ object SaveJsonSerializer {
   }
 }"""
     }
-    
+
+    private fun serializePlayerAbilities(abilities: PlayerAbilities): String {
+        val unlockedSpellsJson = abilities.unlockedSpells.joinToString(", ") { "\"${it.name}\"" }
+        return """{
+      "totalXP": ${abilities.totalXP},
+      "level": ${abilities.level},
+      "availableAbilityPoints": ${abilities.availableAbilityPoints},
+      "healthAbility": ${abilities.healthAbility},
+      "treasuryAbility": ${abilities.treasuryAbility},
+      "incomeAbility": ${abilities.incomeAbility},
+      "constructionAbility": ${abilities.constructionAbility},
+      "manaAbility": ${abilities.manaAbility},
+      "unlockedSpells": [$unlockedSpellsJson]
+    }"""
+    }
+
     fun deserializePlayerProfiles(json: String): PlayerProfiles? {
         val dataJson = de.egril.defender.utils.JsonUtils.extractDataSection(json)
         try {
             val profiles = mutableListOf<PlayerProfile>()
-            
-            // Parse profiles array
-            val profilesSection = dataJson.substringAfter("\"profiles\": [").substringBefore("],")
+
+            // Parse profiles
+            val profilesSection = JsonUtils.extractJsonArraySection(json, "\"profiles\": [")
+
             if (profilesSection.isNotBlank()) {
                 val profileEntries = JsonUtils.splitJsonArray(profilesSection)
                 for (entry in profileEntries) {
@@ -659,13 +744,62 @@ object SaveJsonSerializer {
                     } catch (e: Exception) {
                         // Ignore achievement parsing errors for backward compatibility
                     }
-                    
+
+                    // if (LogConfig.ENABLE_XP_LOGGING) {
+                    //     println("=== XP DEBUG: Deserializing player entry JSON: $entry")
+                    // }
+
+                    // Parse abilities (if present, for backward compatibility)
+                    val abilities = try {
+                        // Extract the abilities object - find the opening brace and match it
+                        val abilitiesStart = entry.indexOf("\"abilities\": {")
+                        if (abilitiesStart >= 0) {
+                            val jsonAfterAbilities = entry.substring(abilitiesStart + "\"abilities\": ".length)
+                            // Find matching closing brace
+                            var depth = 0
+                            var endIndex = -1
+                            for (i in jsonAfterAbilities.indices) {
+                                when (jsonAfterAbilities[i]) {
+                                    '{' -> depth++
+                                    '}' -> {
+                                        depth--
+                                        if (depth == 0) {
+                                            endIndex = i + 1
+                                            break
+                                        }
+                                    }
+                                }
+                            }
+                            val abilitiesJson = if (endIndex > 0) jsonAfterAbilities.substring(0, endIndex) else jsonAfterAbilities
+                            if (LogConfig.ENABLE_XP_LOGGING) {
+                                println("=== XP DEBUG: Deserializing abilities JSON: $abilitiesJson")
+                            }
+                            val result = deserializePlayerAbilities(abilitiesJson)
+                            if (LogConfig.ENABLE_XP_LOGGING) {
+                                println("=== XP DEBUG: Deserialized abilities: totalXP=${result.totalXP}, healthAbility=${result.healthAbility}, level=${result.level}")
+                            }
+                            result
+                        } else {
+                            PlayerAbilities()
+                        }
+                    } catch (e: Exception) {
+                        if (LogConfig.ENABLE_XP_LOGGING) {
+                            println("=== XP DEBUG ERROR: Failed to parse abilities: ${e.message}")
+                            e.printStackTrace()
+                            if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                            println("=== XP DEBUG: Returning default PlayerAbilities() with totalXP=0")
+                            }
+                        }
+                        PlayerAbilities() // Default abilities for backward compatibility
+                    }
+
                     profiles.add(PlayerProfile(
                         id = id,
                         name = name,
                         createdAt = createdAt,
                         lastPlayedAt = lastPlayedAt,
-                        achievements = achievements
+                        achievements = achievements,
+                        abilities = abilities
                     ))
                 }
             }
@@ -680,8 +814,85 @@ object SaveJsonSerializer {
             
             return PlayerProfiles(profiles, lastUsedPlayerId)
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
             println("Error deserializing player profiles: ${e.message}")
+            }
             return null
+        }
+    }
+
+    private fun deserializePlayerAbilities(json: String): PlayerAbilities {
+        try {
+            if (LogConfig.ENABLE_XP_LOGGING) {
+                println("=== XP DEBUG: deserializePlayerAbilities called with: $json")
+            }
+            val totalXP = JsonUtils.extractValue(json, "totalXP").toInt()
+            if (LogConfig.ENABLE_XP_LOGGING) {
+                println("=== XP DEBUG: Extracted totalXP = $totalXP")
+            }
+
+            // Try to extract level and availableAbilityPoints, fallback to calculated/default for backward compatibility
+            val level = try {
+                JsonUtils.extractValue(json, "level").toInt()
+            } catch (e: Exception) {
+                PlayerAbilities.calculateLevel(totalXP)  // Backward compatibility: calculate from XP
+            }
+
+            val availableAbilityPoints = try {
+                JsonUtils.extractValue(json, "availableAbilityPoints").toInt()
+            } catch (e: Exception) {
+                0  // Backward compatibility: default to 0
+            }
+
+            val healthAbility = JsonUtils.extractValue(json, "healthAbility").toInt()
+            val treasuryAbility = JsonUtils.extractValue(json, "treasuryAbility").toInt()
+            val incomeAbility = JsonUtils.extractValue(json, "incomeAbility").toInt()
+            val constructionAbility = JsonUtils.extractValue(json, "constructionAbility").toInt()
+            val manaAbility = JsonUtils.extractValue(json, "manaAbility").toInt()
+
+            // Parse unlocked spells
+            val unlockedSpells = mutableListOf<SpellType>()
+            try {
+                val spellsSection = json.substringAfter("\"unlockedSpells\": [").substringBefore("]")
+                if (spellsSection.isNotBlank()) {
+                    val spellNames = spellsSection.split(",").map { it.trim().removeSurrounding("\"") }
+                    for (spellName in spellNames) {
+                        if (spellName.isNotBlank()) {
+                            unlockedSpells.add(SpellType.valueOf(spellName))
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                // Ignore spell parsing errors
+                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                println("DEBUG: Error parsing spells: ${e.message}")
+                }
+            }
+
+            val result = PlayerAbilities(
+                totalXP = totalXP,
+                level = level,
+                availableAbilityPoints = availableAbilityPoints,
+                healthAbility = healthAbility,
+                treasuryAbility = treasuryAbility,
+                incomeAbility = incomeAbility,
+                constructionAbility = constructionAbility,
+                manaAbility = manaAbility,
+                unlockedSpells = unlockedSpells.toSet()
+            )
+            if (LogConfig.ENABLE_XP_LOGGING) {
+                println("=== XP DEBUG: Created PlayerAbilities with totalXP=${result.totalXP}, level=${result.level}, availableAbilityPoints=${result.availableAbilityPoints}")
+            }
+            return result
+        } catch (e: Exception) {
+            if (LogConfig.ENABLE_XP_LOGGING) {
+                println("=== XP DEBUG ERROR: Failed to deserialize PlayerAbilities: ${e.message}")
+                e.printStackTrace()
+                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                println("=== XP DEBUG: Returning default PlayerAbilities() with totalXP=0, level=1, availableAbilityPoints=0")
+                }
+            }
+            return PlayerAbilities()
         }
     }
 }

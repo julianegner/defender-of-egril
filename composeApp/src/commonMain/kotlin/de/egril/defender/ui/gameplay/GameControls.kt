@@ -23,6 +23,7 @@ import defender_of_egril.composeapp.generated.resources.enemy_turn_title
 import defender_of_egril.composeapp.generated.resources.start_battle
 import defender_of_egril.composeapp.generated.resources.turn
 import defender_of_egril.composeapp.generated.resources.your_turn_message
+import de.egril.defender.config.LogConfig
 
 @Composable
 fun ColumnScope.TurnButton(
@@ -140,6 +141,7 @@ fun GameControlsPanel(
                         Box(modifier = Modifier.weight(1f)) {
                             AttackerInfo(
                                 attacker = attacker,
+                                activeSpellEffects = gameState.activeSpellEffects,
                                 isMobile = uiScale < 1f,
                                 onShowDragonInfo = onShowDragonInfo
                             )
@@ -182,6 +184,7 @@ fun GameControlsPanel(
                                 type = type,
                                 isSelected = selectedDefenderType == type,
                                 canAfford = coinsState.value >= type.baseCost,
+                                instantTowerActive = gameState.instantTowerSpellActive.value,
                                 modifier = compactDefenderButtonModifier,
                                 onClick = {
                                     onSelectDefenderType(if (selectedDefenderType == type) null else type)
@@ -212,12 +215,15 @@ fun GameControlsPanel(
                         .toTypedArray(),
                     key = { type -> "${type.name}_${coinsState.value}_${gameState.defenders.count { it.type == type }}" }) { type ->
                     val canAfford = coinsState.value >= type.baseCost
+                    if (LogConfig.ENABLE_UI_LOGGING) {
                     println("DEBUG: ${phase.name} Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford")
+                    }
                     DefenderButton(
                         type = type,
                         isSelected = selectedDefenderType == type,
                         canAfford = canAfford,
                         coinsState = coinsState,
+                        instantTowerActive = gameState.instantTowerSpellActive.value,
                         onClick = {
                             onSelectDefenderType(if (selectedDefenderType == type) null else type)
                         }

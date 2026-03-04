@@ -3,6 +3,7 @@ package de.egril.defender.game
 import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.model.*
 import kotlin.math.min
+import de.egril.defender.config.LogConfig
 
 /**
  * Handles special enemy abilities like summoning demons, healing, disabling towers, and building bridges.
@@ -61,7 +62,9 @@ class EnemyAbilitySystem(private val state: GameState) {
                 AttackerType.GREEN_WITCH -> {
                     // Heal adjacent units (5x level healing amount)
                     val adjacentPositions = attacker.position.value.getHexNeighbors()
+                    if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
                     println("DEBUG: Green witch ${attacker.id} at ${attacker.position.value} checking ${adjacentPositions.size} adjacent positions")
+                    }
                     var healedCount = 0
                     for (adjacent in adjacentPositions) {
                         val adjacentEnemy = state.attackers.find { 
@@ -70,7 +73,9 @@ class EnemyAbilitySystem(private val state: GameState) {
                         if (adjacentEnemy != null) {
                             // Heal 5x witch level, but never exceed max health
                             val healAmount = min(attacker.level.value * 5, adjacentEnemy.maxHealth - adjacentEnemy.currentHealth.value)
+                            if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
                             println("DEBUG: Found ${adjacentEnemy.type} at $adjacent, HP ${adjacentEnemy.currentHealth.value}/${adjacentEnemy.maxHealth}, heal amount: $healAmount")
+                            }
                             if (healAmount > 0) {
                                 adjacentEnemy.currentHealth.value += healAmount
                                 healedCount++
@@ -83,21 +88,27 @@ class EnemyAbilitySystem(private val state: GameState) {
                                         turnNumber = state.turnNumber.value
                                     )
                                 )
+                                if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
                                 println("DEBUG: Healed ${adjacentEnemy.type} for $healAmount HP (new HP: ${adjacentEnemy.currentHealth.value})")
+                                }
                             }
                             
                             // Remove up to 3 barbs from adjacent enemy
                             if (adjacentEnemy.movementPenalty.value > 0) {
                                 val barbsToRemove = minOf(3, adjacentEnemy.movementPenalty.value)
                                 adjacentEnemy.movementPenalty.value -= barbsToRemove
+                                if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
                                 println("DEBUG: Green witch removed $barbsToRemove barbs from ${adjacentEnemy.type}, remaining penalty: ${adjacentEnemy.movementPenalty.value}")
+                                }
                             }
                         }
                     }
                     if (healedCount > 0) {
                         println("DEBUG: Green witch ${attacker.id} healed $healedCount enemies")
                     } else {
+                        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
                         println("DEBUG: Green witch ${attacker.id} found no adjacent damaged enemies to heal")
+                        }
                     }
                 }
                 AttackerType.RED_WITCH -> {
@@ -182,13 +193,21 @@ class EnemyAbilitySystem(private val state: GameState) {
         // Get adjacent positions (1 hex distance)
         val adjacentPositions = witch.position.value.getHexNeighbors()
         
+        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
         println("DEBUG: Red witch ${witch.id} level ${witch.level.value} at ${witch.position.value} checking ${adjacentPositions.size} adjacent positions")
+        }
+        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
         println("DEBUG: Adjacent positions: $adjacentPositions")
+        }
         
         // Log all towers in the game for debugging
+        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
         println("DEBUG: All towers in game (${state.defenders.size}):")
+        }
         state.defenders.forEach { tower ->
+            if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
             println("DEBUG:   ${tower.type} id=${tower.id} level=${tower.level.value} at ${tower.position.value} isReady=${tower.isReady} isDisabled=${tower.isDisabled.value}")
+            }
         }
         
         // Find adjacent towers that:
@@ -202,12 +221,16 @@ class EnemyAbilitySystem(private val state: GameState) {
             val isAdjacent = adjacentPositions.contains(tower.position.value)
             val canDisable = tower.level.value <= witch.level.value
             
+            if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
             println("DEBUG: Checking tower ${tower.type} id=${tower.id}: isReady=$isReady, notDisabled=$notDisabled, isAdjacent=$isAdjacent, canDisable=$canDisable (tower level ${tower.level.value} vs witch level ${witch.level.value})")
+            }
             
             isReady && notDisabled && isAdjacent && canDisable
         }
         
+        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
         println("DEBUG: Found ${adjacentTowers.size} eligible adjacent towers to disable")
+        }
         
         if (adjacentTowers.isEmpty()) {
             println("DEBUG: Red witch ${witch.id} found no eligible adjacent towers to disable")
@@ -229,7 +252,9 @@ class EnemyAbilitySystem(private val state: GameState) {
             targetTower.isDisabled.value = true
             targetTower.disabledTurnsRemaining.value = disableDuration
             
+            if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
             println("DEBUG: Red witch ${witch.id} disabled ${targetTower.type} id=${targetTower.id} at ${targetTower.position.value} for $disableDuration turns")
+            }
         }
     }
     

@@ -18,6 +18,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import de.egril.defender.config.LogConfig
+import de.egril.defender.audio.GlobalSoundManager
+import de.egril.defender.audio.SoundEvent
 
 sealed class Screen {
     object MainMenu : Screen()
@@ -29,8 +32,14 @@ sealed class Screen {
     object Sticker : Screen()
     object PlayerProfile : Screen()
     object LoadingSpinnerDemo : Screen()
+    object StatsUpgrade : Screen()  // New screen for stats/spells upgrade
     data class GamePlay(val levelId: Int) : Screen()
-    data class LevelComplete(val levelId: Int, val won: Boolean, val isLastLevel: Boolean) : Screen()
+    data class LevelComplete(
+        val levelId: Int,
+        val won: Boolean,
+        val isLastLevel: Boolean,
+        val xpEarned: Int = 0
+    ) : Screen()
 }
 
 /**
@@ -69,6 +78,9 @@ class GameViewModel {
     private val _showPlatformInfo = MutableStateFlow(false)
     val showPlatformInfo: StateFlow<Boolean> = _showPlatformInfo.asStateFlow()
     
+    private val _showCheatHelp = MutableStateFlow(false)
+    val showCheatHelp: StateFlow<Boolean> = _showCheatHelp.asStateFlow()
+
     // Player profile state
     private val _currentPlayer = MutableStateFlow<de.egril.defender.save.PlayerProfile?>(null)
     val currentPlayer: StateFlow<de.egril.defender.save.PlayerProfile?> = _currentPlayer.asStateFlow()
@@ -96,6 +108,27 @@ class GameViewModel {
     private val _newAchievement = MutableStateFlow<Achievement?>(null)
     val newAchievement: StateFlow<Achievement?> = _newAchievement.asStateFlow()
     
+    // Magic panel state
+    private val _showMagicPanel = MutableStateFlow(false)
+    val showMagicPanel: StateFlow<Boolean> = _showMagicPanel.asStateFlow()
+
+    private val _selectedSpell = MutableStateFlow<SpellType?>(null)
+    val selectedSpell: StateFlow<SpellType?> = _selectedSpell.asStateFlow()
+
+    private val _pendingSpellCast = MutableStateFlow<SpellType?>(null)
+    val pendingSpellCast: StateFlow<SpellType?> = _pendingSpellCast.asStateFlow()
+
+    // Position to scroll to (e.g., bomb explosion)
+    private val _pendingScrollToPosition = MutableStateFlow<Position?>(null)
+    val pendingScrollToPosition: StateFlow<Position?> = _pendingScrollToPosition.asStateFlow()
+
+    // Post-target confirmation dialog state
+    private val _showSpellTargetConfirmation = MutableStateFlow<Pair<SpellType, Any>?>(null)
+    val showSpellTargetConfirmation: StateFlow<Pair<SpellType, Any>?> = _showSpellTargetConfirmation.asStateFlow()
+
+    private val _showFreezeImmuneWarning = MutableStateFlow<Attacker?>(null)
+    val showFreezeImmuneWarning: StateFlow<Attacker?> = _showFreezeImmuneWarning.asStateFlow()
+
     // Track game session time
     private var gameSessionStartTime: Long? = null
     private var lastBreakReminderTime: Long? = null
@@ -138,7 +171,9 @@ class GameViewModel {
             val migratedProfile = de.egril.defender.save.PlayerProfileStorage.migrateExistingSaves()
             if (migratedProfile != null) {
                 // Migration successful, use the migrated profile
+                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                 println("Migrated existing saves to player profile: ${migratedProfile.name}")
+                }
                 _currentPlayer.value = migratedProfile
                 de.egril.defender.save.SaveFileStorage.setCurrentPlayer(migratedProfile.id)
                 _allPlayers.value = listOf(migratedProfile)
@@ -159,6 +194,12 @@ class GameViewModel {
                 _currentPlayer.value = playerToUse
                 de.egril.defender.save.SaveFileStorage.setCurrentPlayer(playerToUse.id)
                 de.egril.defender.save.PlayerProfileStorage.updateLastPlayed(playerToUse.id)
+
+                // Reload the player profile after updateLastPlayed to ensure we have the latest data
+                val reloadedProfile = de.egril.defender.save.PlayerProfileStorage.getProfile(playerToUse.id)
+                if (reloadedProfile != null) {
+                    _currentPlayer.value = reloadedProfile
+                }
             } else {
                 // Shouldn't happen, but handle gracefully
                 _needsPlayerSelection.value = true
@@ -169,8 +210,10 @@ class GameViewModel {
     private fun initializeWorldMap() {
         // Load official levels
         val officialLevels = LevelData.createLevels()
+        if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
         println("DEBUG: Total official levels loaded: ${officialLevels.size}")
-        
+        }
+
         // Load user levels from user sequence
         val userSequence = de.egril.defender.editor.EditorStorage.getUserLevelSequence()
         val userLevels = userSequence.sequence.mapNotNull { levelId ->
@@ -190,8 +233,10 @@ class GameViewModel {
                 null
             }
         }
+        if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
         println("DEBUG: Total user levels loaded: ${userLevels.size}")
-        
+        }
+
         // Combine official and user levels
         val allLevels = officialLevels + userLevels
         
@@ -202,8 +247,9 @@ class GameViewModel {
         val wonLevelIds = savedStatuses?.filter { it.value == LevelStatus.WON }?.keys?.toSet() ?: emptySet()
         
         _worldLevels.value = allLevels.mapIndexed { index, level ->
-            println("DEBUG: Loaded Level ${level.id} - Name: ${level.name} - Path Cells: ${level.pathCells.size}")
-
+            if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                println("DEBUG: Loaded Level ${level.id} - Name: ${level.name} - Path Cells: ${level.pathCells.size}")
+            }
             // Look up status by editorLevelId if available
             val status = if (level.editorLevelId != null) {
                 // Check saved status first
@@ -226,7 +272,9 @@ class GameViewModel {
                 }
             } else {
                 // Fallback for legacy levels or levels created without editor (shouldn't happen in normal gameplay)
+                if (LogConfig.ENABLE_UI_LOGGING) {
                 println("WARNING: Level ${level.id} (${level.name}) has no editorLevelId - using fallback status")
+                }
                 if (index == 0) LevelStatus.UNLOCKED else LevelStatus.LOCKED
             }
             
@@ -239,7 +287,9 @@ class GameViewModel {
     
     fun reloadWorldMap() {
         // Reload levels from disk to get latest changes
+        if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
         println("Reloading world map from disk...")
+        }
         initializeWorldMap()
     }
     
@@ -274,17 +324,79 @@ class GameViewModel {
     fun navigateToLoadingSpinnerDemo() {
         _currentScreen.value = Screen.LoadingSpinnerDemo
     }
-    
+
     fun navigateToPlayerProfile() {
         _currentScreen.value = Screen.PlayerProfile
     }
     
+    fun navigateToStatsUpgrade() {
+        _currentScreen.value = Screen.StatsUpgrade
+    }
+
+    fun upgradeAbility(statType: de.egril.defender.model.AbilityType) {
+        val currentPlayer = _currentPlayer.value ?: return
+        val oldStats = currentPlayer.abilities
+        val updatedStats = oldStats.spendAbilityPoint(statType) ?: return
+        val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
+        _currentPlayer.value = updatedPlayer
+        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+
+        // Check for achievements
+        val playerId = currentPlayer.id
+        val tempAchievementManager = de.egril.defender.game.AchievementManager(playerId)
+        tempAchievementManager.onAchievementEarned = { achievement ->
+            _newAchievement.value = achievement
+        }
+
+        // First stat upgrade achievement
+        val totalSpentBefore = oldStats.healthAbility + oldStats.treasuryAbility + oldStats.incomeAbility +
+                               oldStats.constructionAbility + oldStats.manaAbility
+        if (totalSpentBefore == 0) {
+            tempAchievementManager.onFirstStatUpgrade()
+        }
+
+        // Construction level 3 achievement
+        if (statType == de.egril.defender.model.AbilityType.CONSTRUCTION && updatedStats.constructionAbility >= 3) {
+            tempAchievementManager.onConstructionLevel3()
+        }
+
+        // Player level achievements
+        val playerLevel = de.egril.defender.model.PlayerAbilities.calculateLevel(updatedStats.totalXP)
+        if (playerLevel >= 10) {
+            tempAchievementManager.onPlayerLevel10()
+        }
+        if (playerLevel >= 100) {
+            tempAchievementManager.onPlayerLevel100()
+        }
+    }
+
+    fun unlockSpell(spell: de.egril.defender.model.SpellType) {
+        val currentPlayer = _currentPlayer.value ?: return
+        val oldStats = currentPlayer.abilities
+        val updatedStats = oldStats.unlockSpell(spell) ?: return
+        val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
+        _currentPlayer.value = updatedPlayer
+        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+
+        // Check for first spell unlock achievement
+        val playerId = currentPlayer.id
+        val tempAchievementManager = de.egril.defender.game.AchievementManager(playerId)
+        tempAchievementManager.onAchievementEarned = { achievement ->
+            _newAchievement.value = achievement
+        }
+
+        if (oldStats.unlockedSpells.isEmpty()) {
+            tempAchievementManager.onFirstSpellUnlock()
+        }
+    }
+
     fun startLevel(levelId: Int) {
         val worldLevel = _worldLevels.value.find { it.level.id == levelId }
         if (worldLevel != null && worldLevel.status != LevelStatus.LOCKED) {
             val difficulty = AppSettings.difficulty.value
             val level = worldLevel.level
-            
+            val playerStats = _currentPlayer.value?.abilities ?: PlayerAbilities()
+
             // Apply difficulty modifiers to spawn plan
             val modifiedSpawnPlan = if (level.directSpawnPlan != null) {
                 DifficultyModifiers.applySpawnPlanModifier(level.directSpawnPlan, difficulty)
@@ -293,13 +405,30 @@ class GameViewModel {
                 DifficultyModifiers.applySpawnPlanModifier(basePlan, difficulty)
             }
             
-            // Create GameState with difficulty-modified values
+            // Apply player stats bonuses
+            val baseCoins = DifficultyModifiers.applyCoinsModifier(level.initialCoins, difficulty)
+            val bonusCoins = playerStats.getBonusStartCoins()
+            val totalCoins = baseCoins + bonusCoins
+
+            val baseHealth = DifficultyModifiers.applyHealthPointsModifier(level.healthPoints, difficulty)
+            val bonusHealth = playerStats.getBonusHealth()
+            val totalHealth = baseHealth + bonusHealth
+
+            val maxMana = playerStats.getMaxMana()
+            val incomeMultiplier = playerStats.getIncomeMultiplier()
+            val constructionLevel = playerStats.constructionAbility
+
+            // Create GameState with difficulty-modified and stats-bonus values
             val newGameState = GameState(
                 level = level,
                 difficulty = difficulty,
-                coins = mutableStateOf(DifficultyModifiers.applyCoinsModifier(level.initialCoins, difficulty)),
-                healthPoints = mutableStateOf(DifficultyModifiers.applyHealthPointsModifier(level.healthPoints, difficulty)),
-                spawnPlan = modifiedSpawnPlan
+                coins = mutableStateOf(totalCoins),
+                healthPoints = mutableStateOf(totalHealth),
+                spawnPlan = modifiedSpawnPlan,
+                maxMana = mutableStateOf(maxMana),
+                currentMana = mutableStateOf(maxMana),  // Start with full mana
+                incomeMultiplier = incomeMultiplier,
+                constructionLevel = constructionLevel
             )
             
             // Initialize pre-placed elements if any
@@ -359,10 +488,23 @@ class GameViewModel {
     }
     
     fun placeDefender(type: DefenderType, position: Position): Boolean {
-        val result = gameEngine?.placeDefender(type, position) ?: false
+        val gameState = _gameState.value
+        val isInstantDeploy = gameState?.instantTowerSpellActive?.value == true
+
+        val result = gameEngine?.placeDefender(type, position, isInstantDeploy) ?: false
         if (result) {
+            if (isInstantDeploy) {
+                // isInstantDeploy=true implies gameState!=null (see initialization above)
+                gameState?.let { gs ->
+                    gs.currentMana.value = (gs.currentMana.value - SpellType.INSTANT_TOWER.manaCost).coerceAtLeast(0)
+                    gs.instantTowerSpellActive.value = false
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
+                        println("=== SPELL: Instant Tower spell consumed - tower placed instantly, mana deducted")
+                    }
+                }
+            }
             // Track achievement
-            val isRiverTile = _gameState.value?.level?.isRiverTile(position) ?: false
+            val isRiverTile = gameState?.level?.isRiverTile(position) ?: false
             if (isRiverTile) {
                 achievementManager?.onBuildRaft()
             } else {
@@ -423,12 +565,47 @@ class GameViewModel {
         return result
     }
     
+    /**
+     * Generate mana using a wizard tower
+     * - Costs 1 action
+     * - Generates base 5 mana + (wizard level / 5) bonus mana
+     * - Cannot exceed max mana
+     */
+    fun generateMana(wizardId: Int): Boolean {
+        val state = _gameState.value ?: return false
+        val wizard = state.defenders.find { it.id == wizardId } ?: return false
+
+        // Validate: must be wizard tower, must be ready, must have actions, not at max mana
+        if (wizard.type != DefenderType.WIZARD_TOWER) return false
+        if (!wizard.isReady) return false
+        if (wizard.actionsRemaining.value <= 0) return false
+        if (state.currentMana.value >= state.maxMana.value) return false
+
+        // Calculate mana amount: base 5 + (level / 5)
+        val manaAmount = 5 + (wizard.level.value / 5)
+
+        // Add mana (capped at max)
+        val newMana = minOf(state.currentMana.value + manaAmount, state.maxMana.value)
+        state.currentMana.value = newMana
+
+        // Consume action
+        wizard.actionsRemaining.value -= 1
+
+        return true
+    }
+
     fun startFirstPlayerTurn() {
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("DEBUG: startFirstPlayerTurn called")
+        }
         val stateBefore = _gameState.value
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("DEBUG: Phase before: ${stateBefore?.phase?.value}")
+        }
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("DEBUG: Attackers before: ${stateBefore?.attackers?.size}")
-        
+        }
+
         gameEngine?.startFirstPlayerTurn()
         
         // Track turn start for achievements
@@ -436,13 +613,21 @@ class GameViewModel {
         gameEngine?.startTurnTracking()
         
         val stateAfter = _gameState.value
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("DEBUG: Phase after: ${stateAfter?.phase?.value}")
+        }
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("DEBUG: Attackers after: ${stateAfter?.attackers?.size}")
+        }
         stateAfter?.attackers?.forEach { attacker ->
+            if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
             println("DEBUG: Enemy ${attacker.id} - Type: ${attacker.type}, Position: (${attacker.position.value.x}, ${attacker.position.value.y})")
+            }
         }
         
+        if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("DEBUG: startFirstPlayerTurn completed")
+        }
     }
     
     fun defenderAttack(defenderId: Int, targetId: Int): Boolean {
@@ -496,6 +681,15 @@ class GameViewModel {
         return gameEngine?.performWizardPlaceMagicalTrap(wizardId, trapPosition) ?: false
     }
     
+    /**
+     * Perform wizard mana generation
+     * Called when player clicks the "Generate Mana" button on a wizard tower
+     * Returns true if mana was generated successfully
+     */
+    fun performWizardGenerateMana(wizardId: Int): Boolean {
+        return gameEngine?.performWizardGenerateMana(wizardId) ?: false
+    }
+
     fun performBuildBarricade(towerId: Int, barricadePosition: Position): Boolean {
         val result = gameEngine?.performBuildBarricade(towerId, barricadePosition) ?: false
         if (result) {
@@ -526,7 +720,15 @@ class GameViewModel {
 
         // NOTE: Auto-attacks are NOT triggered here when clicking "End Turn".
         // They only happen when clicking "Auto-Attack and End Turn" button (see autoAttackAndEndTurn()).
-        
+
+        // Cancel instant tower spell if active (mana was never consumed, so nothing to refund)
+        if (state.instantTowerSpellActive.value) {
+            state.instantTowerSpellActive.value = false
+            if (LogConfig.ENABLE_SPELL_LOGGING) {
+                println("=== SPELL: Instant Tower spell cancelled on end turn (no mana consumed)")
+            }
+        }
+
         // Process enemy turn with animations
         viewModelScope.launch(Dispatchers.Default) {
             // Start enemy turn: change phase to ENEMY_TURN
@@ -549,7 +751,9 @@ class GameViewModel {
             }
 
             attackersStoppedByBarricade.forEach { it ->
+                if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                 println("attackBarricade B")
+                }
                 // fixit HERE
                 engine.attackBarricade(it.second, it.first)
             }
@@ -583,6 +787,12 @@ class GameViewModel {
             // Complete enemy turn: apply effects and return to player turn
             engine.completeEnemyTurn()
             
+            // Trigger camera pan to bomb explosion position if any bomb exploded this turn
+            val currentStateForBombs = _gameState.value
+            if (currentStateForBombs != null && currentStateForBombs.bombExplosionEffects.isNotEmpty()) {
+                _pendingScrollToPosition.value = currentStateForBombs.bombExplosionEffects.first().center
+            }
+
             // Autosave at the beginning of the new player turn (after enemy turn completes)
             // This ensures the phase is PLAYER_TURN when the save is created
             autoSaveGame()
@@ -625,10 +835,20 @@ class GameViewModel {
 
     private fun completeLevel(levelId: Int, won: Boolean) {
         val currentHP = _gameState.value?.healthPoints?.value ?: 0
-        
+        val xpEarned = _gameState.value?.xpEarnedThisLevel?.value ?: 0
+
         // Track achievement for level completion
         if (won) {
             achievementManager?.onWinLevel(currentHP)
+
+            // Award XP to player profile
+            val currentPlayer = _currentPlayer.value
+            if (currentPlayer != null) {
+                val updatedStats = currentPlayer.abilities.addXP(xpEarned)
+                val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
+                _currentPlayer.value = updatedPlayer
+                de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+            }
         } else {
             achievementManager?.onLoseLevel()
         }
@@ -661,7 +881,7 @@ class GameViewModel {
                 saveWorldMapStatus()
             }
         }
-        _currentScreen.value = Screen.LevelComplete(levelId, won, isLastLevel)
+        _currentScreen.value = Screen.LevelComplete(levelId, won, isLastLevel, xpEarned)
     }
     
     fun restartLevel() {
@@ -711,7 +931,10 @@ class GameViewModel {
             performMineDigWithOutcome = { outcome -> performMineDigWithOutcome(outcome) },
             spawnEnemy = { attackerType, level -> gameEngine?.spawnEnemy(attackerType, level) },
             showPlatformInfo = { _showPlatformInfo.value = true },
-            setBigHeadMode = { enabled -> de.egril.defender.utils.BigHeadMode.isEnabled.value = enabled }
+            setBigHeadMode = { enabled -> de.egril.defender.utils.BigHeadMode.isEnabled.value = enabled },
+            addMana = { amount -> gameEngine?.addMana(amount) },
+            removeMana = { amount -> gameEngine?.removeMana(amount) },
+            showCheatHelp = { _showCheatHelp.value = true }
         )
         
         if (digOutcome != null) {
@@ -729,19 +952,131 @@ class GameViewModel {
         _showPlatformInfo.value = false
     }
     
+    fun clearCheatHelp() {
+        _showCheatHelp.value = false
+    }
+
+    // Player stat/XP/spell cheat methods
+    private fun addPlayerXP(amount: Int) {
+        val currentPlayer = _currentPlayer.value ?: return
+        val updatedStats = currentPlayer.abilities.addXP(amount)
+        val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
+        _currentPlayer.value = updatedPlayer
+        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+    }
+
+    private fun removePlayerXP(amount: Int) {
+        val currentPlayer = _currentPlayer.value ?: return
+        val currentXP = currentPlayer.abilities.totalXP
+        val newXP = maxOf(0, currentXP - amount)
+        val newLevel = de.egril.defender.model.PlayerAbilities.calculateLevel(newXP)
+        val updatedStats = currentPlayer.abilities.copy(totalXP = newXP, level = newLevel)
+        val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
+        _currentPlayer.value = updatedPlayer
+        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+    }
+
+    private fun addPlayerStat(statName: String, amount: Int) {
+        val currentPlayer = _currentPlayer.value ?: return
+        val oldStats = currentPlayer.abilities
+
+        val updatedStats = when (statName.lowercase()) {
+            "health" -> oldStats.copy(healthAbility = oldStats.healthAbility + amount)
+            "treasury" -> oldStats.copy(treasuryAbility = oldStats.treasuryAbility + amount)
+            "income" -> oldStats.copy(incomeAbility = oldStats.incomeAbility + amount)
+            "construction" -> oldStats.copy(constructionAbility = oldStats.constructionAbility + amount)
+            "mana" -> oldStats.copy(manaAbility = oldStats.manaAbility + amount)
+            else -> return  // Invalid stat name
+        }
+
+        val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
+        _currentPlayer.value = updatedPlayer
+        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+    }
+
+    private fun removePlayerStat(statName: String, amount: Int) {
+        val currentPlayer = _currentPlayer.value ?: return
+        val oldStats = currentPlayer.abilities
+
+        val updatedStats = when (statName.lowercase()) {
+            "health" -> oldStats.copy(healthAbility = maxOf(0, oldStats.healthAbility - amount))
+            "treasury" -> oldStats.copy(treasuryAbility = maxOf(0, oldStats.treasuryAbility - amount))
+            "income" -> oldStats.copy(incomeAbility = maxOf(0, oldStats.incomeAbility - amount))
+            "construction" -> oldStats.copy(constructionAbility = maxOf(0, oldStats.constructionAbility - amount))
+            "mana" -> oldStats.copy(manaAbility = maxOf(0, oldStats.manaAbility - amount))
+            else -> return  // Invalid stat name
+        }
+
+        val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
+        _currentPlayer.value = updatedPlayer
+        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+    }
+
+    private fun unlockPlayerSpell(spellName: String) {
+        val currentPlayer = _currentPlayer.value ?: return
+        val oldStats = currentPlayer.abilities
+
+        // Parse spell name to SpellType
+        val spell = when (spellName.lowercase().replace(" ", "_")) {
+            "attack_aimed", "attackaimed" -> de.egril.defender.model.SpellType.ATTACK_AIMED
+            "attack_area", "attackarea", "fireball" -> de.egril.defender.model.SpellType.ATTACK_AREA
+            "heal" -> de.egril.defender.model.SpellType.HEAL
+            "instant_tower", "instanttower" -> de.egril.defender.model.SpellType.INSTANT_TOWER
+            "bomb" -> de.egril.defender.model.SpellType.BOMB
+            "double_level", "doublelevel", "double_tower_level", "doubletowerlevel" -> de.egril.defender.model.SpellType.DOUBLE_TOWER_LEVEL
+            "cooling", "cooling_spell", "coolingspell" -> de.egril.defender.model.SpellType.COOLING_SPELL
+            "freeze", "freeze_spell", "freezespell" -> de.egril.defender.model.SpellType.FREEZE_SPELL
+            "double_reach", "doublereach", "double_tower_reach", "doubletowerreach" -> de.egril.defender.model.SpellType.DOUBLE_TOWER_REACH
+            "fear", "fear_spell", "fearspell" -> de.egril.defender.model.SpellType.FEAR_SPELL
+            "fear_area", "feararea", "fear_spell_area", "fearspellarea" -> de.egril.defender.model.SpellType.FEAR_SPELL_AREA
+            else -> return  // Invalid spell name
+        }
+
+        val updatedStats = oldStats.copy(unlockedSpells = oldStats.unlockedSpells + spell)
+        val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
+        _currentPlayer.value = updatedPlayer
+        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+    }
+
+    private fun lockPlayerSpell(spellName: String) {
+        val currentPlayer = _currentPlayer.value ?: return
+        val oldStats = currentPlayer.abilities
+
+        // Parse spell name to SpellType
+        val spell = when (spellName.lowercase().replace(" ", "_")) {
+            "attack_aimed", "attackaimed" -> de.egril.defender.model.SpellType.ATTACK_AIMED
+            "attack_area", "attackarea", "fireball" -> de.egril.defender.model.SpellType.ATTACK_AREA
+            "heal" -> de.egril.defender.model.SpellType.HEAL
+            "instant_tower", "instanttower" -> de.egril.defender.model.SpellType.INSTANT_TOWER
+            "bomb" -> de.egril.defender.model.SpellType.BOMB
+            "double_level", "doublelevel", "double_tower_level", "doubletowerlevel" -> de.egril.defender.model.SpellType.DOUBLE_TOWER_LEVEL
+            "cooling", "cooling_spell", "coolingspell" -> de.egril.defender.model.SpellType.COOLING_SPELL
+            "freeze", "freeze_spell", "freezespell" -> de.egril.defender.model.SpellType.FREEZE_SPELL
+            "double_reach", "doublereach", "double_tower_reach", "doubletowerreach" -> de.egril.defender.model.SpellType.DOUBLE_TOWER_REACH
+            "fear", "fear_spell", "fearspell" -> de.egril.defender.model.SpellType.FEAR_SPELL
+            "fear_area", "feararea", "fear_spell_area", "fearspellarea" -> de.egril.defender.model.SpellType.FEAR_SPELL_AREA
+            else -> return  // Invalid spell name
+        }
+
+        val updatedStats = oldStats.copy(unlockedSpells = oldStats.unlockedSpells - spell)
+        val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
+        _currentPlayer.value = updatedPlayer
+        de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+    }
+
     fun applyWorldMapCheatCode(code: String): Boolean {
         // Check for "sticker" cheat code first (navigation cheat)
         if (code.lowercase().trim() == "sticker") {
             navigateToSticker()
             return true
         }
-        
+
         // Check for "spinner" cheat code (shows loading spinner demo for 30s)
         if (code.lowercase().trim() == "spinner") {
             navigateToLoadingSpinnerDemo()
             return true
         }
-        
+
         return CheatCodeHandler.applyWorldMapCheatCode(
             code = code,
             unlockAllLevels = { unlockAllLevels() },
@@ -749,7 +1084,14 @@ class GameViewModel {
             lockAllLevels = { lockAllLevels() },
             lockLevel = { editorLevelId -> lockLevel(editorLevelId) },
             worldLevels = _worldLevels.value,
-            showPlatformInfo = { _showPlatformInfo.value = true }
+            showPlatformInfo = { _showPlatformInfo.value = true },
+            addXP = { amount -> addPlayerXP(amount) },
+            removeXP = { amount -> removePlayerXP(amount) },
+            addStatLevel = { statName, amount -> addPlayerStat(statName, amount) },
+            removeStatLevel = { statName, amount -> removePlayerStat(statName, amount) },
+            unlockSpell = { spellName -> unlockPlayerSpell(spellName) },
+            lockSpell = { spellName -> lockPlayerSpell(spellName) },
+            showCheatHelp = { _showCheatHelp.value = true }
         )
     }
     
@@ -865,9 +1207,13 @@ class GameViewModel {
         if (level != null && savedGame.mapId != null && level.mapId != null) {
             if (savedGame.mapId != level.mapId) {
                 // Map mismatch - the level at this numeric ID now uses a different map
+                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                 println("WARNING: Save file has different map ID (saved: ${savedGame.mapId}, current: ${level.mapId})")
+                }
+                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                 println("Level sequence may have changed. Attempting to find level with matching map ID...")
-                
+                }
+
                 // Try to find any level that uses the same map as the saved game
                 val levelWithCorrectMap = _worldLevels.value
                     .map { it.level }
@@ -887,7 +1233,9 @@ class GameViewModel {
                     startTimeTracking()
                     return
                 } else {
+                    if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                     println("ERROR: Could not find any level with map ID ${savedGame.mapId}. Save file may be incompatible.")
+                    }
                     // TODO: Show error dialog to user
                     return
                 }
@@ -1278,5 +1626,591 @@ class GameViewModel {
      */
     private fun getLocalHour(timestamp: Long): Int {
         return de.egril.defender.utils.getLocalHour(timestamp)
+    }
+
+    /**
+     * Toggle magic panel display
+     */
+    fun toggleMagicPanel() {
+        _showMagicPanel.value = !_showMagicPanel.value
+        if (LogConfig.ENABLE_SPELL_LOGGING) {
+            println("=== SPELL: Magic panel toggled - now ${if (_showMagicPanel.value) "OPEN" else "CLOSED"}")
+        }
+    }
+
+    /**
+     * Open magic panel
+     */
+    fun openMagicPanel() {
+        _showMagicPanel.value = true
+        if (LogConfig.ENABLE_SPELL_LOGGING) {
+            val gameState = _gameState.value
+            println("=== SPELL: Magic panel OPENED - Current mana: ${gameState?.currentMana?.value}/${gameState?.maxMana?.value}")
+            val playerStats = _currentPlayer.value?.abilities
+            val unlockedSpells = playerStats?.unlockedSpells?.size ?: 0
+            println("=== SPELL: Player has $unlockedSpells unlocked spell(s)")
+        }
+    }
+
+    /**
+     * Close magic panel
+     */
+    fun closeMagicPanel() {
+        _showMagicPanel.value = false
+        _pendingSpellCast.value = null
+        if (LogConfig.ENABLE_SPELL_LOGGING) {
+            println("=== SPELL: Magic panel CLOSED")
+        }
+    }
+
+    /**
+     * Cancel the active Instant Tower spell and return mana (mana was never consumed).
+     * Called when the player chooses to abort from the abort dialog.
+     */
+    fun cancelInstantTowerSpell() {
+        val state = _gameState.value ?: return
+        if (state.instantTowerSpellActive.value) {
+            state.instantTowerSpellActive.value = false
+            if (LogConfig.ENABLE_SPELL_LOGGING) {
+                println("=== SPELL: Instant Tower spell cancelled by player (no mana consumed)")
+            }
+        }
+    }
+
+    /**
+     * Clear pending scroll to position (called after UI has consumed it)
+     */
+    fun clearPendingScrollPosition() {
+        _pendingScrollToPosition.value = null
+    }
+
+    /**
+     * Toggle spell selection (select or deselect)
+     * No confirmation dialog - enters targeting mode directly
+     */
+    fun setPendingSpell(spell: SpellType) {
+        val gameState = _gameState.value
+
+        // INSTANT_TOWER: toggle the instant deploy mode directly without confirmation dialog.
+        // Mana is deferred and only consumed when a tower is actually placed.
+        if (spell == SpellType.INSTANT_TOWER) {
+            if (gameState == null || gameState.currentMana.value < spell.manaCost) {
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("=== SPELL: Cannot cast ${spell.displayName} - Insufficient mana (Need: ${spell.manaCost}, Have: ${gameState?.currentMana?.value ?: 0})")
+                }
+                return
+            }
+            if (gameState.instantTowerSpellActive.value) {
+                // Already active - cancel the spell mode (mana was never consumed)
+                gameState.instantTowerSpellActive.value = false
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("=== SPELL: Instant Tower spell cancelled (no mana consumed)")
+                }
+            } else {
+                // Activate instant tower mode (mana deferred until tower is placed)
+                gameState.instantTowerSpellActive.value = true
+                closeMagicPanel()
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("=== SPELL: Instant Tower spell activated - next tower will be built instantly")
+                }
+            }
+            return
+        }
+
+        if (gameState != null && gameState.currentMana.value >= spell.manaCost) {
+            // Toggle selection: if same spell clicked again, deselect it
+            if (_selectedSpell.value == spell) {
+                _selectedSpell.value = null
+                _pendingSpellCast.value = null
+                exitSpellTargetingMode()
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("=== SPELL: Spell deselected - ${spell.displayName}")
+                }
+            } else {
+                _selectedSpell.value = spell
+                _pendingSpellCast.value = spell
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("=== SPELL: Spell selected - ${spell.displayName} (Cost: ${spell.manaCost} mana)")
+                }
+                // For targeting spells, enter targeting mode immediately
+                if (spell.requiresTarget) {
+                    enterSpellTargetingMode(spell)
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
+                        println("=== SPELL: Entered targeting mode for ${spell.displayName}")
+                    }
+                } else {
+                    // For non-targeting spells, show confirmation with spell details
+                    _showSpellTargetConfirmation.value = Pair(spell, Unit)
+                }
+            }
+        } else {
+            if (LogConfig.ENABLE_SPELL_LOGGING) {
+                println("=== SPELL: Cannot cast ${spell.displayName} - Insufficient mana (Need: ${spell.manaCost}, Have: ${gameState?.currentMana?.value ?: 0})")
+            }
+        }
+    }
+
+    /**
+     * Cancel pending spell cast
+     */
+    fun cancelPendingSpell() {
+        if (LogConfig.ENABLE_SPELL_LOGGING) {
+            val spell = _pendingSpellCast.value
+            if (spell != null) {
+                println("=== SPELL: Spell cast CANCELLED - ${spell.displayName}")
+            }
+        }
+        _pendingSpellCast.value = null
+        _selectedSpell.value = null
+    }
+
+    /**
+     * Handle target selection for spell (called when player clicks a target)
+     * Shows confirmation or warning dialog based on target validity
+     */
+    fun onSpellTargetSelected(target: Any) {
+        val gameState = _gameState.value ?: return
+        // Use activeSpell from targeting state (pendingSpellCast was cleared when targeting mode was entered)
+        val spell = gameState.spellTargeting.value?.activeSpell ?: return
+
+        // Check for freeze immunity
+        if (spell == SpellType.FREEZE_SPELL && target is Attacker) {
+            if (isImmuneToFreeze(target.type)) {
+                _showFreezeImmuneWarning.value = target
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("=== SPELL: ${target.type.displayName} is immune to Freeze!")
+                }
+                return
+            }
+        }
+
+        // Show confirmation dialog with target details
+        _showSpellTargetConfirmation.value = Pair(spell, target)
+        if (LogConfig.ENABLE_SPELL_LOGGING) {
+            println("=== SPELL: Target selected for ${spell.displayName}")
+        }
+    }
+
+    /**
+     * Confirm spell cast after target selection
+     */
+    fun confirmSpellCast() {
+        val confirmation = _showSpellTargetConfirmation.value
+        if (confirmation != null) {
+            val (spell, target) = confirmation
+            castSpell(spell, target)
+            _showSpellTargetConfirmation.value = null
+            _selectedSpell.value = null
+        }
+    }
+
+    /**
+     * Dismiss spell target confirmation dialog
+     */
+    fun dismissSpellConfirmation() {
+        _showSpellTargetConfirmation.value = null
+        // Keep spell selected and targeting mode active
+    }
+
+    /**
+     * Dismiss freeze immune warning
+     */
+    fun dismissFreezeImmuneWarning() {
+        _showFreezeImmuneWarning.value = null
+        // Keep spell selected and targeting mode active
+    }
+
+    /**
+     * Check if an enemy type is immune to freeze spell
+     */
+    private fun isImmuneToFreeze(type: AttackerType): Boolean {
+        return type == AttackerType.BLUE_DEMON ||
+               type == AttackerType.RED_DEMON ||
+               type == AttackerType.DRAGON ||
+               type == AttackerType.EWHAD
+    }
+
+    /**
+     * Cast a spell (called after targeting is complete)
+     * For non-targeting spells, this is called immediately after confirmation
+     */
+    fun castSpell(spell: SpellType, target: Any? = null) {
+        val gameState = _gameState.value ?: return
+        val currentPlayer = _currentPlayer.value ?: return
+
+        if (LogConfig.ENABLE_SPELL_LOGGING) {
+            println("=== SPELL: Cast spell called - ${spell.displayName}")
+            println("=== SPELL: Current mana: ${gameState.currentMana.value}/${gameState.maxMana.value}")
+        }
+
+        // Validate mana cost
+        if (gameState.currentMana.value < spell.manaCost) {
+            if (LogConfig.ENABLE_SPELL_LOGGING) {
+                println("=== SPELL: FAILED - Not enough mana to cast ${spell.displayName}")
+            }
+            return
+        }
+
+        // Validate spell is unlocked
+        if (!currentPlayer.abilities.unlockedSpells.contains(spell)) {
+            if (LogConfig.ENABLE_SPELL_LOGGING) {
+                println("=== SPELL: FAILED - Spell ${spell.displayName} is not unlocked")
+            }
+            return
+        }
+
+        // If spell requires targeting and no target provided, enter targeting mode
+        if (spell.requiresTarget && target == null) {
+            if (LogConfig.ENABLE_SPELL_LOGGING) {
+                println("=== SPELL: Spell requires targeting - Entering targeting mode")
+            }
+            enterSpellTargetingMode(spell)
+            return
+        }
+
+        // Deduct mana cost
+        val previousMana = gameState.currentMana.value
+        gameState.currentMana.value -= spell.manaCost
+        if (LogConfig.ENABLE_SPELL_LOGGING) {
+            println("=== SPELL: Mana deducted - ${previousMana} -> ${gameState.currentMana.value}")
+        }
+
+        // Execute spell effect
+        executeSpellEffect(spell, target, gameState)
+
+        // Process any enemies defeated by the spell (award coins, remove from list)
+        if (spell == SpellType.ATTACK_AIMED || spell == SpellType.ATTACK_AREA) {
+            gameEngine?.processDefeatedAttackers()
+        }
+
+        // Clear pending spell and targeting state
+        _pendingSpellCast.value = null
+        exitSpellTargetingMode()
+
+        // Close magic panel after casting
+        closeMagicPanel()
+
+        if (LogConfig.ENABLE_SPELL_LOGGING) {
+            println("=== SPELL: Spell cast COMPLETE - ${spell.displayName}")
+        }
+    }
+
+    /**
+     * Execute the effect of a cast spell
+     */
+    private fun executeSpellEffect(spell: SpellType, target: Any?, gameState: GameState) {
+        when (spell) {
+            SpellType.ATTACK_AIMED -> {
+                // Attack Aimed: Deal 80 damage to the enemy on a targeted tile
+                val position = target as? Position
+                if (position != null) {
+                    val attacker = gameState.attackers.find { !it.isDefeated.value && it.position.value == position }
+                    if (attacker != null) {
+                        attacker.currentHealth.value -= 80
+                        if (attacker.currentHealth.value <= 0) {
+                            attacker.currentHealth.value = 0
+                            attacker.isDefeated.value = true
+                        }
+                        if (LogConfig.ENABLE_SPELL_LOGGING) {
+                        println("Attack Aimed: Dealt 80 damage to ${attacker.type.displayName} at $position (HP: ${attacker.currentHealth.value})")
+                        }
+                    }
+                }
+            }
+            SpellType.HEAL -> {
+                // Heal: Restore 3 health points (cap at max)
+                val currentHP = gameState.healthPoints.value
+                val maxHP = gameState.level.healthPoints + (_currentPlayer.value?.abilities?.healthAbility ?: 0)
+                val newHP = (currentHP + 3).coerceAtMost(maxHP)
+                gameState.healthPoints.value = newHP
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                println("Heal: Restored health to $newHP/$maxHP")
+                }
+            }
+            SpellType.ATTACK_AREA -> {
+                // Attack Area: Deal 50 damage to all enemies within 2 hex range of position
+                val position = target as? Position
+                if (position != null) {
+                    var damagedCount = 0
+                    gameState.attackers.filter { !it.isDefeated.value }.forEach { attacker ->
+                        val distance = attacker.position.value.hexDistanceTo(position)
+                        if (distance <= 2) {
+                            attacker.currentHealth.value -= 50
+                            if (attacker.currentHealth.value <= 0) {
+                                attacker.currentHealth.value = 0
+                                attacker.isDefeated.value = true
+                            }
+                            damagedCount++
+                        }
+                    }
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("Attack Area: Dealt 50 damage to $damagedCount enemies within 2 hex range of $position")
+                    }
+                }
+            }
+            SpellType.INSTANT_TOWER -> {
+                // Instant Tower is handled via instantTowerSpellActive mode in GameState.
+                // Mana is deferred and only consumed when a tower is placed (see placeDefender).
+                // This fallback path activates the mode if called directly (e.g., from cheat codes).
+                println("=== SPELL: WARN - Instant Tower executeSpellEffect fallback triggered; activating mode")
+                gameState.instantTowerSpellActive.value = true
+            }
+            SpellType.DOUBLE_TOWER_LEVEL -> {
+                // Double Tower Level: Double tower level for 1 turn
+                val defender = target as? Defender
+                if (defender != null) {
+                    val effect = ActiveSpellEffect(
+                        spell = SpellType.DOUBLE_TOWER_LEVEL,
+                        defenderId = defender.id,
+                        turnsRemaining = 1,
+                        castTurn = gameState.turnNumber.value
+                    )
+                    gameState.activeSpellEffects.add(effect)
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("Double Tower Level: ${defender.type.displayName} level doubled for 1 turn!")
+                    }
+                }
+            }
+            SpellType.DOUBLE_TOWER_REACH -> {
+                // Double Tower Reach: Double tower range for 1 turn
+                val defender = target as? Defender
+                if (defender != null) {
+                    val effect = ActiveSpellEffect(
+                        spell = SpellType.DOUBLE_TOWER_REACH,
+                        defenderId = defender.id,
+                        turnsRemaining = 1,
+                        castTurn = gameState.turnNumber.value
+                    )
+                    gameState.activeSpellEffects.add(effect)
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("Double Tower Reach: ${defender.type.displayName} range doubled for 1 turn!")
+                    }
+                }
+            }
+            SpellType.BOMB -> {
+                // Bomb: Place bomb at position, explodes after 2 turns
+                val position = target as? Position
+                if (position != null) {
+                    val effect = ActiveSpellEffect(
+                        spell = SpellType.BOMB,
+                        position = position,
+                        turnsRemaining = 3,  // Explodes at the start of turn 3 (2 full turns + explosion)
+                        castTurn = gameState.turnNumber.value
+                    )
+                    gameState.activeSpellEffects.add(effect)
+                    // Play ticking sound when bomb is placed
+                    GlobalSoundManager.playSound(SoundEvent.BOMB_TICKING)
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("Bomb: Placed at $position, will explode in 2 turns!")
+                    }
+                }
+            }
+            SpellType.FREEZE_SPELL -> {
+                // Freeze: Freeze enemy for 1+ turns (base 1 turn for 10 mana)
+                val attacker = target as? Attacker
+                if (attacker != null) {
+                    // Check immunity: Does not work on Demons, Dragons, Ewhad
+                    val isImmune = attacker.type.isDragon ||
+                                   attacker.type == AttackerType.BLUE_DEMON ||
+                                   attacker.type == AttackerType.RED_DEMON ||
+                                   attacker.type == AttackerType.EWHAD
+
+                    if (isImmune) {
+                        println("Freeze Spell: ${attacker.type.displayName} is immune to freeze!")
+                    } else {
+                        // For now, freeze for 1 turn (base cost)
+                        // TODO: Add duration selection dialog for spending more mana
+                        val effect = ActiveSpellEffect(
+                            spell = SpellType.FREEZE_SPELL,
+                            attackerId = attacker.id,
+                            turnsRemaining = 1,
+                            castTurn = gameState.turnNumber.value
+                        )
+                        gameState.activeSpellEffects.add(effect)
+                        if (LogConfig.ENABLE_SPELL_LOGGING) {
+                        println("Freeze Spell: Froze ${attacker.type.displayName} for 1 turn!")
+                        }
+                    }
+                }
+            }
+            SpellType.COOLING_SPELL -> {
+                // Cooling Spell: Create area that slows enemies for 3 turns
+                val position = target as? Position
+                if (position != null) {
+                    val effect = ActiveSpellEffect(
+                        spell = SpellType.COOLING_SPELL,
+                        position = position,
+                        turnsRemaining = 3,
+                        castTurn = gameState.turnNumber.value
+                    )
+                    gameState.activeSpellEffects.add(effect)
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("Cooling Spell: Created cooling area at $position for 3 turns!")
+                    }
+                }
+            }
+            SpellType.FEAR_SPELL -> {
+                // Fear Spell: Single target enemy flees towards spawn for 3 turns
+                val attacker = target as? Attacker
+                if (attacker != null) {
+                    val effect = ActiveSpellEffect(
+                        spell = SpellType.FEAR_SPELL,
+                        attackerId = attacker.id,
+                        turnsRemaining = 3,
+                        castTurn = gameState.turnNumber.value
+                    )
+                    gameState.activeSpellEffects.add(effect)
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("Fear Spell: ${attacker.type.displayName} flees for 3 turns!")
+                    }
+                }
+            }
+            SpellType.FEAR_SPELL_AREA -> {
+                // Fear Spell (Area): Create fear zone that makes enemies flee for 3 turns
+                val position = target as? Position
+                if (position != null) {
+                    val effect = ActiveSpellEffect(
+                        spell = SpellType.FEAR_SPELL_AREA,
+                        position = position,
+                        turnsRemaining = 3,
+                        castTurn = gameState.turnNumber.value
+                    )
+                    gameState.activeSpellEffects.add(effect)
+                    if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("Fear Spell (Area): Created fear zone at $position for 3 turns!")
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Enter spell targeting mode
+     */
+    fun enterSpellTargetingMode(spell: SpellType) {
+        val gameState = _gameState.value ?: return
+
+        // Calculate valid targets based on spell type
+        val validTargets: Set<Any> = when (spell.targetType) {
+            SpellTargetType.POSITION -> {
+                if (spell == SpellType.BOMB) {
+                    // Bomb can only be placed on empty path tiles:
+                    // no enemies, no barricades, no field effects, no traps, no other bombs
+                    val occupiedByEnemy = gameState.attackers
+                        .filter { !it.isDefeated.value }
+                        .map { it.position.value }
+                        .toSet()
+                    val occupiedByBarricade = gameState.barricades.map { it.position }.toSet()
+                    val occupiedByFieldEffect = gameState.fieldEffects.map { it.position }.toSet()
+                    val occupiedByTrap = gameState.traps.map { it.position }.toSet()
+                    val occupiedByBomb = gameState.activeSpellEffects
+                        .filter { it.spell == SpellType.BOMB && it.position != null }
+                        .map { it.position!! }
+                        .toSet()
+                    val blocked = occupiedByEnemy + occupiedByBarricade + occupiedByFieldEffect +
+                            occupiedByTrap + occupiedByBomb
+                    val positions = mutableSetOf<Position>()
+                    for (x in 0 until gameState.level.gridWidth) {
+                        for (y in 0 until gameState.level.gridHeight) {
+                            val pos = Position(x, y)
+                            if (gameState.level.isOnPath(pos) && pos !in blocked) {
+                                positions.add(pos)
+                            }
+                        }
+                    }
+                    positions
+                } else if (spell == SpellType.COOLING_SPELL) {
+                    // Cooling spell can only be placed on path/spawn tiles without barricades
+                    val occupiedByBarricade = gameState.barricades.map { it.position }.toSet()
+                    val positions = mutableSetOf<Position>()
+                    for (x in 0 until gameState.level.gridWidth) {
+                        for (y in 0 until gameState.level.gridHeight) {
+                            val pos = Position(x, y)
+                            if ((gameState.level.isOnPath(pos) || gameState.level.isSpawnPoint(pos)) &&
+                                pos !in occupiedByBarricade) {
+                                positions.add(pos)
+                            }
+                        }
+                    }
+                    positions
+                } else if (spell == SpellType.ATTACK_AREA) {
+                    // Attack Area: only path tiles without a barricade
+                    val occupiedByBarricade = gameState.barricades
+                        .filter { !it.isDestroyed() }
+                        .map { it.position }
+                        .toSet()
+                    val positions = mutableSetOf<Position>()
+                    for (x in 0 until gameState.level.gridWidth) {
+                        for (y in 0 until gameState.level.gridHeight) {
+                            val pos = Position(x, y)
+                            if (gameState.level.isOnPath(pos) && pos !in occupiedByBarricade) {
+                                positions.add(pos)
+                            }
+                        }
+                    }
+                    positions
+                } else if (spell == SpellType.ATTACK_AIMED) {
+                    // Attack Aimed: only tiles that have an enemy on them
+                    gameState.attackers
+                        .filter { !it.isDefeated.value }
+                        .map { it.position.value }
+                        .toSet()
+                } else {
+                    // All tiles on the map are valid positions for other spells
+                    val positions = mutableSetOf<Position>()
+                    for (x in 0 until gameState.level.gridWidth) {
+                        for (y in 0 until gameState.level.gridHeight) {
+                            positions.add(Position(x, y))
+                        }
+                    }
+                    positions
+                }
+            }
+            SpellTargetType.ENEMY -> {
+                // All active (non-defeated) enemies are valid targets
+                gameState.attackers.filter { !it.isDefeated.value }.toSet()
+            }
+            SpellTargetType.TOWER -> {
+                // All placed defenders are valid targets
+                gameState.defenders.toSet()
+            }
+            SpellTargetType.NONE -> emptySet()
+        }
+
+        // Set targeting state
+        gameState.spellTargeting.value = SpellTargetingState(
+            activeSpell = spell,
+            validTargets = validTargets
+        )
+
+        // Clear pending spell cast (we're now in targeting mode)
+        _pendingSpellCast.value = null
+        // Close magic panel so the targeting instruction card becomes visible
+        _showMagicPanel.value = false
+    }
+
+    /**
+     * Exit spell targeting mode (cancel)
+     */
+    fun exitSpellTargetingMode() {
+        val gameState = _gameState.value ?: return
+        gameState.spellTargeting.value = null
+    }
+
+    /**
+     * Select a target and cast the spell
+     */
+    fun selectSpellTarget(target: Any) {
+        val gameState = _gameState.value ?: return
+        val targeting = gameState.spellTargeting.value ?: return
+
+        // Validate target is in valid targets set
+        if (!targeting.validTargets.contains(target)) {
+            println("Invalid target for spell")
+            return
+        }
+
+        // Show confirmation dialog with target details (or warning for immune enemies)
+        onSpellTargetSelected(target)
     }
 }

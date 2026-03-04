@@ -1043,6 +1043,7 @@
     <!-- Player Profile Screen -->
     <string name="player_profile">Profil du Joueur</string>
     <string name="player_created">Joueur Créé</string>
+    <string name="abilities">Capacités</string>
     <string name="achievements">Réalisations</string>
     <string name="achievements_earned">Réalisations Obtenues</string>
     <string name="no_achievements_yet">Aucune réalisation pour l\'instant</string>
@@ -1133,6 +1134,17 @@
     <string name="achievement_add_health_barricade_name">Fortifié</string>
     <string name="achievement_add_health_barricade_desc">Ajoutez des points de vie à une barricade existante</string>
     
+    <string name="achievement_first_stat_upgrade_name">Première Amélioration</string>
+    <string name="achievement_first_stat_upgrade_desc">Dépensez votre premier point de capacité pour améliorer une capacité</string>
+    <string name="achievement_first_spell_unlock_name">Sorcier</string>
+    <string name="achievement_first_spell_unlock_desc">Débloquez votre premier sort en utilisant des points de capacité</string>
+    <string name="achievement_construction_level_3_name">Maître Constructeur</string>
+    <string name="achievement_construction_level_3_desc">Atteignez le niveau 3 de Construction pour débloquer les Bases de Tours</string>
+    <string name="achievement_player_level_10_name">Défenseur Expérimenté</string>
+    <string name="achievement_player_level_10_desc">Atteignez le niveau 10 de joueur en gagnant de l\'XP</string>
+    <string name="achievement_player_level_100_name">Défenseur Légendaire</string>
+    <string name="achievement_player_level_100_desc">Atteignez le niveau 100 de joueur en gagnant de l\'XP</string>
+
     <!-- Official Content Badges -->
     <string name="official">Officiel</string>
     <string name="user_levels">Niveaux Utilisateur</string>
@@ -1156,6 +1168,27 @@
     <string name="info_tab_installation">Installation</string>
     <string name="info_tab_audio_licenses">Licences Audio</string>
     <string name="info_tab_license">Licence</string>
+    <string name="info_tab_keyboard_shortcuts">Raccourcis Clavier</string>
+
+    <!-- Keyboard Shortcuts Info -->
+    <string name="keyboard_shortcuts_title">Raccourcis Clavier</string>
+    <string name="keyboard_shortcuts_gameplay_section">Écran de Jeu</string>
+    <string name="keyboard_shortcuts_worldmap_section">Carte du Monde</string>
+    <string name="keyboard_shortcuts_abilities_section">Écran Capacités / XP</string>
+    <string name="keyboard_shortcut_key_label">Touche</string>
+    <string name="keyboard_shortcut_description_label">Action</string>
+    <string name="keyboard_shortcut_where_label">Où</string>
+    <string name="keyboard_shortcut_attack">Attaquer la cible actuelle avec la tour sélectionnée</string>
+    <string name="keyboard_shortcut_auto_attack">Attaque automatique de toutes les tours et fin de tour</string>
+    <string name="keyboard_shortcut_cheat">Ouvrir la boîte de dialogue des codes triche</string>
+    <string name="keyboard_shortcut_enemy_list">Afficher/masquer la liste des ennemis</string>
+    <string name="keyboard_shortcut_end_turn">Fin de tour / Commencer la bataille</string>
+    <string name="keyboard_shortcut_save">Sauvegarder la partie</string>
+    <string name="keyboard_shortcut_pan_up">Déplacer la carte vers le haut</string>
+    <string name="keyboard_shortcut_pan_down">Déplacer la carte vers le bas</string>
+    <string name="keyboard_shortcut_pan_left">Déplacer la carte vers la gauche</string>
+    <string name="keyboard_shortcut_pan_right">Déplacer la carte vers la droite</string>
+    <string name="keyboard_shortcuts_note">Remarque : Les raccourcis clavier ne sont disponibles que sur bureau.</string>
     
     <!-- License Info -->
     <string name="license_info_title">Informations sur la Licence</string>
@@ -1242,4 +1275,162 @@
     <string name="debug_display_tile_positions">Afficher les positions des tuiles</string>
     <string name="debug_display_map_size">Afficher la taille de la carte</string>
     <string name="debug_map_size_overlay">Carte hex : %1$ddp × %2$ddp / %3$dpx × %4$dpx\nContenu : %5$ddp × %6$ddp / %7$dpx × %8$dpx\nVue : %9$ddp × %10$ddp / %11$dpx × %12$dpx\nDécalage : %13$d, %14$d</string>
+
+    <!-- XP System -->
+    <string name="xp_earned">XP Gagnée: %d</string>
+    <string name="xp_info_brief">Gagnez de l\'XP en battant des ennemis.\nMontez de niveau pour obtenir des points de capacités et débloquer des capacités puissantes!</string>
+    <string name="xp_system_unlocked">Système d\'XP Débloqué!</string>
+    <string name="xp_system_unlock_message">Vous pouvez maintenant utiliser l\'XP pour améliorer vos capacités et débloquer des capacités puissantes!\n\nAccédez à l\'écran d\'amélioration depuis le Profil du Joueur.</string>
+
+    <!-- Stats Upgrade Screen -->
+    <string name="available_stat_points">Points de Capacité Disponibles: %d</string>
+    <string name="available_stat_points_label">Points de Capacité Disponibles</string>
+    <string name="stats">Capacités</string>
+    <string name="spells">Sorts</string>
+    <string name="unlock">Débloquer</string>
+    <string name="stat_health">Santé</string>
+    <string name="stat_health_desc">+1 PV bonus par niveau</string>
+    <string name="stat_health_effect">+%d PV</string>
+    <string name="stat_treasury">Trésorerie</string>
+    <string name="stat_treasury_desc">+50 pièces de départ par niveau</string>
+    <string name="stat_treasury_effect">+%d pièces</string>
+    <string name="stat_income">Revenus</string>
+    <string name="stat_income_desc">+10%% de pièces de toutes les sources</string>
+    <string name="stat_income_effect">+%d%%</string>
+    <string name="stat_construction">Construction</string>
+    <string name="stat_construction_desc">Débloque les capacités des tours</string>
+    <string name="stat_construction_effect_none">Aucune capacité</string>
+    <string name="stat_construction_effect_level1">Barricades de lance, Barbelés à pointes</string>
+    <string name="stat_construction_effect_level2">Barricades à pointes</string>
+    <string name="stat_construction_effect_level3">Toutes les capacités débloquées</string>
+    <string name="stat_mana">Mana</string>
+    <string name="stat_mana_desc">+5 de mana maximum par niveau</string>
+    <string name="stat_mana_effect">%d de mana maximum</string>
+    <string name="spells_description">Débloquez des sorts puissants à lancer pendant la bataille</string>
+    <string name="spell_unlocked">Débloqué</string>
+    <string name="spell_mana_cost">%d Mana</string>
+    <string name="player_level">Niveau %d</string>
+    <string name="xp_progress">%d / %d XP</string>
+    <string name="stat_level_effect">Niveau %d: %s</string>
+    <string name="generate_mana">Générer Mana</string>
+    <string name="mana_label">Mana</string>
+    <string name="magic_panel_title">Sorts Magiques</string>
+    <string name="magic_panel_description">Sélectionnez un sort à lancer pendant la bataille</string>
+    <string name="no_spells_unlocked">Aucun sort débloqué pour l\'instant. Améliorez vos capacités pour débloquer des sorts!</string>
+    <string name="cast">Lancer</string>
+    <string name="confirm_spell_cast">Confirmer le Sort</string>
+    <string name="cast_spell_confirmation">Lancer %s?</string>
+    <string name="mana_cost_label">Coût en Mana:</string>
+    <string name="remaining_mana_label">Restant:</string>
+    <string name="spell_targeting_position">Sélectionnez une position sur la carte</string>
+    <string name="spell_targeting_enemy">Sélectionnez un ennemi à cibler</string>
+    <string name="spell_targeting_tower">Sélectionnez une tour à améliorer</string>
+    <string name="spell_targeting_cancel">Cliquez ici pour annuler</string>
+
+    <!-- Spell Names -->
+    <string name="spell_attack_area_name">Attaque de Zone</string>
+    <string name="spell_attack_aimed_name">Attaque Ciblée</string>
+    <string name="spell_heal_name">Guérison</string>
+    <string name="spell_instant_tower_name">Tour Instantanée</string>
+    <string name="spell_bomb_name">Bombe</string>
+    <string name="spell_double_tower_level_name">Doubler Niveau de Tour</string>
+    <string name="spell_cooling_spell_name">Sort de Refroidissement</string>
+    <string name="spell_freeze_spell_name">Sort de Gel</string>
+    <string name="spell_double_tower_reach_name">Doubler Portée de Tour</string>
+    <string name="spell_fear_spell_name">Sort de Peur</string>
+    <string name="spell_fear_spell_area_name">Sort de Peur (Zone)</string>
+
+    <!-- Spell Descriptions -->
+    <string name="spell_attack_area_desc">Inflige 50 dégâts à tous les ennemis dans une portée de 2 hex</string>
+    <string name="spell_attack_aimed_desc">Inflige 80 dégâts à l\'ennemi sur une case ciblée</string>
+    <string name="spell_heal_desc">Restaure 3 points de vie</string>
+    <string name="spell_instant_tower_desc">La prochaine tour construite est déployée instantanément sans délai</string>
+    <string name="spell_bomb_desc">Place une bombe qui explose après 2 tours, infligeant de lourds dégâts (200/150/100/50) selon la distance aux ennemis, barricades et ponts. Les ennemis fuient les bombes sur le point d\'exploser.</string>
+    <string name="spell_double_tower_level_desc">Double les dégâts d\'une tour pendant 1 tour</string>
+    <string name="spell_cooling_spell_desc">Crée une zone qui réduit la vitesse de mouvement des ennemis de 1 pendant 3 tours</string>
+    <string name="spell_freeze_spell_desc">Gèle un ennemi pendant 1 tour (immunité: Démons, Dragons, Ewhad)</string>
+    <string name="spell_double_tower_reach_desc">Double la portée d\'attaque d\'une tour pendant 1 tour</string>
+    <string name="spell_fear_spell_desc">Force un ennemi à fuir vers son point d\'apparition pendant 3 tours</string>
+    <string name="spell_fear_spell_area_desc">Crée une zone de peur qui force les ennemis à fuir vers leurs points d\'apparition pendant 3 tours</string>
+
+    <!-- Construction Info -->
+    <string name="construction_info_intro">Chaque niveau de Construction débloque de puissantes capacités de tour:</string>
+    <string name="construction_level_1_title">Construction Niveau 1</string>
+    <string name="construction_level_1_desc">Tour de Lance (niveau 10+): Construire des barricades\nTour de Piques (niveau 10+): Piques à barbelés (les ennemis perdent 1 point de mouvement)</string>
+    <string name="construction_level_2_title">Construction Niveau 2</string>
+    <string name="construction_level_2_desc">Tour de Piques (niveau 20+): Construire des barricades</string>
+    <string name="construction_level_3_title">Construction Niveau 3</string>
+    <string name="construction_level_3_desc">Base de Tour: Les barricades de niveau 100+ peuvent supporter des tours</string>
+
+
+    <!-- Cheat Codes -->
+    <string name="cheat_codes_title">Codes de triche</string>
+    <string name="cheat_section_general">Général</string>
+    <string name="cheat_section_coins">Pièces et ressources</string>
+    <string name="cheat_section_mana">Mana (pendant le niveau)</string>
+    <string name="cheat_section_enemies">Ennemis</string>
+    <string name="cheat_section_mining">Exploitation minière</string>
+    <string name="cheat_section_xp_stats">XP et capacités</string>
+    <string name="cheat_section_spells">Sorts</string>
+    <string name="cheat_section_levels">Déverrouillage de niveaux</string>
+
+    <!-- Cheat code descriptions -->
+    <string name="cheat_help_desc">Afficher cet écran d\'aide</string>
+    <string name="cheat_platform_desc">Afficher les informations de la plateforme</string>
+    <string name="cheat_cash_desc">Ajouter 1 000 pièces</string>
+    <string name="cheat_mmmoney_desc">Ajouter 1 000 000 de pièces</string>
+    <string name="cheat_emptypocket_desc">Mettre les pièces à 0</string>
+    <string name="cheat_addmana_desc">Ajouter du mana (ex. addmana 50)</string>
+    <string name="cheat_removemana_desc">Retirer du mana (ex. removemana 20)</string>
+    <string name="cheat_spawn_desc">Générer un ennemi (ex. spawn goblin 5)</string>
+    <string name="cheat_spawn_types">Types d\'ennemis: goblin, ork, ogre, skeleton, wizard, greenwitch, redwitch</string>
+    <string name="cheat_dig_nothing_desc">Résultat de creusement: rien</string>
+    <string name="cheat_dig_treasure_desc">Résultat de creusement: trésor</string>
+    <string name="cheat_dig_gems_desc">Résultat de creusement: gemmes/diamant</string>
+    <string name="cheat_dig_dragon_desc">Résultat de creusement: dragon</string>
+    <string name="cheat_addxp_desc">Ajouter de l\'XP (ex. addxp 500)</string>
+    <string name="cheat_removexp_desc">Retirer de l\'XP (ex. removexp 100)</string>
+    <string name="cheat_addstat_desc">Ajouter des niveaux de capacité (ex. addstat health 5)</string>
+    <string name="cheat_removestat_desc">Retirer des niveaux de capacité (ex. removestat mana 2)</string>
+    <string name="cheat_addability_desc">Ajouter des niveaux de capacité (ex. addability health 5)</string>
+    <string name="cheat_removeability_desc">Retirer des niveaux de capacité (ex. removeability mana 2)</string>
+    <string name="cheat_stat_types">Capacités: health, treasury, income, construction, mana</string>
+    <string name="cheat_unlockspell_desc">Déverrouiller un sort (ex. unlockspell fireball)</string>
+    <string name="cheat_lockspell_desc">Verrouiller un sort (ex. lockspell heal)</string>
+    <string name="cheat_spell_types">Sorts: attack_aimed, attack_area, heal, instant_tower, bomb, double_level, cooling, freeze, double_reach, fear, fear_area</string>
+    <string name="cheat_unlockall_desc">Déverrouiller tous les niveaux</string>
+    <string name="cheat_unlock_desc">Déverrouiller un niveau spécifique</string>
+    <string name="cheat_lockall_desc">Verrouiller tous les niveaux</string>
+    <string name="cheat_lock_desc">Verrouiller un niveau spécifique</string>
+
+    <!-- Freeze status labels -->
+    <string name="frozen_label">Gelé</string>
+    <string name="frozen_turns_remaining">Gelé: %d tours restants</string>
+    <!-- Cooling spell status labels -->
+    <string name="cooled_label">Refroidi</string>
+    <string name="cooled_turns_remaining">Refroidi: %d tours restants</string>
+    <!-- Fear status labels -->
+    <string name="feared_label">Effrayé</string>
+    <string name="feared_turns_remaining">Peur: %d tours restants</string>
+
+
+    <!-- Task 3: Post-target spell confirmation -->
+    <string name="cast_spell_on_target">Lancer %1$s</string>
+    <string name="target_enemy_details">Ennemi ciblé:</string>
+    <string name="target_tower_details">Tour ciblée:</string>
+    <string name="target_position">Position ciblée:</string>
+    <string name="enemy_type_level_hp">%1$s (Niveau %2$s, PV: %3$s)</string>
+    <string name="tower_type_level">%1$s (Niveau %2$s)</string>
+    <string name="freeze_immune_warning_title">Impossible de geler l'ennemi</string>
+    <string name="freeze_immune_warning_message">%1$s est immunisé contre le sort de gel!</string>
+
+    <!-- Double Tower Level spell status label -->
+    <string name="double_level_active">Niveau doublé ce tour!</string>
+
+    <!-- Instant Tower spell abort dialog -->
+    <string name="instant_tower_spell_abort_title">Sort de tour instantanée actif</string>
+    <string name="instant_tower_spell_abort_message">Une tour sera construite instantanément. Voulez-vous annuler le sort ou continuer à placer une tour?</string>
+    <string name="instant_tower_spell_abort_confirm">Annuler le sort</string>
+    <string name="instant_tower_spell_abort_cancel">Continuer à placer la tour</string>
+
 </resources>

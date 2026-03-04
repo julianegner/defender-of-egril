@@ -2,6 +2,7 @@ package de.egril.defender.game
 
 import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.model.*
+import de.egril.defender.config.LogConfig
 
 /**
  * Handles bridge building by enemy units.
@@ -213,7 +214,9 @@ class BridgeSystem(private val state: GameState) {
                 // Destroy the ork
                 attacker.isBuildingBridge.value = true
                 attacker.isDefeated.value = true
+                if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                 println("Ork ${attacker.id} built wooden bridge at ${positions[0]} with ${bridge.currentHealth.value} HP")
+                }
                 return true
             }
             
@@ -234,7 +237,9 @@ class BridgeSystem(private val state: GameState) {
                 // Destroy the ogre
                 attacker.isBuildingBridge.value = true
                 attacker.isDefeated.value = true
+                if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                 println("Ogre ${attacker.id} built stone bridge at $positions with ${bridge.currentHealth.value} HP")
+                }
                 return true
             }
             
@@ -267,9 +272,13 @@ class BridgeSystem(private val state: GameState) {
                 if (attacker.position.value.getHexNeighbors().contains(bridgePos)) {
                     // Move wizard onto the bridge
                     attacker.position.value = bridgePos
+                    if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                     println("${attacker.type} ${attacker.id} built magical bridge at ${bridgePos} and moved onto it, level ${attacker.level.value + 1} → ${attacker.level.value}")
+                    }
                 } else {
+                    if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                     println("${attacker.type} ${attacker.id} built magical bridge at ${bridgePos}, level ${attacker.level.value + 1} → ${attacker.level.value}")
+                    }
                 }
                 return true
             }
@@ -306,7 +315,9 @@ class BridgeSystem(private val state: GameState) {
             // Check if bridge is destroyed by damage
             if (bridge.currentHealth.value <= 0 && bridge.type != BridgeType.MAGICAL) {
                 bridge.isDestroyed.value = true
+                if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                 println("${bridge.type} bridge ${bridge.id} destroyed at ${bridge.positions}")
+                }
                 bridgesToRemove.add(bridge)
                 destroyUnitsOnBridge(bridge)
             }
@@ -337,7 +348,9 @@ class BridgeSystem(private val state: GameState) {
         val bridge = state.getBridgeAt(position)
         if (bridge != null) {
             val destroyed = bridge.takeDamage(damage)
+            if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
             println("Bridge ${bridge.id} at $position took $damage damage, remaining HP: ${bridge.currentHealth.value}")
+            }
             
             if (destroyed) {
                 println("Bridge ${bridge.id} destroyed!")
@@ -347,7 +360,9 @@ class BridgeSystem(private val state: GameState) {
                 }
                 for (unit in unitsOnBridge) {
                     unit.isDefeated.value = true
+                    if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                     println("Unit ${unit.id} on bridge ${bridge.id} was destroyed!")
+                    }
                 }
             }
         }

@@ -1,5 +1,6 @@
 package de.egril.defender.editor
 
+import de.egril.defender.config.LogConfig
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.AttackerWave
@@ -52,7 +53,9 @@ object EditorStorage {
         if (initialized) return
         
         // Always try to load repository files first
+        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
         println("Initializing EditorStorage - loading repository files...")
+        }
         val repositoryLoaded = tryLoadRepositoryFiles()
         
         if (!repositoryLoaded) {
@@ -65,7 +68,9 @@ object EditorStorage {
         if (missingCategories.isNotEmpty()) {
             // In production builds, repository files are complete, so we should never reach here
             // If we do, we're in a test environment with incomplete data
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Missing data categories: $missingCategories - continuing anyway (test environment)")
+            }
         }
 
         // Load sequence to populate cache
@@ -75,7 +80,9 @@ object EditorStorage {
         }
 
         initialized = true
+        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
         println("EditorStorage initialized successfully. Repository loaded: $repositoryLoaded")
+        }
     }
 
     /**
@@ -219,8 +226,10 @@ object EditorStorage {
     }
     
     fun getMap(id: String): EditorMap? {
+        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
         println("EditorStorage: Retrieving map with ID: $id")
-        
+        }
+
         // Check cache first
         if (mapsCache.containsKey(id)) {
             return mapsCache[id]
@@ -325,8 +334,10 @@ object EditorStorage {
         val levelWithSpawnPoints = ensureSpawnPoints(level)
         
         val initData = levelWithSpawnPoints.getEffectiveInitialData()
-        println("EditorStorage.saveLevel: Saving level ${levelWithSpawnPoints.id} with ${initData.defenders.size} defenders, ${initData.attackers.size} attackers, ${initData.traps.size} traps, ${initData.barricades.size} barricades")
-        
+        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+        println("EditorStorage.saveLevel: Saving level ${levelWithSpawnPoints.id} with ${levelWithSpawnPoints.initialDefenders.size} defenders, ${levelWithSpawnPoints.initialAttackers.size} attackers, ${levelWithSpawnPoints.initialTraps.size} traps, ${levelWithSpawnPoints.initialBarricades.size} barricades")
+        }
+
         levelsCache[levelWithSpawnPoints.id] = levelWithSpawnPoints
         val json = EditorJsonSerializer.serializeLevel(levelWithSpawnPoints)
         
@@ -334,8 +345,10 @@ object EditorStorage {
         val targetDir = if (levelWithSpawnPoints.isOfficial) OFFICIAL_LEVELS_DIR else USER_LEVELS_DIR
         fileStorage.writeFile("$targetDir/${levelWithSpawnPoints.id}.json", json)
         
+        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
         println("EditorStorage.saveLevel: Saved to $targetDir/${levelWithSpawnPoints.id}.json")
-        
+        }
+
         // Track changes to official data
         if (levelWithSpawnPoints.isOfficial) {
             OfficialDataChangeTracker.trackLevelModified(levelWithSpawnPoints.id)
@@ -386,7 +399,9 @@ object EditorStorage {
         
         if (json != null) {
             val level = EditorJsonSerializer.deserializeLevel(json)
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("EditorStorage: Deserialized level $id: $level")
+            }
             if (level != null) {
                 // Set isOfficial flag based on which directory it was found in
                 val levelWithFlag = level.copy(isOfficial = level.isOfficial || isOfficial)
@@ -428,7 +443,9 @@ object EditorStorage {
     }
     
     fun getLevelSequence(): LevelSequence {
+        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
         println("EditorStorage: Retrieving level sequence...")
+        }
         if (levelSequenceCache != null) {
             return levelSequenceCache!!
         }
@@ -1023,15 +1040,18 @@ object EditorStorage {
      * Convert an EditorLevel to a Level for gameplay
      */
     fun convertToGameLevel(editorLevel: EditorLevel, numericId: Int): Level? {
-        println("Converting EditorLevel ${editorLevel.id} to game Level with numeric ID $numericId")
+        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("Converting EditorLevel ${editorLevel.id} to game Level with numeric ID $numericId")
+        }
         // Force reload the map from disk to get latest changes
         val map = reloadMap(editorLevel.mapId) ?: getMap(editorLevel.mapId) ?: return null
-        println("Using map: ${map.id} (${map.width}x${map.height})")
-        
-        // Convert enemy spawns directly to PlannedEnemySpawn
-        println("-------------------------------")
-        println("enemySpawns: ${editorLevel.enemySpawns}")
-        println("-------------------------------")
+        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("Using map: ${map.id} (${map.width}x${map.height})")
+            // Convert enemy spawns directly to PlannedEnemySpawn
+            println("-------------------------------")
+            println("enemySpawns: ${editorLevel.enemySpawns}")
+            println("-------------------------------")
+        }
 
         val directSpawnPlan = editorLevel.enemySpawns.map { spawn ->
             PlannedEnemySpawn(
@@ -1042,24 +1062,33 @@ object EditorStorage {
             )
         }.sortedBy { it.spawnTurn }
         
-        println("Created direct spawn plan with ${directSpawnPlan.size} spawns")
+        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("Created direct spawn plan with ${directSpawnPlan.size} spawns")
+        }
         
         // Still create AttackerWaves for backward compatibility
         val spawnsByTurn = editorLevel.enemySpawns.groupBy { it.spawnTurn }
-        println("Enemy spawns grouped by turn: ${spawnsByTurn.keys.sorted()}")
+        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("Enemy spawns grouped by turn: ${spawnsByTurn.keys.sorted()}")
+        }
         val waves = spawnsByTurn.entries.sortedBy { it.key }.map { (_, spawns) ->
             AttackerWave(
                 attackers = spawns.map { it.attackerType },
                 spawnDelay = 1  // Fixed delay for now
             )
         }
-        println("Converted to ${waves.size} attacker waves for compatibility.")
+        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("Converted to ${waves.size} attacker waves for compatibility.")
+        }
 
         // Get all target positions from the map
         val targets = map.getTargets()
         if (targets.isEmpty()) return null
-        println("=== LEVEL CONVERSION DEBUG ===")
-        println("Target positions from map: $targets")
+
+        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("=== LEVEL CONVERSION DEBUG ===")
+            println("Target positions from map: $targets")
+        }
         
         // Convert editor waypoints to game waypoints
         val gameWaypoints = editorLevel.waypoints.map { editorWaypoint ->
@@ -1068,9 +1097,11 @@ object EditorStorage {
                 nextTarget = editorWaypoint.nextTargetPosition
             )
         }
-        println("Converted ${gameWaypoints.size} waypoints:")
-        gameWaypoints.forEach { wp ->
-            println("  Waypoint: ${wp.position} -> ${wp.nextTarget}")
+        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("Converted ${gameWaypoints.size} waypoints:")
+            gameWaypoints.forEach { wp ->
+                println("  Waypoint: ${wp.position} -> ${wp.nextTarget}")
+            }
         }
         
         // Include waypoint positions in pathCells so enemies can walk on them
@@ -1078,9 +1109,11 @@ object EditorStorage {
         gameWaypoints.forEach { waypoint ->
             pathCellsWithWaypoints.add(waypoint.position)
         }
-        println("Path cells: ${map.getPathCells().size}, with waypoints: ${pathCellsWithWaypoints.size}")
-        println("Spawn points: ${map.getSpawnPoints()}")
-        println("=== END LEVEL CONVERSION DEBUG ===")
+        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("Path cells: ${map.getPathCells().size}, with waypoints: ${pathCellsWithWaypoints.size}")
+            println("Spawn points: ${map.getSpawnPoints()}")
+            println("=== END LEVEL CONVERSION DEBUG ===")
+        }
         
         val level = Level(
             id = numericId,
@@ -1107,12 +1140,14 @@ object EditorStorage {
             initialData = editorLevel.getEffectiveInitialData()  // Pre-placed elements using new structure
         )
         
-        println("=== CREATED LEVEL ===")
-        println("Level: ${level.name} (ID: ${level.id})")
-        println("Target positions: ${level.targetPositions}")
-        println("Waypoints count: ${level.waypoints.size}")
-        println("Start positions: ${level.startPositions}")
-        println("=== END CREATED LEVEL ===")
+        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("=== CREATED LEVEL ===")
+            println("Level: ${level.name} (ID: ${level.id})")
+            println("Target positions: ${level.targetPositions}")
+            println("Waypoints count: ${level.waypoints.size}")
+            println("Start positions: ${level.startPositions}")
+            println("=== END CREATED LEVEL ===")
+        }
         
         return level
     }
@@ -1131,7 +1166,9 @@ object EditorStorage {
                 RepositoryLoader.loadAndSaveRepositoryFiles(fileStorage)
             }
         } catch (e: Exception) {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Could not load repository files: ${e.message}")
+            }
             false
         }
     }

@@ -325,6 +325,7 @@ fun LevelCompleteScreen(
     levelId: Int,
     won: Boolean,
     isLastLevel: Boolean,
+    xpEarned: Int = 0,
     onRestart: () -> Unit,
     onBackToMap: () -> Unit
 ) {
@@ -391,6 +392,51 @@ fun LevelCompleteScreen(
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground
                 )
+                
+                // Show XP earned if won and XP > 0
+                if (won && xpEarned > 0) {
+                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    Text(
+                        text = stringResource(Res.string.xp_earned, xpEarned),
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        color = Color.Gray
+                    )
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    // Brief info about XP system
+                    Text(
+                        text = stringResource(Res.string.xp_info_brief),
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.Center,
+                        color = Color.Gray.copy(alpha = 0.8f)
+                    )
+                }
+                
+                // Check if this is level 5 (Dark Magic Rises) to show XP system unlock message
+                val isDarkMagicRisesLevel = levelId == 5  // Assuming level 5 ID
+                if (won && isDarkMagicRisesLevel) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    
+                    Text(
+                        text = stringResource(Res.string.xp_system_unlocked),
+                        style = MaterialTheme.typography.titleMedium,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    Text(
+                        text = stringResource(Res.string.xp_system_unlock_message),
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f)
+                    )
+                }
                 
                 Spacer(modifier = Modifier.height(48.dp))
                 

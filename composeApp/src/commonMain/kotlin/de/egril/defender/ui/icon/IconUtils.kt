@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Path
@@ -20,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import de.egril.defender.model.DigOutcome
 import de.egril.defender.ui.drawTowerBase
 import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.bomb
 import defender_of_egril.composeapp.generated.resources.dig_outcome_brass
 import defender_of_egril.composeapp.generated.resources.dig_outcome_diamond
 import defender_of_egril.composeapp.generated.resources.dig_outcome_gem_blue
@@ -172,6 +175,21 @@ fun ExplosionIcon(
     Image(
         painter = painterResource(Res.drawable.emoji_explosion),
         contentDescription = "Explosion",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays the bomb image icon using Image for cross-platform compatibility
+ */
+@Composable
+fun BombIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.bomb),
+        contentDescription = "Bomb",
         modifier = modifier.size(size)
     )
 }
@@ -1041,5 +1059,346 @@ fun WaterIcon(
             color = tint,
             style = Stroke(width = width * 0.1f, cap = StrokeCap.Round, join = StrokeJoin.Round)
         )
+    }
+}
+
+/**
+ * Displays a simple star icon using Canvas
+ */
+@Composable
+fun StarIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 24.dp,
+    color: Color = Color(0xFFFFD700)  // Gold color
+) {
+    Canvas(
+        modifier = modifier.size(size)
+    ) {
+        val canvasWidth = this.size.width
+        val canvasHeight = this.size.height
+        val centerX = canvasWidth / 2f
+        val centerY = canvasHeight / 2f
+        val outerRadius = minOf(canvasWidth, canvasHeight) / 2f * 0.9f
+        val innerRadius = outerRadius * 0.4f
+        
+        // Calculate the 5 points of the star (outer and inner)
+        val points = mutableListOf<Offset>()
+        for (i in 0 until 10) {
+            val angle = (i * 36 - 90) * (PI / 180.0)  // Convert degrees to radians
+            val radius = if (i % 2 == 0) outerRadius else innerRadius
+            val x = centerX + (radius * cos(angle)).toFloat()
+            val y = centerY + (radius * sin(angle)).toFloat()
+            points.add(Offset(x, y))
+        }
+        
+        // Draw the star
+        val path = Path().apply {
+            moveTo(points[0].x, points[0].y)
+            for (i in 1 until points.size) {
+                lineTo(points[i].x, points[i].y)
+            }
+            close()
+        }
+        
+        // Fill the star
+        drawPath(
+            path = path,
+            color = color,
+            alpha = 0.3f
+        )
+        
+        // Draw the outline
+        drawPath(
+            path = path,
+            color = color,
+            style = Stroke(width = 2f)
+        )
+    }
+}
+
+/**
+ * Displays a simple hammer icon using Canvas for construction/building
+ */
+@Composable
+fun HammerIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 24.dp,
+    color: Color = Color(0xFF795548)  // Brown color
+) {
+    Canvas(
+        modifier = modifier.size(size)
+    ) {
+        val canvasWidth = this.size.width
+        val canvasHeight = this.size.height
+        
+        // Draw hammer head (rectangle)
+        val headWidth = canvasWidth * 0.5f
+        val headHeight = canvasHeight * 0.2f
+        val headLeft = canvasWidth * 0.1f
+        val headTop = canvasHeight * 0.15f
+        
+        drawRect(
+            color = color,
+            topLeft = Offset(headLeft, headTop),
+            size = Size(headWidth, headHeight)
+        )
+        
+        // Draw hammer handle (line)
+        val handleStartX = canvasWidth * 0.5f
+        val handleStartY = headTop + headHeight
+        val handleEndX = canvasWidth * 0.8f
+        val handleEndY = canvasHeight * 0.85f
+        
+        drawLine(
+            color = color,
+            start = Offset(handleStartX, handleStartY),
+            end = Offset(handleEndX, handleEndY),
+            strokeWidth = canvasWidth * 0.1f,
+            cap = StrokeCap.Round
+        )
+    }
+}
+
+/**
+ * Displays an Attack Area spell icon: 3 purple target circles — 1 on top centered, 2 below
+ */
+@Composable
+fun AttackAreaSpellIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 24.dp
+) {
+    Canvas(modifier = modifier.size(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val radius = minOf(w, h) * 0.18f
+        val innerRadius = radius * 0.4f
+        val strokeWidth = radius * 0.3f
+        val purple = Color(0xFFAA00FF)
+
+        // 3 positions: 1 centered on top row, 2 on bottom row
+        val topRowY = h * 0.3f
+        val bottomRowY = h * 0.72f
+        val positions = listOf(
+            Offset(w / 2f, topRowY),            // top center
+            Offset(w * 0.27f, bottomRowY),       // bottom left
+            Offset(w * 0.73f, bottomRowY)        // bottom right
+        )
+
+        for (pos in positions) {
+            drawCircle(color = purple, radius = radius, center = pos, style = Stroke(width = strokeWidth))
+            drawCircle(color = purple, radius = innerRadius, center = pos)
+        }
+    }
+}
+
+/**
+ * Displays an Attack Aimed spell icon: a single purple target circle
+ */
+@Composable
+fun AttackAimedSpellIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 24.dp
+) {
+    Canvas(modifier = modifier.size(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val radius = minOf(w, h) * 0.33f
+        val innerRadius = radius * 0.4f
+        val strokeWidth = radius * 0.3f
+        val purple = Color(0xFFAA00FF)
+        val center = Offset(w / 2f, h / 2f)
+
+        drawCircle(color = purple, radius = radius, center = center, style = Stroke(width = strokeWidth))
+        drawCircle(color = purple, radius = innerRadius, center = center)
+    }
+}
+
+/**
+ * Draws a small goblin head (green circle with pointy ears and red eyes) at the given center and scale.
+ */
+private fun DrawScope.drawSmallGoblinHead(cx: Float, cy: Float, headRadius: Float) {
+    val earW = headRadius * 0.55f
+    val earH = headRadius * 0.65f
+    val leftEar = Path().apply {
+        moveTo(cx - headRadius * 0.75f, cy - headRadius * 0.2f)
+        lineTo(cx - headRadius * 0.75f - earW, cy - headRadius * 0.2f - earH)
+        lineTo(cx - headRadius * 0.4f, cy - headRadius * 0.55f)
+        close()
+    }
+    val rightEar = Path().apply {
+        moveTo(cx + headRadius * 0.75f, cy - headRadius * 0.2f)
+        lineTo(cx + headRadius * 0.75f + earW, cy - headRadius * 0.2f - earH)
+        lineTo(cx + headRadius * 0.4f, cy - headRadius * 0.55f)
+        close()
+    }
+    drawPath(leftEar, Color(0xFF90EE90))
+    drawPath(rightEar, Color(0xFF90EE90))
+    drawCircle(color = Color(0xFF90EE90), radius = headRadius, center = Offset(cx, cy))
+    drawCircle(color = Color.Red, radius = headRadius * 0.18f, center = Offset(cx - headRadius * 0.32f, cy - headRadius * 0.1f))
+    drawCircle(color = Color.Red, radius = headRadius * 0.18f, center = Offset(cx + headRadius * 0.32f, cy - headRadius * 0.1f))
+}
+
+/**
+ * Draws a small ogre head (brown circle with white eyes) at the given center and scale.
+ */
+private fun DrawScope.drawSmallOgreHead(cx: Float, cy: Float, headRadius: Float) {
+    drawCircle(color = Color(0xFFA0522D), radius = headRadius, center = Offset(cx, cy))
+    drawCircle(color = Color.White, radius = headRadius * 0.22f, center = Offset(cx - headRadius * 0.35f, cy - headRadius * 0.1f))
+    drawCircle(color = Color.White, radius = headRadius * 0.22f, center = Offset(cx + headRadius * 0.35f, cy - headRadius * 0.1f))
+    drawCircle(color = Color.Black, radius = headRadius * 0.1f, center = Offset(cx - headRadius * 0.35f, cy - headRadius * 0.1f))
+    drawCircle(color = Color.Black, radius = headRadius * 0.1f, center = Offset(cx + headRadius * 0.35f, cy - headRadius * 0.1f))
+}
+
+/**
+ * Draws fear scribbles (chaotic zigzag lines in black) above a head center.
+ */
+private fun DrawScope.drawFearScribbles(cx: Float, topY: Float, width: Float, strokeWidth: Float) {
+    val halfW = width / 2f
+    val zigzagH = width * 0.35f
+    val scribblePaint = Color.Black
+
+    // Two zigzag scribble lines
+    for (i in 0..1) {
+        val yBase = topY + i * zigzagH * 0.9f
+        val scribble = Path().apply {
+            moveTo(cx - halfW, yBase)
+            lineTo(cx - halfW * 0.4f, yBase - zigzagH * 0.5f)
+            lineTo(cx + halfW * 0.2f, yBase + zigzagH * 0.3f)
+            lineTo(cx + halfW, yBase - zigzagH * 0.4f)
+        }
+        drawPath(scribble, scribblePaint, style = Stroke(width = strokeWidth, cap = StrokeCap.Round, join = StrokeJoin.Round))
+    }
+}
+
+/**
+ * Displays a Fear Spell icon: goblin head with black fear scribbles on top
+ */
+@Composable
+fun FearSpellIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 24.dp
+) {
+    Canvas(modifier = modifier.size(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val s = minOf(w, h)
+        val headRadius = s * 0.27f
+        val cx = w / 2f
+        // Position head in lower portion so scribbles fit above
+        val cy = h * 0.65f
+
+        drawSmallGoblinHead(cx, cy, headRadius)
+
+        // Fear scribbles above the head
+        val scribbleTopY = cy - headRadius - s * 0.05f
+        drawFearScribbles(cx, scribbleTopY - s * 0.12f, headRadius * 1.6f, s * 0.05f)
+    }
+}
+
+/**
+ * Displays a Fear Spell (Area) icon: 2 goblins and 1 ogre with black fear scribbles
+ */
+@Composable
+fun FearSpellAreaIcon(
+    modifier: Modifier = Modifier,
+    size: Dp = 24.dp
+) {
+    Canvas(modifier = modifier.size(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val s = minOf(w, h)
+
+        // Layout: 2 small goblins on the left (stacked), 1 ogre on the right
+        val goblinRadius = s * 0.18f
+        val ogreRadius = s * 0.22f
+        val leftX = w * 0.27f
+        val rightX = w * 0.73f
+        val topY = h * 0.3f
+        val bottomY = h * 0.72f
+        val ogreCY = (topY + bottomY) / 2f
+
+        // Draw 2 goblins
+        drawSmallGoblinHead(leftX, topY, goblinRadius)
+        drawSmallGoblinHead(leftX, bottomY, goblinRadius)
+
+        // Draw ogre
+        drawSmallOgreHead(rightX, ogreCY, ogreRadius)
+
+        // Fear scribbles above each head
+        val scribbleStroke = s * 0.045f
+        drawFearScribbles(leftX, topY - goblinRadius - s * 0.01f, goblinRadius * 1.5f, scribbleStroke)
+        drawFearScribbles(leftX, bottomY - goblinRadius - s * 0.01f, goblinRadius * 1.5f, scribbleStroke)
+        drawFearScribbles(rightX, ogreCY - ogreRadius - s * 0.01f, ogreRadius * 1.5f, scribbleStroke)
+    }
+}
+
+/**
+ * Displays a snowflake icon using Canvas for freeze effects
+ */
+@Composable
+fun SnowflakeIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 24.dp,
+    tint: Color = Color.Cyan
+) {
+    Canvas(
+        modifier = modifier.size(size)
+    ) {
+        val center = Offset(this.size.width / 2f, this.size.height / 2f)
+        val radius = this.size.minDimension / 2.5f
+        val strokeWidth = this.size.minDimension * 0.08f
+        
+        // Draw 6 arms of the snowflake (60 degrees apart)
+        for (i in 0 until 6) {
+            val angle = i * PI.toFloat() / 3f
+            val cos = kotlin.math.cos(angle)
+            val sin = kotlin.math.sin(angle)
+            
+            // Main arm
+            drawLine(
+                color = tint,
+                start = center,
+                end = Offset(
+                    center.x + cos * radius,
+                    center.y + sin * radius
+                ),
+                strokeWidth = strokeWidth,
+                cap = StrokeCap.Round
+            )
+            
+            // Small branches on each arm
+            val branchLength = radius * 0.3f
+            val branchPos = radius * 0.7f
+            
+            // Branch point
+            val branchX = center.x + cos * branchPos
+            val branchY = center.y + sin * branchPos
+            
+            // Left branch
+            val leftAngle = angle - PI.toFloat() / 6f
+            drawLine(
+                color = tint,
+                start = Offset(branchX, branchY),
+                end = Offset(
+                    branchX + kotlin.math.cos(leftAngle) * branchLength,
+                    branchY + kotlin.math.sin(leftAngle) * branchLength
+                ),
+                strokeWidth = strokeWidth * 0.7f,
+                cap = StrokeCap.Round
+            )
+            
+            // Right branch
+            val rightAngle = angle + PI.toFloat() / 6f
+            drawLine(
+                color = tint,
+                start = Offset(branchX, branchY),
+                end = Offset(
+                    branchX + kotlin.math.cos(rightAngle) * branchLength,
+                    branchY + kotlin.math.sin(rightAngle) * branchLength
+                ),
+                strokeWidth = strokeWidth * 0.7f,
+                cap = StrokeCap.Round
+            )
+        }
     }
 }
