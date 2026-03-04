@@ -1390,6 +1390,8 @@
     <string name="cheat_removexp_desc">XP entfernen (z.B. removexp 100)</string>
     <string name="cheat_addstat_desc">Fähigkeits-Level hinzufügen (z.B. addstat health 5)</string>
     <string name="cheat_removestat_desc">Fähigkeits-Level entfernen (z.B. removestat mana 2)</string>
+    <string name="cheat_addability_desc">Fähigkeits-Level hinzufügen (z.B. addability health 5)</string>
+    <string name="cheat_removeability_desc">Fähigkeits-Level entfernen (z.B. removeability mana 2)</string>
     <string name="cheat_stat_types">Fähigkeiten: health, treasury, income, construction, mana</string>
     <string name="cheat_unlockspell_desc">Zauber freischalten (z.B. unlockspell fireball)</string>
     <string name="cheat_lockspell_desc">Zauber sperren (z.B. lockspell heal)</string>

@@ -288,8 +288,8 @@ object CheatCodeHandler {
             }
         }
 
-        // Handle "addstat <statname> <amount>" cheatcode
-        if (lowercaseCode.startsWith("addstat ") && addStatLevel != null) {
+        // Handle "addstat"/"addability <statname> <amount>" cheatcodes
+        if ((lowercaseCode.startsWith("addstat ") || lowercaseCode.startsWith("addability ")) && addStatLevel != null) {
             val parts = lowercaseCode.split(" ").filter { it.isNotBlank() }
             if (parts.size >= 3) {
                 val statName = parts[1]
@@ -299,8 +299,8 @@ object CheatCodeHandler {
             }
         }
 
-        // Handle "removestat <statname> <amount>" cheatcode
-        if (lowercaseCode.startsWith("removestat ") && removeStatLevel != null) {
+        // Handle "removestat"/"removeability <statname> <amount>" cheatcodes
+        if ((lowercaseCode.startsWith("removestat ") || lowercaseCode.startsWith("removeability ")) && removeStatLevel != null) {
             val parts = lowercaseCode.split(" ").filter { it.isNotBlank() }
             if (parts.size >= 3) {
                 val statName = parts[1]

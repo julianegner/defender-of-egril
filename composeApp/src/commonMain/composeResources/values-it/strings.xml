@@ -1393,6 +1393,8 @@
     <string name="cheat_removexp_desc">Rimuovi XP (es. removexp 100)</string>
     <string name="cheat_addstat_desc">Aggiungi livelli di abilità (es. addstat health 5)</string>
     <string name="cheat_removestat_desc">Rimuovi livelli di abilità (es. removestat mana 2)</string>
+    <string name="cheat_addability_desc">Aggiungi livelli di abilità (es. addability health 5)</string>
+    <string name="cheat_removeability_desc">Rimuovi livelli di abilità (es. removeability mana 2)</string>
     <string name="cheat_stat_types">Abilità: health, treasury, income, construction, mana</string>
     <string name="cheat_unlockspell_desc">Sblocca un incantesimo (es. unlockspell fireball)</string>
     <string name="cheat_lockspell_desc">Blocca un incantesimo (es. lockspell heal)</string>

@@ -1392,6 +1392,8 @@
     <string name="cheat_removexp_desc">Retirer de l\'XP (ex. removexp 100)</string>
     <string name="cheat_addstat_desc">Ajouter des niveaux de capacité (ex. addstat health 5)</string>
     <string name="cheat_removestat_desc">Retirer des niveaux de capacité (ex. removestat mana 2)</string>
+    <string name="cheat_addability_desc">Ajouter des niveaux de capacité (ex. addability health 5)</string>
+    <string name="cheat_removeability_desc">Retirer des niveaux de capacité (ex. removeability mana 2)</string>
     <string name="cheat_stat_types">Capacités: health, treasury, income, construction, mana</string>
     <string name="cheat_unlockspell_desc">Déverrouiller un sort (ex. unlockspell fireball)</string>
     <string name="cheat_lockspell_desc">Verrouiller un sort (ex. lockspell heal)</string>
