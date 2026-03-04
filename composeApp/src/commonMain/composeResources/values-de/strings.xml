@@ -1240,4 +1240,16 @@
     <string name="debug_display_tile_positions">Kachel-Positionen anzeigen</string>
     <string name="debug_display_map_size">Kartengröße anzeigen</string>
     <string name="debug_map_size_overlay">Hexkarte: %1$ddp × %2$ddp / %3$dpx × %4$dpx\nInhalt: %5$ddp × %6$ddp / %7$dpx × %8$dpx\nAnsicht: %9$ddp × %10$ddp / %11$dpx × %12$dpx\nOffset: %13$d, %14$d</string>
+    <string name="target_taken_title">Ziel eingenommen!</string>
+    <string name="target_taken_message_named">%1$s wurde vom Feind eingenommen!</string>
+    <string name="target_taken_message_unnamed">Eine Zielposition wurde vom Feind eingenommen!</string>
+    <string name="gate_destroyed_title">Tor zerstört!</string>
+    <string name="gate_destroyed_message_named">%1$s wurde zerstört!</string>
+    <string name="gate_destroyed_message_unnamed">Ein Tor wurde zerstört!</string>
+    <string name="target_type_label">Zieltyp</string>
+    <string name="target_type_standard">Standard</string>
+    <string name="target_type_single_hit">Einmalig</string>
+    <string name="target_name_label">Zielname (optional)</string>
+    <string name="barricade_name_label">Barrikadenname (optional)</string>
+    <string name="is_gate_label">Ist Tor</string>
 </resources>

@@ -1082,6 +1082,17 @@ object EditorStorage {
         println("Spawn points: ${map.getSpawnPoints()}")
         println("=== END LEVEL CONVERSION DEBUG ===")
         
+        // Convert editor target info map to model TargetInfo map
+        val gameTargetInfoMap: Map<Position, de.egril.defender.model.TargetInfo> =
+            map.targetInfoMap.entries.mapNotNull { (key, editorInfo) ->
+                val parts = key.split(",")
+                val pos = Position(parts[0].toInt(), parts[1].toInt())
+                pos to de.egril.defender.model.TargetInfo(
+                    name = editorInfo.name,
+                    type = editorInfo.type
+                )
+            }.toMap()
+
         val level = Level(
             id = numericId,
             name = editorLevel.title,
@@ -1104,6 +1115,7 @@ object EditorStorage {
             mapId = editorLevel.mapId,  // Store map ID for save/load verification
             riverTiles = map.getRiverTilesMap(),  // Add river tiles with flow direction and speed
             allowAutoAttack = editorLevel.allowAutoAttack,  // Allow auto-attack option
+            targetInfoMap = gameTargetInfoMap,  // Named / SINGLE_HIT target metadata
             initialData = editorLevel.getEffectiveInitialData()  // Pre-placed elements using new structure
         )
         

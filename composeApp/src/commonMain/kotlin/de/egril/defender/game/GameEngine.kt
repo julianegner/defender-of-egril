@@ -662,9 +662,9 @@ class GameEngine(private val state: GameState) {
                 }
                 
                 // Check if this position is already occupied or will be occupied by another unit in this step
-                // Exception: Allow multiple units to move to the target position (they get defeated immediately)
-                val isOccupied = if (state.level.isTargetPosition(newPos)) {
-                    false  // Target position can accommodate multiple units
+                // Exception: Allow multiple units to move to an active target position (they get defeated immediately)
+                val isOccupied = if (state.isActiveTargetPosition(newPos)) {
+                    false  // Active target position can accommodate multiple units
                 } else {
                     currentPositions.any { (id, pos) ->
                         id != attacker.id && pos == newPos
@@ -677,7 +677,7 @@ class GameEngine(private val state: GameState) {
                 
                 if (!isOccupied) {
                     movementsInThisStep.add(Pair(attacker.id, newPos))
-                    if (!state.level.isTargetPosition(newPos)) {
+                    if (!state.isActiveTargetPosition(newPos)) {
                         // Only mark non-target positions as occupied
                         positionsToOccupy.add(newPos)
                     }
@@ -688,7 +688,7 @@ class GameEngine(private val state: GameState) {
                     if (alternativePos != null) {
                         if (barricadeSystem.getBarricadeAt(alternativePos) == null) {
                             movementsInThisStep.add(Pair(attacker.id, alternativePos))
-                            if (!state.level.isTargetPosition(alternativePos)) {
+                            if (!state.isActiveTargetPosition(alternativePos)) {
                                 positionsToOccupy.add(alternativePos)
                             }
                             currentPositions[attacker.id] = alternativePos
@@ -873,13 +873,52 @@ class GameEngine(private val state: GameState) {
 
     /**
      * Apply damage to health points when an enemy reaches the target.
+     * For SINGLE_HIT targets, the target is "taken" instead of dealing HP damage.
      * Handles variable damage based on enemy type and marks the attacker as defeated.
      */
     private fun applyTargetDamage(attacker: Attacker) {
-        val damage = attacker.calculateTargetDamage()
-        println("!!! ENEMY ENTERED TARGET !!! Turn ${state.turnNumber.value}: ${attacker.type} (ID ${attacker.id}) at ${attacker.position.value} dealt $damage damage. HP: ${state.healthPoints.value} -> ${state.healthPoints.value - damage}")
-        state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
+        val position = attacker.position.value
+        val targetInfo = state.level.targetInfoMap[position]
+        
+        if (targetInfo?.type == de.egril.defender.model.TargetType.SINGLE_HIT) {
+            // Single-hit target: mark as taken, no HP damage
+            if (!state.takenTargets.contains(position)) {
+                state.takenTargets.add(position)
+                val name = targetInfo.name.takeIf { it.isNotBlank() }
+                state.pendingMessages.add(
+                    de.egril.defender.model.GameMessage(
+                        type = de.egril.defender.model.GameMessageType.TARGET_TAKEN,
+                        name = name
+                    )
+                )
+                println("!!! SINGLE_HIT TARGET TAKEN !!! Turn ${state.turnNumber.value}: ${attacker.type} (ID ${attacker.id}) took target '${name ?: position}'")
+                // Redirect all enemies that were heading to this taken target
+                retargetEnemiesFromTakenTarget(position)
+            }
+        } else {
+            // Standard target: deal HP damage
+            val damage = attacker.calculateTargetDamage()
+            println("!!! ENEMY ENTERED TARGET !!! Turn ${state.turnNumber.value}: ${attacker.type} (ID ${attacker.id}) at $position dealt $damage damage. HP: ${state.healthPoints.value} -> ${state.healthPoints.value - damage}")
+            state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
+        }
         attacker.isDefeated.value = true
+    }
+
+    /**
+     * When a SINGLE_HIT target at [takenPosition] is taken, redirect all enemies
+     * whose currentTarget points to that position towards the nearest remaining active target.
+     */
+    private fun retargetEnemiesFromTakenTarget(takenPosition: Position) {
+        val remaining = state.getActiveTargetPositions()
+        if (remaining.isEmpty()) return  // No active targets left – level will be lost
+        for (enemy in state.attackers) {
+            if (enemy.isDefeated.value) continue
+            if (enemy.currentTarget?.value == takenPosition) {
+                val newTarget = remaining.minByOrNull { enemy.position.value.distanceTo(it) } ?: remaining.first()
+                enemy.currentTarget?.value = newTarget
+                println("Enemy ${enemy.id} (${enemy.type}) retargeted from $takenPosition to $newTarget")
+            }
+        }
     }
     
     /**
@@ -974,7 +1013,7 @@ class GameEngine(private val state: GameState) {
             }
             
             // Check if reached any target
-            if (state.level.isTargetPosition(attacker.position.value)) {
+            if (state.isActiveTargetPosition(attacker.position.value)) {
                 applyTargetDamage(attacker)
             }
             
@@ -998,9 +1037,9 @@ class GameEngine(private val state: GameState) {
         
         // Regular unit movement (non-dragons)
         // Check if position is occupied by another alive attacker
-        // Exception: Allow movement to target position even if occupied (units get defeated immediately)
-        val isOccupied = if (state.level.isTargetPosition(newPosition)) {
-            false  // Target can accommodate multiple units
+        // Exception: Allow movement to active target position even if occupied (units get defeated immediately)
+        val isOccupied = if (state.isActiveTargetPosition(newPosition)) {
+            false  // Active target can accommodate multiple units
         } else {
             state.attackers.any {
                 it.id != attacker.id && !it.isDefeated.value && it.position.value == newPosition
@@ -1031,7 +1070,7 @@ class GameEngine(private val state: GameState) {
                 }
                 
                 // Check if reached any target
-                if (state.level.isTargetPosition(newPosition)) {
+                if (state.isActiveTargetPosition(newPosition)) {
                     applyTargetDamage(attacker)
                 }
             }
@@ -1074,7 +1113,7 @@ class GameEngine(private val state: GameState) {
                     }
 
                     // Check if reached target
-                    if (state.level.isTargetPosition(newPosition)) {
+                    if (state.isActiveTargetPosition(newPosition)) {
                         applyTargetDamage(attacker)
                     }
                 }
@@ -1255,9 +1294,9 @@ class GameEngine(private val state: GameState) {
                 }
                 
                 // Check if this position is already occupied or will be occupied by another unit in this step
-                // Exception: Allow multiple units to move to the target position (they get defeated immediately)
-                val isOccupied = if (state.level.isTargetPosition(newPos)) {
-                    false  // Target position can accommodate multiple units
+                // Exception: Allow multiple units to move to an active target position (they get defeated immediately)
+                val isOccupied = if (state.isActiveTargetPosition(newPos)) {
+                    false  // Active target position can accommodate multiple units
                 } else {
                     state.attackers.any {
                         it.id != attacker.id && !it.isDefeated.value && it.position.value == newPos
@@ -1268,7 +1307,7 @@ class GameEngine(private val state: GameState) {
                 
                 if (!isOccupied) {
                     movementsInThisStep.add(Pair(attacker.id, newPos))
-                    if (!state.level.isTargetPosition(newPos)) {
+                    if (!state.isActiveTargetPosition(newPos)) {
                         // Only mark non-target positions as occupied
                         positionsToOccupy.add(newPos)
                     }
@@ -1290,7 +1329,7 @@ class GameEngine(private val state: GameState) {
                     val alternativePos = findAlternativePosition(currentPos, target, attacker.id, currentPositions, positionsToOccupy)
                     if (alternativePos != null) {
                         movementsInThisStep.add(Pair(attacker.id, alternativePos))
-                        if (!state.level.isTargetPosition(alternativePos)) {
+                        if (!state.isActiveTargetPosition(alternativePos)) {
                             positionsToOccupy.add(alternativePos)
                         }
                         currentPositions[attacker.id] = alternativePos

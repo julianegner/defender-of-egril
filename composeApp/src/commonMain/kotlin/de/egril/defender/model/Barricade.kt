@@ -15,6 +15,7 @@ data class Barricade(
     val healthPoints: MutableState<Int>,
     val defenderId: Int,  // Track which defender created this barricade
     val isGate: Boolean = false,  // True if barricade is between two buildable tiles with towers
+    val name: String? = null,  // Optional display name (e.g. "North Gate") – non-null for named gates
     val supportedTowerId: MutableState<Int?> = mutableStateOf(null)  // ID of tower placed on this barricade (null if no tower)
 ) {
     /**

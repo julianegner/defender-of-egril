@@ -78,6 +78,7 @@ fun App() {
         val specialActionsRemaining by viewModel.specialActionsRemaining.collectAsState()
         val reminderMessage by viewModel.reminderMessage.collectAsState()
         val newAchievement by viewModel.newAchievement.collectAsState()
+        val pendingGameMessage by viewModel.pendingGameMessage.collectAsState()
         
         // Show player selection dialog if needed
         var showPlayerSelection by remember { mutableStateOf(false) }
@@ -309,7 +310,9 @@ fun App() {
                         specialActionsRemaining = specialActionsRemaining,
                         onClearSpecialActionsWarning = { viewModel.clearSpecialActionsWarning() },
                         reminderMessage = reminderMessage,
-                        onClearReminderMessage = { viewModel.clearReminderMessage() }
+                        onClearReminderMessage = { viewModel.clearReminderMessage() },
+                        pendingGameMessage = pendingGameMessage,
+                        onDismissGameMessage = { viewModel.dismissGameMessage() }
                     )
                 }
             }

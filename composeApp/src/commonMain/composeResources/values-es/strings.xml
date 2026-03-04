@@ -1242,4 +1242,16 @@
     <string name="debug_display_tile_positions">Mostrar posiciones de celdas</string>
     <string name="debug_display_map_size">Mostrar tamaño del mapa</string>
     <string name="debug_map_size_overlay">Mapa hex: %1$ddp × %2$ddp / %3$dpx × %4$dpx\nContenido: %5$ddp × %6$ddp / %7$dpx × %8$dpx\nVista: %9$ddp × %10$ddp / %11$dpx × %12$dpx\nDesplazamiento: %13$d, %14$d</string>
+    <string name="target_taken_title">¡Objetivo capturado!</string>
+    <string name="target_taken_message_named">¡%1$s ha sido capturado por el enemigo!</string>
+    <string name="target_taken_message_unnamed">¡Una posición objetivo ha sido capturada por el enemigo!</string>
+    <string name="gate_destroyed_title">¡Puerta destruida!</string>
+    <string name="gate_destroyed_message_named">¡%1$s ha sido destruida!</string>
+    <string name="gate_destroyed_message_unnamed">¡Una puerta ha sido destruida!</string>
+    <string name="target_type_label">Tipo de objetivo</string>
+    <string name="target_type_standard">Estándar</string>
+    <string name="target_type_single_hit">Golpe único</string>
+    <string name="target_name_label">Nombre del objetivo (opcional)</string>
+    <string name="barricade_name_label">Nombre de la barricada (opcional)</string>
+    <string name="is_gate_label">Es puerta</string>
 </resources>

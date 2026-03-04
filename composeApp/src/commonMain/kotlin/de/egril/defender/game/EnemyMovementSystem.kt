@@ -35,7 +35,8 @@ class EnemyMovementSystem(
             // Use the first waypoint's next target, not the waypoint position itself
             state.level.waypoints.first().nextTarget
         } else {
-            state.level.targetPositions.first()
+            // Prefer the first active (non-taken) target
+            state.getActiveTargetPositions().firstOrNull() ?: state.level.targetPositions.first()
         }
         println("No waypoint at spawn point, using fallback target: $initialTarget")
         return initialTarget
@@ -324,11 +325,37 @@ class EnemyMovementSystem(
     
     /**
      * Apply damage to health points when an enemy reaches the target.
+     * For SINGLE_HIT targets, the target is "taken" instead of dealing HP damage.
      * Handles variable damage based on enemy type and marks the attacker as defeated.
      */
     private fun applyTargetDamage(attacker: Attacker) {
-        val damage = attacker.calculateTargetDamage()
-        state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
+        val position = attacker.position.value
+        val targetInfo = state.level.targetInfoMap[position]
+        if (targetInfo?.type == de.egril.defender.model.TargetType.SINGLE_HIT) {
+            if (!state.takenTargets.contains(position)) {
+                state.takenTargets.add(position)
+                val name = targetInfo.name.takeIf { it.isNotBlank() }
+                state.pendingMessages.add(
+                    de.egril.defender.model.GameMessage(
+                        type = de.egril.defender.model.GameMessageType.TARGET_TAKEN,
+                        name = name
+                    )
+                )
+                println("!!! SINGLE_HIT TARGET TAKEN !!! Turn ${state.turnNumber.value}: ${attacker.type} (ID ${attacker.id}) took target '${name ?: position}'")
+                // Redirect all enemies heading to this taken target
+                val remaining = state.getActiveTargetPositions()
+                for (enemy in state.attackers) {
+                    if (enemy.isDefeated.value || enemy.id == attacker.id) continue
+                    if (enemy.currentTarget?.value == position) {
+                        val newTarget = remaining.minByOrNull { enemy.position.value.distanceTo(it) } ?: remaining.firstOrNull() ?: return
+                        enemy.currentTarget?.value = newTarget
+                    }
+                }
+            }
+        } else {
+            val damage = attacker.calculateTargetDamage()
+            state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
+        }
         attacker.isDefeated.value = true
     }
 
@@ -385,6 +412,14 @@ class EnemyMovementSystem(
                     
                     if (barricadeAtPosition.isDestroyed()) {
                         // Barricade destroyed, remove it and goblin can move to that position
+                        if (!barricadeAtPosition.name.isNullOrBlank()) {
+                            state.pendingMessages.add(
+                                de.egril.defender.model.GameMessage(
+                                    type = de.egril.defender.model.GameMessageType.GATE_DESTROYED,
+                                    name = barricadeAtPosition.name
+                                )
+                            )
+                        }
                         state.barricades.remove(barricadeAtPosition)
                         println("Goblin ${attacker.id} destroyed barricade at $newPos")
                         attacker.position.value = newPos
@@ -401,7 +436,7 @@ class EnemyMovementSystem(
                         remainingSpeed--
                         
                         // Check if reached any target
-                        if (state.level.isTargetPosition(attacker.position.value)) {
+                        if (state.isActiveTargetPosition(attacker.position.value)) {
                             applyTargetDamage(attacker)
                             break
                         }
@@ -427,7 +462,7 @@ class EnemyMovementSystem(
                     remainingSpeed--
                     
                     // Check if reached any target
-                    if (state.level.isTargetPosition(attacker.position.value)) {
+                    if (state.isActiveTargetPosition(attacker.position.value)) {
                         applyTargetDamage(attacker)
                         break
                     }

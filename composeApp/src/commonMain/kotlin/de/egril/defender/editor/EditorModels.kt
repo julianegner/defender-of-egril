@@ -3,6 +3,7 @@ package de.egril.defender.editor
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.Position
+import de.egril.defender.model.TargetType
 import de.egril.defender.ui.common.LevelInfoEnemiesLevelData
 
 /**
@@ -18,6 +19,15 @@ enum class TileType {
 }
 
 /**
+ * Optional metadata for a TARGET tile in the map editor.
+ * Mirrors [de.egril.defender.model.TargetInfo] but lives in the editor layer.
+ */
+data class EditorTargetInfo(
+    val name: String = "",          // Display name shown on the tile (e.g. "Marketplace")
+    val type: TargetType = TargetType.STANDARD  // How the target behaves when reached
+)
+
+/**
  * Map data for the editor
  */
 data class EditorMap(
@@ -31,7 +41,8 @@ data class EditorMap(
     val worldMapPosition: Position? = null,  // Position on world map (x,y as permille 0-1000, null = auto-calculate)
     val riverTiles: Map<String, de.egril.defender.model.RiverTile> = emptyMap(),  // "x,y" -> RiverTile (for tiles with TileType.RIVER)
     val isOfficial: Boolean = false,  // True if map is from official repository (read-only in editor)
-    val author: String = ""  // Optional author name
+    val author: String = "",  // Optional author name
+    val targetInfoMap: Map<String, EditorTargetInfo> = emptyMap()  // "x,y" -> EditorTargetInfo for TARGET tiles
 ) {
     fun getTileType(x: Int, y: Int): TileType {
         return tiles["$x,$y"] ?: TileType.NO_PLAY
@@ -216,7 +227,9 @@ data class InitialTrap(
 data class InitialBarricade(
     val position: Position,
     val healthPoints: Int,
-    val supportsTower: Boolean = false  // True if this barricade should support a tower (HP >= 100)
+    val supportsTower: Boolean = false,  // True if this barricade should support a tower (HP >= 100)
+    val name: String? = null,            // Optional display name (e.g. "North Gate") for named gates
+    val isGate: Boolean = false          // True if the gate icon should be shown regardless of neighbours
 )
 
 /**

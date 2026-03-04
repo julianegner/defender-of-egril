@@ -43,6 +43,24 @@ data class DamageEffect(
     val turnNumber: Int  // Track which turn this damage occurred for display timing
 )
 
+/**
+ * Types of in-game event messages that are shown to the player.
+ */
+enum class GameMessageType {
+    TARGET_TAKEN,      // A SINGLE_HIT target was captured by an enemy
+    GATE_DESTROYED     // A named gate barricade was destroyed
+}
+
+/**
+ * An in-game event message queued for display to the player.
+ * @param type   The kind of event.
+ * @param name   Optional name (target name or gate name).
+ */
+data class GameMessage(
+    val type: GameMessageType,
+    val name: String? = null
+)
+
 data class GameState(
     val level: Level,
     val phase: MutableState<GamePhase> = mutableStateOf(GamePhase.INITIAL_BUILDING),
@@ -78,7 +96,10 @@ data class GameState(
     ),
     val infoState: MutableState<InfoState> = mutableStateOf(InfoState()),  // Single tutorial infos system
     val destroyedMinePositions: SnapshotStateList<Position> = mutableStateListOf(),  // Positions where mines have been destroyed
-    val mineWarnings: SnapshotStateList<Int> = mutableStateListOf()  // Mine IDs with active warnings (dragon about to destroy)
+    val mineWarnings: SnapshotStateList<Int> = mutableStateListOf(),  // Mine IDs with active warnings (dragon about to destroy)
+    // SINGLE_HIT target tracking
+    val takenTargets: SnapshotStateList<Position> = mutableStateListOf(),  // Positions of taken SINGLE_HIT targets
+    val pendingMessages: SnapshotStateList<GameMessage> = mutableStateListOf()  // Messages queued for display
 ) {
     fun isLevelWon(): Boolean {
         // Check if all planned spawns have occurred and all enemies are defeated
@@ -87,7 +108,26 @@ data class GameState(
     }
     
     fun isLevelLost(): Boolean {
-        return healthPoints.value <= 0
+        if (healthPoints.value <= 0) return true
+        // Level is also lost when all SINGLE_HIT targets have been taken
+        val singleHitTargets = level.targetInfoMap.filter { it.value.type == TargetType.SINGLE_HIT }.keys
+        if (singleHitTargets.isNotEmpty() && takenTargets.containsAll(singleHitTargets)) return true
+        return false
+    }
+
+    /**
+     * Returns true if [position] is a target that can still be reached by enemies.
+     * Taken SINGLE_HIT targets are excluded.
+     */
+    fun isActiveTargetPosition(position: Position): Boolean {
+        return level.isTargetPosition(position) && !takenTargets.contains(position)
+    }
+
+    /**
+     * Returns the active (non-taken) target positions.
+     */
+    fun getActiveTargetPositions(): List<Position> {
+        return level.targetPositions.filter { !takenTargets.contains(it) }
     }
     
     fun canPlaceDefender(type: DefenderType): Boolean {
@@ -266,7 +306,9 @@ data class GameState(
                 id = nextBarricadeId.value++,
                 position = initialBarricade.position,
                 healthPoints = mutableStateOf(initialBarricade.healthPoints),
-                defenderId = 0  // Pre-placed barricades don't belong to any specific defender
+                defenderId = 0,  // Pre-placed barricades don't belong to any specific defender
+                isGate = initialBarricade.isGate,
+                name = initialBarricade.name
             )
             barricades.add(barricade)
         }

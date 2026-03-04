@@ -53,6 +53,8 @@ fun InitialSetupTab(
     var trapDamage by remember { mutableStateOf(10) }
     
     var barricadeHealthPoints by remember { mutableStateOf(10) }
+    var barricadeName by remember { mutableStateOf("") }
+    var barricadeIsGate by remember { mutableStateOf(false) }
     
     var selectedElement by remember { mutableStateOf<SelectedElement?>(null) }
     
@@ -132,7 +134,9 @@ fun InitialSetupTab(
                                     if (canPlaceBarricade(position, initialData, map)) {
                                         val newBarricade = InitialBarricade(
                                             position = position,
-                                            healthPoints = barricadeHealthPoints
+                                            healthPoints = barricadeHealthPoints,
+                                            name = barricadeName.takeIf { it.isNotBlank() },
+                                            isGate = barricadeIsGate
                                         )
                                         onInitialDataChange(initialData.copy(barricades = initialData.barricades + newBarricade))
                                     }
@@ -181,6 +185,10 @@ fun InitialSetupTab(
             onTrapDamageChange = { trapDamage = it },
             barricadeHealthPoints = barricadeHealthPoints,
             onBarricadeHealthPointsChange = { barricadeHealthPoints = it },
+            barricadeName = barricadeName,
+            onBarricadeNameChange = { barricadeName = it },
+            barricadeIsGate = barricadeIsGate,
+            onBarricadeIsGateChange = { barricadeIsGate = it },
             availableTowers = availableTowers,
             initialData = initialData,
             onRemoveDefender = { index ->

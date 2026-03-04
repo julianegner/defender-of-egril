@@ -370,3 +370,44 @@ enum class ReminderType {
     BREAK,  // Break reminder every 2 hours
     SLEEP   // Sleep reminder after 23:00
 }
+
+/**
+ * Dialog for in-game event messages: target captured (SINGLE_HIT) or named gate destroyed.
+ */
+@Composable
+fun GameEventMessageDialog(
+    message: GameMessage,
+    onDismiss: () -> Unit
+) {
+    val title = when (message.type) {
+        GameMessageType.TARGET_TAKEN -> stringResource(Res.string.target_taken_title)
+        GameMessageType.GATE_DESTROYED -> stringResource(Res.string.gate_destroyed_title)
+    }
+    val text = when (message.type) {
+        GameMessageType.TARGET_TAKEN -> {
+            if (!message.name.isNullOrBlank()) {
+                stringResource(Res.string.target_taken_message_named, message.name)
+            } else {
+                stringResource(Res.string.target_taken_message_unnamed)
+            }
+        }
+        GameMessageType.GATE_DESTROYED -> {
+            if (!message.name.isNullOrBlank()) {
+                stringResource(Res.string.gate_destroyed_message_named, message.name)
+            } else {
+                stringResource(Res.string.gate_destroyed_message_unnamed)
+            }
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = { Text(text) },
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text(stringResource(Res.string.ok))
+            }
+        }
+    )
+}

@@ -11,6 +11,25 @@ data class Waypoint(
     val nextTarget: Position  // Position to head to after reaching this waypoint (can be another waypoint or the final target)
 )
 
+/**
+ * How a target tile behaves when an enemy reaches it.
+ * STANDARD: the enemy damages the player's health points (existing behavior).
+ * SINGLE_HIT: the target is "taken" (removed from active targets); no HP damage.
+ *             If all SINGLE_HIT targets are taken, the level is lost.
+ */
+enum class TargetType {
+    STANDARD,
+    SINGLE_HIT
+}
+
+/**
+ * Optional metadata attached to a target tile.
+ */
+data class TargetInfo(
+    val name: String = "",   // Display name shown on the tile (e.g. "Marketplace")
+    val type: TargetType = TargetType.STANDARD
+)
+
 data class Level(
     val id: Int,
     val name: String,
@@ -37,6 +56,7 @@ data class Level(
     val mapId: String? = null,  // ID of the map this level uses
     val riverTiles: Map<Position, RiverTile> = emptyMap(),  // River tiles with flow direction and speed (not walkable in gameplay, but treated as walkable during map validation for levels with ORK, EVIL_WIZARD, or EWHAD enemies)
     val allowAutoAttack: Boolean = false,  // If true, shows auto-attack button in end turn confirmation dialog
+    val targetInfoMap: Map<Position, TargetInfo> = emptyMap(),  // Optional metadata (name, type) per target position
     // Initial placements (optional) - new nested structure
     val initialData: de.egril.defender.editor.InitialData? = null,
     // Legacy fields for backward compatibility (deprecated - use initialData instead)

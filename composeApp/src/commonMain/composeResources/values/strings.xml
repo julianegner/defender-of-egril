@@ -1243,4 +1243,16 @@
     <string name="debug_display_tile_positions">Display Tile Positions</string>
     <string name="debug_display_map_size">Display Map Size</string>
     <string name="debug_map_size_overlay">Hexmap: %1$ddp × %2$ddp / %3$dpx × %4$dpx\nContent: %5$ddp × %6$ddp / %7$dpx × %8$dpx\nViewport: %9$ddp × %10$ddp / %11$dpx × %12$dpx\nOffset: %13$d, %14$d</string>
+    <string name="target_taken_title">Target Captured!</string>
+    <string name="target_taken_message_named">%1$s has been captured by the enemy!</string>
+    <string name="target_taken_message_unnamed">A target position has been captured by the enemy!</string>
+    <string name="gate_destroyed_title">Gate Destroyed!</string>
+    <string name="gate_destroyed_message_named">%1$s has been destroyed!</string>
+    <string name="gate_destroyed_message_unnamed">A gate has been destroyed!</string>
+    <string name="target_type_label">Target Type</string>
+    <string name="target_type_standard">Standard</string>
+    <string name="target_type_single_hit">Single Hit</string>
+    <string name="target_name_label">Target Name (optional)</string>
+    <string name="barricade_name_label">Barricade Name (optional)</string>
+    <string name="is_gate_label">Is Gate</string>
 </resources>

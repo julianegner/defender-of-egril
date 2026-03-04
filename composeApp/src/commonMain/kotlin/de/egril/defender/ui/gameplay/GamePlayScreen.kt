@@ -50,7 +50,9 @@ fun GamePlayScreen(
     specialActionsRemaining: List<DefenderType> = emptyList(),  // List of defender types with remaining special actions
     onClearSpecialActionsWarning: (() -> Unit)? = null,  // Callback to clear special actions warning
     reminderMessage: ReminderMessage? = null,  // Time reminder message
-    onClearReminderMessage: (() -> Unit)? = null  // Callback to clear reminder message
+    onClearReminderMessage: (() -> Unit)? = null,  // Callback to clear reminder message
+    pendingGameMessage: de.egril.defender.model.GameMessage? = null,  // In-game event message (target taken, gate destroyed)
+    onDismissGameMessage: (() -> Unit)? = null  // Callback to dismiss current message and show next
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -79,7 +81,9 @@ fun GamePlayScreen(
         specialActionsRemaining = specialActionsRemaining,
         onClearSpecialActionsWarning = onClearSpecialActionsWarning,
         reminderMessage = reminderMessage,
-        onClearReminderMessage = onClearReminderMessage
+        onClearReminderMessage = onClearReminderMessage,
+        pendingGameMessage = pendingGameMessage,
+        onDismissGameMessage = onDismissGameMessage
     )
 }
 
@@ -111,7 +115,9 @@ private fun GamePlayScreenContent(
     specialActionsRemaining: List<DefenderType> = emptyList(),  // List of defender types with remaining special actions
     onClearSpecialActionsWarning: (() -> Unit)? = null,  // Callback to clear special actions warning
     reminderMessage: ReminderMessage? = null,  // Time reminder message
-    onClearReminderMessage: (() -> Unit)? = null  // Callback to clear reminder message
+    onClearReminderMessage: (() -> Unit)? = null,  // Callback to clear reminder message
+    pendingGameMessage: de.egril.defender.model.GameMessage? = null,  // In-game event message (target taken, gate destroyed)
+    onDismissGameMessage: (() -> Unit)? = null  // Callback to dismiss current message and show next
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
@@ -1108,6 +1114,14 @@ private fun GamePlayScreenContent(
                 onDismiss = {
                     onClearReminderMessage?.invoke()
                 }
+            )
+        }
+
+        // In-game event message dialog (target captured, gate destroyed)
+        pendingGameMessage?.let { msg ->
+            GameEventMessageDialog(
+                message = msg,
+                onDismiss = { onDismissGameMessage?.invoke() }
             )
         }
             }

@@ -90,6 +90,10 @@ class GameViewModel {
     // Time reminders for breaks and sleep
     private val _reminderMessage = MutableStateFlow<ReminderMessage?>(null)
     val reminderMessage: StateFlow<ReminderMessage?> = _reminderMessage.asStateFlow()
+
+    // In-game event messages (target taken, gate destroyed)
+    private val _pendingGameMessage = MutableStateFlow<de.egril.defender.model.GameMessage?>(null)
+    val pendingGameMessage: StateFlow<de.egril.defender.model.GameMessage?> = _pendingGameMessage.asStateFlow()
     
     // Achievement system
     private var achievementManager: de.egril.defender.game.AchievementManager? = null
@@ -582,6 +586,14 @@ class GameViewModel {
             
             // Complete enemy turn: apply effects and return to player turn
             engine.completeEnemyTurn()
+            
+            // Surface any pending game messages (target taken, gate destroyed)
+            // We show them one by one - each dismiss triggers the next
+            val updatedStateForMessages = _gameState.value
+            if (updatedStateForMessages != null && updatedStateForMessages.pendingMessages.isNotEmpty()) {
+                val nextMessage = updatedStateForMessages.pendingMessages.removeAt(0)
+                _pendingGameMessage.value = nextMessage
+            }
             
             // Autosave at the beginning of the new player turn (after enemy turn completes)
             // This ensures the phase is PLAYER_TURN when the save is created
@@ -1250,6 +1262,19 @@ class GameViewModel {
      */
     fun clearReminderMessage() {
         _reminderMessage.value = null
+    }
+
+    /**
+     * Dismiss the current game message and surface the next one (if any).
+     */
+    fun dismissGameMessage() {
+        val state = _gameState.value
+        if (state != null && state.pendingMessages.isNotEmpty()) {
+            val next = state.pendingMessages.removeAt(0)
+            _pendingGameMessage.value = next
+        } else {
+            _pendingGameMessage.value = null
+        }
     }
     
     /**

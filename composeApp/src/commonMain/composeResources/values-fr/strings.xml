@@ -1242,4 +1242,16 @@
     <string name="debug_display_tile_positions">Afficher les positions des tuiles</string>
     <string name="debug_display_map_size">Afficher la taille de la carte</string>
     <string name="debug_map_size_overlay">Carte hex : %1$ddp × %2$ddp / %3$dpx × %4$dpx\nContenu : %5$ddp × %6$ddp / %7$dpx × %8$dpx\nVue : %9$ddp × %10$ddp / %11$dpx × %12$dpx\nDécalage : %13$d, %14$d</string>
+    <string name="target_taken_title">Objectif capturé !</string>
+    <string name="target_taken_message_named">%1$s a été capturé par l\'ennemi !</string>
+    <string name="target_taken_message_unnamed">Une position objectif a été capturée par l\'ennemi !</string>
+    <string name="gate_destroyed_title">Porte détruite !</string>
+    <string name="gate_destroyed_message_named">%1$s a été détruite !</string>
+    <string name="gate_destroyed_message_unnamed">Une porte a été détruite !</string>
+    <string name="target_type_label">Type d\'objectif</string>
+    <string name="target_type_standard">Standard</string>
+    <string name="target_type_single_hit">Coup unique</string>
+    <string name="target_name_label">Nom de l\'objectif (optionnel)</string>
+    <string name="barricade_name_label">Nom de la barricade (optionnel)</string>
+    <string name="is_gate_label">Est une porte</string>
 </resources>

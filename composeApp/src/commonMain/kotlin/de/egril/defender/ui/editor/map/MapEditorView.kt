@@ -14,6 +14,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.IntSize
 import de.egril.defender.editor.EditorMap
+import de.egril.defender.editor.EditorTargetInfo
 import de.egril.defender.editor.TileType
 import de.egril.defender.model.Position
 import de.egril.defender.ui.hexagon.BaseGridCell
@@ -54,9 +55,12 @@ fun MapEditorView(
 ) {
     var tiles by remember { mutableStateOf(map.tiles.toMutableMap()) }
     var riverTiles by remember { mutableStateOf(map.riverTiles.toMutableMap()) }
+    var targetInfoMap by remember { mutableStateOf(map.targetInfoMap.toMutableMap()) }
     var selectedTileType by remember { mutableStateOf(TileType.PATH) }
     var selectedRiverFlow by remember { mutableStateOf(de.egril.defender.model.RiverFlow.EAST) }
     var selectedRiverSpeed by remember { mutableStateOf(1) }
+    var selectedTargetName by remember { mutableStateOf("") }
+    var selectedTargetType by remember { mutableStateOf(de.egril.defender.model.TargetType.STANDARD) }
     var mapName by remember { mutableStateOf(map.name) }
     var mapAuthor by remember { mutableStateOf(map.author) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
@@ -73,8 +77,8 @@ fun MapEditorView(
     var actualContentSize by remember { mutableStateOf(IntSize.Zero) }
     
     // Create updated map for minimap that reflects current tiles state
-    val currentMap = remember(tiles, riverTiles) {
-        map.copy(tiles = tiles.toMap(), riverTiles = riverTiles.toMap())
+    val currentMap = remember(tiles, riverTiles, targetInfoMap) {
+        map.copy(tiles = tiles.toMap(), riverTiles = riverTiles.toMap(), targetInfoMap = targetInfoMap.toMap())
     }
     
     // Hexagon dimensions - using same constants as game (40.dp)
@@ -106,6 +110,17 @@ fun MapEditorView(
             } else {
                 // Remove river data if not a river tile
                 riverTiles = riverTiles.toMutableMap().apply {
+                    remove(key)
+                }
+            }
+
+            // Update target info map
+            if (selectedTileType == TileType.TARGET) {
+                targetInfoMap = targetInfoMap.toMutableMap().apply {
+                    this[key] = EditorTargetInfo(name = selectedTargetName, type = selectedTargetType)
+                }
+            } else {
+                targetInfoMap = targetInfoMap.toMutableMap().apply {
                     remove(key)
                 }
             }
@@ -203,6 +218,17 @@ fun MapEditorView(
                                     remove(key)
                                 }
                             }
+
+                            // Update target info map
+                            if (selectedTileType == TileType.TARGET) {
+                                targetInfoMap = targetInfoMap.toMutableMap().apply {
+                                    this[key] = EditorTargetInfo(name = selectedTargetName, type = selectedTargetType)
+                                }
+                            } else {
+                                targetInfoMap = targetInfoMap.toMutableMap().apply {
+                                    remove(key)
+                                }
+                            }
                         },
                     ) {
                         Column(
@@ -215,6 +241,16 @@ fun MapEditorView(
                                 color = Color.White
                             )
                             
+                            // Show target name if this is a target tile
+                            val targetInfo = targetInfoMap[key]
+                            if (tileType == TileType.TARGET && targetInfo != null && targetInfo.name.isNotBlank()) {
+                                Text(
+                                    text = targetInfo.name,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color.Yellow
+                                )
+                            }
+
                             // Show river flow indicator if this is a river tile
                             if (tileType == TileType.RIVER && riverTile != null) {
                                 RiverFlowIndicator(
@@ -347,7 +383,8 @@ fun MapEditorView(
                             name = mapName,
                             author = mapAuthor,
                             tiles = tiles.toMap(),
-                            riverTiles = riverTiles.toMap()
+                            riverTiles = riverTiles.toMap(),
+                            targetInfoMap = targetInfoMap.toMap()
                         )
                         // Validate and set readyToUse flag
                         val validatedMap = updatedMap.copy(readyToUse = updatedMap.validateReadyToUse())
@@ -393,7 +430,11 @@ fun MapEditorView(
             onZoomOut = { zoomLevel = maxOf(0.5f, zoomLevel - 0.1f) },
             onChangeAllNoPlayToPath = { showChangeAllDialog = true },
             isExpanded = isHeaderExpanded,
-            onToggleExpanded = { isHeaderExpanded = !isHeaderExpanded }
+            onToggleExpanded = { isHeaderExpanded = !isHeaderExpanded },
+            selectedTargetName = selectedTargetName,
+            onTargetNameChange = { selectedTargetName = it },
+            selectedTargetType = selectedTargetType,
+            onTargetTypeChange = { selectedTargetType = it }
         )
     }
     
@@ -414,6 +455,7 @@ fun MapEditorView(
                     author = mapAuthor,
                     tiles = tiles.toMap(),
                     riverTiles = riverTiles.toMap(),
+                    targetInfoMap = targetInfoMap.toMap(),
                     isOfficial = false  // Save as new always creates a user map
                 )
                 // Validate and set readyToUse flag

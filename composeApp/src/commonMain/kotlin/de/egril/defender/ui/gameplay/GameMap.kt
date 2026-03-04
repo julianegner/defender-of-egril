@@ -431,6 +431,7 @@ fun GridCell(
     
     val isSpawnPoint = gameState.level.isSpawnPoint(position)
     val isTarget = gameState.level.isTargetPosition(position)
+    val isTakenTarget = gameState.takenTargets.contains(position)
     val isOnPath = gameState.level.isOnPath(position)
     val isBuildArea = gameState.level.isBuildArea(position)
     val isRiverTile = gameState.level.isRiverTile(position)
@@ -1186,11 +1187,16 @@ private fun BoxScope.GridCellContent(
             }
 
             isTarget -> {
-                // Show target indicator when cell is empty
+                // Show target name (if set) or fallback to generic "Target" label
+                // Taken targets (SINGLE_HIT) show with a strikethrough / dimmed appearance
+                val isTaken = gameState.takenTargets.contains(position)
+                val targetName = gameState.level.targetInfoMap[position]?.name?.takeIf { it.isNotBlank() }
+                    ?: stringResource(Res.string.target)
+                val targetColor = if (isTaken) GamePlayColors.Success.copy(alpha = 0.35f) else GamePlayColors.Success
                 Text(
-                    stringResource(Res.string.target),
+                    text = targetName,
                     style = MaterialTheme.typography.labelSmall,
-                    color = GamePlayColors.Success
+                    color = targetColor
                 )
             }
 

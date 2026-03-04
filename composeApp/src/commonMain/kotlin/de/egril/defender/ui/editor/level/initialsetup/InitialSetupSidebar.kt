@@ -50,6 +50,10 @@ fun InitialSetupSidebar(
     onTrapDamageChange: (Int) -> Unit,
     barricadeHealthPoints: Int,
     onBarricadeHealthPointsChange: (Int) -> Unit,
+    barricadeName: String,
+    onBarricadeNameChange: (String) -> Unit,
+    barricadeIsGate: Boolean,
+    onBarricadeIsGateChange: (Boolean) -> Unit,
     availableTowers: Set<DefenderType>,
     initialData: InitialData,
     onRemoveDefender: (Int) -> Unit,
@@ -235,7 +239,11 @@ fun InitialSetupSidebar(
                     item {
                         BarricadeConfigPanel(
                             healthPoints = barricadeHealthPoints,
-                            onHealthPointsChange = onBarricadeHealthPointsChange
+                            onHealthPointsChange = onBarricadeHealthPointsChange,
+                            name = barricadeName,
+                            onNameChange = onBarricadeNameChange,
+                            isGate = barricadeIsGate,
+                            onIsGateChange = onBarricadeIsGateChange
                         )
                     }
                 }
@@ -572,7 +580,11 @@ fun TrapConfigPanel(
 @Composable
 fun BarricadeConfigPanel(
     healthPoints: Int,
-    onHealthPointsChange: (Int) -> Unit
+    onHealthPointsChange: (Int) -> Unit,
+    name: String = "",
+    onNameChange: (String) -> Unit = {},
+    isGate: Boolean = false,
+    onIsGateChange: (Boolean) -> Unit = {}
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -595,6 +607,28 @@ fun BarricadeConfigPanel(
             label = { Text(stringResource(Res.string.health_points)) },
             modifier = Modifier.fillMaxWidth()
         )
+
+        // Optional name (for gates)
+        OutlinedTextField(
+            value = name,
+            onValueChange = onNameChange,
+            label = { Text(stringResource(Res.string.barricade_name_label)) },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
+        )
+
+        // Is gate toggle
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = stringResource(Res.string.is_gate_label),
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Switch(checked = isGate, onCheckedChange = onIsGateChange)
+        }
     }
 }
 
