@@ -3,6 +3,7 @@
 package de.egril.defender.ui.worldmap
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -11,6 +12,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.LevelStatus
@@ -54,6 +57,12 @@ fun WorldMapScreen(
 ) {
     var showCheatDialog by remember { mutableStateOf(false) }
     var selectedLocation by remember { mutableStateOf<Pair<WorldMapLocation, List<WorldLevel>>?>(null) }
+    val focusRequester = remember { FocusRequester() }
+
+    // Request focus on launch so keyboard events are dispatched to this screen
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
     
     // Track whether to show user levels tab view in image map mode
     // false = show image map with button, true = show tab view with user levels
@@ -138,6 +147,8 @@ fun WorldMapScreen(
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
+            .focusRequester(focusRequester)
+            .focusable()
             .onPreviewKeyEvent { event ->
                 if (event.type == KeyEventType.KeyDown &&
                     event.key == Key.C && !event.isCtrlPressed &&
