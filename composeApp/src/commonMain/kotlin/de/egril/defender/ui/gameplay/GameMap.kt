@@ -19,8 +19,11 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -1443,60 +1446,37 @@ private fun BoxScope.GridCellContent(
                     ) {
                         // Show wood/barricade symbol or gate icon with brown color
                         if (barricade.isGate) {
-                            GateIcon(
-                                modifier = Modifier.offset(y = 10.dp),
-                                size = GamePlayConstants.TileIconSizes.Barricade
-                            )
+                            GateIcon(size = GamePlayConstants.TileIconSizes.Barricade)
                         } else {
                             WoodIcon(size = GamePlayConstants.TileIconSizes.Barricade)
                         }
 
-                        // Show gate/barricade name below HP in smaller, secondary style
+                        // Show gate/barricade name (2 lines) then HP (1 line, bold)
                         val barricadeDisplayName = barricade.name
                             ?.takeIf { it.isNotBlank() }
                             ?.let { localizeEntityName(it, barricadeLocale) }
                         if (!barricadeDisplayName.isNullOrBlank()) {
-                            // FIXME replace this with Text (2 lines of barricadeDisplayName and one line of "${barricade.healthPoints.value} HP" in bold)
-                            Column {
-                                Text(
-                                    barricadeDisplayName,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = Color.White,
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier
-                                        .widthIn(max = 50.dp)
-                                        .offset(y = (-32).dp)
-
-                                )
-                                Text(
-                                    "${barricade.healthPoints.value} HP",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold,
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier
-                                        // .widthIn(max = 50.dp)
-                                        .absoluteOffset(y = (-50).dp)
-                                )
-                            }
-
-                            // Text(
-                            //     text = "BLA\nBLUB", //barricadeDisplayName,
-                            //     style = MaterialTheme.typography.labelSmall,
-                            //     color = Color.White,
-                            //     textAlign = TextAlign.Center,
-                            //     modifier = Modifier
-                            //         .widthIn(max = 50.dp)
-                            //         .absoluteOffset(y = (-50).dp)
-                            // )
+                            Text(
+                                text = buildAnnotatedString {
+                                    withStyle(SpanStyle(color = Color.White)) {
+                                        append(barricadeDisplayName)
+                                    }
+                                    append("\n")
+                                    withStyle(SpanStyle(color = Color(0xFFA1887F), fontWeight = FontWeight.Bold)) {
+                                        append("${barricade.healthPoints.value} HP")
+                                    }
+                                },
+                                style = MaterialTheme.typography.labelSmall,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.widthIn(max = 50.dp)
+                            )
                         } else {
-                            // HP is primary — always shown prominently right after the icon
                             Text(
                                 "${barricade.healthPoints.value} HP",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = Color.White,
+                                color = Color(0xFFA1887F),
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier.offset(y = (-12).dp)
+                                textAlign = TextAlign.Center
                             )
                         }
                     }
