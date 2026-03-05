@@ -17,7 +17,9 @@ data class CombatResult(
  */
 class CombatSystem(
     private val state: GameState,
-    private val bridgeSystem: BridgeSystem
+    private val bridgeSystem: BridgeSystem,
+    private val getEffectiveLevel: (Defender) -> Int = { it.level.value },
+    private val getEffectiveRange: (Defender) -> Int = { it.range }
 ) {
     
     // Track kills this turn for achievements
@@ -38,6 +40,14 @@ class CombatSystem(
     companion object {
         // LASTING damage is applied at half the initial damage per turn
         private const val LASTING_DAMAGE_DIVISOR = 2
+    }
+    
+    /**
+     * Calculate effective damage for a defender, accounting for level buffs
+     */
+    private fun getEffectiveDamage(defender: Defender): Int {
+        val effectiveLevel = getEffectiveLevel(defender)
+        return defender.type.baseDamage + (effectiveLevel - 1) * 5
     }
     
     fun defenderAttack(defenderId: Int, targetId: Int, processDefeated: () -> Unit): Boolean {
@@ -87,7 +97,7 @@ class CombatSystem(
 
         // Check if defender can reach the target position
         val distance = defender.position.value.distanceTo(targetPosition)
-        if (distance < defender.type.minRange || distance > defender.range) return false
+        if (distance < defender.type.minRange || distance > getEffectiveRange(defender)) return false
         if (!defender.isReady || defender.actionsRemaining.value <= 0) return false
         
         // Mark defender as used
@@ -135,7 +145,7 @@ class CombatSystem(
                     // No enemy, attack bridge if present
                     val bridge = state.getBridgeAt(targetPosition)
                     if (bridge != null && bridge.isActive) {
-                        bridgeSystem.damageBridge(targetPosition, defender.damage)
+                        bridgeSystem.damageBridge(targetPosition, getEffectiveDamage(defender))
                     } else {
                         return false
                     }
@@ -147,7 +157,7 @@ class CombatSystem(
                 // Also damage bridge at target position if present
                 val bridge = state.getBridgeAt(targetPosition)
                 if (bridge != null && bridge.isActive) {
-                    bridgeSystem.damageBridge(targetPosition, defender.damage)
+                    bridgeSystem.damageBridge(targetPosition, getEffectiveDamage(defender))
                 }
             }
             AttackType.LASTING -> lastingAttack(defender, targetPosition)
@@ -163,13 +173,15 @@ class CombatSystem(
     }
     
     private fun singleTargetAttack(defender: Defender, target: Attacker) {
-        target.currentHealth.value -= defender.damage
+        target.currentHealth.value -= getEffectiveDamage(defender)
         if (target.currentHealth.value <= 0) {
             target.isDefeated.value = true
         }
         
-        // Apply spike barbs effect (level 10+)
-        if (defender.type == DefenderType.SPIKE_TOWER && defender.level.value >= 10) {
+        // Apply spike barbs effect (level 10+ with Construction level 1+)
+        if (defender.type == DefenderType.SPIKE_TOWER && 
+            defender.level.value >= 10 && 
+            state.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_1) {
             target.movementPenalty.value += 1
         }
     }
@@ -210,7 +222,7 @@ class CombatSystem(
         for (target in targets) {
             // Check immunity to fireball (Red Demons)
             if (target.canBeDamagedByFireball()) {
-                target.currentHealth.value -= defender.damage
+                target.currentHealth.value -= getEffectiveDamage(defender)
                 if (target.currentHealth.value <= 0) {
                     target.isDefeated.value = true
                 }
@@ -231,7 +243,7 @@ class CombatSystem(
         affectedPositions.forEach { pos ->
             val bridge = state.getBridgeAt(pos)
             if (bridge != null && bridge.isActive) {
-                bridgeSystem.damageBridge(pos, defender.damage)
+                bridgeSystem.damageBridge(pos, getEffectiveDamage(defender))
             }
         }
 
@@ -241,7 +253,7 @@ class CombatSystem(
                 FieldEffect(
                     position = pos,
                     type = FieldEffectType.FIREBALL,
-                    damage = defender.damage,
+                    damage = getEffectiveDamage(defender),
                     turnsRemaining = 1,  // Visual effect lasts 1 turn
                     defenderId = defender.id
                 )
@@ -286,7 +298,7 @@ class CombatSystem(
             // Check immunity to acid (Blue Demons)
             if (target.canBeDamagedByAcid()) {
                 // Initial damage is same as DOT tick damage (not full damage)
-                target.currentHealth.value -= defender.damage / LASTING_DAMAGE_DIVISOR
+                target.currentHealth.value -= getEffectiveDamage(defender) / LASTING_DAMAGE_DIVISOR
                 // Mark for additional rounds of DOT based on tower level
                 defender.dotRoundsRemaining[target.id] = defender.dotDuration
 
@@ -326,7 +338,7 @@ class CombatSystem(
                         FieldEffect(
                             position = pos,
                             type = FieldEffectType.ACID,
-                            damage = defender.damage / LASTING_DAMAGE_DIVISOR,
+                            damage = getEffectiveDamage(defender) / LASTING_DAMAGE_DIVISOR,
                             turnsRemaining = newDuration,
                             defenderId = defender.id,
                             attackerId = enemyAtPos?.id
@@ -340,7 +352,7 @@ class CombatSystem(
                     FieldEffect(
                         position = pos,
                         type = FieldEffectType.ACID,
-                        damage = defender.damage / LASTING_DAMAGE_DIVISOR,
+                        damage = getEffectiveDamage(defender) / LASTING_DAMAGE_DIVISOR,
                         turnsRemaining = newDuration,
                         defenderId = defender.id,
                         attackerId = enemyAtPos?.id
@@ -393,8 +405,17 @@ class CombatSystem(
             )
         }
         
+        // Calculate XP and coins for defeated enemies
         for (attacker in defeated) {
-            state.coins.value += attacker.type.reward * attacker.level.value
+            // Award coins (with income multiplier from player stats)
+            val baseCoins = attacker.type.reward * attacker.level.value
+            val modifiedCoins = (baseCoins * state.incomeMultiplier).toInt()
+            state.coins.value += modifiedCoins
+            
+            // Award XP (multiplied by level for non-dragons)
+            val xpEarned = attacker.type.xp * attacker.level.value
+            state.xpEarnedThisLevel.value += xpEarned
+            
             // Play enemy destroyed sound only if not building a bridge
             if (!attacker.isBuildingBridge.value) {
                 GlobalSoundManager.playSound(SoundEvent.ENEMY_DESTROYED)

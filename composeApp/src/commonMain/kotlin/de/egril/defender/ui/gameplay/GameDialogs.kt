@@ -371,6 +371,43 @@ enum class ReminderType {
     SLEEP   // Sleep reminder after 23:00
 }
 
+@Composable
+fun AbortInstantTowerSpellDialog(
+    onAbort: () -> Unit,
+    onContinue: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onContinue,
+        title = { Text(stringResource(Res.string.instant_tower_spell_abort_title)) },
+        text = {
+            Text(
+                stringResource(Res.string.instant_tower_spell_abort_message),
+                style = MaterialTheme.typography.bodyLarge
+            )
+        },
+        confirmButton = {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(
+                    onClick = onAbort,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text(stringResource(Res.string.instant_tower_spell_abort_confirm))
+                }
+                Button(
+                    onClick = onContinue,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary
+                    )
+                ) {
+                    Text(stringResource(Res.string.instant_tower_spell_abort_cancel))
+                }
+            }
+        }
+    )
+}
+
 /**
  * Dialog for in-game event messages: target captured (SINGLE_HIT) or named gate destroyed.
  */

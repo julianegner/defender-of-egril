@@ -1,21 +1,27 @@
 package de.egril.defender.ui.gameplay
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
+import de.egril.defender.ui.animations.InstantTowerSpellAnimation
+import de.egril.defender.ui.animations.SpellInstantTowerColor
 import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.TargetIcon
 import de.egril.defender.ui.icon.TimerIcon
+import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -24,6 +30,7 @@ fun CompactDefenderButton(
     type: DefenderType,
     isSelected: Boolean,
     canAfford: Boolean,
+    instantTowerActive: Boolean = false,
     modifier: Modifier,
     onClick: () -> Unit
 ) {
@@ -40,58 +47,71 @@ fun CompactDefenderButton(
         isSelected = isSelected,
         description = description
     )
-    
-    Button(
-        onClick = onClick,
-        enabled = canAfford,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (isSelected) GamePlayColors.InfoDark else MaterialTheme.colorScheme.primary,
-            contentColor = if (isSelected && isDarkMode) Color.White else Color.White,  // Brighter text when selected in dark mode
-            disabledContainerColor = GamePlayColors.DisabledButton,
-            disabledContentColor = GamePlayColors.DisabledButtonText
-        ),
-        modifier = buttonModifier,
-        contentPadding = PaddingValues(4.dp)
-    ) {
-        Row(
+
+    Box(modifier = buttonModifier) {
+        Button(
+            onClick = onClick,
+            enabled = canAfford,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isSelected) GamePlayColors.InfoDark else MaterialTheme.colorScheme.primary,
+                contentColor = if (isSelected && isDarkMode) Color.White else Color.White,  // Brighter text when selected in dark mode
+                disabledContainerColor = GamePlayColors.DisabledButton,
+                disabledContentColor = GamePlayColors.DisabledButtonText
+            ),
             modifier = Modifier.fillMaxSize(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
+            contentPadding = PaddingValues(4.dp)
         ) {
-            // Tower icon
-            Box(
-                modifier = Modifier.size(28.dp),
-                contentAlignment = Alignment.Center
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
             ) {
-                TowerTypeIcon(defenderType = type, modifier = Modifier.size(30.dp))
-            }
+                // Tower icon
+                Box(
+                    modifier = Modifier.size(28.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    TowerTypeIcon(defenderType = type, modifier = Modifier.size(30.dp))
+                }
 
-            Spacer(modifier = Modifier.width(4.dp))
-
-            val locale = com.hyperether.resources.currentLanguage.value
-            Text(
-                type.getLocalizedShortName(locale),
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Bold,
-                fontSize = 12.sp,
-                maxLines = 1,
-                modifier = Modifier.weight(1f),
-                color = if (isSelected && isDarkMode) Color.White else Color.White  // Ensure bright text
-            )
-
-            Spacer(modifier = Modifier.width(4.dp))
-
-            // Cost
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                MoneyIcon(size = 14.dp)
                 Spacer(modifier = Modifier.width(4.dp))
+
+                val locale = com.hyperether.resources.currentLanguage.value
                 Text(
-                    "${type.baseCost}",
+                    type.getLocalizedShortName(locale),
                     style = MaterialTheme.typography.labelSmall,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
+                    fontSize = 12.sp,
+                    maxLines = 1,
+                    modifier = Modifier.weight(1f),
+                    color = if (isSelected && isDarkMode) Color.White else Color.White  // Ensure bright text
                 )
+
+                Spacer(modifier = Modifier.width(4.dp))
+
+                // Cost
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    MoneyIcon(size = 14.dp)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        "${type.baseCost}",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp
+                    )
+                }
             }
+        }
+        // Show glow animation overlay + purple border when Instant Tower spell is active and tower is affordable
+        if (instantTowerActive && canAfford) {
+            InstantTowerSpellAnimation(
+                animate = AppSettings.enableAnimations.value,
+                modifier = Modifier.fillMaxSize()
+            )
+            Box(
+                modifier = Modifier.fillMaxSize()
+                    .border(2.dp, SpellInstantTowerColor, RoundedCornerShape(percent = 50))
+            )
         }
     }
 }
@@ -102,6 +122,7 @@ fun DefenderButton(
     isSelected: Boolean,
     canAfford: Boolean,
     coinsState: State<Int>,  // Accept State instead of Int
+    instantTowerActive: Boolean = false,
     onClick: () -> Unit
 ) {
     val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
@@ -127,99 +148,112 @@ fun DefenderButton(
             description = description
         )
 
-    Button(
-        onClick = onClick,
-        enabled = actuallyCanAfford,  // Use recalculated value
-        colors = ButtonDefaults.buttonColors(
-            containerColor = if (isSelected) GamePlayColors.InfoDark else MaterialTheme.colorScheme.primary,
-            contentColor = if (isSelected && isDarkMode) Color.White else Color.White,  // Brighter text when selected in dark mode
-            disabledContainerColor = GamePlayColors.DisabledButton,
-            disabledContentColor = GamePlayColors.DisabledButtonText
-        ),
-        modifier = buttonModifier,
-        contentPadding = PaddingValues(2.dp)
-    ) {
-        Row(
+    Box(modifier = buttonModifier) {
+        Button(
+            onClick = onClick,
+            enabled = actuallyCanAfford,  // Use recalculated value
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isSelected) GamePlayColors.InfoDark else MaterialTheme.colorScheme.primary,
+                contentColor = if (isSelected && isDarkMode) Color.White else Color.White,  // Brighter text when selected in dark mode
+                disabledContainerColor = GamePlayColors.DisabledButton,
+                disabledContentColor = GamePlayColors.DisabledButtonText
+            ),
             modifier = Modifier.fillMaxSize(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Start
+            contentPadding = PaddingValues(2.dp)
         ) {
-            // Tower icon on the left
-            Box(
-                modifier = Modifier.size(60.dp),
-                contentAlignment = Alignment.Center
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
             ) {
-                TowerTypeIcon(defenderType = type, modifier = Modifier.size(56.dp))
-            }
-
-            Spacer(modifier = Modifier.width(2.dp))
-
-            // Stats on the right
-            Row {
-                Column(
-                    modifier = Modifier.fillMaxHeight(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.Start
+                // Tower icon on the left
+                Box(
+                    modifier = Modifier.size(60.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    val locale = com.hyperether.resources.currentLanguage.value
-                    Text(
-                        type.getLocalizedShortName(locale),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 12.sp,
-                        maxLines = 1
-                    )
+                    TowerTypeIcon(defenderType = type, modifier = Modifier.size(56.dp))
+                }
 
-                    Text(
-                        type.attackType.getLocalizedName(locale),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = 10.sp,
-                        color = GamePlayColors.Yellow
-                    )
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
+                Spacer(modifier = Modifier.width(2.dp))
+
+                // Stats on the right
+                Row {
+                    Column(
+                        modifier = Modifier.fillMaxHeight(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.Start
                     ) {
-                        TimerIcon(size = 15.dp)
+                        val locale = com.hyperether.resources.currentLanguage.value
                         Text(
-                            "${type.buildTime}T",
+                            type.getLocalizedShortName(locale),
                             style = MaterialTheme.typography.labelSmall,
-                            fontSize = 10.sp
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp,
+                            maxLines = 1
                         )
+
+                        Text(
+                            type.attackType.getLocalizedName(locale),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontSize = 10.sp,
+                            color = GamePlayColors.Yellow
+                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            TimerIcon(size = 15.dp)
+                            Text(
+                                "${type.buildTime}T",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontSize = 10.sp
+                            )
+                        }
                     }
-                }
-                Column(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .padding(start = 8.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.Start
-                ) {
-                    TowerStats(type.minRange, type.baseDamage, type.baseRange, type.actionsPerTurn)
-                }
-                Column(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .padding(start = 8.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.Start
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        MoneyIcon(size = 14.dp)
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            "${type.baseCost}",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontSize = 16.sp
-                        )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .padding(start = 8.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.Start
+                    ) {
+                        TowerStats(type.minRange, type.baseDamage, type.baseRange, type.actionsPerTurn)
+                    }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .padding(start = 8.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.Start
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            MoneyIcon(size = 14.dp)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                "${type.baseCost}",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontSize = 16.sp
+                            )
+                        }
                     }
                 }
             }
+        }
+        // Show glow animation overlay + purple border when Instant Tower spell is active and tower is affordable
+        if (instantTowerActive && actuallyCanAfford) {
+            InstantTowerSpellAnimation(
+                animate = AppSettings.enableAnimations.value,
+                modifier = Modifier.fillMaxSize()
+            )
+            Box(
+                modifier = Modifier.fillMaxSize()
+                    .border(2.dp, SpellInstantTowerColor, RoundedCornerShape(percent = 50))
+            )
         }
     }
 }
 
 @Composable
-fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
+fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int, rangeColor: Color = Color.Unspecified) {
     Column {
         IconTextRow(
             icon = { size -> ExplosionIcon(size = size) },
@@ -228,20 +262,11 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int) {
             spacerWidth = GamePlayConstants.Spacing.IconText
         )
         
-        if (minRange > 0) {
-            IconTextRow(
-                icon = { size -> TargetIcon(size = size) },
-                text = "$minRange-$range",
-                iconSize = GamePlayConstants.IconSizes.Small,
-                spacerWidth = GamePlayConstants.Spacing.IconText
-            )
-        } else {
-            IconTextRow(
-                icon = { size -> TargetIcon(size = size) },
-                text = range.toString(),
-                iconSize = GamePlayConstants.IconSizes.Small,
-                spacerWidth = GamePlayConstants.Spacing.IconText
-            )
+        val rangeText = if (minRange > 0) "$minRange-$range" else range.toString()
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            TargetIcon(size = GamePlayConstants.IconSizes.Small)
+            Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+            Text(rangeText, style = MaterialTheme.typography.bodySmall, color = rangeColor)
         }
         
         IconTextRow(

@@ -20,7 +20,10 @@ object CheatCodeHandler {
      * @param performMineDigWithOutcome Callback to perform mine dig with a specific outcome
      * @param spawnEnemy Callback to spawn an enemy
      * @param showPlatformInfo Callback to show platform information (optional)
-     * @return Pair of (success: Boolean, digOutcome: DigOutcome?). Success is true if the cheat code 
+     * @param addMana Callback to add mana during gameplay (optional)
+     * @param removeMana Callback to remove mana during gameplay (optional)
+     * @param showCheatHelp Callback to show cheat code help screen (optional)
+     * @return Pair of (success: Boolean, digOutcome: DigOutcome?). Success is true if the cheat code
      *         was recognized and applied. DigOutcome is non-null if a dig cheat was applied.
      */
     fun applyCheatCode(
@@ -30,7 +33,10 @@ object CheatCodeHandler {
         performMineDigWithOutcome: (DigOutcome) -> DigOutcome?,
         spawnEnemy: (AttackerType, Int) -> Unit,
         showPlatformInfo: (() -> Unit)? = null,
-        setBigHeadMode: ((Boolean) -> Unit)? = null
+        setBigHeadMode: ((Boolean) -> Unit)? = null,
+        addMana: ((Int) -> Unit)? = null,
+        removeMana: ((Int) -> Unit)? = null,
+        showCheatHelp: (() -> Unit)? = null
     ): Pair<Boolean, DigOutcome?> {
         val lowercaseCode = code.lowercase().trim()
         
@@ -70,6 +76,10 @@ object CheatCodeHandler {
                 setBigHeadMode?.invoke(false)
                 return Pair(true, null)
             }
+            "cheat", "cheats", "help" -> {
+                showCheatHelp?.invoke()
+                return Pair(true, null)
+            }
             // Dig outcome cheat codes
             "dig nothing", "dig rubble" -> return applyDigCheat(DigOutcome.NOTHING)
             "dig brass" -> return applyDigCheat(DigOutcome.BRASS)
@@ -104,6 +114,26 @@ object CheatCodeHandler {
             }
         }
         
+        // Handle "addmana <amount>" cheatcode
+        if (lowercaseCode.startsWith("addmana ") && addMana != null) {
+            val parts = lowercaseCode.split(" ").filter { it.isNotBlank() }
+            if (parts.size >= 2) {
+                val amount = parts[1].toIntOrNull() ?: return Pair(false, null)
+                addMana(amount)
+                return Pair(true, null)
+            }
+        }
+
+        // Handle "removemana <amount>" cheatcode
+        if (lowercaseCode.startsWith("removemana ") && removeMana != null) {
+            val parts = lowercaseCode.split(" ").filter { it.isNotBlank() }
+            if (parts.size >= 2) {
+                val amount = parts[1].toIntOrNull() ?: return Pair(false, null)
+                removeMana(amount)
+                return Pair(true, null)
+            }
+        }
+
         return Pair(false, null)
     }
     
@@ -117,6 +147,13 @@ object CheatCodeHandler {
      * @param lockLevel Callback to lock a specific level by index or ID
      * @param worldLevels Current list of world levels (needed to validate level references)
      * @param showPlatformInfo Callback to show platform information (optional)
+     * @param addXP Callback to add XP to player (optional)
+     * @param removeXP Callback to remove XP from player (optional)
+     * @param addStatLevel Callback to add levels to a specific stat (optional)
+     * @param removeStatLevel Callback to remove levels from a specific stat (optional)
+     * @param unlockSpell Callback to unlock a specific spell (optional)
+     * @param lockSpell Callback to lock a specific spell (optional)
+     * @param showCheatHelp Callback to show cheat code help screen (optional)
      * @return true if the cheat code was recognized and applied, false otherwise
      */
     fun applyWorldMapCheatCode(
@@ -126,7 +163,14 @@ object CheatCodeHandler {
         lockAllLevels: (() -> Unit)? = null,
         lockLevel: ((String) -> Unit)? = null,
         worldLevels: List<WorldLevel>? = null,
-        showPlatformInfo: (() -> Unit)? = null
+        showPlatformInfo: (() -> Unit)? = null,
+        addXP: ((Int) -> Unit)? = null,
+        removeXP: ((Int) -> Unit)? = null,
+        addStatLevel: ((String, Int) -> Unit)? = null,
+        removeStatLevel: ((String, Int) -> Unit)? = null,
+        unlockSpell: ((String) -> Unit)? = null,
+        lockSpell: ((String) -> Unit)? = null,
+        showCheatHelp: (() -> Unit)? = null
     ): Boolean {
         val lowercaseCode = code.lowercase().trim()
         
@@ -142,6 +186,10 @@ object CheatCodeHandler {
             }
             "platform" -> {
                 showPlatformInfo?.invoke()
+                return true
+            }
+            "cheat", "cheats", "help" -> {
+                showCheatHelp?.invoke()
                 return true
             }
         }
@@ -220,6 +268,68 @@ object CheatCodeHandler {
             return false
         }
         
+        // Handle "addxp <amount>" cheatcode
+        if (lowercaseCode.startsWith("addxp ") && addXP != null) {
+            val parts = lowercaseCode.split(" ").filter { it.isNotBlank() }
+            if (parts.size >= 2) {
+                val amount = parts[1].toIntOrNull() ?: return false
+                addXP(amount)
+                return true
+            }
+        }
+
+        // Handle "removexp <amount>" cheatcode
+        if (lowercaseCode.startsWith("removexp ") && removeXP != null) {
+            val parts = lowercaseCode.split(" ").filter { it.isNotBlank() }
+            if (parts.size >= 2) {
+                val amount = parts[1].toIntOrNull() ?: return false
+                removeXP(amount)
+                return true
+            }
+        }
+
+        // Handle "addstat"/"addability <statname> <amount>" cheatcodes
+        if ((lowercaseCode.startsWith("addstat ") || lowercaseCode.startsWith("addability ")) && addStatLevel != null) {
+            val parts = lowercaseCode.split(" ").filter { it.isNotBlank() }
+            if (parts.size >= 3) {
+                val statName = parts[1]
+                val amount = parts[2].toIntOrNull() ?: return false
+                addStatLevel(statName, amount)
+                return true
+            }
+        }
+
+        // Handle "removestat"/"removeability <statname> <amount>" cheatcodes
+        if ((lowercaseCode.startsWith("removestat ") || lowercaseCode.startsWith("removeability ")) && removeStatLevel != null) {
+            val parts = lowercaseCode.split(" ").filter { it.isNotBlank() }
+            if (parts.size >= 3) {
+                val statName = parts[1]
+                val amount = parts[2].toIntOrNull() ?: return false
+                removeStatLevel(statName, amount)
+                return true
+            }
+        }
+
+        // Handle "unlockspell <spellname>" cheatcode
+        if (lowercaseCode.startsWith("unlockspell ") && unlockSpell != null) {
+            val parts = lowercaseCode.split(" ", limit = 2).filter { it.isNotBlank() }
+            if (parts.size >= 2) {
+                val spellName = parts[1].trim()
+                unlockSpell(spellName)
+                return true
+            }
+        }
+
+        // Handle "lockspell <spellname>" cheatcode
+        if (lowercaseCode.startsWith("lockspell ") && lockSpell != null) {
+            val parts = lowercaseCode.split(" ", limit = 2).filter { it.isNotBlank() }
+            if (parts.size >= 2) {
+                val spellName = parts[1].trim()
+                lockSpell(spellName)
+                return true
+            }
+        }
+
         // Legacy support: bare "unlock" still unlocks all levels
         if (lowercaseCode == "unlock") {
             unlockAllLevels()

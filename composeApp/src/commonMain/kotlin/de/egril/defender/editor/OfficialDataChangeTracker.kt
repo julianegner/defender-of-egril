@@ -1,5 +1,7 @@
 package de.egril.defender.editor
 
+import de.egril.defender.config.LogConfig
+
 /**
  * Tracks changes to official game data (maps and levels).
  * Used in conjunction with OfficialEditMode to warn users when official data has been modified.
@@ -22,7 +24,9 @@ object OfficialDataChangeTracker {
     fun trackMapModified(mapId: String) {
         if (OfficialContent.isOfficialMap(mapId)) {
             modifiedOfficialMaps.add(mapId)
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Official map modified: $mapId")
+            }
         }
     }
     
@@ -32,7 +36,9 @@ object OfficialDataChangeTracker {
     fun trackLevelModified(levelId: String) {
         if (OfficialContent.isOfficialLevel(levelId)) {
             modifiedOfficialLevels.add(levelId)
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Official level modified: $levelId")
+            }
         }
     }
     

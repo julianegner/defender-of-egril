@@ -21,6 +21,14 @@ enum class HealingEffectType {
     GREEN_WITCH    // Visual effect for green witch healing
 }
 
+/**
+ * Spell targeting mode state
+ */
+data class SpellTargetingState(
+    val activeSpell: SpellType,
+    val validTargets: Set<Any> = emptySet()  // Can be Position, Attacker, or Defender depending on spell type
+)
+
 data class FieldEffect(
     val position: Position,
     val type: FieldEffectType,
@@ -41,6 +49,12 @@ data class DamageEffect(
     val position: Position,
     val damageAmount: Int,
     val turnNumber: Int  // Track which turn this damage occurred for display timing
+)
+
+data class BombExplosionEffect(
+    val center: Position,        // Center of the explosion
+    val affectedPositions: List<Position>,  // All affected tile positions
+    val turnNumber: Int          // Turn when this explosion occurred
 )
 
 /**
@@ -85,6 +99,7 @@ data class GameState(
     val barricades: SnapshotStateList<Barricade> = mutableStateListOf(),  // Track active barricades
     val bridges: SnapshotStateList<Bridge> = mutableStateListOf(),  // Track active bridges
     val rafts: SnapshotStateList<Raft> = mutableStateListOf(),  // Track active rafts (towers on rivers)
+    val bombExplosionEffects: SnapshotStateList<BombExplosionEffect> = mutableStateListOf(),  // Track bomb explosion visual effects
     val difficulty: DifficultyLevel = DifficultyLevel.MEDIUM,  // Track difficulty for this game session
     val tutorialState: MutableState<TutorialState> = mutableStateOf(
         // Enable tutorial only for the tutorial level (id=1, title contains "Welcome")
@@ -97,6 +112,14 @@ data class GameState(
     val infoState: MutableState<InfoState> = mutableStateOf(InfoState()),  // Single tutorial infos system
     val destroyedMinePositions: SnapshotStateList<Position> = mutableStateListOf(),  // Positions where mines have been destroyed
     val mineWarnings: SnapshotStateList<Int> = mutableStateListOf(),  // Mine IDs with active warnings (dragon about to destroy)
+    val xpEarnedThisLevel: MutableState<Int> = mutableStateOf(0),  // XP earned during this level (awarded on win)
+    val currentMana: MutableState<Int> = mutableStateOf(0),  // Current mana (for spellcasting)
+    val maxMana: MutableState<Int> = mutableStateOf(0),  // Maximum mana (based on player stats)
+    val activeSpellEffects: SnapshotStateList<ActiveSpellEffect> = mutableStateListOf(),  // Active spell effects
+    val incomeMultiplier: Double = 1.0,  // Income multiplier from player stats (default 1.0, e.g. 1.2 for 20% bonus)
+    val constructionLevel: Int = 0,  // Construction level from player stats (0-3+, gates tower abilities)
+    val spellTargeting: MutableState<SpellTargetingState?> = mutableStateOf(null),  // Active spell targeting state (null when not targeting)
+    val instantTowerSpellActive: MutableState<Boolean> = mutableStateOf(false),  // True when Instant Tower spell is active (waiting for next tower placement)
     // SINGLE_HIT target tracking
     val takenTargets: SnapshotStateList<Position> = mutableStateListOf(),  // Positions of taken SINGLE_HIT targets
     val pendingMessages: SnapshotStateList<GameMessage> = mutableStateListOf()  // Messages queued for display
@@ -146,7 +169,7 @@ data class GameState(
             }
         }
     }
-    
+
     /**
      * Returns the effective next waypoint target, redirecting to the nearest active target
      * if the waypoint's next target is a taken SINGLE_HIT target.

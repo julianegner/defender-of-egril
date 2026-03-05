@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.model.*
+import de.egril.defender.config.LogConfig
 
 /**
  * Handles enemy spawning, movement, and field effects.
@@ -19,10 +20,16 @@ class EnemyMovementSystem(
      * If no waypoints exist, uses the first target position.
      */
     fun getInitialTarget(preferredSpawnPoint: Position): Position {
+        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
         println("=== GET INITIAL TARGET ===")
+        }
+        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
         println("Preferred spawn point: $preferredSpawnPoint")
+        }
+        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
         println("Total waypoints in level: ${state.level.waypoints.size}")
-        
+        }
+
         // Check if the preferred spawn point has a waypoint
         val waypointAtSpawn = state.level.getWaypointAt(preferredSpawnPoint)
         if (waypointAtSpawn != null) {
@@ -38,7 +45,9 @@ class EnemyMovementSystem(
             // Prefer the first active (non-taken) target
             state.getActiveTargetPositions().firstOrNull() ?: state.level.targetPositions.first()
         }
+        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
         println("No waypoint at spawn point, using fallback target: $initialTarget")
+        }
         return initialTarget
     }
     
@@ -210,20 +219,36 @@ class EnemyMovementSystem(
             10  // Flying on even turns
         }
         
+        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
         println("=== DRAGON MOVEMENT CALCULATION ===")
+        }
+        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
         println("Dragon ID: ${dragon.id}")
+        }
+        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
         println("Turns since spawned: ${dragon.dragonTurnsSinceSpawned.value}")
+        }
+        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
         println("Is odd turn: $isOddTurn")
+        }
+        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
         println("Is flying: ${dragon.isFlying.value}")
+        }
+        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
         println("Speed: $speed")
+        }
+        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
         println("Start position: $startPos")
-        
+        }
+
         // Use currentTarget if set (for mine targeting), otherwise use nearest active target
         val target = dragon.currentTarget?.value
             ?: state.getActiveTargetPositions().minByOrNull { dragon.position.value.distanceTo(it) }
             ?: state.level.targetPositions.first()
-        println("Target: $target")
-        
+        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
+            println("Target: $target")
+        }
+
         val result = mutableListOf<Position>()
         
         // For flying, calculate the target position using BFS
@@ -279,8 +304,10 @@ class EnemyMovementSystem(
                 }
             }
             
+            if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
             println("Flying dragon BFS: visited ${visited.size}, found ${reachablePathPositions.size} path positions")
-            
+            }
+
             // Choose the path position that gets us closest to target
             val bestPosition = reachablePathPositions.minByOrNull { (pos, _) ->
                 pos.distanceTo(target)
@@ -291,14 +318,20 @@ class EnemyMovementSystem(
                 bestPosition
             } else {
                 // Fallback: if no reachable path positions, use pathfinding to move along path
+                if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
                 println("  BFS failed, using pathfinding fallback")
+                }
                 val path = pathfinding.findPath(currentPos, target, dragon)
                 if (path.size > 1) {
                     val pathIndex = minOf(speed, path.size - 1)
+                    if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
                     println("  Using path index $pathIndex: ${path[pathIndex]}")
+                    }
                     path[pathIndex]
                 } else {
+                    if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
                     println("  Pathfinding also failed, staying in place")
+                    }
                     currentPos
                 }
             }
@@ -310,8 +343,10 @@ class EnemyMovementSystem(
         } else {
             // Walking - follow path normally up to 'speed' tiles
             val path = pathfinding.findPath(startPos, target, dragon)
+            if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
             println("Walking dragon: path size ${path.size}")
-            
+            }
+
             if (path.size > 1) {
                 val stepsToTake = minOf(speed, path.size - 1)
                 for (i in 1..stepsToTake) {
@@ -320,8 +355,12 @@ class EnemyMovementSystem(
             }
         }
         
+        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
         println("Movement path: $result")
+        }
+        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
         println("===================================")
+        }
         return result
     }
     
@@ -370,7 +409,9 @@ class EnemyMovementSystem(
                 val target = attacker.currentTarget?.value
                     ?: state.getActiveTargetPositions().minByOrNull { attacker.position.value.distanceTo(it) }
                     ?: state.level.targetPositions.first()
-                println("Goblin ${attacker.id} at ${attacker.position.value} moving towards target: $target (remainingSpeed: $remainingSpeed)")
+                if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
+                    println("Goblin ${attacker.id} at ${attacker.position.value} moving towards target: $target (remainingSpeed: $remainingSpeed)")
+                }
                 val path = pathfinding.findPath(attacker.position.value, target, attacker)
 
                 if (path.isEmpty() || path.size < 2) {
@@ -417,7 +458,9 @@ class EnemyMovementSystem(
                             )
                         }
                         state.barricades.remove(barricadeAtPosition)
+                        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
                         println("Goblin ${attacker.id} destroyed barricade at $newPos")
+                        }
                         attacker.position.value = newPos
                         
                         // Check if reached a waypoint
@@ -430,7 +473,9 @@ class EnemyMovementSystem(
                                     state.getActiveTargetPositions().minByOrNull { newPos.distanceTo(it) } ?: nextTarget
                                 } else nextTarget
                                 attacker.currentTarget.value = effectiveNext
-                                println("Goblin ${attacker.id} reached waypoint at $newPos, next target: $effectiveNext")
+                                if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
+                                    println("Goblin ${attacker.id} reached waypoint at $newPos, next target: $effectiveNext")
+                                }
                             }
                         }
                         
@@ -443,7 +488,9 @@ class EnemyMovementSystem(
                         }
                     } else {
                         // Barricade not destroyed, goblin stops here
+                        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
                         println("Goblin ${attacker.id} hit barricade at $newPos (${barricadeAtPosition.healthPoints.value} HP remaining), stopping")
+                        }
                         break
                     }
                 } else {
@@ -461,7 +508,9 @@ class EnemyMovementSystem(
                                 state.getActiveTargetPositions().minByOrNull { newPos.distanceTo(it) } ?: nextTarget
                             } else nextTarget
                             attacker.currentTarget.value = effectiveNext
-                            println("Goblin ${attacker.id} reached waypoint at $newPos, next target: $effectiveNext")
+                            if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
+                                println("Goblin ${attacker.id} reached waypoint at $newPos, next target: $effectiveNext")
+                            }
                         }
                     }
                     

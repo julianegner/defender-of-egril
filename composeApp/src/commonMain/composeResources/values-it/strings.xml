@@ -1043,6 +1043,7 @@
     <!-- Player Profile Screen -->
     <string name="player_profile">Profilo Giocatore</string>
     <string name="player_created">Giocatore Creato</string>
+    <string name="abilities">Abilità</string>
     <string name="achievements">Risultati</string>
     <string name="achievements_earned">Risultati Ottenuti</string>
     <string name="no_achievements_yet">Nessun risultato ancora</string>
@@ -1133,6 +1134,17 @@
     <string name="achievement_add_health_barricade_name">Fortificato</string>
     <string name="achievement_add_health_barricade_desc">Aggiungi punti vita a una barricata esistente</string>
     
+    <string name="achievement_first_stat_upgrade_name">Primo Potenziamento</string>
+    <string name="achievement_first_stat_upgrade_desc">Spendi il tuo primo punto abilità per potenziare un'abilità</string>
+    <string name="achievement_first_spell_unlock_name">Incantatore</string>
+    <string name="achievement_first_spell_unlock_desc">Sblocca il tuo primo incantesimo usando punti abilità</string>
+    <string name="achievement_construction_level_3_name">Maestro Costruttore</string>
+    <string name="achievement_construction_level_3_desc">Raggiungi il livello 3 di Costruzione per sbloccare le Basi delle Torri</string>
+    <string name="achievement_player_level_10_name">Difensore Esperto</string>
+    <string name="achievement_player_level_10_desc">Raggiungi il livello giocatore 10 guadagnando XP</string>
+    <string name="achievement_player_level_100_name">Difensore Leggendario</string>
+    <string name="achievement_player_level_100_desc">Raggiungi il livello giocatore 100 guadagnando XP</string>
+
     <!-- Official Content Badges -->
     <string name="official">Ufficiale</string>
     <string name="user_levels">Livelli Utente</string>
@@ -1156,7 +1168,28 @@
     <string name="info_tab_installation">Installazione</string>
     <string name="info_tab_audio_licenses">Licenze Audio</string>
     <string name="info_tab_license">Licenza</string>
-    
+    <string name="info_tab_keyboard_shortcuts">Scorciatoie da Tastiera</string>
+
+    <!-- Keyboard Shortcuts Info -->
+    <string name="keyboard_shortcuts_title">Scorciatoie da Tastiera</string>
+    <string name="keyboard_shortcuts_gameplay_section">Schermata di Gioco</string>
+    <string name="keyboard_shortcuts_worldmap_section">Mappa del Mondo</string>
+    <string name="keyboard_shortcuts_abilities_section">Schermata Abilità / XP</string>
+    <string name="keyboard_shortcut_key_label">Tasto</string>
+    <string name="keyboard_shortcut_description_label">Azione</string>
+    <string name="keyboard_shortcut_where_label">Dove</string>
+    <string name="keyboard_shortcut_attack">Attacca il bersaglio attuale con la torre selezionata</string>
+    <string name="keyboard_shortcut_auto_attack">Attacco automatico di tutte le torri e fine turno</string>
+    <string name="keyboard_shortcut_cheat">Apri il dialogo dei codici truffa</string>
+    <string name="keyboard_shortcut_enemy_list">Mostra/nascondi la lista dei nemici</string>
+    <string name="keyboard_shortcut_end_turn">Fine turno / Inizia battaglia</string>
+    <string name="keyboard_shortcut_save">Salva partita</string>
+    <string name="keyboard_shortcut_pan_up">Sposta la mappa verso l\'alto</string>
+    <string name="keyboard_shortcut_pan_down">Sposta la mappa verso il basso</string>
+    <string name="keyboard_shortcut_pan_left">Sposta la mappa a sinistra</string>
+    <string name="keyboard_shortcut_pan_right">Sposta la mappa a destra</string>
+    <string name="keyboard_shortcuts_note">Nota: Le scorciatoie da tastiera sono disponibili solo su desktop.</string>
+
     <!-- License Info -->
     <string name="license_info_title">Informazioni sulla Licenza</string>
     <string name="license_github_project_title">Progetto GitHub</string>
@@ -1243,6 +1276,165 @@
     <string name="debug_display_tile_positions">Mostra posizioni delle celle</string>
     <string name="debug_display_map_size">Mostra dimensione mappa</string>
     <string name="debug_map_size_overlay">Mappa esagonale: %1$ddp × %2$ddp / %3$dpx × %4$dpx\nContenuto: %5$ddp × %6$ddp / %7$dpx × %8$dpx\nVista: %9$ddp × %10$ddp / %11$dpx × %12$dpx\nOffset: %13$d, %14$d</string>
+
+    <!-- XP System -->
+    <string name="xp_earned">XP Guadagnati: %d</string>
+    <string name="xp_info_brief">Guadagna XP sconfiggendo i nemici.\nSali di livello per ottenere punti abilità e sbloccare abilità potenti!</string>
+    <string name="xp_system_unlocked">Sistema XP Sbloccato!</string>
+    <string name="xp_system_unlock_message">Ora puoi usare XP per migliorare le tue abilità e sbloccare abilità potenti!\n\nAccedi alla schermata di potenziamento dal Profilo Giocatore.</string>
+
+    <!-- Stats Upgrade Screen -->
+    <string name="available_stat_points">Punti Abilità Disponibili: %d</string>
+    <string name="available_stat_points_label">Punti Abilità Disponibili</string>
+    <string name="stats">Abilità</string>
+    <string name="spells">Incantesimi</string>
+    <string name="unlock">Sblocca</string>
+    <string name="stat_health">Salute</string>
+    <string name="stat_health_desc">+1 PV bonus per livello</string>
+    <string name="stat_health_effect">+%d PV</string>
+    <string name="stat_treasury">Tesoro</string>
+    <string name="stat_treasury_desc">+50 monete iniziali per livello</string>
+    <string name="stat_treasury_effect">+%d monete</string>
+    <string name="stat_income">Reddito</string>
+    <string name="stat_income_desc">+10%% monete da tutte le fonti</string>
+    <string name="stat_income_effect">+%d%%</string>
+    <string name="stat_construction">Costruzione</string>
+    <string name="stat_construction_desc">Sblocca abilità delle torri</string>
+    <string name="stat_construction_effect_none">Nessuna abilità</string>
+    <string name="stat_construction_effect_level1">Barricate di lancia, Spine con aculei</string>
+    <string name="stat_construction_effect_level2">Barricate con spine</string>
+    <string name="stat_construction_effect_level3">Tutte le abilità sbloccate</string>
+    <string name="stat_mana">Mana</string>
+    <string name="stat_mana_desc">+5 mana massimo per livello</string>
+    <string name="stat_mana_effect">%d mana massimo</string>
+    <string name="spells_description">Sblocca incantesimi potenti da lanciare durante la battaglia</string>
+    <string name="spell_unlocked">Sbloccato</string>
+    <string name="spell_mana_cost">%d Mana</string>
+    <string name="player_level">Livello %d</string>
+    <string name="xp_progress">%d / %d XP</string>
+    <string name="stat_level_effect">Livello %d: %s</string>
+    <string name="generate_mana">Genera Mana</string>
+    <string name="mana_label">Mana</string>
+    <string name="magic_panel_title">Incantesimi Magici</string>
+    <string name="magic_panel_description">Seleziona un incantesimo da lanciare in battaglia</string>
+    <string name="no_spells_unlocked">Nessun incantesimo sbloccato. Migliora le tue abilità per sbloccare gli incantesimi!</string>
+    <string name="cast">Lancia</string>
+    <string name="confirm_spell_cast">Conferma Incantesimo</string>
+    <string name="cast_spell_confirmation">Lanciare %s?</string>
+    <string name="mana_cost_label">Costo Mana:</string>
+    <string name="remaining_mana_label">Rimanente:</string>
+    <string name="spell_targeting_position">Seleziona una posizione sulla mappa</string>
+    <string name="spell_targeting_enemy">Seleziona un nemico da bersagliare</string>
+    <string name="spell_targeting_tower">Seleziona una torre da potenziare</string>
+    <string name="spell_targeting_cancel">Clicca qui per annullare</string>
+
+    <!-- Spell Names -->
+    <string name="spell_attack_area_name">Attacco ad Area</string>
+    <string name="spell_attack_aimed_name">Attacco Mirato</string>
+    <string name="spell_heal_name">Guarigione</string>
+    <string name="spell_instant_tower_name">Torre Istantanea</string>
+    <string name="spell_bomb_name">Bomba</string>
+    <string name="spell_double_tower_level_name">Raddoppia Livello Torre</string>
+    <string name="spell_cooling_spell_name">Incantesimo di Raffreddamento</string>
+    <string name="spell_freeze_spell_name">Incantesimo di Congelamento</string>
+    <string name="spell_double_tower_reach_name">Raddoppia Portata Torre</string>
+    <string name="spell_fear_spell_name">Incantesimo della Paura</string>
+    <string name="spell_fear_spell_area_name">Incantesimo della Paura (Area)</string>
+
+    <!-- Spell Descriptions -->
+    <string name="spell_attack_area_desc">Infligge 50 danni a tutti i nemici entro 2 esagoni</string>
+    <string name="spell_attack_aimed_desc">Infligge 80 danni al nemico su una casella mirata</string>
+    <string name="spell_heal_desc">Ripristina 3 punti vita</string>
+    <string name="spell_instant_tower_desc">La prossima torre costruita viene schierata istantaneamente senza tempo di costruzione</string>
+    <string name="spell_bomb_desc">Piazza una bomba che esplode dopo 2 turni, infliggendo danni pesanti (200/150/100/50) in base alla distanza a nemici, barricate e ponti. I nemici fuggono dalle bombe in procinto di esplodere.</string>
+    <string name="spell_double_tower_level_desc">Raddoppia i danni di una torre per 1 turno</string>
+    <string name="spell_cooling_spell_desc">Crea un\'area che riduce la velocità di movimento dei nemici di 1 per 3 turni</string>
+    <string name="spell_freeze_spell_desc">Congela un nemico per 1 turno (immunità: Demoni, Draghi, Ewhad)</string>
+    <string name="spell_double_tower_reach_desc">Raddoppia la portata di attacco di una torre per 1 turno</string>
+    <string name="spell_fear_spell_desc">Fa fuggire un singolo nemico verso il suo punto di partenza per 3 turni</string>
+    <string name="spell_fear_spell_area_desc">Crea una zona di paura che fa fuggire i nemici verso i punti di partenza per 3 turni</string>
+
+    <!-- Construction Info -->
+    <string name="construction_info_intro">Ogni livello di Costruzione sblocca potenti abilità delle torri:</string>
+    <string name="construction_level_1_title">Costruzione Livello 1</string>
+    <string name="construction_level_1_desc">Torre Lancia (livello 10+): Costruire barricate\nTorre Picche (livello 10+): Picche barbute (i nemici perdono 1 punto movimento)</string>
+    <string name="construction_level_2_title">Costruzione Livello 2</string>
+    <string name="construction_level_2_desc">Torre Picche (livello 20+): Costruire barricate</string>
+    <string name="construction_level_3_title">Costruzione Livello 3</string>
+    <string name="construction_level_3_desc">Base Torre: Le barricate livello 100+ possono sostenere torri</string>
+
+
+    <!-- Cheat Codes -->
+    <string name="cheat_codes_title">Codici cheat</string>
+    <string name="cheat_section_general">Generale</string>
+    <string name="cheat_section_coins">Monete e risorse</string>
+    <string name="cheat_section_mana">Mana (durante il livello)</string>
+    <string name="cheat_section_enemies">Nemici</string>
+    <string name="cheat_section_mining">Estrazione mineraria</string>
+    <string name="cheat_section_xp_stats">XP e abilità</string>
+    <string name="cheat_section_spells">Incantesimi</string>
+    <string name="cheat_section_levels">Sblocco livelli</string>
+
+    <!-- Cheat code descriptions -->
+    <string name="cheat_help_desc">Mostra questa schermata di aiuto</string>
+    <string name="cheat_platform_desc">Mostra informazioni sulla piattaforma</string>
+    <string name="cheat_cash_desc">Aggiungi 1.000 monete</string>
+    <string name="cheat_mmmoney_desc">Aggiungi 1.000.000 di monete</string>
+    <string name="cheat_emptypocket_desc">Imposta monete a 0</string>
+    <string name="cheat_addmana_desc">Aggiungi mana (es. addmana 50)</string>
+    <string name="cheat_removemana_desc">Rimuovi mana (es. removemana 20)</string>
+    <string name="cheat_spawn_desc">Genera nemico (es. spawn goblin 5)</string>
+    <string name="cheat_spawn_types">Tipi di nemici: goblin, ork, ogre, skeleton, wizard, greenwitch, redwitch</string>
+    <string name="cheat_dig_nothing_desc">Risultato scavo: niente</string>
+    <string name="cheat_dig_treasure_desc">Risultato scavo: tesoro</string>
+    <string name="cheat_dig_gems_desc">Risultato scavo: gemme/diamante</string>
+    <string name="cheat_dig_dragon_desc">Risultato scavo: drago</string>
+    <string name="cheat_addxp_desc">Aggiungi XP (es. addxp 500)</string>
+    <string name="cheat_removexp_desc">Rimuovi XP (es. removexp 100)</string>
+    <string name="cheat_addstat_desc">Aggiungi livelli di abilità (es. addstat health 5)</string>
+    <string name="cheat_removestat_desc">Rimuovi livelli di abilità (es. removestat mana 2)</string>
+    <string name="cheat_addability_desc">Aggiungi livelli di abilità (es. addability health 5)</string>
+    <string name="cheat_removeability_desc">Rimuovi livelli di abilità (es. removeability mana 2)</string>
+    <string name="cheat_stat_types">Abilità: health, treasury, income, construction, mana</string>
+    <string name="cheat_unlockspell_desc">Sblocca un incantesimo (es. unlockspell fireball)</string>
+    <string name="cheat_lockspell_desc">Blocca un incantesimo (es. lockspell heal)</string>
+    <string name="cheat_spell_types">Incantesimi: attack_aimed, attack_area, heal, instant_tower, bomb, double_level, cooling, freeze, double_reach, fear, fear_area</string>
+    <string name="cheat_unlockall_desc">Sblocca tutti i livelli</string>
+    <string name="cheat_unlock_desc">Sblocca livello specifico</string>
+    <string name="cheat_lockall_desc">Blocca tutti i livelli</string>
+    <string name="cheat_lock_desc">Blocca livello specifico</string>
+
+    <!-- Freeze status labels -->
+    <string name="frozen_label">Congelato</string>
+    <string name="frozen_turns_remaining">Congelato: %d turni rimanenti</string>
+    <!-- Cooling spell status labels -->
+    <string name="cooled_label">Raffreddato</string>
+    <string name="cooled_turns_remaining">Raffreddato: %d turni rimanenti</string>
+    <!-- Fear status labels -->
+    <string name="feared_label">Spaventato</string>
+    <string name="feared_turns_remaining">Paura: %d turni rimanenti</string>
+
+
+    <!-- Task 3: Post-target spell confirmation -->
+    <string name="cast_spell_on_target">Lancia %1$s</string>
+    <string name="target_enemy_details">Nemico bersaglio:</string>
+    <string name="target_tower_details">Torre bersaglio:</string>
+    <string name="target_position">Posizione bersaglio:</string>
+    <string name="enemy_type_level_hp">%1$s (Livello %2$s, PF: %3$s)</string>
+    <string name="tower_type_level">%1$s (Livello %2$s)</string>
+    <string name="freeze_immune_warning_title">Impossibile congelare il nemico</string>
+    <string name="freeze_immune_warning_message">%1$s è immune all'incantesimo di congelamento!</string>
+
+    <!-- Double Tower Level spell status label -->
+    <string name="double_level_active">Livello raddoppiato questo turno!</string>
+
+    <!-- Instant Tower spell abort dialog -->
+    <string name="instant_tower_spell_abort_title">Incantesimo torre istantanea attivo</string>
+    <string name="instant_tower_spell_abort_message">Una torre verrà costruita istantaneamente. Vuoi annullare l'incantesimo o continuare a posizionare una torre?</string>
+    <string name="instant_tower_spell_abort_confirm">Annulla incantesimo</string>
+    <string name="instant_tower_spell_abort_cancel">Continua a posizionare la torre</string>
+
+    <!-- single target, target and gate names -->
     <string name="target_taken_title">Obiettivo catturato!</string>
     <string name="target_taken_message_named">%1$s è stato catturato dal nemico!</string>
     <string name="target_taken_message_unnamed">Una posizione obiettivo è stata catturata dal nemico!</string>

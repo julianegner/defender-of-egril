@@ -65,6 +65,11 @@ fun InfoPageScreen(
                         onClick = { selectedTab = InfoTab.LICENSE },
                         text = { Text(stringResource(Res.string.info_tab_license)) }
                     )
+                    Tab(
+                        selected = selectedTab == InfoTab.KEYBOARD_SHORTCUTS,
+                        onClick = { selectedTab = InfoTab.KEYBOARD_SHORTCUTS },
+                        text = { Text(stringResource(Res.string.info_tab_keyboard_shortcuts)) }
+                    )
                 }
                 
                 // Content area
@@ -77,6 +82,7 @@ fun InfoPageScreen(
                         InfoTab.INSTALLATION -> InstallationInfo()
                         InfoTab.AUDIO_LICENSES -> AudioLicensesInfo()
                         InfoTab.LICENSE -> LicenseInfo()
+                        InfoTab.KEYBOARD_SHORTCUTS -> KeyboardShortcutsInfo()
                     }
                 }
                 
@@ -100,5 +106,6 @@ fun InfoPageScreen(
 enum class InfoTab {
     INSTALLATION,
     AUDIO_LICENSES,
-    LICENSE
+    LICENSE,
+    KEYBOARD_SHORTCUTS
 }

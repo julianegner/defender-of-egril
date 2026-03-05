@@ -193,4 +193,25 @@ class AchievementManager(private val playerId: String) {
     fun onAddHealthBarricade() {
         checkAndAward(AchievementId.ADD_HEALTH_BARRICADE)
     }
+    
+    // XP and stat achievements
+    fun onFirstStatUpgrade() {
+        checkAndAward(AchievementId.FIRST_STAT_UPGRADE)
+    }
+    
+    fun onFirstSpellUnlock() {
+        checkAndAward(AchievementId.FIRST_SPELL_UNLOCK)
+    }
+    
+    fun onConstructionLevel3() {
+        checkAndAward(AchievementId.CONSTRUCTION_LEVEL_3)
+    }
+    
+    fun onPlayerLevel10() {
+        checkAndAward(AchievementId.PLAYER_LEVEL_10)
+    }
+    
+    fun onPlayerLevel100() {
+        checkAndAward(AchievementId.PLAYER_LEVEL_100)
+    }
 }
