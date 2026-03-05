@@ -1456,23 +1456,39 @@ private fun BoxScope.GridCellContent(
                             ?.takeIf { it.isNotBlank() }
                             ?.let { localizeEntityName(it, barricadeLocale) }
                         if (!barricadeDisplayName.isNullOrBlank()) {
-                            Text(
-                                text = barricadeDisplayName,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color.White,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier
-                                    .widthIn(max = 50.dp)
-                                    .offset(y = (-30).dp)
-                            )
-                            // FIXME this should be visible under the barricadeDisplayName
-                            Text(
-                                "${barricade.healthPoints.value} HP",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.absoluteOffset(y = (-30).dp)
-                            )
+                            // FIXME replace this with Text (2 lines of barricadeDisplayName and one line of "${barricade.healthPoints.value} HP" in bold)
+                            Column {
+                                Text(
+                                    barricadeDisplayName,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color.White,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier
+                                        .widthIn(max = 50.dp)
+                                        .offset(y = (-32).dp)
+
+                                )
+                                Text(
+                                    "${barricade.healthPoints.value} HP",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier
+                                        // .widthIn(max = 50.dp)
+                                        .absoluteOffset(y = (-50).dp)
+                                )
+                            }
+
+                            // Text(
+                            //     text = "BLA\nBLUB", //barricadeDisplayName,
+                            //     style = MaterialTheme.typography.labelSmall,
+                            //     color = Color.White,
+                            //     textAlign = TextAlign.Center,
+                            //     modifier = Modifier
+                            //         .widthIn(max = 50.dp)
+                            //         .absoluteOffset(y = (-50).dp)
+                            // )
                         } else {
                             // HP is primary — always shown prominently right after the icon
                             Text(
