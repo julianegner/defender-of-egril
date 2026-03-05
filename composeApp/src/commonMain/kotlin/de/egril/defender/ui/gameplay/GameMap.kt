@@ -1443,18 +1443,14 @@ private fun BoxScope.GridCellContent(
                     ) {
                         // Show wood/barricade symbol or gate icon with brown color
                         if (barricade.isGate) {
-                            GateIcon(size = GamePlayConstants.TileIconSizes.Barricade)
+                            GateIcon(
+                                modifier = Modifier.offset(y = 10.dp),
+                                size = GamePlayConstants.TileIconSizes.Barricade
+                            )
                         } else {
                             WoodIcon(size = GamePlayConstants.TileIconSizes.Barricade)
                         }
-                        // HP is primary — always shown prominently right after the icon
-                        Text(
-                            "${barricade.healthPoints.value} HP",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color(0xFFA1887F),  // Light brown for readability
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.offset(y = (-12).dp)
-                        )
+
                         // Show gate/barricade name below HP in smaller, secondary style
                         val barricadeDisplayName = barricade.name
                             ?.takeIf { it.isNotBlank() }
@@ -1463,11 +1459,28 @@ private fun BoxScope.GridCellContent(
                             Text(
                                 text = barricadeDisplayName,
                                 style = MaterialTheme.typography.labelSmall,
-                                color = Color(0xFF4E2600),  // Dark brown for gate name
+                                color = Color.White,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
                                     .widthIn(max = 50.dp)
-                                    .offset(y = (-8).dp)
+                                    .offset(y = (-30).dp)
+                            )
+                            // FIXME this should be visible under the barricadeDisplayName
+                            Text(
+                                "${barricade.healthPoints.value} HP",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.absoluteOffset(y = (-30).dp)
+                            )
+                        } else {
+                            // HP is primary — always shown prominently right after the icon
+                            Text(
+                                "${barricade.healthPoints.value} HP",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.offset(y = (-12).dp)
                             )
                         }
                     }
