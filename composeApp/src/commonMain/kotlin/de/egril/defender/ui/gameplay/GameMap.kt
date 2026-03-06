@@ -23,6 +23,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Dp
@@ -1446,7 +1447,10 @@ private fun BoxScope.GridCellContent(
                     ) {
                         // Show wood/barricade symbol or gate icon with brown color
                         if (barricade.isGate) {
-                            GateIcon(size = GamePlayConstants.TileIconSizes.Barricade)
+                            GateIcon(
+                                modifier = Modifier.offset(y = 10.dp),
+                                size = GamePlayConstants.TileIconSizes.Barricade
+                            )
                         } else {
                             WoodIcon(size = GamePlayConstants.TileIconSizes.Barricade)
                         }
@@ -1457,26 +1461,30 @@ private fun BoxScope.GridCellContent(
                             ?.let { localizeEntityName(it, barricadeLocale) }
                         if (!barricadeDisplayName.isNullOrBlank()) {
                             Text(
-                                text = buildAnnotatedString {
+                                text = buildAnnotatedString{
                                     withStyle(SpanStyle(color = Color.White)) {
-                                        append(barricadeDisplayName)
+                                        appendLine(barricadeDisplayName)
                                     }
-                                    append("\n")
-                                    withStyle(SpanStyle(color = Color(0xFFA1887F), fontWeight = FontWeight.Bold)) {
-                                        append("${barricade.healthPoints.value} HP")
+                                    withStyle(SpanStyle(color = Color.White, fontWeight = FontWeight.Bold)) {
+                                        appendLine("${barricade.healthPoints.value} HP")
                                     }
                                 },
                                 style = MaterialTheme.typography.labelSmall,
                                 textAlign = TextAlign.Center,
-                                modifier = Modifier.widthIn(max = 50.dp)
+                                minLines = 3,
+                                maxLines = 3,
+                                overflow = TextOverflow.Visible,
+                                modifier = Modifier
+                                    .widthIn(max = 50.dp)
+                                    .offset(y = (-32).dp)
                             )
                         } else {
                             Text(
                                 "${barricade.healthPoints.value} HP",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = Color(0xFFA1887F),
+                                color = Color.White,
                                 fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Center
+                                modifier = Modifier.offset(y = (-12).dp)
                             )
                         }
                     }
