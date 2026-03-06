@@ -1191,7 +1191,7 @@
     <string name="keyboard_shortcut_pan_left">Pan map left</string>
     <string name="keyboard_shortcut_pan_right">Pan map right</string>
     <string name="keyboard_shortcuts_note">Note: Keyboard shortcuts are available on desktop only.</string>
-    
+
     <!-- License Info -->
     <string name="license_info_title">License Information</string>
     <string name="license_github_project_title">GitHub Project</string>
@@ -1437,4 +1437,32 @@
     <string name="instant_tower_spell_abort_confirm">Abort Spell</string>
     <string name="instant_tower_spell_abort_cancel">Continue Placing Tower</string>
 
+    <!-- single target, target and gate names -->
+    <string name="target_taken_title">Target Captured!</string>
+    <string name="target_taken_message_named">%1$s has been captured by the enemy!</string>
+    <string name="target_taken_message_unnamed">A target position has been captured by the enemy!</string>
+    <string name="gate_destroyed_title">Gate Destroyed!</string>
+    <string name="gate_destroyed_message_named">%1$s has been destroyed!</string>
+    <string name="gate_destroyed_message_unnamed">A gate has been destroyed!</string>
+    <string name="target_type_label">Target Type</string>
+    <string name="target_type_standard">Standard</string>
+    <string name="target_type_single_hit">Single Hit</string>
+    <string name="target_name_label">Target Name (optional)</string>
+    <string name="barricade_name_label">Barricade Name (optional)</string>
+    <string name="is_gate_label">Is Gate</string>
+    <!-- Standard target display names (may contain \n for multi-line tile display) -->
+    <string name="target_name_marketplace">Market-\nplace</string>
+    <string name="target_name_townhall">Town-\nhall</string>
+    <string name="target_name_storehouse">Store-\nhouse</string>
+    <string name="target_name_guildhouse">Guild-\nhouse</string>
+    <!-- Standard gate display names -->
+    <string name="gate_name_north_gate">North\nGate</string>
+    <string name="gate_name_east_gate">East\nGate</string>
+    <string name="gate_name_south_gate">South\nGate</string>
+    <string name="gate_name_west_gate">West\nGate</string>
+    <!-- Barricade info panel -->
+    <string name="barricade_info_description">Barricades block enemy movement. Enemies attack them when adjacent. Build or reinforce them with Spike or Spear towers.</string>
+    <string name="gate_info_description">A gate guards the entrance. Enemies will attack and try to break through. Defend it to keep the path blocked.</string>
+    <string name="barricade_info_panel_title">Barricade</string>
+    <string name="gate_info_panel_title">Gate</string>
 </resources>

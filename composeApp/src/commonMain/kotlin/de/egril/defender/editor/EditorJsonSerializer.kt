@@ -45,6 +45,13 @@ object EditorJsonSerializer {
             ",\n  \"author\": \"${map.author}\""
         } else ""
         
+        val targetInfoJson = if (map.targetInfoMap.isNotEmpty()) {
+            val targetData = map.targetInfoMap.entries.joinToString(",\n    ") { (pos, info) ->
+                "\"$pos\": {\"name\": \"${info.name}\", \"type\": \"${info.type.name}\"}"
+            }
+            ",\n  \"targetInfo\": {\n    $targetData\n  }"
+        } else ""
+        
         val data = """{
   "id": "${map.id}",
   "name": "${map.name}"$nameKeyJson,
@@ -54,7 +61,7 @@ object EditorJsonSerializer {
   "isOfficial": ${map.isOfficial}$worldMapPositionJson$authorJson,
   "tiles": {
     $tilesJson
-  }$riverTilesJson
+  }$riverTilesJson$targetInfoJson
 }"""
         return """{
   "metadata": {
@@ -175,7 +182,53 @@ object EditorJsonSerializer {
                 // River tiles are optional, continue without them
             }
             
-            return EditorMap(id, name, nameKey, width, height, tiles, readyToUse, worldMapPosition, riverTiles, isOfficial, author)
+            // Parse optional targetInfo section
+            val targetInfoMap = mutableMapOf<String, EditorTargetInfo>()
+            try {
+                if (dataJson.contains("\"targetInfo\"")) {
+                    val startMarker = "\"targetInfo\": {"
+                    val startIdx = dataJson.indexOf(startMarker)
+                    if (startIdx != -1) {
+                        val contentStart = startIdx + startMarker.length
+                        var braceCount = 1
+                        var endIdx = contentStart
+                        while (endIdx < dataJson.length && braceCount > 0) {
+                            when (dataJson[endIdx]) {
+                                '{' -> braceCount++
+                                '}' -> braceCount--
+                            }
+                            endIdx++
+                        }
+                        if (braceCount == 0) {
+                            val targetSection = dataJson.substring(contentStart, endIdx - 1)
+                            // Each entry looks like: "x,y": {"name": "...", "type": "..."}
+                            val entryRegex = Regex(""""(\d+,\d+)":\s*\{([^}]*)\}""")
+                            for (match in entryRegex.findAll(targetSection)) {
+                                val pos = match.groupValues[1]
+                                val body = "{${match.groupValues[2]}}"
+                                val tName = try { de.egril.defender.utils.JsonUtils.extractValue(body, "name") } catch (e: Exception) {
+                                    println("Error parsing target name for pos '$pos': ${e.message}")
+                                    ""
+                                }
+                                val tType = try {
+                                    de.egril.defender.model.TargetType.valueOf(
+                                        de.egril.defender.utils.JsonUtils.extractValue(body, "type")
+                                    )
+                                } catch (e: Exception) {
+                                    println("Error parsing target type for pos '$pos': ${e.message}, defaulting to STANDARD")
+                                    de.egril.defender.model.TargetType.STANDARD
+                                }
+                                targetInfoMap[pos] = EditorTargetInfo(name = tName, type = tType)
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                println("Error deserializing targetInfo: ${e.message}")
+                // targetInfo is optional, continue without it
+            }
+            
+            return EditorMap(id, name, nameKey, width, height, tiles, readyToUse, worldMapPosition, riverTiles, isOfficial, author, targetInfoMap)
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Error deserializing map: ${e.message}")
@@ -293,7 +346,13 @@ object EditorJsonSerializer {
             // Barricades
             if (initialData.barricades.isNotEmpty()) {
                 val barricadesData = initialData.barricades.joinToString(",\n      ") { barricade ->
-                    """{"position": {"x": ${barricade.position.x}, "y": ${barricade.position.y}}, "healthPoints": ${barricade.healthPoints}}"""
+                    val nameJson = if (!barricade.name.isNullOrBlank()) {
+                        """, "name": "${barricade.name}""""
+                    } else ""
+                    val isGateJson = if (barricade.isGate) {
+                        """, "isGate": true"""
+                    } else ""
+                    """{"position": {"x": ${barricade.position.x}, "y": ${barricade.position.y}}, "healthPoints": ${barricade.healthPoints}$nameJson$isGateJson}"""
                 }
                 parts.add(""""barricades": [
       $barricadesData
@@ -792,7 +851,13 @@ object EditorJsonSerializer {
                                 val y = JsonUtils.extractValue("{$posSection}", "y").toInt()
                                 val position = Position(x, y)
                                 val healthPoints = JsonUtils.extractValue(entry, "healthPoints").toInt()
-                                initialBarricades.add(InitialBarricade(position, healthPoints))
+                                val barricadeName = try {
+                                    JsonUtils.extractValue(entry, "name").takeIf { it.isNotBlank() }
+                                } catch (e: Exception) { null }
+                                val isGate = try {
+                                    JsonUtils.extractBooleanValue(entry, "isGate")
+                                } catch (e: Exception) { false }
+                                initialBarricades.add(InitialBarricade(position, healthPoints, name = barricadeName, isGate = isGate))
                             }
                             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                             println("EditorJsonSerializer: Parsed ${initialBarricades.size} initial barricades")

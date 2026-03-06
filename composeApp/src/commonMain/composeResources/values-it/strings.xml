@@ -1189,7 +1189,7 @@
     <string name="keyboard_shortcut_pan_left">Sposta la mappa a sinistra</string>
     <string name="keyboard_shortcut_pan_right">Sposta la mappa a destra</string>
     <string name="keyboard_shortcuts_note">Nota: Le scorciatoie da tastiera sono disponibili solo su desktop.</string>
-    
+
     <!-- License Info -->
     <string name="license_info_title">Informazioni sulla Licenza</string>
     <string name="license_github_project_title">Progetto GitHub</string>
@@ -1434,4 +1434,32 @@
     <string name="instant_tower_spell_abort_confirm">Annulla incantesimo</string>
     <string name="instant_tower_spell_abort_cancel">Continua a posizionare la torre</string>
 
+    <!-- single target, target and gate names -->
+    <string name="target_taken_title">Obiettivo catturato!</string>
+    <string name="target_taken_message_named">%1$s è stato catturato dal nemico!</string>
+    <string name="target_taken_message_unnamed">Una posizione obiettivo è stata catturata dal nemico!</string>
+    <string name="gate_destroyed_title">Cancello distrutto!</string>
+    <string name="gate_destroyed_message_named">%1$s è stato distrutto!</string>
+    <string name="gate_destroyed_message_unnamed">Un cancello è stato distrutto!</string>
+    <string name="target_type_label">Tipo obiettivo</string>
+    <string name="target_type_standard">Standard</string>
+    <string name="target_type_single_hit">Colpo singolo</string>
+    <string name="target_name_label">Nome obiettivo (opzionale)</string>
+    <string name="barricade_name_label">Nome barricata (opzionale)</string>
+    <string name="is_gate_label">È un cancello</string>
+    <!-- Nomi standard degli obiettivi (possono contenere \n per la visualizzazione su più righe) -->
+    <string name="target_name_marketplace">Mer-\ncato</string>
+    <string name="target_name_townhall">Muni-\ncipio</string>
+    <string name="target_name_storehouse">Magaz-\nzino</string>
+    <string name="target_name_guildhouse">Casa\nGilda</string>
+    <!-- Nomi standard dei cancelli -->
+    <string name="gate_name_north_gate">Porta\nNord</string>
+    <string name="gate_name_east_gate">Porta\nEst</string>
+    <string name="gate_name_south_gate">Porta\nSud</string>
+    <string name="gate_name_west_gate">Porta\nOvest</string>
+    <!-- Pannello informazioni barricata -->
+    <string name="barricade_info_description">Le barricade bloccano il movimento nemico. I nemici le attaccano quando sono adiacenti. Costruiscile o rinforzale con torri di picca o lancia.</string>
+    <string name="gate_info_description">Un cancello sorveglia l\'ingresso. I nemici lo attaccheranno e cercheranno di sfondarlo. Difendilo per mantenere il percorso bloccato.</string>
+    <string name="barricade_info_panel_title">Barricata</string>
+    <string name="gate_info_panel_title">Cancello</string>
 </resources>

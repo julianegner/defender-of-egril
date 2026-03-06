@@ -57,6 +57,24 @@ data class BombExplosionEffect(
     val turnNumber: Int          // Turn when this explosion occurred
 )
 
+/**
+ * Types of in-game event messages that are shown to the player.
+ */
+enum class GameMessageType {
+    TARGET_TAKEN,      // A SINGLE_HIT target was captured by an enemy
+    GATE_DESTROYED     // A named gate barricade was destroyed
+}
+
+/**
+ * An in-game event message queued for display to the player.
+ * @param type   The kind of event.
+ * @param name   Optional name (target name or gate name).
+ */
+data class GameMessage(
+    val type: GameMessageType,
+    val name: String? = null
+)
+
 data class GameState(
     val level: Level,
     val phase: MutableState<GamePhase> = mutableStateOf(GamePhase.INITIAL_BUILDING),
@@ -101,7 +119,10 @@ data class GameState(
     val incomeMultiplier: Double = 1.0,  // Income multiplier from player stats (default 1.0, e.g. 1.2 for 20% bonus)
     val constructionLevel: Int = 0,  // Construction level from player stats (0-3+, gates tower abilities)
     val spellTargeting: MutableState<SpellTargetingState?> = mutableStateOf(null),  // Active spell targeting state (null when not targeting)
-    val instantTowerSpellActive: MutableState<Boolean> = mutableStateOf(false)  // True when Instant Tower spell is active (waiting for next tower placement)
+    val instantTowerSpellActive: MutableState<Boolean> = mutableStateOf(false),  // True when Instant Tower spell is active (waiting for next tower placement)
+    // SINGLE_HIT target tracking
+    val takenTargets: SnapshotStateList<Position> = mutableStateListOf(),  // Positions of taken SINGLE_HIT targets
+    val pendingMessages: SnapshotStateList<GameMessage> = mutableStateListOf()  // Messages queued for display
 ) {
     fun isLevelWon(): Boolean {
         // Check if all planned spawns have occurred and all enemies are defeated
@@ -110,7 +131,55 @@ data class GameState(
     }
     
     fun isLevelLost(): Boolean {
-        return healthPoints.value <= 0
+        if (healthPoints.value <= 0) return true
+        // Level is also lost when all SINGLE_HIT targets have been taken
+        val singleHitTargets = level.targetInfoMap.filter { it.value.type == TargetType.SINGLE_HIT }.keys
+        if (singleHitTargets.isNotEmpty() && takenTargets.containsAll(singleHitTargets)) return true
+        return false
+    }
+
+    /**
+     * Returns true if [position] is a target that can still be reached by enemies.
+     * Taken SINGLE_HIT targets are excluded.
+     */
+    fun isActiveTargetPosition(position: Position): Boolean {
+        return level.isTargetPosition(position) && !takenTargets.contains(position)
+    }
+
+    /**
+     * Returns the active (non-taken) target positions.
+     */
+    fun getActiveTargetPositions(): List<Position> {
+        return level.targetPositions.filter { !takenTargets.contains(it) }
+    }
+
+    /**
+     * When a SINGLE_HIT target at [takenPosition] is taken, redirect all enemies
+     * whose currentTarget points to that position towards the nearest remaining active target.
+     */
+    fun retargetEnemiesFromTakenTarget(takenPosition: Position) {
+        val remaining = getActiveTargetPositions()
+        if (remaining.isEmpty()) return  // No active targets left – level will be lost
+        for (enemy in attackers) {
+            if (enemy.isDefeated.value) continue
+            if (enemy.currentTarget?.value == takenPosition) {
+                val newTarget = remaining.minByOrNull { enemy.position.value.distanceTo(it) } ?: remaining.first()
+                enemy.currentTarget!!.value = newTarget
+                println("Enemy ${enemy.id} (${enemy.type}) retargeted from $takenPosition to $newTarget")
+            }
+        }
+    }
+
+    /**
+     * Returns the effective next waypoint target, redirecting to the nearest active target
+     * if the waypoint's next target is a taken SINGLE_HIT target.
+     */
+    fun resolveWaypointNextTarget(waypointNextTarget: Position, from: Position): Position {
+        return if (takenTargets.contains(waypointNextTarget)) {
+            getActiveTargetPositions().minByOrNull { from.distanceTo(it) } ?: waypointNextTarget
+        } else {
+            waypointNextTarget
+        }
     }
     
     fun canPlaceDefender(type: DefenderType): Boolean {
@@ -289,7 +358,9 @@ data class GameState(
                 id = nextBarricadeId.value++,
                 position = initialBarricade.position,
                 healthPoints = mutableStateOf(initialBarricade.healthPoints),
-                defenderId = 0  // Pre-placed barricades don't belong to any specific defender
+                defenderId = 0,  // Pre-placed barricades don't belong to any specific defender
+                isGate = initialBarricade.isGate,
+                name = initialBarricade.name
             )
             barricades.add(barricade)
         }

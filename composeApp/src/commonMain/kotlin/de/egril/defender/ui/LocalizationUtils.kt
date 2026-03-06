@@ -115,3 +115,31 @@ fun DefenderType.getLocalizedShortName(locale: AppLocale = com.hyperether.resour
     }
     return LocalizedStrings.get(key, locale)
 }
+
+/**
+ * Maps well-known English entity names (target locations, gate names) to their
+ * localization string keys. Used by [localizeEntityName] for runtime translation.
+ */
+private val KNOWN_ENTITY_NAME_KEYS: Map<String, String> = mapOf(
+    // Target names
+    "Marketplace"  to "target_name_marketplace",
+    "Townhall"     to "target_name_townhall",
+    "Town Hall"    to "target_name_townhall",
+    "Storehouse"   to "target_name_storehouse",
+    "Guildhouse"   to "target_name_guildhouse",
+    // Gate names
+    "North Gate"   to "gate_name_north_gate",
+    "East Gate"    to "gate_name_east_gate",
+    "South Gate"   to "gate_name_south_gate",
+    "West Gate"    to "gate_name_west_gate"
+)
+
+/**
+ * Translates a well-known entity name (target or gate) to the current locale.
+ * If the name is not a recognized standard name, returns it unchanged.
+ * The returned string may contain `\n` for multi-line tile display.
+ */
+fun localizeEntityName(name: String, locale: AppLocale = com.hyperether.resources.currentLanguage.value): String {
+    val key = KNOWN_ENTITY_NAME_KEYS[name] ?: return name
+    return LocalizedStrings.get(key, locale)
+}

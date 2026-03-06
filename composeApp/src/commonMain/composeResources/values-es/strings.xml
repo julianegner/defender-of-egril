@@ -1189,7 +1189,7 @@
     <string name="keyboard_shortcut_pan_left">Desplazar mapa hacia la izquierda</string>
     <string name="keyboard_shortcut_pan_right">Desplazar mapa hacia la derecha</string>
     <string name="keyboard_shortcuts_note">Nota: Los atajos de teclado solo están disponibles en escritorio.</string>
-    
+
     <!-- License Info -->
     <string name="license_info_title">Información de Licencia</string>
     <string name="license_github_project_title">Proyecto de GitHub</string>
@@ -1432,4 +1432,32 @@
     <string name="instant_tower_spell_abort_confirm">Cancelar hechizo</string>
     <string name="instant_tower_spell_abort_cancel">Continuar colocando torre</string>
 
+    <!-- single target, target and gate names -->
+    <string name="target_taken_title">¡Objetivo capturado!</string>
+    <string name="target_taken_message_named">¡%1$s ha sido capturado por el enemigo!</string>
+    <string name="target_taken_message_unnamed">¡Una posición objetivo ha sido capturada por el enemigo!</string>
+    <string name="gate_destroyed_title">¡Puerta destruida!</string>
+    <string name="gate_destroyed_message_named">¡%1$s ha sido destruida!</string>
+    <string name="gate_destroyed_message_unnamed">¡Una puerta ha sido destruida!</string>
+    <string name="target_type_label">Tipo de objetivo</string>
+    <string name="target_type_standard">Estándar</string>
+    <string name="target_type_single_hit">Golpe único</string>
+    <string name="target_name_label">Nombre del objetivo (opcional)</string>
+    <string name="barricade_name_label">Nombre de la barricada (opcional)</string>
+    <string name="is_gate_label">Es puerta</string>
+    <!-- Nombres estándar de objetivos (pueden contener \n para mostrar en varias líneas) -->
+    <string name="target_name_marketplace">Mer-\ncado</string>
+    <string name="target_name_townhall">Ayunta-\nmiento</string>
+    <string name="target_name_storehouse">Alma-\ncén</string>
+    <string name="target_name_guildhouse">Sala del\nGremio</string>
+    <!-- Nombres estándar de puertas -->
+    <string name="gate_name_north_gate">Puerta\nNorte</string>
+    <string name="gate_name_east_gate">Puerta\nEste</string>
+    <string name="gate_name_south_gate">Puerta\nSur</string>
+    <string name="gate_name_west_gate">Puerta\nOeste</string>
+    <!-- Panel de información de barricada -->
+    <string name="barricade_info_description">Las barricadas bloquean el movimiento enemigo. Los enemigos las atacan cuando están adyacentes. Constrúyelas o refuérzalas con torres de pica o lanza.</string>
+    <string name="gate_info_description">Una puerta guarda la entrada. Los enemigos la atacarán e intentarán abrirse paso. Defiéndela para mantener el camino bloqueado.</string>
+    <string name="barricade_info_panel_title">Barricada</string>
+    <string name="gate_info_panel_title">Puerta</string>
 </resources>

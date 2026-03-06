@@ -19,7 +19,12 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -1434,6 +1439,7 @@ private fun BoxScope.GridCellContent(
             
             barricade != null -> {
                 // Show barricade with HP
+                val barricadeLocale = com.hyperether.resources.currentLanguage.value
                 Box(contentAlignment = Alignment.Center) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -1441,18 +1447,46 @@ private fun BoxScope.GridCellContent(
                     ) {
                         // Show wood/barricade symbol or gate icon with brown color
                         if (barricade.isGate) {
-                            GateIcon(size = GamePlayConstants.TileIconSizes.Barricade)
+                            GateIcon(
+                                modifier = Modifier.offset(y = 10.dp),
+                                size = GamePlayConstants.TileIconSizes.Barricade
+                            )
                         } else {
                             WoodIcon(size = GamePlayConstants.TileIconSizes.Barricade)
                         }
-                        // Show health points - moved up for better visibility
-                        Text(
-                            "${barricade.healthPoints.value} HP",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color(0xFF795548),  // Brown color
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.offset(y = (-12).dp)
-                        )
+
+                        // Show gate/barricade name (2 lines) then HP (1 line, bold)
+                        val barricadeDisplayName = barricade.name
+                            ?.takeIf { it.isNotBlank() }
+                            ?.let { localizeEntityName(it, barricadeLocale) }
+                        if (!barricadeDisplayName.isNullOrBlank()) {
+                            Text(
+                                text = buildAnnotatedString{
+                                    withStyle(SpanStyle(color = Color.White)) {
+                                        appendLine(barricadeDisplayName)
+                                    }
+                                    withStyle(SpanStyle(color = Color.White, fontWeight = FontWeight.Bold)) {
+                                        appendLine("${barricade.healthPoints.value} HP")
+                                    }
+                                },
+                                style = MaterialTheme.typography.labelSmall,
+                                textAlign = TextAlign.Center,
+                                minLines = 3,
+                                maxLines = 3,
+                                overflow = TextOverflow.Visible,
+                                modifier = Modifier
+                                    .widthIn(max = 50.dp)
+                                    .offset(y = (-32).dp)
+                            )
+                        } else {
+                            Text(
+                                "${barricade.healthPoints.value} HP",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.offset(y = (-12).dp)
+                            )
+                        }
                     }
                     // Show damage effect overlay if present
                     if (damageEffect != null) {
@@ -1520,12 +1554,38 @@ private fun BoxScope.GridCellContent(
             }
 
             isTarget -> {
-                // Show target indicator when cell is empty
-                Text(
-                    stringResource(Res.string.target),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = GamePlayColors.Success
-                )
+                // Show target name (if set) or fallback to generic "Target" label
+                // Well-known names are translated; \n in the string gives multi-line tile display
+                // Taken targets (SINGLE_HIT) show with a red cross overlay
+                val locale = com.hyperether.resources.currentLanguage.value
+                val isTaken = gameState.takenTargets.contains(position)
+                val rawName = gameState.level.targetInfoMap[position]?.name?.takeIf { it.isNotBlank() }
+                val targetName = if (rawName != null) {
+                    localizeEntityName(rawName, locale)
+                } else {
+                    stringResource(Res.string.target)
+                }
+                if (isTaken) {
+                    // Show dimmed name with a red X cross on top
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            text = targetName,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = GamePlayColors.Success.copy(alpha = 0.3f),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.widthIn(max = 50.dp)
+                        )
+                        CrossIcon(size = 20.dp, tint = Color.Red)
+                    }
+                } else {
+                    Text(
+                        text = targetName,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = GamePlayColors.Success,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.widthIn(max = 50.dp)
+                    )
+                }
             }
 
             isRiverTile -> {

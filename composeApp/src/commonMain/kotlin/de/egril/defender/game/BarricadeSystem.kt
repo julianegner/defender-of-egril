@@ -192,6 +192,15 @@ class BarricadeSystem(private val state: GameState) {
         }
         
         if (wasDestroyed) {
+            // Emit gate-destroyed message if the barricade has a name
+            if (!barricade.name.isNullOrBlank()) {
+                state.pendingMessages.add(
+                    de.egril.defender.model.GameMessage(
+                        type = de.egril.defender.model.GameMessageType.GATE_DESTROYED,
+                        name = barricade.name
+                    )
+                )
+            }
             // If barricade is destroyed and had a tower, remove the tower too
             if (barricade.hasTower()) {
                 val towerId = barricade.supportedTowerId.value

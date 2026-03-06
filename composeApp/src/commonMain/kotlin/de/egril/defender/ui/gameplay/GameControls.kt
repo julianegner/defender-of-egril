@@ -61,6 +61,7 @@ fun GameControlsPanel(
     selectedAttackerId: Int?,  // Add attacker selection parameter
     selectedTargetId: Int?,
     selectedTargetPosition: Position?,
+    selectedBarricadePosition: Position? = null,  // Selected barricade for info panel
     onSelectDefenderType: (DefenderType?) -> Unit,
     onUpgradeDefender: (Int) -> Unit,
     onUndoTower: (Int) -> Unit,
@@ -74,11 +75,12 @@ fun GameControlsPanel(
     selectedWizardAction: WizardAction? = null,  // Add wizard trap placement mode state
     onBarricadeAction: ((Int, BarricadeAction) -> Unit)? = null,  // Add barricade action callback for barricade placement mode
     selectedBarricadeAction: BarricadeAction? = null,  // Add barricade placement mode state
+    onRemoveBarricade: ((Position) -> Unit)? = null,  // Callback to remove a barricade
     uiScale: Float = 1f,  // Add platform scale parameter
     onShowDragonInfo: () -> Unit = {}  // Add dragon info callback
 ) {
-    // Automatically fold buy panel when a defender or attacker is selected
-    val compactBuyPanel = selectedDefenderId != null || selectedAttackerId != null
+    // Automatically fold buy panel when a defender, attacker, or barricade is selected
+    val compactBuyPanel = selectedDefenderId != null || selectedAttackerId != null || selectedBarricadePosition != null
 
     // Determine phase-specific properties
     val isPlayerTurn = phase == GamePhase.PLAYER_TURN
@@ -102,7 +104,7 @@ fun GameControlsPanel(
         }
 
         if (compactBuyPanel) {
-            // Folded view: Compact layout with defender/attacker info on left, buy buttons and End Turn on right
+            // Folded view: Compact layout with defender/attacker/barricade info on left, buy buttons and End Turn on right
             Row(modifier = Modifier.fillMaxWidth()) {
                 // Selected defender info on left (smaller)
                 selectedDefenderId?.let { defenderId ->
@@ -144,6 +146,22 @@ fun GameControlsPanel(
                                 activeSpellEffects = gameState.activeSpellEffects,
                                 isMobile = uiScale < 1f,
                                 onShowDragonInfo = onShowDragonInfo
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+                }
+
+                // Selected barricade info panel (when no defender or attacker is selected)
+                if (selectedBarricadePosition != null && selectedDefenderId == null && selectedAttackerId == null) {
+                    val barricade = gameState.barricades.find { it.position == selectedBarricadePosition }
+                    if (barricade != null) {
+                        Box(modifier = Modifier.weight(1f)) {
+                            BarricadeInfoPanel(
+                                position = selectedBarricadePosition,
+                                barricade = barricade,
+                                isMobile = uiScale < 1f,
+                                onRemove = { onRemoveBarricade?.invoke(selectedBarricadePosition) }
                             )
                         }
                         Spacer(modifier = Modifier.width(8.dp))
