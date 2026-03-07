@@ -33,6 +33,8 @@ Stable Diffusion / Flux1.dev on huggingface
 and https://www.pixelcut.ai/ai-image-editor?tool=removeBackground
 are used for the following images:
 bomb.png
+story_message_background.png
+ewhad_message_background.png
 
 
 

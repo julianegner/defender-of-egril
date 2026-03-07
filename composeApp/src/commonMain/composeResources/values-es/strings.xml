@@ -1460,4 +1460,11 @@
     <string name="gate_info_description">Una puerta guarda la entrada. Los enemigos la atacarán e intentarán abrirse paso. Defiéndela para mantener el camino bloqueado.</string>
     <string name="barricade_info_panel_title">Barricada</string>
     <string name="gate_info_panel_title">Puerta</string>
+    <!-- Ewhad narrative messages -->
+    <string name="ewhad_enters_title">Ewhad entra al campo de batalla</string>
+    <string name="ewhad_enters_text">¡Ewhad ha entrado al campo de batalla! Cuidado, invoca Demonios cada Turno, que serán cada vez más poderosos.</string>
+    <string name="ewhad_retreats_title">Ewhad se retira</string>
+    <string name="ewhad_retreats_text">¡Has forzado a Ewhad a retirarse!</string>
+    <string name="ewhad_defeated_title">Ewhad es derrotado</string>
+    <string name="ewhad_defeated_text">¡Derrotaste a Ewhad! ¡Ahora acaba con los demás Enemigos y gana el juego!</string>
 </resources>

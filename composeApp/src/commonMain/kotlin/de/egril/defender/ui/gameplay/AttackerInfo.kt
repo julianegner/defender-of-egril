@@ -111,10 +111,12 @@ fun AttackerInfo(
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Text(
-                            "${stringResource(Res.string.hp_short)}: ${attacker.currentHealth.value}/${attacker.maxHealth}",
-                            style = MaterialTheme.typography.bodySmall
-                        )
+                        if (attacker.type != AttackerType.EWHAD) {
+                            Text(
+                                "${stringResource(Res.string.hp_short)}: ${attacker.currentHealth.value}/${attacker.maxHealth}",
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
                         
                         // Speed display - show base speed and current speed if affected by barbs or cooling
                         Row(

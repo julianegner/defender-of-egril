@@ -1465,4 +1465,11 @@
     <string name="gate_info_description">A gate guards the entrance. Enemies will attack and try to break through. Defend it to keep the path blocked.</string>
     <string name="barricade_info_panel_title">Barricade</string>
     <string name="gate_info_panel_title">Gate</string>
+    <!-- Ewhad narrative messages -->
+    <string name="ewhad_enters_title">Ewhad enters the battlefield</string>
+    <string name="ewhad_enters_text">Ewhad has entered the Battlefield! Beware, he spawns Demons every Turn, which will be increasingly powerful.</string>
+    <string name="ewhad_retreats_title">Ewhad retreats</string>
+    <string name="ewhad_retreats_text">You have forced Ewhad to retreat!</string>
+    <string name="ewhad_defeated_title">Ewhad is defeated</string>
+    <string name="ewhad_defeated_text">You defeated Ewhad! Now finish off the other Enemies and Win the Game!</string>
 </resources>

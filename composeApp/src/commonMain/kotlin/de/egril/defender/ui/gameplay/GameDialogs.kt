@@ -419,6 +419,7 @@ fun GameEventMessageDialog(
     val title = when (message.type) {
         GameMessageType.TARGET_TAKEN -> stringResource(Res.string.target_taken_title)
         GameMessageType.GATE_DESTROYED -> stringResource(Res.string.gate_destroyed_title)
+        else -> ""
     }
     val text = when (message.type) {
         GameMessageType.TARGET_TAKEN -> {
@@ -435,6 +436,7 @@ fun GameEventMessageDialog(
                 stringResource(Res.string.gate_destroyed_message_unnamed)
             }
         }
+        else -> ""
     }
 
     AlertDialog(

@@ -62,7 +62,10 @@ data class BombExplosionEffect(
  */
 enum class GameMessageType {
     TARGET_TAKEN,      // A SINGLE_HIT target was captured by an enemy
-    GATE_DESTROYED     // A named gate barricade was destroyed
+    GATE_DESTROYED,    // A named gate barricade was destroyed
+    EWHAD_ENTERS,      // Ewhad has entered the battlefield
+    EWHAD_RETREATS,    // Ewhad has retreated (health reached 0, not final stand)
+    EWHAD_DEFEATED     // Ewhad is defeated (health reached 0, final stand level)
 }
 
 /**
