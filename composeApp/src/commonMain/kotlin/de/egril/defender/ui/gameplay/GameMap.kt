@@ -360,7 +360,7 @@ fun GameGrid(
                 // Show turquoise circles at radius 2 around hovered position, only for path/spawn tiles
                 val coolingColor = TargetCircleConstants.COOLING_SPELL_COLOR
                 val result = mutableMapOf<Position, TargetCircleInfo>()
-                if (gameState.level.isOnPath(currentHoveredPosition) || gameState.level.isSpawnPoint(currentHoveredPosition)) {
+                if (gameState.level.isEnemyTraversable(currentHoveredPosition)) {
                     result[currentHoveredPosition] = TargetCircleInfo.CentralTarget(
                         color = coolingColor,
                         attackType = AttackType.AREA,
@@ -372,7 +372,7 @@ fun GameGrid(
                     gameState.level.gridWidth,
                     gameState.level.gridHeight
                 ).filter { neighbor ->
-                    gameState.level.isOnPath(neighbor) || gameState.level.isSpawnPoint(neighbor)
+                    gameState.level.isEnemyTraversable(neighbor)
                 }
                 for (neighbor in allNeighbors) {
                     val distance = currentHoveredPosition.hexDistanceTo(neighbor)
@@ -656,6 +656,9 @@ fun GridCell(
     val isOnPath = gameState.level.isOnPath(position)
     val isBuildArea = gameState.level.isBuildArea(position)
     val isRiverTile = gameState.level.isRiverTile(position)
+    // Shorthand combinations used for attack targeting and spell area checks
+    val isEnemyTraversable = isOnPath || isSpawnPoint
+    val isEnemyOccupiable = isOnPath || isSpawnPoint || isRiverTile
     val defender = gameState.defenders.find { it.position.value == position }
     val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
     
@@ -697,7 +700,7 @@ fun GridCell(
     val barricade = gameState.barricades.find { it.position == position }
 
     // Check if this tile is in a cooling spell area (show snowflake on affected path tiles)
-    val isInCoolingArea = (isOnPath || isSpawnPoint) && gameState.activeSpellEffects.any { effect ->
+    val isInCoolingArea = isEnemyTraversable && gameState.activeSpellEffects.any { effect ->
         effect.spell == SpellType.COOLING_SPELL &&
         effect.position != null &&
         position.hexDistanceTo(effect.position) <= 2
@@ -818,13 +821,13 @@ fun GridCell(
         // For preview, use the actual range at level 1 (baseRange, capped by maxRange if set)
         val maxRange = selectedDefenderType.maxRange?.let { minOf(selectedDefenderType.baseRange, it) } ?: selectedDefenderType.baseRange
         
-        // Only show range on valid target tiles (path or river for area attacks, path or spawn point for single-target)
+        // Only show range on valid target tiles (occupiable for area attacks, traversable for single-target)
         val hasAreaAttackPreview = selectedDefenderType.attackType == AttackType.AREA || 
                                    selectedDefenderType.attackType == AttackType.LASTING
         val isValidPreviewTargetTile = if (hasAreaAttackPreview) {
-            isOnPath || isRiverTile || isSpawnPoint
+            isEnemyOccupiable
         } else {
-            isOnPath || isSpawnPoint
+            isEnemyTraversable
         }
         
         distance >= minRange && distance <= maxRange && isValidPreviewTargetTile
@@ -990,11 +993,11 @@ fun GridCell(
         selectedDefender?.type?.attackType == AttackType.AREA || selectedDefender?.type?.attackType == AttackType.LASTING
     } ?: false
 
-    // River tiles are valid targets for area attacks; spawn points are valid targets for all attack types
+    // Enemy-occupiable tiles are valid targets for area attacks; enemy-traversable for single-target
     val isValidTargetTile = if (hasAreaAttack) {
-        isOnPath || isRiverTile || isSpawnPoint
+        isEnemyOccupiable
     } else {
-        isOnPath || isSpawnPoint
+        isEnemyTraversable
     }
 
     val borderColor = when {

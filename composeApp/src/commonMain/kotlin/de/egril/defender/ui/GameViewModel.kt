@@ -2164,7 +2164,7 @@ class GameViewModel {
                     for (x in 0 until gameState.level.gridWidth) {
                         for (y in 0 until gameState.level.gridHeight) {
                             val pos = Position(x, y)
-                            if ((gameState.level.isOnPath(pos) || gameState.level.isSpawnPoint(pos)) &&
+                            if (gameState.level.isEnemyTraversable(pos) &&
                                 pos !in occupiedByBarricade) {
                                 positions.add(pos)
                             }

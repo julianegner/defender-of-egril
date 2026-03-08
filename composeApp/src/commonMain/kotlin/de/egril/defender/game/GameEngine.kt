@@ -741,7 +741,7 @@ class GameEngine(private val state: GameState) {
                     val neighbors = currentPos.getHexNeighbors().filter { neighbor ->
                         neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
                         neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
-                        (state.level.isOnPath(neighbor) || state.level.isSpawnPoint(neighbor)) &&
+                        (state.level.isEnemyTraversable(neighbor)) &&
                         state.barricades.none { b -> b.position == neighbor && !b.isDestroyed() } &&
                         state.attackers.none { a -> !a.isDefeated.value && a.id != attacker.id && a.position.value == neighbor }
                     }

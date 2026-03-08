@@ -808,11 +808,8 @@ private fun GamePlayScreenContent(
                             ) {
                                 // Check if position is on the path, river, or spawn point and in range
                                 val distance = selectedDefender.position.value.distanceTo(position)
-                                val isOnPath = gameState.level.isOnPath(position)
-                                val isOnRiver = gameState.level.getRiverTile(position) != null
-                                val isSpawnPoint = gameState.level.isSpawnPoint(position)
 
-                                if ((isOnPath || isOnRiver || isSpawnPoint) &&
+                                if (gameState.level.isEnemyOccupiable(position) &&
                                     distance >= selectedDefender.type.minRange &&
                                     distance <= effectiveRange
                                 ) {
