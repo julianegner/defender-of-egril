@@ -420,6 +420,17 @@ class CombatSystem(
             if (!attacker.isBuildingBridge.value) {
                 GlobalSoundManager.playSound(SoundEvent.ENEMY_DESTROYED)
             }
+            
+            // Queue Ewhad message (retreats unless it's the final stand level)
+            if (attacker.type == AttackerType.EWHAD) {
+                val isFinalStand = state.level.editorLevelId == "the_final_stand"
+                val messageType = if (isFinalStand) {
+                    GameMessageType.EWHAD_DEFEATED
+                } else {
+                    GameMessageType.EWHAD_RETREATS
+                }
+                state.pendingMessages.add(GameMessage(type = messageType))
+            }
         }
         state.attackers.removeAll { it.isDefeated.value }
     }

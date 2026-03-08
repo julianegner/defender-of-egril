@@ -547,6 +547,13 @@ class GameEngine(private val state: GameState) {
             if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
             println("Spawned attacker ${attacker.id} at $spawnPos (preferred: $preferredSpawnPoint) with initial target: $initialTarget")
             }
+            
+            // Queue Ewhad enters message when Ewhad spawns
+            if (plannedSpawn.attackerType == AttackerType.EWHAD) {
+                state.pendingMessages.add(
+                    GameMessage(type = GameMessageType.EWHAD_ENTERS)
+                )
+            }
         }
 
         // Move goblins immediately after initial spawning (this is not during enemy turn)

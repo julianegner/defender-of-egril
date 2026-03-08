@@ -1461,4 +1461,11 @@
     <string name="gate_info_description">Une porte garde l\'entrée. Les ennemis l\'attaqueront et essaieront de passer. Défendez-la pour garder le chemin bloqué.</string>
     <string name="barricade_info_panel_title">Barricade</string>
     <string name="gate_info_panel_title">Porte</string>
+    <!-- Ewhad narrative messages -->
+    <string name="ewhad_enters_title">Ewhad entre sur le champ de bataille</string>
+    <string name="ewhad_enters_text">Ewhad est entré sur le champ de bataille ! Attention, il invoque des Démons à chaque Tour, qui seront de plus en plus puissants.</string>
+    <string name="ewhad_retreats_title">Ewhad se retire</string>
+    <string name="ewhad_retreats_text">Vous avez forcé Ewhad à se retirer !</string>
+    <string name="ewhad_defeated_title">Ewhad est vaincu</string>
+    <string name="ewhad_defeated_text">Vous avez vaincu Ewhad ! Terminez maintenant les autres Ennemis et gagnez le jeu !</string>
 </resources>

@@ -106,6 +106,13 @@ class EnemyMovementSystem(
                 currentTarget = mutableStateOf(initialTarget)
             )
             state.attackers.add(attacker)
+            
+            // Queue Ewhad enters message when Ewhad spawns
+            if (plannedSpawn.attackerType == AttackerType.EWHAD) {
+                state.pendingMessages.add(
+                    GameMessage(type = GameMessageType.EWHAD_ENTERS)
+                )
+            }
         }
         // Play spawn sound
         GlobalSoundManager.playSound(SoundEvent.ENEMY_SPAWN)

@@ -1439,12 +1439,32 @@ private fun GamePlayScreenContent(
         }
 
 
-        // In-game event message dialog (target captured, gate destroyed)
+        // In-game event message dialog (target captured, gate destroyed, or Ewhad narrative events)
         pendingGameMessage?.let { msg ->
-            GameEventMessageDialog(
-                message = msg,
-                onDismiss = { onDismissGameMessage?.invoke() }
-            )
+            when (msg.type) {
+                GameMessageType.EWHAD_ENTERS -> NarrativeMessageDialog(
+                    type = NarrativeMessageType.EWHAD,
+                    title = stringResource(Res.string.ewhad_enters_title),
+                    text = stringResource(Res.string.ewhad_enters_text),
+                    onDismiss = { onDismissGameMessage?.invoke() }
+                )
+                GameMessageType.EWHAD_RETREATS -> NarrativeMessageDialog(
+                    type = NarrativeMessageType.EWHAD,
+                    title = stringResource(Res.string.ewhad_retreats_title),
+                    text = stringResource(Res.string.ewhad_retreats_text),
+                    onDismiss = { onDismissGameMessage?.invoke() }
+                )
+                GameMessageType.EWHAD_DEFEATED -> NarrativeMessageDialog(
+                    type = NarrativeMessageType.EWHAD,
+                    title = stringResource(Res.string.ewhad_defeated_title),
+                    text = stringResource(Res.string.ewhad_defeated_text),
+                    onDismiss = { onDismissGameMessage?.invoke() }
+                )
+                else -> GameEventMessageDialog(
+                    message = msg,
+                    onDismiss = { onDismissGameMessage?.invoke() }
+                )
+            }
         }
             }
         }

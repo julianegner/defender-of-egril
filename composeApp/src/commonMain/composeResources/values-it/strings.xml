@@ -1462,4 +1462,11 @@
     <string name="gate_info_description">Un cancello sorveglia l\'ingresso. I nemici lo attaccheranno e cercheranno di sfondarlo. Difendilo per mantenere il percorso bloccato.</string>
     <string name="barricade_info_panel_title">Barricata</string>
     <string name="gate_info_panel_title">Cancello</string>
+    <!-- Ewhad narrative messages -->
+    <string name="ewhad_enters_title">Ewhad entra nel campo di battaglia</string>
+    <string name="ewhad_enters_text">Ewhad è entrato nel campo di battaglia! Attenzione, evoca Demoni ogni Turno, che diventeranno sempre più potenti.</string>
+    <string name="ewhad_retreats_title">Ewhad si ritira</string>
+    <string name="ewhad_retreats_text">Hai costretto Ewhad a ritirarsi!</string>
+    <string name="ewhad_defeated_title">Ewhad è sconfitto</string>
+    <string name="ewhad_defeated_text">Hai sconfitto Ewhad! Ora elimina gli altri Nemici e vinci il gioco!</string>
 </resources>

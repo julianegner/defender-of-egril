@@ -1459,4 +1459,11 @@
     <string name="gate_info_description">Ein Tor bewacht den Eingang. Feinde werden es angreifen und versuchen, es zu durchbrechen. Verteidige es, um den Weg blockiert zu halten.</string>
     <string name="barricade_info_panel_title">Barrikade</string>
     <string name="gate_info_panel_title">Tor</string>
+    <!-- Ewhad narrative messages -->
+    <string name="ewhad_enters_title">Ewhad betritt das Schlachtfeld</string>
+    <string name="ewhad_enters_text">Ewhad hat das Schlachtfeld betreten! Vorsicht, er beschwört jeden Zug Dämonen, die zunehmend mächtiger werden.</string>
+    <string name="ewhad_retreats_title">Ewhad zieht sich zurück</string>
+    <string name="ewhad_retreats_text">Du hast Ewhad zum Rückzug gezwungen!</string>
+    <string name="ewhad_defeated_title">Ewhad ist besiegt</string>
+    <string name="ewhad_defeated_text">Du hast Ewhad besiegt! Beende jetzt die anderen Feinde und gewinne das Spiel!</string>
 </resources>

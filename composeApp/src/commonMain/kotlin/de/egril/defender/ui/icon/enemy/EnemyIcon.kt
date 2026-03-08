@@ -67,17 +67,19 @@ fun EnemyIcon(
             )
         }
         
-        // Health number at bottom center - 10dp from bottom edge
-        Text(
-            text = "${attacker.currentHealth.value}",
-            style = MaterialTheme.typography.labelSmall,
-            fontSize = 13.sp,
-            color = healthTextColor,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 10.dp)  // 10dp from bottom as requested
-        )
+        // Health number at bottom center - 10dp from bottom edge (hidden for Ewhad)
+        if (attacker.type != AttackerType.EWHAD) {
+            Text(
+                text = "${attacker.currentHealth.value}",
+                style = MaterialTheme.typography.labelSmall,
+                fontSize = 13.sp,
+                color = healthTextColor,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 10.dp)  // 10dp from bottom as requested
+            )
+        }
     }
 }
 
