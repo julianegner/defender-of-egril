@@ -49,7 +49,15 @@ class CombatSystem(
         val effectiveLevel = getEffectiveLevel(defender)
         return defender.type.baseDamage + (effectiveLevel - 1) * 5
     }
-    
+
+    /**
+     * Returns true if the given position is a valid area-attack target tile:
+     * on the enemy path, a bridge, or a spawn point.
+     */
+    private fun isValidAreaTargetPosition(position: Position): Boolean {
+        return state.level.isOnPath(position) || state.isBridgeAt(position) || state.level.isSpawnPoint(position)
+    }
+
     fun defenderAttack(defenderId: Int, targetId: Int, processDefeated: () -> Unit): Boolean {
         val defender = state.defenders.find { it.id == defenderId } ?: return false
         val target = state.attackers.find { it.id == targetId && !it.isDefeated.value } ?: return false
@@ -211,7 +219,7 @@ class CombatSystem(
         }
 
         // Only include target position if it's on the path, a bridge, or a spawn point
-        if (!state.level.isOnPath(targetPosition) && !state.isBridgeAt(targetPosition) && !state.level.isSpawnPoint(targetPosition)) {
+        if (!isValidAreaTargetPosition(targetPosition)) {
             affectedPositions.remove(targetPosition)
         }
 
@@ -286,7 +294,7 @@ class CombatSystem(
         }
 
         // Remove target position only if it's neither on path, on a bridge, nor a spawn point
-        if (!state.level.isOnPath(targetPosition) && !state.isBridgeAt(targetPosition) && !state.level.isSpawnPoint(targetPosition)) {
+        if (!isValidAreaTargetPosition(targetPosition)) {
             affectedPositions.remove(targetPosition)
         }
         

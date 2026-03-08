@@ -775,12 +775,7 @@ class GameViewModel {
 
             // Surface any pending spawn messages (e.g. Ewhad enters) while units are still at
             // their spawn points, so the message is displayed before they move away.
-            // Only surface if no message is currently being shown to avoid conflicts.
-            val spawnStateForMessages = _gameState.value
-            if (spawnStateForMessages != null && spawnStateForMessages.pendingMessages.isNotEmpty() && _pendingGameMessage.value == null) {
-                val nextMessage = spawnStateForMessages.pendingMessages.removeAt(0)
-                _pendingGameMessage.value = nextMessage
-            }
+            surfaceNextPendingMessageIfIdle()
             
             // Move newly spawned units away from spawn points
             val newSpawnMovements = engine.calculateNewlySpawnedMovements()
@@ -809,11 +804,7 @@ class GameViewModel {
             // Surface any remaining pending game messages (target taken, gate destroyed, etc.)
             // Only surface if no message is currently being shown (e.g. from the spawn phase above).
             // Each dismiss triggers the next message via dismissGameMessage().
-            val updatedStateForMessages = _gameState.value
-            if (updatedStateForMessages != null && updatedStateForMessages.pendingMessages.isNotEmpty() && _pendingGameMessage.value == null) {
-                val nextMessage = updatedStateForMessages.pendingMessages.removeAt(0)
-                _pendingGameMessage.value = nextMessage
-            }
+            surfaceNextPendingMessageIfIdle()
 
             // Autosave at the beginning of the new player turn (after enemy turn completes)
             // This ensures the phase is PLAYER_TURN when the save is created
@@ -1632,6 +1623,18 @@ class GameViewModel {
             _pendingGameMessage.value = next
         } else {
             _pendingGameMessage.value = null
+        }
+    }
+
+    /**
+     * Surface the next pending game message if no message is currently being shown.
+     * Does nothing when a message is already visible so that the queue is not skipped.
+     */
+    private fun surfaceNextPendingMessageIfIdle() {
+        val state = _gameState.value ?: return
+        if (state.pendingMessages.isNotEmpty() && _pendingGameMessage.value == null) {
+            val nextMessage = state.pendingMessages.removeAt(0)
+            _pendingGameMessage.value = nextMessage
         }
     }
 
