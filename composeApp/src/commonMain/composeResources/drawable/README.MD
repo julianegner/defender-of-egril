@@ -28,7 +28,7 @@ fortress.png
 trap.png
 gate.png
 
-Stable Diffusion / Flux1.dev on huggingface
+Stable Diffusion / Flux2.dev on huggingface
 -> https://huggingface.co/black-forest-labs/FLUX.2-dev
 and https://www.pixelcut.ai/ai-image-editor?tool=removeBackground
 are used for the following images:

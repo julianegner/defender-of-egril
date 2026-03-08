@@ -49,8 +49,8 @@ fun NarrativeMessageDialog(
     Dialog(onDismissRequest = onDismiss) {
         Box(
             modifier = Modifier
-                .widthIn(max = 400.dp)
-                .wrapContentHeight(),
+                .width(1000.dp)
+                .height(800.dp),
             contentAlignment = Alignment.Center
         ) {
             // Background image
@@ -68,8 +68,12 @@ fun NarrativeMessageDialog(
             // Content overlaid on background
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 48.dp, vertical = 40.dp),
+                    .padding(
+                        horizontal = 120.dp,
+                        vertical = 100.dp
+                    )
+                    .width(200.dp)
+                ,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
