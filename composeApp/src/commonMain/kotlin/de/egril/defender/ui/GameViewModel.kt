@@ -772,6 +772,15 @@ class GameViewModel {
             
             // Show spawned units briefly (reduced from 400ms to 200ms)
             delay(200)
+
+            // Surface any pending spawn messages (e.g. Ewhad enters) while units are still at
+            // their spawn points, so the message is displayed before they move away.
+            // Only surface if no message is currently being shown to avoid conflicts.
+            val spawnStateForMessages = _gameState.value
+            if (spawnStateForMessages != null && spawnStateForMessages.pendingMessages.isNotEmpty() && _pendingGameMessage.value == null) {
+                val nextMessage = spawnStateForMessages.pendingMessages.removeAt(0)
+                _pendingGameMessage.value = nextMessage
+            }
             
             // Move newly spawned units away from spawn points
             val newSpawnMovements = engine.calculateNewlySpawnedMovements()
@@ -797,10 +806,11 @@ class GameViewModel {
                 _pendingScrollToPosition.value = currentStateForBombs.bombExplosionEffects.first().center
             }
 
-            // Surface any pending game messages (target taken, gate destroyed)
-            // We show them one by one - each dismiss triggers the next
+            // Surface any remaining pending game messages (target taken, gate destroyed, etc.)
+            // Only surface if no message is currently being shown (e.g. from the spawn phase above).
+            // Each dismiss triggers the next message via dismissGameMessage().
             val updatedStateForMessages = _gameState.value
-            if (updatedStateForMessages != null && updatedStateForMessages.pendingMessages.isNotEmpty()) {
+            if (updatedStateForMessages != null && updatedStateForMessages.pendingMessages.isNotEmpty() && _pendingGameMessage.value == null) {
                 val nextMessage = updatedStateForMessages.pendingMessages.removeAt(0)
                 _pendingGameMessage.value = nextMessage
             }

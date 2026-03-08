@@ -818,13 +818,13 @@ fun GridCell(
         // For preview, use the actual range at level 1 (baseRange, capped by maxRange if set)
         val maxRange = selectedDefenderType.maxRange?.let { minOf(selectedDefenderType.baseRange, it) } ?: selectedDefenderType.baseRange
         
-        // Only show range on valid target tiles (path or river for area attacks, path only for single-target)
+        // Only show range on valid target tiles (path or river for area attacks, path or spawn point for single-target)
         val hasAreaAttackPreview = selectedDefenderType.attackType == AttackType.AREA || 
                                    selectedDefenderType.attackType == AttackType.LASTING
         val isValidPreviewTargetTile = if (hasAreaAttackPreview) {
-            isOnPath || isRiverTile
+            isOnPath || isRiverTile || isSpawnPoint
         } else {
-            isOnPath
+            isOnPath || isSpawnPoint
         }
         
         distance >= minRange && distance <= maxRange && isValidPreviewTargetTile
@@ -990,11 +990,11 @@ fun GridCell(
         selectedDefender?.type?.attackType == AttackType.AREA || selectedDefender?.type?.attackType == AttackType.LASTING
     } ?: false
 
-    // River tiles are valid targets for area attacks
+    // River tiles are valid targets for area attacks; spawn points are valid targets for all attack types
     val isValidTargetTile = if (hasAreaAttack) {
-        isOnPath || isRiverTile
+        isOnPath || isRiverTile || isSpawnPoint
     } else {
-        isOnPath
+        isOnPath || isSpawnPoint
     }
 
     val borderColor = when {

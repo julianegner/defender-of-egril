@@ -103,11 +103,12 @@ class CombatSystem(
         // Mark defender as used
         defender.hasBeenUsed.value = true
 
-        // For AOE and DOT attacks, target position must be on the path OR a river tile
+        // For AOE and DOT attacks, target position must be on the path, a river tile, or a spawn point
         if (defender.type.attackType == AttackType.AREA || defender.type.attackType == AttackType.LASTING) {
             val isOnPath = state.level.isOnPath(targetPosition)
             val isOnRiver = state.level.getRiverTile(targetPosition) != null
-            if (!isOnPath && !isOnRiver) return false
+            val isSpawnPoint = state.level.isSpawnPoint(targetPosition)
+            if (!isOnPath && !isOnRiver && !isSpawnPoint) return false
         } else {
             // For single-target attacks, prioritize enemy over bridge at the same position
             val target = state.attackers.find { it.position.value == targetPosition && !it.isDefeated.value }
@@ -198,19 +199,19 @@ class CombatSystem(
                 targetPosition.getHexNeighbors().filter { neighbor ->
                     neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
                     neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
-                    (state.level.isOnPath(neighbor) || state.isBridgeAt(neighbor))
+                    (state.level.isOnPath(neighbor) || state.isBridgeAt(neighbor) || state.level.isSpawnPoint(neighbor))
                 }
             )
         } else {
             // Use extended radius for level 20+
             affectedPositions.addAll(
                 targetPosition.getHexNeighborsWithinRadius(radius, state.level.gridWidth, state.level.gridHeight)
-                    .filter { state.level.isOnPath(it) || state.isBridgeAt(it) }
+                    .filter { state.level.isOnPath(it) || state.isBridgeAt(it) || state.level.isSpawnPoint(it) }
             )
         }
 
-        // Only include target position if it's on the path or a bridge
-        if (!state.level.isOnPath(targetPosition) && !state.isBridgeAt(targetPosition)) {
+        // Only include target position if it's on the path, a bridge, or a spawn point
+        if (!state.level.isOnPath(targetPosition) && !state.isBridgeAt(targetPosition) && !state.level.isSpawnPoint(targetPosition)) {
             affectedPositions.remove(targetPosition)
         }
 
@@ -273,19 +274,19 @@ class CombatSystem(
                 targetPosition.getHexNeighbors().filter { neighbor ->
                     neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
                     neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
-                    state.level.isOnPath(neighbor)
+                    (state.level.isOnPath(neighbor) || state.level.isSpawnPoint(neighbor))
                 }
             )
         } else {
             // Use extended radius for level 20+
             affectedPositions.addAll(
                 targetPosition.getHexNeighborsWithinRadius(radius, state.level.gridWidth, state.level.gridHeight)
-                    .filter { state.level.isOnPath(it) }
+                    .filter { state.level.isOnPath(it) || state.level.isSpawnPoint(it) }
             )
         }
 
-        // Remove target position only if it's neither on path nor on a bridge
-        if (!state.level.isOnPath(targetPosition) && !state.isBridgeAt(targetPosition)) {
+        // Remove target position only if it's neither on path, on a bridge, nor a spawn point
+        if (!state.level.isOnPath(targetPosition) && !state.isBridgeAt(targetPosition) && !state.level.isSpawnPoint(targetPosition)) {
             affectedPositions.remove(targetPosition)
         }
         
