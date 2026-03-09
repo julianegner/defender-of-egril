@@ -1450,6 +1450,7 @@
     <string name="target_name_label">Nom de l\'objectif (optionnel)</string>
     <string name="barricade_name_label">Nom de la barricade (optionnel)</string>
     <string name="is_gate_label">Est une porte</string>
+    <string name="barricade_tower_base_hint">Les barricades avec 100+ PV peuvent servir de base de tour</string>
     <!-- Noms standard des objectifs (peuvent contenir \n pour l'affichage sur plusieurs lignes) -->
     <string name="target_name_marketplace">Mar-\nché</string>
     <string name="target_name_townhall">Mai-\nrie</string>

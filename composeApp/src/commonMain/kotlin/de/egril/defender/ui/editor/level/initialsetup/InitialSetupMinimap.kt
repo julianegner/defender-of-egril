@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import de.egril.defender.editor.EditorMap
+import de.egril.defender.editor.InitialBarricade
 import de.egril.defender.editor.InitialData
 import de.egril.defender.editor.TileType
 import de.egril.defender.model.Position
@@ -192,12 +193,19 @@ fun InitialSetupMinimap(
                 val centerX = geometry.offsetXCanvas + col * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2
                 val centerY = geometry.offsetYCanvas + row * geometry.verticalSpacing + geometry.hexHeight / 2
 
-                val isValidForPlacement = placementMode?.let { isValidPlacement(pos, it, map) } ?: false
-                val isHovered = pos == hoveredPosition
                 val hasDefender = initialData.defenders.any { it.position == pos }
                 val hasAttacker = initialData.attackers.any { it.position == pos }
                 val hasTrap = initialData.traps.any { it.position == pos }
                 val hasBarricade = initialData.barricades.any { it.position == pos }
+                val barricadeAtPos = initialData.barricades.find { it.position == pos }
+                val isTowerBase = barricadeAtPos?.canSupportTower() == true
+
+                val isValidForPlacement = when (placementMode) {
+                    PlacementMode.DEFENDER ->
+                        isValidPlacement(pos, placementMode, map) || (isTowerBase && !hasDefender)
+                    else -> placementMode?.let { isValidPlacement(pos, it, map) } ?: false
+                }
+                val isHovered = pos == hoveredPosition
                 val isSelected = when (selectedElement) {
                     is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Defender -> selectedElement.defender.position == pos
                     is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Attacker -> selectedElement.attacker.position == pos
@@ -207,10 +215,14 @@ fun InitialSetupMinimap(
                 }
                 
                 // Validation checks for placement conflicts
-                // Rule: Only one element (tower, trap, barricade, OR unit) is possible on a tile
+                // Rule: Only one element (tower, trap, barricade, OR unit) is possible on a tile,
+                //       except towers can be placed on top of barricades that support towers (HP >= 100)
                 val hasAnyElement = hasDefender || hasAttacker || hasTrap || hasBarricade
                 val hasConflict = when (placementMode) {
-                    PlacementMode.DEFENDER, PlacementMode.ATTACKER, PlacementMode.TRAP, PlacementMode.BARRICADE -> hasAnyElement
+                    PlacementMode.DEFENDER ->
+                        // Allow tower on tower base as long as no tower is already there
+                        if (isTowerBase && !hasDefender) false else hasAnyElement
+                    PlacementMode.ATTACKER, PlacementMode.TRAP, PlacementMode.BARRICADE -> hasAnyElement
                     else -> false
                 }
 

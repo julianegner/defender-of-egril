@@ -1448,6 +1448,7 @@
     <string name="target_name_label">Zielname (optional)</string>
     <string name="barricade_name_label">Barrikadenname (optional)</string>
     <string name="is_gate_label">Ist Tor</string>
+    <string name="barricade_tower_base_hint">Barrikaden mit 100+ TP können als Turmfundament dienen</string>
     <!-- Standardnamen für Ziele (können \n für mehrzeilige Anzeige enthalten) -->
     <string name="target_name_marketplace">Markt-\nplatz</string>
     <string name="target_name_townhall">Rat-\nhaus</string>
