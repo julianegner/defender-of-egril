@@ -86,6 +86,24 @@ data class Level(
         return pathCells.contains(position)
     }
     
+    /**
+     * Returns true if the given position is on the enemy traversal area:
+     * on the enemy path or at a spawn point. This covers all tiles enemies walk on or start from.
+     * Note: [isBuildArea] already prevents placing towers, barricades, and traps on these tiles.
+     */
+    fun isEnemyTraversable(position: Position): Boolean {
+        return isOnPath(position) || isSpawnPoint(position)
+    }
+
+    /**
+     * Returns true if any enemy can occupy the given position:
+     * on the enemy path, at a spawn point, or on a river tile (for units riding rafts).
+     * Note: [isBuildArea] already prevents placing towers, barricades, and traps on these tiles.
+     */
+    fun isEnemyOccupiable(position: Position): Boolean {
+        return isOnPath(position) || isSpawnPoint(position) || isRiverTile(position)
+    }
+
     fun isBuildArea(position: Position): Boolean {
         // Cannot build on path itself, spawn points, or targets
         if (isSpawnPoint(position) || targetPositions.contains(position)) return false

@@ -177,7 +177,7 @@ class EnemyMovementSystem(
                 }
                 
                 // Must be on path or a spawn point
-                if (!state.level.isOnPath(neighbor) && !state.level.isSpawnPoint(neighbor)) {
+                if (!state.level.isEnemyTraversable(neighbor)) {
                     continue
                 }
                 

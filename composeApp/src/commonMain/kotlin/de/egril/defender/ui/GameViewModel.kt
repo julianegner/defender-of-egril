@@ -772,6 +772,10 @@ class GameViewModel {
             
             // Show spawned units briefly (reduced from 400ms to 200ms)
             delay(200)
+
+            // Surface any pending spawn messages (e.g. Ewhad enters) while units are still at
+            // their spawn points, so the message is displayed before they move away.
+            surfaceNextPendingMessageIfIdle()
             
             // Move newly spawned units away from spawn points
             val newSpawnMovements = engine.calculateNewlySpawnedMovements()
@@ -797,13 +801,10 @@ class GameViewModel {
                 _pendingScrollToPosition.value = currentStateForBombs.bombExplosionEffects.first().center
             }
 
-            // Surface any pending game messages (target taken, gate destroyed)
-            // We show them one by one - each dismiss triggers the next
-            val updatedStateForMessages = _gameState.value
-            if (updatedStateForMessages != null && updatedStateForMessages.pendingMessages.isNotEmpty()) {
-                val nextMessage = updatedStateForMessages.pendingMessages.removeAt(0)
-                _pendingGameMessage.value = nextMessage
-            }
+            // Surface any remaining pending game messages (target taken, gate destroyed, etc.)
+            // Only surface if no message is currently being shown (e.g. from the spawn phase above).
+            // Each dismiss triggers the next message via dismissGameMessage().
+            surfaceNextPendingMessageIfIdle()
 
             // Autosave at the beginning of the new player turn (after enemy turn completes)
             // This ensures the phase is PLAYER_TURN when the save is created
@@ -1626,6 +1627,18 @@ class GameViewModel {
     }
 
     /**
+     * Surface the next pending game message if no message is currently being shown.
+     * Does nothing when a message is already visible so that the queue is not skipped.
+     */
+    private fun surfaceNextPendingMessageIfIdle() {
+        val state = _gameState.value ?: return
+        if (state.pendingMessages.isNotEmpty() && _pendingGameMessage.value == null) {
+            val nextMessage = state.pendingMessages.removeAt(0)
+            _pendingGameMessage.value = nextMessage
+        }
+    }
+
+    /**
      * Format elapsed time as "X hours Y minutes"
      */
     private fun formatElapsedTime(elapsedMs: Long): String {
@@ -2151,7 +2164,7 @@ class GameViewModel {
                     for (x in 0 until gameState.level.gridWidth) {
                         for (y in 0 until gameState.level.gridHeight) {
                             val pos = Position(x, y)
-                            if ((gameState.level.isOnPath(pos) || gameState.level.isSpawnPoint(pos)) &&
+                            if (gameState.level.isEnemyTraversable(pos) &&
                                 pos !in occupiedByBarricade) {
                                 positions.add(pos)
                             }
