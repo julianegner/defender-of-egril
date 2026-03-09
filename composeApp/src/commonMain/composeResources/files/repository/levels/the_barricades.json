@@ -102,7 +102,7 @@
     {"attackerType": "ORK", "level": 5, "spawnTurn": 10, "spawnPoint": {"x": 20, "y": 10}},
     {"attackerType": "ORK", "level": 5, "spawnTurn": 10, "spawnPoint": {"x": 20, "y": 20}}
   ],
-  "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER", "DWARVEN_MINE"],
+  "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER"],
   "waypoints": [
     
   ],
@@ -110,6 +110,20 @@
   "allowAutoAttack": true,
   "author": "Julian Egner",
   "initialData": {
+    "defenders": [
+      {"type": "BOW_TOWER", "position": {"x": 9, "y": 10}, "level": 1, "onTowerBase": true},
+      {"type": "BOW_TOWER", "position": {"x": 11, "y": 10}, "level": 1, "onTowerBase": true},
+      {"type": "BOW_TOWER", "position": {"x": 10, "y": 9}, "level": 1, "onTowerBase": true},
+      {"type": "BOW_TOWER", "position": {"x": 9, "y": 9}, "level": 1, "onTowerBase": true},
+      {"type": "BOW_TOWER", "position": {"x": 9, "y": 11}, "level": 1, "onTowerBase": true},
+      {"type": "BOW_TOWER", "position": {"x": 10, "y": 11}, "level": 1, "onTowerBase": true},
+      {"type": "SPEAR_TOWER", "position": {"x": 18, "y": 10}, "level": 5, "onTowerBase": true},
+      {"type": "SPEAR_TOWER", "position": {"x": 18, "y": 1}, "level": 5, "onTowerBase": true},
+      {"type": "SPEAR_TOWER", "position": {"x": 1, "y": 1}, "level": 5, "onTowerBase": true},
+      {"type": "SPEAR_TOWER", "position": {"x": 2, "y": 10}, "level": 5, "onTowerBase": true},
+      {"type": "SPEAR_TOWER", "position": {"x": 1, "y": 19}, "level": 5, "onTowerBase": true},
+      {"type": "SPEAR_TOWER", "position": {"x": 19, "y": 18}, "level": 5, "onTowerBase": true}
+    ],
     "barricades": [
       {"position": {"x": 11, "y": 10}, "healthPoints": 150},
       {"position": {"x": 9, "y": 10}, "healthPoints": 150},
