@@ -162,6 +162,7 @@
       {"position": {"x": 14, "y": 5}, "healthPoints": 50, "name": "North Gate", "isGate": true},
       {"position": {"x": 14, "y": 25}, "healthPoints": 50, "name": "South Gate", "isGate": true}
     ]
-  }
+  },
+    "allowAutoAttack": true
 }
 }

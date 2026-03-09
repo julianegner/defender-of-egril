@@ -1,0 +1,61 @@
+{
+  "metadata": {
+    "program": "Defender of Egril",
+    "type": "level"
+  },
+  "data": {
+  "id": "prison_break",
+  "mapId": "map_the_prison",
+  "title": "Prison Break",
+  "subtitle": "Captured Goblins try to escape",
+  "startCoins": 100,
+  "startHealthPoints": 10,
+  "enemySpawns": [
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 14, "y": 7}}
+  ],
+  "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER"],
+  "waypoints": [
+    
+  ],
+  "prerequisites": ["dark_magic_rises"],
+  "allowAutoAttack": true,
+  "author": "Julian Egner",
+  "initialData": {
+    "attackers": [
+      {"type": "GOBLIN", "position": {"x": 11, "y": 9}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 14, "y": 9}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 11, "y": 12}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 18, "y": 12}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 15, "y": 13}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 19, "y": 8}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 22, "y": 12}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 8, "y": 16}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 13, "y": 17}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 19, "y": 16}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 22, "y": 18}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 9, "y": 19}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 10, "y": 15}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 17, "y": 19}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 16, "y": 16}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 14, "y": 20}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 21, "y": 15}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 8, "y": 10}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 14, "y": 7}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 13, "y": 13}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 11, "y": 22}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 7, "y": 21}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 21, "y": 21}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 19, "y": 22}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 15, "y": 18}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 19, "y": 13}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 17, "y": 10}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 13, "y": 11}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 12, "y": 16}, "level": 2},
+      {"type": "GOBLIN", "position": {"x": 12, "y": 19}, "level": 2}
+    ],
+    "barricades": [
+      {"position": {"x": 14, "y": 25}, "healthPoints": 120, "isGate": true}
+    ]
+  }
+}
+}

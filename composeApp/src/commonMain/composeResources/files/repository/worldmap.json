@@ -1,9 +1,4 @@
 {
-  "metadata": {
-    "program": "Defender of Egril",
-    "type": "worldmap"
-  },
-  "data": {
   "locations": [
     {
       "id": "tutorial",
@@ -225,5 +220,4 @@
       "type": "ROAD"
     }
   ]
-}
 }
