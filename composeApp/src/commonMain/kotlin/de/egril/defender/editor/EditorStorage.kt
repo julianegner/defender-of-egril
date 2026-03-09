@@ -143,10 +143,13 @@ object EditorStorage {
 
         // Only regenerate the map image if:
         // - the PNG does not exist yet, OR
-        // - at least one tile's TileType has changed (river flow direction changes are ignored)
+        // - at least one tile's visual appearance has changed.
+        // Note: SPAWN_POINT and TARGET use the same biome as PATH in the image generator,
+        // so changes between these tile types do not affect the rendered image and are ignored.
         val pngPath = "$targetDir/${validatedMap.id}.png"
         val pngExists = fileStorage.fileExists(pngPath)
-        val tilesChanged = existingMap == null || existingMap.tiles != validatedMap.tiles
+        val tilesChanged = existingMap == null ||
+            normalizeForImageComparison(existingMap.tiles) != normalizeForImageComparison(validatedMap.tiles)
         val imageRegenerated = !pngExists || tilesChanged
         if (imageRegenerated) {
             generateAndSaveMapImage(validatedMap)
@@ -203,6 +206,21 @@ object EditorStorage {
             fileStorage.readBinaryFile("$USER_MAPS_DIR/$mapId.png")
                 ?: fileStorage.readBinaryFile("$OFFICIAL_MAPS_DIR/$mapId.png")
         } ?: fileStorage.readBinaryFile("$LEGACY_MAPS_DIR/$mapId.png")
+    }
+
+    /**
+     * Normalizes tile types for the purpose of deciding whether the map image needs to be
+     * regenerated. SPAWN_POINT and TARGET use the same visual biome as PATH in the image
+     * generator, so they are mapped to PATH so that changes between these types do not
+     * trigger an unnecessary repaint.
+     */
+    internal fun normalizeForImageComparison(tiles: Map<String, TileType>): Map<String, TileType> {
+        return tiles.mapValues { (_, tileType) ->
+            when (tileType) {
+                TileType.SPAWN_POINT, TileType.TARGET -> TileType.PATH
+                else -> tileType
+            }
+        }
     }
 
     private fun generateAndSaveMapImage(map: EditorMap) {
