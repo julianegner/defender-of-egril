@@ -1454,6 +1454,7 @@
     <string name="target_name_label">Target Name (optional)</string>
     <string name="barricade_name_label">Barricade Name (optional)</string>
     <string name="is_gate_label">Is Gate</string>
+    <string name="barricade_tower_base_hint">Barricades with 100+ HP can serve as a tower base</string>
     <!-- Standard target display names (may contain \n for multi-line tile display) -->
     <string name="target_name_marketplace">Market-\nplace</string>
     <string name="target_name_townhall">Town-\nhall</string>

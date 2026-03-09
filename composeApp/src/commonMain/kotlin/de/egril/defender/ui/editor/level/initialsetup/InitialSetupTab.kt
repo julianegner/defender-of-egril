@@ -101,11 +101,14 @@ fun InitialSetupTab(
                             when (placementMode) {
                                 PlacementMode.DEFENDER -> {
                                     if (canPlaceDefender(position, initialData, map)) {
+                                        val barricadeAtPosition = initialData.barricades.find { it.position == position }
+                                        val isOnTowerBase = barricadeAtPosition?.canSupportTower() == true
                                         val newDefender = InitialDefender(
                                             type = selectedDefenderType,
                                             position = position,
                                             level = selectedDefenderLevel,
-                                            dragonName = if (selectedDefenderType == DefenderType.DRAGONS_LAIR && dragonName.isNotBlank()) dragonName else null
+                                            dragonName = if (selectedDefenderType == DefenderType.DRAGONS_LAIR && dragonName.isNotBlank()) dragonName else null,
+                                            onTowerBase = isOnTowerBase
                                         )
                                         onInitialDataChange(initialData.copy(defenders = initialData.defenders + newDefender))
                                     }
@@ -264,6 +267,21 @@ fun InitialSetupTab(
                             )
                             Switch(checked = editIsGate, onCheckedChange = { editIsGate = it })
                         }
+                        val editHPValue = editHP.toIntOrNull() ?: 0
+                        if (editHPValue >= InitialBarricade.TOWER_BASE_MIN_HP) {
+                            Card(
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                                )
+                            ) {
+                                Text(
+                                    text = stringResource(Res.string.barricade_tower_base_hint),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    modifier = Modifier.padding(8.dp)
+                                )
+                            }
+                        }
                     }
                 },
                 confirmButton = {
@@ -317,11 +335,21 @@ private fun canPlaceDefender(
     initialData: InitialData,
     map: EditorMap
 ): Boolean {
-    // Must be valid tile type for defenders
-    if (!isValidPlacement(position, PlacementMode.DEFENDER, map)) {
+    // Check if there's a barricade with HP >= 100 at this position (tower base)
+    val barricadeAtPosition = initialData.barricades.find { it.position == position }
+    val isOnTowerBase = barricadeAtPosition?.canSupportTower() == true
+
+    // Must be valid tile type for defenders, OR be on a tower base
+    if (!isOnTowerBase && !isValidPlacement(position, PlacementMode.DEFENDER, map)) {
         return false
     }
-    // Must not be occupied by any element
+
+    // On a tower base: only check that no defender is already placed there
+    if (isOnTowerBase) {
+        return initialData.defenders.none { it.position == position }
+    }
+
+    // On a regular BUILD_AREA: must not be occupied by any element
     return !isPositionOccupied(position, initialData)
 }
 

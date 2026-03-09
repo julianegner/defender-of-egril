@@ -230,7 +230,15 @@ data class InitialBarricade(
     val supportsTower: Boolean = false,  // True if this barricade should support a tower (HP >= 100)
     val name: String? = null,            // Optional display name (e.g. "North Gate") for named gates
     val isGate: Boolean = false          // True if the gate icon should be shown regardless of neighbours
-)
+) {
+    /** Check if this barricade can support a tower (has at least [TOWER_BASE_MIN_HP] HP) */
+    fun canSupportTower(): Boolean = healthPoints >= TOWER_BASE_MIN_HP
+
+    companion object {
+        /** Minimum HP required for a barricade to serve as a tower base */
+        const val TOWER_BASE_MIN_HP = 100
+    }
+}
 
 /**
  * Wrapper for all initial placement data

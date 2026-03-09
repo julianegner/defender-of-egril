@@ -629,6 +629,22 @@ fun BarricadeConfigPanel(
             )
             Switch(checked = isGate, onCheckedChange = onIsGateChange)
         }
+
+        // Tower base hint (shown when HP >= TOWER_BASE_MIN_HP)
+        if (healthPoints >= InitialBarricade.TOWER_BASE_MIN_HP) {
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                )
+            ) {
+                Text(
+                    text = stringResource(Res.string.barricade_tower_base_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
+        }
     }
 }
 

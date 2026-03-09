@@ -1451,6 +1451,7 @@
     <string name="target_name_label">Nome obiettivo (opzionale)</string>
     <string name="barricade_name_label">Nome barricata (opzionale)</string>
     <string name="is_gate_label">È un cancello</string>
+    <string name="barricade_tower_base_hint">Le barricate con 100+ PF possono fungere da base per torri</string>
     <!-- Nomi standard degli obiettivi (possono contenere \n per la visualizzazione su più righe) -->
     <string name="target_name_marketplace">Mer-\ncato</string>
     <string name="target_name_townhall">Muni-\ncipio</string>
