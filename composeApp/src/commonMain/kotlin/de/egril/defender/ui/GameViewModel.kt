@@ -611,6 +611,10 @@ class GameViewModel {
         }
 
         gameEngine?.startFirstPlayerTurn()
+
+        // Surface any messages queued during initial spawn (e.g. EWHAD_ENTERS) immediately,
+        // so they appear as soon as the player's first turn begins rather than after they end it.
+        surfaceNextPendingMessageIfIdle()
         
         // Track turn start for achievements
         achievementManager?.startTurn()
@@ -637,6 +641,8 @@ class GameViewModel {
     fun defenderAttack(defenderId: Int, targetId: Int): Boolean {
         val result = gameEngine?.defenderAttack(defenderId, targetId) ?: false
         if (result) {
+            // Surface any messages queued by the attack (e.g. EWHAD_RETREATS/EWHAD_DEFEATED) immediately.
+            surfaceNextPendingMessageIfIdle()
             // Check for immediate victory after attack
             val state = _gameState.value
             if (state != null && state.isLevelWon()) {
@@ -651,6 +657,8 @@ class GameViewModel {
         if (result) {
             // triggerStateUpdate()
 
+            // Surface any messages queued by the attack (e.g. EWHAD_RETREATS/EWHAD_DEFEATED) immediately.
+            surfaceNextPendingMessageIfIdle()
             // Check for immediate victory after attack
             val state = _gameState.value
             if (state != null && state.isLevelWon()) {
@@ -1919,6 +1927,8 @@ class GameViewModel {
         // Process any enemies defeated by the spell (award coins, remove from list)
         if (spell == SpellType.ATTACK_AIMED || spell == SpellType.ATTACK_AREA) {
             gameEngine?.processDefeatedAttackers()
+            // Surface any messages queued by the kill (e.g. EWHAD_RETREATS/EWHAD_DEFEATED) immediately.
+            surfaceNextPendingMessageIfIdle()
         }
 
         // Clear pending spell and targeting state

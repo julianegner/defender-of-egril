@@ -191,4 +191,134 @@ class SpawnPointAttackTest {
         // Ewhad should still be at spawn point
         assertTrue(state.level.isSpawnPoint(ewhad.position.value), "Ewhad should still be at spawn point when message is queued")
     }
+
+    @Test
+    fun testEwhadEntersMessageQueuedBySpawnAttackers() {
+        // Verify that spawnAttackers() automatically queues EWHAD_ENTERS when Ewhad spawns
+        val ewhadLevel = Level(
+            id = 1,
+            name = "Ewhad Level",
+            gridWidth = 10,
+            gridHeight = 6,
+            startPositions = listOf(Position(0, 3)),
+            targetPositions = listOf(Position(9, 3)),
+            pathCells = (1..8).map { Position(it, 3) }.toSet(),
+            buildAreas = setOf(Position(2, 1), Position(2, 2)),
+            attackerWaves = emptyList(),
+            directSpawnPlan = listOf(
+                PlannedEnemySpawn(
+                    attackerType = AttackerType.EWHAD,
+                    spawnTurn = 2,
+                    level = 1,
+                    spawnPoint = Position(0, 3)
+                )
+            ),
+            initialCoins = 1000,
+            healthPoints = 10
+        )
+        val state = GameState(ewhadLevel)
+        val engine = GameEngine(state)
+
+        engine.startFirstPlayerTurn()
+        // Advance turn counter to match the spawn turn
+        state.turnNumber.value = 2
+
+        assertTrue(state.pendingMessages.isEmpty(), "No messages before Ewhad spawns")
+
+        // spawnAttackers is called during enemy turn processing; call it directly here
+        engine.spawnEnemyTurnAttackers()
+
+        assertEquals(1, state.pendingMessages.size, "EWHAD_ENTERS message should be queued by spawnAttackers")
+        assertEquals(GameMessageType.EWHAD_ENTERS, state.pendingMessages.first().type, "Message type should be EWHAD_ENTERS")
+        // Ewhad should be on the map
+        val ewhad = state.attackers.find { it.type == AttackerType.EWHAD && !it.isDefeated.value }
+        assertTrue(ewhad != null, "Ewhad should be on the map after spawning")
+    }
+
+    @Test
+    fun testEwhadRetreatsMessageQueuedOnDefeat() {
+        // Verify that killing Ewhad via defenderAttack queues EWHAD_RETREATS immediately
+        val spawnPoint = Position(0, 3)
+        val ewhadLevel = Level(
+            id = 1,
+            name = "Ewhad Level",
+            gridWidth = 10,
+            gridHeight = 6,
+            startPositions = listOf(spawnPoint),
+            targetPositions = listOf(Position(9, 3)),
+            pathCells = (1..8).map { Position(it, 3) }.toSet(),
+            buildAreas = setOf(Position(2, 1), Position(2, 2)),
+            attackerWaves = emptyList(),
+            initialCoins = 1000,
+            healthPoints = 10
+        )
+        val state = GameState(ewhadLevel)
+        val engine = GameEngine(state)
+
+        engine.placeDefender(DefenderType.BOW_TOWER, Position(2, 2))
+        val tower = state.defenders.first()
+        tower.buildTimeRemaining.value = 0
+        engine.startFirstPlayerTurn()
+        tower.resetActions()
+
+        // Spawn Ewhad with minimal health so one attack kills it
+        val ewhad = Attacker(
+            id = state.nextAttackerId.value++,
+            type = AttackerType.EWHAD,
+            position = mutableStateOf(spawnPoint),
+            level = mutableStateOf(1),
+            currentHealth = mutableStateOf(1)
+        )
+        state.attackers.add(ewhad)
+
+        assertTrue(state.pendingMessages.isEmpty(), "No messages before attack")
+
+        // Attack Ewhad - should kill it (1 HP remaining)
+        engine.defenderAttack(tower.id, ewhad.id)
+
+        assertEquals(1, state.pendingMessages.size, "EWHAD_RETREATS message should be queued immediately after killing Ewhad")
+        assertEquals(GameMessageType.EWHAD_RETREATS, state.pendingMessages.first().type, "Message type should be EWHAD_RETREATS (not final stand)")
+    }
+
+    @Test
+    fun testEwhadDefeatedMessageQueuedOnFinalStand() {
+        // Verify EWHAD_DEFEATED message is queued when killing Ewhad on the final stand level
+        val spawnPoint = Position(0, 3)
+        val finalStandLevel = Level(
+            id = 1,
+            name = "Final Stand",
+            gridWidth = 10,
+            gridHeight = 6,
+            startPositions = listOf(spawnPoint),
+            targetPositions = listOf(Position(9, 3)),
+            pathCells = (1..8).map { Position(it, 3) }.toSet(),
+            buildAreas = setOf(Position(2, 1), Position(2, 2)),
+            attackerWaves = emptyList(),
+            initialCoins = 1000,
+            healthPoints = 10,
+            editorLevelId = "the_final_stand"
+        )
+        val state = GameState(finalStandLevel)
+        val engine = GameEngine(state)
+
+        engine.placeDefender(DefenderType.BOW_TOWER, Position(2, 2))
+        val tower = state.defenders.first()
+        tower.buildTimeRemaining.value = 0
+        engine.startFirstPlayerTurn()
+        tower.resetActions()
+
+        val ewhad = Attacker(
+            id = state.nextAttackerId.value++,
+            type = AttackerType.EWHAD,
+            position = mutableStateOf(spawnPoint),
+            level = mutableStateOf(1),
+            currentHealth = mutableStateOf(1)
+        )
+        state.attackers.add(ewhad)
+
+        engine.defenderAttack(tower.id, ewhad.id)
+
+        assertEquals(1, state.pendingMessages.size, "EWHAD_DEFEATED message should be queued immediately on final stand")
+        assertEquals(GameMessageType.EWHAD_DEFEATED, state.pendingMessages.first().type, "Message type should be EWHAD_DEFEATED on final stand level")
+    }
 }
