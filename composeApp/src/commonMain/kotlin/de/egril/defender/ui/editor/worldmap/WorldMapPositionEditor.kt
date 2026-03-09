@@ -40,6 +40,7 @@ import de.egril.defender.editor.WorldMapPathData
 import de.egril.defender.editor.WorldMapPoint
 import de.egril.defender.model.Position
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.icon.WarningIcon
 import de.egril.defender.ui.icon.PencilIcon
 import org.jetbrains.compose.resources.painterResource
@@ -83,18 +84,55 @@ fun WorldMapPositionEditorContent() {
         allLevels = EditorStorage.getAllLevels()
     }
     
+    var worldmapSavedSuccess by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(8.dp)
     ) {
-        // Title
-        Text(
-            text = stringResource(Res.string.world_map_positions),
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        
+        // Title row with Save button
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(Res.string.world_map_positions),
+                style = MaterialTheme.typography.titleMedium
+            )
+            Button(
+                onClick = {
+                    EditorStorage.saveWorldMapData(worldMapData)
+                    worldmapSavedSuccess = true
+                }
+            ) {
+                Text(stringResource(Res.string.save_worldmap))
+            }
+        }
+
+        // Save success message
+        if (worldmapSavedSuccess) {
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(Res.string.worldmap_saved_success),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    TextButton(onClick = { worldmapSavedSuccess = false }) {
+                        CheckmarkIcon(size = 16.dp, tint = MaterialTheme.colorScheme.primary)
+                    }
+                }
+            }
+        }
+
         // Instructions
         Card(
             modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),

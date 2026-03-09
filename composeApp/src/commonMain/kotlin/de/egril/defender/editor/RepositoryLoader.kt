@@ -204,20 +204,34 @@ object RepositoryLoader {
                 }
             }
             
-            // Save sequence to official directory
-            val sequenceJson = EditorJsonSerializer.serializeSequence(sequence)
-            storage.writeFile("gamedata/official/sequence.json", sequenceJson)
-            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Saved official sequence")
+            // Save sequence to official directory only if it doesn't already exist
+            // (to preserve user edits made via the editor's Save Sequence button)
+            if (!storage.fileExists("gamedata/official/sequence.json")) {
+                val sequenceJson = EditorJsonSerializer.serializeSequence(sequence)
+                storage.writeFile("gamedata/official/sequence.json", sequenceJson)
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                println("Saved official sequence")
+                }
+            } else {
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                println("Skipping sequence.json - file already exists (preserving user edits)")
+                }
             }
 
             // Load and save world map data from repository to official directory
+            // Only write if the file doesn't already exist (to preserve user edits)
             val worldMapData = loadWorldMapData()
             if (worldMapData != null) {
-                val worldMapJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
-                storage.writeFile("gamedata/official/worldmap.json", worldMapJson)
-                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                println("Loaded and saved official worldmap.json from repository")
+                if (!storage.fileExists("gamedata/official/worldmap.json")) {
+                    val worldMapJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
+                    storage.writeFile("gamedata/official/worldmap.json", worldMapJson)
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                    println("Loaded and saved official worldmap.json from repository")
+                    }
+                } else {
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                    println("Skipping worldmap.json - file already exists (preserving user edits)")
+                    }
                 }
             } else {
                 if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
