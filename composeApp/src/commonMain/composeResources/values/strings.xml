@@ -351,6 +351,10 @@
     <string name="create">Create</string>
     <string name="save_map">Save Map</string>
     <string name="save_level">Save Level</string>
+    <string name="save_worldmap">Save Worldmap</string>
+    <string name="worldmap_saved_success">Worldmap saved successfully.</string>
+    <string name="save_sequence">Save Sequence</string>
+    <string name="sequence_saved_success">Sequence saved successfully.</string>
     <string name="save_as_new">Save As New</string>
     <string name="map_name">Map Name</string>
     <string name="level_title">Level Title</string>

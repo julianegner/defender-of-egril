@@ -281,7 +281,8 @@ object RepositoryManager {
             }
             
             // Replace official sequence file with repository version
-            if (newData.hasNewSequence) {
+            // Only if the file doesn't already exist (preserving user edits made via editor)
+            if (newData.hasNewSequence && !fileStorage.fileExists("$GAMEDATA_DIR/official/sequence.json")) {
                 val sequence = RepositoryLoader.loadSequence()
                 if (sequence != null) {
                     val sequenceJson = EditorJsonSerializer.serializeSequence(sequence)
@@ -290,10 +291,15 @@ object RepositoryManager {
                     println("Updated official sequence file")
                     }
                 }
+            } else if (newData.hasNewSequence) {
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                println("Skipping sequence.json update - file already exists (preserving user edits)")
+                }
             }
             
             // Replace official worldmap file with repository version
-            if (newData.hasNewWorldMap) {
+            // Only if the file doesn't already exist (preserving user edits made via editor)
+            if (newData.hasNewWorldMap && !fileStorage.fileExists("$GAMEDATA_DIR/official/worldmap.json")) {
                 // Use cached worldmap data if available, otherwise load it
                 val worldMapData = newData.worldMapData
                 if (worldMapData != null) {
@@ -316,6 +322,10 @@ object RepositoryManager {
                         println("Error: Could not load worldmap from repository")
                         }
                     }
+                }
+            } else if (newData.hasNewWorldMap) {
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                println("Skipping worldmap.json update - file already exists (preserving user edits)")
                 }
             }
             

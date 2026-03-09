@@ -347,6 +347,10 @@
     <string name="create">Erstellen</string>
     <string name="save_map">Karte speichern</string>
     <string name="save_level">Level speichern</string>
+    <string name="save_worldmap">Weltkarte speichern</string>
+    <string name="worldmap_saved_success">Weltkarte erfolgreich gespeichert.</string>
+    <string name="save_sequence">Reihenfolge speichern</string>
+    <string name="sequence_saved_success">Reihenfolge erfolgreich gespeichert.</string>
     <string name="save_as_new">Als neu speichern</string>
     <string name="map_name">Kartenname</string>
     <string name="level_title">Level-Titel</string>

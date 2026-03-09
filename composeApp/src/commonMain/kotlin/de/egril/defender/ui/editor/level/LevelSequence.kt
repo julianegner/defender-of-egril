@@ -94,12 +94,14 @@ fun LevelSequenceContent() {
         validationResult = EditorStorage.validateAllPrerequisites()
     }
     
+    var sequenceSavedSuccess by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(8.dp)
     ) {
-        // Title and validation status
+        // Title, validation status, and Save button
         Row(
             modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -109,27 +111,63 @@ fun LevelSequenceContent() {
                 text = stringResource(Res.string.level_dependencies),
                 style = MaterialTheme.typography.titleMedium
             )
-            
-            // Validation status
-            validationResult?.let { result ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Validation status
+                validationResult?.let { result ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        if (result.isValid) {
+                            CheckmarkIcon(size = 20.dp, tint = Color.Green)
+                            Text(
+                                text = stringResource(Res.string.validation_passed),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Green
+                            )
+                        } else {
+                            WarningIcon(size = 20.dp)
+                            Text(
+                                text = stringResource(Res.string.validation_failed),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Red
+                            )
+                        }
+                    }
+                }
+
+                Button(
+                    onClick = {
+                        EditorStorage.updateLevelSequence(EditorStorage.getLevelSequence())
+                        sequenceSavedSuccess = true
+                    }
                 ) {
-                    if (result.isValid) {
-                        CheckmarkIcon(size = 20.dp, tint = Color.Green)
-                        Text(
-                            text = stringResource(Res.string.validation_passed),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.Green
-                        )
-                    } else {
-                        WarningIcon(size = 20.dp)
-                        Text(
-                            text = stringResource(Res.string.validation_failed),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.Red
-                        )
+                    Text(stringResource(Res.string.save_sequence))
+                }
+            }
+        }
+
+        // Save success message
+        if (sequenceSavedSuccess) {
+            Card(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(Res.string.sequence_saved_success),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    TextButton(onClick = { sequenceSavedSuccess = false }) {
+                        CheckmarkIcon(size = 16.dp, tint = MaterialTheme.colorScheme.primary)
                     }
                 }
             }
