@@ -7,6 +7,7 @@
   "id": "the_labyrinth",
   "mapId": "map_the_labyrinth",
   "title": "The Labyrinth",
+  "titleKey": "level_the_labyrinth_title",
   "subtitle": "",
   "startCoins": 100,
   "startHealthPoints": 10,

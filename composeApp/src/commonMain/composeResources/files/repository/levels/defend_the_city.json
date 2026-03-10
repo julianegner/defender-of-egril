@@ -7,6 +7,7 @@
   "id": "defend_the_city",
   "mapId": "map_the_city",
   "title": "Defend the City",
+  "titleKey": "level_defend_the_city_title",
   "subtitle": "",
   "startCoins": 100,
   "startHealthPoints": 10,
