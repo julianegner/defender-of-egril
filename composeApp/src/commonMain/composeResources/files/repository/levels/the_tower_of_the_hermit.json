@@ -49,8 +49,9 @@
   "waypoints": [
     
   ],
-  "prerequisites": [],
+  "prerequisites": ["the_spiral_challenge"],
   "allowAutoAttack": true,
+  "isOfficial": true,
   "author": "jegner",
   "initialData": {
     "defenders": [

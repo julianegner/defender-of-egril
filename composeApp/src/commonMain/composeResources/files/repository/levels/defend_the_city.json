@@ -109,7 +109,9 @@
     {"position": {"x": 1, "y": 16}, "nextTargetPosition": {"x": 7, "y": 14}},
     {"position": {"x": 7, "y": 14}, "nextTargetPosition": {"x": 9, "y": 11}}
   ],
-  "prerequisites": [],
+  "prerequisites": ["prison_break"],
+  "allowAutoAttack": true,
+  "isOfficial": true,
   "author": "jegner",
   "initialData": {
     "defenders": [
@@ -162,7 +164,6 @@
       {"position": {"x": 14, "y": 5}, "healthPoints": 50, "name": "North Gate", "isGate": true},
       {"position": {"x": 14, "y": 25}, "healthPoints": 50, "name": "South Gate", "isGate": true}
     ]
-  },
-    "allowAutoAttack": true
+  }
 }
 }
