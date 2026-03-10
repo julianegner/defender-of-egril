@@ -11,7 +11,8 @@ fun main() {
 
 fun Application.module() {
     configurePlugins()
-    configureRouting()
+    val dataSource = configureDatabase()
+    configureRouting(dataSource)
 }
 
 const val SERVER_PORT = 8080
