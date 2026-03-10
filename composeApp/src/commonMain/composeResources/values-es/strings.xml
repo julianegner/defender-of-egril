@@ -349,6 +349,9 @@
     <string name="save_level">Guardar nivel</string>
     <string name="save_worldmap">Guardar mapa mundial</string>
     <string name="worldmap_saved_success">Mapa mundial guardado correctamente.</string>
+    <string name="reset_worldmap">Restablecer versión anterior</string>
+    <string name="reset_worldmap_confirm_title">¿Restablecer versión anterior?</string>
+    <string name="reset_worldmap_confirm_message">¿Está seguro de que desea restablecer el mapa mundial a la versión guardada anteriormente? Los cambios actuales se perderán.</string>
     <string name="save_sequence">Guardar secuencia</string>
     <string name="sequence_saved_success">Secuencia guardada correctamente.</string>
     <string name="save_as_new">Guardar como nuevo</string>
@@ -903,7 +906,7 @@
     <string name="level_the_winding_path_title">El Camino Sinuoso</string>
     <string name="level_the_winding_path_subtitle">Un Camino Largo y Tortuoso</string>        <string name="level_the_fortress_title">La Fortaleza %s</string>
     <string name="level_the_fortress_1_first_attacks_subtitle">Primeros Ataques</string>    <string name="level_the_fortress_2_orks_marching_subtitle">Los Orks Están Marchando</string>    <string name="level_the_fortress_3_necromancer_subtitle">El Nigromante</string>    <string name="level_the_fortress_4_magic_assault_subtitle">Asalto Mágico</string>    <string name="level_the_fortress_5_mighty_forces_subtitle">Fuerzas Poderosas</string>
-    <string name="level_ewhads_challenge_title">Desafío de Ewhad</string>    <string name="level_the_creek_title">El Arroyo</string>    <string name="level_the_island_title">La Isla</string>    <string name="level_the_river_title">El Río</string>    <string name="level_creek_valley_title">Valle del Arroyo</string>    <string name="level_maelstrom_title">Vorágine</string>    
+    <string name="level_ewhads_challenge_title">Desafío de Ewhad</string>    <string name="level_the_creek_title">El Arroyo</string>    <string name="level_the_island_title">La Isla</string>    <string name="level_the_river_title">El Río</string>    <string name="level_creek_valley_title">Valle del Arroyo</string>    <string name="level_maelstrom_title">Vorágine</string>    <string name="level_defend_the_city_title">Defiende la Ciudad</string>    <string name="level_prison_break_title">Fuga de la Prisión</string>    <string name="level_prison_break_subtitle">Trasgos capturados intentan escapar</string>    <string name="level_the_barricades_title">Las Barricadas</string>    <string name="level_the_labyrinth_title">El Laberinto</string>    <string name="level_the_tower_of_the_hermit_title">La Torre del Ermitaño</string>    <string name="level_the_tower_of_the_hermit_subtitle">Una sola Torre para defender el Camino</string>    <string name="level_the_witches_title">Las Brujas</string>    
     <!-- Map Names -->
     <string name="map_tutorial_name">Mapa Tutorial</string>
     <string name="map_straight_name">Mapa Recto</string>
@@ -922,6 +925,11 @@
     <string name="map_the_river_name">El Río</string>
     <string name="map_creek_valley_name">Valle del Arroyo</string>
     <string name="map_the_maelstrom_name">La Vorágine</string>
+    <string name="map_the_city_name">La Ciudad</string>
+    <string name="map_the_prison_name">La Prisión</string>
+    <string name="map_the_single_tower_name">La Torre Solitaria</string>
+    <string name="map_the_barricades_name">Las Barricadas</string>
+    <string name="map_the_labyrinth_name">El Laberinto</string>
     
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutorial</string>
@@ -941,6 +949,9 @@
     <string name="location_the_river_name">El Río</string>
     <string name="location_creek_valley_name">Valle del Arroyo</string>
     <string name="location_the_maelstrom_name">La Vorágine</string>
+    <string name="location_the_prison_name">La Prisión</string>
+    <string name="location_the_city_name">La Ciudad</string>
+    <string name="location_the_tower_of_the_hermit_name">La Torre del Ermitaño</string>
     <!-- Player Profile Strings -->
     <string name="player_create_title">Crear nuevo jugador</string>
     <string name="player_create_prompt">Ingresa tu nombre de jugador</string>

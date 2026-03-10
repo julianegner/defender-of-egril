@@ -77,6 +77,10 @@ fun WorldMapPositionEditorContent() {
     var hoveredPathId by remember { mutableStateOf<Pair<String, String>?>(null) }
 
     val isDarkMode = AppSettings.isDarkMode.value
+
+    // Previous saved version - set when the user saves, to allow resetting
+    var previousWorldMapData by remember { mutableStateOf<WorldMapData?>(null) }
+    var showResetConfirmDialog by remember { mutableStateOf(false) }
     
     // Reload data
     LaunchedEffect(Unit) {
@@ -91,7 +95,7 @@ fun WorldMapPositionEditorContent() {
             .fillMaxSize()
             .padding(8.dp)
     ) {
-        // Title row with Save button
+        // Title row with Save and Reset buttons
         Row(
             modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -101,13 +105,23 @@ fun WorldMapPositionEditorContent() {
                 text = stringResource(Res.string.world_map_positions),
                 style = MaterialTheme.typography.titleMedium
             )
-            Button(
-                onClick = {
-                    EditorStorage.saveWorldMapData(worldMapData)
-                    worldmapSavedSuccess = true
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (previousWorldMapData != null) {
+                    OutlinedButton(
+                        onClick = { showResetConfirmDialog = true }
+                    ) {
+                        Text(stringResource(Res.string.reset_worldmap))
+                    }
                 }
-            ) {
-                Text(stringResource(Res.string.save_worldmap))
+                Button(
+                    onClick = {
+                        previousWorldMapData = EditorStorage.getWorldMapData()
+                        EditorStorage.saveWorldMapData(worldMapData)
+                        worldmapSavedSuccess = true
+                    }
+                ) {
+                    Text(stringResource(Res.string.save_worldmap))
+                }
             }
         }
 
@@ -188,9 +202,7 @@ fun WorldMapPositionEditorContent() {
                                         controlPoints = emptyList(),
                                         type = ConnectionType.ROAD
                                     )
-                                    EditorStorage.saveWorldMapPath(newPath)
-                                    worldMapData = EditorStorage.getWorldMapData()
-                                    // Reset connection mode
+                                    worldMapData = worldMapData.withUpdatedPath(newPath)
                                     connectionCreationMode = false
                                     connectionFromLocation = null
                                 } else {
@@ -211,8 +223,7 @@ fun WorldMapPositionEditorContent() {
                                 val location = worldMapData.locations.find { it.id == selectedLocationId }
                                 if (location != null) {
                                     val updatedLocation = location.copy(position = point)
-                                    EditorStorage.saveWorldMapLocation(updatedLocation)
-                                    worldMapData = EditorStorage.getWorldMapData()
+                                    worldMapData = worldMapData.withUpdatedLocation(updatedLocation)
                                 }
                             }
                         },
@@ -220,8 +231,7 @@ fun WorldMapPositionEditorContent() {
                             // Double-check current waypoint edit mode to prevent stale closure issues
                             if (addWaypoint && waypointEditMode) {
                                 // Save the path with the new waypoint
-                                EditorStorage.saveWorldMapPath(path)
-                                worldMapData = EditorStorage.getWorldMapData()
+                                worldMapData = worldMapData.withUpdatedPath(path)
                                 selectedPathIds = path.fromLocationId to path.toLocationId
                             } else if (!addWaypoint || !waypointEditMode) {
                                 // Select the connection and open edit dialog
@@ -255,16 +265,7 @@ fun WorldMapPositionEditorContent() {
                             }
                         },
                         onWaypointDragEnd = {
-                            // Save the final state when drag ends
-                            if (selectedPathIds != null) {
-                                val path = worldMapData.paths.find {
-                                    it.fromLocationId == selectedPathIds!!.first &&
-                                    it.toLocationId == selectedPathIds!!.second
-                                }
-                                if (path != null) {
-                                    EditorStorage.saveWorldMapPath(path)
-                                }
-                            }
+                            // Waypoint drag updates are already applied in-memory via onWaypointDrag
                             draggingWaypointIndex = null
                             selectedPathIds = null
                         },
@@ -425,11 +426,12 @@ fun WorldMapPositionEditorContent() {
                                     }
                                 }
                             }
-                            // Save all new paths
+                            // Add new paths to worldMapData in memory
+                            var updatedData = worldMapData
                             for (path in newPaths) {
-                                EditorStorage.saveWorldMapPath(path)
+                                updatedData = updatedData.withUpdatedPath(path)
                             }
-                            worldMapData = EditorStorage.getWorldMapData()
+                            worldMapData = updatedData
                         },
                         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                     ) {
@@ -459,8 +461,12 @@ fun WorldMapPositionEditorContent() {
                                     showEditLocationDialog = location
                                 },
                                 onDelete = {
-                                    EditorStorage.deleteWorldMapLocation(location.id)
-                                    worldMapData = EditorStorage.getWorldMapData()
+                                    worldMapData = worldMapData.copy(
+                                        locations = worldMapData.locations.filter { it.id != location.id },
+                                        paths = worldMapData.paths.filter {
+                                            it.fromLocationId != location.id && it.toLocationId != location.id
+                                        }
+                                    )
                                     if (selectedLocationId == location.id) {
                                         selectedLocationId = null
                                     }
@@ -499,8 +505,11 @@ fun WorldMapPositionEditorContent() {
                                 allLevels = allLevels,
                                 onClick = { showEditPathDialog = path },
                                 onDelete = {
-                                    EditorStorage.deleteWorldMapPath(path.fromLocationId, path.toLocationId)
-                                    worldMapData = EditorStorage.getWorldMapData()
+                                    worldMapData = worldMapData.copy(
+                                        paths = worldMapData.paths.filter {
+                                            !(it.fromLocationId == path.fromLocationId && it.toLocationId == path.toLocationId)
+                                        }
+                                    )
                                 }
                             )
                         }
@@ -510,6 +519,34 @@ fun WorldMapPositionEditorContent() {
         }
     }
     
+    // Reset to Previous Version Confirmation Dialog
+    if (showResetConfirmDialog && previousWorldMapData != null) {
+        AlertDialog(
+            onDismissRequest = { showResetConfirmDialog = false },
+            title = { Text(stringResource(Res.string.reset_worldmap_confirm_title)) },
+            text = { Text(stringResource(Res.string.reset_worldmap_confirm_message)) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val previous = previousWorldMapData!!
+                        EditorStorage.saveWorldMapData(previous)
+                        worldMapData = previous
+                        previousWorldMapData = null
+                        showResetConfirmDialog = false
+                        worldmapSavedSuccess = false
+                    }
+                ) {
+                    Text(stringResource(Res.string.yes))
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showResetConfirmDialog = false }) {
+                    Text(stringResource(Res.string.cancel))
+                }
+            }
+        )
+    }
+
     // Add Location Dialog
     if (showAddLocationDialog) {
         AddLocationDialog(
@@ -517,8 +554,7 @@ fun WorldMapPositionEditorContent() {
             existingLocations = worldMapData.locations,
             onDismiss = { showAddLocationDialog = false },
             onConfirm = { newLocation ->
-                EditorStorage.saveWorldMapLocation(newLocation)
-                worldMapData = EditorStorage.getWorldMapData()
+                worldMapData = worldMapData.withUpdatedLocation(newLocation)
                 showAddLocationDialog = false
             }
         )
@@ -530,8 +566,7 @@ fun WorldMapPositionEditorContent() {
             path = showEditPathDialog!!,
             onDismiss = { showEditPathDialog = null },
             onConfirm = { updatedPath ->
-                EditorStorage.saveWorldMapPath(updatedPath)
-                worldMapData = EditorStorage.getWorldMapData()
+                worldMapData = worldMapData.withUpdatedPath(updatedPath)
                 showEditPathDialog = null
             }
         )
@@ -543,8 +578,7 @@ fun WorldMapPositionEditorContent() {
             locations = worldMapData.locations,
             onDismiss = { showAddConnectionDialog = false },
             onConfirm = { newPath ->
-                EditorStorage.saveWorldMapPath(newPath)
-                worldMapData = EditorStorage.getWorldMapData()
+                worldMapData = worldMapData.withUpdatedPath(newPath)
                 showAddConnectionDialog = false
             }
         )
@@ -558,8 +592,7 @@ fun WorldMapPositionEditorContent() {
             existingLocations = worldMapData.locations,
             onDismiss = { showEditLocationDialog = null },
             onConfirm = { updatedLocation ->
-                EditorStorage.saveWorldMapLocation(updatedLocation)
-                worldMapData = EditorStorage.getWorldMapData()
+                worldMapData = worldMapData.withUpdatedLocation(updatedLocation)
                 showEditLocationDialog = null
             }
         )
@@ -1962,3 +1995,25 @@ private fun distanceToLineSegment(px: Float, py: Float, x1: Float, y1: Float, x2
     return kotlin.math.sqrt((px - closestX) * (px - closestX) + (py - closestY) * (py - closestY))
 }
 
+
+private fun WorldMapData.withUpdatedPath(path: WorldMapPathData): WorldMapData {
+    val existingIndex = paths.indexOfFirst {
+        it.fromLocationId == path.fromLocationId && it.toLocationId == path.toLocationId
+    }
+    val updatedPaths = if (existingIndex >= 0) {
+        paths.mapIndexed { index, existing -> if (index == existingIndex) path else existing }
+    } else {
+        paths + path
+    }
+    return copy(paths = updatedPaths)
+}
+
+private fun WorldMapData.withUpdatedLocation(location: WorldMapLocationData): WorldMapData {
+    val existingIndex = locations.indexOfFirst { it.id == location.id }
+    val updatedLocations = if (existingIndex >= 0) {
+        locations.mapIndexed { index, existing -> if (index == existingIndex) location else existing }
+    } else {
+        locations + location
+    }
+    return copy(locations = updatedLocations)
+}

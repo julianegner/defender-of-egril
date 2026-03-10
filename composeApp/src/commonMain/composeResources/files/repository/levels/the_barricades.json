@@ -7,6 +7,7 @@
   "id": "the_barricades",
   "mapId": "map_the_barricades",
   "title": "The Barricades",
+  "titleKey": "level_the_barricades_title",
   "subtitle": "",
   "startCoins": 2000,
   "startHealthPoints": 10,

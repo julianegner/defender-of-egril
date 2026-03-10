@@ -7,7 +7,9 @@
   "id": "the_tower_of_the_hermit",
   "mapId": "map_the_single_tower",
   "title": "The Tower of the Hermit",
+  "titleKey": "level_the_tower_of_the_hermit_title",
   "subtitle": "A single Tower to defend the Path",
+  "subtitleKey": "level_the_tower_of_the_hermit_subtitle",
   "startCoins": 1000,
   "startHealthPoints": 10,
   "enemySpawns": [
@@ -49,8 +51,9 @@
   "waypoints": [
     
   ],
-  "prerequisites": [],
+  "prerequisites": ["the_spiral_challenge"],
   "allowAutoAttack": true,
+  "isOfficial": true,
   "author": "jegner",
   "initialData": {
     "defenders": [

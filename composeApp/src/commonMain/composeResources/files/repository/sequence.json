@@ -1,3 +1,9 @@
 {
-  "sequence": ["welcome_to_defender_of_egril", "the_first_wave", "mixed_forces", "the_ork_invasion", "dark_magic_rises", "prison_break", "defend_the_city", "the_plains", "the_spiral_challenge", "the_dance", "the_rush", "the_woods_first_incursion", "the_woods_full_assault", "the_fast_and_furious", "the_cross", "the_winding_path", "the_fortress_1_first_attacks", "the_fortress_2_orks_marching", "the_fortress_3_necromancer", "the_fortress_4_magic_assault", "the_fortress_5_mighty_forces", "the_final_stand", "the_creek", "the_island", "the_river", "creek_valley", "maelstrom", "ewhads_challenge", "the_witches"]
+  "metadata": {
+    "program": "Defender of Egril",
+    "type": "sequence"
+  },
+  "data": {
+    "sequence": ["welcome_to_defender_of_egril", "the_first_wave", "mixed_forces", "the_ork_invasion", "dark_magic_rises", "prison_break", "defend_the_city", "the_plains", "the_spiral_challenge", "the_dance", "the_rush", "the_woods_first_incursion", "the_woods_full_assault", "the_fast_and_furious", "the_cross", "the_winding_path", "the_fortress_1_first_attacks", "the_fortress_2_orks_marching", "the_fortress_3_necromancer", "the_fortress_4_magic_assault", "the_fortress_5_mighty_forces", "the_final_stand", "the_creek", "the_island", "the_river", "creek_valley", "maelstrom", "ewhads_challenge", "the_witches", "the_tower_of_the_hermit"]
+  }
 }

@@ -349,6 +349,9 @@
     <string name="save_level">Enregistrer le niveau</string>
     <string name="save_worldmap">Enregistrer la carte du monde</string>
     <string name="worldmap_saved_success">Carte du monde enregistrée avec succès.</string>
+    <string name="reset_worldmap">Réinitialiser à la version précédente</string>
+    <string name="reset_worldmap_confirm_title">Réinitialiser à la version précédente ?</string>
+    <string name="reset_worldmap_confirm_message">Êtes-vous sûr de vouloir réinitialiser la carte du monde à la version précédemment enregistrée ? Vos modifications actuelles seront perdues.</string>
     <string name="save_sequence">Enregistrer la séquence</string>
     <string name="sequence_saved_success">Séquence enregistrée avec succès.</string>
     <string name="save_as_new">Enregistrer comme nouveau</string>
@@ -903,7 +906,7 @@
     <string name="level_the_winding_path_title">Le Chemin Sinueux</string>
     <string name="level_the_winding_path_subtitle">Une Route Longue et Tortueuse</string>        <string name="level_the_fortress_title">La Forteresse %s</string>
     <string name="level_the_fortress_1_first_attacks_subtitle">Premières Attaques</string>    <string name="level_the_fortress_2_orks_marching_subtitle">Les Orks Marchent</string>    <string name="level_the_fortress_3_necromancer_subtitle">Le Nécromancien</string>    <string name="level_the_fortress_4_magic_assault_subtitle">Assaut Magique</string>    <string name="level_the_fortress_5_mighty_forces_subtitle">Forces Puissantes</string>
-    <string name="level_ewhads_challenge_title">Défi d\'Ewhad</string>    <string name="level_the_creek_title">Le Ruisseau</string>    <string name="level_the_island_title">L\'Île</string>    <string name="level_the_river_title">La Rivière</string>    <string name="level_creek_valley_title">Vallée du Ruisseau</string>    <string name="level_maelstrom_title">Maelström</string>    
+    <string name="level_ewhads_challenge_title">Défi d\'Ewhad</string>    <string name="level_the_creek_title">Le Ruisseau</string>    <string name="level_the_island_title">L\'Île</string>    <string name="level_the_river_title">La Rivière</string>    <string name="level_creek_valley_title">Vallée du Ruisseau</string>    <string name="level_maelstrom_title">Maelström</string>    <string name="level_defend_the_city_title">Défendre la Ville</string>    <string name="level_prison_break_title">Évasion de Prison</string>    <string name="level_prison_break_subtitle">Des Gobelins capturés tentent de s\'échapper</string>    <string name="level_the_barricades_title">Les Barricades</string>    <string name="level_the_labyrinth_title">Le Labyrinthe</string>    <string name="level_the_tower_of_the_hermit_title">La Tour de l\'Ermite</string>    <string name="level_the_tower_of_the_hermit_subtitle">Une seule Tour pour défendre le Chemin</string>    <string name="level_the_witches_title">Les Sorcières</string>    
     <!-- Map Names -->
     <string name="map_tutorial_name">Carte Tutoriel</string>
     <string name="map_straight_name">Carte Droite</string>
@@ -922,6 +925,11 @@
     <string name="map_the_river_name">La Rivière</string>
     <string name="map_creek_valley_name">Vallée du Ruisseau</string>
     <string name="map_the_maelstrom_name">Le Maelström</string>
+    <string name="map_the_city_name">La Ville</string>
+    <string name="map_the_prison_name">La Prison</string>
+    <string name="map_the_single_tower_name">La Tour Solitaire</string>
+    <string name="map_the_barricades_name">Les Barricades</string>
+    <string name="map_the_labyrinth_name">Le Labyrinthe</string>
     
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutoriel</string>
@@ -941,6 +949,9 @@
     <string name="location_the_river_name">La Rivière</string>
     <string name="location_creek_valley_name">Vallée du Ruisseau</string>
     <string name="location_the_maelstrom_name">Le Maelström</string>
+    <string name="location_the_prison_name">La Prison</string>
+    <string name="location_the_city_name">La Ville</string>
+    <string name="location_the_tower_of_the_hermit_name">La Tour de l\'Ermite</string>
     <!-- Player Profile Strings -->
     <string name="player_create_title">Créer un nouveau joueur</string>
     <string name="player_create_prompt">Entrez votre nom de joueur</string>

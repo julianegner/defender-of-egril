@@ -7,7 +7,9 @@
   "id": "prison_break",
   "mapId": "map_the_prison",
   "title": "Prison Break",
+  "titleKey": "level_prison_break_title",
   "subtitle": "Captured Goblins try to escape",
+  "subtitleKey": "level_prison_break_subtitle",
   "startCoins": 100,
   "startHealthPoints": 10,
   "enemySpawns": [

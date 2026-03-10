@@ -349,6 +349,9 @@
     <string name="save_level">Salva livello</string>
     <string name="save_worldmap">Salva mappa del mondo</string>
     <string name="worldmap_saved_success">Mappa del mondo salvata con successo.</string>
+    <string name="reset_worldmap">Ripristina versione precedente</string>
+    <string name="reset_worldmap_confirm_title">Ripristinare la versione precedente?</string>
+    <string name="reset_worldmap_confirm_message">Sei sicuro di voler ripristinare la mappa del mondo alla versione precedentemente salvata? Le modifiche attuali andranno perse.</string>
     <string name="save_sequence">Salva sequenza</string>
     <string name="sequence_saved_success">Sequenza salvata con successo.</string>
     <string name="save_as_new">Salva come nuovo</string>
@@ -903,7 +906,7 @@
     <string name="level_the_winding_path_title">Il Sentiero Tortuoso</string>
     <string name="level_the_winding_path_subtitle">Una Strada Lunga e Tortuosa</string>        <string name="level_the_fortress_title">La Fortezza %s</string>
     <string name="level_the_fortress_1_first_attacks_subtitle">Primi Attacchi</string>    <string name="level_the_fortress_2_orks_marching_subtitle">Gli Ork Stanno Marciando</string>    <string name="level_the_fortress_3_necromancer_subtitle">Il Negromante</string>    <string name="level_the_fortress_4_magic_assault_subtitle">Assalto Magico</string>    <string name="level_the_fortress_5_mighty_forces_subtitle">Forze Potenti</string>
-    <string name="level_ewhads_challenge_title">Sfida di Ewhad</string>    <string name="level_the_creek_title">Il Ruscello</string>    <string name="level_the_island_title">L\'Isola</string>    <string name="level_the_river_title">Il Fiume</string>    <string name="level_creek_valley_title">Valle del Ruscello</string>    <string name="level_maelstrom_title">Maelstrom</string>    
+    <string name="level_ewhads_challenge_title">Sfida di Ewhad</string>    <string name="level_the_creek_title">Il Ruscello</string>    <string name="level_the_island_title">L\'Isola</string>    <string name="level_the_river_title">Il Fiume</string>    <string name="level_creek_valley_title">Valle del Ruscello</string>    <string name="level_maelstrom_title">Maelstrom</string>    <string name="level_defend_the_city_title">Difendi la Città</string>    <string name="level_prison_break_title">Fuga dalla Prigione</string>    <string name="level_prison_break_subtitle">Goblin catturati cercano di scappare</string>    <string name="level_the_barricades_title">Le Barricate</string>    <string name="level_the_labyrinth_title">Il Labirinto</string>    <string name="level_the_tower_of_the_hermit_title">La Torre dell\'Eremita</string>    <string name="level_the_tower_of_the_hermit_subtitle">Una singola Torre per difendere il Sentiero</string>    <string name="level_the_witches_title">Le Streghe</string>    
     <!-- Map Names -->
     <string name="map_tutorial_name">Mappa Tutorial</string>
     <string name="map_straight_name">Mappa Dritta</string>
@@ -922,6 +925,11 @@
     <string name="map_the_river_name">Il Fiume</string>
     <string name="map_creek_valley_name">Valle del Ruscello</string>
     <string name="map_the_maelstrom_name">Il Maelstrom</string>
+    <string name="map_the_city_name">La Città</string>
+    <string name="map_the_prison_name">La Prigione</string>
+    <string name="map_the_single_tower_name">La Torre Solitaria</string>
+    <string name="map_the_barricades_name">Le Barricate</string>
+    <string name="map_the_labyrinth_name">Il Labirinto</string>
     
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutorial</string>
@@ -941,6 +949,9 @@
     <string name="location_the_river_name">Il Fiume</string>
     <string name="location_creek_valley_name">Valle del Ruscello</string>
     <string name="location_the_maelstrom_name">Il Maelstrom</string>
+    <string name="location_the_prison_name">La Prigione</string>
+    <string name="location_the_city_name">La Città</string>
+    <string name="location_the_tower_of_the_hermit_name">La Torre dell\'Eremita</string>
     <!-- Player Profile Strings -->
     <string name="player_create_title">Crea nuovo giocatore</string>
     <string name="player_create_prompt">Inserisci il tuo nome giocatore</string>
