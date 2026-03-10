@@ -50,15 +50,24 @@ fun Application.configureDatabase(): DataSource? {
 
 private fun runLiquibaseMigrations(dataSource: DataSource) {
     dbLogger.info("Running Liquibase migrations...")
-    dataSource.connection.use { connection ->
-        val database = DatabaseFactory.getInstance()
-            .findCorrectDatabaseImplementation(JdbcConnection(connection))
-        val liquibase = Liquibase(
-            "db/changelog/db.changelog-master.xml",
-            ClassLoaderResourceAccessor(),
-            database
-        )
-        liquibase.update("") // empty string means apply all pending changesets up to the latest
+    // Save and restore the thread context classloader to prevent Liquibase from
+    // corrupting it, which would cause NoClassDefFoundError for application classes
+    // on subsequent requests handled by Netty I/O threads.
+    val thread = Thread.currentThread()
+    val appClassLoader = thread.contextClassLoader
+    try {
+        dataSource.connection.use { connection ->
+            val database = DatabaseFactory.getInstance()
+                .findCorrectDatabaseImplementation(JdbcConnection(connection))
+            val liquibase = Liquibase(
+                "db/changelog/db.changelog-master.xml",
+                ClassLoaderResourceAccessor(appClassLoader),
+                database
+            )
+            liquibase.update("") // empty string means apply all pending changesets up to the latest
+        }
+    } finally {
+        thread.contextClassLoader = appClassLoader
     }
     dbLogger.info("Liquibase migrations completed.")
 }
