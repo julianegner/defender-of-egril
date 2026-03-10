@@ -1,5 +1,7 @@
 package de.egril.defender.analytics
 
+private const val PLATFORM = "DESKTOP"
+
 actual fun reportEvent(eventType: String, levelName: String?) {
-    // Desktop does not connect to the backend analytics service
+    postEventJson(eventType, levelName, PLATFORM)
 }
