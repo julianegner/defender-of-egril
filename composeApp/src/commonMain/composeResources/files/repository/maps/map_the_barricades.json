@@ -6,6 +6,7 @@
   "data": {
   "id": "map_the_barricades",
   "name": "The Barricades",
+  "nameKey": "map_the_barricades_name",
   "width": 21,
   "height": 21,
   "readyToUse": true,

@@ -128,18 +128,21 @@
     {
       "id": "the_prison",
       "name": "The Prison",
+      "nameKey": "location_the_prison_name",
       "position": {"x": 263, "y": 643},
       "levelIds": ["prison_break"]
     },
     {
       "id": "the_city",
       "name": "The City",
+      "nameKey": "location_the_city_name",
       "position": {"x": 310, "y": 617},
       "levelIds": ["defend_the_city"]
     },
     {
       "id": "the_tower_of_the_hermit",
       "name": "The Tower of the Hermit",
+      "nameKey": "location_the_tower_of_the_hermit_name",
       "position": {"x": 237, "y": 482},
       "levelIds": ["the_tower_of_the_hermit"]
     }

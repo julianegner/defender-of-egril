@@ -6,6 +6,7 @@
   "data": {
   "id": "map_the_city",
   "name": "The City",
+  "nameKey": "map_the_city_name",
   "width": 30,
   "height": 30,
   "readyToUse": true,

@@ -924,6 +924,11 @@
     <string name="map_the_river_name">Der Fluss</string>
     <string name="map_creek_valley_name">Bachtal</string>
     <string name="map_the_maelstrom_name">Der Mahlstrom</string>
+    <string name="map_the_city_name">Die Stadt</string>
+    <string name="map_the_prison_name">Das Gefängnis</string>
+    <string name="map_the_single_tower_name">Der Einzelturm</string>
+    <string name="map_the_barricades_name">Die Barrikaden</string>
+    <string name="map_the_labyrinth_name">Das Labyrinth</string>
     
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutorial</string>
@@ -943,6 +948,9 @@
     <string name="location_the_river_name">Der Fluss</string>
     <string name="location_creek_valley_name">Bachtal</string>
     <string name="location_the_maelstrom_name">Der Mahlstrom</string>
+    <string name="location_the_prison_name">Das Gefängnis</string>
+    <string name="location_the_city_name">Die Stadt</string>
+    <string name="location_the_tower_of_the_hermit_name">Der Turm des Einsiedlers</string>
     <!-- Player Profile Strings -->
     <string name="player_create_title">Neuen Spieler erstellen</string>
     <string name="player_create_prompt">Geben Sie Ihren Spielernamen ein</string>

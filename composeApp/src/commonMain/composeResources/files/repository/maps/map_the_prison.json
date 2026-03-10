@@ -6,6 +6,7 @@
   "data": {
   "id": "map_the_prison",
   "name": "The Prison",
+  "nameKey": "map_the_prison_name",
   "width": 30,
   "height": 30,
   "readyToUse": true,

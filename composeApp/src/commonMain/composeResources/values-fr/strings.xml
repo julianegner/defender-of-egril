@@ -925,6 +925,11 @@
     <string name="map_the_river_name">La Rivière</string>
     <string name="map_creek_valley_name">Vallée du Ruisseau</string>
     <string name="map_the_maelstrom_name">Le Maelström</string>
+    <string name="map_the_city_name">La Ville</string>
+    <string name="map_the_prison_name">La Prison</string>
+    <string name="map_the_single_tower_name">La Tour Solitaire</string>
+    <string name="map_the_barricades_name">Les Barricades</string>
+    <string name="map_the_labyrinth_name">Le Labyrinthe</string>
     
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutoriel</string>
@@ -944,6 +949,9 @@
     <string name="location_the_river_name">La Rivière</string>
     <string name="location_creek_valley_name">Vallée du Ruisseau</string>
     <string name="location_the_maelstrom_name">Le Maelström</string>
+    <string name="location_the_prison_name">La Prison</string>
+    <string name="location_the_city_name">La Ville</string>
+    <string name="location_the_tower_of_the_hermit_name">La Tour de l\'Ermite</string>
     <!-- Player Profile Strings -->
     <string name="player_create_title">Créer un nouveau joueur</string>
     <string name="player_create_prompt">Entrez votre nom de joueur</string>

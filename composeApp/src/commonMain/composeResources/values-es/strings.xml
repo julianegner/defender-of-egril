@@ -925,6 +925,11 @@
     <string name="map_the_river_name">El Río</string>
     <string name="map_creek_valley_name">Valle del Arroyo</string>
     <string name="map_the_maelstrom_name">La Vorágine</string>
+    <string name="map_the_city_name">La Ciudad</string>
+    <string name="map_the_prison_name">La Prisión</string>
+    <string name="map_the_single_tower_name">La Torre Solitaria</string>
+    <string name="map_the_barricades_name">Las Barricadas</string>
+    <string name="map_the_labyrinth_name">El Laberinto</string>
     
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutorial</string>
@@ -944,6 +949,9 @@
     <string name="location_the_river_name">El Río</string>
     <string name="location_creek_valley_name">Valle del Arroyo</string>
     <string name="location_the_maelstrom_name">La Vorágine</string>
+    <string name="location_the_prison_name">La Prisión</string>
+    <string name="location_the_city_name">La Ciudad</string>
+    <string name="location_the_tower_of_the_hermit_name">La Torre del Ermitaño</string>
     <!-- Player Profile Strings -->
     <string name="player_create_title">Crear nuevo jugador</string>
     <string name="player_create_prompt">Ingresa tu nombre de jugador</string>

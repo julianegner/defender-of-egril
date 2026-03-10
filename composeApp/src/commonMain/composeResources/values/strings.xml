@@ -927,6 +927,11 @@
     <string name="map_the_river_name">The River</string>
     <string name="map_creek_valley_name">Creek Valley</string>
     <string name="map_the_maelstrom_name">The Maelstrom</string>
+    <string name="map_the_city_name">The City</string>
+    <string name="map_the_prison_name">The Prison</string>
+    <string name="map_the_single_tower_name">The Single Tower</string>
+    <string name="map_the_barricades_name">The Barricades</string>
+    <string name="map_the_labyrinth_name">The Labyrinth</string>
     
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutorial</string>
@@ -946,6 +951,9 @@
     <string name="location_the_river_name">The River</string>
     <string name="location_creek_valley_name">Creek Valley</string>
     <string name="location_the_maelstrom_name">The Maelstrom</string>
+    <string name="location_the_prison_name">The Prison</string>
+    <string name="location_the_city_name">The City</string>
+    <string name="location_the_tower_of_the_hermit_name">The Tower of the Hermit</string>
     <!-- Player Profile Strings -->
     <string name="player_create_title">Create New Player</string>
     <string name="player_create_prompt">Enter your player name</string>
