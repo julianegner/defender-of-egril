@@ -9,10 +9,14 @@ package de.egril.defender.analytics
 @JsFun("(url, body) => { fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body }).catch(() => {}); }")
 private external fun postJson(url: String, body: String)
 
+private const val PLATFORM = "WEB"
+
 actual fun reportEvent(eventType: String, levelName: String?) {
     val json = buildString {
         append("{\"event\":\"")
         append(eventType)
+        append("\",\"platform\":\"")
+        append(PLATFORM)
         append("\"")
         if (levelName != null) {
             append(",\"levelName\":\"")

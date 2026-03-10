@@ -23,9 +23,9 @@ fun Application.configureRouting() {
                 return@post
             }
             val message = if (event.levelName != null) {
-                "[${event.event}] ${event.levelName}"
+                "[${event.event}] platform=${event.platform} levelName=${event.levelName}"
             } else {
-                "[${event.event}]"
+                "[${event.event}] platform=${event.platform}"
             }
             analyticsLogger.info(message)
             call.respond(HttpStatusCode.OK)

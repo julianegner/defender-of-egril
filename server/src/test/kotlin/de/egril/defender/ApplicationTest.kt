@@ -26,7 +26,7 @@ class ApplicationTest {
         }
         client.post("/api/events") {
             contentType(ContentType.Application.Json)
-            setBody("""{"event":"APP_STARTED"}""")
+            setBody("""{"event":"APP_STARTED","platform":"WEB"}""")
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
         }
@@ -39,7 +39,7 @@ class ApplicationTest {
         }
         client.post("/api/events") {
             contentType(ContentType.Application.Json)
-            setBody("""{"event":"LEVEL_STARTED","levelName":"Welcome to Egril"}""")
+            setBody("""{"event":"LEVEL_STARTED","levelName":"Welcome to Egril","platform":"WEB"}""")
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
         }
@@ -52,7 +52,7 @@ class ApplicationTest {
         }
         client.post("/api/events") {
             contentType(ContentType.Application.Json)
-            setBody("""{"event":"LEVEL_WON","levelName":"Welcome to Egril"}""")
+            setBody("""{"event":"LEVEL_WON","levelName":"Welcome to Egril","platform":"WEB"}""")
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
         }
@@ -65,7 +65,7 @@ class ApplicationTest {
         }
         client.post("/api/events") {
             contentType(ContentType.Application.Json)
-            setBody("""{"event":"LEVEL_LOST","levelName":"Welcome to Egril"}""")
+            setBody("""{"event":"LEVEL_LOST","levelName":"Welcome to Egril","platform":"WEB"}""")
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
         }
@@ -78,7 +78,7 @@ class ApplicationTest {
         }
         client.post("/api/events") {
             contentType(ContentType.Application.Json)
-            setBody("""{"event":"GAME_LEFT","levelName":"Welcome to Egril"}""")
+            setBody("""{"event":"GAME_LEFT","levelName":"Welcome to Egril","platform":"WEB"}""")
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
         }
