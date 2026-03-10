@@ -155,6 +155,10 @@ class GameViewModel {
         // Ensure EditorStorage is initialized with repository data
         de.egril.defender.editor.EditorStorage.ensureInitialized()
         
+        if (LogConfig.ENABLE_ANALYTICS_LOGGING) {
+            println("[ANALYTICS] App started")
+        }
+
         initializePlayerProfile()
         initializeWorldMap()
     }
@@ -303,6 +307,10 @@ class GameViewModel {
     }
     
     fun navigateToWorldMap() {
+        if (LogConfig.ENABLE_ANALYTICS_LOGGING && _currentScreen.value is Screen.GamePlay) {
+            val levelName = _gameState.value?.level?.name ?: "unknown"
+            println("[ANALYTICS] Game left: $levelName")
+        }
         stopTimeTracking()
         // Reload levels from disk to ensure latest changes are visible
         reloadWorldMap()
@@ -444,6 +452,10 @@ class GameViewModel {
             // Capture initial state snapshot
             initialGameStateSnapshot = createGameStateSnapshot(newGameState)
             lastSaveSnapshot = initialGameStateSnapshot
+
+            if (LogConfig.ENABLE_ANALYTICS_LOGGING) {
+                println("[ANALYTICS] Level started: ${level.name}")
+            }
             
             // Initialize achievement manager for this level
             val playerId = _currentPlayer.value?.id
@@ -857,6 +869,12 @@ class GameViewModel {
     private fun completeLevel(levelId: Int, won: Boolean) {
         val currentHP = _gameState.value?.healthPoints?.value ?: 0
         val xpEarned = _gameState.value?.xpEarnedThisLevel?.value ?: 0
+        val levelName = _gameState.value?.level?.name ?: "unknown"
+
+        if (LogConfig.ENABLE_ANALYTICS_LOGGING) {
+            val outcome = if (won) "won" else "lost"
+            println("[ANALYTICS] Level $outcome: $levelName")
+        }
 
         // Track achievement for level completion
         if (won) {
