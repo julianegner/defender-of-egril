@@ -67,12 +67,6 @@ object LogConfig {
     var ENABLE_PERFORMANCE_LOGGING = false
 
     /**
-     * Enable analytics logs for key user lifecycle events.
-     * Always-on by default: logs app start, level start, level won/lost, and game left.
-     */
-    var ENABLE_ANALYTICS_LOGGING = true
-    
-    /**
      * Enable all debug logging (useful for comprehensive debugging).
      * This overrides individual flags when set to true.
      */

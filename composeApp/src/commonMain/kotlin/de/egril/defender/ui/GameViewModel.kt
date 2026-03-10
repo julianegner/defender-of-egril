@@ -155,9 +155,7 @@ class GameViewModel {
         // Ensure EditorStorage is initialized with repository data
         de.egril.defender.editor.EditorStorage.ensureInitialized()
         
-        if (LogConfig.ENABLE_ANALYTICS_LOGGING) {
-            println("[ANALYTICS] App started")
-        }
+        de.egril.defender.analytics.reportEvent("APP_STARTED", null)
 
         initializePlayerProfile()
         initializeWorldMap()
@@ -307,9 +305,9 @@ class GameViewModel {
     }
     
     fun navigateToWorldMap() {
-        if (LogConfig.ENABLE_ANALYTICS_LOGGING && _currentScreen.value is Screen.GamePlay) {
+        if (_currentScreen.value is Screen.GamePlay) {
             val levelName = _gameState.value?.level?.name ?: "unknown"
-            println("[ANALYTICS] Game left: $levelName")
+            de.egril.defender.analytics.reportEvent("GAME_LEFT", levelName)
         }
         stopTimeTracking()
         // Reload levels from disk to ensure latest changes are visible
@@ -453,9 +451,7 @@ class GameViewModel {
             initialGameStateSnapshot = createGameStateSnapshot(newGameState)
             lastSaveSnapshot = initialGameStateSnapshot
 
-            if (LogConfig.ENABLE_ANALYTICS_LOGGING) {
-                println("[ANALYTICS] Level started: ${level.name}")
-            }
+            de.egril.defender.analytics.reportEvent("LEVEL_STARTED", level.name)
             
             // Initialize achievement manager for this level
             val playerId = _currentPlayer.value?.id
@@ -871,10 +867,7 @@ class GameViewModel {
         val xpEarned = _gameState.value?.xpEarnedThisLevel?.value ?: 0
         val levelName = _gameState.value?.level?.name ?: "unknown"
 
-        if (LogConfig.ENABLE_ANALYTICS_LOGGING) {
-            val outcome = if (won) "won" else "lost"
-            println("[ANALYTICS] Level $outcome: $levelName")
-        }
+        de.egril.defender.analytics.reportEvent(if (won) "LEVEL_WON" else "LEVEL_LOST", levelName)
 
         // Track achievement for level completion
         if (won) {
