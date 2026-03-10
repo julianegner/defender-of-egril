@@ -353,6 +353,9 @@
     <string name="save_level">Save Level</string>
     <string name="save_worldmap">Save Worldmap</string>
     <string name="worldmap_saved_success">Worldmap saved successfully.</string>
+    <string name="reset_worldmap">Reset to Previous Version</string>
+    <string name="reset_worldmap_confirm_title">Reset to Previous Version?</string>
+    <string name="reset_worldmap_confirm_message">Are you sure you want to reset the worldmap to the previously saved version? Your current changes will be lost.</string>
     <string name="save_sequence">Save Sequence</string>
     <string name="sequence_saved_success">Sequence saved successfully.</string>
     <string name="save_as_new">Save As New</string>
