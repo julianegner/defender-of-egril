@@ -6,6 +6,7 @@
   "data": {
   "id": "map_the_labyrinth",
   "name": "The Labyrinth",
+  "nameKey": "map_the_labyrinth_name",
   "width": 21,
   "height": 21,
   "readyToUse": true,

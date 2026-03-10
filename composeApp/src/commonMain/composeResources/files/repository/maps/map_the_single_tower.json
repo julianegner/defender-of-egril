@@ -6,6 +6,7 @@
   "data": {
   "id": "map_the_single_tower",
   "name": "The Single Tower",
+  "nameKey": "map_the_single_tower_name",
   "width": 30,
   "height": 8,
   "readyToUse": true,
