@@ -2,19 +2,32 @@
 
 This directory contains the local Keycloak IAM setup for development.
 
+## Quick Start (Recommended)
+
+The easiest way to start **all** local services (database, Keycloak, and backend) together is from the **project root**:
+
+```bash
+docker compose up -d
+```
+
+This single command starts:
+- **PostgreSQL** on port `5432`
+- **Keycloak** on port `8081` with the `egril` realm and `defender-of-egril` client pre-configured
+- **Backend** on port `8080`, connected to the database
+
 ## Prerequisites
 
 - [Docker](https://www.docker.com/) and Docker Compose
-- [Terraform](https://www.terraform.io/) (for applying realm/client configuration)
 
-## Starting Keycloak
+## Starting Keycloak Only
 
 ```bash
 cd local-keycloak
 docker compose up -d
 ```
 
-Keycloak will start on **http://localhost:8081**.
+Keycloak will start on **http://localhost:8081** and automatically import the `egril` realm
+(including the `defender-of-egril` client) on first startup.
 
 Admin console: http://localhost:8081/admin  
 Default credentials: `admin` / `admin`
@@ -25,15 +38,26 @@ Default credentials: `admin` / `admin`
 docker compose down
 ```
 
-## Applying Terraform Configuration
+## Realm and Client
 
-The `terraform/` directory contains scripts that create:
-- Realm **egril**
-- Client **defender-of-egril** (public OIDC client with PKCE support)
+The realm `egril` and the client `defender-of-egril` are automatically created when Keycloak
+starts, by importing `egril-realm.json`. No manual Terraform steps are needed for local development.
+
+After startup you can register test user accounts in the Keycloak admin console:
+
+1. Go to http://localhost:8081/admin
+2. Log in with `admin` / `admin`
+3. Select the **egril** realm
+4. Go to **Users** → **Add user**
+5. Fill in username and click **Save**
+6. Go to the **Credentials** tab and set a password
+
+## Terraform (Optional / Production)
+
+The `terraform/` directory contains an optional Terraform script that can be used to configure
+a remote Keycloak instance. It creates the same realm and client as the JSON import above.
 
 ### Requirements
-
-Install the Terraform Keycloak provider:
 
 ```bash
 cd local-keycloak/terraform
@@ -42,16 +66,16 @@ terraform init
 
 ### Apply
 
-Make sure Keycloak is running and healthy, then:
-
 ```bash
 cd local-keycloak/terraform
 terraform apply
 ```
 
-Type `yes` when prompted.
+Type `yes` when prompted. Override `keycloak_url` for a non-local deployment:
 
-This creates the realm and client automatically. You can then register user accounts in the Keycloak admin console at http://localhost:8081/admin.
+```bash
+terraform apply -var="keycloak_url=https://your-keycloak.example.com"
+```
 
 ### Destroy (reset to defaults)
 

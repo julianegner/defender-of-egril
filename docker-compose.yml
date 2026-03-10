@@ -1,0 +1,71 @@
+# Unified local development environment for Defender of Egril.
+# Starts the PostgreSQL database, Keycloak IAM, and the backend server.
+#
+# Usage:
+#   docker compose up -d          # start all services
+#   docker compose down           # stop all services
+#   docker compose down -v        # stop and remove all stored data
+#
+# Service URLs after startup:
+#   Backend API:  http://localhost:8080
+#   Keycloak:     http://localhost:8081  (admin / admin)
+#   PostgreSQL:   localhost:5432         (defender / defender)
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: defender-of-egril-db
+    environment:
+      POSTGRES_DB: defenderofegril
+      POSTGRES_USER: defender
+      POSTGRES_PASSWORD: defender
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U defender -d defenderofegril"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: defender-of-egril-keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./local-keycloak/egril-realm.json:/opt/keycloak/data/import/egril-realm.json:ro
+    command: start-dev --import-realm
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health/ready || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  backend:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    container_name: defender-of-egril-backend
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: defenderofegril
+      DB_USER: defender
+      DB_PASSWORD: defender
+      IAM_BASE_URL: http://keycloak:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
