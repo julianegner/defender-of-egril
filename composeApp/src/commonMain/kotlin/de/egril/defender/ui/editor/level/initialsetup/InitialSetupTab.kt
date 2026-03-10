@@ -53,6 +53,10 @@ fun InitialSetupTab(
     var trapDamage by remember { mutableStateOf(10) }
     
     var barricadeHealthPoints by remember { mutableStateOf(10) }
+    var barricadeName by remember { mutableStateOf("") }
+    var barricadeIsGate by remember { mutableStateOf(false) }
+    
+    var editBarricadeIndex by remember { mutableStateOf<Int?>(null) }  // Index of barricade being edited
     
     var selectedElement by remember { mutableStateOf<SelectedElement?>(null) }
     
@@ -97,11 +101,14 @@ fun InitialSetupTab(
                             when (placementMode) {
                                 PlacementMode.DEFENDER -> {
                                     if (canPlaceDefender(position, initialData, map)) {
+                                        val barricadeAtPosition = initialData.barricades.find { it.position == position }
+                                        val isOnTowerBase = barricadeAtPosition?.canSupportTower() == true
                                         val newDefender = InitialDefender(
                                             type = selectedDefenderType,
                                             position = position,
                                             level = selectedDefenderLevel,
-                                            dragonName = if (selectedDefenderType == DefenderType.DRAGONS_LAIR && dragonName.isNotBlank()) dragonName else null
+                                            dragonName = if (selectedDefenderType == DefenderType.DRAGONS_LAIR && dragonName.isNotBlank()) dragonName else null,
+                                            onTowerBase = isOnTowerBase
                                         )
                                         onInitialDataChange(initialData.copy(defenders = initialData.defenders + newDefender))
                                     }
@@ -129,10 +136,17 @@ fun InitialSetupTab(
                                     }
                                 }
                                 PlacementMode.BARRICADE -> {
-                                    if (canPlaceBarricade(position, initialData, map)) {
+                                    // Check if there's already a barricade at this position
+                                    val existingIndex = initialData.barricades.indexOfFirst { it.position == position }
+                                    if (existingIndex >= 0) {
+                                        // Edit existing barricade
+                                        editBarricadeIndex = existingIndex
+                                    } else if (canPlaceBarricade(position, initialData, map)) {
                                         val newBarricade = InitialBarricade(
                                             position = position,
-                                            healthPoints = barricadeHealthPoints
+                                            healthPoints = barricadeHealthPoints,
+                                            name = barricadeName.takeIf { it.isNotBlank() },
+                                            isGate = barricadeIsGate
                                         )
                                         onInitialDataChange(initialData.copy(barricades = initialData.barricades + newBarricade))
                                     }
@@ -181,6 +195,10 @@ fun InitialSetupTab(
             onTrapDamageChange = { trapDamage = it },
             barricadeHealthPoints = barricadeHealthPoints,
             onBarricadeHealthPointsChange = { barricadeHealthPoints = it },
+            barricadeName = barricadeName,
+            onBarricadeNameChange = { barricadeName = it },
+            barricadeIsGate = barricadeIsGate,
+            onBarricadeIsGateChange = { barricadeIsGate = it },
             availableTowers = availableTowers,
             initialData = initialData,
             onRemoveDefender = { index ->
@@ -211,6 +229,87 @@ fun InitialSetupTab(
             onSelectedElementChange = { selectedElement = it }
         )
     }
+
+    // Edit barricade dialog – opens when clicking an existing barricade in BARRICADE placement mode
+    editBarricadeIndex?.let { editIdx ->
+        val barricade = initialData.barricades.getOrNull(editIdx)
+        if (barricade != null) {
+            var editHP by remember(editIdx) { mutableStateOf(barricade.healthPoints.toString()) }
+            var editName by remember(editIdx) { mutableStateOf(barricade.name ?: "") }
+            var editIsGate by remember(editIdx) { mutableStateOf(barricade.isGate) }
+            AlertDialog(
+                onDismissRequest = { editBarricadeIndex = null },
+                title = { Text(stringResource(Res.string.barricade_configuration)) },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(
+                            value = editHP,
+                            onValueChange = { editHP = it },
+                            label = { Text(stringResource(Res.string.health_points)) },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true
+                        )
+                        OutlinedTextField(
+                            value = editName,
+                            onValueChange = { editName = it },
+                            label = { Text(stringResource(Res.string.barricade_name_label)) },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true
+                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.is_gate_label),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Switch(checked = editIsGate, onCheckedChange = { editIsGate = it })
+                        }
+                        val editHPValue = editHP.toIntOrNull() ?: 0
+                        if (editHPValue >= InitialBarricade.TOWER_BASE_MIN_HP) {
+                            Card(
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                                )
+                            ) {
+                                Text(
+                                    text = stringResource(Res.string.barricade_tower_base_hint),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    modifier = Modifier.padding(8.dp)
+                                )
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    Button(onClick = {
+                        val hp = editHP.toIntOrNull()?.coerceIn(1, 9999) ?: barricade.healthPoints
+                        val updated = barricade.copy(
+                            healthPoints = hp,
+                            name = editName.takeIf { it.isNotBlank() },
+                            isGate = editIsGate
+                        )
+                        val newList = initialData.barricades.toMutableList()
+                        newList[editIdx] = updated
+                        onInitialDataChange(initialData.copy(barricades = newList))
+                        editBarricadeIndex = null
+                    }) {
+                        Text(stringResource(Res.string.ok))
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = { editBarricadeIndex = null }) {
+                        Text(stringResource(Res.string.cancel))
+                    }
+                }
+            )
+        } else {
+            editBarricadeIndex = null
+        }
+    }
 }
 
 /**
@@ -236,11 +335,21 @@ private fun canPlaceDefender(
     initialData: InitialData,
     map: EditorMap
 ): Boolean {
-    // Must be valid tile type for defenders
-    if (!isValidPlacement(position, PlacementMode.DEFENDER, map)) {
+    // Check if there's a barricade with HP >= 100 at this position (tower base)
+    val barricadeAtPosition = initialData.barricades.find { it.position == position }
+    val isOnTowerBase = barricadeAtPosition?.canSupportTower() == true
+
+    // Must be valid tile type for defenders, OR be on a tower base
+    if (!isOnTowerBase && !isValidPlacement(position, PlacementMode.DEFENDER, map)) {
         return false
     }
-    // Must not be occupied by any element
+
+    // On a tower base: only check that no defender is already placed there
+    if (isOnTowerBase) {
+        return initialData.defenders.none { it.position == position }
+    }
+
+    // On a regular BUILD_AREA: must not be occupied by any element
     return !isPositionOccupied(position, initialData)
 }
 

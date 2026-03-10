@@ -12,10 +12,14 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.IntSize
 import de.egril.defender.editor.EditorMap
+import de.egril.defender.editor.EditorTargetInfo
 import de.egril.defender.editor.TileType
 import de.egril.defender.model.Position
+import de.egril.defender.model.RiverTile
+import de.egril.defender.model.TargetType
 import de.egril.defender.ui.hexagon.BaseGridCell
 import de.egril.defender.ui.hexagon.HexagonMinimapFromEditorMap
 import de.egril.defender.ui.hexagon.HexagonalMapConfig
@@ -28,7 +32,6 @@ import de.egril.defender.ui.editor.getTileColor
 import de.egril.defender.ui.editor.RiverFlowIndicator
 import de.egril.defender.utils.screenToHexGridPosition
 import com.hyperether.resources.stringResource
-import de.egril.defender.model.RiverTile
 import de.egril.defender.ui.icon.InfoIcon
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -54,9 +57,13 @@ fun MapEditorView(
 ) {
     var tiles by remember { mutableStateOf(map.tiles.toMutableMap()) }
     var riverTiles by remember { mutableStateOf(map.riverTiles.toMutableMap()) }
+    var targetInfoMap by remember { mutableStateOf(map.targetInfoMap.toMutableMap()) }
     var selectedTileType by remember { mutableStateOf(TileType.PATH) }
     var selectedRiverFlow by remember { mutableStateOf(de.egril.defender.model.RiverFlow.EAST) }
     var selectedRiverSpeed by remember { mutableStateOf(1) }
+    var selectedTargetName by remember { mutableStateOf("") }
+    var selectedTargetType by remember { mutableStateOf(TargetType.STANDARD) }
+    var editTargetKey by remember { mutableStateOf<String?>(null) }  // Key of a tile being edited in the inline dialog
     var mapName by remember { mutableStateOf(map.name) }
     var mapAuthor by remember { mutableStateOf(map.author) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
@@ -73,8 +80,8 @@ fun MapEditorView(
     var actualContentSize by remember { mutableStateOf(IntSize.Zero) }
     
     // Create updated map for minimap that reflects current tiles state
-    val currentMap = remember(tiles, riverTiles) {
-        map.copy(tiles = tiles.toMap(), riverTiles = riverTiles.toMap())
+    val currentMap = remember(tiles, riverTiles, targetInfoMap) {
+        map.copy(tiles = tiles.toMap(), riverTiles = riverTiles.toMap(), targetInfoMap = targetInfoMap.toMap())
     }
     
     // Hexagon dimensions - using same constants as game (40.dp)
@@ -106,6 +113,17 @@ fun MapEditorView(
             } else {
                 // Remove river data if not a river tile
                 riverTiles = riverTiles.toMutableMap().apply {
+                    remove(key)
+                }
+            }
+
+            // Update target info map
+            if (selectedTileType == TileType.TARGET) {
+                targetInfoMap = targetInfoMap.toMutableMap().apply {
+                    this[key] = EditorTargetInfo(name = selectedTargetName, type = selectedTargetType)
+                }
+            } else {
+                targetInfoMap = targetInfoMap.toMutableMap().apply {
                     remove(key)
                 }
             }
@@ -184,23 +202,39 @@ fun MapEditorView(
                         borderColor = Color.Black,
                         borderWidth = 1.5.dp,
                         onClick = {
-                            tiles = tiles.toMutableMap().apply {
-                                this[key] = selectedTileType
-                            }
-                            
-                            // If painting a river tile, add river data
-                            if (selectedTileType == TileType.RIVER) {
-                                riverTiles = riverTiles.toMutableMap().apply {
-                                    this[key] = RiverTile(
-                                        position = position,
-                                        flowDirection = selectedRiverFlow,
-                                        flowSpeed = selectedRiverSpeed
-                                    )
-                                }
+                            if (selectedTileType == TileType.TARGET && tileType == TileType.TARGET) {
+                                // Clicking an already-TARGET tile while in TARGET mode opens edit dialog
+                                editTargetKey = key
                             } else {
-                                // Remove river data if not a river tile
-                                riverTiles = riverTiles.toMutableMap().apply {
-                                    remove(key)
+                                tiles = tiles.toMutableMap().apply {
+                                    this[key] = selectedTileType
+                                }
+                                
+                                // If painting a river tile, add river data
+                                if (selectedTileType == TileType.RIVER) {
+                                    riverTiles = riverTiles.toMutableMap().apply {
+                                        this[key] = RiverTile(
+                                            position = position,
+                                            flowDirection = selectedRiverFlow,
+                                            flowSpeed = selectedRiverSpeed
+                                        )
+                                    }
+                                } else {
+                                    // Remove river data if not a river tile
+                                    riverTiles = riverTiles.toMutableMap().apply {
+                                        remove(key)
+                                    }
+                                }
+
+                                // Update target info map
+                                if (selectedTileType == TileType.TARGET) {
+                                    targetInfoMap = targetInfoMap.toMutableMap().apply {
+                                        this[key] = EditorTargetInfo(name = selectedTargetName, type = selectedTargetType)
+                                    }
+                                } else {
+                                    targetInfoMap = targetInfoMap.toMutableMap().apply {
+                                        remove(key)
+                                    }
                                 }
                             }
                         },
@@ -215,6 +249,16 @@ fun MapEditorView(
                                 color = Color.White
                             )
                             
+                            // Show target name if this is a target tile
+                            val targetInfo = targetInfoMap[key]
+                            if (tileType == TileType.TARGET && targetInfo != null && targetInfo.name.isNotBlank()) {
+                                Text(
+                                    text = targetInfo.name,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color.Yellow
+                                )
+                            }
+
                             // Show river flow indicator if this is a river tile
                             if (tileType == TileType.RIVER && riverTile != null) {
                                 RiverFlowIndicator(
@@ -347,7 +391,8 @@ fun MapEditorView(
                             name = mapName,
                             author = mapAuthor,
                             tiles = tiles.toMap(),
-                            riverTiles = riverTiles.toMap()
+                            riverTiles = riverTiles.toMap(),
+                            targetInfoMap = targetInfoMap.toMap()
                         )
                         // Validate and set readyToUse flag
                         val validatedMap = updatedMap.copy(readyToUse = updatedMap.validateReadyToUse())
@@ -393,7 +438,11 @@ fun MapEditorView(
             onZoomOut = { zoomLevel = maxOf(0.5f, zoomLevel - 0.1f) },
             onChangeAllNoPlayToPath = { showChangeAllDialog = true },
             isExpanded = isHeaderExpanded,
-            onToggleExpanded = { isHeaderExpanded = !isHeaderExpanded }
+            onToggleExpanded = { isHeaderExpanded = !isHeaderExpanded },
+            selectedTargetName = selectedTargetName,
+            onTargetNameChange = { selectedTargetName = it },
+            selectedTargetType = selectedTargetType,
+            onTargetTypeChange = { selectedTargetType = it }
         )
     }
     
@@ -414,6 +463,7 @@ fun MapEditorView(
                     author = mapAuthor,
                     tiles = tiles.toMap(),
                     riverTiles = riverTiles.toMap(),
+                    targetInfoMap = targetInfoMap.toMap(),
                     isOfficial = false  // Save as new always creates a user map
                 )
                 // Validate and set readyToUse flag
@@ -443,6 +493,64 @@ fun MapEditorView(
                     }
                 }
                 showChangeAllDialog = false
+            }
+        )
+    }
+
+    // Edit target dialog - opens when clicking an existing TARGET tile while in TARGET mode
+    editTargetKey?.let { editKey ->
+        val existingInfo = targetInfoMap[editKey]
+        var editName by remember(editKey) { mutableStateOf(existingInfo?.name ?: "") }
+        var editType by remember(editKey) { mutableStateOf(existingInfo?.type ?: TargetType.STANDARD) }
+        AlertDialog(
+            onDismissRequest = { editTargetKey = null },
+            title = { Text(stringResource(Res.string.target_name_label)) },
+            text = {
+                Column(verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = editName,
+                        onValueChange = { editName = it },
+                        label = { Text(stringResource(Res.string.target_name_label)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+                    Text(stringResource(Res.string.target_type_label), style = MaterialTheme.typography.bodyMedium)
+                    Row(horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(4.dp)) {
+                        TargetType.entries.forEach { type ->
+                            val label = when (type) {
+                                TargetType.STANDARD -> stringResource(Res.string.target_type_standard)
+                                TargetType.SINGLE_HIT -> stringResource(Res.string.target_type_single_hit)
+                            }
+                            Button(
+                                onClick = { editType = type },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (editType == type)
+                                        MaterialTheme.colorScheme.primary
+                                    else
+                                        MaterialTheme.colorScheme.secondary
+                                ),
+                                modifier = Modifier.height(36.dp)
+                            ) {
+                                Text(label, fontSize = 11.sp)
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = {
+                    targetInfoMap = targetInfoMap.toMutableMap().apply {
+                        this[editKey] = EditorTargetInfo(name = editName, type = editType)
+                    }
+                    editTargetKey = null
+                }) {
+                    Text(stringResource(Res.string.ok))
+                }
+            },
+            dismissButton = {
+                Button(onClick = { editTargetKey = null }) {
+                    Text(stringResource(Res.string.cancel))
+                }
             }
         )
     }

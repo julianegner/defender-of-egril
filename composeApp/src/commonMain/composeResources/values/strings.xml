@@ -351,6 +351,13 @@
     <string name="create">Create</string>
     <string name="save_map">Save Map</string>
     <string name="save_level">Save Level</string>
+    <string name="save_worldmap">Save Worldmap</string>
+    <string name="worldmap_saved_success">Worldmap saved successfully.</string>
+    <string name="reset_worldmap">Reset to Previous Version</string>
+    <string name="reset_worldmap_confirm_title">Reset to Previous Version?</string>
+    <string name="reset_worldmap_confirm_message">Are you sure you want to reset the worldmap to the previously saved version? Your current changes will be lost.</string>
+    <string name="save_sequence">Save Sequence</string>
+    <string name="sequence_saved_success">Sequence saved successfully.</string>
     <string name="save_as_new">Save As New</string>
     <string name="map_name">Map Name</string>
     <string name="level_title">Level Title</string>
@@ -901,7 +908,7 @@
     <string name="level_the_winding_path_title">The Winding Path</string>
     <string name="level_the_winding_path_subtitle">A Long and Twisting Road</string>        <string name="level_the_fortress_title">The Fortress %s</string>
     <string name="level_the_fortress_1_first_attacks_subtitle">First Attacks</string>    <string name="level_the_fortress_2_orks_marching_subtitle">The Orks are Marching</string>    <string name="level_the_fortress_3_necromancer_subtitle">The Necromancer</string>    <string name="level_the_fortress_4_magic_assault_subtitle">Magic Assault</string>    <string name="level_the_fortress_5_mighty_forces_subtitle">Mighty Forces</string>
-    <string name="level_ewhads_challenge_title">Ewhad\'s Challenge</string>    <string name="level_the_creek_title">The Creek</string>    <string name="level_the_island_title">The Island</string>    <string name="level_the_river_title">The River</string>    <string name="level_creek_valley_title">Creek Valley</string>    <string name="level_maelstrom_title">Maelstrom</string>    
+    <string name="level_ewhads_challenge_title">Ewhad\'s Challenge</string>    <string name="level_the_creek_title">The Creek</string>    <string name="level_the_island_title">The Island</string>    <string name="level_the_river_title">The River</string>    <string name="level_creek_valley_title">Creek Valley</string>    <string name="level_maelstrom_title">Maelstrom</string>    <string name="level_defend_the_city_title">Defend the City</string>    <string name="level_prison_break_title">Prison Break</string>    <string name="level_prison_break_subtitle">Captured Goblins try to escape</string>    <string name="level_the_barricades_title">The Barricades</string>    <string name="level_the_labyrinth_title">The Labyrinth</string>    <string name="level_the_tower_of_the_hermit_title">The Tower of the Hermit</string>    <string name="level_the_tower_of_the_hermit_subtitle">A single Tower to defend the Path</string>    <string name="level_the_witches_title">The Witches</string>    
     <!-- Map Names -->
     <string name="map_tutorial_name">Tutorial Map</string>
     <string name="map_straight_name">Straight Map</string>
@@ -920,6 +927,11 @@
     <string name="map_the_river_name">The River</string>
     <string name="map_creek_valley_name">Creek Valley</string>
     <string name="map_the_maelstrom_name">The Maelstrom</string>
+    <string name="map_the_city_name">The City</string>
+    <string name="map_the_prison_name">The Prison</string>
+    <string name="map_the_single_tower_name">The Single Tower</string>
+    <string name="map_the_barricades_name">The Barricades</string>
+    <string name="map_the_labyrinth_name">The Labyrinth</string>
     
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutorial</string>
@@ -939,6 +951,9 @@
     <string name="location_the_river_name">The River</string>
     <string name="location_creek_valley_name">Creek Valley</string>
     <string name="location_the_maelstrom_name">The Maelstrom</string>
+    <string name="location_the_prison_name">The Prison</string>
+    <string name="location_the_city_name">The City</string>
+    <string name="location_the_tower_of_the_hermit_name">The Tower of the Hermit</string>
     <!-- Player Profile Strings -->
     <string name="player_create_title">Create New Player</string>
     <string name="player_create_prompt">Enter your player name</string>
@@ -1191,7 +1206,7 @@
     <string name="keyboard_shortcut_pan_left">Pan map left</string>
     <string name="keyboard_shortcut_pan_right">Pan map right</string>
     <string name="keyboard_shortcuts_note">Note: Keyboard shortcuts are available on desktop only.</string>
-    
+
     <!-- License Info -->
     <string name="license_info_title">License Information</string>
     <string name="license_github_project_title">GitHub Project</string>
@@ -1437,4 +1452,40 @@
     <string name="instant_tower_spell_abort_confirm">Abort Spell</string>
     <string name="instant_tower_spell_abort_cancel">Continue Placing Tower</string>
 
+    <!-- single target, target and gate names -->
+    <string name="target_taken_title">Target Captured!</string>
+    <string name="target_taken_message_named">%1$s has been captured by the enemy!</string>
+    <string name="target_taken_message_unnamed">A target position has been captured by the enemy!</string>
+    <string name="gate_destroyed_title">Gate Destroyed!</string>
+    <string name="gate_destroyed_message_named">%1$s has been destroyed!</string>
+    <string name="gate_destroyed_message_unnamed">A gate has been destroyed!</string>
+    <string name="target_type_label">Target Type</string>
+    <string name="target_type_standard">Standard</string>
+    <string name="target_type_single_hit">Single Hit</string>
+    <string name="target_name_label">Target Name (optional)</string>
+    <string name="barricade_name_label">Barricade Name (optional)</string>
+    <string name="is_gate_label">Is Gate</string>
+    <string name="barricade_tower_base_hint">Barricades with 100+ HP can serve as a tower base</string>
+    <!-- Standard target display names (may contain \n for multi-line tile display) -->
+    <string name="target_name_marketplace">Market-\nplace</string>
+    <string name="target_name_townhall">Town-\nhall</string>
+    <string name="target_name_storehouse">Store-\nhouse</string>
+    <string name="target_name_guildhouse">Guild-\nhouse</string>
+    <!-- Standard gate display names -->
+    <string name="gate_name_north_gate">North\nGate</string>
+    <string name="gate_name_east_gate">East\nGate</string>
+    <string name="gate_name_south_gate">South\nGate</string>
+    <string name="gate_name_west_gate">West\nGate</string>
+    <!-- Barricade info panel -->
+    <string name="barricade_info_description">Barricades block enemy movement. Enemies attack them when adjacent. Build or reinforce them with Spike or Spear towers.</string>
+    <string name="gate_info_description">A gate guards the entrance. Enemies will attack and try to break through. Defend it to keep the path blocked.</string>
+    <string name="barricade_info_panel_title">Barricade</string>
+    <string name="gate_info_panel_title">Gate</string>
+    <!-- Ewhad narrative messages -->
+    <string name="ewhad_enters_title">Ewhad enters the battlefield</string>
+    <string name="ewhad_enters_text">Ewhad has entered the Battlefield! Beware, he spawns Demons every Turn, which will be increasingly powerful.</string>
+    <string name="ewhad_retreats_title">Ewhad retreats</string>
+    <string name="ewhad_retreats_text">You have forced Ewhad to retreat!</string>
+    <string name="ewhad_defeated_title">Ewhad is defeated</string>
+    <string name="ewhad_defeated_text">You defeated Ewhad! Now finish off the other Enemies and Win the Game!</string>
 </resources>

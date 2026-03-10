@@ -347,6 +347,13 @@
     <string name="create">Crear</string>
     <string name="save_map">Guardar mapa</string>
     <string name="save_level">Guardar nivel</string>
+    <string name="save_worldmap">Guardar mapa mundial</string>
+    <string name="worldmap_saved_success">Mapa mundial guardado correctamente.</string>
+    <string name="reset_worldmap">Restablecer versión anterior</string>
+    <string name="reset_worldmap_confirm_title">¿Restablecer versión anterior?</string>
+    <string name="reset_worldmap_confirm_message">¿Está seguro de que desea restablecer el mapa mundial a la versión guardada anteriormente? Los cambios actuales se perderán.</string>
+    <string name="save_sequence">Guardar secuencia</string>
+    <string name="sequence_saved_success">Secuencia guardada correctamente.</string>
     <string name="save_as_new">Guardar como nuevo</string>
     <string name="map_name">Nombre del mapa</string>
     <string name="level_title">Título del nivel</string>
@@ -899,7 +906,7 @@
     <string name="level_the_winding_path_title">El Camino Sinuoso</string>
     <string name="level_the_winding_path_subtitle">Un Camino Largo y Tortuoso</string>        <string name="level_the_fortress_title">La Fortaleza %s</string>
     <string name="level_the_fortress_1_first_attacks_subtitle">Primeros Ataques</string>    <string name="level_the_fortress_2_orks_marching_subtitle">Los Orks Están Marchando</string>    <string name="level_the_fortress_3_necromancer_subtitle">El Nigromante</string>    <string name="level_the_fortress_4_magic_assault_subtitle">Asalto Mágico</string>    <string name="level_the_fortress_5_mighty_forces_subtitle">Fuerzas Poderosas</string>
-    <string name="level_ewhads_challenge_title">Desafío de Ewhad</string>    <string name="level_the_creek_title">El Arroyo</string>    <string name="level_the_island_title">La Isla</string>    <string name="level_the_river_title">El Río</string>    <string name="level_creek_valley_title">Valle del Arroyo</string>    <string name="level_maelstrom_title">Vorágine</string>    
+    <string name="level_ewhads_challenge_title">Desafío de Ewhad</string>    <string name="level_the_creek_title">El Arroyo</string>    <string name="level_the_island_title">La Isla</string>    <string name="level_the_river_title">El Río</string>    <string name="level_creek_valley_title">Valle del Arroyo</string>    <string name="level_maelstrom_title">Vorágine</string>    <string name="level_defend_the_city_title">Defiende la Ciudad</string>    <string name="level_prison_break_title">Fuga de la Prisión</string>    <string name="level_prison_break_subtitle">Trasgos capturados intentan escapar</string>    <string name="level_the_barricades_title">Las Barricadas</string>    <string name="level_the_labyrinth_title">El Laberinto</string>    <string name="level_the_tower_of_the_hermit_title">La Torre del Ermitaño</string>    <string name="level_the_tower_of_the_hermit_subtitle">Una sola Torre para defender el Camino</string>    <string name="level_the_witches_title">Las Brujas</string>    
     <!-- Map Names -->
     <string name="map_tutorial_name">Mapa Tutorial</string>
     <string name="map_straight_name">Mapa Recto</string>
@@ -918,6 +925,11 @@
     <string name="map_the_river_name">El Río</string>
     <string name="map_creek_valley_name">Valle del Arroyo</string>
     <string name="map_the_maelstrom_name">La Vorágine</string>
+    <string name="map_the_city_name">La Ciudad</string>
+    <string name="map_the_prison_name">La Prisión</string>
+    <string name="map_the_single_tower_name">La Torre Solitaria</string>
+    <string name="map_the_barricades_name">Las Barricadas</string>
+    <string name="map_the_labyrinth_name">El Laberinto</string>
     
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutorial</string>
@@ -937,6 +949,9 @@
     <string name="location_the_river_name">El Río</string>
     <string name="location_creek_valley_name">Valle del Arroyo</string>
     <string name="location_the_maelstrom_name">La Vorágine</string>
+    <string name="location_the_prison_name">La Prisión</string>
+    <string name="location_the_city_name">La Ciudad</string>
+    <string name="location_the_tower_of_the_hermit_name">La Torre del Ermitaño</string>
     <!-- Player Profile Strings -->
     <string name="player_create_title">Crear nuevo jugador</string>
     <string name="player_create_prompt">Ingresa tu nombre de jugador</string>
@@ -1189,7 +1204,7 @@
     <string name="keyboard_shortcut_pan_left">Desplazar mapa hacia la izquierda</string>
     <string name="keyboard_shortcut_pan_right">Desplazar mapa hacia la derecha</string>
     <string name="keyboard_shortcuts_note">Nota: Los atajos de teclado solo están disponibles en escritorio.</string>
-    
+
     <!-- License Info -->
     <string name="license_info_title">Información de Licencia</string>
     <string name="license_github_project_title">Proyecto de GitHub</string>
@@ -1432,4 +1447,40 @@
     <string name="instant_tower_spell_abort_confirm">Cancelar hechizo</string>
     <string name="instant_tower_spell_abort_cancel">Continuar colocando torre</string>
 
+    <!-- single target, target and gate names -->
+    <string name="target_taken_title">¡Objetivo capturado!</string>
+    <string name="target_taken_message_named">¡%1$s ha sido capturado por el enemigo!</string>
+    <string name="target_taken_message_unnamed">¡Una posición objetivo ha sido capturada por el enemigo!</string>
+    <string name="gate_destroyed_title">¡Puerta destruida!</string>
+    <string name="gate_destroyed_message_named">¡%1$s ha sido destruida!</string>
+    <string name="gate_destroyed_message_unnamed">¡Una puerta ha sido destruida!</string>
+    <string name="target_type_label">Tipo de objetivo</string>
+    <string name="target_type_standard">Estándar</string>
+    <string name="target_type_single_hit">Golpe único</string>
+    <string name="target_name_label">Nombre del objetivo (opcional)</string>
+    <string name="barricade_name_label">Nombre de la barricada (opcional)</string>
+    <string name="is_gate_label">Es puerta</string>
+    <string name="barricade_tower_base_hint">Las barricadas con 100+ PS pueden servir como base de torre</string>
+    <!-- Nombres estándar de objetivos (pueden contener \n para mostrar en varias líneas) -->
+    <string name="target_name_marketplace">Mer-\ncado</string>
+    <string name="target_name_townhall">Ayunta-\nmiento</string>
+    <string name="target_name_storehouse">Alma-\ncén</string>
+    <string name="target_name_guildhouse">Sala del\nGremio</string>
+    <!-- Nombres estándar de puertas -->
+    <string name="gate_name_north_gate">Puerta\nNorte</string>
+    <string name="gate_name_east_gate">Puerta\nEste</string>
+    <string name="gate_name_south_gate">Puerta\nSur</string>
+    <string name="gate_name_west_gate">Puerta\nOeste</string>
+    <!-- Panel de información de barricada -->
+    <string name="barricade_info_description">Las barricadas bloquean el movimiento enemigo. Los enemigos las atacan cuando están adyacentes. Constrúyelas o refuérzalas con torres de pica o lanza.</string>
+    <string name="gate_info_description">Una puerta guarda la entrada. Los enemigos la atacarán e intentarán abrirse paso. Defiéndela para mantener el camino bloqueado.</string>
+    <string name="barricade_info_panel_title">Barricada</string>
+    <string name="gate_info_panel_title">Puerta</string>
+    <!-- Ewhad narrative messages -->
+    <string name="ewhad_enters_title">Ewhad entra al campo de batalla</string>
+    <string name="ewhad_enters_text">¡Ewhad ha entrado al campo de batalla! Cuidado, invoca Demonios cada Turno, que serán cada vez más poderosos.</string>
+    <string name="ewhad_retreats_title">Ewhad se retira</string>
+    <string name="ewhad_retreats_text">¡Has forzado a Ewhad a retirarse!</string>
+    <string name="ewhad_defeated_title">Ewhad es derrotado</string>
+    <string name="ewhad_defeated_text">¡Derrotaste a Ewhad! ¡Ahora acaba con los demás Enemigos y gana el juego!</string>
 </resources>

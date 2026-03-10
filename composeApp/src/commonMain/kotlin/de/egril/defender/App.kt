@@ -85,7 +85,8 @@ fun App() {
         val showSpellTargetConfirmation by viewModel.showSpellTargetConfirmation.collectAsState()
         val showFreezeImmuneWarning by viewModel.showFreezeImmuneWarning.collectAsState()
         val pendingScrollToPosition by viewModel.pendingScrollToPosition.collectAsState()
-        
+        val pendingGameMessage by viewModel.pendingGameMessage.collectAsState()
+
         // Show player selection dialog if needed
         var showPlayerSelection by remember { mutableStateOf(false) }
         var showCreatePlayer by remember { mutableStateOf(false) }
@@ -268,7 +269,7 @@ fun App() {
                     )
                 }
             }
-            
+
             is Screen.StatsUpgrade -> {
                 currentPlayer?.let { profile ->
                     AbilitiesUpgradeScreen(
@@ -346,7 +347,7 @@ fun App() {
                         onCastSpell = { spell -> viewModel.setPendingSpell(spell) },
                         onCancelInstantTowerSpell = { viewModel.cancelInstantTowerSpell() },
                         pendingSpellCast = pendingSpellCast,
-                        onConfirmSpellCast = { 
+                        onConfirmSpellCast = {
                             viewModel.pendingSpellCast.value?.let { spell ->
                                 viewModel.castSpell(spell)
                             }
@@ -361,7 +362,9 @@ fun App() {
                         showFreezeImmuneWarning = showFreezeImmuneWarning,
                         onDismissFreezeWarning = { viewModel.dismissFreezeImmuneWarning() },
                         scrollToPosition = pendingScrollToPosition,
-                        onScrollToPositionConsumed = { viewModel.clearPendingScrollPosition() }
+                        onScrollToPositionConsumed = { viewModel.clearPendingScrollPosition() },
+                        pendingGameMessage = pendingGameMessage,
+                        onDismissGameMessage = { viewModel.dismissGameMessage() }
                     )
                 }
             }

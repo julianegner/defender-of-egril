@@ -1,0 +1,67 @@
+{
+  "metadata": {
+    "program": "Defender of Egril",
+    "type": "level"
+  },
+  "data": {
+  "id": "the_tower_of_the_hermit",
+  "mapId": "map_the_single_tower",
+  "title": "The Tower of the Hermit",
+  "titleKey": "level_the_tower_of_the_hermit_title",
+  "subtitle": "A single Tower to defend the Path",
+  "subtitleKey": "level_the_tower_of_the_hermit_subtitle",
+  "startCoins": 1000,
+  "startHealthPoints": 10,
+  "enemySpawns": [
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 0}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 4}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 0, "y": 7}},
+    {"attackerType": "SKELETON", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 0}},
+    {"attackerType": "SKELETON", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 4}},
+    {"attackerType": "SKELETON", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 0, "y": 7}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 0}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 4}},
+    {"attackerType": "ORK", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 0, "y": 7}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 0}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 0}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 4}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 4}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 7}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 4, "spawnPoint": {"x": 0, "y": 7}},
+    {"attackerType": "ORK", "level": 2, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 0}},
+    {"attackerType": "ORK", "level": 2, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 4}},
+    {"attackerType": "ORK", "level": 2, "spawnTurn": 5, "spawnPoint": {"x": 0, "y": 7}},
+    {"attackerType": "GOBLIN", "level": 2, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 0}},
+    {"attackerType": "GOBLIN", "level": 2, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 0}},
+    {"attackerType": "GOBLIN", "level": 2, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 4}},
+    {"attackerType": "GOBLIN", "level": 2, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 4}},
+    {"attackerType": "GOBLIN", "level": 2, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 7}},
+    {"attackerType": "GOBLIN", "level": 2, "spawnTurn": 6, "spawnPoint": {"x": 0, "y": 7}},
+    {"attackerType": "ORK", "level": 3, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 0}},
+    {"attackerType": "ORK", "level": 3, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 4}},
+    {"attackerType": "ORK", "level": 3, "spawnTurn": 7, "spawnPoint": {"x": 0, "y": 7}},
+    {"attackerType": "SKELETON", "level": 3, "spawnTurn": 8, "spawnPoint": {"x": 0, "y": 0}},
+    {"attackerType": "SKELETON", "level": 3, "spawnTurn": 8, "spawnPoint": {"x": 0, "y": 4}},
+    {"attackerType": "SKELETON", "level": 3, "spawnTurn": 8, "spawnPoint": {"x": 0, "y": 7}},
+    {"attackerType": "SKELETON", "level": 4, "spawnTurn": 9, "spawnPoint": {"x": 0, "y": 0}},
+    {"attackerType": "SKELETON", "level": 4, "spawnTurn": 9, "spawnPoint": {"x": 0, "y": 7}},
+    {"attackerType": "EVIL_WIZARD", "level": 3, "spawnTurn": 9, "spawnPoint": {"x": 0, "y": 4}}
+  ],
+  "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER"],
+  "waypoints": [
+    
+  ],
+  "prerequisites": ["the_spiral_challenge"],
+  "allowAutoAttack": true,
+  "isOfficial": true,
+  "author": "jegner",
+  "initialData": {
+    "defenders": [
+      {"type": "BOW_TOWER", "position": {"x": 12, "y": 3}, "level": 1}
+    ],
+    "barricades": [
+      {"position": {"x": 14, "y": 3}, "healthPoints": 99}
+    ]
+  }
+}
+}

@@ -471,6 +471,7 @@ private fun BoxScope.LocationMarkersOverlay(
                     Box(
                         modifier = Modifier
                             .size(iconMarkerSize)
+                            .offset(y = (-10).dp)
                             .clickable {
                                 onLocationClicked(location, levelsAtLocation)
                             },

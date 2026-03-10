@@ -1,0 +1,49 @@
+{
+  "metadata": {
+    "program": "Defender of Egril",
+    "type": "level"
+  },
+  "data": {
+  "id": "the_labyrinth",
+  "mapId": "map_the_labyrinth",
+  "title": "The Labyrinth",
+  "titleKey": "level_the_labyrinth_title",
+  "subtitle": "",
+  "startCoins": 100,
+  "startHealthPoints": 10,
+  "enemySpawns": [
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 10, "y": 10}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 1, "spawnPoint": {"x": 10, "y": 10}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 10, "y": 10}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 2, "spawnPoint": {"x": 10, "y": 10}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 10, "y": 10}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 3, "spawnPoint": {"x": 10, "y": 10}},
+    {"attackerType": "ORK", "level": 2, "spawnTurn": 4, "spawnPoint": {"x": 10, "y": 10}},
+    {"attackerType": "ORK", "level": 2, "spawnTurn": 5, "spawnPoint": {"x": 10, "y": 10}},
+    {"attackerType": "OGRE", "level": 2, "spawnTurn": 6, "spawnPoint": {"x": 10, "y": 10}},
+    {"attackerType": "SKELETON", "level": 1, "spawnTurn": 7, "spawnPoint": {"x": 10, "y": 10}},
+    {"attackerType": "SKELETON", "level": 1, "spawnTurn": 7, "spawnPoint": {"x": 10, "y": 10}},
+    {"attackerType": "RED_WITCH", "level": 4, "spawnTurn": 8, "spawnPoint": {"x": 10, "y": 10}},
+    {"attackerType": "GOBLIN", "level": 4, "spawnTurn": 9, "spawnPoint": {"x": 10, "y": 10}},
+    {"attackerType": "GOBLIN", "level": 4, "spawnTurn": 9, "spawnPoint": {"x": 10, "y": 10}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 11, "spawnPoint": {"x": 10, "y": 10}},
+    {"attackerType": "GOBLIN", "level": 1, "spawnTurn": 11, "spawnPoint": {"x": 10, "y": 10}},
+    {"attackerType": "SKELETON", "level": 3, "spawnTurn": 12, "spawnPoint": {"x": 10, "y": 10}},
+    {"attackerType": "SKELETON", "level": 3, "spawnTurn": 12, "spawnPoint": {"x": 10, "y": 10}},
+    {"attackerType": "RED_WITCH", "level": 10, "spawnTurn": 13, "spawnPoint": {"x": 10, "y": 10}},
+    {"attackerType": "ORK", "level": 5, "spawnTurn": 10, "spawnPoint": {"x": 10, "y": 10}}
+  ],
+  "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER", "DWARVEN_MINE"],
+  "waypoints": [
+    
+  ],
+  "prerequisites": [],
+  "allowAutoAttack": true,
+  "author": "jegner",
+  "initialData": {
+    "traps": [
+      {"position": {"x": 9, "y": 7}, "damage": 10, "type": "MAGICAL"}
+    ]
+  }
+}
+}

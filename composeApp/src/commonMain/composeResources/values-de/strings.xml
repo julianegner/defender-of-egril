@@ -347,6 +347,13 @@
     <string name="create">Erstellen</string>
     <string name="save_map">Karte speichern</string>
     <string name="save_level">Level speichern</string>
+    <string name="save_worldmap">Weltkarte speichern</string>
+    <string name="worldmap_saved_success">Weltkarte erfolgreich gespeichert.</string>
+    <string name="reset_worldmap">Auf vorherige Version zurücksetzen</string>
+    <string name="reset_worldmap_confirm_title">Auf vorherige Version zurücksetzen?</string>
+    <string name="reset_worldmap_confirm_message">Möchten Sie die Weltkarte wirklich auf die zuvor gespeicherte Version zurücksetzen? Ihre aktuellen Änderungen gehen verloren.</string>
+    <string name="save_sequence">Reihenfolge speichern</string>
+    <string name="sequence_saved_success">Reihenfolge erfolgreich gespeichert.</string>
     <string name="save_as_new">Als neu speichern</string>
     <string name="map_name">Kartenname</string>
     <string name="level_title">Level-Titel</string>
@@ -898,7 +905,7 @@
     <string name="level_the_winding_path_title">Der gewundene Pfad</string>
     <string name="level_the_winding_path_subtitle">Eine lange und verschlungene Straße</string>        <string name="level_the_fortress_title">Die Festung %s</string>
     <string name="level_the_fortress_1_first_attacks_subtitle">Erste Angriffe</string>    <string name="level_the_fortress_2_orks_marching_subtitle">Die Orks marschieren</string>    <string name="level_the_fortress_3_necromancer_subtitle">Der Nekromant</string>    <string name="level_the_fortress_4_magic_assault_subtitle">Magischer Angriff</string>    <string name="level_the_fortress_5_mighty_forces_subtitle">Mächtige Streitkräfte</string>
-    <string name="level_ewhads_challenge_title">Ewhads Herausforderung</string>    <string name="level_the_creek_title">Der Bach</string>    <string name="level_the_island_title">Die Insel</string>    <string name="level_the_river_title">Der Fluss</string>    <string name="level_creek_valley_title">Bachtal</string>    <string name="level_maelstrom_title">Mahlstrom</string>    
+    <string name="level_ewhads_challenge_title">Ewhads Herausforderung</string>    <string name="level_the_creek_title">Der Bach</string>    <string name="level_the_island_title">Die Insel</string>    <string name="level_the_river_title">Der Fluss</string>    <string name="level_creek_valley_title">Bachtal</string>    <string name="level_maelstrom_title">Mahlstrom</string>    <string name="level_defend_the_city_title">Verteidige die Stadt</string>    <string name="level_prison_break_title">Gefängnisausbruch</string>    <string name="level_prison_break_subtitle">Gefangene Goblins versuchen zu entkommen</string>    <string name="level_the_barricades_title">Die Barrikaden</string>    <string name="level_the_labyrinth_title">Das Labyrinth</string>    <string name="level_the_tower_of_the_hermit_title">Der Turm des Einsiedlers</string>    <string name="level_the_tower_of_the_hermit_subtitle">Ein einzelner Turm zur Verteidigung des Pfades</string>    <string name="level_the_witches_title">Die Hexen</string>    
     <!-- Map Names -->
     <string name="map_tutorial_name">Tutorial-Karte</string>
     <string name="map_straight_name">Gerade Karte</string>
@@ -917,6 +924,11 @@
     <string name="map_the_river_name">Der Fluss</string>
     <string name="map_creek_valley_name">Bachtal</string>
     <string name="map_the_maelstrom_name">Der Mahlstrom</string>
+    <string name="map_the_city_name">Die Stadt</string>
+    <string name="map_the_prison_name">Das Gefängnis</string>
+    <string name="map_the_single_tower_name">Der Einzelturm</string>
+    <string name="map_the_barricades_name">Die Barrikaden</string>
+    <string name="map_the_labyrinth_name">Das Labyrinth</string>
     
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutorial</string>
@@ -936,6 +948,9 @@
     <string name="location_the_river_name">Der Fluss</string>
     <string name="location_creek_valley_name">Bachtal</string>
     <string name="location_the_maelstrom_name">Der Mahlstrom</string>
+    <string name="location_the_prison_name">Das Gefängnis</string>
+    <string name="location_the_city_name">Die Stadt</string>
+    <string name="location_the_tower_of_the_hermit_name">Der Turm des Einsiedlers</string>
     <!-- Player Profile Strings -->
     <string name="player_create_title">Neuen Spieler erstellen</string>
     <string name="player_create_prompt">Geben Sie Ihren Spielernamen ein</string>
@@ -1186,7 +1201,7 @@
     <string name="keyboard_shortcut_pan_left">Karte nach links schwenken</string>
     <string name="keyboard_shortcut_pan_right">Karte nach rechts schwenken</string>
     <string name="keyboard_shortcuts_note">Hinweis: Tastenkürzel sind nur auf dem Desktop verfügbar.</string>
-    
+
     <!-- License Info -->
     <string name="license_info_title">Lizenzinformationen</string>
     <string name="license_github_project_title">GitHub-Projekt</string>
@@ -1431,4 +1446,40 @@
     <string name="instant_tower_spell_abort_confirm">Zauber abbrechen</string>
     <string name="instant_tower_spell_abort_cancel">Turm weiter platzieren</string>
 
+    <!-- single target, target and gate names -->
+    <string name="target_taken_title">Ziel eingenommen!</string>
+    <string name="target_taken_message_named">%1$s wurde vom Feind eingenommen!</string>
+    <string name="target_taken_message_unnamed">Eine Zielposition wurde vom Feind eingenommen!</string>
+    <string name="gate_destroyed_title">Tor zerstört!</string>
+    <string name="gate_destroyed_message_named">%1$s wurde zerstört!</string>
+    <string name="gate_destroyed_message_unnamed">Ein Tor wurde zerstört!</string>
+    <string name="target_type_label">Zieltyp</string>
+    <string name="target_type_standard">Standard</string>
+    <string name="target_type_single_hit">Einmalig</string>
+    <string name="target_name_label">Zielname (optional)</string>
+    <string name="barricade_name_label">Barrikadenname (optional)</string>
+    <string name="is_gate_label">Ist Tor</string>
+    <string name="barricade_tower_base_hint">Barrikaden mit 100+ TP können als Turmfundament dienen</string>
+    <!-- Standardnamen für Ziele (können \n für mehrzeilige Anzeige enthalten) -->
+    <string name="target_name_marketplace">Markt-\nplatz</string>
+    <string name="target_name_townhall">Rat-\nhaus</string>
+    <string name="target_name_storehouse">Lager-\nhaus</string>
+    <string name="target_name_guildhouse">Gilden-\nhaus</string>
+    <!-- Standardnamen für Tore -->
+    <string name="gate_name_north_gate">Nord-\ntor</string>
+    <string name="gate_name_east_gate">Ost-\ntor</string>
+    <string name="gate_name_south_gate">Süd-\ntor</string>
+    <string name="gate_name_west_gate">West-\ntor</string>
+    <!-- Barrikaden-Info-Panel -->
+    <string name="barricade_info_description">Barrikaden blockieren die Bewegung von Feinden. Feinde greifen sie an, wenn sie benachbart sind. Baue oder verstärke sie mit Pikier- oder Speertürmen.</string>
+    <string name="gate_info_description">Ein Tor bewacht den Eingang. Feinde werden es angreifen und versuchen, es zu durchbrechen. Verteidige es, um den Weg blockiert zu halten.</string>
+    <string name="barricade_info_panel_title">Barrikade</string>
+    <string name="gate_info_panel_title">Tor</string>
+    <!-- Ewhad narrative messages -->
+    <string name="ewhad_enters_title">Ewhad betritt das Schlachtfeld</string>
+    <string name="ewhad_enters_text">Ewhad hat das Schlachtfeld betreten! Vorsicht, er beschwört jeden Zug Dämonen, die zunehmend mächtiger werden.</string>
+    <string name="ewhad_retreats_title">Ewhad zieht sich zurück</string>
+    <string name="ewhad_retreats_text">Du hast Ewhad zum Rückzug gezwungen!</string>
+    <string name="ewhad_defeated_title">Ewhad ist besiegt</string>
+    <string name="ewhad_defeated_text">Du hast Ewhad besiegt! Beende jetzt die anderen Feinde und gewinne das Spiel!</string>
 </resources>

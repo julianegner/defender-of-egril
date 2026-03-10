@@ -29,7 +29,7 @@ class EnemyMovementSystem(
         if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
         println("Total waypoints in level: ${state.level.waypoints.size}")
         }
-        
+
         // Check if the preferred spawn point has a waypoint
         val waypointAtSpawn = state.level.getWaypointAt(preferredSpawnPoint)
         if (waypointAtSpawn != null) {
@@ -42,7 +42,8 @@ class EnemyMovementSystem(
             // Use the first waypoint's next target, not the waypoint position itself
             state.level.waypoints.first().nextTarget
         } else {
-            state.level.targetPositions.first()
+            // Prefer the first active (non-taken) target
+            state.getActiveTargetPositions().firstOrNull() ?: state.level.targetPositions.first()
         }
         if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
         println("No waypoint at spawn point, using fallback target: $initialTarget")
@@ -105,6 +106,13 @@ class EnemyMovementSystem(
                 currentTarget = mutableStateOf(initialTarget)
             )
             state.attackers.add(attacker)
+            
+            // Queue Ewhad enters message when Ewhad spawns
+            if (plannedSpawn.attackerType == AttackerType.EWHAD) {
+                state.pendingMessages.add(
+                    GameMessage(type = GameMessageType.EWHAD_ENTERS)
+                )
+            }
         }
         // Play spawn sound
         GlobalSoundManager.playSound(SoundEvent.ENEMY_SPAWN)
@@ -169,7 +177,7 @@ class EnemyMovementSystem(
                 }
                 
                 // Must be on path or a spawn point
-                if (!state.level.isOnPath(neighbor) && !state.level.isSpawnPoint(neighbor)) {
+                if (!state.level.isEnemyTraversable(neighbor)) {
                     continue
                 }
                 
@@ -239,13 +247,15 @@ class EnemyMovementSystem(
         if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
         println("Start position: $startPos")
         }
-        
-        // Use currentTarget if set (for mine targeting), otherwise use level target
-        val target = dragon.currentTarget?.value ?: state.level.targetPositions.first()
+
+        // Use currentTarget if set (for mine targeting), otherwise use nearest active target
+        val target = dragon.currentTarget?.value
+            ?: state.getActiveTargetPositions().minByOrNull { dragon.position.value.distanceTo(it) }
+            ?: state.level.targetPositions.first()
         if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-        println("Target: $target")
+            println("Target: $target")
         }
-        
+
         val result = mutableListOf<Position>()
         
         // For flying, calculate the target position using BFS
@@ -304,7 +314,7 @@ class EnemyMovementSystem(
             if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
             println("Flying dragon BFS: visited ${visited.size}, found ${reachablePathPositions.size} path positions")
             }
-            
+
             // Choose the path position that gets us closest to target
             val bestPosition = reachablePathPositions.minByOrNull { (pos, _) ->
                 pos.distanceTo(target)
@@ -343,7 +353,7 @@ class EnemyMovementSystem(
             if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
             println("Walking dragon: path size ${path.size}")
             }
-            
+
             if (path.size > 1) {
                 val stepsToTake = minOf(speed, path.size - 1)
                 for (i in 1..stepsToTake) {
@@ -363,11 +373,29 @@ class EnemyMovementSystem(
     
     /**
      * Apply damage to health points when an enemy reaches the target.
+     * For SINGLE_HIT targets, the target is "taken" instead of dealing HP damage.
      * Handles variable damage based on enemy type and marks the attacker as defeated.
      */
     private fun applyTargetDamage(attacker: Attacker) {
-        val damage = attacker.calculateTargetDamage()
-        state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
+        val position = attacker.position.value
+        val targetInfo = state.level.targetInfoMap[position]
+        if (targetInfo?.type == de.egril.defender.model.TargetType.SINGLE_HIT) {
+            if (!state.takenTargets.contains(position)) {
+                state.takenTargets.add(position)
+                val name = targetInfo.name.takeIf { it.isNotBlank() }
+                state.pendingMessages.add(
+                    de.egril.defender.model.GameMessage(
+                        type = de.egril.defender.model.GameMessageType.TARGET_TAKEN,
+                        name = name
+                    )
+                )
+                println("!!! SINGLE_HIT TARGET TAKEN !!! Turn ${state.turnNumber.value}: ${attacker.type} (ID ${attacker.id}) took target '${name ?: position}'")
+                state.retargetEnemiesFromTakenTarget(position)
+            }
+        } else {
+            val damage = attacker.calculateTargetDamage()
+            state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
+        }
         attacker.isDefeated.value = true
     }
 
@@ -385,9 +413,11 @@ class EnemyMovementSystem(
 
             while (remainingSpeed > 0) {
                 // Re-calculate path with current target for each step
-                val target = attacker.currentTarget?.value ?: state.level.targetPositions.first()
+                val target = attacker.currentTarget?.value
+                    ?: state.getActiveTargetPositions().minByOrNull { attacker.position.value.distanceTo(it) }
+                    ?: state.level.targetPositions.first()
                 if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-                println("Goblin ${attacker.id} at ${attacker.position.value} moving towards target: $target (remainingSpeed: $remainingSpeed)")
+                    println("Goblin ${attacker.id} at ${attacker.position.value} moving towards target: $target (remainingSpeed: $remainingSpeed)")
                 }
                 val path = pathfinding.findPath(attacker.position.value, target, attacker)
 
@@ -426,6 +456,14 @@ class EnemyMovementSystem(
                     
                     if (barricadeAtPosition.isDestroyed()) {
                         // Barricade destroyed, remove it and goblin can move to that position
+                        if (!barricadeAtPosition.name.isNullOrBlank()) {
+                            state.pendingMessages.add(
+                                de.egril.defender.model.GameMessage(
+                                    type = de.egril.defender.model.GameMessageType.GATE_DESTROYED,
+                                    name = barricadeAtPosition.name
+                                )
+                            )
+                        }
                         state.barricades.remove(barricadeAtPosition)
                         if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
                         println("Goblin ${attacker.id} destroyed barricade at $newPos")
@@ -436,9 +474,14 @@ class EnemyMovementSystem(
                         if (state.level.isWaypoint(newPos) && attacker.currentTarget?.value == newPos) {
                             val waypoint = state.level.getWaypointAt(newPos)
                             if (waypoint != null) {
-                                attacker.currentTarget.value = waypoint.nextTarget
+                                val nextTarget = waypoint.nextTarget
+                                // If the waypoint's next target is a taken SINGLE_HIT target, redirect to nearest active target
+                                val effectiveNext = if (state.takenTargets.contains(nextTarget)) {
+                                    state.getActiveTargetPositions().minByOrNull { newPos.distanceTo(it) } ?: nextTarget
+                                } else nextTarget
+                                attacker.currentTarget.value = effectiveNext
                                 if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-                                println("Goblin ${attacker.id} reached waypoint at $newPos, next target: ${waypoint.nextTarget}")
+                                    println("Goblin ${attacker.id} reached waypoint at $newPos, next target: $effectiveNext")
                                 }
                             }
                         }
@@ -446,7 +489,7 @@ class EnemyMovementSystem(
                         remainingSpeed--
                         
                         // Check if reached any target
-                        if (state.level.isTargetPosition(attacker.position.value)) {
+                        if (state.isActiveTargetPosition(attacker.position.value)) {
                             applyTargetDamage(attacker)
                             break
                         }
@@ -466,9 +509,14 @@ class EnemyMovementSystem(
                     if (state.level.isWaypoint(newPos) && attacker.currentTarget?.value == newPos) {
                         val waypoint = state.level.getWaypointAt(newPos)
                         if (waypoint != null) {
-                            attacker.currentTarget.value = waypoint.nextTarget
+                            val nextTarget = waypoint.nextTarget
+                            // If the waypoint's next target is a taken SINGLE_HIT target, redirect to nearest active target
+                            val effectiveNext = if (state.takenTargets.contains(nextTarget)) {
+                                state.getActiveTargetPositions().minByOrNull { newPos.distanceTo(it) } ?: nextTarget
+                            } else nextTarget
+                            attacker.currentTarget.value = effectiveNext
                             if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-                            println("Goblin ${attacker.id} reached waypoint at $newPos, next target: ${waypoint.nextTarget}")
+                                println("Goblin ${attacker.id} reached waypoint at $newPos, next target: $effectiveNext")
                             }
                         }
                     }
@@ -476,7 +524,7 @@ class EnemyMovementSystem(
                     remainingSpeed--
                     
                     // Check if reached any target
-                    if (state.level.isTargetPosition(attacker.position.value)) {
+                    if (state.isActiveTargetPosition(attacker.position.value)) {
                         applyTargetDamage(attacker)
                         break
                     }

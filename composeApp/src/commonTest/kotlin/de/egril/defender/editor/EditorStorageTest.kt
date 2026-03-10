@@ -659,6 +659,42 @@ class EditorStorageTest {
     }
 
     @Test
+    fun testNormalizeForImageComparisonSpawnAndTargetTreatedAsPath() {
+        // SPAWN_POINT and TARGET have the same visual biome as PATH in MapImageGenerator,
+        // so changing tiles between these types should not require image regeneration.
+        val tilesWithPath = mapOf(
+            "0,0" to TileType.PATH,
+            "1,1" to TileType.PATH,
+            "2,2" to TileType.BUILD_AREA
+        )
+        val tilesWithSpawnAndTarget = mapOf(
+            "0,0" to TileType.SPAWN_POINT,
+            "1,1" to TileType.TARGET,
+            "2,2" to TileType.BUILD_AREA
+        )
+
+        val normalizedPath = EditorStorage.normalizeForImageComparison(tilesWithPath)
+        val normalizedSpawnTarget = EditorStorage.normalizeForImageComparison(tilesWithSpawnAndTarget)
+
+        assertEquals(normalizedPath, normalizedSpawnTarget,
+            "SPAWN_POINT and TARGET should normalize to the same tiles as PATH")
+    }
+
+    @Test
+    fun testNormalizeForImageComparisonOtherTilesUnchanged() {
+        // Other tile types (BUILD_AREA, NO_PLAY, RIVER) should not be normalized.
+        val tiles = mapOf(
+            "0,0" to TileType.BUILD_AREA,
+            "1,1" to TileType.NO_PLAY,
+            "2,2" to TileType.RIVER
+        )
+        val normalized = EditorStorage.normalizeForImageComparison(tiles)
+        assertEquals(TileType.BUILD_AREA, normalized["0,0"])
+        assertEquals(TileType.NO_PLAY, normalized["1,1"])
+        assertEquals(TileType.RIVER, normalized["2,2"])
+    }
+
+    @Test
     fun testExtractDataSection() {
         // Test with metadata wrapper
         val wrappedJson = """{

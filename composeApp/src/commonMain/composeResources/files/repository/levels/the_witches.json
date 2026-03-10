@@ -7,6 +7,7 @@
     "id": "the_witches",
     "mapId": "map_straight",
     "title": "The Witches",
+    "titleKey": "level_the_witches_title",
     "subtitle": "",
     "startCoins": 100,
     "startHealthPoints": 10,

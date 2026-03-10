@@ -19,7 +19,12 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -355,7 +360,7 @@ fun GameGrid(
                 // Show turquoise circles at radius 2 around hovered position, only for path/spawn tiles
                 val coolingColor = TargetCircleConstants.COOLING_SPELL_COLOR
                 val result = mutableMapOf<Position, TargetCircleInfo>()
-                if (gameState.level.isOnPath(currentHoveredPosition) || gameState.level.isSpawnPoint(currentHoveredPosition)) {
+                if (gameState.level.isEnemyTraversable(currentHoveredPosition)) {
                     result[currentHoveredPosition] = TargetCircleInfo.CentralTarget(
                         color = coolingColor,
                         attackType = AttackType.AREA,
@@ -367,7 +372,7 @@ fun GameGrid(
                     gameState.level.gridWidth,
                     gameState.level.gridHeight
                 ).filter { neighbor ->
-                    gameState.level.isOnPath(neighbor) || gameState.level.isSpawnPoint(neighbor)
+                    gameState.level.isEnemyTraversable(neighbor)
                 }
                 for (neighbor in allNeighbors) {
                     val distance = currentHoveredPosition.hexDistanceTo(neighbor)
@@ -651,6 +656,9 @@ fun GridCell(
     val isOnPath = gameState.level.isOnPath(position)
     val isBuildArea = gameState.level.isBuildArea(position)
     val isRiverTile = gameState.level.isRiverTile(position)
+    // Shorthand combinations used for attack targeting and spell area checks
+    val isEnemyTraversable = isOnPath || isSpawnPoint
+    val isEnemyOccupiable = isOnPath || isSpawnPoint || isRiverTile
     val defender = gameState.defenders.find { it.position.value == position }
     val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
     
@@ -692,7 +700,7 @@ fun GridCell(
     val barricade = gameState.barricades.find { it.position == position }
 
     // Check if this tile is in a cooling spell area (show snowflake on affected path tiles)
-    val isInCoolingArea = (isOnPath || isSpawnPoint) && gameState.activeSpellEffects.any { effect ->
+    val isInCoolingArea = isEnemyTraversable && gameState.activeSpellEffects.any { effect ->
         effect.spell == SpellType.COOLING_SPELL &&
         effect.position != null &&
         position.hexDistanceTo(effect.position) <= 2
@@ -813,13 +821,13 @@ fun GridCell(
         // For preview, use the actual range at level 1 (baseRange, capped by maxRange if set)
         val maxRange = selectedDefenderType.maxRange?.let { minOf(selectedDefenderType.baseRange, it) } ?: selectedDefenderType.baseRange
         
-        // Only show range on valid target tiles (path or river for area attacks, path only for single-target)
+        // Only show range on valid target tiles (occupiable for area attacks, traversable for single-target)
         val hasAreaAttackPreview = selectedDefenderType.attackType == AttackType.AREA || 
                                    selectedDefenderType.attackType == AttackType.LASTING
         val isValidPreviewTargetTile = if (hasAreaAttackPreview) {
-            isOnPath || isRiverTile
+            isEnemyOccupiable
         } else {
-            isOnPath
+            isEnemyTraversable
         }
         
         distance >= minRange && distance <= maxRange && isValidPreviewTargetTile
@@ -985,11 +993,11 @@ fun GridCell(
         selectedDefender?.type?.attackType == AttackType.AREA || selectedDefender?.type?.attackType == AttackType.LASTING
     } ?: false
 
-    // River tiles are valid targets for area attacks
+    // Enemy-occupiable tiles are valid targets for area attacks; enemy-traversable for single-target
     val isValidTargetTile = if (hasAreaAttack) {
-        isOnPath || isRiverTile
+        isEnemyOccupiable
     } else {
-        isOnPath
+        isEnemyTraversable
     }
 
     val borderColor = when {
@@ -1434,6 +1442,7 @@ private fun BoxScope.GridCellContent(
             
             barricade != null -> {
                 // Show barricade with HP
+                val barricadeLocale = com.hyperether.resources.currentLanguage.value
                 Box(contentAlignment = Alignment.Center) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -1441,18 +1450,46 @@ private fun BoxScope.GridCellContent(
                     ) {
                         // Show wood/barricade symbol or gate icon with brown color
                         if (barricade.isGate) {
-                            GateIcon(size = GamePlayConstants.TileIconSizes.Barricade)
+                            GateIcon(
+                                modifier = Modifier.offset(y = 10.dp),
+                                size = GamePlayConstants.TileIconSizes.Barricade
+                            )
                         } else {
                             WoodIcon(size = GamePlayConstants.TileIconSizes.Barricade)
                         }
-                        // Show health points - moved up for better visibility
-                        Text(
-                            "${barricade.healthPoints.value} HP",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color(0xFF795548),  // Brown color
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.offset(y = (-12).dp)
-                        )
+
+                        // Show gate/barricade name (2 lines) then HP (1 line, bold)
+                        val barricadeDisplayName = barricade.name
+                            ?.takeIf { it.isNotBlank() }
+                            ?.let { localizeEntityName(it, barricadeLocale) }
+                        if (!barricadeDisplayName.isNullOrBlank()) {
+                            Text(
+                                text = buildAnnotatedString{
+                                    withStyle(SpanStyle(color = Color.White)) {
+                                        appendLine(barricadeDisplayName)
+                                    }
+                                    withStyle(SpanStyle(color = Color.White, fontWeight = FontWeight.Bold)) {
+                                        appendLine("${barricade.healthPoints.value} HP")
+                                    }
+                                },
+                                style = MaterialTheme.typography.labelSmall,
+                                textAlign = TextAlign.Center,
+                                minLines = 3,
+                                maxLines = 3,
+                                overflow = TextOverflow.Visible,
+                                modifier = Modifier
+                                    .widthIn(max = 50.dp)
+                                    .offset(y = (-32).dp)
+                            )
+                        } else {
+                            Text(
+                                "${barricade.healthPoints.value} HP",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.offset(y = (-12).dp)
+                            )
+                        }
                     }
                     // Show damage effect overlay if present
                     if (damageEffect != null) {
@@ -1520,12 +1557,38 @@ private fun BoxScope.GridCellContent(
             }
 
             isTarget -> {
-                // Show target indicator when cell is empty
-                Text(
-                    stringResource(Res.string.target),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = GamePlayColors.Success
-                )
+                // Show target name (if set) or fallback to generic "Target" label
+                // Well-known names are translated; \n in the string gives multi-line tile display
+                // Taken targets (SINGLE_HIT) show with a red cross overlay
+                val locale = com.hyperether.resources.currentLanguage.value
+                val isTaken = gameState.takenTargets.contains(position)
+                val rawName = gameState.level.targetInfoMap[position]?.name?.takeIf { it.isNotBlank() }
+                val targetName = if (rawName != null) {
+                    localizeEntityName(rawName, locale)
+                } else {
+                    stringResource(Res.string.target)
+                }
+                if (isTaken) {
+                    // Show dimmed name with a red X cross on top
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            text = targetName,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = GamePlayColors.Success.copy(alpha = 0.3f),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.widthIn(max = 50.dp)
+                        )
+                        CrossIcon(size = 20.dp, tint = Color.Red)
+                    }
+                } else {
+                    Text(
+                        text = targetName,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = GamePlayColors.Success,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.widthIn(max = 50.dp)
+                    )
+                }
             }
 
             isRiverTile -> {

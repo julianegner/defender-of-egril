@@ -76,7 +76,9 @@ fun GamePlayScreen(
     showFreezeImmuneWarning: de.egril.defender.model.Attacker? = null,  // Show warning for immune enemy
     onDismissFreezeWarning: (() -> Unit)? = null,  // Callback to dismiss freeze warning
     scrollToPosition: de.egril.defender.model.Position? = null,  // Scroll map to position (e.g. bomb explosion)
-    onScrollToPositionConsumed: (() -> Unit)? = null  // Callback after scroll consumed
+    onScrollToPositionConsumed: (() -> Unit)? = null,  // Callback after scroll consumed
+    pendingGameMessage: de.egril.defender.model.GameMessage? = null,  // In-game event message (target taken, gate destroyed)
+    onDismissGameMessage: (() -> Unit)? = null  // Callback to dismiss current message and show next
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -127,7 +129,9 @@ fun GamePlayScreen(
         showFreezeImmuneWarning = showFreezeImmuneWarning,
         onDismissFreezeWarning = onDismissFreezeWarning,
         scrollToPosition = scrollToPosition,
-        onScrollToPositionConsumed = onScrollToPositionConsumed
+        onScrollToPositionConsumed = onScrollToPositionConsumed,
+        pendingGameMessage = pendingGameMessage,
+        onDismissGameMessage = onDismissGameMessage
     )
 }
 
@@ -182,7 +186,9 @@ private fun GamePlayScreenContent(
     showFreezeImmuneWarning: de.egril.defender.model.Attacker? = null,
     onDismissFreezeWarning: (() -> Unit)? = null,
     scrollToPosition: de.egril.defender.model.Position? = null,
-    onScrollToPositionConsumed: (() -> Unit)? = null
+    onScrollToPositionConsumed: (() -> Unit)? = null,
+    pendingGameMessage: de.egril.defender.model.GameMessage? = null,  // In-game event message (target taken, gate destroyed)
+    onDismissGameMessage: (() -> Unit)? = null  // Callback to dismiss current message and show next
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
@@ -199,6 +205,7 @@ private fun GamePlayScreenContent(
     // Removal confirmation dialog states
     var showRemoveBarricadeDialog by remember { mutableStateOf(false) }
     var barricadeToRemove by remember { mutableStateOf<Position?>(null) }
+    var selectedBarricadePosition by remember { mutableStateOf<Position?>(null) }  // For barricade info panel
     var showRemoveTrapDialog by remember { mutableStateOf(false) }
     var trapToRemove by remember { mutableStateOf<Position?>(null) }
 
@@ -638,7 +645,7 @@ private fun GamePlayScreenContent(
                         }
                         return@GameGrid
                     }
-                    
+
                     // Try to place defender if one is selected
                     selectedDefenderType?.let { type ->
                         if (onPlaceDefender(type, position)) {
@@ -671,6 +678,7 @@ private fun GamePlayScreenContent(
                             selectedAttackerId = null
                             selectedTargetId = null
                             selectedTargetPosition = null
+                            selectedBarricadePosition = null
                             // Clear trap modes when selecting a different defender
                             selectedMineAction = null
                             selectedWizardAction = null
@@ -691,6 +699,7 @@ private fun GamePlayScreenContent(
                             selectedDefenderId = null
                             selectedTargetId = null
                             selectedTargetPosition = null
+                            selectedBarricadePosition = null
                             return@GameGrid
                         }
                     }
@@ -707,11 +716,13 @@ private fun GamePlayScreenContent(
                     }
 
                     // Check if there's a barricade at this position
-                    // Don't show removal dialog if barricade has a tower - player must sell tower first
+                    // Don't show info panel if barricade has a tower - player must sell tower first
                     val barricade = gameState.barricades.find { it.position == position }
                     if (barricade != null && !barricade.hasTower() && selectedDefenderId == null && selectedAttackerId == null) {
-                        barricadeToRemove = position
-                        showRemoveBarricadeDialog = true
+                        selectedBarricadePosition = position
+                        // Clear other selections
+                        selectedDefenderId = null
+                        selectedAttackerId = null
                         return@GameGrid
                     }
 
@@ -795,12 +806,10 @@ private fun GamePlayScreenContent(
                             if (selectedDefender.type.attackType == AttackType.AREA ||
                                 selectedDefender.type.attackType == AttackType.LASTING
                             ) {
-                                // Check if position is on the path or river and in range
+                                // Check if position is on the path, river, or spawn point and in range
                                 val distance = selectedDefender.position.value.distanceTo(position)
-                                val isOnPath = gameState.level.isOnPath(position)
-                                val isOnRiver = gameState.level.getRiverTile(position) != null
 
-                                if ((isOnPath || isOnRiver) &&
+                                if (gameState.level.isEnemyOccupiable(position) &&
                                     distance >= selectedDefender.type.minRange &&
                                     distance <= effectiveRange
                                 ) {
@@ -1049,6 +1058,7 @@ private fun GamePlayScreenContent(
                     selectedAttackerId = selectedAttackerId,
                     selectedTargetId = null,
                     selectedTargetPosition = null,
+                    selectedBarricadePosition = selectedBarricadePosition,
                     onSelectDefenderType = { selectedDefenderType = it },
                     onUpgradeDefender = { onUpgradeDefender(it) },
                     onUndoTower = { defenderId ->
@@ -1094,6 +1104,10 @@ private fun GamePlayScreenContent(
                     selectedWizardAction = selectedWizardAction,
                     onBarricadeAction = handleBarricadeAction,
                     selectedBarricadeAction = selectedBarricadeAction,
+                    onRemoveBarricade = { pos ->
+                        onRemoveBarricade?.invoke(pos)
+                        selectedBarricadePosition = null
+                    },
                     uiScale = uiScale,
                     onShowDragonInfo = { 
                         gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
@@ -1111,6 +1125,7 @@ private fun GamePlayScreenContent(
                     selectedAttackerId = selectedAttackerId,
                     selectedTargetId = selectedTargetId,
                     selectedTargetPosition = selectedTargetPosition,
+                    selectedBarricadePosition = selectedBarricadePosition,
                     onSelectDefenderType = { selectedDefenderType = it },
                     onUpgradeDefender = { onUpgradeDefender(it) },
                     onUndoTower = { defenderId ->
@@ -1186,6 +1201,10 @@ private fun GamePlayScreenContent(
                     selectedWizardAction = selectedWizardAction,
                     onBarricadeAction = handleBarricadeAction,
                     selectedBarricadeAction = selectedBarricadeAction,
+                    onRemoveBarricade = { pos ->
+                        onRemoveBarricade?.invoke(pos)
+                        selectedBarricadePosition = null
+                    },
                     uiScale = uiScale,
                     onShowDragonInfo = { 
                         gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
@@ -1279,7 +1298,7 @@ private fun GamePlayScreenContent(
                 isInGameplay = true
             )
         }
-        
+
         // Remove barricade confirmation dialog
         // Note: This dialog only shows for barricades without towers
         if (showRemoveBarricadeDialog && barricadeToRemove != null) {
@@ -1408,7 +1427,7 @@ private fun GamePlayScreenContent(
                 onDismiss = { onDismissTargetConfirmation.invoke() }
             )
         }
-        
+
         // Freeze immune warning dialog
         if (showFreezeImmuneWarning != null && onDismissFreezeWarning != null) {
             FreezeImmuneWarningDialog(
@@ -1417,6 +1436,34 @@ private fun GamePlayScreenContent(
             )
         }
 
+
+        // In-game event message dialog (target captured, gate destroyed, or Ewhad narrative events)
+        pendingGameMessage?.let { msg ->
+            when (msg.type) {
+                GameMessageType.EWHAD_ENTERS -> NarrativeMessageDialog(
+                    type = NarrativeMessageType.EWHAD,
+                    title = stringResource(Res.string.ewhad_enters_title),
+                    text = stringResource(Res.string.ewhad_enters_text),
+                    onDismiss = { onDismissGameMessage?.invoke() }
+                )
+                GameMessageType.EWHAD_RETREATS -> NarrativeMessageDialog(
+                    type = NarrativeMessageType.EWHAD,
+                    title = stringResource(Res.string.ewhad_retreats_title),
+                    text = stringResource(Res.string.ewhad_retreats_text),
+                    onDismiss = { onDismissGameMessage?.invoke() }
+                )
+                GameMessageType.EWHAD_DEFEATED -> NarrativeMessageDialog(
+                    type = NarrativeMessageType.EWHAD,
+                    title = stringResource(Res.string.ewhad_defeated_title),
+                    text = stringResource(Res.string.ewhad_defeated_text),
+                    onDismiss = { onDismissGameMessage?.invoke() }
+                )
+                else -> GameEventMessageDialog(
+                    message = msg,
+                    onDismiss = { onDismissGameMessage?.invoke() }
+                )
+            }
+        }
             }
         }
         }

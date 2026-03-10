@@ -347,6 +347,13 @@
     <string name="create">Créer</string>
     <string name="save_map">Enregistrer la carte</string>
     <string name="save_level">Enregistrer le niveau</string>
+    <string name="save_worldmap">Enregistrer la carte du monde</string>
+    <string name="worldmap_saved_success">Carte du monde enregistrée avec succès.</string>
+    <string name="reset_worldmap">Réinitialiser à la version précédente</string>
+    <string name="reset_worldmap_confirm_title">Réinitialiser à la version précédente ?</string>
+    <string name="reset_worldmap_confirm_message">Êtes-vous sûr de vouloir réinitialiser la carte du monde à la version précédemment enregistrée ? Vos modifications actuelles seront perdues.</string>
+    <string name="save_sequence">Enregistrer la séquence</string>
+    <string name="sequence_saved_success">Séquence enregistrée avec succès.</string>
     <string name="save_as_new">Enregistrer comme nouveau</string>
     <string name="map_name">Nom de la carte</string>
     <string name="level_title">Titre du niveau</string>
@@ -899,7 +906,7 @@
     <string name="level_the_winding_path_title">Le Chemin Sinueux</string>
     <string name="level_the_winding_path_subtitle">Une Route Longue et Tortueuse</string>        <string name="level_the_fortress_title">La Forteresse %s</string>
     <string name="level_the_fortress_1_first_attacks_subtitle">Premières Attaques</string>    <string name="level_the_fortress_2_orks_marching_subtitle">Les Orks Marchent</string>    <string name="level_the_fortress_3_necromancer_subtitle">Le Nécromancien</string>    <string name="level_the_fortress_4_magic_assault_subtitle">Assaut Magique</string>    <string name="level_the_fortress_5_mighty_forces_subtitle">Forces Puissantes</string>
-    <string name="level_ewhads_challenge_title">Défi d\'Ewhad</string>    <string name="level_the_creek_title">Le Ruisseau</string>    <string name="level_the_island_title">L\'Île</string>    <string name="level_the_river_title">La Rivière</string>    <string name="level_creek_valley_title">Vallée du Ruisseau</string>    <string name="level_maelstrom_title">Maelström</string>    
+    <string name="level_ewhads_challenge_title">Défi d\'Ewhad</string>    <string name="level_the_creek_title">Le Ruisseau</string>    <string name="level_the_island_title">L\'Île</string>    <string name="level_the_river_title">La Rivière</string>    <string name="level_creek_valley_title">Vallée du Ruisseau</string>    <string name="level_maelstrom_title">Maelström</string>    <string name="level_defend_the_city_title">Défendre la Ville</string>    <string name="level_prison_break_title">Évasion de Prison</string>    <string name="level_prison_break_subtitle">Des Gobelins capturés tentent de s\'échapper</string>    <string name="level_the_barricades_title">Les Barricades</string>    <string name="level_the_labyrinth_title">Le Labyrinthe</string>    <string name="level_the_tower_of_the_hermit_title">La Tour de l\'Ermite</string>    <string name="level_the_tower_of_the_hermit_subtitle">Une seule Tour pour défendre le Chemin</string>    <string name="level_the_witches_title">Les Sorcières</string>    
     <!-- Map Names -->
     <string name="map_tutorial_name">Carte Tutoriel</string>
     <string name="map_straight_name">Carte Droite</string>
@@ -918,6 +925,11 @@
     <string name="map_the_river_name">La Rivière</string>
     <string name="map_creek_valley_name">Vallée du Ruisseau</string>
     <string name="map_the_maelstrom_name">Le Maelström</string>
+    <string name="map_the_city_name">La Ville</string>
+    <string name="map_the_prison_name">La Prison</string>
+    <string name="map_the_single_tower_name">La Tour Solitaire</string>
+    <string name="map_the_barricades_name">Les Barricades</string>
+    <string name="map_the_labyrinth_name">Le Labyrinthe</string>
     
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutoriel</string>
@@ -937,6 +949,9 @@
     <string name="location_the_river_name">La Rivière</string>
     <string name="location_creek_valley_name">Vallée du Ruisseau</string>
     <string name="location_the_maelstrom_name">Le Maelström</string>
+    <string name="location_the_prison_name">La Prison</string>
+    <string name="location_the_city_name">La Ville</string>
+    <string name="location_the_tower_of_the_hermit_name">La Tour de l\'Ermite</string>
     <!-- Player Profile Strings -->
     <string name="player_create_title">Créer un nouveau joueur</string>
     <string name="player_create_prompt">Entrez votre nom de joueur</string>
@@ -1189,7 +1204,7 @@
     <string name="keyboard_shortcut_pan_left">Déplacer la carte vers la gauche</string>
     <string name="keyboard_shortcut_pan_right">Déplacer la carte vers la droite</string>
     <string name="keyboard_shortcuts_note">Remarque : Les raccourcis clavier ne sont disponibles que sur bureau.</string>
-    
+
     <!-- License Info -->
     <string name="license_info_title">Informations sur la Licence</string>
     <string name="license_github_project_title">Projet GitHub</string>
@@ -1433,4 +1448,40 @@
     <string name="instant_tower_spell_abort_confirm">Annuler le sort</string>
     <string name="instant_tower_spell_abort_cancel">Continuer à placer la tour</string>
 
+    <!-- single target, target and gate names -->
+    <string name="target_taken_title">Objectif capturé !</string>
+    <string name="target_taken_message_named">%1$s a été capturé par l\'ennemi !</string>
+    <string name="target_taken_message_unnamed">Une position objectif a été capturée par l\'ennemi !</string>
+    <string name="gate_destroyed_title">Porte détruite !</string>
+    <string name="gate_destroyed_message_named">%1$s a été détruite !</string>
+    <string name="gate_destroyed_message_unnamed">Une porte a été détruite !</string>
+    <string name="target_type_label">Type d\'objectif</string>
+    <string name="target_type_standard">Standard</string>
+    <string name="target_type_single_hit">Coup unique</string>
+    <string name="target_name_label">Nom de l\'objectif (optionnel)</string>
+    <string name="barricade_name_label">Nom de la barricade (optionnel)</string>
+    <string name="is_gate_label">Est une porte</string>
+    <string name="barricade_tower_base_hint">Les barricades avec 100+ PV peuvent servir de base de tour</string>
+    <!-- Noms standard des objectifs (peuvent contenir \n pour l'affichage sur plusieurs lignes) -->
+    <string name="target_name_marketplace">Mar-\nché</string>
+    <string name="target_name_townhall">Mai-\nrie</string>
+    <string name="target_name_storehouse">Entre-\npôt</string>
+    <string name="target_name_guildhouse">Maison\nGuilde</string>
+    <!-- Noms standard des portes -->
+    <string name="gate_name_north_gate">Porte\nNord</string>
+    <string name="gate_name_east_gate">Porte\nEst</string>
+    <string name="gate_name_south_gate">Porte\nSud</string>
+    <string name="gate_name_west_gate">Porte\nOuest</string>
+    <!-- Panneau d'information de barricade -->
+    <string name="barricade_info_description">Les barricades bloquent le mouvement des ennemis. Les ennemis les attaquent lorsqu\'ils sont adjacents. Construisez-les ou renforcez-les avec des tours de pique ou de lance.</string>
+    <string name="gate_info_description">Une porte garde l\'entrée. Les ennemis l\'attaqueront et essaieront de passer. Défendez-la pour garder le chemin bloqué.</string>
+    <string name="barricade_info_panel_title">Barricade</string>
+    <string name="gate_info_panel_title">Porte</string>
+    <!-- Ewhad narrative messages -->
+    <string name="ewhad_enters_title">Ewhad entre sur le champ de bataille</string>
+    <string name="ewhad_enters_text">Ewhad est entré sur le champ de bataille ! Attention, il invoque des Démons à chaque Tour, qui seront de plus en plus puissants.</string>
+    <string name="ewhad_retreats_title">Ewhad se retire</string>
+    <string name="ewhad_retreats_text">Vous avez forcé Ewhad à se retirer !</string>
+    <string name="ewhad_defeated_title">Ewhad est vaincu</string>
+    <string name="ewhad_defeated_text">Vous avez vaincu Ewhad ! Terminez maintenant les autres Ennemis et gagnez le jeu !</string>
 </resources>

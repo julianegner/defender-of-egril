@@ -102,7 +102,11 @@ class GameViewModel {
     // Time reminders for breaks and sleep
     private val _reminderMessage = MutableStateFlow<ReminderMessage?>(null)
     val reminderMessage: StateFlow<ReminderMessage?> = _reminderMessage.asStateFlow()
-    
+
+    // In-game event messages (target taken, gate destroyed)
+    private val _pendingGameMessage = MutableStateFlow<de.egril.defender.model.GameMessage?>(null)
+    val pendingGameMessage: StateFlow<de.egril.defender.model.GameMessage?> = _pendingGameMessage.asStateFlow()
+
     // Achievement system
     private var achievementManager: de.egril.defender.game.AchievementManager? = null
     private val _newAchievement = MutableStateFlow<Achievement?>(null)
@@ -607,6 +611,10 @@ class GameViewModel {
         }
 
         gameEngine?.startFirstPlayerTurn()
+
+        // Surface any messages queued during initial spawn (e.g. EWHAD_ENTERS) immediately,
+        // so they appear as soon as the player's first turn begins rather than after they end it.
+        surfaceNextPendingMessageIfIdle()
         
         // Track turn start for achievements
         achievementManager?.startTurn()
@@ -633,6 +641,8 @@ class GameViewModel {
     fun defenderAttack(defenderId: Int, targetId: Int): Boolean {
         val result = gameEngine?.defenderAttack(defenderId, targetId) ?: false
         if (result) {
+            // Surface any messages queued by the attack (e.g. EWHAD_RETREATS/EWHAD_DEFEATED) immediately.
+            surfaceNextPendingMessageIfIdle()
             // Check for immediate victory after attack
             val state = _gameState.value
             if (state != null && state.isLevelWon()) {
@@ -647,6 +657,8 @@ class GameViewModel {
         if (result) {
             // triggerStateUpdate()
 
+            // Surface any messages queued by the attack (e.g. EWHAD_RETREATS/EWHAD_DEFEATED) immediately.
+            surfaceNextPendingMessageIfIdle()
             // Check for immediate victory after attack
             val state = _gameState.value
             if (state != null && state.isLevelWon()) {
@@ -768,6 +780,10 @@ class GameViewModel {
             
             // Show spawned units briefly (reduced from 400ms to 200ms)
             delay(200)
+
+            // Surface any pending spawn messages (e.g. Ewhad enters) while units are still at
+            // their spawn points, so the message is displayed before they move away.
+            surfaceNextPendingMessageIfIdle()
             
             // Move newly spawned units away from spawn points
             val newSpawnMovements = engine.calculateNewlySpawnedMovements()
@@ -792,6 +808,11 @@ class GameViewModel {
             if (currentStateForBombs != null && currentStateForBombs.bombExplosionEffects.isNotEmpty()) {
                 _pendingScrollToPosition.value = currentStateForBombs.bombExplosionEffects.first().center
             }
+
+            // Surface any remaining pending game messages (target taken, gate destroyed, etc.)
+            // Only surface if no message is currently being shown (e.g. from the spawn phase above).
+            // Each dismiss triggers the next message via dismissGameMessage().
+            surfaceNextPendingMessageIfIdle()
 
             // Autosave at the beginning of the new player turn (after enemy turn completes)
             // This ensures the phase is PLAYER_TURN when the save is created
@@ -1599,7 +1620,32 @@ class GameViewModel {
     fun clearReminderMessage() {
         _reminderMessage.value = null
     }
-    
+
+    /**
+     * Dismiss the current game message and surface the next one (if any).
+     */
+    fun dismissGameMessage() {
+        val state = _gameState.value
+        if (state != null && state.pendingMessages.isNotEmpty()) {
+            val next = state.pendingMessages.removeAt(0)
+            _pendingGameMessage.value = next
+        } else {
+            _pendingGameMessage.value = null
+        }
+    }
+
+    /**
+     * Surface the next pending game message if no message is currently being shown.
+     * Does nothing when a message is already visible so that the queue is not skipped.
+     */
+    private fun surfaceNextPendingMessageIfIdle() {
+        val state = _gameState.value ?: return
+        if (state.pendingMessages.isNotEmpty() && _pendingGameMessage.value == null) {
+            val nextMessage = state.pendingMessages.removeAt(0)
+            _pendingGameMessage.value = nextMessage
+        }
+    }
+
     /**
      * Format elapsed time as "X hours Y minutes"
      */
@@ -1881,6 +1927,8 @@ class GameViewModel {
         // Process any enemies defeated by the spell (award coins, remove from list)
         if (spell == SpellType.ATTACK_AIMED || spell == SpellType.ATTACK_AREA) {
             gameEngine?.processDefeatedAttackers()
+            // Surface any messages queued by the kill (e.g. EWHAD_RETREATS/EWHAD_DEFEATED) immediately.
+            surfaceNextPendingMessageIfIdle()
         }
 
         // Clear pending spell and targeting state
@@ -2126,7 +2174,7 @@ class GameViewModel {
                     for (x in 0 until gameState.level.gridWidth) {
                         for (y in 0 until gameState.level.gridHeight) {
                             val pos = Position(x, y)
-                            if ((gameState.level.isOnPath(pos) || gameState.level.isSpawnPoint(pos)) &&
+                            if (gameState.level.isEnemyTraversable(pos) &&
                                 pos !in occupiedByBarricade) {
                                 positions.add(pos)
                             }
