@@ -23,10 +23,15 @@ fun Application.configureRouting(dataSource: DataSource? = null) {
                 call.respond(HttpStatusCode.BadRequest, "Invalid event payload: ${e.message}")
                 return@post
             }
-            val message = if (event.levelName != null) {
-                "[${event.event}] platform=${event.platform} levelName=${event.levelName}"
-            } else {
-                "[${event.event}] platform=${event.platform}"
+
+            // Optionally extract the authenticated username from the Bearer token.
+            // Authentication is not required – the token is only used for audit logging.
+            val authUser = extractUsernameFromBearerToken(call.request.header(HttpHeaders.Authorization))
+
+            val message = buildString {
+                append("[${event.event}] platform=${event.platform}")
+                if (event.levelName != null) append(" levelName=${event.levelName}")
+                if (authUser != null) append(" user=$authUser")
             }
             analyticsLogger.info(message)
 
@@ -49,3 +54,25 @@ fun Application.configureRouting(dataSource: DataSource? = null) {
         }
     }
 }
+
+/**
+ * Extracts the `preferred_username` (or `sub`) from a JWT Bearer token without
+ * requiring a full JOSE library. Returns null if the header is absent or malformed.
+ * This is for audit-logging only – no signature verification is performed.
+ */
+private fun extractUsernameFromBearerToken(authHeader: String?): String? {
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) return null
+    return try {
+        val token = authHeader.removePrefix("Bearer ")
+        val payload = token.split(".").getOrNull(1) ?: return null
+        val padded = payload + "=".repeat((4 - payload.length % 4) % 4)
+        val decoded = java.util.Base64.getUrlDecoder().decode(padded).toString(Charsets.UTF_8)
+        extractJsonStringValue(decoded, "preferred_username")
+            ?: extractJsonStringValue(decoded, "sub")
+    } catch (_: Exception) {
+        null
+    }
+}
+
+private fun extractJsonStringValue(json: String, key: String): String? =
+    Regex("\"${Regex.escape(key)}\"\\s*:\\s*\"([^\"]+)\"").find(json)?.groupValues?.get(1)

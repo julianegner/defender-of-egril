@@ -78,6 +78,54 @@
         </div>
         <canvas id="ComposeTarget"></canvas>
     </div>
+    <script>
+        // ---------------------------------------------------------------------------
+        // IAM / Keycloak configuration
+        // Override window.keycloakConfig before this script to point at an external
+        // Keycloak instance, e.g.:
+        //   <script>window.keycloakConfig = { url: 'https://…', realm: 'egril', clientId: 'defender-of-egril' };<\/script>
+        // ---------------------------------------------------------------------------
+        window.keycloakConfig = window.keycloakConfig || {
+            url: 'http://localhost:8081',
+            realm: 'egril',
+            clientId: 'defender-of-egril'
+        };
+
+        window._kcReady = false;
+        window._kcAuthenticated = false;
+        window._kcUsername = null;
+        window._kcToken = null;
+        window._keycloak = null;
+
+        (function initKeycloak() {
+            const cfg = window.keycloakConfig;
+            const script = document.createElement('script');
+            script.src = cfg.url + '/js/keycloak.min.js';
+            script.onload = function () {
+                try {
+                    const kc = new Keycloak({ url: cfg.url, realm: cfg.realm, clientId: cfg.clientId });
+                    window._keycloak = kc;
+                    kc.init({ onLoad: 'check-sso', checkLoginIframe: false, silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html' })
+                        .then(function (authenticated) {
+                            window._kcAuthenticated = authenticated === true;
+                            if (authenticated) {
+                                window._kcUsername = (kc.tokenParsed && kc.tokenParsed.preferred_username) || null;
+                                window._kcToken = kc.token || null;
+                            }
+                        })
+                        .catch(function () { /* Keycloak server may not be available */ })
+                        .finally(function () { window._kcReady = true; });
+                } catch (e) {
+                    window._kcReady = true; // mark ready even on error so Kotlin doesn't wait forever
+                }
+            };
+            script.onerror = function () {
+                // Keycloak server not reachable – mark ready so the app starts normally
+                window._kcReady = true;
+            };
+            document.head.appendChild(script);
+        })();
+    </script>
     <script src="defenderOfEgril.js"></script>
     <script>
         // Hide loading screen when canvas is ready
