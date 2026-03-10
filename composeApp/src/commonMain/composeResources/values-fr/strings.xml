@@ -349,6 +349,9 @@
     <string name="save_level">Enregistrer le niveau</string>
     <string name="save_worldmap">Enregistrer la carte du monde</string>
     <string name="worldmap_saved_success">Carte du monde enregistrée avec succès.</string>
+    <string name="reset_worldmap">Réinitialiser à la version précédente</string>
+    <string name="reset_worldmap_confirm_title">Réinitialiser à la version précédente ?</string>
+    <string name="reset_worldmap_confirm_message">Êtes-vous sûr de vouloir réinitialiser la carte du monde à la version précédemment enregistrée ? Vos modifications actuelles seront perdues.</string>
     <string name="save_sequence">Enregistrer la séquence</string>
     <string name="sequence_saved_success">Séquence enregistrée avec succès.</string>
     <string name="save_as_new">Enregistrer comme nouveau</string>

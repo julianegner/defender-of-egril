@@ -349,6 +349,9 @@
     <string name="save_level">Level speichern</string>
     <string name="save_worldmap">Weltkarte speichern</string>
     <string name="worldmap_saved_success">Weltkarte erfolgreich gespeichert.</string>
+    <string name="reset_worldmap">Auf vorherige Version zurücksetzen</string>
+    <string name="reset_worldmap_confirm_title">Auf vorherige Version zurücksetzen?</string>
+    <string name="reset_worldmap_confirm_message">Möchten Sie die Weltkarte wirklich auf die zuvor gespeicherte Version zurücksetzen? Ihre aktuellen Änderungen gehen verloren.</string>
     <string name="save_sequence">Reihenfolge speichern</string>
     <string name="sequence_saved_success">Reihenfolge erfolgreich gespeichert.</string>
     <string name="save_as_new">Als neu speichern</string>

@@ -349,6 +349,9 @@
     <string name="save_level">Guardar nivel</string>
     <string name="save_worldmap">Guardar mapa mundial</string>
     <string name="worldmap_saved_success">Mapa mundial guardado correctamente.</string>
+    <string name="reset_worldmap">Restablecer versión anterior</string>
+    <string name="reset_worldmap_confirm_title">¿Restablecer versión anterior?</string>
+    <string name="reset_worldmap_confirm_message">¿Está seguro de que desea restablecer el mapa mundial a la versión guardada anteriormente? Los cambios actuales se perderán.</string>
     <string name="save_sequence">Guardar secuencia</string>
     <string name="sequence_saved_success">Secuencia guardada correctamente.</string>
     <string name="save_as_new">Guardar como nuevo</string>
