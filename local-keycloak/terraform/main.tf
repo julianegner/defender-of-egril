@@ -32,6 +32,8 @@ resource "keycloak_realm" "egril" {
 
   access_token_lifespan = "5m"
 
+  # NOTE: ssl_required = "none" is only safe for local development.
+  # Set to "all" or "external" for any non-local deployment.
   ssl_required = "none"
 }
 
@@ -45,7 +47,9 @@ resource "keycloak_openid_client" "defender_of_egril" {
   access_type           = "PUBLIC"
   standard_flow_enabled = true
 
-  # Allow localhost redirect URIs for local development
+  # The wildcard localhost port pattern is required because the Desktop OAuth2 PKCE
+  # flow picks a random free port for the local callback server. For production
+  # deployments, restrict to the actual application port(s) only.
   valid_redirect_uris = [
     "http://localhost:8080/*",
     "http://localhost:8888/*",

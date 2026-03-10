@@ -1,6 +1,10 @@
 package de.egril.defender.iam
 
-actual fun getIamBaseUrl(): String = readIamBaseUrlFromJvmEnv()
+// On Android, environment variables are not accessible to apps.
+// The Keycloak URL defaults to the local development value and should be
+// overridden by setting the IAM_BASE_URL system property via ADB or build config.
+actual fun getIamBaseUrl(): String =
+    System.getProperty("iam.base.url") ?: "http://localhost:8081"
 
 internal actual fun startPlatformLogin() {
     // On Android, open the Keycloak auth page in the system browser.

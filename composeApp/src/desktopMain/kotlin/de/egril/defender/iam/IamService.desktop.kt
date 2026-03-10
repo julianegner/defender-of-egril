@@ -63,7 +63,7 @@ actual suspend fun initPlatformIam() {
 
 private fun waitForAuthCode(port: Int): String? {
     val server = ServerSocket(port)
-    server.soTimeout = 120_000 // 2-minute timeout
+    server.soTimeout = 60_000 // 1-minute timeout
     return try {
         val socket = server.accept()
         val requestLine = socket.getInputStream().bufferedReader().readLine() ?: return null

@@ -48,11 +48,14 @@ internal actual fun performPlatformLogout() {
  * Waits (up to ~10 s) for the Keycloak JS adapter to complete its async init,
  * then updates [IamService.state] if the user has an active session.
  */
+private const val KC_INIT_POLL_INTERVAL_MS = 100L
+private const val KC_INIT_TIMEOUT_STEPS = 100 // 100 × 100ms = 10 s
+
 actual suspend fun initPlatformIam() {
-    // Poll until Keycloak.js has finished its init() Promise (max ~10 s)
-    repeat(100) {
+    // Poll until Keycloak.js has finished its init() Promise
+    repeat(KC_INIT_TIMEOUT_STEPS) {
         if (jsIsKcReady()) return@repeat
-        delay(100)
+        delay(KC_INIT_POLL_INTERVAL_MS)
     }
     if (jsIsKcAuthenticated()) {
         val username = jsGetKcUsername()

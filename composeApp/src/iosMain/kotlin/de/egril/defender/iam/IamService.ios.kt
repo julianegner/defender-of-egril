@@ -13,11 +13,8 @@ internal actual fun startPlatformLogin() {
             append("&scope=openid")
         }
         val nsUrl = platform.Foundation.NSURL.URLWithString(authUrl) ?: return
-        platform.UIKit.UIApplication.sharedApplication.openURL(
-            nsUrl,
-            options = emptyMap<Any?, Any?>(),
-            completionHandler = null
-        )
+        @Suppress("DEPRECATION")
+        platform.UIKit.UIApplication.sharedApplication.openURL(nsUrl)
     } catch (_: Exception) {
         // Ignore – login errors must never disrupt gameplay
     }
