@@ -2001,7 +2001,7 @@ private fun WorldMapData.withUpdatedPath(path: WorldMapPathData): WorldMapData {
         it.fromLocationId == path.fromLocationId && it.toLocationId == path.toLocationId
     }
     val updatedPaths = if (existingIndex >= 0) {
-        paths.toMutableList().apply { set(existingIndex, path) }
+        paths.mapIndexed { index, existing -> if (index == existingIndex) path else existing }
     } else {
         paths + path
     }
@@ -2011,7 +2011,7 @@ private fun WorldMapData.withUpdatedPath(path: WorldMapPathData): WorldMapData {
 private fun WorldMapData.withUpdatedLocation(location: WorldMapLocationData): WorldMapData {
     val existingIndex = locations.indexOfFirst { it.id == location.id }
     val updatedLocations = if (existingIndex >= 0) {
-        locations.toMutableList().apply { set(existingIndex, location) }
+        locations.mapIndexed { index, existing -> if (index == existingIndex) location else existing }
     } else {
         locations + location
     }
