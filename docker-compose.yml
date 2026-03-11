@@ -41,11 +41,11 @@ services:
       - ./local-keycloak/egril-realm.json:/opt/keycloak/data/import/egril-realm.json:ro
     command: start-dev --import-realm
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/health/ready || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/health/ready || exit 1"]
       interval: 15s
       timeout: 10s
-      retries: 10
-      start_period: 30s
+      retries: 12
+      start_period: 60s
 
   backend:
     build:
