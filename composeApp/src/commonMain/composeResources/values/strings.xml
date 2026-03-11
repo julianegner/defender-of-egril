@@ -1263,6 +1263,8 @@
     <string name="audio_dragon_eat_name">Dragon Eating</string>
     <string name="audio_tower_upgraded_name">Tower Upgraded</string>
     <string name="audio_battle_start_name">Battle Start</string>
+    <string name="audio_bomb_ticking_name">Bomb Ticking</string>
+    <string name="audio_bomb_exploding_name">Bomb Exploding</string>
     
     <!-- Audio Item Labels -->
     <string name="audio_file_label">File: %s</string>
