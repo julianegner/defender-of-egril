@@ -9,6 +9,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import de.egril.defender.audio.initializeAndroidAudio
 import de.egril.defender.audio.setAndroidContext
+import de.egril.defender.iam.AndroidIamFlowProvider
 import de.egril.defender.save.AndroidFileExportImport
 
 class MainActivity : ComponentActivity() {
@@ -17,6 +18,10 @@ class MainActivity : ComponentActivity() {
         
         // Initialize context provider for file storage
         AndroidContextProvider.initialize(this)
+        
+        // Register activity with the OIDC auth-flow factory so Chrome Custom Tabs
+        // can redirect back to the app and the login flow can be continued/resumed.
+        AndroidIamFlowProvider.registerActivity(this)
         
         // Initialize file export/import for save files
         AndroidFileExportImport.initialize(this)

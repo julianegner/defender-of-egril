@@ -1484,4 +1484,8 @@
     <string name="ewhad_retreats_text">Vous avez forcé Ewhad à se retirer !</string>
     <string name="ewhad_defeated_title">Ewhad est vaincu</string>
     <string name="ewhad_defeated_text">Vous avez vaincu Ewhad ! Terminez maintenant les autres Ennemis et gagnez le jeu !</string>
+    <!-- IAM / Keycloak -->
+    <string name="iam_login">Connexion</string>
+    <string name="iam_logout">Déconnexion</string>
+    <string name="iam_login_waiting">En attente du navigateur...</string>
 </resources>

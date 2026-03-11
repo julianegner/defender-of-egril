@@ -22,6 +22,7 @@ fun Application.configurePlugins() {
     install(CORS) {
         anyHost()
         allowHeader(HttpHeaders.ContentType)
+        allowHeader(HttpHeaders.Authorization)
         allowMethod(HttpMethod.Post)
     }
 }

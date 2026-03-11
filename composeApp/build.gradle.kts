@@ -259,6 +259,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.oidc.appsupport)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -293,6 +294,7 @@ kotlin {
         }
         
         iosMain.dependencies {
+            implementation(libs.oidc.appsupport)
         }
     }
 }
@@ -314,6 +316,9 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        
+        // Redirect scheme for OIDC (kotlin-multiplatform-oidc library)
+        addManifestPlaceholders(mapOf("oidcRedirectScheme" to "egril"))
         
         // Configure test instrumentation runner
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

@@ -338,6 +338,11 @@ run backend:
 compile backend:
 ./gradlew server:build
 
+#### local buildup (Database, Keycloak (IAM), Backend)
+```bash
+docker compose up -d
+```
+
 ### CI/CD
 
 The project uses GitHub Actions for continuous integration and deployment:

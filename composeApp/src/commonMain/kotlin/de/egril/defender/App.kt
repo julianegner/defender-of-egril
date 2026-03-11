@@ -15,13 +15,16 @@ import de.egril.defender.ui.worldmap.WorldMapScreen
 import de.egril.defender.utils.WindowCloseHandler
 import kotlinx.coroutines.delay
 
+import de.egril.defender.iam.initPlatformIam
+
 @Composable
 fun App() {
-    // Initialize settings and sound on app start
+    // Initialize settings, sound, and IAM on app start
     LaunchedEffect(Unit) {
         AppSettings.initialize()
         de.egril.defender.audio.GlobalSoundManager.initialize()
         de.egril.defender.audio.GlobalBackgroundMusicManager.initialize()
+        initPlatformIam()
     }
     
     // Observe dark mode state
@@ -86,6 +89,10 @@ fun App() {
         val showFreezeImmuneWarning by viewModel.showFreezeImmuneWarning.collectAsState()
         val pendingScrollToPosition by viewModel.pendingScrollToPosition.collectAsState()
         val pendingGameMessage by viewModel.pendingGameMessage.collectAsState()
+
+        // Observe IAM state for login/logout UI updates
+        val iamState by de.egril.defender.iam.IamService.state
+        val iamLoginInProgress by de.egril.defender.iam.IamService.loginInProgress
 
         // Show player selection dialog if needed
         var showPlayerSelection by remember { mutableStateOf(false) }
@@ -221,7 +228,12 @@ fun App() {
                     onShowInstallationInfo = { viewModel.navigateToInstallationInfo() },
                     onSelectPlayer = { showPlayerSelection = true },
                     onEditPlayerName = { viewModel.navigateToPlayerProfile() },
-                    currentPlayerName = currentPlayer?.name
+                    currentPlayerName = currentPlayer?.name,
+                    iamState = iamState,
+                    iamLoginInProgress = iamLoginInProgress,
+                    onIamLogin = { de.egril.defender.iam.IamService.login() },
+                    onIamLogout = { de.egril.defender.iam.IamService.logout() },
+                    onIamLoginCancel = { de.egril.defender.iam.IamService.loginInProgress.value = false }
                 )
             }
             
