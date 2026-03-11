@@ -1485,4 +1485,5 @@
     <!-- IAM / Keycloak -->
     <string name="iam_login">Login</string>
     <string name="iam_logout">Abmelden</string>
+    <string name="iam_login_waiting">Warte auf Browser...</string>
 </resources>

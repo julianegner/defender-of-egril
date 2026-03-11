@@ -1486,4 +1486,5 @@
     <!-- IAM / Keycloak -->
     <string name="iam_login">Iniciar sesión</string>
     <string name="iam_logout">Cerrar sesión</string>
+    <string name="iam_login_waiting">Esperando al navegador...</string>
 </resources>

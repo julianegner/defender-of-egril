@@ -48,8 +48,10 @@ fun MainMenuScreen(
     onEditPlayerName: () -> Unit,
     currentPlayerName: String?,
     iamState: IamState = IamState(),
+    iamLoginInProgress: Boolean = false,
     onIamLogin: () -> Unit = {},
-    onIamLogout: () -> Unit = {}
+    onIamLogout: () -> Unit = {},
+    onIamLoginCancel: () -> Unit = {}
 ) {
     // Track if settings hint should be shown
     val showSettingsHint by AppSettings.settingsHintShown
@@ -172,6 +174,21 @@ fun MainMenuScreen(
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = stringResource(Res.string.iam_logout),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    } else if (iamLoginInProgress) {
+                        OutlinedButton(
+                            onClick = onIamLoginCancel,
+                            modifier = Modifier.height(36.dp)
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(14.dp),
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = stringResource(Res.string.iam_login_waiting),
                                 style = MaterialTheme.typography.bodySmall
                             )
                         }

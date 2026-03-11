@@ -33,10 +33,22 @@ private const val TOKEN_HTTP_TIMEOUT_MS = 10_000
 @Volatile
 private var refreshThreadRunning = false
 
+/**
+ * Fixed loopback port for the PKCE redirect URI.
+ *
+ * Keycloak 24 does NOT support wildcards in the port position of a redirect URI
+ * (e.g. http://localhost:*\/callback is rejected). A dedicated, well-known port
+ * registered in the Keycloak client avoids this restriction.
+ *
+ * The port is registered in local-keycloak/egril-realm.json as
+ * http://localhost:10001/callback.
+ */
+private const val PKCE_CALLBACK_PORT = 10001
+
 internal actual fun startPlatformLogin() {
     Thread {
         try {
-            val port = findFreePort()
+            val port = acquireCallbackPort()
             val redirectUri = "http://localhost:$port/callback"
             val codeVerifier = generateCodeVerifier()
             val codeChallenge = generateCodeChallenge(codeVerifier)
@@ -53,9 +65,16 @@ internal actual fun startPlatformLogin() {
                 append("&code_challenge_method=S256")
             }
 
+            // Open the Keycloak login page in the system browser.
+            // IamService.loginInProgress is set to true by IamService.login() before
+            // this call; the UI shows a "Waiting for browser login" dialog while
+            // this thread is blocked waiting for the callback.
             java.awt.Desktop.getDesktop().browse(URI(authUrl))
 
-            val code = waitForAuthCode(port) ?: return@Thread
+            val code = waitForAuthCode(port)
+            IamService.loginInProgress.value = false
+            if (code == null) return@Thread
+
             val tokenData = exchangeCodeForToken(code, codeVerifier, redirectUri) ?: return@Thread
 
             IamService.state.value = tokenData.toIamState()
@@ -67,6 +86,7 @@ internal actual fun startPlatformLogin() {
             }
         } catch (_: Exception) {
             // Login errors must never disrupt gameplay
+            IamService.loginInProgress.value = false
         }
     }.also { it.isDaemon = true }.start()
 }
@@ -75,6 +95,7 @@ internal actual fun performPlatformLogout() {
     storedRefreshToken = null
     tokenExpiresAtMs = 0L
     refreshThreadRunning = false
+    IamService.loginInProgress.value = false
     // Open the Keycloak logout endpoint in the browser so the SSO session is terminated
     try {
         val logoutUrl = "${IamConfig.logoutUrl}?client_id=${IamConfig.CLIENT_ID}" +
@@ -96,12 +117,12 @@ actual suspend fun initPlatformIam() {
 // ---------------------------------------------------------------------------
 
 /**
- * Starts a daemon thread that refreshes the access token ~[TOKEN_REFRESH_BUFFER_SECONDS]
+ * Starts a daemon thread that refreshes the access token ~TOKEN_REFRESH_BUFFER_SECONDS
  * seconds before it expires. The thread runs until the user logs out or the
  * refresh fails (e.g. refresh token expired or revoked).
  *
- * A [refreshThreadRunning] guard prevents multiple concurrent refresh threads if
- * [startPlatformLogin] is called more than once.
+ * A refreshThreadRunning guard prevents multiple concurrent refresh threads if
+ * startPlatformLogin is called more than once.
  */
 private fun startBackgroundTokenRefresh() {
     if (refreshThreadRunning) return
@@ -189,7 +210,7 @@ private fun parseTokenResponse(json: String): TokenData? {
 
 private fun waitForAuthCode(port: Int): String? {
     val server = ServerSocket(port)
-    server.soTimeout = 60_000 // 1-minute timeout
+    server.soTimeout = 120_000 // 2-minute timeout to give the user time to log in
     return try {
         val socket = server.accept()
         val requestLine = socket.getInputStream().bufferedReader().readLine() ?: return null
@@ -240,6 +261,22 @@ private fun exchangeCodeForToken(code: String, codeVerifier: String, redirectUri
     }
 }
 
+/**
+ * Returns PKCE_CALLBACK_PORT if that port is available, otherwise finds any free port.
+ *
+ * Note: if a fallback port is returned it will NOT be registered in Keycloak, so the
+ * authorization code exchange will fail. In practice port PKCE_CALLBACK_PORT should
+ * always be available on a development machine.
+ */
+private fun acquireCallbackPort(): Int {
+    return try {
+        ServerSocket(PKCE_CALLBACK_PORT).close()
+        PKCE_CALLBACK_PORT
+    } catch (_: Exception) {
+        ServerSocket(0).use { it.localPort }
+    }
+}
+
 private fun generateCodeVerifier(): String =
     Base64.getUrlEncoder().withoutPadding()
         .encodeToString(ByteArray(32).also { Random.nextBytes(it) })
@@ -252,8 +289,6 @@ private fun generateCodeChallenge(verifier: String): String {
 private fun generateRandomBase64(bytes: Int): String =
     Base64.getUrlEncoder().withoutPadding()
         .encodeToString(ByteArray(bytes).also { Random.nextBytes(it) })
-
-private fun findFreePort(): Int = ServerSocket(0).use { it.localPort }
 
 /** Extracts a numeric field from a flat JSON object without a full parser. */
 private fun extractJsonNumberValue(json: String, key: String): Long? =

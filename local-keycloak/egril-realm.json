@@ -5,7 +5,8 @@
   "displayNameHtml": "<b>Egril</b>",
   "loginTheme": "keycloak",
   "registrationAllowed": true,
-  "registrationEmailAsUsername": false,
+  "loginWithEmailAllowed": true,
+  "registrationEmailAsUsername": true,
   "rememberMe": true,
   "resetPasswordAllowed": true,
   "editUsernameAllowed": true,
@@ -25,7 +26,7 @@
       "redirectUris": [
         "http://localhost:8080/*",
         "http://localhost:8888/*",
-        "http://localhost:*/*",
+        "http://localhost:10001/callback",
         "egril://callback"
       ],
       "webOrigins": [
@@ -35,7 +36,7 @@
       ],
       "attributes": {
         "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": "http://localhost:8080/*##http://localhost:8888/*##+##http://localhost:*/*"
+        "post.logout.redirect.uris": "http://localhost:8080/*##http://localhost:8888/*##http://localhost:10001/*##+##egril://callback"
       }
     }
   ]

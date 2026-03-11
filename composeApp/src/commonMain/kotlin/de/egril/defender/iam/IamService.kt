@@ -15,8 +15,15 @@ object IamService {
     /** Reactive authentication state – observe this in Compose via `by IamService.state`. */
     val state: MutableState<IamState> = mutableStateOf(IamState())
 
+    /**
+     * Set to `true` while the PKCE browser redirect is in progress (desktop) so that
+     * the UI can display a "Waiting for browser login…" indicator.
+     */
+    val loginInProgress: MutableState<Boolean> = mutableStateOf(false)
+
     /** Initiates the login flow (platform-specific). */
     fun login() {
+        loginInProgress.value = true
         startPlatformLogin()
     }
 

@@ -92,6 +92,7 @@ fun App() {
 
         // Observe IAM state for login/logout UI updates
         val iamState by de.egril.defender.iam.IamService.state
+        val iamLoginInProgress by de.egril.defender.iam.IamService.loginInProgress
 
         // Show player selection dialog if needed
         var showPlayerSelection by remember { mutableStateOf(false) }
@@ -229,8 +230,10 @@ fun App() {
                     onEditPlayerName = { viewModel.navigateToPlayerProfile() },
                     currentPlayerName = currentPlayer?.name,
                     iamState = iamState,
+                    iamLoginInProgress = iamLoginInProgress,
                     onIamLogin = { de.egril.defender.iam.IamService.login() },
-                    onIamLogout = { de.egril.defender.iam.IamService.logout() }
+                    onIamLogout = { de.egril.defender.iam.IamService.logout() },
+                    onIamLoginCancel = { de.egril.defender.iam.IamService.loginInProgress.value = false }
                 )
             }
             

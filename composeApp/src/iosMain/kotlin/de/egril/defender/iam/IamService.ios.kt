@@ -89,6 +89,8 @@ internal actual fun startPlatformLogin() {
             }
         } catch (_: Exception) {
             // Login errors must never disrupt gameplay
+        } finally {
+            IamService.loginInProgress.value = false
         }
     }
 }
