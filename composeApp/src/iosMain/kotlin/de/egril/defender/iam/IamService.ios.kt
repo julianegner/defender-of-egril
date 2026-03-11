@@ -25,5 +25,8 @@ internal actual fun performPlatformLogout() {
 }
 
 actual suspend fun initPlatformIam() {
-    // iOS login is triggered manually; nothing to restore on startup
+    // iOS login is triggered manually via Safari and the app does not receive a
+    // redirect callback (no ASWebAuthenticationSession integration yet). Because
+    // no token is stored in the app, automated silent token refresh is not
+    // applicable on this platform until full AppAuth-based login is implemented.
 }

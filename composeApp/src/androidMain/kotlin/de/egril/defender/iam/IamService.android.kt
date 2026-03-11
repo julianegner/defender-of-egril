@@ -32,5 +32,8 @@ internal actual fun performPlatformLogout() {
 }
 
 actual suspend fun initPlatformIam() {
-    // Android login is triggered manually; nothing to restore on startup
+    // Android login is triggered manually via the system browser and the app does
+    // not receive a callback URI (no AppAuth integration yet). Because no token is
+    // stored in the app, automated silent token refresh is not applicable on this
+    // platform until full AppAuth-based login is implemented.
 }

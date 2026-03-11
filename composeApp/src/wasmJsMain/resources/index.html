@@ -107,6 +107,23 @@
                     window._keycloak = kc;
                     // checkLoginIframe: false avoids CSP/third-party-cookie issues in modern browsers.
                     // Re-enable in production if your deployment environment allows same-site iframes.
+                    // Called automatically when the access token is refreshed successfully.
+                    kc.onAuthRefreshSuccess = function () {
+                        window._kcToken = kc.token || null;
+                        window._kcAuthenticated = true;
+                        window._kcUsername = (kc.tokenParsed && kc.tokenParsed.preferred_username) || window._kcUsername;
+                    };
+
+                    // Called when the access token expires. Attempt a silent refresh;
+                    // if it fails the session has ended and we clear the auth state.
+                    kc.onTokenExpired = function () {
+                        kc.updateToken(30)
+                            .catch(function () {
+                                window._kcAuthenticated = false;
+                                window._kcToken = null;
+                            });
+                    };
+
                     kc.init({ onLoad: 'check-sso', checkLoginIframe: false, silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html' })
                         .then(function (authenticated) {
                             window._kcAuthenticated = authenticated === true;
