@@ -65,11 +65,11 @@ internal actual fun startPlatformLogin() {
                 append("&code_challenge_method=S256")
             }
 
-            // Open the Keycloak login page in the system browser.
+            // Open the Keycloak login page in a new browser window in the foreground.
             // IamService.loginInProgress is set to true by IamService.login() before
             // this call; the UI shows a "Waiting for browser login" dialog while
             // this thread is blocked waiting for the callback.
-            java.awt.Desktop.getDesktop().browse(URI(authUrl))
+            openBrowserNewWindow(authUrl)
 
             val code = waitForAuthCode(port) ?: return@Thread
 
@@ -292,3 +292,91 @@ private fun generateRandomBase64(bytes: Int): String =
 /** Extracts a numeric field from a flat JSON object without a full parser. */
 private fun extractJsonNumberValue(json: String, key: String): Long? =
     Regex("\"${Regex.escape(key)}\"\\s*:\\s*(\\d+)").find(json)?.groupValues?.get(1)?.toLongOrNull()
+
+// ---------------------------------------------------------------------------
+// Browser launcher – opens the URL in a new foreground window
+// ---------------------------------------------------------------------------
+
+/**
+ * Opens [url] in a new browser window rather than a background tab.
+ *
+ * Strategy per OS:
+ * - **macOS**: `open -n <url>` forces a new instance/window of the default browser.
+ * - **Windows**: `cmd /c start "" <url>` opens in the default browser (new window or focused tab).
+ * - **Linux / other**: tries common browsers with `--new-window`; falls back to `xdg-open`.
+ *
+ * Falls back to [java.awt.Desktop.browse] if all process-based attempts fail.
+ */
+private fun openBrowserNewWindow(url: String) {
+    val os = System.getProperty("os.name").lowercase()
+    try {
+        when {
+            os.contains("mac") -> {
+                // -n opens a new instance (new window) of whichever app handles the URL
+                ProcessBuilder("open", "-n", url).inheritIO().start()
+                return
+            }
+            os.contains("win") -> {
+                // 'start' opens the URL in the system default browser
+                ProcessBuilder("cmd.exe", "/c", "start", "", url).inheritIO().start()
+                return
+            }
+            else -> {
+                // Linux / BSD: attempt browser-specific --new-window flags
+                if (openBrowserLinuxNewWindow(url)) return
+            }
+        }
+    } catch (_: Exception) {
+        // Fall through to AWT fallback
+    }
+    // AWT fallback – may open a tab rather than a window but is always available
+    try {
+        java.awt.Desktop.getDesktop().browse(URI(url))
+    } catch (e: Exception) {
+        // Both the process-based launch and AWT have failed.
+        // The loginInProgress flag is cleared by the thread's finally block, so the
+        // spinner in the UI will disappear and the user can try again.
+        println("IAM: Failed to open browser for login: ${e.message}")
+    }
+}
+
+/**
+ * On Linux, detects the default browser via `xdg-settings` and tries to launch it
+ * with `--new-window`. Returns `true` if the browser process was started successfully.
+ */
+private fun openBrowserLinuxNewWindow(url: String): Boolean {
+    // Detect the default browser .desktop file (e.g. "google-chrome.desktop")
+    val defaultDesktop = try {
+        val proc = ProcessBuilder("xdg-settings", "get", "default-web-browser").start()
+        val result = proc.inputStream.bufferedReader().readLine()?.trim()?.lowercase() ?: ""
+        proc.waitFor()
+        result
+    } catch (_: Exception) {
+        ""
+    }
+
+    // Map recognised .desktop names to their CLI binary + --new-window flag
+    val command: List<String>? = when {
+        "chromium" in defaultDesktop -> listOf("chromium", "--new-window", url)
+        "chrome" in defaultDesktop  -> listOf("google-chrome", "--new-window", url)
+        "brave" in defaultDesktop   -> listOf("brave-browser", "--new-window", url)
+        "firefox" in defaultDesktop -> listOf("firefox", "--new-window", url)
+        "epiphany" in defaultDesktop -> listOf("epiphany", "--new-window", url)
+        else -> null
+    }
+
+    if (command != null) {
+        try {
+            ProcessBuilder(command).inheritIO().start()
+            return true
+        } catch (_: Exception) {}
+    }
+
+    // Generic Linux fallback: xdg-open (may open a tab in an existing window)
+    return try {
+        ProcessBuilder("xdg-open", url).inheritIO().start()
+        true
+    } catch (_: Exception) {
+        false
+    }
+}

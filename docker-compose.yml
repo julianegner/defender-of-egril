@@ -35,12 +35,15 @@ services:
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+      # Required for /health/ready to be served on the management port (9000)
+      KC_HEALTH_ENABLED: "true"
     ports:
       - "8081:8080"
     volumes:
       - ./local-keycloak/egril-realm.json:/opt/keycloak/data/import/egril-realm.json:ro
     command: start-dev --import-realm
     # Keycloak 24+ exposes /health/ready on the management port (9000), not 8080.
+    # KC_HEALTH_ENABLED=true is required for that endpoint to respond.
     # start_period is generous here because the backend image build (Gradle) runs in
     # parallel and can temporarily starve the host CPU, slowing Keycloak's JVM startup.
     healthcheck:
