@@ -11,6 +11,12 @@ COPY server/build.gradle.kts server/build.gradle.kts
 
 RUN chmod +x gradlew
 
+# settings.gradle.kts includes both :composeApp and :server.
+# The composeApp module is not needed for the server build, but Gradle requires
+# the declared project directory to exist. Create a minimal stub so configuration
+# succeeds without copying any composeApp source code.
+RUN mkdir -p composeApp && echo "" > composeApp/build.gradle.kts
+
 # Download dependencies (cached unless build files change)
 RUN ./gradlew :server:dependencies --no-daemon -q || true
 
