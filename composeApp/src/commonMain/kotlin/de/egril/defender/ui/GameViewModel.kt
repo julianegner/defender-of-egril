@@ -1454,7 +1454,10 @@ class GameViewModel {
             val token = de.egril.defender.iam.IamService.getToken() ?: return@launch
             val remoteFiles = try {
                 de.egril.defender.save.BackendSaveService.fetchSavefiles(token)
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Failed to fetch remote savefiles: ${e.message}")
+                }
                 null
             } ?: return@launch
             val remoteIds = remoteFiles.map { it.saveId }.toSet()
@@ -1468,8 +1471,14 @@ class GameViewModel {
             // Add remote-only saves (not present locally) using metadata from remote JSON
             for (remote in remoteFiles) {
                 if (remote.saveId !in localIds) {
-                    val savedGame = de.egril.defender.save.SaveJsonSerializer
-                        .deserializeSavedGame(remote.data)
+                    val savedGame = try {
+                        de.egril.defender.save.SaveJsonSerializer.deserializeSavedGame(remote.data)
+                    } catch (e: Exception) {
+                        if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                            println("Failed to parse remote savefile ${remote.saveId}: ${e.message}")
+                        }
+                        null
+                    }
                     if (savedGame != null) {
                         val metadata = de.egril.defender.save.SaveFileStorage
                             .buildMetadataFromSavedGame(savedGame)

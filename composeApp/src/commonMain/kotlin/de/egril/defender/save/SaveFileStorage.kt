@@ -118,77 +118,14 @@ object SaveFileStorage {
         val files = fileStorage.listFiles(getSavefilesDir())
         val savedGames = mutableListOf<SaveGameMetadata>()
         
-        // Load levels to get spawn plans (cache for performance)
-        val levels = cachedLevels ?: LevelData.createLevels().also { cachedLevels = it }
-        
         for (filename in files) {
             if (!filename.endsWith(".json") || filename == "level_progress.json") continue
             
-            val saveId = filename.removeSuffix(".json")
             val json = fileStorage.readFile("${getSavefilesDir()}/$filename")
             if (json != null) {
                 val savedGame = SaveJsonSerializer.deserializeSavedGame(json)
                 if (savedGame != null) {
-                    // Count defenders by type (only built towers)
-                    val defenderCounts = savedGame.defenders
-                        .filter { it.buildTimeRemaining == 0 }
-                        .groupingBy { it.type }
-                        .eachCount()
-                    
-                    // Count active attackers by type
-                    val attackerCounts = savedGame.attackers
-                        .filter { !it.isDefeated }
-                        .groupingBy { it.type }
-                        .eachCount()
-                    
-                    // Count remaining spawns from level descriptor
-                    // Find the level to get the spawn plan
-                    val level = levels.find { it.id == savedGame.levelId }
-                    val remainingSpawnCounts = if (level != null) {
-                        // Get the spawn plan (either from editor or generated from waves)
-                        val spawnPlan = level.directSpawnPlan ?: generateSpawnPlan(level.attackerWaves)
-                        
-                        // Filter to get only future spawns (turn > current turn)
-                        spawnPlan
-                            .filter { it.spawnTurn > savedGame.turnNumber }
-                            .map { it.attackerType }
-                            .groupingBy { it }
-                            .eachCount()
-                    } else {
-                        // Fallback to old behavior if level not found
-                        savedGame.attackersToSpawn
-                            .groupingBy { it }
-                            .eachCount()
-                    }
-                    
-                    // Count traps by type
-                    val dwarvenTrapCount = savedGame.traps.count { it.type == "DWARVEN" }
-                    val magicalTrapCount = savedGame.traps.count { it.type == "MAGICAL" }
-                    
-                    savedGames.add(
-                        SaveGameMetadata(
-                            id = savedGame.id,
-                            timestamp = savedGame.timestamp,
-                            levelId = savedGame.levelId,
-                            levelName = savedGame.levelName,
-                            turnNumber = savedGame.turnNumber,
-                            coins = savedGame.coins,
-                            healthPoints = savedGame.healthPoints,
-                            towerCount = savedGame.defenders.size,
-                            enemyCount = savedGame.attackers.count { !it.isDefeated },
-                            defenderCounts = defenderCounts,
-                            attackerCounts = attackerCounts,
-                            remainingSpawnCounts = remainingSpawnCounts,
-                            dwarvenTrapCount = dwarvenTrapCount,
-                            magicalTrapCount = magicalTrapCount,
-                            barricadeCount = savedGame.barricades.size,
-                            comment = savedGame.comment,
-                            defenderPositions = savedGame.defenders,
-                            attackerPositions = savedGame.attackers,
-                            barricadePositions = savedGame.barricades,  // Include barricade positions for minimap display
-                            mapId = savedGame.mapId  // Include map ID for minimap display
-                        )
-                    )
+                    savedGames.add(buildMetadataFromSavedGame(savedGame))
                 }
             }
         }

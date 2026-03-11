@@ -3,8 +3,11 @@ package de.egril.defender.save
 import java.net.HttpURLConnection
 import java.net.URL
 
-private val backendUrl: String
-    get() = System.getProperty("analytics.backend.url")
+internal val backendBaseUrl: String
+    get() = System.getProperty("defender.backend.url")
+        ?: System.getenv("DEFENDER_BACKEND_URL")
+        // Fall back to the analytics backend URL for backward compatibility
+        ?: System.getProperty("analytics.backend.url")
         ?: System.getenv("ANALYTICS_BACKEND_URL")
         ?: "http://localhost:8080"
 
@@ -14,7 +17,7 @@ private val backendUrl: String
  */
 internal fun jvmHttpPost(path: String, body: String, token: String): Int {
     return try {
-        val connection = URL("$backendUrl$path").openConnection() as HttpURLConnection
+        val connection = URL("$backendBaseUrl$path").openConnection() as HttpURLConnection
         connection.requestMethod = "POST"
         connection.doOutput = true
         connection.setRequestProperty("Content-Type", "application/json")
@@ -36,7 +39,7 @@ internal fun jvmHttpPost(path: String, body: String, token: String): Int {
  */
 internal fun jvmHttpGet(path: String, token: String): String? {
     return try {
-        val connection = URL("$backendUrl$path").openConnection() as HttpURLConnection
+        val connection = URL("$backendBaseUrl$path").openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
         connection.setRequestProperty("Authorization", "Bearer $token")
         connection.connectTimeout = 10_000
