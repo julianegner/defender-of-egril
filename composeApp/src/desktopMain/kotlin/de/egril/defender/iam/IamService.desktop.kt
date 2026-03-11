@@ -96,11 +96,19 @@ internal actual fun performPlatformLogout() {
     tokenExpiresAtMs = 0L
     refreshThreadRunning = false
     IamService.loginInProgress.value = false
-    // Open the Keycloak logout endpoint in the browser so the SSO session is terminated
+    // Open the Keycloak logout endpoint in the browser so the SSO session is terminated.
+    // We listen on PKCE_CALLBACK_PORT for the post-logout redirect so that we can serve
+    // an auto-closing "Logged out" page. The URI http://localhost:10001/* is registered
+    // in the Keycloak client, so http://localhost:10001/logout-callback is accepted.
     try {
+        val logoutCallbackUri = "http://localhost:$PKCE_CALLBACK_PORT/logout-callback"
         val logoutUrl = "${IamConfig.logoutUrl}?client_id=${IamConfig.CLIENT_ID}" +
-                "&post_logout_redirect_uri=${URLEncoder.encode("http://localhost", "UTF-8")}"
-        java.awt.Desktop.getDesktop().browse(URI(logoutUrl))
+                "&post_logout_redirect_uri=${URLEncoder.encode(logoutCallbackUri, "UTF-8")}"
+        // Spin up a one-shot server BEFORE opening the browser so we don't miss the redirect.
+        Thread {
+            serveLogoutCallback()
+        }.also { it.isDaemon = true }.start()
+        openBrowserNewWindow(logoutUrl)
     } catch (_: Exception) {
         // Ignore – local state has already been cleared by IamService.logout()
     }
@@ -221,17 +229,76 @@ private fun waitForAuthCode(port: Int): String? {
             .mapNotNull { it.split("=", limit = 2).takeIf { p -> p.size == 2 } }
             .associate { (k, v) -> k to v }
 
-        val html = "<html><body><h2>Login successful! You may close this window.</h2></body></html>"
-        socket.getOutputStream().write(
-            "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n$html".toByteArray()
+        // Auto-close the browser window after 2 seconds so the user returns to the app.
+        // window.close() is blocked by browsers when the page was not opened via JS, so
+        // we also show a manual-close hint as fallback.
+        serveAutoClosePage(
+            socket,
+            heading = "&#x2713; Login successful!",
+            message = "Returning to the game&hellip; you can close this window if it does not close automatically."
         )
-        socket.close()
         params["code"]
     } catch (_: Exception) {
         null
     } finally {
         server.close()
     }
+}
+
+/**
+ * Listens on [PKCE_CALLBACK_PORT] for a single request (the post-logout redirect from
+ * Keycloak) and serves an auto-closing "Logged out" page.
+ *
+ * The server times out after 30 seconds; if Keycloak never redirects (e.g. network error)
+ * it exits silently – the local state has already been cleared by [performPlatformLogout].
+ */
+private fun serveLogoutCallback() {
+    try {
+        val server = ServerSocket(PKCE_CALLBACK_PORT)
+        server.soTimeout = 30_000
+        try {
+            val socket = server.accept()
+            serveAutoClosePage(
+                socket,
+                heading = "&#x2713; Logged out successfully!",
+                message = "You can close this window or return to the game."
+            )
+        } finally {
+            server.close()
+        }
+    } catch (_: Exception) {
+        // Server timeout or bind failure – silently ignored, local state already cleared.
+    }
+}
+
+/**
+ * Writes a self-contained HTML page to [socket] that displays [heading] and [message],
+ * then attempts to close the browser window automatically after 2 seconds via JavaScript.
+ * Includes security headers to prevent XSS and clickjacking.
+ * The socket is closed after writing.
+ */
+private fun serveAutoClosePage(socket: java.net.Socket, heading: String, message: String) {
+    val html = """<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8">
+<style>body{font-family:sans-serif;text-align:center;padding:40px;}</style>
+</head>
+<body>
+<h2>$heading</h2>
+<p>$message</p>
+<script>setTimeout(function(){window.open('','_self');window.close();},2000);</script>
+</body>
+</html>"""
+    socket.getOutputStream().write(buildString {
+        append("HTTP/1.1 200 OK\r\n")
+        append("Content-Type: text/html; charset=UTF-8\r\n")
+        append("Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'\r\n")
+        append("X-Frame-Options: DENY\r\n")
+        append("X-Content-Type-Options: nosniff\r\n")
+        append("\r\n")
+        append(html)
+    }.toByteArray())
+    socket.close()
 }
 
 private fun exchangeCodeForToken(code: String, codeVerifier: String, redirectUri: String): TokenData? {
