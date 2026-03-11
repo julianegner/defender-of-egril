@@ -40,12 +40,15 @@ services:
     volumes:
       - ./local-keycloak/egril-realm.json:/opt/keycloak/data/import/egril-realm.json:ro
     command: start-dev --import-realm
+    # Keycloak 24+ exposes /health/ready on the management port (9000), not 8080.
+    # start_period is generous here because the backend image build (Gradle) runs in
+    # parallel and can temporarily starve the host CPU, slowing Keycloak's JVM startup.
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9000/health/ready || exit 1"]
       interval: 15s
       timeout: 10s
-      retries: 12
-      start_period: 60s
+      retries: 20
+      start_period: 180s
 
   backend:
     build:
@@ -66,6 +69,7 @@ services:
         condition: service_healthy
       keycloak:
         condition: service_healthy
+    restart: on-failure
 
 volumes:
   postgres_data:
