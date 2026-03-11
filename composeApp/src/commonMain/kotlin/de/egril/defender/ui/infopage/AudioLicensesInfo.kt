@@ -263,6 +263,26 @@ fun AudioLicensesInfo() {
                     license = "Attribution 4.0",
                     licenseUrl = "https://creativecommons.org/licenses/by/4.0/"
                 )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                AudioItem(
+                    name = stringResource(Res.string.audio_bomb_ticking_name),
+                    file = "487725__lilmati__ticking-timer-05-sec.wav",
+                    source = "https://freesound.org/people/LilMati/sounds/487725/",
+                    license = "Creative Commons 0",
+                    licenseUrl = "https://creativecommons.org/publicdomain/zero/1.0/"
+                )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                AudioItem(
+                    name = stringResource(Res.string.audio_bomb_exploding_name),
+                    file = "473941__sangnamsa__impact.wav",
+                    source = "https://freesound.org/people/sangnamsa/sounds/473941/",
+                    license = "Creative Commons 0",
+                    licenseUrl = "https://creativecommons.org/publicdomain/zero/1.0/"
+                )
             }
             
             Spacer(modifier = Modifier.height(16.dp))

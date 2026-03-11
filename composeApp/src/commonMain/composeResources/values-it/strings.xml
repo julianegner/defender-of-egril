@@ -1261,6 +1261,8 @@
     <string name="audio_dragon_eat_name">Drago che Mangia</string>
     <string name="audio_tower_upgraded_name">Torre Potenziata</string>
     <string name="audio_battle_start_name">Inizio Battaglia</string>
+    <string name="audio_bomb_ticking_name">Bomba che Ticchetta</string>
+    <string name="audio_bomb_exploding_name">Bomba che Esplode</string>
     
     <!-- Audio Item Labels -->
     <string name="audio_file_label">File: %s</string>

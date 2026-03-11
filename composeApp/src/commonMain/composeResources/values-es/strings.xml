@@ -1261,6 +1261,8 @@
     <string name="audio_dragon_eat_name">Dragón Comiendo</string>
     <string name="audio_tower_upgraded_name">Torre Mejorada</string>
     <string name="audio_battle_start_name">Inicio de Batalla</string>
+    <string name="audio_bomb_ticking_name">Bomba Haciendo Tictac</string>
+    <string name="audio_bomb_exploding_name">Bomba Explotando</string>
     
     <!-- Audio Item Labels -->
     <string name="audio_file_label">Archivo: %s</string>
