@@ -1,32 +1,143 @@
 package de.egril.defender.iam
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import org.publicvalue.multiplatform.oidc.OpenIdConnectClient
+import org.publicvalue.multiplatform.oidc.types.CodeChallengeMethod
+import org.publicvalue.multiplatform.oidc.appsupport.IosCodeAuthFlowFactory
+import platform.Foundation.NSDate
+
 actual fun getIamBaseUrl(): String = "http://localhost:8081"
 
+// ---------------------------------------------------------------------------
+// OIDC redirect URI – must be a valid redirect URI registered in Keycloak.
+// ASWebAuthenticationSession handles the custom scheme automatically.
+// ---------------------------------------------------------------------------
+private const val IOS_REDIRECT_URI = "egril://callback"
+
+// ---------------------------------------------------------------------------
+// Token storage – held in memory only
+// ---------------------------------------------------------------------------
+
+@Volatile
+private var storedRefreshToken: String? = null
+
+/** Epoch-millisecond timestamp at which the current access token expires. */
+@Volatile
+private var tokenExpiresAtMs: Long = 0L
+
+private const val TOKEN_REFRESH_BUFFER_SECONDS = 30L
+
+@Volatile
+private var refreshCoroutineRunning = false
+
+private const val DEFAULT_TOKEN_EXPIRY_SECONDS = 300L
+private const val FALLBACK_USERNAME = "unknown"
+
+/** Single factory instance – ASWebAuthenticationSession, no additional setup required. */
+private val iosAuthFlowFactory = IosCodeAuthFlowFactory()
+
+/** Coroutine scope for login and background refresh. */
+private val iamScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
+// ---------------------------------------------------------------------------
+// OIDC client factory
+// ---------------------------------------------------------------------------
+
+private fun createOidcClient(): OpenIdConnectClient = OpenIdConnectClient {
+    endpoints {
+        tokenEndpoint = IamConfig.tokenUrl
+        authorizationEndpoint = IamConfig.authUrl
+        endSessionEndpoint = IamConfig.logoutUrl
+    }
+    clientId = IamConfig.CLIENT_ID
+    scope = "openid profile"
+    codeChallengeMethod = CodeChallengeMethod.S256
+    redirectUri = IOS_REDIRECT_URI
+}
+
+/** Current time as epoch milliseconds using Foundation's NSDate. */
+private fun nowMs(): Long = (NSDate().timeIntervalSince1970 * 1000).toLong()
+
+// ---------------------------------------------------------------------------
+// Platform implementations
+// ---------------------------------------------------------------------------
+
 internal actual fun startPlatformLogin() {
-    // On iOS, open the Keycloak auth page in Safari.
-    // Full ASWebAuthenticationSession integration can be added in a future iteration.
-    try {
-        val authUrl = buildString {
-            append(IamConfig.authUrl)
-            append("?client_id=").append(IamConfig.CLIENT_ID)
-            append("&response_type=code")
-            append("&scope=openid")
+    iamScope.launch {
+        try {
+            val client = createOidcClient()
+            val flow = iosAuthFlowFactory.createAuthFlow(client)
+            // startLogin presents ASWebAuthenticationSession; continueLogin waits for the redirect.
+            flow.startLogin()
+            val tokens = flow.continueLogin()
+
+            val accessToken = tokens.access_token ?: return@launch
+            IamService.state.value = IamState(
+                isAuthenticated = true,
+                username = parseJwtUsername(accessToken) ?: FALLBACK_USERNAME,
+                token = accessToken
+            )
+            storedRefreshToken = tokens.refresh_token
+            tokenExpiresAtMs = nowMs() + (tokens.expires_in?.toLong() ?: DEFAULT_TOKEN_EXPIRY_SECONDS) * 1_000L
+
+            if (tokens.refresh_token != null) {
+                startBackgroundTokenRefresh(client)
+            }
+        } catch (_: Exception) {
+            // Login errors must never disrupt gameplay
         }
-        val nsUrl = platform.Foundation.NSURL.URLWithString(authUrl) ?: return
-        @Suppress("DEPRECATION")
-        platform.UIKit.UIApplication.sharedApplication.openURL(nsUrl)
-    } catch (_: Exception) {
-        // Ignore – login errors must never disrupt gameplay
     }
 }
 
 internal actual fun performPlatformLogout() {
-    // Local state is cleared by IamService.logout(); no server-side action for now
+    storedRefreshToken = null
+    tokenExpiresAtMs = 0L
+    refreshCoroutineRunning = false
 }
 
 actual suspend fun initPlatformIam() {
-    // iOS login is triggered manually via Safari and the app does not receive a
-    // redirect callback (no ASWebAuthenticationSession integration yet). Because
-    // no token is stored in the app, automated silent token refresh is not
-    // applicable on this platform until full AppAuth-based login is implemented.
+    // iOS login is triggered manually via ASWebAuthenticationSession.
+    // No stored session is restored on startup (no TokenStore used).
+}
+
+// ---------------------------------------------------------------------------
+// Background token refresh
+// ---------------------------------------------------------------------------
+
+private fun startBackgroundTokenRefresh(client: OpenIdConnectClient) {
+    if (refreshCoroutineRunning) return
+    refreshCoroutineRunning = true
+
+    iamScope.launch {
+        while (refreshCoroutineRunning) {
+            val refreshToken = storedRefreshToken ?: break
+            val msUntilRefresh = tokenExpiresAtMs - nowMs() - TOKEN_REFRESH_BUFFER_SECONDS * 1_000L
+            if (msUntilRefresh > 0) {
+                delay(msUntilRefresh)
+            }
+
+            if (!refreshCoroutineRunning || storedRefreshToken == null) break
+
+            try {
+                val newTokens = client.refreshToken(refreshToken = refreshToken)
+                val accessToken = newTokens.access_token ?: break
+                IamService.state.value = IamState(
+                    isAuthenticated = true,
+                    username = parseJwtUsername(accessToken) ?: IamService.state.value.username ?: FALLBACK_USERNAME,
+                    token = accessToken
+                )
+                storedRefreshToken = newTokens.refresh_token ?: refreshToken
+                tokenExpiresAtMs = nowMs() + (newTokens.expires_in?.toLong() ?: DEFAULT_TOKEN_EXPIRY_SECONDS) * 1_000L
+            } catch (_: Exception) {
+                // Refresh token expired or revoked – log out silently
+                IamService.logout()
+                break
+            }
+        }
+        refreshCoroutineRunning = false
+    }
 }
