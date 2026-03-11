@@ -71,9 +71,7 @@ internal actual fun startPlatformLogin() {
             // this thread is blocked waiting for the callback.
             java.awt.Desktop.getDesktop().browse(URI(authUrl))
 
-            val code = waitForAuthCode(port)
-            IamService.loginInProgress.value = false
-            if (code == null) return@Thread
+            val code = waitForAuthCode(port) ?: return@Thread
 
             val tokenData = exchangeCodeForToken(code, codeVerifier, redirectUri) ?: return@Thread
 
@@ -86,6 +84,8 @@ internal actual fun startPlatformLogin() {
             }
         } catch (_: Exception) {
             // Login errors must never disrupt gameplay
+        } finally {
+            // Always clear the in-progress flag, regardless of success or failure.
             IamService.loginInProgress.value = false
         }
     }.also { it.isDaemon = true }.start()
@@ -270,8 +270,7 @@ private fun exchangeCodeForToken(code: String, codeVerifier: String, redirectUri
  */
 private fun acquireCallbackPort(): Int {
     return try {
-        ServerSocket(PKCE_CALLBACK_PORT).close()
-        PKCE_CALLBACK_PORT
+        ServerSocket(PKCE_CALLBACK_PORT).use { PKCE_CALLBACK_PORT }
     } catch (_: Exception) {
         ServerSocket(0).use { it.localPort }
     }
