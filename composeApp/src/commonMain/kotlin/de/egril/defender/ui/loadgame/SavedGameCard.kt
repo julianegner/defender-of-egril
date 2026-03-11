@@ -116,6 +116,8 @@ fun SavedGameCard(
                 SavedGameCardHeader(
                     levelName = displayName,
                     dateStr = dateStr,
+                    isLocal = saveGame.isLocal,
+                    isRemote = saveGame.isRemote,
                     isMobile = isMobileCard
                 )
                 

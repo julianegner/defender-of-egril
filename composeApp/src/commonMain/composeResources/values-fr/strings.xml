@@ -93,6 +93,8 @@
     <string name="download_savefile_tooltip">Télécharger cette sauvegarde</string>
     <string name="download_all_tooltip">Télécharger toutes les sauvegardes sous forme d'archive ZIP</string>
     <string name="upload_tooltip">Téléverser des sauvegardes (JSON ou ZIP)</string>
+    <string name="savefile_chip_local">local</string>
+    <string name="savefile_chip_remote">en ligne</string>
     <string name="file_override_title">Le fichier existe déjà</string>
     <string name="file_override_message">Une sauvegarde nommée "%s" existe déjà. Que voulez-vous faire?</string>
     <string name="skip_file">Ignorer</string>

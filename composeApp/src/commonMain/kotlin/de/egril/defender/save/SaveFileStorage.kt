@@ -195,6 +195,59 @@ object SaveFileStorage {
         
         return savedGames.sortedByDescending { it.timestamp }
     }
+
+    /**
+     * Convert a [SavedGame] to [SaveGameMetadata], computing counts and enriching with level data.
+     * This is used for both local and remote save files.
+     */
+    fun buildMetadataFromSavedGame(savedGame: SavedGame): SaveGameMetadata {
+        val levels = cachedLevels ?: LevelData.createLevels().also { cachedLevels = it }
+
+        val defenderCounts = savedGame.defenders
+            .filter { it.buildTimeRemaining == 0 }
+            .groupingBy { it.type }
+            .eachCount()
+
+        val attackerCounts = savedGame.attackers
+            .filter { !it.isDefeated }
+            .groupingBy { it.type }
+            .eachCount()
+
+        val level = levels.find { it.id == savedGame.levelId }
+        val remainingSpawnCounts = if (level != null) {
+            val spawnPlan = level.directSpawnPlan ?: generateSpawnPlan(level.attackerWaves)
+            spawnPlan
+                .filter { it.spawnTurn > savedGame.turnNumber }
+                .map { it.attackerType }
+                .groupingBy { it }
+                .eachCount()
+        } else {
+            savedGame.attackersToSpawn.groupingBy { it }.eachCount()
+        }
+
+        return SaveGameMetadata(
+            id = savedGame.id,
+            timestamp = savedGame.timestamp,
+            levelId = savedGame.levelId,
+            levelName = savedGame.levelName,
+            turnNumber = savedGame.turnNumber,
+            coins = savedGame.coins,
+            healthPoints = savedGame.healthPoints,
+            towerCount = savedGame.defenders.size,
+            enemyCount = savedGame.attackers.count { !it.isDefeated },
+            defenderCounts = defenderCounts,
+            attackerCounts = attackerCounts,
+            remainingSpawnCounts = remainingSpawnCounts,
+            dwarvenTrapCount = savedGame.traps.count { it.type == "DWARVEN" },
+            magicalTrapCount = savedGame.traps.count { it.type == "MAGICAL" },
+            barricadeCount = savedGame.barricades.size,
+            comment = savedGame.comment,
+            defenderPositions = savedGame.defenders,
+            attackerPositions = savedGame.attackers,
+            barricadePositions = savedGame.barricades,
+            mapId = savedGame.mapId
+        )
+    }
     
     /**
      * Delete a saved game

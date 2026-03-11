@@ -1447,7 +1447,40 @@ class GameViewModel {
     }
     
     private fun refreshSavedGames() {
-        _savedGames.value = de.egril.defender.save.SaveFileStorage.getAllSavedGames()
+        val localGames = de.egril.defender.save.SaveFileStorage.getAllSavedGames()
+        _savedGames.value = localGames
+        // Asynchronously enrich with remote save information
+        viewModelScope.launch {
+            val token = de.egril.defender.iam.IamService.getToken() ?: return@launch
+            val remoteFiles = try {
+                de.egril.defender.save.BackendSaveService.fetchSavefiles(token)
+            } catch (_: Exception) {
+                null
+            } ?: return@launch
+            val remoteIds = remoteFiles.map { it.saveId }.toSet()
+            val localIds = localGames.map { it.id }.toSet()
+            // Build merged list: union of local and remote saves
+            val merged = mutableListOf<de.egril.defender.save.SaveGameMetadata>()
+            // Annotate local saves with isRemote flag
+            for (local in localGames) {
+                merged.add(local.copy(isLocal = true, isRemote = local.id in remoteIds))
+            }
+            // Add remote-only saves (not present locally) using metadata from remote JSON
+            for (remote in remoteFiles) {
+                if (remote.saveId !in localIds) {
+                    val savedGame = de.egril.defender.save.SaveJsonSerializer
+                        .deserializeSavedGame(remote.data)
+                    if (savedGame != null) {
+                        val metadata = de.egril.defender.save.SaveFileStorage
+                            .buildMetadataFromSavedGame(savedGame)
+                        merged.add(metadata.copy(isLocal = false, isRemote = true))
+                    }
+                }
+            }
+            // Sort by timestamp descending (newest first)
+            merged.sortByDescending { it.timestamp }
+            _savedGames.value = merged
+        }
     }
     
     private fun saveWorldMapStatus() {

@@ -93,6 +93,8 @@
     <string name="download_savefile_tooltip">Descargar esta partida guardada</string>
     <string name="download_all_tooltip">Descargar todas las partidas guardadas como archivo ZIP</string>
     <string name="upload_tooltip">Subir partidas guardadas (JSON o ZIP)</string>
+    <string name="savefile_chip_local">local</string>
+    <string name="savefile_chip_remote">online</string>
     <string name="file_override_title">El archivo ya existe</string>
     <string name="file_override_message">Ya existe una partida guardada llamada "%s". ¿Qué te gustaría hacer?</string>
     <string name="skip_file">Saltar</string>

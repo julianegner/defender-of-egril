@@ -138,5 +138,7 @@ data class SaveGameMetadata(
     val defenderPositions: List<SavedDefender> = emptyList(),  // Positions for minimap display
     val attackerPositions: List<SavedAttacker> = emptyList(),  // Positions for minimap display
     val barricadePositions: List<SavedBarricade> = emptyList(),  // Barricade positions for minimap display
-    val mapId: String? = null  // Map identifier (for minimap display)
+    val mapId: String? = null,  // Map identifier (for minimap display)
+    val isLocal: Boolean = true,  // True if this save exists locally on the device
+    val isRemote: Boolean = false  // True if this save exists on the backend
 )
