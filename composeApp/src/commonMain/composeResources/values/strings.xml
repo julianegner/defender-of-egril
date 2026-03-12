@@ -1495,4 +1495,5 @@
     <string name="iam_login">Login</string>
     <string name="iam_logout">Logout</string>
     <string name="iam_login_waiting">Waiting for browser...</string>
+    <string name="keycloak_account">Keycloak Account</string>
 </resources>

@@ -25,6 +25,15 @@ private external fun jsIsKcAuthenticated(): Boolean
 @JsFun("() => { return window._kcUsername || null; }")
 private external fun jsGetKcUsername(): String?
 
+@JsFun("() => { return window._kcEmail || null; }")
+private external fun jsGetKcEmail(): String?
+
+@JsFun("() => { return window._kcFirstName || null; }")
+private external fun jsGetKcFirstName(): String?
+
+@JsFun("() => { return window._kcLastName || null; }")
+private external fun jsGetKcLastName(): String?
+
 @JsFun("() => { return window._kcToken || null; }")
 private external fun jsGetKcToken(): String?
 
@@ -98,7 +107,10 @@ private fun syncKcState() {
             IamService.state.value = IamState(
                 isAuthenticated = true,
                 username = jsGetKcUsername() ?: currentState.username,
-                token = token
+                token = token,
+                email = jsGetKcEmail() ?: currentState.email,
+                firstName = jsGetKcFirstName() ?: currentState.firstName,
+                lastName = jsGetKcLastName() ?: currentState.lastName
             )
         }
     } else if (currentState.isAuthenticated) {

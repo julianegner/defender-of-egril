@@ -1167,6 +1167,8 @@ class GameViewModel {
         refreshSavedGames()
         // Update the last save snapshot
         lastSaveSnapshot = createGameStateSnapshot(state)
+        // Upload to backend in background if the user is logged in
+        uploadSavefileToBackend(saveId)
         return saveId
     }
     
@@ -1179,7 +1181,37 @@ class GameViewModel {
         // Use fixed ID "autosave_game" and add "Autosave" as comment
         de.egril.defender.save.SaveFileStorage.saveGameState(state, comment = "Autosave", saveId = "autosave_game")
         refreshSavedGames()
+        // Upload autosave to backend in background if the user is logged in
+        uploadSavefileToBackend("autosave_game")
         // Don't update lastSaveSnapshot for autosaves - we still want to track manual saves separately
+    }
+
+    /**
+     * Uploads a locally-saved game to the backend if the user is currently logged in.
+     * Runs in the background so it never blocks gameplay.
+     */
+    private fun uploadSavefileToBackend(saveId: String) {
+        val token = de.egril.defender.iam.IamService.getToken()
+        if (token == null) {
+            if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                println("Skipping backend upload for $saveId: not authenticated")
+            }
+            return
+        }
+        viewModelScope.launch {
+            val json = de.egril.defender.save.SaveFileStorage.getSaveGameJson(saveId) ?: return@launch
+            try {
+                val success = de.egril.defender.save.BackendSaveService.uploadSavefile(saveId, json, token)
+                if (success) {
+                    // Re-merge so the card shows the "remote" chip
+                    refreshSavedGames()
+                }
+            } catch (e: Exception) {
+                if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Failed to upload savefile $saveId to backend: ${e.message}")
+                }
+            }
+        }
     }
     
     /**

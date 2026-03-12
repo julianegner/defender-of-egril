@@ -277,7 +277,11 @@ fun App() {
                         onEditName = { showEditPlayer = true },
                         onNavigateToStats = { viewModel.navigateToStatsUpgrade() },
                         onUpgradeAbility = { abilityType -> viewModel.upgradeAbility(abilityType) },
-                        onUnlockSpell = { spell -> viewModel.unlockSpell(spell) }
+                        onUnlockSpell = { spell -> viewModel.unlockSpell(spell) },
+                        iamState = iamState,
+                        iamLoginInProgress = iamLoginInProgress,
+                        onIamLogin = { de.egril.defender.iam.IamService.login() },
+                        onIamLogout = { de.egril.defender.iam.IamService.logout() }
                     )
                 }
             }

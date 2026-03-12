@@ -79,11 +79,7 @@ internal actual fun startPlatformLogin() {
             val tokens = flow.continueLogin()
 
             val accessToken = tokens.access_token ?: return@launch
-            IamService.state.value = IamState(
-                isAuthenticated = true,
-                username = parseJwtUsername(accessToken) ?: FALLBACK_USERNAME,
-                token = accessToken
-            )
+            IamService.state.value = buildIamState(accessToken)
             storedRefreshToken = tokens.refresh_token
             tokenExpiresAtMs = System.currentTimeMillis() + (tokens.expires_in?.toLong() ?: DEFAULT_TOKEN_EXPIRY_SECONDS) * 1_000L
             if (tokens.refresh_token != null) {
@@ -116,11 +112,7 @@ actual suspend fun initPlatformIam() {
 
         val tokens = flow.continueLogin()
         val accessToken = tokens.access_token ?: return
-        IamService.state.value = IamState(
-            isAuthenticated = true,
-            username = parseJwtUsername(accessToken) ?: FALLBACK_USERNAME,
-            token = accessToken
-        )
+        IamService.state.value = buildIamState(accessToken)
         storedRefreshToken = tokens.refresh_token
         tokenExpiresAtMs = System.currentTimeMillis() + (tokens.expires_in?.toLong() ?: DEFAULT_TOKEN_EXPIRY_SECONDS) * 1_000L
 
@@ -162,11 +154,7 @@ private fun startBackgroundTokenRefresh(client: OpenIdConnectClient) {
             try {
                 val newTokens = client.refreshToken(refreshToken = refreshToken)
                 val accessToken = newTokens.access_token ?: break
-                IamService.state.value = IamState(
-                    isAuthenticated = true,
-                    username = parseJwtUsername(accessToken) ?: IamService.state.value.username ?: FALLBACK_USERNAME,
-                    token = accessToken
-                )
+                IamService.state.value = buildIamState(accessToken, fallbackUsername = IamService.state.value.username)
                 storedRefreshToken = newTokens.refresh_token ?: refreshToken
                 tokenExpiresAtMs = System.currentTimeMillis() + (newTokens.expires_in?.toLong() ?: DEFAULT_TOKEN_EXPIRY_SECONDS) * 1_000L
             } catch (_: Exception) {

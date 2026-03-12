@@ -1490,4 +1490,5 @@
     <string name="iam_login">Connexion</string>
     <string name="iam_logout">Déconnexion</string>
     <string name="iam_login_waiting">En attente du navigateur...</string>
+    <string name="keycloak_account">Compte Keycloak</string>
 </resources>
