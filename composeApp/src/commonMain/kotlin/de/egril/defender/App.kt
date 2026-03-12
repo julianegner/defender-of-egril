@@ -250,6 +250,7 @@ fun App() {
                     onSwitchPlayer = { showPlayerSelection = true },
                     onEditPlayerName = { viewModel.navigateToPlayerProfile() },
                     currentPlayerName = currentPlayer?.name,
+                    iamState = iamState,
                     showPlatformInfo = showPlatformInfo,
                     onClearPlatformInfo = { viewModel.clearPlatformInfo() },
                     showCheatHelp = showCheatHelp,

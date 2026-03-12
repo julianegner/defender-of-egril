@@ -31,10 +31,63 @@ import defender_of_egril.composeapp.generated.resources.Res
 import kotlinx.coroutines.launch
 import androidx.compose.ui.text.font.FontStyle
 import de.egril.defender.config.LogConfig
+import de.egril.defender.iam.IamState
+import de.egril.defender.ui.icon.UnlockIcon
 
 // Button sizing constants for world map bottom bar
 private val BUTTON_WIDTH_MOBILE_IMAGE_MAP = 133.dp  // ~33% smaller than default for compact mobile layout
 private val BUTTON_WIDTH_DEFAULT = 200.dp  // Standard button width for desktop and mobile level cards view
+
+/**
+ * Displays the local player name with an optional Keycloak username below it.
+ * Extracted to avoid duplication between the card-list and image-map view sections.
+ */
+@Composable
+private fun PlayerNameWithIam(
+    currentPlayerName: String,
+    iamState: IamState,
+    onEditPlayerName: () -> Unit,
+    onSwitchPlayer: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Column(
+            modifier = Modifier.clickable { onEditPlayerName() }
+        ) {
+            Text(
+                text = currentPlayerName,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            // Show Keycloak username below the local player name when logged in
+            if (iamState.isAuthenticated && iamState.username != null) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    UnlockIcon(size = 12.dp)
+                    Text(
+                        text = iamState.username,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
+        }
+
+        TextButton(
+            onClick = onSwitchPlayer,
+            modifier = Modifier.height(28.dp)
+        ) {
+            Text(
+                text = stringResource(Res.string.switch_player),
+                style = MaterialTheme.typography.labelSmall
+            )
+        }
+    }
+}
 
 @Composable
 fun WorldMapScreen(
@@ -50,6 +103,7 @@ fun WorldMapScreen(
     onSwitchPlayer: (() -> Unit)? = null,  // Callback to switch player
     onEditPlayerName: (() -> Unit)? = null,  // Callback to edit player name
     currentPlayerName: String? = null,  // Current player name for display
+    iamState: IamState = IamState(),  // IAM state for showing Keycloak username
     showPlatformInfo: Boolean = false,  // Show platform info from cheat code
     onClearPlatformInfo: (() -> Unit)? = null,  // Callback to clear platform info
     showCheatHelp: Boolean = false,  // Show cheat code help screen
@@ -273,27 +327,12 @@ fun WorldMapScreen(
                         
                         // Player name and switch button (if available)
                         if (currentPlayerName != null && onSwitchPlayer != null && onEditPlayerName != null) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Text(
-                                    text = currentPlayerName,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.clickable { onEditPlayerName() }
-                                )
-                                
-                                TextButton(
-                                    onClick = onSwitchPlayer,
-                                    modifier = Modifier.height(28.dp)
-                                ) {
-                                    Text(
-                                        text = stringResource(Res.string.switch_player),
-                                        style = MaterialTheme.typography.labelSmall
-                                    )
-                                }
-                            }
+                            PlayerNameWithIam(
+                                currentPlayerName = currentPlayerName,
+                                iamState = iamState,
+                                onEditPlayerName = onEditPlayerName,
+                                onSwitchPlayer = onSwitchPlayer
+                            )
                         }
                     }
                 } else {
@@ -325,27 +364,12 @@ fun WorldMapScreen(
                         // Player name and switch button (if available) - shown below title
                         if (currentPlayerName != null && onSwitchPlayer != null && onEditPlayerName != null) {
                             Spacer(modifier = Modifier.height(8.dp))
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Text(
-                                    text = currentPlayerName,
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.clickable { onEditPlayerName() }
-                                )
-                                
-                                TextButton(
-                                    onClick = onSwitchPlayer,
-                                    modifier = Modifier.height(28.dp)
-                                ) {
-                                    Text(
-                                        text = stringResource(Res.string.switch_player),
-                                        style = MaterialTheme.typography.labelSmall
-                                    )
-                                }
-                            }
+                            PlayerNameWithIam(
+                                currentPlayerName = currentPlayerName,
+                                iamState = iamState,
+                                onEditPlayerName = onEditPlayerName,
+                                onSwitchPlayer = onSwitchPlayer
+                            )
                         }
                     }
                 }
