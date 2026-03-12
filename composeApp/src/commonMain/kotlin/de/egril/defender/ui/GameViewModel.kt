@@ -1155,6 +1155,13 @@ class GameViewModel {
     
     private val _savedGames = MutableStateFlow<List<de.egril.defender.save.SaveGameMetadata>>(emptyList())
     val savedGames: StateFlow<List<de.egril.defender.save.SaveGameMetadata>> = _savedGames.asStateFlow()
+
+    /**
+     * In-memory cache of raw JSON for remote-only savefiles. Keyed by saveId.
+     * Populated during [refreshSavedGames] so that [loadGame] can download and
+     * store a remote-only save locally without a second network round-trip.
+     */
+    private val remoteFilesCache = mutableMapOf<String, String>()
     
     fun navigateToLoadGame() {
         refreshSavedGames()
@@ -1213,6 +1220,27 @@ class GameViewModel {
             }
         }
     }
+
+    /**
+     * Imports a savefile from [remoteFilesCache] into local storage and loads it.
+     * Returns the deserialized [SavedGame] on success, null if the save ID is not in the
+     * cache or the import fails.
+     */
+    private fun importAndLoadFromRemoteCache(saveId: String): de.egril.defender.save.SavedGame? {
+        val remoteJson = remoteFilesCache[saveId] ?: return null
+        val imported = de.egril.defender.save.SaveFileStorage.importSaveGame(
+            filename = "$saveId.json",
+            jsonContent = remoteJson,
+            overwrite = true
+        )
+        if (!imported) {
+            if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                println("Failed to import remote savefile $saveId into local storage")
+            }
+            return null
+        }
+        return de.egril.defender.save.SaveFileStorage.loadGameState(saveId)
+    }
     
     /**
      * Check if an autosave exists
@@ -1262,7 +1290,10 @@ class GameViewModel {
     }
     
     fun loadGame(saveId: String) {
-        val savedGame = de.egril.defender.save.SaveFileStorage.loadGameState(saveId) ?: return
+        // Try to load from local storage first; if not present, import from remote cache
+        val savedGame = de.egril.defender.save.SaveFileStorage.loadGameState(saveId)
+            ?: importAndLoadFromRemoteCache(saveId)
+            ?: return
         
         // Find the level by ID
         val level = _worldLevels.value.find { it.level.id == savedGame.levelId }?.level
@@ -1492,6 +1523,11 @@ class GameViewModel {
                 }
                 null
             } ?: return@launch
+            // Cache all remote file data so loadGame() can import remote-only saves on demand
+            remoteFilesCache.clear()
+            for (remote in remoteFiles) {
+                remoteFilesCache[remote.saveId] = remote.data
+            }
             val remoteIds = remoteFiles.map { it.saveId }.toSet()
             val localIds = localGames.map { it.id }.toSet()
             // Build merged list: union of local and remote saves
