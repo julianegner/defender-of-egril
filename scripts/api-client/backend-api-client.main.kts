@@ -24,7 +24,7 @@
  * Environment variables (all optional, shown with defaults):
  *   KEYCLOAK_URL      http://localhost:8081
  *   KEYCLOAK_REALM    egril
- *   KEYCLOAK_CLIENT   defender-of-egril
+ *   KEYCLOAK_CLIENT   defender-of-egril-cli   (dedicated CLI client with direct access grants)
  *   KEYCLOAK_USER     (required – or pass as first argument)
  *   KEYCLOAK_PASSWORD (required – or pass as second argument)
  *   BACKEND_URL       http://localhost:8080
@@ -40,7 +40,7 @@ import java.net.URLEncoder
 
 val keycloakUrl  = System.getenv("KEYCLOAK_URL")     ?: "http://localhost:8081"
 val realm        = System.getenv("KEYCLOAK_REALM")    ?: "egril"
-val clientId     = System.getenv("KEYCLOAK_CLIENT")   ?: "defender-of-egril"
+val clientId     = System.getenv("KEYCLOAK_CLIENT")   ?: "defender-of-egril-cli"
 val backendUrl   = System.getenv("BACKEND_URL")       ?: "http://localhost:8080"
 
 val username = args.getOrNull(0) ?: System.getenv("KEYCLOAK_USER")

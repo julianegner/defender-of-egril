@@ -12,6 +12,10 @@ It authenticates with Keycloak via username/password, then demonstrates every ba
 | **Backend server** | Default: `http://localhost:8080`. Start with `./gradlew :server:run` or `docker compose up backend`. |
 | **User account** | A Keycloak account in the `egril` realm. Create one in the Keycloak admin console. |
 
+> **First time setup**: The `defender-of-egril-cli` client is defined in `local-keycloak/egril-realm.json`.
+> If Keycloak was already running before this client was added, restart it so the realm is re-imported:
+> `docker compose restart keycloak`
+
 ## Quick Start
 
 > **Security note**: Passing passwords as command-line arguments may expose them in shell history
@@ -37,7 +41,7 @@ Override them with environment variables:
 |---|---|---|
 | `KEYCLOAK_URL` | `http://localhost:8081` | Keycloak base URL |
 | `KEYCLOAK_REALM` | `egril` | Keycloak realm name |
-| `KEYCLOAK_CLIENT` | `defender-of-egril` | OAuth2 client ID |
+| `KEYCLOAK_CLIENT` | `defender-of-egril-cli` | OAuth2 client ID (CLI client with direct access grants) |
 | `KEYCLOAK_USER` | *(required)* | Keycloak username |
 | `KEYCLOAK_PASSWORD` | *(required)* | Keycloak password |
 | `BACKEND_URL` | `http://localhost:8080` | Backend server base URL |
@@ -48,15 +52,16 @@ The script walks through every backend endpoint in order:
 
 ### Step 1 – Obtain a Keycloak access token
 
-Uses the **Resource Owner Password Credentials (ROPC)** flow to exchange
-username + password for a JWT access token. The decoded JWT claims (sub, email,
-given_name, etc.) are printed for inspection.
+Uses the **Resource Owner Password Credentials (ROPC)** flow via the dedicated
+`defender-of-egril-cli` client (a public Keycloak client with Direct Access Grants
+enabled, separate from the main `defender-of-egril` app client which intentionally
+restricts this flow).
 
 ```
 POST {KEYCLOAK_URL}/realms/{realm}/protocol/openid-connect/token
 Content-Type: application/x-www-form-urlencoded
 
-grant_type=password&client_id=defender-of-egril&username=...&password=...&scope=openid
+grant_type=password&client_id=defender-of-egril-cli&username=...&password=...&scope=openid
 ```
 
 ### Step 2 – `GET /` (root health-check)
@@ -141,7 +146,7 @@ If you prefer `curl` over the Kotlin script:
 TOKEN=$(curl -s -X POST \
   "http://localhost:8081/realms/egril/protocol/openid-connect/token" \
   -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "grant_type=password&client_id=defender-of-egril&username=myuser&password=mypassword&scope=openid" \
+  -d "grant_type=password&client_id=defender-of-egril-cli&username=myuser&password=mypassword&scope=openid" \
   | python3 -c "import sys,json; print(json.load(sys.stdin)['access_token'])")
 
 echo "Token: ${TOKEN:0:40}..."
@@ -177,6 +182,6 @@ curl -s -X POST "http://localhost:8080/api/events" \
 ## Notes
 
 - **Token expiry**: Keycloak access tokens expire after ~5 minutes by default. Re-run the script to obtain a fresh token.
-- **ROPC flow**: The Resource Owner Password flow used here is convenient for scripts but not recommended for production user-facing applications. The game uses the PKCE flow instead.
+- **ROPC flow**: The Resource Owner Password flow used here requires the `defender-of-egril-cli` client (Direct Access Grants enabled). The main `defender-of-egril` app client intentionally has this disabled. This separation keeps the app client secure while allowing scripts to authenticate with username/password.
 - **No signature verification**: The script decodes JWT claims for display only. No signature check is performed.
 - **JSON parsing**: The script uses simple regex-based JSON field extraction. This is sufficient for the flat Keycloak JWT payload but will not correctly handle field values that contain escaped quotes. Use a proper JSON library if you need to parse complex savefile content.
