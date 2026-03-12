@@ -9,12 +9,14 @@ services:
       - "8081:8080"
     volumes:
       - ./egril-realm.json:/opt/keycloak/data/import/egril-realm.json:ro
-    command: start-dev --import-realm
-    # Check the egril realm endpoint on port 8080 (the main HTTP port).
-    # HTTP 200 is returned only after Keycloak has fully started AND imported the realm.
-    # Using CMD (not CMD-SHELL) because the ubi9-micro base image has no /bin/sh.
+    command: start-dev --import-realm --health-enabled=true
+    # curl/wget are not available in the ubi9-micro-based Keycloak 24 image.
+    # /bin/sh is a symlink to bash, so CMD-SHELL works fine.
+    # We use bash's built-in /dev/tcp to call Keycloak's own /health/ready endpoint
+    # (enabled by --health-enabled=true above). The endpoint returns HTTP 200 with
+    # {"status":"UP"} once Keycloak is fully initialized and the realm is imported.
     healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:8080/realms/egril"]
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && printf 'GET /health/ready HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && timeout 5 cat <&3 | grep -q 'UP'"]
       interval: 15s
       timeout: 10s
       retries: 12
