@@ -17,6 +17,50 @@ fun Application.configureRouting(dataSource: DataSource? = null) {
             call.respondText("Defender of Egril Backend", ContentType.Text.Plain)
         }
 
+        /**
+         * Health endpoint.
+         * Returns HTTP 200 {"status":"UP","database":"connected"} when the DB is reachable.
+         * Returns HTTP 503 {"status":"DOWN","database":"unavailable"} when dataSource is null.
+         *
+         * Docker uses this endpoint as the backend container's healthcheck so that
+         * `restart: on-failure` (or `restart: always`) kicks in automatically when the
+         * DB was not ready at startup and the old image (without retry logic) was used.
+         */
+        get("/health") {
+            if (dataSource == null) {
+                call.respondText(
+                    """{"status":"DOWN","database":"unavailable"}""",
+                    ContentType.Application.Json,
+                    HttpStatusCode.ServiceUnavailable
+                )
+                return@get
+            }
+            try {
+                dataSource.connection.use { conn ->
+                    conn.prepareStatement("SELECT 1").use { stmt ->
+                        stmt.executeQuery().use { /* connection verified */ }
+                    }
+                }
+                call.respondText(
+                    """{"status":"UP","database":"connected"}""",
+                    ContentType.Application.Json,
+                    HttpStatusCode.OK
+                )
+            } catch (e: Exception) {
+                val safeMessage = (e.message ?: "error")
+                    .replace("\\", "\\\\")
+                    .replace("\"", "\\\"")
+                    .replace("\n", "\\n")
+                    .replace("\r", "\\r")
+                    .replace("\t", "\\t")
+                call.respondText(
+                    """{"status":"DOWN","database":"$safeMessage"}""",
+                    ContentType.Application.Json,
+                    HttpStatusCode.ServiceUnavailable
+                )
+            }
+        }
+
         post("/api/events") {
             val event = try {
                 call.receive<GameEvent>()
