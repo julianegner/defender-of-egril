@@ -10,11 +10,18 @@ It authenticates with Keycloak via username/password, then demonstrates every ba
 | **Kotlin 1.9+** | Must be on your `PATH`. Install via [SDKMAN](https://sdkman.io/): `sdk install kotlin` |
 | **Keycloak** | Default: `http://localhost:8081`. Start with `docker compose up keycloak` from the repo root. |
 | **Backend server** | Default: `http://localhost:8080`. Start with `./gradlew :server:run` or `docker compose up backend`. |
-| **User account** | A Keycloak account in the `egril` realm. Create one in the Keycloak admin console. |
+| **User account** | A Keycloak account in the `egril` realm. Create one in the Keycloak admin console or via the game's registration page. |
 
-> **First time setup**: The `defender-of-egril-cli` client is defined in `local-keycloak/egril-realm.json`.
-> If Keycloak was already running before this client was added, restart it so the realm is re-imported:
-> `docker compose restart keycloak`
+> **One-time setup required**: The script uses a dedicated `defender-of-egril-cli` Keycloak client.
+> Keycloak only imports `egril-realm.json` on the **very first start** — if Keycloak was already
+> running when this client was added, run the setup script once to create it:
+>
+> ```bash
+> bash scripts/api-client/setup-keycloak-cli-client.sh
+> ```
+>
+> You do **not** need this if you start Keycloak completely fresh
+> (`docker compose down -v && docker compose up -d`).
 
 ## Quick Start
 

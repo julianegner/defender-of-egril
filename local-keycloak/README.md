@@ -38,10 +38,31 @@ Default credentials: `admin` / `admin`
 docker compose down
 ```
 
-## Realm and Client
+## Realm and Clients
 
-The realm `egril` and the client `defender-of-egril` are automatically created when Keycloak
+The realm `egril` and its clients are automatically created when Keycloak
 starts, by importing `egril-realm.json`. No manual Terraform steps are needed for local development.
+
+Two OpenID Connect clients are configured:
+
+| Client ID | Purpose |
+|---|---|
+| `defender-of-egril` | The game application (PKCE flow, browser/desktop login) |
+| `defender-of-egril-cli` | Developer scripts and API testing (Resource Owner Password flow) |
+
+> **Note**: Keycloak only imports `egril-realm.json` on the **very first start**.
+> If you add or change clients in `egril-realm.json` and Keycloak is already running,
+> run the helper script to apply the change without losing existing data:
+>
+> ```bash
+> bash scripts/api-client/setup-keycloak-cli-client.sh
+> ```
+>
+> Alternatively, wipe all data and start fresh:
+>
+> ```bash
+> docker compose down -v && docker compose up -d
+> ```
 
 After startup you can register test user accounts in the Keycloak admin console:
 
