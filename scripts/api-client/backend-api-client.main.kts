@@ -146,9 +146,9 @@ println("=== Step 2b: GET /health (database connection check) ===")
 val healthResponse = httpGet("$backendUrl/health", accessToken)
 println("Status : ${healthResponse.status}")
 println("Body   : ${healthResponse.body}")
-if (healthResponse.status == 503 && healthResponse.body.contains("DOWN")) {
+if (healthResponse.status != 200) {
     System.err.println()
-    System.err.println("WARNING: Backend database is NOT connected (503 Database not available).")
+    System.err.println("WARNING: Backend database is NOT connected (HTTP ${healthResponse.status}).")
     System.err.println("The savefile endpoints will fail until the database connection is established.")
     System.err.println()
     System.err.println("Most likely cause: the backend Docker image is stale (built before the")
