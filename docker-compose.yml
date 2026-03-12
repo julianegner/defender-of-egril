@@ -11,6 +11,11 @@
 # IMPORTANT – always rebuild the backend after pulling new code:
 #   docker compose up -d --build backend
 #
+# IMPORTANT – after changes to local-keycloak/egril-realm.json (e.g. new users),
+# recreate the Keycloak container so the realm is re-imported:
+#   docker compose rm -sf keycloak && docker compose up -d keycloak
+#   (wait ~2 minutes for the realm to import, then restart backend)
+#
 # Startup sequence (first run or after `docker compose down -v`):
 #   1. postgres starts and becomes healthy (pg_isready, ~10 s)
 #   2. keycloak starts and imports the realm (~60-180 s on first run)

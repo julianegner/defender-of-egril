@@ -71,9 +71,29 @@ Override them with environment variables:
 | `KEYCLOAK_URL` | `http://localhost:8081` | Keycloak base URL |
 | `KEYCLOAK_REALM` | `egril` | Keycloak realm name |
 | `KEYCLOAK_CLIENT` | `defender-of-egril-cli` | OAuth2 client ID (CLI client with direct access grants) |
-| `KEYCLOAK_USER` | *(required)* | Keycloak username |
-| `KEYCLOAK_PASSWORD` | *(required)* | Keycloak password |
+| `KEYCLOAK_USER` | `tester@test.org` | Keycloak username (pre-configured test user) |
+| `KEYCLOAK_PASSWORD` | `test` | Keycloak password (pre-configured test user) |
 | `BACKEND_URL` | `http://localhost:8080` | Backend server base URL |
+
+### Pre-configured test user
+
+The egril realm ships with a ready-to-use test account (no manual Keycloak admin steps needed):
+
+| Field | Value |
+|---|---|
+| Username / Email | `tester@test.org` |
+| Password | `test` |
+| First name | Test |
+| Last name | User |
+
+This user is automatically imported when Keycloak starts. If you added this user
+after Keycloak was already running, recreate the container to re-import the realm:
+
+```bash
+docker compose rm -sf keycloak && docker compose up -d keycloak
+# wait ~2 min for realm import, then restart the backend:
+docker compose restart backend
+```
 
 ## What the Script Does
 

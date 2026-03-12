@@ -58,8 +58,11 @@
     {
       "username": "tester@test.org",
       "email": "tester@test.org",
+      "firstName": "Test",
+      "lastName": "User",
       "enabled": true,
       "emailVerified": true,
+      "requiredActions": [],
       "credentials": [
         {
           "type": "password",
