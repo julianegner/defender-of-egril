@@ -25,8 +25,8 @@
  *   KEYCLOAK_URL      http://localhost:8081
  *   KEYCLOAK_REALM    egril
  *   KEYCLOAK_CLIENT   defender-of-egril-cli   (dedicated CLI client with direct access grants)
- *   KEYCLOAK_USER     (required – or pass as first argument)
- *   KEYCLOAK_PASSWORD (required – or pass as second argument)
+ *   KEYCLOAK_USER     tester@test.org  (default test user pre-configured in local Keycloak)
+ *   KEYCLOAK_PASSWORD test             (default test password)
  *   BACKEND_URL       http://localhost:8080
  */
 
@@ -43,10 +43,8 @@ val realm        = System.getenv("KEYCLOAK_REALM")    ?: "egril"
 val clientId     = System.getenv("KEYCLOAK_CLIENT")   ?: "defender-of-egril-cli"
 val backendUrl   = System.getenv("BACKEND_URL")       ?: "http://localhost:8080"
 
-val username = args.getOrNull(0) ?: System.getenv("KEYCLOAK_USER")
-    ?: error("Username required: pass as first argument or set KEYCLOAK_USER env variable")
-val password = args.getOrNull(1) ?: System.getenv("KEYCLOAK_PASSWORD")
-    ?: error("Password required: pass as second argument or set KEYCLOAK_PASSWORD env variable")
+val username = args.getOrNull(0) ?: System.getenv("KEYCLOAK_USER") ?: "tester@test.org"
+val password = args.getOrNull(1) ?: System.getenv("KEYCLOAK_PASSWORD") ?: "test"
 
 val tokenUrl = "$keycloakUrl/realms/$realm/protocol/openid-connect/token"
 
@@ -137,6 +135,28 @@ if (rootResponse.status != 200 || !rootResponse.body.contains("Defender of Egril
     System.err.println("  2. The backend built from an older image. Rebuild with:")
     System.err.println("       docker compose up -d --build backend")
     System.exit(1)
+}
+println()
+
+// ---------------------------------------------------------------------------
+// Step 2b – GET /health  (database status check)
+// ---------------------------------------------------------------------------
+
+println("=== Step 2b: GET /health (database connection check) ===")
+val healthResponse = httpGet("$backendUrl/health", accessToken)
+println("Status : ${healthResponse.status}")
+println("Body   : ${healthResponse.body}")
+if (healthResponse.status == 503 && healthResponse.body.contains("DOWN")) {
+    System.err.println()
+    System.err.println("WARNING: Backend database is NOT connected (503 Database not available).")
+    System.err.println("The savefile endpoints will fail until the database connection is established.")
+    System.err.println()
+    System.err.println("Most likely cause: the backend Docker image is stale (built before the")
+    System.err.println("database retry fix was added). Rebuild and restart with:")
+    System.err.println("  docker compose up -d --build backend")
+    System.err.println()
+    System.err.println("Then wait ~30 seconds and re-run this script.")
+    System.err.println()
 }
 println()
 
