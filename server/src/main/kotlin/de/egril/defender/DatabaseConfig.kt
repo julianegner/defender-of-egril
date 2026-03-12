@@ -40,6 +40,12 @@ fun Application.configureDatabase(): DataSource? {
         minimumIdle = 2
         idleTimeout = 600_000
         connectionTimeout = 30_000
+        // By default HikariCP's initializationFailTimeout is 1ms, causing the pool
+        // constructor to throw immediately when the database is not yet reachable.
+        // Setting it equal to connectionTimeout gives HikariCP a full 30 s to establish
+        // the first connection before giving up, which avoids spurious startup failures
+        // when the DB container is healthy but still warming up.
+        initializationFailTimeout = 30_000
     }
 
     val dataSource = HikariDataSource(hikariConfig)
