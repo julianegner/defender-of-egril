@@ -8,8 +8,8 @@ It authenticates with Keycloak via username/password, then demonstrates every ba
 | Requirement | Notes |
 |---|---|
 | **Kotlin 1.9+** | Must be on your `PATH`. Install via [SDKMAN](https://sdkman.io/): `sdk install kotlin` |
-| **Keycloak** | Default: `http://localhost:8081`. Start with `docker compose up keycloak` from the repo root. |
-| **Backend server** | Default: `http://localhost:8080`. Start with `docker compose up -d --build backend` from the repo root (see note below). |
+| **Keycloak** | Default: `http://localhost:8081`. Start with `docker compose up -d` from the repo root. |
+| **Backend server** | Default: `http://localhost:8080`. Starts automatically after Keycloak is healthy (see startup note below). |
 | **User account** | A Keycloak account in the `egril` realm. Create one in the Keycloak admin console or via the game's registration page. |
 
 > **One-time setup required**: The script uses a dedicated `defender-of-egril-cli` Keycloak client.
@@ -34,12 +34,16 @@ It authenticates with Keycloak via username/password, then demonstrates every ba
 > BACKEND_URL=http://localhost:8090 kotlinc -script scripts/api-client/backend-api-client.main.kts
 > ```
 
-> **Rebuild required after code changes**: The backend Docker image must be rebuilt whenever
-> `server/` source files change:
+> **Startup sequence**: The backend container will not start until Keycloak is healthy.
+> Keycloak needs ~1–2 minutes to boot its JVM and import the `egril` realm before reporting healthy.
+> After `docker compose up -d` you can monitor progress with:
 >
 > ```bash
-> docker compose up -d --build backend
+> docker ps          # wait until keycloak shows (healthy), then backend starts automatically
+> docker compose logs -f backend   # follow backend startup logs
 > ```
+>
+> Once the backend shows `(healthy)` or you see "Application started" in its logs, the script is ready to run.
 
 ## Quick Start
 
