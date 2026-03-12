@@ -99,11 +99,23 @@ println()
 
 println("=== Step 2: GET / (root health-check) ===")
 val rootResponse = httpGet("$backendUrl/", accessToken)
-println("Status : ${rootResponse.status}")
-// println("Body   : ${rootResponse.body}")
+println("Status : ${if (rootResponse.status == -1) "connection refused" else rootResponse.status.toString()}")
 
 // Verify this is really the Ktor backend and not, e.g., the webpack dev server
 // (which also runs on port 8080 and returns Express-style 404s for /api/* routes).
+if (rootResponse.status == -1) {
+    System.err.println()
+    System.err.println("ERROR: Cannot connect to the backend at $backendUrl")
+    System.err.println("Cause : ${rootResponse.body}")
+    System.err.println()
+    System.err.println("The backend server is not running. Start it with:")
+    System.err.println("  docker compose up -d --build backend   (from the repo root)")
+    System.err.println("  or: ./gradlew :server:run")
+    System.err.println()
+    System.err.println("If the backend runs on a different port, set BACKEND_URL:")
+    System.err.println("  BACKEND_URL=http://localhost:8090 kotlinc -script scripts/api-client/backend-api-client.main.kts")
+    System.exit(1)
+}
 if (rootResponse.status != 200 || !rootResponse.body.contains("Defender of Egril Backend")) {
     System.err.println()
     System.err.println("ERROR: Backend server check failed.")
@@ -111,13 +123,10 @@ if (rootResponse.status != 200 || !rootResponse.body.contains("Defender of Egril
     System.err.println("Got     : HTTP ${rootResponse.status} – '${rootResponse.body.take(120)}'")
     System.err.println()
     System.err.println("Possible causes:")
-    System.err.println("  1. The backend server is not running. Start it with:")
-    System.err.println("       docker compose up -d --build backend   (from the repo root)")
-    System.err.println("     or: ./gradlew :server:run")
-    System.err.println("  2. Another service (e.g. the WASM dev server) is occupying port 8080.")
+    System.err.println("  1. Another service (e.g. the WASM dev server) is occupying port 8080.")
     System.err.println("     Stop it, or point this script at a different URL:")
     System.err.println("       BACKEND_URL=http://localhost:8090 kotlinc -script scripts/api-client/backend-api-client.main.kts")
-    System.err.println("  3. The backend built from an older image. Rebuild with:")
+    System.err.println("  2. The backend built from an older image. Rebuild with:")
     System.err.println("       docker compose up -d --build backend")
     System.exit(1)
 }
@@ -212,24 +221,32 @@ println("=== All examples completed successfully ===")
 data class HttpResponse(val status: Int, val body: String)
 
 fun httpGet(url: String, token: String?): HttpResponse {
-    val conn = URL(url).openConnection() as HttpURLConnection
-    conn.requestMethod = "GET"
-    if (token != null) conn.setRequestProperty("Authorization", "Bearer $token")
-    conn.connectTimeout = 15_000
-    conn.readTimeout    = 15_000
-    return readResponse(conn)
+    return try {
+        val conn = URL(url).openConnection() as HttpURLConnection
+        conn.requestMethod = "GET"
+        if (token != null) conn.setRequestProperty("Authorization", "Bearer $token")
+        conn.connectTimeout = 15_000
+        conn.readTimeout    = 15_000
+        readResponse(conn)
+    } catch (e: java.io.IOException) {
+        HttpResponse(-1, e.message ?: "Connection failed")
+    }
 }
 
 fun httpPost(url: String, body: String, contentType: String, token: String?): HttpResponse {
-    val conn = URL(url).openConnection() as HttpURLConnection
-    conn.requestMethod = "POST"
-    conn.doOutput = true
-    conn.setRequestProperty("Content-Type", contentType)
-    if (token != null) conn.setRequestProperty("Authorization", "Bearer $token")
-    conn.connectTimeout = 15_000
-    conn.readTimeout    = 15_000
-    conn.outputStream.use { it.write(body.toByteArray(Charsets.UTF_8)) }
-    return readResponse(conn)
+    return try {
+        val conn = URL(url).openConnection() as HttpURLConnection
+        conn.requestMethod = "POST"
+        conn.doOutput = true
+        conn.setRequestProperty("Content-Type", contentType)
+        if (token != null) conn.setRequestProperty("Authorization", "Bearer $token")
+        conn.connectTimeout = 15_000
+        conn.readTimeout    = 15_000
+        conn.outputStream.use { it.write(body.toByteArray(Charsets.UTF_8)) }
+        readResponse(conn)
+    } catch (e: java.io.IOException) {
+        HttpResponse(-1, e.message ?: "Connection failed")
+    }
 }
 
 fun readResponse(conn: HttpURLConnection): HttpResponse {
