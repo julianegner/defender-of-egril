@@ -100,7 +100,7 @@ println()
 println("=== Step 2: GET / (root health-check) ===")
 val rootResponse = httpGet("$backendUrl/", accessToken)
 println("Status : ${rootResponse.status}")
-println("Body   : ${rootResponse.body}")
+// println("Body   : ${rootResponse.body}")
 
 // Verify this is really the Ktor backend and not, e.g., the webpack dev server
 // (which also runs on port 8080 and returns Express-style 404s for /api/* routes).
