@@ -101,6 +101,26 @@ println("=== Step 2: GET / (root health-check) ===")
 val rootResponse = httpGet("$backendUrl/", accessToken)
 println("Status : ${rootResponse.status}")
 println("Body   : ${rootResponse.body}")
+
+// Verify this is really the Ktor backend and not, e.g., the webpack dev server
+// (which also runs on port 8080 and returns Express-style 404s for /api/* routes).
+if (rootResponse.status != 200 || !rootResponse.body.contains("Defender of Egril Backend")) {
+    System.err.println()
+    System.err.println("ERROR: Backend server check failed.")
+    System.err.println("Expected: HTTP 200 with body containing 'Defender of Egril Backend'")
+    System.err.println("Got     : HTTP ${rootResponse.status} – '${rootResponse.body.take(120)}'")
+    System.err.println()
+    System.err.println("Possible causes:")
+    System.err.println("  1. The backend server is not running. Start it with:")
+    System.err.println("       docker compose up -d --build backend   (from the repo root)")
+    System.err.println("     or: ./gradlew :server:run")
+    System.err.println("  2. Another service (e.g. the WASM dev server) is occupying port 8080.")
+    System.err.println("     Stop it, or point this script at a different URL:")
+    System.err.println("       BACKEND_URL=http://localhost:8090 kotlinc -script scripts/api-client/backend-api-client.main.kts")
+    System.err.println("  3. The backend built from an older image. Rebuild with:")
+    System.err.println("       docker compose up -d --build backend")
+    System.exit(1)
+}
 println()
 
 // ---------------------------------------------------------------------------

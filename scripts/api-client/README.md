@@ -9,7 +9,7 @@ It authenticates with Keycloak via username/password, then demonstrates every ba
 |---|---|
 | **Kotlin 1.9+** | Must be on your `PATH`. Install via [SDKMAN](https://sdkman.io/): `sdk install kotlin` |
 | **Keycloak** | Default: `http://localhost:8081`. Start with `docker compose up keycloak` from the repo root. |
-| **Backend server** | Default: `http://localhost:8080`. Start with `./gradlew :server:run` or `docker compose up backend`. |
+| **Backend server** | Default: `http://localhost:8080`. Start with `docker compose up -d --build backend` from the repo root (see note below). |
 | **User account** | A Keycloak account in the `egril` realm. Create one in the Keycloak admin console or via the game's registration page. |
 
 > **One-time setup required**: The script uses a dedicated `defender-of-egril-cli` Keycloak client.
@@ -22,6 +22,24 @@ It authenticates with Keycloak via username/password, then demonstrates every ba
 >
 > You do **not** need this if you start Keycloak completely fresh
 > (`docker compose down -v && docker compose up -d`).
+
+> **Backend port conflict**: The WASM/Web dev server (`./gradlew :composeApp:wasmJsBrowserDevelopmentRun`)
+> also starts on **port 8080** by default. If it is running, the API requests will hit the webpack
+> dev server instead of the Ktor backend and fail with `404 Cannot POST /api/...`.
+> Stop the dev server before running this script, or use a different backend port:
+>
+> ```bash
+> # Start backend on port 8090 instead
+> SERVER_PORT=8090 ./gradlew :server:run
+> BACKEND_URL=http://localhost:8090 kotlinc -script scripts/api-client/backend-api-client.main.kts
+> ```
+
+> **Rebuild required after code changes**: The backend Docker image must be rebuilt whenever
+> `server/` source files change:
+>
+> ```bash
+> docker compose up -d --build backend
+> ```
 
 ## Quick Start
 
