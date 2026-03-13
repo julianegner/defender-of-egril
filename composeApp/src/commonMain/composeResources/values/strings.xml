@@ -1502,6 +1502,8 @@
     <string name="iam_login_successful_message">Returning to the game... you can close this window if it does not close automatically.</string>
     <string name="iam_logout_successful_heading">Logged out successfully!</string>
     <string name="iam_logout_successful_message">You can close this window or return to the game.</string>
+    <string name="always_log_in">Always log in</string>
+    <string name="account">Account</string>
 
     <!-- Community maps/levels -->
     <string name="upload_as_community_level">Upload as Community Level</string>

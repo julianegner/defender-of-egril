@@ -1498,6 +1498,8 @@
     <string name="iam_login_successful_message">Ritorno al gioco... puoi chiudere questa finestra se non si chiude automaticamente.</string>
     <string name="iam_logout_successful_heading">Disconnessione riuscita!</string>
     <string name="iam_logout_successful_message">Puoi chiudere questa finestra o tornare al gioco.</string>
+    <string name="always_log_in">Accedi sempre</string>
+    <string name="account">Account</string>
 
     <!-- Community maps/levels -->
     <string name="upload_as_community_level">Pubblica come Livello della Comunità</string>

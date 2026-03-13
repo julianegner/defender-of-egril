@@ -592,6 +592,30 @@ fun SettingsDialog(
                 }
                 
                 HorizontalDivider()
+
+                // Account section
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.account),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    // Always log in switch
+                    GenericSwitch(
+                        state = AppSettings.alwaysLogin,
+                        checkedText = stringResource(Res.string.always_log_in),
+                        uncheckedText = stringResource(Res.string.always_log_in),
+                        onCheckedChange = { enabled ->
+                            AppSettings.saveAlwaysLogin(enabled)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
+                HorizontalDivider()
                 
                 // Action buttons
                 Row(

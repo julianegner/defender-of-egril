@@ -153,6 +153,24 @@ fun MainMenuScreen(
                             }
                         }
                     }
+
+                    // "Always log in" toggle, right of the user name
+                    val alwaysLogin by AppSettings.alwaysLogin
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Switch(
+                            checked = alwaysLogin,
+                            onCheckedChange = { AppSettings.saveAlwaysLogin(it) },
+                            modifier = Modifier.height(24.dp)
+                        )
+                        Text(
+                            text = stringResource(Res.string.always_log_in),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                     
                     OutlinedButton(
                         onClick = onSelectPlayer,

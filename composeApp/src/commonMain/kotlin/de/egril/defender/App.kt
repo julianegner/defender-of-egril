@@ -102,6 +102,19 @@ fun App() {
             viewModel.onAuthStateChanged()
         }
 
+        // Observe "always log in" setting
+        val alwaysLogin by AppSettings.alwaysLogin
+
+        // If "always log in" is enabled, automatically start the login flow when the
+        // authentication state changes (e.g. on startup or after logging out).
+        // We only check alwaysLogin and isAuthenticated as keys so that cancelling a
+        // login attempt does not immediately restart the flow.
+        LaunchedEffect(alwaysLogin, iamState.isAuthenticated) {
+            if (alwaysLogin && !iamState.isAuthenticated && !iamLoginInProgress) {
+                de.egril.defender.iam.IamService.login()
+            }
+        }
+
         // Show player selection dialog if needed
         var showPlayerSelection by remember { mutableStateOf(false) }
         var showCreatePlayer by remember { mutableStateOf(false) }

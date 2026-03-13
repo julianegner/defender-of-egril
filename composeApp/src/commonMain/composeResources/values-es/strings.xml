@@ -1496,6 +1496,8 @@
     <string name="iam_login_successful_message">Volviendo al juego... puedes cerrar esta ventana si no se cierra automáticamente.</string>
     <string name="iam_logout_successful_heading">¡Sesión cerrada correctamente!</string>
     <string name="iam_logout_successful_message">Puedes cerrar esta ventana o volver al juego.</string>
+    <string name="always_log_in">Iniciar sesión siempre</string>
+    <string name="account">Cuenta</string>
 
     <!-- Community maps/levels -->
     <string name="upload_as_community_level">Subir como Nivel de Comunidad</string>
