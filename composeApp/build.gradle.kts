@@ -367,6 +367,13 @@ tasks.register<JavaExec>("generateMapImages") {
     workingDir = rootDir
 }
 
+// Workaround for Gradle 9.x: Compose resource tasks declare output files that may not exist
+// yet on a fresh build/clean, causing "Cannot access output property" errors. Marking them
+// as untracked forces them to always run (still fast) and avoids the spurious failure.
+tasks.matching { it.name.startsWith("copyNonXmlValueResourcesFor") }.configureEach {
+    doNotTrackState("Gradle 9.x output-property validation workaround for Compose resource tasks")
+}
+
 compose.desktop {
     application {
         mainClass = "de.egril.defender.MainKt"
