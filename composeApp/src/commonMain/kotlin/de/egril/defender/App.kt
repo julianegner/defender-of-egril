@@ -72,6 +72,7 @@ fun App() {
         val worldLevels by viewModel.worldLevels.collectAsState()
         val gameState by viewModel.gameState.collectAsState()
         val savedGames by viewModel.savedGames.collectAsState()
+        val isLoadingRemoteSaves by viewModel.isLoadingRemoteSaves.collectAsState()
         val cheatDigOutcome by viewModel.cheatDigOutcome.collectAsState()
         val showPlatformInfo by viewModel.showPlatformInfo.collectAsState()
         val showCheatHelp by viewModel.showCheatHelp.collectAsState()
@@ -93,6 +94,13 @@ fun App() {
         // Observe IAM state for login/logout UI updates
         val iamState by de.egril.defender.iam.IamService.state
         val iamLoginInProgress by de.egril.defender.iam.IamService.loginInProgress
+
+        // Refresh saved games whenever authentication state changes (login/logout/session restore).
+        // This ensures remote saves appear immediately after the user logs in or after the
+        // platform IAM SDK restores an existing session on startup.
+        LaunchedEffect(iamState.isAuthenticated) {
+            viewModel.onAuthStateChanged()
+        }
 
         // Show player selection dialog if needed
         var showPlayerSelection by remember { mutableStateOf(false) }
@@ -250,6 +258,7 @@ fun App() {
                     onSwitchPlayer = { showPlayerSelection = true },
                     onEditPlayerName = { viewModel.navigateToPlayerProfile() },
                     currentPlayerName = currentPlayer?.name,
+                    iamState = iamState,
                     showPlatformInfo = showPlatformInfo,
                     onClearPlatformInfo = { viewModel.clearPlatformInfo() },
                     showCheatHelp = showCheatHelp,
@@ -277,7 +286,11 @@ fun App() {
                         onEditName = { showEditPlayer = true },
                         onNavigateToStats = { viewModel.navigateToStatsUpgrade() },
                         onUpgradeAbility = { abilityType -> viewModel.upgradeAbility(abilityType) },
-                        onUnlockSpell = { spell -> viewModel.unlockSpell(spell) }
+                        onUnlockSpell = { spell -> viewModel.unlockSpell(spell) },
+                        iamState = iamState,
+                        iamLoginInProgress = iamLoginInProgress,
+                        onIamLogin = { de.egril.defender.iam.IamService.login() },
+                        onIamLogout = { de.egril.defender.iam.IamService.logout() }
                     )
                 }
             }
@@ -303,6 +316,7 @@ fun App() {
             is Screen.LoadGame -> {
                 LoadGameScreen(
                     savedGames = savedGames,
+                    isLoadingRemoteSaves = isLoadingRemoteSaves,
                     onLoadGame = { saveId -> viewModel.loadGame(saveId) },
                     onDeleteGame = { saveId -> viewModel.deleteSavedGame(saveId) },
                     onDownloadGame = { saveId, includeGameState -> viewModel.downloadSaveGame(saveId, includeGameState) },

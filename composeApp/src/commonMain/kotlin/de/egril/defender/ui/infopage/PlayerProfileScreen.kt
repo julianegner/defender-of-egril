@@ -13,12 +13,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import de.egril.defender.iam.IamState
 import de.egril.defender.model.Achievement
 import de.egril.defender.model.AchievementDefinitions
 import de.egril.defender.save.PlayerProfile
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.getLocalizedDescription
+import de.egril.defender.ui.icon.LockIcon
 import de.egril.defender.ui.icon.TrophyIcon
+import de.egril.defender.ui.icon.UnlockIcon
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.utils.formatTimestamp
 import defender_of_egril.composeapp.generated.resources.*
@@ -31,9 +34,13 @@ fun PlayerProfileScreen(
     playerProfile: PlayerProfile,
     onBack: () -> Unit,
     onEditName: () -> Unit,
-    onNavigateToStats: (() -> Unit)? = null,  // Optional callback to navigate to stats screen
-    onUpgradeAbility: ((de.egril.defender.model.AbilityType) -> Unit)? = null,  // Optional callback for ability upgrades
-    onUnlockSpell: ((de.egril.defender.model.SpellType) -> Unit)? = null  // Optional callback for unlocking spells
+    onNavigateToStats: (() -> Unit)? = null,
+    onUpgradeAbility: ((de.egril.defender.model.AbilityType) -> Unit)? = null,
+    onUnlockSpell: ((de.egril.defender.model.SpellType) -> Unit)? = null,
+    iamState: IamState = IamState(),
+    iamLoginInProgress: Boolean = false,
+    onIamLogin: () -> Unit = {},
+    onIamLogout: () -> Unit = {}
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -84,6 +91,16 @@ fun PlayerProfileScreen(
                         onEditName = onEditName
                     )
                     
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Keycloak account card
+                    KeycloakAccountCard(
+                        iamState = iamState,
+                        iamLoginInProgress = iamLoginInProgress,
+                        onIamLogin = onIamLogin,
+                        onIamLogout = onIamLogout
+                    )
+
                     Spacer(modifier = Modifier.height(24.dp))
                     
                     // Tabs (only show if stats callback is provided)
@@ -583,6 +600,115 @@ private fun AchievementItem(achievement: Achievement) {
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
+        }
+    }
+}
+
+/**
+ * Card showing the Keycloak/IAM account state (logged-in info or login/logout button).
+ */
+@Composable
+private fun KeycloakAccountCard(
+    iamState: IamState,
+    iamLoginInProgress: Boolean,
+    onIamLogin: () -> Unit,
+    onIamLogout: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = stringResource(Res.string.keycloak_account),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            if (iamState.isAuthenticated) {
+                // Username
+                iamState.username?.let { username ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        UnlockIcon(size = 14.dp)
+                        Text(
+                            text = username,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+                // Full name (first + last)
+                val fullName = listOfNotNull(iamState.firstName, iamState.lastName)
+                    .filter { it.isNotBlank() }
+                    .joinToString(" ")
+                    .takeIf { it.isNotBlank() }
+                if (fullName != null) {
+                    Text(
+                        text = fullName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                // Email
+                iamState.email?.let { email ->
+                    Text(
+                        text = email,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                OutlinedButton(
+                    onClick = onIamLogout,
+                    modifier = Modifier.height(36.dp)
+                ) {
+                    LockIcon(size = 14.dp)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = stringResource(Res.string.iam_logout),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            } else if (iamLoginInProgress) {
+                OutlinedButton(
+                    onClick = {},
+                    modifier = Modifier.height(36.dp),
+                    enabled = false
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(14.dp),
+                        strokeWidth = 2.dp
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = stringResource(Res.string.iam_login_waiting),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            } else {
+                OutlinedButton(
+                    onClick = onIamLogin,
+                    modifier = Modifier.height(36.dp)
+                ) {
+                    UnlockIcon(size = 14.dp)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = stringResource(Res.string.iam_login),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
             }
         }
     }

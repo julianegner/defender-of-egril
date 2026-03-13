@@ -159,6 +159,11 @@ class GameViewModel {
 
         initializePlayerProfile()
         initializeWorldMap()
+        // Note: saved games are loaded via onAuthStateChanged() which is called by a
+        // LaunchedEffect in App.kt on every change of iamState.isAuthenticated (including
+        // the initial composition).  This avoids an NPE that would occur if
+        // refreshSavedGames() were called here directly, because _savedGames is declared
+        // further down in the file and not yet initialised at this point in the constructor.
     }
     
     /**
@@ -1155,6 +1160,16 @@ class GameViewModel {
     
     private val _savedGames = MutableStateFlow<List<de.egril.defender.save.SaveGameMetadata>>(emptyList())
     val savedGames: StateFlow<List<de.egril.defender.save.SaveGameMetadata>> = _savedGames.asStateFlow()
+
+    private val _isLoadingRemoteSaves = MutableStateFlow(false)
+    val isLoadingRemoteSaves: StateFlow<Boolean> = _isLoadingRemoteSaves.asStateFlow()
+
+    /**
+     * In-memory cache of raw JSON for remote-only savefiles. Keyed by saveId.
+     * Populated during [refreshSavedGames] so that [loadGame] can download and
+     * store a remote-only save locally without a second network round-trip.
+     */
+    private val remoteFilesCache = mutableMapOf<String, String>()
     
     fun navigateToLoadGame() {
         refreshSavedGames()
@@ -1167,6 +1182,8 @@ class GameViewModel {
         refreshSavedGames()
         // Update the last save snapshot
         lastSaveSnapshot = createGameStateSnapshot(state)
+        // Upload to backend in background if the user is logged in
+        uploadSavefileToBackend(saveId)
         return saveId
     }
     
@@ -1179,7 +1196,58 @@ class GameViewModel {
         // Use fixed ID "autosave_game" and add "Autosave" as comment
         de.egril.defender.save.SaveFileStorage.saveGameState(state, comment = "Autosave", saveId = "autosave_game")
         refreshSavedGames()
+        // Upload autosave to backend in background if the user is logged in
+        uploadSavefileToBackend("autosave_game")
         // Don't update lastSaveSnapshot for autosaves - we still want to track manual saves separately
+    }
+
+    /**
+     * Uploads a locally-saved game to the backend if the user is currently logged in.
+     * Runs in the background so it never blocks gameplay.
+     */
+    private fun uploadSavefileToBackend(saveId: String) {
+        val token = de.egril.defender.iam.IamService.getToken()
+        if (token == null) {
+            if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                println("Skipping backend upload for $saveId: not authenticated")
+            }
+            return
+        }
+        viewModelScope.launch {
+            val json = de.egril.defender.save.SaveFileStorage.getSaveGameJson(saveId) ?: return@launch
+            try {
+                val success = de.egril.defender.save.BackendSaveService.uploadSavefile(saveId, json, token)
+                if (success) {
+                    // Re-merge so the card shows the "remote" chip
+                    refreshSavedGames()
+                }
+            } catch (e: Exception) {
+                if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Failed to upload savefile $saveId to backend: ${e.message}")
+                }
+            }
+        }
+    }
+
+    /**
+     * Imports a savefile from [remoteFilesCache] into local storage and loads it.
+     * Returns the deserialized [SavedGame] on success, null if the save ID is not in the
+     * cache or the import fails.
+     */
+    private fun importAndLoadFromRemoteCache(saveId: String): de.egril.defender.save.SavedGame? {
+        val remoteJson = remoteFilesCache[saveId] ?: return null
+        val imported = de.egril.defender.save.SaveFileStorage.importSaveGame(
+            filename = "$saveId.json",
+            jsonContent = remoteJson,
+            overwrite = true
+        )
+        if (!imported) {
+            if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                println("Failed to import remote savefile $saveId into local storage")
+            }
+            return null
+        }
+        return de.egril.defender.save.SaveFileStorage.loadGameState(saveId)
     }
     
     /**
@@ -1230,7 +1298,10 @@ class GameViewModel {
     }
     
     fun loadGame(saveId: String) {
-        val savedGame = de.egril.defender.save.SaveFileStorage.loadGameState(saveId) ?: return
+        // Try to load from local storage first; if not present, import from remote cache
+        val savedGame = de.egril.defender.save.SaveFileStorage.loadGameState(saveId)
+            ?: importAndLoadFromRemoteCache(saveId)
+            ?: return
         
         // Find the level by ID
         val level = _worldLevels.value.find { it.level.id == savedGame.levelId }?.level
@@ -1446,8 +1517,90 @@ class GameViewModel {
         return success
     }
     
+    /** Public wrapper so App.kt can trigger a refresh when the IAM state changes (e.g. user logs in). */
+    fun onAuthStateChanged() {
+        viewModelScope.launch { refreshSavedGames() }
+    }
+
     private fun refreshSavedGames() {
-        _savedGames.value = de.egril.defender.save.SaveFileStorage.getAllSavedGames()
+        val localGames = de.egril.defender.save.SaveFileStorage.getAllSavedGames()
+        _savedGames.value = localGames
+        // Asynchronously enrich with remote save information
+        viewModelScope.launch {
+            val token = de.egril.defender.iam.IamService.getToken() ?: return@launch
+            _isLoadingRemoteSaves.value = true
+            try {
+                val remoteFiles = de.egril.defender.save.BackendSaveService.fetchSavefiles(token)
+                    ?: return@launch
+                // Cache all remote file data so loadGame() can import remote-only saves on demand
+                remoteFilesCache.clear()
+                for (remote in remoteFiles) {
+                    remoteFilesCache[remote.saveId] = remote.data
+                }
+                val localIds = localGames.map { it.id }.toSet()
+                // Build a map of remote saves by saveId for timestamp comparison
+                val remoteById = remoteFiles.associateBy { it.saveId }
+                // Build merged list: union of local and remote saves
+                val merged = mutableListOf<de.egril.defender.save.SaveGameMetadata>()
+                // For each local save, check if a newer version exists remotely
+                for (local in localGames) {
+                    val remote = remoteById[local.id]
+                    if (remote != null) {
+                        // Both local and remote exist for this save ID – prefer the newer one
+                        val remoteGame = try {
+                            de.egril.defender.save.SaveJsonSerializer.deserializeSavedGame(remote.data)
+                        } catch (e: Exception) {
+                            if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                                println("Failed to parse remote savefile ${remote.saveId}: ${e.message}")
+                            }
+                            null
+                        }
+                        if (remoteGame != null && remoteGame.timestamp > local.timestamp) {
+                            // Remote version is newer – overwrite local save and use remote metadata
+                            de.egril.defender.save.SaveFileStorage.importSaveGame(
+                                filename = "${remote.saveId}.json",
+                                jsonContent = remote.data,
+                                overwrite = true
+                            )
+                            val metadata = de.egril.defender.save.SaveFileStorage
+                                .buildMetadataFromSavedGame(remoteGame)
+                            merged.add(metadata.copy(isLocal = true, isRemote = true))
+                        } else {
+                            merged.add(local.copy(isLocal = true, isRemote = true))
+                        }
+                    } else {
+                        merged.add(local.copy(isLocal = true, isRemote = false))
+                    }
+                }
+                // Add remote-only saves (not present locally) using metadata from remote JSON
+                for (remote in remoteFiles) {
+                    if (remote.saveId !in localIds) {
+                        val savedGame = try {
+                            de.egril.defender.save.SaveJsonSerializer.deserializeSavedGame(remote.data)
+                        } catch (e: Exception) {
+                            if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                                println("Failed to parse remote savefile ${remote.saveId}: ${e.message}")
+                            }
+                            null
+                        }
+                        if (savedGame != null) {
+                            val metadata = de.egril.defender.save.SaveFileStorage
+                                .buildMetadataFromSavedGame(savedGame)
+                            merged.add(metadata.copy(isLocal = false, isRemote = true))
+                        }
+                    }
+                }
+                // Sort by timestamp descending (newest first)
+                merged.sortByDescending { it.timestamp }
+                _savedGames.value = merged
+            } catch (e: Exception) {
+                if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Failed to fetch remote savefiles: ${e.message}")
+                }
+            } finally {
+                _isLoadingRemoteSaves.value = false
+            }
+        }
     }
     
     private fun saveWorldMapStatus() {

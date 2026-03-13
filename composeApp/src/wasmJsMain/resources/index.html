@@ -95,6 +95,9 @@
         window._kcAuthenticated = false;
         window._kcUsername = null;
         window._kcToken = null;
+        window._kcEmail = null;
+        window._kcFirstName = null;
+        window._kcLastName = null;
         window._keycloak = null;
 
         (function initKeycloak() {
@@ -105,13 +108,20 @@
                 try {
                     const kc = new Keycloak({ url: cfg.url, realm: cfg.realm, clientId: cfg.clientId });
                     window._keycloak = kc;
+                    function updateKcState() {
+                        window._kcToken = kc.token || null;
+                        window._kcAuthenticated = true;
+                        var tp = kc.tokenParsed || {};
+                        window._kcUsername = tp.preferred_username || null;
+                        window._kcEmail = tp.email || null;
+                        window._kcFirstName = tp.given_name || null;
+                        window._kcLastName = tp.family_name || null;
+                    }
                     // checkLoginIframe: false avoids CSP/third-party-cookie issues in modern browsers.
                     // Re-enable in production if your deployment environment allows same-site iframes.
                     // Called automatically when the access token is refreshed successfully.
                     kc.onAuthRefreshSuccess = function () {
-                        window._kcToken = kc.token || null;
-                        window._kcAuthenticated = true;
-                        window._kcUsername = (kc.tokenParsed && kc.tokenParsed.preferred_username) || window._kcUsername;
+                        updateKcState();
                     };
 
                     // Called when the access token expires. Attempt a silent refresh;
@@ -121,6 +131,9 @@
                             .catch(function () {
                                 window._kcAuthenticated = false;
                                 window._kcToken = null;
+                                window._kcEmail = null;
+                                window._kcFirstName = null;
+                                window._kcLastName = null;
                             });
                     };
 
@@ -128,8 +141,12 @@
                         .then(function (authenticated) {
                             window._kcAuthenticated = authenticated === true;
                             if (authenticated) {
-                                window._kcUsername = (kc.tokenParsed && kc.tokenParsed.preferred_username) || null;
+                                var tp = kc.tokenParsed || {};
+                                window._kcUsername = tp.preferred_username || null;
                                 window._kcToken = kc.token || null;
+                                window._kcEmail = tp.email || null;
+                                window._kcFirstName = tp.given_name || null;
+                                window._kcLastName = tp.family_name || null;
                             }
                         })
                         .catch(function () { /* Keycloak server may not be available */ })

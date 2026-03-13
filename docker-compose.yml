@@ -2,9 +2,26 @@
 # Starts the PostgreSQL database, Keycloak IAM, and the backend server.
 #
 # Usage:
-#   docker compose up -d          # start all services
-#   docker compose down           # stop all services
-#   docker compose down -v        # stop and remove all stored data
+#   docker compose up -d                    # start all services (reuse cached images)
+#   docker compose up -d --build backend    # rebuild + start the backend after code changes
+#   docker compose up -d --build            # rebuild + start ALL services
+#   docker compose down                     # stop all services
+#   docker compose down -v                  # stop and remove all stored data
+#
+# IMPORTANT – always rebuild the backend after pulling new code:
+#   docker compose up -d --build backend
+#
+# IMPORTANT – after changes to local-keycloak/egril-realm.json (e.g. new users),
+# recreate the Keycloak container so the realm is re-imported:
+#   docker compose rm -sf keycloak && docker compose up -d keycloak
+#   (wait ~2 minutes for the realm to import, then restart backend)
+#
+# Startup sequence (first run or after `docker compose down -v`):
+#   1. postgres starts and becomes healthy (pg_isready, ~10 s)
+#   2. keycloak starts and imports the realm (~60-180 s on first run)
+#   3. backend starts only after both are healthy, runs Liquibase migrations,
+#      and serves requests on :8080
+#   Check readiness: curl http://localhost:8080/health
 #
 # Service URLs after startup:
 #   Backend API:  http://localhost:8080
@@ -35,19 +52,20 @@ services:
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-      # Required for /health/ready to be served on the management port (9000)
-      KC_HEALTH_ENABLED: "true"
     ports:
       - "8081:8080"
     volumes:
       - ./local-keycloak/egril-realm.json:/opt/keycloak/data/import/egril-realm.json:ro
-    command: start-dev --import-realm
-    # Keycloak 24+ exposes /health/ready on the management port (9000), not 8080.
-    # KC_HEALTH_ENABLED=true is required for that endpoint to respond.
-    # start_period is generous here because the backend image build (Gradle) runs in
-    # parallel and can temporarily starve the host CPU, slowing Keycloak's JVM startup.
+    command: start-dev --import-realm --health-enabled=true
+    # curl/wget are not available in the ubi9-micro-based Keycloak 24 image.
+    # /bin/sh is a symlink to bash, so CMD-SHELL works fine.
+    # We use bash's built-in /dev/tcp to call Keycloak's own /health/ready endpoint
+    # (enabled by --health-enabled=true above). The endpoint returns HTTP 200 with
+    # {"status":"UP"} once Keycloak is fully initialized and the realm is imported.
+    # start_period is generous to accommodate slow JVM startup, especially when the
+    # backend Gradle build runs in parallel and temporarily starves CPU.
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9000/health/ready || exit 1"]
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && printf 'GET /health/ready HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && timeout 5 cat <&3 | grep -q 'UP'"]
       interval: 15s
       timeout: 10s
       retries: 20
@@ -72,7 +90,21 @@ services:
         condition: service_healthy
       keycloak:
         condition: service_healthy
+    # Restart the container automatically when it exits with a non-zero code.
+    # The application's initializeDatabaseWithRetry() calls exitProcess(1) after
+    # all DB connection attempts fail, which triggers this restart policy.
     restart: on-failure
+    # Check the /health endpoint every 15 s.
+    # HTTP 200 {"status":"UP"} = DB connected.
+    # HTTP 503 {"status":"DOWN"} = DB unavailable (stale image without retry logic).
+    # Note: 'restart: on-failure' only triggers on process exit, not on unhealthy status.
+    # For stale images, rebuild the backend: docker compose up -d --build backend
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health | grep -q '\"UP\"' || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
 volumes:
   postgres_data:

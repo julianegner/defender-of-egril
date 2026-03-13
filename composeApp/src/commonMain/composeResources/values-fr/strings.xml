@@ -93,6 +93,8 @@
     <string name="download_savefile_tooltip">Télécharger cette sauvegarde</string>
     <string name="download_all_tooltip">Télécharger toutes les sauvegardes sous forme d'archive ZIP</string>
     <string name="upload_tooltip">Téléverser des sauvegardes (JSON ou ZIP)</string>
+    <string name="savefile_chip_local">local</string>
+    <string name="savefile_chip_remote">en ligne</string>
     <string name="file_override_title">Le fichier existe déjà</string>
     <string name="file_override_message">Une sauvegarde nommée "%s" existe déjà. Que voulez-vous faire?</string>
     <string name="skip_file">Ignorer</string>
@@ -129,6 +131,7 @@
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">Aucune partie sauvegardée trouvée</string>
+    <string name="loading_remote_savefiles">chargement des sauvegardes distantes</string>
     <string name="savegame_folder">dossier de sauvegarde:</string>
     
     <!-- Rules Screen -->
@@ -1488,4 +1491,5 @@
     <string name="iam_login">Connexion</string>
     <string name="iam_logout">Déconnexion</string>
     <string name="iam_login_waiting">En attente du navigateur...</string>
+    <string name="keycloak_account">Compte Keycloak</string>
 </resources>

@@ -149,8 +149,11 @@ private fun startBackgroundTokenRefresh() {
 
             val tokenData = refreshAccessToken(refreshToken)
             if (tokenData == null) {
-                // Refresh failed (refresh token expired/revoked) – log out silently
-                IamService.logout()
+                // Refresh failed (refresh token expired/revoked) – clear local state silently
+                // without opening a browser logout page. The user simply needs to log in again.
+                storedRefreshToken = null
+                tokenExpiresAtMs = 0L
+                IamService.state.value = de.egril.defender.iam.IamState()
                 break
             }
 
@@ -204,8 +207,15 @@ private data class TokenData(
     val expiresInSeconds: Long
 ) {
     fun toIamState(): IamState {
-        val username = extractUsernameFromJwt(accessToken) ?: "unknown"
-        return IamState(isAuthenticated = true, username = username, token = accessToken)
+        val claims = parseJwtClaims(accessToken)
+        return IamState(
+            isAuthenticated = true,
+            username = claims.username ?: "unknown",
+            token = accessToken,
+            email = claims.email,
+            firstName = claims.firstName,
+            lastName = claims.lastName
+        )
     }
 }
 

@@ -6,5 +6,6 @@
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
     <include file="db/changelog/migrations/001-initial-schema.sql"/>
+    <include file="db/changelog/migrations/002-savefiles.sql"/>
 
 </databaseChangeLog>

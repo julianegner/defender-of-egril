@@ -93,6 +93,8 @@
     <string name="download_savefile_tooltip">Diesen Spielstand herunterladen</string>
     <string name="download_all_tooltip">Alle Spielstände als ZIP-Archiv herunterladen</string>
     <string name="upload_tooltip">Spielstände hochladen (JSON oder ZIP)</string>
+    <string name="savefile_chip_local">lokal</string>
+    <string name="savefile_chip_remote">online</string>
     <string name="file_override_title">Datei existiert bereits</string>
     <string name="file_override_message">Ein Spielstand namens "%s" existiert bereits. Was möchten Sie tun?</string>
     <string name="skip_file">Überspringen</string>
@@ -129,6 +131,7 @@
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">Keine gespeicherten Spiele gefunden</string>
+    <string name="loading_remote_savefiles">Remote-Spielstände werden geladen</string>
     <string name="savegame_folder">Speicherort:</string>
     
     <!-- Rules Screen -->
@@ -1486,4 +1489,5 @@
     <string name="iam_login">Login</string>
     <string name="iam_logout">Abmelden</string>
     <string name="iam_login_waiting">Warte auf Browser...</string>
+    <string name="keycloak_account">Keycloak-Konto</string>
 </resources>

@@ -71,3 +71,19 @@ resource "keycloak_openid_client" "defender_of_egril" {
 
   pkce_code_challenge_method = "S256"
 }
+
+# Dedicated public client for developer scripts and API testing.
+# Uses the Resource Owner Password Credentials (ROPC) flow with username + password,
+# which is intentionally disabled on the main defender-of-egril app client.
+resource "keycloak_openid_client" "defender_of_egril_cli" {
+  realm_id  = keycloak_realm.egril.id
+  client_id = "defender-of-egril-cli"
+
+  name        = "Defender of Egril CLI"
+  description = "Public client for developer scripts and API testing. Allows Resource Owner Password Credentials flow."
+  enabled     = true
+
+  access_type                  = "PUBLIC"
+  standard_flow_enabled        = false
+  direct_access_grants_enabled = true
+}

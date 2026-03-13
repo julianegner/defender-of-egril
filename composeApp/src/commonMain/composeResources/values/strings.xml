@@ -95,6 +95,8 @@
     <string name="download_savefile_tooltip">Download this save file</string>
     <string name="download_all_tooltip">Download all save files as a ZIP archive</string>
     <string name="upload_tooltip">Upload save files (JSON or ZIP)</string>
+    <string name="savefile_chip_local">local</string>
+    <string name="savefile_chip_remote">remote</string>
     <string name="file_override_title">File Already Exists</string>
     <string name="file_override_message">A save file named "%s" already exists. What would you like to do?</string>
     <string name="skip_file">Skip</string>
@@ -131,6 +133,7 @@
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">No saved games found</string>
+    <string name="loading_remote_savefiles">loading remote savefiles</string>
     <string name="savegame_folder">savegame folder:</string>
     
     <!-- Rules Screen -->
@@ -1493,4 +1496,5 @@
     <string name="iam_login">Login</string>
     <string name="iam_logout">Logout</string>
     <string name="iam_login_waiting">Waiting for browser...</string>
+    <string name="keycloak_account">Keycloak Account</string>
 </resources>
