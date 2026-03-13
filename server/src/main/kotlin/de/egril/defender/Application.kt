@@ -21,6 +21,10 @@ fun main() {
 }
 
 fun Application.module() {
+    startupLogger.info("Starting application")
+    startupLogger.info("database enabled: ${environment.config.propertyOrNull("database.enabled")?.getString() }")
+    startupLogger.info("database host: ${environment.config.propertyOrNull("database.host")?.getString() }")
+
     configurePlugins()
     val initialDs = tryConnectDatabase(attempt = 1)
     dataSourceRef.set(initialDs)
