@@ -321,8 +321,8 @@ fun WorldMapScreen(
                 // Title/subtitle area and player info
                 // In Image Map View: Stack player info below title
                 // In Level Cards View: Show player info in same row with spacing
-                if (useLevelCards) {
-                    // Level Cards View: Title and player info in same row
+                if (useLevelCards || imageMapActiveTab != null) {
+                    // Level Cards View or tab view: Title and player info in same row
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -362,7 +362,7 @@ fun WorldMapScreen(
                         }
                     }
                 } else {
-                    // Image Map View: Title and player info stacked
+                    // Image Map View (no tab overlay): Title and player info stacked
                     Column{
                         Column(
                             modifier = Modifier.then(
