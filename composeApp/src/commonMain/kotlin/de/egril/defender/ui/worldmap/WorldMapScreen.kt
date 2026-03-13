@@ -124,9 +124,9 @@ fun WorldMapScreen(
         onDownloadCommunityContent?.invoke()
     }
 
-    // Track whether to show user levels tab view in image map mode
-    // false = show image map with button, true = show tab view with user levels
-    var showUserLevelsTabView by remember { mutableStateOf(false) }
+    // Track which tab is active in image map mode.
+    // null = show image map, 1 = Community tab, 2 = User Levels tab
+    var imageMapActiveTab by remember { mutableStateOf<Int?>(null) }
     
     // Watch the setting for world map style
     val useLevelCards = AppSettings.useLevelCards.value
@@ -253,27 +253,49 @@ fun WorldMapScreen(
                 )
             } else {
                 // Image Map View
-                if (isEditorAvailable() && (hasUserLevels || hasCommunityLevels) && showUserLevelsTabView) {
-                    // Show tab view with Official, Community, and User Levels tabs
+                if (isEditorAvailable() && (hasUserLevels || hasCommunityLevels) && imageMapActiveTab != null) {
+                    // Show tab view – Official tab returns to image map, Community/User tabs show level cards
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(top = 80.dp, bottom = 80.dp)  // Leave space for top/bottom bars
+                            .padding(top = 80.dp, bottom = 80.dp)
                     ) {
-                        // Row with "Back to map" link at the top
-                        androidx.compose.material3.TextButton(
-                            onClick = { showUserLevelsTabView = false },
-                            modifier = Modifier.align(androidx.compose.ui.Alignment.Start)
-                        ) {
-                            Text("← ${stringResource(Res.string.official)}")
+                        val tabIndex = imageMapActiveTab ?: return@Column
+                        androidx.compose.material3.PrimaryTabRow(selectedTabIndex = tabIndex) {
+                            // Tab 0: Official – click to return to image worldmap
+                            androidx.compose.material3.Tab(
+                                selected = false,
+                                onClick = { imageMapActiveTab = null },
+                                text = { Text(stringResource(Res.string.official)) }
+                            )
+                            // Tab 1: Community (always rendered so indices stay stable)
+                            androidx.compose.material3.Tab(
+                                selected = tabIndex == 1,
+                                onClick = { imageMapActiveTab = 1 },
+                                text = { Text(stringResource(Res.string.community_levels)) }
+                            )
+                            // Tab 2: User Levels
+                            androidx.compose.material3.Tab(
+                                selected = tabIndex == 2,
+                                onClick = { imageMapActiveTab = 2 },
+                                text = { Text(stringResource(Res.string.user_levels)) }
+                            )
                         }
-                        // Reuse LevelCardsView with the full 3-tab view
-                        LevelCardsView(
-                            worldLevels = visibleWorldLevels,
-                            onLevelSelected = onLevelSelected,
-                            showUserLevelsTab = true,
-                            modifier = Modifier.fillMaxSize()
-                        )
+                        // Show the appropriate level cards for the selected tab
+                        when (tabIndex) {
+                            1 -> LevelCardsView(
+                                worldLevels = visibleWorldLevels,
+                                onLevelSelected = onLevelSelected,
+                                filterToCommunityOnly = true,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                            2 -> LevelCardsView(
+                                worldLevels = visibleWorldLevels,
+                                onLevelSelected = onLevelSelected,
+                                filterToUserLevelsOnly = true,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
                     }
                 } else {
                     // Show image-based World Map (no tabs)
@@ -491,24 +513,27 @@ fun WorldMapScreen(
                     Spacer(modifier = Modifier.weight(1f))
                 }
                 
-                // User/Community Levels Button (only in Image Map View when not showing tab view)
-                // Show when: editor available, has user or community levels, NOT in level cards view, NOT showing tab view
-                if (isEditorAvailable() && (hasUserLevels || hasCommunityLevels) && !useLevelCards && !showUserLevelsTabView) {
+                // User/Community Levels Buttons (only in Image Map View when not showing tab view)
+                if (isEditorAvailable() && (hasUserLevels || hasCommunityLevels) && !useLevelCards && imageMapActiveTab == null) {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         horizontalAlignment = Alignment.End
                     ) {
-                        Button(
-                            onClick = { showUserLevelsTabView = true }
-                        ) {
-                            Text(stringResource(Res.string.user_levels))
+                        if (hasUserLevels) {
+                            Button(onClick = { imageMapActiveTab = 2 }) {
+                                Text(stringResource(Res.string.user_levels))
+                            }
                         }
-                        
-                        // Editor Button below User Levels button
+                        if (hasCommunityLevels) {
+                            Button(onClick = { imageMapActiveTab = 1 }) {
+                                Text(stringResource(Res.string.community_levels))
+                            }
+                        }
+                        // Editor Button below the level buttons
                         EditorButtonCard(onClick = onOpenEditor)
                     }
                 } else if (isEditorAvailable()) {
-                    // Just Editor Button (when no user levels or already in tab view)
+                    // Just Editor Button (when no user/community levels or already in tab view)
                     EditorButtonCard(onClick = onOpenEditor)
                 }
             }
