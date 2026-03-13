@@ -95,6 +95,13 @@ fun App() {
         val iamState by de.egril.defender.iam.IamService.state
         val iamLoginInProgress by de.egril.defender.iam.IamService.loginInProgress
 
+        // Refresh saved games whenever authentication state changes (login/logout/session restore).
+        // This ensures remote saves appear immediately after the user logs in or after the
+        // platform IAM SDK restores an existing session on startup.
+        LaunchedEffect(iamState.isAuthenticated) {
+            viewModel.onAuthStateChanged()
+        }
+
         // Show player selection dialog if needed
         var showPlayerSelection by remember { mutableStateOf(false) }
         var showCreatePlayer by remember { mutableStateOf(false) }

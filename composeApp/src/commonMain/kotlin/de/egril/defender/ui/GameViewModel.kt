@@ -159,6 +159,11 @@ class GameViewModel {
 
         initializePlayerProfile()
         initializeWorldMap()
+        // Note: saved games are loaded via onAuthStateChanged() which is called by a
+        // LaunchedEffect in App.kt on every change of iamState.isAuthenticated (including
+        // the initial composition).  This avoids an NPE that would occur if
+        // refreshSavedGames() were called here directly, because _savedGames is declared
+        // further down in the file and not yet initialised at this point in the constructor.
     }
     
     /**
@@ -1512,6 +1517,11 @@ class GameViewModel {
         return success
     }
     
+    /** Public wrapper so App.kt can trigger a refresh when the IAM state changes (e.g. user logs in). */
+    fun onAuthStateChanged() {
+        viewModelScope.launch { refreshSavedGames() }
+    }
+
     private fun refreshSavedGames() {
         val localGames = de.egril.defender.save.SaveFileStorage.getAllSavedGames()
         _savedGames.value = localGames
