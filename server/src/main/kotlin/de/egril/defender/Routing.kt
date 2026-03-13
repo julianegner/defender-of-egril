@@ -6,12 +6,13 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.slf4j.LoggerFactory
+import java.util.concurrent.atomic.AtomicReference
 import javax.sql.DataSource
 
 private val analyticsLogger = LoggerFactory.getLogger("Analytics")
 private val savefileLogger = LoggerFactory.getLogger("Savefiles")
 
-fun Application.configureRouting(dataSource: DataSource? = null) {
+fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
     routing {
         get("/") {
             call.respondText("Defender of Egril Backend", ContentType.Text.Plain)
@@ -27,6 +28,7 @@ fun Application.configureRouting(dataSource: DataSource? = null) {
          * DB was not ready at startup and the old image (without retry logic) was used.
          */
         get("/health") {
+            val dataSource = dataSourceRef.get()
             if (dataSource == null) {
                 call.respondText(
                     """{"status":"DOWN","database":"unavailable"}""",
@@ -80,7 +82,7 @@ fun Application.configureRouting(dataSource: DataSource? = null) {
             }
             analyticsLogger.info(message)
 
-            dataSource?.connection?.use { conn ->
+            dataSourceRef.get()?.connection?.use { conn ->
                 try {
                     conn.prepareStatement(
                         "INSERT INTO events (event_type, platform, level_name) VALUES (?, ?, ?)"
@@ -121,12 +123,11 @@ fun Application.configureRouting(dataSource: DataSource? = null) {
                 return@post
             }
 
-            if (dataSource == null) {
+            val ds = dataSourceRef.get() ?: run {
                 call.respond(HttpStatusCode.ServiceUnavailable, "Database not available")
                 return@post
             }
-
-            dataSource.connection.use { conn ->
+            ds.connection.use { conn ->
                 try {
                     conn.prepareStatement(
                         """
@@ -162,12 +163,11 @@ fun Application.configureRouting(dataSource: DataSource? = null) {
                 return@get
             }
 
-            if (dataSource == null) {
+            val ds = dataSourceRef.get() ?: run {
                 call.respond(HttpStatusCode.ServiceUnavailable, "Database not available")
                 return@get
             }
-
-            dataSource.connection.use { conn ->
+            ds.connection.use { conn ->
                 try {
                     val savefiles = mutableListOf<SavefileMetadata>()
                     conn.prepareStatement(
