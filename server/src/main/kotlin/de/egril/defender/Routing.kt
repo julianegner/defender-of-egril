@@ -357,7 +357,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                     if (result == null) {
                         call.respond(HttpStatusCode.NotFound, "Community file not found")
                     } else {
-                        call.respond(result!!)
+                        call.respond(result)
                     }
                 } catch (e: Exception) {
                     communityLogger.error("Failed to retrieve community file: ${e.message}", e)
