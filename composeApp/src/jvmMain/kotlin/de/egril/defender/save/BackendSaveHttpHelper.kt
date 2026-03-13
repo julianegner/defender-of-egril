@@ -34,14 +34,14 @@ internal fun jvmHttpPost(path: String, body: String, token: String): Int {
 }
 
 /**
- * Synchronously GETs [path] from the backend with [token] as Bearer auth.
+ * Synchronously GETs [path] from the backend with optional [token] as Bearer auth.
  * Returns the response body on success (2xx), or null on error / non-2xx.
  */
-internal fun jvmHttpGet(path: String, token: String): String? {
+internal fun jvmHttpGet(path: String, token: String?): String? {
     return try {
         val connection = URL("$backendBaseUrl$path").openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
-        connection.setRequestProperty("Authorization", "Bearer $token")
+        if (token != null) connection.setRequestProperty("Authorization", "Bearer $token")
         connection.connectTimeout = 10_000
         connection.readTimeout = 10_000
         val status = connection.responseCode

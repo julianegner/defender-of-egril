@@ -1168,6 +1168,7 @@
     <!-- Official Content Badges -->
     <string name="official">Official</string>
     <string name="user_levels">User Levels</string>
+    <string name="community_levels">Community</string>
     <string name="user_map">User Map</string>
     <string name="official_level">Official Level</string>
     <string name="user_level">User Level</string>
@@ -1501,4 +1502,13 @@
     <string name="iam_login_successful_message">Returning to the game... you can close this window if it does not close automatically.</string>
     <string name="iam_logout_successful_heading">Logged out successfully!</string>
     <string name="iam_logout_successful_message">You can close this window or return to the game.</string>
+
+    <!-- Community maps/levels -->
+    <string name="upload_as_community_level">Upload as Community Level</string>
+    <string name="update_community_level">Update Community Level</string>
+    <string name="upload_as_community_map">Upload as Community Map</string>
+    <string name="update_community_map">Update Community Map</string>
+    <string name="community_uploading">Uploading...</string>
+    <string name="community_upload_success">Uploaded successfully!</string>
+    <string name="community_upload_failed">Upload failed. Please try again.</string>
 </resources>

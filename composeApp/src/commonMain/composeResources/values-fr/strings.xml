@@ -1166,6 +1166,7 @@
     <!-- Official Content Badges -->
     <string name="official">Officiel</string>
     <string name="user_levels">Niveaux Utilisateur</string>
+    <string name="community_levels">Communauté</string>
     <string name="user_map">Carte Utilisateur</string>
     <string name="official_level">Niveau Officiel</string>
     <string name="user_level">Niveau Utilisateur</string>
@@ -1496,4 +1497,13 @@
     <string name="iam_login_successful_message">Retour au jeu... vous pouvez fermer cette fenêtre si elle ne se ferme pas automatiquement.</string>
     <string name="iam_logout_successful_heading">Déconnexion réussie !</string>
     <string name="iam_logout_successful_message">Vous pouvez fermer cette fenêtre ou revenir au jeu.</string>
+
+    <!-- Community maps/levels -->
+    <string name="upload_as_community_level">Publier comme Niveau Communautaire</string>
+    <string name="update_community_level">Mettre à jour le Niveau Communautaire</string>
+    <string name="upload_as_community_map">Publier comme Carte Communautaire</string>
+    <string name="update_community_map">Mettre à jour la Carte Communautaire</string>
+    <string name="community_uploading">Publication en cours...</string>
+    <string name="community_upload_success">Publié avec succès !</string>
+    <string name="community_upload_failed">Échec de la publication. Veuillez réessayer.</string>
 </resources>
