@@ -22,8 +22,10 @@ fun main() {
 
 fun Application.module() {
     startupLogger.info("Starting application")
-    startupLogger.info("database enabled: ${environment.config.propertyOrNull("database.enabled")?.getString() }")
-    startupLogger.info("database host: ${environment.config.propertyOrNull("database.host")?.getString() }")
+    val dbEnabled = System.getenv("DB_ENABLED") ?: environment.config.propertyOrNull("database.enabled")?.getString()
+    val dbHost = System.getenv("DB_HOST") ?: environment.config.propertyOrNull("database.host")?.getString()
+    startupLogger.info("database enabled: $dbEnabled")
+    startupLogger.info("database host: $dbHost")
 
     configurePlugins()
     val initialDs = tryConnectDatabase(attempt = 1)
@@ -58,8 +60,10 @@ private fun Application.tryConnectDatabase(attempt: Int): DataSource? {
  * Returns true when a database host is configured and the feature is not explicitly disabled.
  */
 private fun Application.isDatabaseConfigured(): Boolean {
-    if (environment.config.propertyOrNull("database.enabled")?.getString() == "false") return false
-    return environment.config.propertyOrNull("database.host")?.getString() != null
+    val enabledStr = System.getenv("DB_ENABLED") ?: environment.config.propertyOrNull("database.enabled")?.getString()
+    if (enabledStr == "false") return false
+    val host = System.getenv("DB_HOST") ?: environment.config.propertyOrNull("database.host")?.getString()
+    return host != null
 }
 
 /**

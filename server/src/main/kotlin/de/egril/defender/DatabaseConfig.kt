@@ -13,20 +13,31 @@ import javax.sql.DataSource
 private val dbLogger = LoggerFactory.getLogger("Database")
 
 fun Application.configureDatabase(): DataSource? {
-    // Explicitly disabled via config
-    if (environment.config.propertyOrNull("database.enabled")?.getString() == "false") {
+    // Explicitly disabled via environment variable or HOCON config
+    val enabledStr = System.getenv("DB_ENABLED")
+        ?: environment.config.propertyOrNull("database.enabled")?.getString()
+    if (enabledStr == "false") {
         dbLogger.info("Database connection disabled via configuration.")
         return null
     }
 
-    // No host configured → skip (handles environments where no application.conf is loaded)
-    val host = environment.config.propertyOrNull("database.host")?.getString()
+    // No host configured → skip (handles environments where no DB is expected)
+    val host = System.getenv("DB_HOST")
+        ?: environment.config.propertyOrNull("database.host")?.getString()
         ?: return null.also { dbLogger.info("No database host configured, skipping database connection.") }
 
-    val port = environment.config.propertyOrNull("database.port")?.getString() ?: "5432"
-    val name = environment.config.propertyOrNull("database.name")?.getString() ?: "defenderofegril"
-    val user = environment.config.propertyOrNull("database.user")?.getString() ?: "defender"
-    val password = environment.config.propertyOrNull("database.password")?.getString() ?: "defender"
+    val port = System.getenv("DB_PORT")
+        ?: environment.config.propertyOrNull("database.port")?.getString()
+        ?: "5432"
+    val name = System.getenv("DB_NAME")
+        ?: environment.config.propertyOrNull("database.name")?.getString()
+        ?: "defenderofegril"
+    val user = System.getenv("DB_USER")
+        ?: environment.config.propertyOrNull("database.user")?.getString()
+        ?: "defender"
+    val password = System.getenv("DB_PASSWORD")
+        ?: environment.config.propertyOrNull("database.password")?.getString()
+        ?: "defender"
 
     val jdbcUrl = "jdbc:postgresql://$host:$port/$name"
     dbLogger.info("Connecting to database at $jdbcUrl")
