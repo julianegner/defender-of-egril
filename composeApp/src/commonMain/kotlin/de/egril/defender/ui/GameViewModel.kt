@@ -1156,6 +1156,9 @@ class GameViewModel {
     private val _savedGames = MutableStateFlow<List<de.egril.defender.save.SaveGameMetadata>>(emptyList())
     val savedGames: StateFlow<List<de.egril.defender.save.SaveGameMetadata>> = _savedGames.asStateFlow()
 
+    private val _isLoadingRemoteSaves = MutableStateFlow(false)
+    val isLoadingRemoteSaves: StateFlow<Boolean> = _isLoadingRemoteSaves.asStateFlow()
+
     /**
      * In-memory cache of raw JSON for remote-only savefiles. Keyed by saveId.
      * Populated during [refreshSavedGames] so that [loadGame] can download and
@@ -1515,48 +1518,51 @@ class GameViewModel {
         // Asynchronously enrich with remote save information
         viewModelScope.launch {
             val token = de.egril.defender.iam.IamService.getToken() ?: return@launch
-            val remoteFiles = try {
-                de.egril.defender.save.BackendSaveService.fetchSavefiles(token)
+            _isLoadingRemoteSaves.value = true
+            try {
+                val remoteFiles = de.egril.defender.save.BackendSaveService.fetchSavefiles(token)
+                    ?: return@launch
+                // Cache all remote file data so loadGame() can import remote-only saves on demand
+                remoteFilesCache.clear()
+                for (remote in remoteFiles) {
+                    remoteFilesCache[remote.saveId] = remote.data
+                }
+                val remoteIds = remoteFiles.map { it.saveId }.toSet()
+                val localIds = localGames.map { it.id }.toSet()
+                // Build merged list: union of local and remote saves
+                val merged = mutableListOf<de.egril.defender.save.SaveGameMetadata>()
+                // Annotate local saves with isRemote flag
+                for (local in localGames) {
+                    merged.add(local.copy(isLocal = true, isRemote = local.id in remoteIds))
+                }
+                // Add remote-only saves (not present locally) using metadata from remote JSON
+                for (remote in remoteFiles) {
+                    if (remote.saveId !in localIds) {
+                        val savedGame = try {
+                            de.egril.defender.save.SaveJsonSerializer.deserializeSavedGame(remote.data)
+                        } catch (e: Exception) {
+                            if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                                println("Failed to parse remote savefile ${remote.saveId}: ${e.message}")
+                            }
+                            null
+                        }
+                        if (savedGame != null) {
+                            val metadata = de.egril.defender.save.SaveFileStorage
+                                .buildMetadataFromSavedGame(savedGame)
+                            merged.add(metadata.copy(isLocal = false, isRemote = true))
+                        }
+                    }
+                }
+                // Sort by timestamp descending (newest first)
+                merged.sortByDescending { it.timestamp }
+                _savedGames.value = merged
             } catch (e: Exception) {
                 if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                     println("Failed to fetch remote savefiles: ${e.message}")
                 }
-                null
-            } ?: return@launch
-            // Cache all remote file data so loadGame() can import remote-only saves on demand
-            remoteFilesCache.clear()
-            for (remote in remoteFiles) {
-                remoteFilesCache[remote.saveId] = remote.data
+            } finally {
+                _isLoadingRemoteSaves.value = false
             }
-            val remoteIds = remoteFiles.map { it.saveId }.toSet()
-            val localIds = localGames.map { it.id }.toSet()
-            // Build merged list: union of local and remote saves
-            val merged = mutableListOf<de.egril.defender.save.SaveGameMetadata>()
-            // Annotate local saves with isRemote flag
-            for (local in localGames) {
-                merged.add(local.copy(isLocal = true, isRemote = local.id in remoteIds))
-            }
-            // Add remote-only saves (not present locally) using metadata from remote JSON
-            for (remote in remoteFiles) {
-                if (remote.saveId !in localIds) {
-                    val savedGame = try {
-                        de.egril.defender.save.SaveJsonSerializer.deserializeSavedGame(remote.data)
-                    } catch (e: Exception) {
-                        if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-                            println("Failed to parse remote savefile ${remote.saveId}: ${e.message}")
-                        }
-                        null
-                    }
-                    if (savedGame != null) {
-                        val metadata = de.egril.defender.save.SaveFileStorage
-                            .buildMetadataFromSavedGame(savedGame)
-                        merged.add(metadata.copy(isLocal = false, isRemote = true))
-                    }
-                }
-            }
-            // Sort by timestamp descending (newest first)
-            merged.sortByDescending { it.timestamp }
-            _savedGames.value = merged
         }
     }
     

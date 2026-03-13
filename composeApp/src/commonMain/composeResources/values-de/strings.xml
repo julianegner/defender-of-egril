@@ -131,6 +131,7 @@
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">Keine gespeicherten Spiele gefunden</string>
+    <string name="loading_remote_savefiles">Remote-Spielstände werden geladen</string>
     <string name="savegame_folder">Speicherort:</string>
     
     <!-- Rules Screen -->

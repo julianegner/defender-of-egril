@@ -131,6 +131,7 @@
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">No se encontraron partidas guardadas</string>
+    <string name="loading_remote_savefiles">cargando partidas remotas</string>
     <string name="savegame_folder">carpeta de guardados:</string>
     
     <!-- Rules Screen -->

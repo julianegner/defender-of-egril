@@ -72,6 +72,7 @@ fun App() {
         val worldLevels by viewModel.worldLevels.collectAsState()
         val gameState by viewModel.gameState.collectAsState()
         val savedGames by viewModel.savedGames.collectAsState()
+        val isLoadingRemoteSaves by viewModel.isLoadingRemoteSaves.collectAsState()
         val cheatDigOutcome by viewModel.cheatDigOutcome.collectAsState()
         val showPlatformInfo by viewModel.showPlatformInfo.collectAsState()
         val showCheatHelp by viewModel.showCheatHelp.collectAsState()
@@ -308,6 +309,7 @@ fun App() {
             is Screen.LoadGame -> {
                 LoadGameScreen(
                     savedGames = savedGames,
+                    isLoadingRemoteSaves = isLoadingRemoteSaves,
                     onLoadGame = { saveId -> viewModel.loadGame(saveId) },
                     onDeleteGame = { saveId -> viewModel.deleteSavedGame(saveId) },
                     onDownloadGame = { saveId, includeGameState -> viewModel.downloadSaveGame(saveId, includeGameState) },

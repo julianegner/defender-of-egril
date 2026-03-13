@@ -133,6 +133,7 @@
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">No saved games found</string>
+    <string name="loading_remote_savefiles">loading remote savefiles</string>
     <string name="savegame_folder">savegame folder:</string>
     
     <!-- Rules Screen -->
