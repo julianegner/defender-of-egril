@@ -1,5 +1,7 @@
 package de.egril.defender.iam
 
+import com.hyperether.resources.LocalizedStrings
+import com.hyperether.resources.currentLanguage
 import java.net.HttpURLConnection
 import java.net.ServerSocket
 import java.net.URI
@@ -242,10 +244,12 @@ private fun waitForAuthCode(port: Int): String? {
         // Auto-close the browser window after 2 seconds so the user returns to the app.
         // window.close() is blocked by browsers when the page was not opened via JS, so
         // we also show a manual-close hint as fallback.
+        val locale = currentLanguage.value
         serveAutoClosePage(
             socket,
-            heading = "&#x2713; Login successful!",
-            message = "Returning to the game&hellip; you can close this window if it does not close automatically."
+            langCode = locale.code,
+            heading = "&#x2713; ${LocalizedStrings.get("iam_login_successful_heading", locale)}",
+            message = LocalizedStrings.get("iam_login_successful_message", locale)
         )
         params["code"]
     } catch (_: Exception) {
@@ -268,10 +272,12 @@ private fun serveLogoutCallback() {
         server.soTimeout = 30_000
         try {
             val socket = server.accept()
+            val locale = currentLanguage.value
             serveAutoClosePage(
                 socket,
-                heading = "&#x2713; Logged out successfully!",
-                message = "You can close this window or return to the game."
+                langCode = locale.code,
+                heading = "&#x2713; ${LocalizedStrings.get("iam_logout_successful_heading", locale)}",
+                message = LocalizedStrings.get("iam_logout_successful_message", locale)
             )
         } finally {
             server.close()
@@ -285,11 +291,12 @@ private fun serveLogoutCallback() {
  * Writes a self-contained HTML page to [socket] that displays [heading] and [message],
  * then attempts to close the browser window automatically after 2 seconds via JavaScript.
  * Includes security headers to prevent XSS and clickjacking.
+ * The [langCode] is used for the HTML lang attribute (e.g. "en", "de").
  * The socket is closed after writing.
  */
-private fun serveAutoClosePage(socket: java.net.Socket, heading: String, message: String) {
+private fun serveAutoClosePage(socket: java.net.Socket, langCode: String, heading: String, message: String) {
     val html = """<!DOCTYPE html>
-<html lang="en">
+<html lang="$langCode">
 <head><meta charset="UTF-8">
 <style>body{font-family:sans-serif;text-align:center;padding:40px;}</style>
 </head>
