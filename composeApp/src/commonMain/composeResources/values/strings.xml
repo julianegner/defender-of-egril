@@ -1497,4 +1497,8 @@
     <string name="iam_logout">Logout</string>
     <string name="iam_login_waiting">Waiting for browser...</string>
     <string name="keycloak_account">Keycloak Account</string>
+    <string name="iam_login_successful_heading">Login successful!</string>
+    <string name="iam_login_successful_message">Returning to the game... you can close this window if it does not close automatically.</string>
+    <string name="iam_logout_successful_heading">Logged out successfully!</string>
+    <string name="iam_logout_successful_message">You can close this window or return to the game.</string>
 </resources>

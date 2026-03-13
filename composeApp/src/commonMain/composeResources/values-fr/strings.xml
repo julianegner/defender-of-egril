@@ -1492,4 +1492,8 @@
     <string name="iam_logout">Déconnexion</string>
     <string name="iam_login_waiting">En attente du navigateur...</string>
     <string name="keycloak_account">Compte Keycloak</string>
+    <string name="iam_login_successful_heading">Connexion réussie !</string>
+    <string name="iam_login_successful_message">Retour au jeu... vous pouvez fermer cette fenêtre si elle ne se ferme pas automatiquement.</string>
+    <string name="iam_logout_successful_heading">Déconnexion réussie !</string>
+    <string name="iam_logout_successful_message">Vous pouvez fermer cette fenêtre ou revenir au jeu.</string>
 </resources>

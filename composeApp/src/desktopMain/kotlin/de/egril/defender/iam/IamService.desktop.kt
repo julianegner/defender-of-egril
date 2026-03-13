@@ -1,5 +1,7 @@
 package de.egril.defender.iam
 
+import com.hyperether.resources.LocalizedStrings
+import com.hyperether.resources.currentLanguage
 import java.net.HttpURLConnection
 import java.net.ServerSocket
 import java.net.URI
@@ -46,6 +48,13 @@ private var refreshThreadRunning = false
 private const val PKCE_CALLBACK_PORT = 10001
 
 internal actual fun startPlatformLogin() {
+    // Resolve the locale and page texts on the calling thread (UI thread) before spawning
+    // the background daemon thread, so that LocalizedStrings is accessed in a context where
+    // the Compose runtime and resources are fully initialised.
+    val locale = currentLanguage.value
+    val loginPageHeading = "&#x2713; ${LocalizedStrings.get("iam_login_successful_heading", locale)}"
+    val loginPageMessage = LocalizedStrings.get("iam_login_successful_message", locale)
+
     Thread {
         try {
             val port = acquireCallbackPort()
@@ -71,7 +80,7 @@ internal actual fun startPlatformLogin() {
             // this thread is blocked waiting for the callback.
             openBrowserNewWindow(authUrl)
 
-            val code = waitForAuthCode(port) ?: return@Thread
+            val code = waitForAuthCode(port, locale.code, loginPageHeading, loginPageMessage) ?: return@Thread
 
             val tokenData = exchangeCodeForToken(code, codeVerifier, redirectUri) ?: return@Thread
 
@@ -100,13 +109,20 @@ internal actual fun performPlatformLogout() {
     // We listen on PKCE_CALLBACK_PORT for the post-logout redirect so that we can serve
     // an auto-closing "Logged out" page. The URI http://localhost:10001/* is registered
     // in the Keycloak client, so http://localhost:10001/logout-callback is accepted.
+
+    // Resolve locale and page texts on the calling thread (UI thread) before spawning
+    // the background daemon thread.
+    val locale = currentLanguage.value
+    val logoutPageHeading = "&#x2713; ${LocalizedStrings.get("iam_logout_successful_heading", locale)}"
+    val logoutPageMessage = LocalizedStrings.get("iam_logout_successful_message", locale)
+
     try {
         val logoutCallbackUri = "http://localhost:$PKCE_CALLBACK_PORT/logout-callback"
         val logoutUrl = "${IamConfig.logoutUrl}?client_id=${IamConfig.CLIENT_ID}" +
                 "&post_logout_redirect_uri=${URLEncoder.encode(logoutCallbackUri, "UTF-8")}"
         // Spin up a one-shot server BEFORE opening the browser so we don't miss the redirect.
         Thread {
-            serveLogoutCallback()
+            serveLogoutCallback(locale.code, logoutPageHeading, logoutPageMessage)
         }.also { it.isDaemon = true }.start()
         openBrowserNewWindow(logoutUrl)
     } catch (_: Exception) {
@@ -226,7 +242,7 @@ private fun parseTokenResponse(json: String): TokenData? {
     return TokenData(accessToken, refreshToken, expiresIn)
 }
 
-private fun waitForAuthCode(port: Int): String? {
+private fun waitForAuthCode(port: Int, langCode: String, heading: String, message: String): String? {
     val server = ServerSocket(port)
     server.soTimeout = 120_000 // 2-minute timeout to give the user time to log in
     return try {
@@ -242,11 +258,7 @@ private fun waitForAuthCode(port: Int): String? {
         // Auto-close the browser window after 2 seconds so the user returns to the app.
         // window.close() is blocked by browsers when the page was not opened via JS, so
         // we also show a manual-close hint as fallback.
-        serveAutoClosePage(
-            socket,
-            heading = "&#x2713; Login successful!",
-            message = "Returning to the game&hellip; you can close this window if it does not close automatically."
-        )
+        serveAutoClosePage(socket, langCode = langCode, heading = heading, message = message)
         params["code"]
     } catch (_: Exception) {
         null
@@ -259,20 +271,20 @@ private fun waitForAuthCode(port: Int): String? {
  * Listens on [PKCE_CALLBACK_PORT] for a single request (the post-logout redirect from
  * Keycloak) and serves an auto-closing "Logged out" page.
  *
+ * [langCode], [heading], and [message] are resolved before this function is called
+ * (on the UI thread) and passed in to avoid accessing localization APIs from a
+ * background daemon thread.
+ *
  * The server times out after 30 seconds; if Keycloak never redirects (e.g. network error)
  * it exits silently – the local state has already been cleared by [performPlatformLogout].
  */
-private fun serveLogoutCallback() {
+private fun serveLogoutCallback(langCode: String, heading: String, message: String) {
     try {
         val server = ServerSocket(PKCE_CALLBACK_PORT)
         server.soTimeout = 30_000
         try {
             val socket = server.accept()
-            serveAutoClosePage(
-                socket,
-                heading = "&#x2713; Logged out successfully!",
-                message = "You can close this window or return to the game."
-            )
+            serveAutoClosePage(socket, langCode = langCode, heading = heading, message = message)
         } finally {
             server.close()
         }
@@ -285,11 +297,12 @@ private fun serveLogoutCallback() {
  * Writes a self-contained HTML page to [socket] that displays [heading] and [message],
  * then attempts to close the browser window automatically after 2 seconds via JavaScript.
  * Includes security headers to prevent XSS and clickjacking.
+ * The [langCode] is used for the HTML lang attribute (e.g. "en", "de").
  * The socket is closed after writing.
  */
-private fun serveAutoClosePage(socket: java.net.Socket, heading: String, message: String) {
+private fun serveAutoClosePage(socket: java.net.Socket, langCode: String, heading: String, message: String) {
     val html = """<!DOCTYPE html>
-<html lang="en">
+<html lang="$langCode">
 <head><meta charset="UTF-8">
 <style>body{font-family:sans-serif;text-align:center;padding:40px;}</style>
 </head>
