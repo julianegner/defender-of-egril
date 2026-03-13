@@ -249,8 +249,10 @@ class GameViewModel {
         println("DEBUG: Total user levels loaded: ${userLevels.size}")
         }
 
-        // Load community levels from community directory
+        // Load community levels from community directory (skip any already present as user levels)
+        val userLevelIds = userSequence.sequence.toSet()
         val communityEditorLevels = de.egril.defender.editor.EditorStorage.getAllCommunityLevels()
+            .filter { it.id !in userLevelIds }  // Avoid duplicating levels the user also has locally
         val communityLevels = communityEditorLevels.mapIndexedNotNull { index, editorLevel ->
             if (de.egril.defender.editor.EditorStorage.isLevelReadyToPlay(editorLevel)) {
                 de.egril.defender.editor.EditorStorage.convertToGameLevel(

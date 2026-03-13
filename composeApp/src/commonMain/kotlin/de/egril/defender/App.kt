@@ -255,6 +255,7 @@ fun App() {
                     onLoadGame = { viewModel.navigateToLoadGame() },
                     onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) },
                     onReloadWorldMap = { viewModel.reloadWorldMap() },
+                    onDownloadCommunityContent = { viewModel.downloadCommunityContent() },
                     onSwitchPlayer = { showPlayerSelection = true },
                     onEditPlayerName = { viewModel.navigateToPlayerProfile() },
                     currentPlayerName = currentPlayer?.name,
