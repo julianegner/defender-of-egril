@@ -28,18 +28,6 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
          * DB was not ready at startup and the old image (without retry logic) was used.
          */
         get("/health") {
-
-            // fixme this is only to test if the service would work
-            //  and only the health endpoint is broken
-            call.respondText(
-                """{"status":"UP","database":"connected"}""",
-                ContentType.Application.Json,
-                HttpStatusCode.OK
-            )
-            return@get
-
-            /*
-
             val dataSource = dataSourceRef.get()
             if (dataSource == null) {
                 call.respondText(
@@ -73,7 +61,6 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                     HttpStatusCode.ServiceUnavailable
                 )
             }
-             */
         }
 
         post("/api/events") {
