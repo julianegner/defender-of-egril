@@ -11,6 +11,7 @@ import javax.sql.DataSource
 
 private val analyticsLogger = LoggerFactory.getLogger("Analytics")
 private val savefileLogger = LoggerFactory.getLogger("Savefiles")
+private val communityLogger = LoggerFactory.getLogger("Community")
 
 fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
     routing {
@@ -190,6 +191,177 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                 } catch (e: Exception) {
                     savefileLogger.error("Failed to retrieve savefiles: ${e.message}", e)
                     call.respond(HttpStatusCode.InternalServerError, "Failed to retrieve savefiles")
+                }
+            }
+        }
+
+        // ---------------------------------------------------------------------------
+        // Community maps/levels endpoints
+        // ---------------------------------------------------------------------------
+
+        /**
+         * Upload (create or replace) a community map or level.
+         * Requires a valid Bearer token in the Authorization header.
+         * A user can only update files they originally uploaded.
+         * Returns 401 if unauthenticated, 403 if trying to update another user's file.
+         */
+        post("/api/community/files") {
+            val userId = extractUserIdFromBearerToken(call.request.header(HttpHeaders.Authorization))
+            if (userId == null) {
+                call.respond(HttpStatusCode.Unauthorized, "Authentication required")
+                return@post
+            }
+            val username = extractUsernameFromBearerToken(call.request.header(HttpHeaders.Authorization)) ?: userId
+
+            val request = try {
+                call.receive<CommunityFileUploadRequest>()
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid payload: ${e.message}")
+                return@post
+            }
+
+            if (request.fileType != "MAP" && request.fileType != "LEVEL") {
+                call.respond(HttpStatusCode.BadRequest, "fileType must be MAP or LEVEL")
+                return@post
+            }
+
+            val ds = dataSourceRef.get() ?: run {
+                call.respond(HttpStatusCode.ServiceUnavailable, "Database not available")
+                return@post
+            }
+            ds.connection.use { conn ->
+                try {
+                    // Check if file already exists and if the user is the owner
+                    val existingUserId: String? = conn.prepareStatement(
+                        "SELECT user_id FROM community_files WHERE file_type = ? AND file_id = ?"
+                    ).use { stmt ->
+                        stmt.setString(1, request.fileType)
+                        stmt.setString(2, request.fileId)
+                        stmt.executeQuery().use { rs ->
+                            if (rs.next()) rs.getString("user_id") else null
+                        }
+                    }
+
+                    if (existingUserId != null && existingUserId != userId) {
+                        call.respond(HttpStatusCode.Forbidden, "Cannot update another user's community file")
+                        return@use
+                    }
+
+                    conn.prepareStatement(
+                        """
+                        INSERT INTO community_files (user_id, username, file_type, file_id, data, updated_at)
+                        VALUES (?, ?, ?, ?, ?, NOW())
+                        ON CONFLICT (file_type, file_id)
+                        DO UPDATE SET data = EXCLUDED.data, username = EXCLUDED.username, updated_at = NOW()
+                        """.trimIndent()
+                    ).use { stmt ->
+                        stmt.setString(1, userId)
+                        stmt.setString(2, username)
+                        stmt.setString(3, request.fileType)
+                        stmt.setString(4, request.fileId)
+                        stmt.setString(5, request.data)
+                        stmt.executeUpdate()
+                    }
+                    communityLogger.info("Community file uploaded: userId=$userId fileType=${request.fileType} fileId=${request.fileId}")
+                    call.respond(HttpStatusCode.OK)
+                } catch (e: Exception) {
+                    communityLogger.error("Failed to store community file: ${e.message}", e)
+                    call.respond(HttpStatusCode.InternalServerError, "Failed to store community file")
+                }
+            }
+        }
+
+        /**
+         * List all community files. Optionally filter by fileType (MAP or LEVEL).
+         * This endpoint is public (no authentication required).
+         */
+        get("/api/community/files") {
+            val fileType = call.request.queryParameters["fileType"]
+
+            val ds = dataSourceRef.get() ?: run {
+                call.respond(HttpStatusCode.ServiceUnavailable, "Database not available")
+                return@get
+            }
+            ds.connection.use { conn ->
+                try {
+                    val files = mutableListOf<CommunityFileMetadata>()
+                    val query = if (fileType != null) {
+                        "SELECT file_type, file_id, username, updated_at FROM community_files WHERE file_type = ? ORDER BY updated_at DESC"
+                    } else {
+                        "SELECT file_type, file_id, username, updated_at FROM community_files ORDER BY updated_at DESC"
+                    }
+                    conn.prepareStatement(query).use { stmt ->
+                        if (fileType != null) stmt.setString(1, fileType)
+                        stmt.executeQuery().use { rs ->
+                            while (rs.next()) {
+                                files.add(
+                                    CommunityFileMetadata(
+                                        fileType = rs.getString("file_type"),
+                                        fileId = rs.getString("file_id"),
+                                        authorUsername = rs.getString("username"),
+                                        updatedAt = rs.getTimestamp("updated_at").toInstant().toString()
+                                    )
+                                )
+                            }
+                        }
+                    }
+                    call.respond(files)
+                } catch (e: Exception) {
+                    communityLogger.error("Failed to retrieve community files: ${e.message}", e)
+                    call.respond(HttpStatusCode.InternalServerError, "Failed to retrieve community files")
+                }
+            }
+        }
+
+        /**
+         * Download the data for a specific community file.
+         * This endpoint is public (no authentication required).
+         */
+        get("/api/community/files/{fileType}/{fileId}") {
+            val fileType = call.parameters["fileType"]
+            val fileId = call.parameters["fileId"]
+
+            if (fileType == null || fileId == null) {
+                call.respond(HttpStatusCode.BadRequest, "Missing fileType or fileId")
+                return@get
+            }
+            if (fileType != "MAP" && fileType != "LEVEL") {
+                call.respond(HttpStatusCode.BadRequest, "fileType must be MAP or LEVEL")
+                return@get
+            }
+
+            val ds = dataSourceRef.get() ?: run {
+                call.respond(HttpStatusCode.ServiceUnavailable, "Database not available")
+                return@get
+            }
+            ds.connection.use { conn ->
+                try {
+                    var result: CommunityFileData? = null
+                    conn.prepareStatement(
+                        "SELECT file_type, file_id, username, data, updated_at FROM community_files WHERE file_type = ? AND file_id = ?"
+                    ).use { stmt ->
+                        stmt.setString(1, fileType)
+                        stmt.setString(2, fileId)
+                        stmt.executeQuery().use { rs ->
+                            if (rs.next()) {
+                                result = CommunityFileData(
+                                    fileType = rs.getString("file_type"),
+                                    fileId = rs.getString("file_id"),
+                                    authorUsername = rs.getString("username"),
+                                    data = rs.getString("data"),
+                                    updatedAt = rs.getTimestamp("updated_at").toInstant().toString()
+                                )
+                            }
+                        }
+                    }
+                    if (result == null) {
+                        call.respond(HttpStatusCode.NotFound, "Community file not found")
+                    } else {
+                        call.respond(result!!)
+                    }
+                } catch (e: Exception) {
+                    communityLogger.error("Failed to retrieve community file: ${e.message}", e)
+                    call.respond(HttpStatusCode.InternalServerError, "Failed to retrieve community file")
                 }
             }
         }

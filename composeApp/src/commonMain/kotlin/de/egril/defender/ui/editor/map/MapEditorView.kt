@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.IntSize
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorTargetInfo
 import de.egril.defender.editor.TileType
+import de.egril.defender.editor.EditorStorage
 import de.egril.defender.model.Position
 import de.egril.defender.model.RiverTile
 import de.egril.defender.model.TargetType
@@ -34,6 +35,8 @@ import de.egril.defender.utils.screenToHexGridPosition
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.icon.InfoIcon
 import defender_of_egril.composeapp.generated.resources.*
+import de.egril.defender.editor.EditorJsonSerializer
+import kotlinx.coroutines.launch
 
 /**
  * Converts a human-readable map name into a stable map ID component, e.g. "My Map" → "my_map".
@@ -69,6 +72,9 @@ fun MapEditorView(
     var showSaveAsDialog by remember { mutableStateOf(false) }
     var showChangeAllDialog by remember { mutableStateOf(false) }
     var showRiverPropertiesDialog by remember { mutableStateOf(false) }
+    var communityUploadStatus by remember { mutableStateOf<String?>(null) }
+    var isUploadingToCommunity by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
     var zoomLevel by remember { mutableStateOf(1.0f) }
     var offsetX by remember { mutableStateOf(0f) }
     var offsetY by remember { mutableStateOf(0f) }
@@ -416,6 +422,104 @@ fun MapEditorView(
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(stringResource(Res.string.cancel))
+                }
+            }
+
+            // Community upload button - only shown for non-official maps when user is authenticated
+            val iamState by de.egril.defender.iam.IamService.state
+            if (!map.isOfficial && iamState.isAuthenticated) {
+                val currentMapJson = remember(map.id, map.hashCode(), tiles.hashCode(), riverTiles.hashCode()) {
+                    val updatedMap = map.copy(
+                        tiles = tiles.toMap(),
+                        riverTiles = riverTiles.toMap(),
+                        targetInfoMap = targetInfoMap.toMap()
+                    )
+                    de.egril.defender.editor.EditorJsonSerializer.serializeMap(updatedMap)
+                }
+                val storedCommunityJson = remember(map.id) {
+                    de.egril.defender.editor.EditorStorage.getStoredCommunityMapJson(map.id)
+                }
+                val storedCommunityMap = remember(map.id) {
+                    de.egril.defender.editor.EditorStorage.getCommunityMap(map.id)
+                }
+                val isMyUpload = storedCommunityMap?.communityAuthorUsername == iamState.username
+                val isChanged = storedCommunityJson != null && storedCommunityJson != currentMapJson
+
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (storedCommunityJson == null) {
+                        Button(
+                            onClick = {
+                                val token = de.egril.defender.iam.IamService.getToken() ?: return@Button
+                                isUploadingToCommunity = true
+                                communityUploadStatus = null
+                                coroutineScope.launch {
+                                    val success = de.egril.defender.save.BackendCommunityService
+                                        .uploadCommunityFile("MAP", map.id, currentMapJson, token)
+                                    if (success) {
+                                        val updatedMap = map.copy(tiles = tiles.toMap(), riverTiles = riverTiles.toMap(), targetInfoMap = targetInfoMap.toMap())
+                                        de.egril.defender.editor.EditorStorage.saveCommunityMap(
+                                            updatedMap,
+                                            iamState.username ?: ""
+                                        )
+                                        communityUploadStatus = "success"
+                                    } else {
+                                        communityUploadStatus = "error"
+                                    }
+                                    isUploadingToCommunity = false
+                                }
+                            },
+                            enabled = !isUploadingToCommunity,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                if (isUploadingToCommunity) stringResource(Res.string.community_uploading)
+                                else stringResource(Res.string.upload_as_community_map)
+                            )
+                        }
+                    } else if (isMyUpload && isChanged) {
+                        Button(
+                            onClick = {
+                                val token = de.egril.defender.iam.IamService.getToken() ?: return@Button
+                                isUploadingToCommunity = true
+                                communityUploadStatus = null
+                                coroutineScope.launch {
+                                    val success = de.egril.defender.save.BackendCommunityService
+                                        .uploadCommunityFile("MAP", map.id, currentMapJson, token)
+                                    if (success) {
+                                        val updatedMap = map.copy(tiles = tiles.toMap(), riverTiles = riverTiles.toMap(), targetInfoMap = targetInfoMap.toMap())
+                                        de.egril.defender.editor.EditorStorage.saveCommunityMap(
+                                            updatedMap,
+                                            iamState.username ?: ""
+                                        )
+                                        communityUploadStatus = "success"
+                                    } else {
+                                        communityUploadStatus = "error"
+                                    }
+                                    isUploadingToCommunity = false
+                                }
+                            },
+                            enabled = !isUploadingToCommunity,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                if (isUploadingToCommunity) stringResource(Res.string.community_uploading)
+                                else stringResource(Res.string.update_community_map)
+                            )
+                        }
+                    }
+                }
+                communityUploadStatus?.let { status ->
+                    Text(
+                        text = if (status == "success") stringResource(Res.string.community_upload_success)
+                               else stringResource(Res.string.community_upload_failed),
+                        color = if (status == "success") Color(0xFF2E7D32)
+                                else MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    )
                 }
             }
         }

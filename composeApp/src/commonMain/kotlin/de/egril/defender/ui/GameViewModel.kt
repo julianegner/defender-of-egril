@@ -21,6 +21,7 @@ import kotlinx.coroutines.launch
 import de.egril.defender.config.LogConfig
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
+import de.egril.defender.editor.EditorJsonSerializer
 
 sealed class Screen {
     object MainMenu : Screen()
@@ -248,8 +249,24 @@ class GameViewModel {
         println("DEBUG: Total user levels loaded: ${userLevels.size}")
         }
 
-        // Combine official and user levels
-        val allLevels = officialLevels + userLevels
+        // Load community levels from community directory
+        val communityEditorLevels = de.egril.defender.editor.EditorStorage.getAllCommunityLevels()
+        val communityLevels = communityEditorLevels.mapIndexedNotNull { index, editorLevel ->
+            if (de.egril.defender.editor.EditorStorage.isLevelReadyToPlay(editorLevel)) {
+                de.egril.defender.editor.EditorStorage.convertToGameLevel(
+                    editorLevel,
+                    officialLevels.size + userLevels.size + index + 1
+                )
+            } else {
+                null
+            }
+        }
+        if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+        println("DEBUG: Total community levels loaded: ${communityLevels.size}")
+        }
+
+        // Combine official, user, and community levels
+        val allLevels = officialLevels + userLevels + communityLevels
         
         // Load saved world map status
         val savedStatuses = de.egril.defender.save.SaveFileStorage.loadWorldMapStatus()
@@ -268,8 +285,9 @@ class GameViewModel {
                 if (savedStatus != null) {
                     savedStatus
                 } else {
-                    // User levels are always unlocked
+                    // User and community levels are always unlocked
                     val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(level.editorLevelId)
+                        ?: de.egril.defender.editor.EditorStorage.getCommunityLevel(level.editorLevelId)
                     if (editorLevel?.isOfficial == false) {
                         LevelStatus.UNLOCKED
                     } else {
@@ -302,6 +320,100 @@ class GameViewModel {
         println("Reloading world map from disk...")
         }
         initializeWorldMap()
+    }
+
+    /**
+     * Downloads community levels and maps from the backend and stores them locally.
+     * After download, reloads the world map to include community levels.
+     */
+    fun downloadCommunityContent() {
+        viewModelScope.launch {
+            try {
+                // Download community level list
+                val communityLevelMeta = de.egril.defender.save.BackendCommunityService
+                    .fetchCommunityFileList("LEVEL")
+                if (communityLevelMeta != null) {
+                    for (meta in communityLevelMeta) {
+                        val fileData = de.egril.defender.save.BackendCommunityService
+                            .fetchCommunityFile("LEVEL", meta.fileId)
+                        if (fileData != null) {
+                            val level = de.egril.defender.editor.EditorJsonSerializer
+                                .deserializeLevel(fileData.data)
+                            if (level != null) {
+                                de.egril.defender.editor.EditorStorage.saveCommunityLevel(
+                                    level.copy(
+                                        isCommunity = true,
+                                        communityAuthorUsername = meta.authorUsername
+                                    )
+                                )
+                                // Also download the map used by this level if not already present
+                                if (de.egril.defender.editor.EditorStorage.getMap(level.mapId) == null) {
+                                    val mapData = de.egril.defender.save.BackendCommunityService
+                                        .fetchCommunityFile("MAP", level.mapId)
+                                    if (mapData != null) {
+                                        val map = de.egril.defender.editor.EditorJsonSerializer
+                                            .deserializeMap(mapData.data)
+                                        if (map != null) {
+                                            de.egril.defender.editor.EditorStorage.saveCommunityMap(
+                                                map,
+                                                mapData.authorUsername
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    de.egril.defender.editor.EditorStorage.clearCommunityCache()
+                    initializeWorldMap()
+                }
+            } catch (e: Exception) {
+                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Failed to download community content: ${e.message}")
+                }
+            }
+        }
+    }
+
+    /**
+     * Uploads a user level to the community backend.
+     * @param levelId The ID of the level to upload
+     * @param token Bearer token for authentication
+     * @return true on success, false on failure
+     */
+    suspend fun uploadCommunityLevel(levelId: String, token: String): Boolean {
+        val level = de.egril.defender.editor.EditorStorage.getLevel(levelId) ?: return false
+        val json = de.egril.defender.editor.EditorJsonSerializer.serializeLevel(level)
+        val success = de.egril.defender.save.BackendCommunityService
+            .uploadCommunityFile("LEVEL", levelId, json, token)
+        if (success) {
+            // Store the uploaded version locally in the community directory so we can detect changes
+            de.egril.defender.editor.EditorStorage.saveCommunityLevel(
+                level.copy(
+                    isCommunity = true,
+                    communityAuthorUsername = de.egril.defender.iam.IamService.state.value.username ?: ""
+                )
+            )
+        }
+        return success
+    }
+
+    /**
+     * Uploads a user map to the community backend.
+     * @param mapId The ID of the map to upload
+     * @param token Bearer token for authentication
+     * @return true on success, false on failure
+     */
+    suspend fun uploadCommunityMap(mapId: String, token: String): Boolean {
+        val map = de.egril.defender.editor.EditorStorage.getMap(mapId) ?: return false
+        val json = de.egril.defender.editor.EditorJsonSerializer.serializeMap(map)
+        val success = de.egril.defender.save.BackendCommunityService
+            .uploadCommunityFile("MAP", mapId, json, token)
+        if (success) {
+            val username = de.egril.defender.iam.IamService.state.value.username ?: ""
+            de.egril.defender.editor.EditorStorage.saveCommunityMap(map, username)
+        }
+        return success
     }
     
     fun navigateToMainMenu() {
