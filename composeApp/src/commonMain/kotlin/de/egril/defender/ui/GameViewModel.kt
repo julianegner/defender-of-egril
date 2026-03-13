@@ -1537,13 +1537,40 @@ class GameViewModel {
                 for (remote in remoteFiles) {
                     remoteFilesCache[remote.saveId] = remote.data
                 }
-                val remoteIds = remoteFiles.map { it.saveId }.toSet()
                 val localIds = localGames.map { it.id }.toSet()
+                // Build a map of remote saves by saveId for timestamp comparison
+                val remoteById = remoteFiles.associateBy { it.saveId }
                 // Build merged list: union of local and remote saves
                 val merged = mutableListOf<de.egril.defender.save.SaveGameMetadata>()
-                // Annotate local saves with isRemote flag
+                // For each local save, check if a newer version exists remotely
                 for (local in localGames) {
-                    merged.add(local.copy(isLocal = true, isRemote = local.id in remoteIds))
+                    val remote = remoteById[local.id]
+                    if (remote != null) {
+                        // Both local and remote exist for this save ID – prefer the newer one
+                        val remoteGame = try {
+                            de.egril.defender.save.SaveJsonSerializer.deserializeSavedGame(remote.data)
+                        } catch (e: Exception) {
+                            if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                                println("Failed to parse remote savefile ${remote.saveId}: ${e.message}")
+                            }
+                            null
+                        }
+                        if (remoteGame != null && remoteGame.timestamp > local.timestamp) {
+                            // Remote version is newer – overwrite local save and use remote metadata
+                            de.egril.defender.save.SaveFileStorage.importSaveGame(
+                                filename = "${remote.saveId}.json",
+                                jsonContent = remote.data,
+                                overwrite = true
+                            )
+                            val metadata = de.egril.defender.save.SaveFileStorage
+                                .buildMetadataFromSavedGame(remoteGame)
+                            merged.add(metadata.copy(isLocal = true, isRemote = true))
+                        } else {
+                            merged.add(local.copy(isLocal = true, isRemote = true))
+                        }
+                    } else {
+                        merged.add(local.copy(isLocal = true, isRemote = false))
+                    }
                 }
                 // Add remote-only saves (not present locally) using metadata from remote JSON
                 for (remote in remoteFiles) {
