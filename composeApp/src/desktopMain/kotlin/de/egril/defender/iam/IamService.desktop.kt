@@ -10,6 +10,8 @@ import java.net.URLEncoder
 import java.security.MessageDigest
 import java.util.Base64
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.random.Random
 
 actual fun getIamBaseUrl(): String = readIamBaseUrlFromJvmEnv()
@@ -64,7 +66,44 @@ private const val PKCE_CALLBACK_PORT = 10001
  */
 private val nextLoginUsesRestartUrl = AtomicBoolean(false)
 
+/**
+ * Monotonically increasing counter that identifies the current login attempt.
+ * Incremented by [startPlatformLogin] each time a new login begins. The
+ * background login thread captures this value; its `finally` block only clears
+ * [IamService.loginInProgress] when the stored generation still matches, so a
+ * superseded thread cannot accidentally clear the flag for the new attempt.
+ */
+private val loginGeneration = AtomicInteger(0)
+
+/**
+ * The [ServerSocket] currently blocking on `accept()` inside [waitForAuthCode],
+ * or `null` when no login is in progress. Closing this socket interrupts the
+ * waiting thread, frees port [PKCE_CALLBACK_PORT], and allows a fresh login to
+ * bind the well-known port immediately.
+ *
+ * An [AtomicReference] ensures that [startPlatformLogin]'s `getAndSet(null)?.close()`
+ * is performed atomically: it is impossible for two concurrent calls to both read
+ * a non-null reference without one of them closing it.
+ *
+ * Written by [waitForAuthCode] (set on open, cleared with CAS in `finally`). Read and
+ * closed by [startPlatformLogin] to cancel a pending login before starting a new one.
+ */
+private val pendingCallbackServer = AtomicReference<ServerSocket?>(null)
+
 internal actual fun startPlatformLogin() {
+    // If a previous login is still waiting for the browser callback, cancel it now.
+    // This frees port PKCE_CALLBACK_PORT so the new attempt can bind the well-known
+    // port. Without this, the second login falls back to a random port which is not
+    // registered in Keycloak and triggers "Invalid parameter: redirect_uri".
+    // getAndSet(null) is atomic: it is impossible for two concurrent cancels to both
+    // read the same non-null reference without one of them closing it.
+    pendingCallbackServer.getAndSet(null)?.close()
+
+    // Capture the current generation BEFORE spawning the thread. If startPlatformLogin
+    // is called again while this thread is running, the generation is incremented and
+    // this thread's finally block will not clear the newer login's loginInProgress flag.
+    val myGeneration = loginGeneration.incrementAndGet()
+
     // Resolve the locale and page texts on the calling thread (UI thread) before spawning
     // the background daemon thread, so that LocalizedStrings is accessed in a context where
     // the Compose runtime and resources are fully initialised.
@@ -124,8 +163,12 @@ internal actual fun startPlatformLogin() {
         } catch (_: Exception) {
             // Login errors must never disrupt gameplay
         } finally {
-            // Always clear the in-progress flag, regardless of success or failure.
-            IamService.loginInProgress.value = false
+            // Clear the in-progress flag only if we are still the active login attempt.
+            // A newer login (higher generation) may have already taken over; clearing its
+            // flag here would incorrectly hide the "Waiting for login" indicator.
+            if (loginGeneration.get() == myGeneration) {
+                IamService.loginInProgress.value = false
+            }
         }
     }.also { it.isDaemon = true }.start()
 }
@@ -336,6 +379,7 @@ private fun parseTokenResponse(json: String): TokenData? {
 
 private fun waitForAuthCode(port: Int, langCode: String, heading: String, message: String): String? {
     val server = ServerSocket(port)
+    pendingCallbackServer.set(server)  // publish so startPlatformLogin() can cancel us
     server.soTimeout = 120_000 // 2-minute timeout to give the user time to log in
     return try {
         val socket = server.accept()
@@ -355,6 +399,7 @@ private fun waitForAuthCode(port: Int, langCode: String, heading: String, messag
     } catch (_: Exception) {
         null
     } finally {
+        pendingCallbackServer.compareAndSet(server, null)  // only clear OUR reference
         server.close()
     }
 }
