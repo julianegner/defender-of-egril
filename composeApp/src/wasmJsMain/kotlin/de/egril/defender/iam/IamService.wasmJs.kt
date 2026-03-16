@@ -37,7 +37,7 @@ private external fun jsGetKcLastName(): String?
 @JsFun("() => { return window._kcToken || null; }")
 private external fun jsGetKcToken(): String?
 
-@JsFun("() => { if (window._keycloak) { window._keycloak.login(); } }")
+@JsFun("() => { if (window._keycloak) { window._keycloak.login({ prompt: 'login' }); } }")
 private external fun jsKcLogin()
 
 @JsFun("() => { if (window._keycloak) { window._keycloak.logout({ redirectUri: window.location.origin }); } }")

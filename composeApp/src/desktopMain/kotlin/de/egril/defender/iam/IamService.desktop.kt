@@ -72,6 +72,11 @@ internal actual fun startPlatformLogin() {
                 append("&state=").append(state)
                 append("&code_challenge=").append(codeChallenge)
                 append("&code_challenge_method=S256")
+                // Always show the Keycloak login form, even if the browser still carries
+                // an active SSO session cookie from a previous user. Without this, Keycloak
+                // would silently re-authenticate as the previous user when a player with no
+                // linked remote account manually clicks "Login".
+                append("&prompt=login")
             }
 
             // Open the Keycloak login page in a new browser window in the foreground.
