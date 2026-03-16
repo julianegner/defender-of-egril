@@ -1035,9 +1035,7 @@ class GameViewModel {
                 // Save world map status
                 saveWorldMapStatus()
             }
-        }
-        // Sync updated abilities and level progress to backend after a won level
-        if (won) {
+            // Sync updated abilities (XP awarded) and level progress to backend
             uploadUserDataToBackend()
         }
         _currentScreen.value = Screen.LevelComplete(levelId, won, isLastLevel, xpEarned)
@@ -1258,24 +1256,28 @@ class GameViewModel {
         _worldLevels.value = CheatCodeHandler.unlockAllLevels(_worldLevels.value)
         // Save updated world map status
         saveWorldMapStatus()
+        uploadUserDataToBackend()
     }
     
     private fun unlockLevel(editorLevelId: String) {
         _worldLevels.value = CheatCodeHandler.unlockLevel(_worldLevels.value, editorLevelId)
         // Save updated world map status
         saveWorldMapStatus()
+        uploadUserDataToBackend()
     }
     
     private fun lockAllLevels() {
         _worldLevels.value = CheatCodeHandler.lockAllLevels(_worldLevels.value)
         // Save updated world map status
         saveWorldMapStatus()
+        uploadUserDataToBackend()
     }
     
     private fun lockLevel(editorLevelId: String) {
         _worldLevels.value = CheatCodeHandler.lockLevel(_worldLevels.value, editorLevelId)
         // Save updated world map status
         saveWorldMapStatus()
+        uploadUserDataToBackend()
     }
     
     // Save/Load functionality
@@ -1806,10 +1808,14 @@ class GameViewModel {
 
                 var playerUpdated = false
 
-                // Merge abilities: prefer whichever has higher total XP
+                // Merge abilities: prefer remote when it has higher XP, or when XP is equal but
+                // the ability distribution differs (spending points doesn't change XP, so the
+                // remote is more recent in that case – last writer wins).
                 val player = _currentPlayer.value ?: return@launch
                 val remoteAbilities = remote.abilities
-                if (remoteAbilities != null && remoteAbilities.totalXP > player.abilities.totalXP) {
+                if (remoteAbilities != null &&
+                    (remoteAbilities.totalXP > player.abilities.totalXP ||
+                     (remoteAbilities.totalXP == player.abilities.totalXP && remoteAbilities != player.abilities))) {
                     val updatedPlayer = player.copy(abilities = remoteAbilities)
                     _currentPlayer.value = updatedPlayer
                     de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
