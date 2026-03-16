@@ -40,76 +40,36 @@
 .brand-banner {
   display: flex;
   align-items: center;
-  padding: 12px 32px;
   width: 100%;
+  overflow: hidden;
 }
 
 /* Defender of Egril banner – always dark, matching the game's look */
 .defender-banner {
   background-color: #1a1a1a;
-  gap: 16px;
   min-height: 80px;
 }
 
 /* cosha.nu banner – always dark */
 .coshanu-banner {
   background-color: #111111;
-  gap: 12px;
   min-height: 52px;
 }
 
-/* ── Defender of Egril banner internals ─────────────────────────────── */
+/* ── Banner images ───────────────────────────────────────────────────── */
 
-.game-icons {
-  width: 180px;
+.defender-banner-img {
   height: 80px;
-  flex-shrink: 0;
-}
-
-.defender-title {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  color: #f0f0f0;
-  line-height: 1.1;
-  flex: 1;
-}
-
-.defender-of {
-  font-size: 1.4rem;
-  font-style: italic;
-  font-weight: 300;
-  letter-spacing: 0.03em;
-}
-
-.egril-text {
-  font-size: 2.6rem;
-  font-style: italic;
-  font-weight: 400;
-  letter-spacing: 0.02em;
-}
-
-.shield-img {
-  width: 72px;
-  height: 72px;
+  width: auto;
   object-fit: contain;
-  flex-shrink: 0;
+  display: block;
 }
 
-/* ── cosha.nu banner internals ───────────────────────────────────────── */
-
-.coshanu-shapes {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.coshanu-text {
-  font-size: 1.4rem;
-  font-weight: 300;
-  letter-spacing: 0.04em;
-  color: #d0d0d0;
+.coshanu-banner-img {
+  height: 52px;
+  width: auto;
+  object-fit: contain;
+  display: block;
 }
 
 /* ── Main login area ─────────────────────────────────────────────────── */
@@ -362,26 +322,12 @@
 /* ── Responsive adjustments ──────────────────────────────────────────── */
 
 @media (max-width: 540px) {
-  .brand-banner {
-    padding: 8px 16px;
-  }
-
-  .game-icons {
-    width: 120px;
+  .defender-banner-img {
     height: 56px;
   }
 
-  .defender-of {
-    font-size: 1.1rem;
-  }
-
-  .egril-text {
-    font-size: 2rem;
-  }
-
-  .shield-img {
-    width: 52px;
-    height: 52px;
+  .coshanu-banner-img {
+    height: 40px;
   }
 
   .login-card-header,
