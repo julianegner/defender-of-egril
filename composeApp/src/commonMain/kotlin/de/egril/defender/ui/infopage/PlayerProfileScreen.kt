@@ -23,7 +23,6 @@ import de.egril.defender.ui.getLocalizedDescription
 import de.egril.defender.ui.icon.LockIcon
 import de.egril.defender.ui.icon.TrophyIcon
 import de.egril.defender.ui.icon.UnlockIcon
-import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.utils.formatTimestamp
 import defender_of_egril.composeapp.generated.resources.*
@@ -43,7 +42,8 @@ fun PlayerProfileScreen(
     iamState: IamState = IamState(),
     iamLoginInProgress: Boolean = false,
     onIamLogin: () -> Unit = {},
-    onIamLogout: () -> Unit = {}
+    onIamLogout: () -> Unit = {},
+    onAlwaysLoginChanged: (Boolean) -> Unit = {}
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -199,7 +199,9 @@ fun PlayerProfileScreen(
                             iamState = iamState,
                             iamLoginInProgress = iamLoginInProgress,
                             onIamLogin = onIamLogin,
-                            onIamLogout = onIamLogout
+                            onIamLogout = onIamLogout,
+                            alwaysLogin = playerProfile.alwaysLogin,
+                            onAlwaysLoginChanged = onAlwaysLoginChanged
                         )
 
                         Spacer(modifier = Modifier.height(24.dp))
@@ -726,9 +728,10 @@ private fun UserAccountCard(
     iamState: IamState,
     iamLoginInProgress: Boolean,
     onIamLogin: () -> Unit,
-    onIamLogout: () -> Unit
+    onIamLogout: () -> Unit,
+    alwaysLogin: Boolean = false,
+    onAlwaysLoginChanged: (Boolean) -> Unit = {}
 ) {
-    val alwaysLogin by AppSettings.alwaysLogin
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -840,7 +843,7 @@ private fun UserAccountCard(
                 )
                 Switch(
                     checked = alwaysLogin,
-                    onCheckedChange = { AppSettings.saveAlwaysLogin(it) }
+                    onCheckedChange = { onAlwaysLoginChanged(it) }
                 )
             }
         }

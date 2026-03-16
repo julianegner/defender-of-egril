@@ -66,7 +66,6 @@ object AppSettings {
     private const val KEY_USE_LEVEL_MAP_IMAGE = "use_level_map_image"
     private const val KEY_SHOW_DEBUG_OPTIONS = "show_debug_options"
     private const val KEY_ENABLE_ANIMATIONS = "enable_animations"
-    private const val KEY_ALWAYS_LOGIN = "always_login"
     
     private val settings: Settings = Settings()
     
@@ -211,14 +210,6 @@ object AppSettings {
      */
     val enableAnimations: MutableState<Boolean> = mutableStateOf(
         settings.getBoolean(KEY_ENABLE_ANIMATIONS, true)
-    )
-
-    /**
-     * Always log in - automatically redirect to login when the app starts and user is not logged in
-     * Default is false
-     */
-    val alwaysLogin: MutableState<Boolean> = mutableStateOf(
-        settings.getBoolean(KEY_ALWAYS_LOGIN, false)
     )
 
     // Session-only debug states (not persisted)
@@ -480,14 +471,6 @@ object AppSettings {
     }
 
     /**
-     * Save always log in preference
-     */
-    fun saveAlwaysLogin(enabled: Boolean) {
-        alwaysLogin.value = enabled
-        settings.putBoolean(KEY_ALWAYS_LOGIN, enabled)
-    }
-    
-    /**
      * Reset all settings to defaults
      */
     fun resetToDefaults() {
@@ -532,9 +515,6 @@ object AppSettings {
         
         // Reset animations to ON
         saveEnableAnimations(true)
-
-        // Reset always log in to OFF
-        saveAlwaysLogin(false)
         
         // Note: Don't reset settings hint shown state when resetting settings
         // as user has already seen it once

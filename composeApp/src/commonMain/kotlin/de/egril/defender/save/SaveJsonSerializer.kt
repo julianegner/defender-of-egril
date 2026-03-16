@@ -677,7 +677,8 @@ object SaveJsonSerializer {
       "lastPlayedAt": ${profile.lastPlayedAt},
       "achievements": [$achievementsJson],
       "abilities": $abilitiesJson,
-      "remoteUsername": $remoteUsernameJson
+      "remoteUsername": $remoteUsernameJson,
+      "alwaysLogin": ${profile.alwaysLogin}
     }"""
         }
         
@@ -803,6 +804,13 @@ object SaveJsonSerializer {
                         null
                     }
 
+                    // Parse alwaysLogin (optional, for backward compatibility – defaults to false)
+                    val alwaysLogin = try {
+                        JsonUtils.extractValue(entry, "alwaysLogin").toBooleanStrict()
+                    } catch (e: Exception) {
+                        false
+                    }
+
                     profiles.add(PlayerProfile(
                         id = id,
                         name = name,
@@ -810,7 +818,8 @@ object SaveJsonSerializer {
                         lastPlayedAt = lastPlayedAt,
                         achievements = achievements,
                         abilities = abilities,
-                        remoteUsername = remoteUsername
+                        remoteUsername = remoteUsername,
+                        alwaysLogin = alwaysLogin
                     ))
                 }
             }

@@ -102,15 +102,20 @@ fun App() {
             viewModel.onAuthStateChanged()
         }
 
-        // Observe "always log in" setting
-        val alwaysLogin by AppSettings.alwaysLogin
+        // "Always log in" is now a per-player preference stored in PlayerProfile.
+        // Auto-login only fires when:
+        //   1. the current player has alwaysLogin = true, AND
+        //   2. the player has a linked remote account (remoteUsername != null), AND
+        //   3. we are not already authenticated or in the middle of a login flow.
+        val alwaysLogin = currentPlayer?.alwaysLogin ?: false
+        val hasRemoteAccount = currentPlayer?.remoteUsername != null
 
         // If "always log in" is enabled, automatically start the login flow when the
         // authentication state changes (e.g. on startup or after logging out).
-        // We only check alwaysLogin and isAuthenticated as keys so that cancelling a
-        // login attempt does not immediately restart the flow.
-        LaunchedEffect(alwaysLogin, iamState.isAuthenticated) {
-            if (alwaysLogin && !iamState.isAuthenticated && !iamLoginInProgress) {
+        // We only check alwaysLogin, hasRemoteAccount, and isAuthenticated as keys so that
+        // cancelling a login attempt does not immediately restart the flow.
+        LaunchedEffect(alwaysLogin, hasRemoteAccount, iamState.isAuthenticated) {
+            if (alwaysLogin && hasRemoteAccount && !iamState.isAuthenticated && !iamLoginInProgress) {
                 de.egril.defender.iam.IamService.login()
             }
         }
@@ -195,11 +200,14 @@ fun App() {
                 players = allPlayers,
                 currentPlayerId = currentPlayer?.id,
                 onSelectPlayer = { playerId ->
-                    // Use logoutLocal() (not logout()) to clear the in-memory token state
-                    // without opening a browser or binding the PKCE callback port. This
-                    // avoids a port conflict when the subsequent LaunchedEffect re-triggers
-                    // login for the new player (alwaysLogin setting).
-                    if (iamState.isAuthenticated) {
+                    // Always clear local IAM token state when switching players.
+                    // - Use logoutLocal() (not logout()) to avoid occupying the PKCE callback port.
+                    // - If the new player has no linked remote account, clear the state even when
+                    //   currently unauthenticated (covers the case where a stale state lingers).
+                    // - If the new player does have a remote account and alwaysLogin is set, the
+                    //   LaunchedEffect below will automatically re-trigger login.
+                    val newPlayerHasRemoteAccount = allPlayers.find { it.id == playerId }?.remoteUsername != null
+                    if (iamState.isAuthenticated || !newPlayerHasRemoteAccount) {
                         de.egril.defender.iam.IamService.logoutLocal()
                     }
                     viewModel.switchPlayer(playerId)
@@ -311,7 +319,8 @@ fun App() {
                         iamState = iamState,
                         iamLoginInProgress = iamLoginInProgress,
                         onIamLogin = { de.egril.defender.iam.IamService.login() },
-                        onIamLogout = { de.egril.defender.iam.IamService.logout() }
+                        onIamLogout = { de.egril.defender.iam.IamService.logout() },
+                        onAlwaysLoginChanged = { value -> viewModel.setAlwaysLogin(value) }
                     )
                 }
             }

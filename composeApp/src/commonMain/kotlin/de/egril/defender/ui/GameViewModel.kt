@@ -1647,6 +1647,17 @@ class GameViewModel {
         viewModelScope.launch { refreshSavedGames() }
     }
 
+    /**
+     * Persists the "always log in" preference for the current player profile.
+     * This is a per-player setting: each local player can independently opt-in to
+     * automatic Keycloak login whenever they are the active player.
+     */
+    fun setAlwaysLogin(value: Boolean) {
+        val player = _currentPlayer.value ?: return
+        de.egril.defender.save.PlayerProfileStorage.saveAlwaysLogin(player.id, value)
+        _currentPlayer.value = player.copy(alwaysLogin = value)
+    }
+
     private fun refreshSavedGames() {
         val localGames = de.egril.defender.save.SaveFileStorage.getAllSavedGames()
         _savedGames.value = localGames
