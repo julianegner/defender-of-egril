@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "node -e \"const fs=require('fs');fs.rmSync('dist_keycloak',{recursive:true,force:true})\"",
     "build": "vite build && keycloakify build",
     "keycloakify": "keycloakify"
   },
