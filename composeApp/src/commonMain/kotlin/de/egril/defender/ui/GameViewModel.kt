@@ -1120,6 +1120,7 @@ class GameViewModel {
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+        uploadUserDataToBackend()
     }
 
     private fun removePlayerXP(amount: Int) {
@@ -1131,6 +1132,7 @@ class GameViewModel {
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+        uploadUserDataToBackend()
     }
 
     private fun addPlayerStat(statName: String, amount: Int) {
@@ -1149,6 +1151,7 @@ class GameViewModel {
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+        uploadUserDataToBackend()
     }
 
     private fun removePlayerStat(statName: String, amount: Int) {
@@ -1167,6 +1170,7 @@ class GameViewModel {
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+        uploadUserDataToBackend()
     }
 
     private fun unlockPlayerSpell(spellName: String) {
@@ -1193,6 +1197,7 @@ class GameViewModel {
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+        uploadUserDataToBackend()
     }
 
     private fun lockPlayerSpell(spellName: String) {
@@ -1219,6 +1224,7 @@ class GameViewModel {
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+        uploadUserDataToBackend()
     }
 
     fun applyWorldMapCheatCode(code: String): Boolean {
@@ -1932,6 +1938,8 @@ class GameViewModel {
                 de.egril.defender.save.SaveFileStorage.setCurrentPlayer(updatedProfile.id)
             }
             
+            // Sync the new local username to the backend
+            uploadUserDataToBackend()
             return true
         }
         return false
