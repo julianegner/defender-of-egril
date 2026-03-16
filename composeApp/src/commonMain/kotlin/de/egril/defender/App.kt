@@ -208,12 +208,12 @@ fun App() {
                             // port without conflict.
                             de.egril.defender.iam.IamService.logoutLocal()
                         } else {
-                            // New player has no remote account: perform a full browser-based SSO
-                            // logout so the Keycloak session is terminated. If the new player
-                            // later manually triggers a login, they won't be silently logged in
-                            // as the previous user. No auto-login will fire (no remoteUsername),
-                            // so there is no risk of a port conflict.
-                            de.egril.defender.iam.IamService.logout()
+                            // New player has no remote account: use backchannel logout to
+                            // revoke the Keycloak session server-side via HTTP POST. This
+                            // terminates the SSO session without opening a browser window or
+                            // binding the PKCE callback port, so a subsequent manual login
+                            // will always present a fresh Keycloak login page.
+                            de.egril.defender.iam.IamService.logoutBackchannel()
                         }
                     } else if (!newPlayerHasRemoteAccount) {
                         // Not authenticated but switching to a player with no remote account:

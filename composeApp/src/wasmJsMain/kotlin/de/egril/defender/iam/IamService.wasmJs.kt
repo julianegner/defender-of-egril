@@ -66,6 +66,15 @@ internal actual fun performPlatformLogoutLocal() {
     // No-op: IamService.logoutLocal() clears IamService.state directly.
 }
 
+/**
+ * On WASM, performs a full Keycloak.js SSO logout (browser redirect back to the
+ * origin). This terminates the SSO session so that a subsequent login does not
+ * silently re-authenticate as the previous user.
+ */
+internal actual fun performPlatformLogoutBackchannel() {
+    jsKcLogout()
+}
+
 // Background scope for the token-sync loop. Lives for the duration of the app.
 private val iamScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 

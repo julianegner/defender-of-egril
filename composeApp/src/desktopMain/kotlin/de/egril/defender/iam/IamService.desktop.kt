@@ -141,6 +141,51 @@ internal actual fun performPlatformLogoutLocal() {
     refreshThreadRunning = false
 }
 
+/**
+ * Revokes the Keycloak session via an HTTP POST (backchannel logout) and clears
+ * in-memory token state. This terminates the server-side session without opening
+ * a browser window or binding the PKCE callback port, so a subsequent login can
+ * proceed without any port conflict or race condition.
+ *
+ * If no refresh token is stored (e.g. login never completed) the function behaves
+ * identically to [performPlatformLogoutLocal].
+ */
+internal actual fun performPlatformLogoutBackchannel() {
+    val refreshToken = storedRefreshToken
+    storedRefreshToken = null
+    tokenExpiresAtMs = 0L
+    refreshThreadRunning = false
+
+    if (refreshToken != null) {
+        // Fire-and-forget: revoke the server-side session on a background thread.
+        // Local state has already been cleared above so the UI updates immediately.
+        Thread {
+            try {
+                val body = buildString {
+                    append("client_id=${URLEncoder.encode(IamConfig.CLIENT_ID, "UTF-8")}")
+                    append("&refresh_token=${URLEncoder.encode(refreshToken, "UTF-8")}")
+                }
+                val conn = URL(IamConfig.logoutUrl).openConnection() as HttpURLConnection
+                conn.requestMethod = "POST"
+                conn.doOutput = true
+                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+                conn.connectTimeout = TOKEN_HTTP_TIMEOUT_MS
+                conn.readTimeout = TOKEN_HTTP_TIMEOUT_MS
+                conn.outputStream.use { it.write(body.toByteArray()) }
+                try { conn.inputStream.use { it.readBytes() } } catch (e: Exception) {
+                    println("IAM: backchannel logout – could not read response: ${e.message}")
+                }
+                conn.disconnect()
+            } catch (e: Exception) {
+                // Backchannel logout failed – local state was already cleared above.
+                // The Keycloak session may persist until its natural expiry, but the
+                // next login will present a fresh login page once the session expires.
+                println("IAM: backchannel logout failed: ${e.message}")
+            }
+        }.also { it.isDaemon = true }.start()
+    }
+}
+
 actual suspend fun initPlatformIam() {
     // Desktop login is triggered manually; nothing to restore on startup.
     // The background refresh thread is started in startPlatformLogin() after
