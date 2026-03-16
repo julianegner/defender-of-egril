@@ -27,10 +27,21 @@ object IamService {
         startPlatformLogin()
     }
 
-    /** Logs out and clears the local auth state. */
+    /** Logs out and clears the local auth state. Also performs a full SSO logout in the browser. */
     fun logout() {
         performPlatformLogout()
         state.value = IamState()
+    }
+
+    /**
+     * Clears local auth state only, without performing a browser-based SSO logout.
+     * Use when switching players so that the Keycloak callback port is not occupied
+     * by a logout listener when the subsequent login flow starts.
+     */
+    fun logoutLocal() {
+        performPlatformLogoutLocal()
+        state.value = IamState()
+        loginInProgress.value = false
     }
 
     /** Returns the current Bearer access token, or null if not authenticated. */
@@ -43,8 +54,14 @@ object IamService {
 /** Starts the platform-specific OAuth2/OIDC login flow. */
 internal expect fun startPlatformLogin()
 
-/** Performs the platform-specific logout. */
+/** Performs the platform-specific logout (including SSO browser redirect). */
 internal expect fun performPlatformLogout()
+
+/**
+ * Clears only the in-memory token state without performing a browser-based SSO logout.
+ * This avoids occupying the PKCE callback port, which would block a subsequent login.
+ */
+internal expect fun performPlatformLogoutLocal()
 
 /**
  * Performs platform-specific IAM initialisation, e.g. restoring an existing

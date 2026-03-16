@@ -130,6 +130,17 @@ internal actual fun performPlatformLogout() {
     }
 }
 
+/**
+ * Clears only in-memory token state without opening the browser or binding the
+ * PKCE callback port. Used when switching players so that a subsequent login flow
+ * can acquire the port without conflict.
+ */
+internal actual fun performPlatformLogoutLocal() {
+    storedRefreshToken = null
+    tokenExpiresAtMs = 0L
+    refreshThreadRunning = false
+}
+
 actual suspend fun initPlatformIam() {
     // Desktop login is triggered manually; nothing to restore on startup.
     // The background refresh thread is started in startPlatformLogin() after

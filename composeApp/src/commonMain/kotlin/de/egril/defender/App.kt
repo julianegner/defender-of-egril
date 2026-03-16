@@ -195,11 +195,12 @@ fun App() {
                 players = allPlayers,
                 currentPlayerId = currentPlayer?.id,
                 onSelectPlayer = { playerId ->
-                    // Logout from Keycloak when switching players so each player
-                    // starts with a fresh auth state. If the new player has "always
-                    // login" enabled the existing LaunchedEffect will re-trigger login.
+                    // Use logoutLocal() (not logout()) to clear the in-memory token state
+                    // without opening a browser or binding the PKCE callback port. This
+                    // avoids a port conflict when the subsequent LaunchedEffect re-triggers
+                    // login for the new player (alwaysLogin setting).
                     if (iamState.isAuthenticated) {
-                        de.egril.defender.iam.IamService.logout()
+                        de.egril.defender.iam.IamService.logoutLocal()
                     }
                     viewModel.switchPlayer(playerId)
                     showPlayerSelection = false

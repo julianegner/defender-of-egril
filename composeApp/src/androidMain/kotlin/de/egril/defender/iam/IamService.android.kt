@@ -99,6 +99,12 @@ internal actual fun performPlatformLogout() {
     refreshCoroutineRunning = false
 }
 
+internal actual fun performPlatformLogoutLocal() {
+    storedRefreshToken = null
+    tokenExpiresAtMs = 0L
+    refreshCoroutineRunning = false
+}
+
 /**
  * Checks for a pending login continuation (handles Activity/process recreation during
  * the OAuth2 redirect flow). If a login was in progress when the process was killed,

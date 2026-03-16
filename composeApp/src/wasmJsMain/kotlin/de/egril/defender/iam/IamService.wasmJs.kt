@@ -57,6 +57,15 @@ internal actual fun performPlatformLogout() {
     jsKcLogout()
 }
 
+/**
+ * On WASM the Keycloak JS adapter manages SSO state. When switching players we only
+ * need to clear the local [IamService.state]; the SSO session in the browser can
+ * remain active (the next login will reuse it silently if still valid).
+ */
+internal actual fun performPlatformLogoutLocal() {
+    // No-op: IamService.logoutLocal() clears IamService.state directly.
+}
+
 // Background scope for the token-sync loop. Lives for the duration of the app.
 private val iamScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
