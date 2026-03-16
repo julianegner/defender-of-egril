@@ -200,14 +200,24 @@ fun App() {
                 players = allPlayers,
                 currentPlayerId = currentPlayer?.id,
                 onSelectPlayer = { playerId ->
-                    // Always clear local IAM token state when switching players.
-                    // - Use logoutLocal() (not logout()) to avoid occupying the PKCE callback port.
-                    // - If the new player has no linked remote account, clear the state even when
-                    //   currently unauthenticated (covers the case where a stale state lingers).
-                    // - If the new player does have a remote account and alwaysLogin is set, the
-                    //   LaunchedEffect below will automatically re-trigger login.
                     val newPlayerHasRemoteAccount = allPlayers.find { it.id == playerId }?.remoteUsername != null
-                    if (iamState.isAuthenticated || !newPlayerHasRemoteAccount) {
+                    if (iamState.isAuthenticated) {
+                        if (newPlayerHasRemoteAccount) {
+                            // New player has a remote account: use local-only logout so the
+                            // subsequent auto-login (alwaysLogin) can acquire the PKCE callback
+                            // port without conflict.
+                            de.egril.defender.iam.IamService.logoutLocal()
+                        } else {
+                            // New player has no remote account: perform a full browser-based SSO
+                            // logout so the Keycloak session is terminated. If the new player
+                            // later manually triggers a login, they won't be silently logged in
+                            // as the previous user. No auto-login will fire (no remoteUsername),
+                            // so there is no risk of a port conflict.
+                            de.egril.defender.iam.IamService.logout()
+                        }
+                    } else if (!newPlayerHasRemoteAccount) {
+                        // Not authenticated but switching to a player with no remote account:
+                        // clear any stale local state just in case.
                         de.egril.defender.iam.IamService.logoutLocal()
                     }
                     viewModel.switchPlayer(playerId)
