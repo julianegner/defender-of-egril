@@ -70,4 +70,5 @@ scripts/package.json
 # Keycloak theme - node_modules and build artifacts
 keycloak-theme/node_modules/
 keycloak-theme/dist/
-keycloak-theme/dist_keycloak/
+# dist_keycloak/ contains the deployable JARs that must be committed so
+# docker-compose can mount them without requiring a separate build step.
