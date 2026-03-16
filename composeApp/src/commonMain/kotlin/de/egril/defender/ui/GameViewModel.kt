@@ -1633,7 +1633,29 @@ class GameViewModel {
     
     /** Public wrapper so App.kt can trigger a refresh when the IAM state changes (e.g. user logs in). */
     fun onAuthStateChanged() {
+        // When the user logs in, link their Keycloak username to the current player profile
+        // if no remote username is stored yet for this profile
+        val iamState = de.egril.defender.iam.IamService.state.value
+        if (iamState.isAuthenticated) {
+            val username = iamState.username
+            val player = _currentPlayer.value
+            if (username != null && player != null && player.remoteUsername == null) {
+                de.egril.defender.save.PlayerProfileStorage.linkRemoteUser(player.id, username)
+                _currentPlayer.value = player.copy(remoteUsername = username)
+            }
+        }
         viewModelScope.launch { refreshSavedGames() }
+    }
+
+    /**
+     * Persists the "always log in" preference for the current player profile.
+     * This is a per-player setting: each local player can independently opt-in to
+     * automatic Keycloak login whenever they are the active player.
+     */
+    fun setAlwaysLogin(value: Boolean) {
+        val player = _currentPlayer.value ?: return
+        de.egril.defender.save.PlayerProfileStorage.saveAlwaysLogin(player.id, value)
+        _currentPlayer.value = player.copy(alwaysLogin = value)
     }
 
     private fun refreshSavedGames() {

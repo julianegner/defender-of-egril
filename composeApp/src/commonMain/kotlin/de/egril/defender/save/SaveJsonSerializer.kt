@@ -669,13 +669,16 @@ object SaveJsonSerializer {
                 """{"id": "${achievement.id.name}", "earnedAt": ${achievement.earnedAt}}"""
             }
             val abilitiesJson = serializePlayerAbilities(profile.abilities)
+            val remoteUsernameJson = profile.remoteUsername?.let { "\"$it\"" } ?: "null"
             """{
       "id": "${profile.id}",
       "name": "${profile.name}",
       "createdAt": ${profile.createdAt},
       "lastPlayedAt": ${profile.lastPlayedAt},
       "achievements": [$achievementsJson],
-      "abilities": $abilitiesJson
+      "abilities": $abilitiesJson,
+      "remoteUsername": $remoteUsernameJson,
+      "alwaysLogin": ${profile.alwaysLogin}
     }"""
         }
         
@@ -793,13 +796,30 @@ object SaveJsonSerializer {
                         PlayerAbilities() // Default abilities for backward compatibility
                     }
 
+                    // Parse remoteUsername (optional, for backward compatibility)
+                    val remoteUsername = try {
+                        val value = JsonUtils.extractValue(entry, "remoteUsername")
+                        if (value == "null") null else value
+                    } catch (e: Exception) {
+                        null
+                    }
+
+                    // Parse alwaysLogin (optional, for backward compatibility – defaults to false)
+                    val alwaysLogin = try {
+                        JsonUtils.extractValue(entry, "alwaysLogin").toBooleanStrict()
+                    } catch (e: Exception) {
+                        false
+                    }
+
                     profiles.add(PlayerProfile(
                         id = id,
                         name = name,
                         createdAt = createdAt,
                         lastPlayedAt = lastPlayedAt,
                         achievements = achievements,
-                        abilities = abilities
+                        abilities = abilities,
+                        remoteUsername = remoteUsername,
+                        alwaysLogin = alwaysLogin
                     ))
                 }
             }

@@ -469,7 +469,7 @@ object AppSettings {
         enableAnimations.value = enabled
         settings.putBoolean(KEY_ENABLE_ANIMATIONS, enabled)
     }
-    
+
     /**
      * Reset all settings to defaults
      */

@@ -37,7 +37,7 @@ private external fun jsGetKcLastName(): String?
 @JsFun("() => { return window._kcToken || null; }")
 private external fun jsGetKcToken(): String?
 
-@JsFun("() => { if (window._keycloak) { window._keycloak.login(); } }")
+@JsFun("() => { if (window._keycloak) { window._keycloak.login({ prompt: 'login' }); } }")
 private external fun jsKcLogin()
 
 @JsFun("() => { if (window._keycloak) { window._keycloak.logout({ redirectUri: window.location.origin }); } }")
@@ -54,6 +54,24 @@ internal actual fun startPlatformLogin() {
 }
 
 internal actual fun performPlatformLogout() {
+    jsKcLogout()
+}
+
+/**
+ * On WASM the Keycloak JS adapter manages SSO state. When switching players we only
+ * need to clear the local [IamService.state]; the SSO session in the browser can
+ * remain active (the next login will reuse it silently if still valid).
+ */
+internal actual fun performPlatformLogoutLocal() {
+    // No-op: IamService.logoutLocal() clears IamService.state directly.
+}
+
+/**
+ * On WASM, performs a full Keycloak.js SSO logout (browser redirect back to the
+ * origin). This terminates the SSO session so that a subsequent login does not
+ * silently re-authenticate as the previous user.
+ */
+internal actual fun performPlatformLogoutBackchannel() {
     jsKcLogout()
 }
 

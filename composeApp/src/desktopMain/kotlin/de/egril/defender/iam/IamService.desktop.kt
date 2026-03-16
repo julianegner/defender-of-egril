@@ -9,6 +9,9 @@ import java.net.URL
 import java.net.URLEncoder
 import java.security.MessageDigest
 import java.util.Base64
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.random.Random
 
 actual fun getIamBaseUrl(): String = readIamBaseUrlFromJvmEnv()
@@ -47,7 +50,60 @@ private var refreshThreadRunning = false
  */
 private const val PKCE_CALLBACK_PORT = 10001
 
+/**
+ * When set to `true`, the next call to [startPlatformLogin] will open the Keycloak
+ * "restart login" URL (`/login-actions/restart?…skip_logout=false`) instead of
+ * the standard authorization endpoint. This shows a completely blank login form
+ * without any pre-filled username, ensuring no trace of the previous Keycloak
+ * user is visible.
+ *
+ * The flag is set by [performPlatformLogoutBackchannel] (called when switching to
+ * a local player with no remote account) and atomically consumed – and then cleared –
+ * at the beginning of [startPlatformLogin].
+ *
+ * `AtomicBoolean.getAndSet(false)` is used to ensure only a single concurrent login
+ * attempt can consume the flag, avoiding a race between two rapid login calls.
+ */
+private val nextLoginUsesRestartUrl = AtomicBoolean(false)
+
+/**
+ * Monotonically increasing counter that identifies the current login attempt.
+ * Incremented by [startPlatformLogin] each time a new login begins. The
+ * background login thread captures this value; its `finally` block only clears
+ * [IamService.loginInProgress] when the stored generation still matches, so a
+ * superseded thread cannot accidentally clear the flag for the new attempt.
+ */
+private val loginGeneration = AtomicInteger(0)
+
+/**
+ * The [ServerSocket] currently blocking on `accept()` inside [waitForAuthCode],
+ * or `null` when no login is in progress. Closing this socket interrupts the
+ * waiting thread, frees port [PKCE_CALLBACK_PORT], and allows a fresh login to
+ * bind the well-known port immediately.
+ *
+ * An [AtomicReference] ensures that [startPlatformLogin]'s `getAndSet(null)?.close()`
+ * is performed atomically: it is impossible for two concurrent calls to both read
+ * a non-null reference without one of them closing it.
+ *
+ * Written by [waitForAuthCode] (set on open, cleared with CAS in `finally`). Read and
+ * closed by [startPlatformLogin] to cancel a pending login before starting a new one.
+ */
+private val pendingCallbackServer = AtomicReference<ServerSocket?>(null)
+
 internal actual fun startPlatformLogin() {
+    // If a previous login is still waiting for the browser callback, cancel it now.
+    // This frees port PKCE_CALLBACK_PORT so the new attempt can bind the well-known
+    // port. Without this, the second login falls back to a random port which is not
+    // registered in Keycloak and triggers "Invalid parameter: redirect_uri".
+    // getAndSet(null) is atomic: it is impossible for two concurrent cancels to both
+    // read the same non-null reference without one of them closing it.
+    pendingCallbackServer.getAndSet(null)?.close()
+
+    // Capture the current generation BEFORE spawning the thread. If startPlatformLogin
+    // is called again while this thread is running, the generation is incremented and
+    // this thread's finally block will not clear the newer login's loginInProgress flag.
+    val myGeneration = loginGeneration.incrementAndGet()
+
     // Resolve the locale and page texts on the calling thread (UI thread) before spawning
     // the background daemon thread, so that LocalizedStrings is accessed in a context where
     // the Compose runtime and resources are fully initialised.
@@ -57,15 +113,28 @@ internal actual fun startPlatformLogin() {
 
     Thread {
         try {
+            // Atomically consume the flag — set by performPlatformLogoutBackchannel()
+            // when switching to a local player to ensure a completely blank login form.
+            val useRestartUrl = nextLoginUsesRestartUrl.getAndSet(false)
+
             val port = acquireCallbackPort()
             val redirectUri = "http://localhost:$port/callback"
             val codeVerifier = generateCodeVerifier()
             val codeChallenge = generateCodeChallenge(codeVerifier)
             val state = generateRandomBase64(16)
 
+            // Choose the authorization URL based on the context:
+            //  - After switching to a local player: use the Keycloak restart URL. This
+            //    terminates the previous SSO session (skip_logout=false) and presents a
+            //    completely blank login form with no pre-filled username.
+            //  - Normal login (alwaysLogin on app restart, manual login for remote player):
+            //    use the standard OIDC authorization endpoint, which will reuse an existing
+            //    SSO session so the user does not have to re-enter credentials.
+            val baseLoginUrl = if (useRestartUrl) IamConfig.restartLoginUrl else IamConfig.authUrl
             val authUrl = buildString {
-                append(IamConfig.authUrl)
+                append(baseLoginUrl)
                 append("?client_id=").append(IamConfig.CLIENT_ID)
+                if (useRestartUrl) append("&skip_logout=false")
                 append("&response_type=code")
                 append("&scope=openid")
                 append("&redirect_uri=").append(URLEncoder.encode(redirectUri, "UTF-8"))
@@ -94,8 +163,12 @@ internal actual fun startPlatformLogin() {
         } catch (_: Exception) {
             // Login errors must never disrupt gameplay
         } finally {
-            // Always clear the in-progress flag, regardless of success or failure.
-            IamService.loginInProgress.value = false
+            // Clear the in-progress flag only if we are still the active login attempt.
+            // A newer login (higher generation) may have already taken over; clearing its
+            // flag here would incorrectly hide the "Waiting for login" indicator.
+            if (loginGeneration.get() == myGeneration) {
+                IamService.loginInProgress.value = false
+            }
         }
     }.also { it.isDaemon = true }.start()
 }
@@ -127,6 +200,68 @@ internal actual fun performPlatformLogout() {
         openBrowserNewWindow(logoutUrl)
     } catch (_: Exception) {
         // Ignore – local state has already been cleared by IamService.logout()
+    }
+}
+
+/**
+ * Clears only in-memory token state without opening the browser or binding the
+ * PKCE callback port. Used when switching players so that a subsequent login flow
+ * can acquire the port without conflict.
+ */
+internal actual fun performPlatformLogoutLocal() {
+    storedRefreshToken = null
+    tokenExpiresAtMs = 0L
+    refreshThreadRunning = false
+}
+
+/**
+ * Revokes the Keycloak session via an HTTP POST (backchannel logout) and clears
+ * in-memory token state. This terminates the server-side session without opening
+ * a browser window or binding the PKCE callback port, so a subsequent login can
+ * proceed without any port conflict or race condition.
+ *
+ * If no refresh token is stored (e.g. login never completed) the function behaves
+ * identically to [performPlatformLogoutLocal].
+ */
+internal actual fun performPlatformLogoutBackchannel() {
+    val refreshToken = storedRefreshToken
+    storedRefreshToken = null
+    tokenExpiresAtMs = 0L
+    refreshThreadRunning = false
+
+    // Signal startPlatformLogin() to use the Keycloak restart URL the next time
+    // the user initiates a login. The restart URL shows a completely blank form
+    // without any pre-filled username, so no trace of the previous Keycloak user
+    // is visible. The flag is atomically consumed (and cleared) in startPlatformLogin().
+    nextLoginUsesRestartUrl.set(true)
+
+    if (refreshToken != null) {
+        // Fire-and-forget: revoke the server-side session on a background thread.
+        // Local state has already been cleared above so the UI updates immediately.
+        Thread {
+            try {
+                val body = buildString {
+                    append("client_id=${URLEncoder.encode(IamConfig.CLIENT_ID, "UTF-8")}")
+                    append("&refresh_token=${URLEncoder.encode(refreshToken, "UTF-8")}")
+                }
+                val conn = URL(IamConfig.logoutUrl).openConnection() as HttpURLConnection
+                conn.requestMethod = "POST"
+                conn.doOutput = true
+                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+                conn.connectTimeout = TOKEN_HTTP_TIMEOUT_MS
+                conn.readTimeout = TOKEN_HTTP_TIMEOUT_MS
+                conn.outputStream.use { it.write(body.toByteArray()) }
+                try { conn.inputStream.use { it.readBytes() } } catch (e: Exception) {
+                    println("IAM: backchannel logout – could not read response: ${e.message}")
+                }
+                conn.disconnect()
+            } catch (e: Exception) {
+                // Backchannel logout failed – local state was already cleared above.
+                // The Keycloak session may persist until its natural expiry, but the
+                // next login will present a fresh login page once the session expires.
+                println("IAM: backchannel logout failed: ${e.message}")
+            }
+        }.also { it.isDaemon = true }.start()
     }
 }
 
@@ -244,6 +379,7 @@ private fun parseTokenResponse(json: String): TokenData? {
 
 private fun waitForAuthCode(port: Int, langCode: String, heading: String, message: String): String? {
     val server = ServerSocket(port)
+    pendingCallbackServer.set(server)  // publish so startPlatformLogin() can cancel us
     server.soTimeout = 120_000 // 2-minute timeout to give the user time to log in
     return try {
         val socket = server.accept()
@@ -263,6 +399,7 @@ private fun waitForAuthCode(port: Int, langCode: String, heading: String, messag
     } catch (_: Exception) {
         null
     } finally {
+        pendingCallbackServer.compareAndSet(server, null)  // only clear OUR reference
         server.close()
     }
 }

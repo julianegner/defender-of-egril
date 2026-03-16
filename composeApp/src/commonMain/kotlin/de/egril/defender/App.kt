@@ -102,6 +102,24 @@ fun App() {
             viewModel.onAuthStateChanged()
         }
 
+        // "Always log in" is now a per-player preference stored in PlayerProfile.
+        // Auto-login only fires when:
+        //   1. the current player has alwaysLogin = true, AND
+        //   2. the player has a linked remote account (remoteUsername != null), AND
+        //   3. we are not already authenticated or in the middle of a login flow.
+        val alwaysLogin = currentPlayer?.alwaysLogin ?: false
+        val hasRemoteAccount = currentPlayer?.remoteUsername != null
+
+        // If "always log in" is enabled, automatically start the login flow when the
+        // authentication state changes (e.g. on startup or after logging out).
+        // We only check alwaysLogin, hasRemoteAccount, and isAuthenticated as keys so that
+        // cancelling a login attempt does not immediately restart the flow.
+        LaunchedEffect(alwaysLogin, hasRemoteAccount, iamState.isAuthenticated) {
+            if (alwaysLogin && hasRemoteAccount && !iamState.isAuthenticated && !iamLoginInProgress) {
+                de.egril.defender.iam.IamService.login()
+            }
+        }
+
         // Show player selection dialog if needed
         var showPlayerSelection by remember { mutableStateOf(false) }
         var showCreatePlayer by remember { mutableStateOf(false) }
@@ -182,6 +200,21 @@ fun App() {
                 players = allPlayers,
                 currentPlayerId = currentPlayer?.id,
                 onSelectPlayer = { playerId ->
+                    val newPlayerHasRemoteAccount = allPlayers.find { it.id == playerId }?.remoteUsername != null
+                    if (iamState.isAuthenticated) {
+                        // Any player switch while authenticated: revoke the Keycloak session
+                        // server-side via HTTP POST and set the nextLoginUsesRestartUrl flag so
+                        // that the next login (whether triggered by alwaysLogin or manually)
+                        // opens the /login-actions/restart URL with skip_logout=false. This shows
+                        // a completely blank login form and prevents Keycloak from silently
+                        // re-authenticating as the previous user via an active SSO browser cookie,
+                        // regardless of whether the new player has a remote account or not.
+                        de.egril.defender.iam.IamService.logoutBackchannel()
+                    } else if (!newPlayerHasRemoteAccount) {
+                        // Not authenticated but switching to a player with no remote account:
+                        // clear any stale local state just in case.
+                        de.egril.defender.iam.IamService.logoutLocal()
+                    }
                     viewModel.switchPlayer(playerId)
                     showPlayerSelection = false
                 },
@@ -234,7 +267,6 @@ fun App() {
                     hasAutosave = viewModel.hasAutosave(),
                     onShowRules = { viewModel.navigateToRules() },
                     onShowInstallationInfo = { viewModel.navigateToInstallationInfo() },
-                    onSelectPlayer = { showPlayerSelection = true },
                     onEditPlayerName = { viewModel.navigateToPlayerProfile() },
                     currentPlayerName = currentPlayer?.name,
                     iamState = iamState,
@@ -285,13 +317,15 @@ fun App() {
                         playerProfile = profile,
                         onBack = { viewModel.navigateToMainMenu() },
                         onEditName = { showEditPlayer = true },
+                        onSelectPlayer = { showPlayerSelection = true },
                         onNavigateToStats = { viewModel.navigateToStatsUpgrade() },
                         onUpgradeAbility = { abilityType -> viewModel.upgradeAbility(abilityType) },
                         onUnlockSpell = { spell -> viewModel.unlockSpell(spell) },
                         iamState = iamState,
                         iamLoginInProgress = iamLoginInProgress,
                         onIamLogin = { de.egril.defender.iam.IamService.login() },
-                        onIamLogout = { de.egril.defender.iam.IamService.logout() }
+                        onIamLogout = { de.egril.defender.iam.IamService.logout() },
+                        onAlwaysLoginChanged = { value -> viewModel.setAlwaysLogin(value) }
                     )
                 }
             }

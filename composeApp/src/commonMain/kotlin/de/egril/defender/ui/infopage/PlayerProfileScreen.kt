@@ -17,6 +17,7 @@ import de.egril.defender.iam.IamState
 import de.egril.defender.model.Achievement
 import de.egril.defender.model.AchievementDefinitions
 import de.egril.defender.save.PlayerProfile
+import de.egril.defender.ui.ProfileTabScrollbar
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.getLocalizedDescription
 import de.egril.defender.ui.icon.LockIcon
@@ -34,13 +35,15 @@ fun PlayerProfileScreen(
     playerProfile: PlayerProfile,
     onBack: () -> Unit,
     onEditName: () -> Unit,
+    onSelectPlayer: () -> Unit = {},
     onNavigateToStats: (() -> Unit)? = null,
     onUpgradeAbility: ((de.egril.defender.model.AbilityType) -> Unit)? = null,
     onUnlockSpell: ((de.egril.defender.model.SpellType) -> Unit)? = null,
     iamState: IamState = IamState(),
     iamLoginInProgress: Boolean = false,
     onIamLogin: () -> Unit = {},
-    onIamLogout: () -> Unit = {}
+    onIamLogout: () -> Unit = {},
+    onAlwaysLoginChanged: (Boolean) -> Unit = {}
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -60,20 +63,117 @@ fun PlayerProfileScreen(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Header with player name
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 24.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(Res.string.player_profile),
-                        style = MaterialTheme.typography.displayMedium,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+                // Header: toggle between full and compact view
+                var headerCollapsed by remember { mutableStateOf(false) }
+
+                if (headerCollapsed) {
+                    // Compact single-row header: name | remote account | XP | ability points
+                    val remoteAccountName = if (iamState.isAuthenticated && iamState.username != null) {
+                        iamState.username
+                    } else {
+                        playerProfile.remoteUsername
+                    }
+                    val stats = playerProfile.abilities
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        // Expand button on the LEFT
+                        TextButton(
+                            onClick = { headerCollapsed = false },
+                            modifier = Modifier.height(28.dp)
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.expand),
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
+                        // Switch player button (always visible)
+                        OutlinedButton(
+                            onClick = onSelectPlayer,
+                            modifier = Modifier.height(28.dp)
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.switch_player),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                        // Player name
+                        Text(
+                            text = playerProfile.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        if (remoteAccountName != null) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(2.dp)
+                            ) {
+                                UnlockIcon(size = 12.dp)
+                                Text(
+                                    text = remoteAccountName,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                        }
+                        // XP
+                        Text(
+                            text = stringResource(Res.string.xp_progress, stats.totalXP, de.egril.defender.model.PlayerAbilities.getXPForNextLevel(stats.level)),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        // Available ability points
+                        if (stats.availableAbilityPoints > 0) {
+                            Text(
+                                text = stringResource(Res.string.available_stat_points, stats.availableAbilityPoints),
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
+                } else {
+                    // Full header with player name title, switch player button, and collapse button
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 24.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Collapse button on the LEFT
+                        TextButton(
+                            onClick = { headerCollapsed = true },
+                            modifier = Modifier.height(36.dp)
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.collapse),
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
+                        // Switch player button (always visible)
+                        OutlinedButton(
+                            onClick = onSelectPlayer,
+                            modifier = Modifier.height(36.dp)
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.switch_player),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                        // Title centered in remaining space
+                        Text(
+                            text = stringResource(Res.string.player_profile),
+                            style = MaterialTheme.typography.displayMedium,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
                 
                 // Scrollable content
@@ -85,23 +185,29 @@ fun PlayerProfileScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                 ) {
-                    // Player Info Card
-                    PlayerInfoCard(
-                        playerProfile = playerProfile,
-                        onEditName = onEditName
-                    )
-                    
-                    Spacer(modifier = Modifier.height(12.dp))
+                    if (!headerCollapsed) {
+                        // Player Info Card (only shown in full-header mode)
+                        PlayerInfoCard(
+                            playerProfile = playerProfile,
+                            onEditName = onEditName
+                        )
+                        
+                        Spacer(modifier = Modifier.height(12.dp))
 
-                    // Keycloak account card
-                    KeycloakAccountCard(
-                        iamState = iamState,
-                        iamLoginInProgress = iamLoginInProgress,
-                        onIamLogin = onIamLogin,
-                        onIamLogout = onIamLogout
-                    )
+                        // User Account card (shown in full-header mode only)
+                        UserAccountCard(
+                            iamState = iamState,
+                            iamLoginInProgress = iamLoginInProgress,
+                            onIamLogin = onIamLogin,
+                            onIamLogout = onIamLogout,
+                            alwaysLogin = playerProfile.alwaysLogin,
+                            onAlwaysLoginChanged = onAlwaysLoginChanged
+                        )
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(24.dp))
+                    } else {
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
                     
                     // Tabs (only show if stats callback is provided)
                     if (onNavigateToStats != null) {
@@ -124,53 +230,61 @@ fun PlayerProfileScreen(
                         
                         Spacer(modifier = Modifier.height(16.dp))
                         
-                        // Tab content (scrollable)
-                        Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .verticalScroll(rememberScrollState())
-                                .fillMaxWidth()
-                        ) {
-                            when (selectedTabIndex) {
-                                0 -> {
-                                    // Achievements tab - show achievements directly
-                                    AchievementsListDirect(achievements = playerProfile.achievements)
-                                }
-                                1 -> {
-                                    // Stats & Abilities tab - show stats directly if callbacks provided
-                                    if (onUpgradeAbility != null && onUnlockSpell != null) {
-                                        StatsAndAbilitiesContent(
-                                            playerProfile = playerProfile,
-                                            onUpgradeAbility = onUpgradeAbility,
-                                            onUnlockSpell = onUnlockSpell
-                                        )
-                                    } else if (onNavigateToStats != null) {
-                                        // Fallback to button if callbacks not provided
-                                        Button(
-                                            onClick = onNavigateToStats,
-                                            modifier = Modifier.fillMaxWidth().height(56.dp),
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = MaterialTheme.colorScheme.secondary
+                        // Tab content (scrollable) with vertical scrollbar
+                        val tabScrollState = rememberScrollState()
+                        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .verticalScroll(tabScrollState)
+                                    .padding(end = 12.dp)
+                            ) {
+                                when (selectedTabIndex) {
+                                    0 -> {
+                                        // Achievements tab - show achievements directly
+                                        AchievementsListDirect(achievements = playerProfile.achievements)
+                                    }
+                                    1 -> {
+                                        // Stats & Abilities tab - show stats directly if callbacks provided
+                                        if (onUpgradeAbility != null && onUnlockSpell != null) {
+                                            StatsAndAbilitiesContent(
+                                                playerProfile = playerProfile,
+                                                onUpgradeAbility = onUpgradeAbility,
+                                                onUnlockSpell = onUnlockSpell
                                             )
-                                        ) {
-                                            Text(
-                                                text = stringResource(Res.string.abilities),
-                                                style = MaterialTheme.typography.titleMedium
-                                            )
+                                        } else if (onNavigateToStats != null) {
+                                            // Fallback to button if callbacks not provided
+                                            Button(
+                                                onClick = onNavigateToStats,
+                                                modifier = Modifier.fillMaxWidth().height(56.dp),
+                                                colors = ButtonDefaults.buttonColors(
+                                                    containerColor = MaterialTheme.colorScheme.secondary
+                                                )
+                                            ) {
+                                                Text(
+                                                    text = stringResource(Res.string.abilities),
+                                                    style = MaterialTheme.typography.titleMedium
+                                                )
+                                            }
                                         }
                                     }
                                 }
                             }
+                            ProfileTabScrollbar(scrollState = tabScrollState)
                         }
                     } else {
                         // No stats callback - just show achievements directly (old behavior)
-                        Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .verticalScroll(rememberScrollState())
-                                .fillMaxWidth()
-                        ) {
-                            AchievementsListDirect(achievements = playerProfile.achievements)
+                        val tabScrollState = rememberScrollState()
+                        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .verticalScroll(tabScrollState)
+                                    .padding(end = 12.dp)
+                            ) {
+                                AchievementsListDirect(achievements = playerProfile.achievements)
+                            }
+                            ProfileTabScrollbar(scrollState = tabScrollState)
                         }
                     }
                 }
@@ -606,14 +720,17 @@ private fun AchievementItem(achievement: Achievement) {
 }
 
 /**
- * Card showing the Keycloak/IAM account state (logged-in info or login/logout button).
+ * Card showing the IAM / user account state (logged-in info, login/logout button,
+ * and the "always log in" toggle).
  */
 @Composable
-private fun KeycloakAccountCard(
+private fun UserAccountCard(
     iamState: IamState,
     iamLoginInProgress: Boolean,
     onIamLogin: () -> Unit,
-    onIamLogout: () -> Unit
+    onIamLogout: () -> Unit,
+    alwaysLogin: Boolean = false,
+    onAlwaysLoginChanged: (Boolean) -> Unit = {}
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -628,7 +745,7 @@ private fun KeycloakAccountCard(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = stringResource(Res.string.keycloak_account),
+                text = stringResource(Res.string.user_account),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -709,6 +826,25 @@ private fun KeycloakAccountCard(
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
+            }
+
+            HorizontalDivider()
+
+            // "Always log in" toggle
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(Res.string.always_log_in),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Switch(
+                    checked = alwaysLogin,
+                    onCheckedChange = { onAlwaysLoginChanged(it) }
+                )
             }
         }
     }

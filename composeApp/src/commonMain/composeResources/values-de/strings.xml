@@ -376,6 +376,7 @@
     <string name="select_tile_type">Kacheltyp wählen:</string>
     <string name="click_hexagons_to_paint">Klicken oder ziehen, um Sechsecke zu malen. Strg+Mausrad zum Zoomen:</string>
     <string name="collapse">Einklappen</string>
+    <string name="expand">Ausklappen</string>
     <string name="change_all_no_play_to_path">Alle NO_PLAY in PATH umwandeln</string>
     <string name="change_all_no_play_confirm_title">Alle NO_PLAY in PATH umwandeln?</string>
     <string name="change_all_no_play_confirm_message">Dies ersetzt alle NO_PLAY-Kacheln durch PATH-Kacheln. Sind Sie sicher?</string>
@@ -1491,10 +1492,13 @@
     <string name="iam_logout">Abmelden</string>
     <string name="iam_login_waiting">Warte auf Browser...</string>
     <string name="keycloak_account">Keycloak-Konto</string>
+    <string name="user_account">Benutzerkonto</string>
     <string name="iam_login_successful_heading">Anmeldung erfolgreich!</string>
     <string name="iam_login_successful_message">Kehre zum Spiel zurück... Du kannst dieses Fenster schließen, wenn es sich nicht automatisch schließt.</string>
     <string name="iam_logout_successful_heading">Erfolgreich abgemeldet!</string>
     <string name="iam_logout_successful_message">Du kannst dieses Fenster schließen oder zum Spiel zurückkehren.</string>
+    <string name="always_log_in">Immer anmelden</string>
+    <string name="account">Konto</string>
 
     <!-- Community maps/levels -->
     <string name="upload_as_community_level">Als Community-Level hochladen</string>

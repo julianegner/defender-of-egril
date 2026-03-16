@@ -376,6 +376,7 @@
     <string name="select_tile_type">Sélectionner le type de tuile:</string>
     <string name="click_hexagons_to_paint">Cliquez ou faites glisser pour peindre les hexagones. Ctrl+Molette pour zoomer:</string>
     <string name="collapse">Réduire</string>
+    <string name="expand">Développer</string>
     <string name="change_all_no_play_to_path">Changer tous NO_PLAY en PATH</string>
     <string name="change_all_no_play_confirm_title">Changer tous NO_PLAY en PATH?</string>
     <string name="change_all_no_play_confirm_message">Cela remplacera toutes les tuiles NO_PLAY par des tuiles PATH. Êtes-vous sûr?</string>
@@ -1493,10 +1494,13 @@
     <string name="iam_logout">Déconnexion</string>
     <string name="iam_login_waiting">En attente du navigateur...</string>
     <string name="keycloak_account">Compte Keycloak</string>
+    <string name="user_account">Compte utilisateur</string>
     <string name="iam_login_successful_heading">Connexion réussie !</string>
     <string name="iam_login_successful_message">Retour au jeu... vous pouvez fermer cette fenêtre si elle ne se ferme pas automatiquement.</string>
     <string name="iam_logout_successful_heading">Déconnexion réussie !</string>
     <string name="iam_logout_successful_message">Vous pouvez fermer cette fenêtre ou revenir au jeu.</string>
+    <string name="always_log_in">Toujours se connecter</string>
+    <string name="account">Compte</string>
 
     <!-- Community maps/levels -->
     <string name="upload_as_community_level">Publier comme Niveau Communautaire</string>

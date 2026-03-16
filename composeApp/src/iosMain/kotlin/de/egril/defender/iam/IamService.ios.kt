@@ -97,6 +97,20 @@ internal actual fun performPlatformLogout() {
     refreshCoroutineRunning = false
 }
 
+internal actual fun performPlatformLogoutLocal() {
+    storedRefreshToken = null
+    tokenExpiresAtMs = 0L
+    refreshCoroutineRunning = false
+}
+
+internal actual fun performPlatformLogoutBackchannel() {
+    // iOS uses ASWebAuthenticationSession; there is no long-lived server socket concern.
+    // Clearing in-memory state is sufficient.
+    storedRefreshToken = null
+    tokenExpiresAtMs = 0L
+    refreshCoroutineRunning = false
+}
+
 actual suspend fun initPlatformIam() {
     // iOS login is triggered manually via ASWebAuthenticationSession.
     // No stored session is restored on startup (no TokenStore used).

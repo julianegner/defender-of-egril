@@ -44,7 +44,6 @@ fun MainMenuScreen(
     hasAutosave: Boolean,
     onShowRules: () -> Unit,
     onShowInstallationInfo: () -> Unit,
-    onSelectPlayer: () -> Unit,
     onEditPlayerName: () -> Unit,
     currentPlayerName: String?,
     iamState: IamState = IamState(),
@@ -154,16 +153,6 @@ fun MainMenuScreen(
                         }
                     }
                     
-                    OutlinedButton(
-                        onClick = onSelectPlayer,
-                        modifier = Modifier.height(36.dp)
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.switch_player),
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-
                     // IAM login / logout button
                     if (iamState.isAuthenticated) {
                         OutlinedButton(
