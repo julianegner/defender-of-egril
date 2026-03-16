@@ -20,6 +20,7 @@ data class RemoteUserData(
     val localUsername: String,
     val abilities: PlayerAbilities?,
     val levelProgress: Map<String, String>?,
+    val settings: Map<String, String>? = null,
     val updatedAt: String = ""
 )
 
@@ -124,10 +125,28 @@ internal fun parseUserDataJson(json: String, updatedAt: String = ""): RemoteUser
         null
     }
 
+    // Parse settings map (optional – may not be present in older saves)
+    val settings = try {
+        val settingsStart = trimmed.indexOf("\"settings\": {")
+            .takeIf { it >= 0 } ?: trimmed.indexOf("\"settings\":{").takeIf { it >= 0 }
+        if (settingsStart != null) {
+            val jsonAfterKey = trimmed.substring(settingsStart)
+            val braceStart = jsonAfterKey.indexOf('{')
+            if (braceStart >= 0) {
+                val sub = jsonAfterKey.substring(braceStart)
+                val settingsJson = extractBalancedBraces(sub)
+                if (settingsJson != null) parseLevelProgressMap(settingsJson) else null
+            } else null
+        } else null
+    } catch (_: Exception) {
+        null
+    }
+
     return RemoteUserData(
         localUsername = localUsername,
         abilities = abilities,
         levelProgress = levelProgress,
+        settings = settings,
         updatedAt = updatedAt
     )
 }
@@ -136,17 +155,24 @@ internal fun parseUserDataJson(json: String, updatedAt: String = ""): RemoteUser
 internal fun serializeUserDataJson(
     localUsername: String,
     abilities: PlayerAbilities,
-    levelProgress: Map<String, String>
+    levelProgress: Map<String, String>,
+    settings: Map<String, String> = emptyMap()
 ): String {
     val abilitiesJson = serializeAbilitiesJson(abilities)
     val levelProgressJson = levelProgress.entries.joinToString(",\n    ") { (id, status) ->
         "\"${escapeJsonString(id)}\": \"${escapeJsonString(status)}\""
+    }
+    val settingsJson = settings.entries.joinToString(",\n    ") { (k, v) ->
+        "\"${escapeJsonString(k)}\": \"${escapeJsonString(v)}\""
     }
     return """{
   "localUsername": "${escapeJsonString(localUsername)}",
   "abilities": $abilitiesJson,
   "levelProgress": {
     $levelProgressJson
+  },
+  "settings": {
+    $settingsJson
   }
 }"""
 }
