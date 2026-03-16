@@ -263,6 +263,21 @@ object PlayerProfileStorage {
     }
 
     /**
+     * Save the "use remote settings" preference for a specific player profile.
+     * @param playerId The ID of the player
+     * @param value The new value for useRemoteSettings
+     */
+    fun saveUseRemoteSettings(playerId: String, value: Boolean) {
+        val profiles = getAllProfiles()
+        val updatedProfiles = profiles.copy(
+            profiles = profiles.profiles.map { p ->
+                if (p.id == playerId) p.copy(useRemoteSettings = value) else p
+            }
+        )
+        saveProfiles(updatedProfiles)
+    }
+
+    /**
      * Sanitize a name to create a safe file system ID
      * - Convert to lowercase
      * - Replace spaces and special characters with underscore

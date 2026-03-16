@@ -43,7 +43,8 @@ fun PlayerProfileScreen(
     iamLoginInProgress: Boolean = false,
     onIamLogin: () -> Unit = {},
     onIamLogout: () -> Unit = {},
-    onAlwaysLoginChanged: (Boolean) -> Unit = {}
+    onAlwaysLoginChanged: (Boolean) -> Unit = {},
+    onUseRemoteSettingsChanged: (Boolean) -> Unit = {}
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -201,7 +202,9 @@ fun PlayerProfileScreen(
                             onIamLogin = onIamLogin,
                             onIamLogout = onIamLogout,
                             alwaysLogin = playerProfile.alwaysLogin,
-                            onAlwaysLoginChanged = onAlwaysLoginChanged
+                            onAlwaysLoginChanged = onAlwaysLoginChanged,
+                            useRemoteSettings = playerProfile.useRemoteSettings,
+                            onUseRemoteSettingsChanged = onUseRemoteSettingsChanged
                         )
 
                         Spacer(modifier = Modifier.height(24.dp))
@@ -730,7 +733,9 @@ private fun UserAccountCard(
     onIamLogin: () -> Unit,
     onIamLogout: () -> Unit,
     alwaysLogin: Boolean = false,
-    onAlwaysLoginChanged: (Boolean) -> Unit = {}
+    onAlwaysLoginChanged: (Boolean) -> Unit = {},
+    useRemoteSettings: Boolean = true,
+    onUseRemoteSettingsChanged: (Boolean) -> Unit = {}
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -844,6 +849,23 @@ private fun UserAccountCard(
                 Switch(
                     checked = alwaysLogin,
                     onCheckedChange = { onAlwaysLoginChanged(it) }
+                )
+            }
+
+            // "Use remote settings" toggle
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(Res.string.use_remote_settings),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Switch(
+                    checked = useRemoteSettings,
+                    onCheckedChange = { onUseRemoteSettingsChanged(it) }
                 )
             }
         }

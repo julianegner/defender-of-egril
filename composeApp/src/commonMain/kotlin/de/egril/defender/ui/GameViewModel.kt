@@ -1784,7 +1784,8 @@ class GameViewModel {
                 val jsonData = de.egril.defender.save.serializeUserDataJson(
                     localUsername = player.name,
                     abilities = player.abilities,
-                    levelProgress = levelProgress
+                    levelProgress = levelProgress,
+                    settings = de.egril.defender.ui.settings.AppSettings.toSettingsMap()
                 )
                 val success = de.egril.defender.save.BackendUserDataService.uploadUserData(jsonData, token)
                 if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
@@ -1858,12 +1859,33 @@ class GameViewModel {
                         }
                     }
                 }
+
+                // Apply remote settings if the player has useRemoteSettings = true
+                val remoteSettings = remote.settings
+                if (remoteSettings != null && remoteSettings.isNotEmpty()) {
+                    val playerAfterSync = _currentPlayer.value ?: return@launch
+                    if (playerAfterSync.useRemoteSettings) {
+                        de.egril.defender.ui.settings.AppSettings.applyFromSettingsMap(remoteSettings)
+                        if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                            println("Applied remote settings for player ${playerAfterSync.name}")
+                        }
+                    }
+                }
             } catch (e: Exception) {
                 if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                     println("Failed to download/merge userdata: ${e.message}")
                 }
             }
         }
+    }
+
+    /**
+     * Persists the "use remote settings" preference for the current player profile.
+     */
+    fun setUseRemoteSettings(value: Boolean) {
+        val player = _currentPlayer.value ?: return
+        de.egril.defender.save.PlayerProfileStorage.saveUseRemoteSettings(player.id, value)
+        _currentPlayer.value = player.copy(useRemoteSettings = value)
     }
     
     // Player Profile Management

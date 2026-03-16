@@ -471,6 +471,68 @@ object AppSettings {
     }
 
     /**
+     * Serialize all relevant (non-debug, non-hint) settings into a flat map for remote storage.
+     * Keys match the internal KEY_* constants; values are String representations.
+     */
+    fun toSettingsMap(): Map<String, String> = buildMap {
+        put(KEY_DARK_MODE, isDarkMode.value.toString())
+        put(KEY_LANGUAGE, currentLanguage.value.code)
+        put(KEY_SOUND_ENABLED, isSoundEnabled.value.toString())
+        put(KEY_SOUND_VOLUME, soundVolume.value.toString())
+        put(KEY_EFFECTS_ENABLED, isEffectsEnabled.value.toString())
+        put(KEY_EFFECTS_VOLUME, effectsVolume.value.toString())
+        put(KEY_MUSIC_ENABLED, isMusicEnabled.value.toString())
+        put(KEY_MUSIC_VOLUME, musicVolume.value.toString())
+        put(KEY_WORLDMAP_MUSIC_ENABLED, isWorldMapMusicEnabled.value.toString())
+        put(KEY_WORLDMAP_MUSIC_VOLUME, worldMapMusicVolume.value.toString())
+        put(KEY_GAMEPLAY_MUSIC_ENABLED, isGameplayMusicEnabled.value.toString())
+        put(KEY_GAMEPLAY_MUSIC_VOLUME, gameplayMusicVolume.value.toString())
+        put(KEY_SHOW_CONTROL_PAD, showControlPad.value.toString())
+        put(KEY_DIFFICULTY, difficulty.value.name)
+        put(KEY_USE_LEVEL_CARDS, useLevelCards.value.toString())
+        put(KEY_USE_TILE_IMAGES, useTileImages.value.toString())
+        put(KEY_USE_TILE_SMOOTH_TRANSITIONS, useTileSmoothTransitions.value.toString())
+        put(KEY_SHOW_TESTING_LEVELS, showTestingLevels.value.toString())
+        put(KEY_HEADER_TEXT_SIZE, headerTextSize.value.name)
+        put(KEY_USE_LEVEL_MAP_IMAGE, useLevelMapImage.value.toString())
+        put(KEY_ENABLE_ANIMATIONS, enableAnimations.value.toString())
+    }
+
+    /**
+     * Apply settings from a remote map (downloaded from the backend).
+     * Unknown keys are silently ignored for forward compatibility.
+     */
+    fun applyFromSettingsMap(map: Map<String, String>) {
+        map[KEY_DARK_MODE]?.toBooleanStrictOrNull()?.let { saveDarkMode(it) }
+        map[KEY_LANGUAGE]?.let { code ->
+            AppLocale.entries.find { it.code == code }?.let { saveLanguage(it) }
+        }
+        map[KEY_SOUND_ENABLED]?.toBooleanStrictOrNull()?.let { saveSoundEnabled(it) }
+        map[KEY_SOUND_VOLUME]?.toFloatOrNull()?.let { saveSoundVolume(it) }
+        map[KEY_EFFECTS_ENABLED]?.toBooleanStrictOrNull()?.let { saveEffectsEnabled(it) }
+        map[KEY_EFFECTS_VOLUME]?.toFloatOrNull()?.let { saveEffectsVolume(it) }
+        map[KEY_MUSIC_ENABLED]?.toBooleanStrictOrNull()?.let { saveMusicEnabled(it) }
+        map[KEY_MUSIC_VOLUME]?.toFloatOrNull()?.let { saveMusicVolume(it) }
+        map[KEY_WORLDMAP_MUSIC_ENABLED]?.toBooleanStrictOrNull()?.let { saveWorldMapMusicEnabled(it) }
+        map[KEY_WORLDMAP_MUSIC_VOLUME]?.toFloatOrNull()?.let { saveWorldMapMusicVolume(it) }
+        map[KEY_GAMEPLAY_MUSIC_ENABLED]?.toBooleanStrictOrNull()?.let { saveGameplayMusicEnabled(it) }
+        map[KEY_GAMEPLAY_MUSIC_VOLUME]?.toFloatOrNull()?.let { saveGameplayMusicVolume(it) }
+        map[KEY_SHOW_CONTROL_PAD]?.toBooleanStrictOrNull()?.let { saveShowControlPad(it) }
+        map[KEY_DIFFICULTY]?.let { name ->
+            try { saveDifficulty(DifficultyLevel.valueOf(name)) } catch (_: Exception) {}
+        }
+        map[KEY_USE_LEVEL_CARDS]?.toBooleanStrictOrNull()?.let { saveUseLevelCards(it) }
+        map[KEY_USE_TILE_IMAGES]?.toBooleanStrictOrNull()?.let { saveUseTileImages(it) }
+        map[KEY_USE_TILE_SMOOTH_TRANSITIONS]?.toBooleanStrictOrNull()?.let { saveUseTileSmoothTransitions(it) }
+        map[KEY_SHOW_TESTING_LEVELS]?.toBooleanStrictOrNull()?.let { saveShowTestingLevels(it) }
+        map[KEY_HEADER_TEXT_SIZE]?.let { name ->
+            try { saveHeaderTextSize(HeaderTextSize.valueOf(name)) } catch (_: Exception) {}
+        }
+        map[KEY_USE_LEVEL_MAP_IMAGE]?.toBooleanStrictOrNull()?.let { saveUseLevelMapImage(it) }
+        map[KEY_ENABLE_ANIMATIONS]?.toBooleanStrictOrNull()?.let { saveEnableAnimations(it) }
+    }
+
+    /**
      * Reset all settings to defaults
      */
     fun resetToDefaults() {

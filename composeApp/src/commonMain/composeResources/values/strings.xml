@@ -1505,6 +1505,7 @@
     <string name="iam_logout_successful_heading">Logged out successfully!</string>
     <string name="iam_logout_successful_message">You can close this window or return to the game.</string>
     <string name="always_log_in">Always log in</string>
+    <string name="use_remote_settings">Use remote settings</string>
     <string name="account">Account</string>
 
     <!-- Community maps/levels -->

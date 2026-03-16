@@ -1499,6 +1499,7 @@
     <string name="iam_logout_successful_heading">¡Sesión cerrada correctamente!</string>
     <string name="iam_logout_successful_message">Puedes cerrar esta ventana o volver al juego.</string>
     <string name="always_log_in">Iniciar sesión siempre</string>
+    <string name="use_remote_settings">Usar configuración remota</string>
     <string name="account">Cuenta</string>
 
     <!-- Community maps/levels -->
