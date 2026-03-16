@@ -9,6 +9,7 @@ import java.net.URL
 import java.net.URLEncoder
 import java.security.MessageDigest
 import java.util.Base64
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.random.Random
 
 actual fun getIamBaseUrl(): String = readIamBaseUrlFromJvmEnv()
@@ -47,6 +48,22 @@ private var refreshThreadRunning = false
  */
 private const val PKCE_CALLBACK_PORT = 10001
 
+/**
+ * When set to `true`, the next call to [startPlatformLogin] will open the Keycloak
+ * "restart login" URL (`/login-actions/restart?…skip_logout=false`) instead of
+ * the standard authorization endpoint. This shows a completely blank login form
+ * without any pre-filled username, ensuring no trace of the previous Keycloak
+ * user is visible.
+ *
+ * The flag is set by [performPlatformLogoutBackchannel] (called when switching to
+ * a local player with no remote account) and atomically consumed – and then cleared –
+ * at the beginning of [startPlatformLogin].
+ *
+ * `AtomicBoolean.getAndSet(false)` is used to ensure only a single concurrent login
+ * attempt can consume the flag, avoiding a race between two rapid login calls.
+ */
+private val nextLoginUsesRestartUrl = AtomicBoolean(false)
+
 internal actual fun startPlatformLogin() {
     // Resolve the locale and page texts on the calling thread (UI thread) before spawning
     // the background daemon thread, so that LocalizedStrings is accessed in a context where
@@ -57,26 +74,34 @@ internal actual fun startPlatformLogin() {
 
     Thread {
         try {
+            // Atomically consume the flag — set by performPlatformLogoutBackchannel()
+            // when switching to a local player to ensure a completely blank login form.
+            val useRestartUrl = nextLoginUsesRestartUrl.getAndSet(false)
+
             val port = acquireCallbackPort()
             val redirectUri = "http://localhost:$port/callback"
             val codeVerifier = generateCodeVerifier()
             val codeChallenge = generateCodeChallenge(codeVerifier)
             val state = generateRandomBase64(16)
 
+            // Choose the authorization URL based on the context:
+            //  - After switching to a local player: use the Keycloak restart URL. This
+            //    terminates the previous SSO session (skip_logout=false) and presents a
+            //    completely blank login form with no pre-filled username.
+            //  - Normal login (alwaysLogin on app restart, manual login for remote player):
+            //    use the standard OIDC authorization endpoint, which will reuse an existing
+            //    SSO session so the user does not have to re-enter credentials.
+            val baseLoginUrl = if (useRestartUrl) IamConfig.restartLoginUrl else IamConfig.authUrl
             val authUrl = buildString {
-                append(IamConfig.authUrl)
+                append(baseLoginUrl)
                 append("?client_id=").append(IamConfig.CLIENT_ID)
+                if (useRestartUrl) append("&skip_logout=false")
                 append("&response_type=code")
                 append("&scope=openid")
                 append("&redirect_uri=").append(URLEncoder.encode(redirectUri, "UTF-8"))
                 append("&state=").append(state)
                 append("&code_challenge=").append(codeChallenge)
                 append("&code_challenge_method=S256")
-                // Always show the Keycloak login form, even if the browser still carries
-                // an active SSO session cookie from a previous user. Without this, Keycloak
-                // would silently re-authenticate as the previous user when a player with no
-                // linked remote account manually clicks "Login".
-                append("&prompt=login")
             }
 
             // Open the Keycloak login page in a new browser window in the foreground.
@@ -160,6 +185,12 @@ internal actual fun performPlatformLogoutBackchannel() {
     storedRefreshToken = null
     tokenExpiresAtMs = 0L
     refreshThreadRunning = false
+
+    // Signal startPlatformLogin() to use the Keycloak restart URL the next time
+    // the user initiates a login. The restart URL shows a completely blank form
+    // without any pre-filled username, so no trace of the previous Keycloak user
+    // is visible. The flag is atomically consumed (and cleared) in startPlatformLogin().
+    nextLoginUsesRestartUrl.set(true)
 
     if (refreshToken != null) {
         // Fire-and-forget: revoke the server-side session on a background thread.
