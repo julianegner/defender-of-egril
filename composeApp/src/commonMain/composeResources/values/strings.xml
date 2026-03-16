@@ -380,6 +380,7 @@
     <string name="select_tile_type">Select Tile Type:</string>
     <string name="click_hexagons_to_paint">Click or drag to paint hexagons. Use Ctrl+Scroll to zoom:</string>
     <string name="collapse">Collapse</string>
+    <string name="expand">Expand</string>
     <string name="change_all_no_play_to_path">Change All NO_PLAY to PATH</string>
     <string name="change_all_no_play_confirm_title">Change All NO_PLAY to PATH?</string>
     <string name="change_all_no_play_confirm_message">This will replace all NO_PLAY tiles with PATH tiles. Are you sure?</string>
@@ -1498,6 +1499,7 @@
     <string name="iam_logout">Logout</string>
     <string name="iam_login_waiting">Waiting for browser...</string>
     <string name="keycloak_account">Keycloak Account</string>
+    <string name="user_account">User Account</string>
     <string name="iam_login_successful_heading">Login successful!</string>
     <string name="iam_login_successful_message">Returning to the game... you can close this window if it does not close automatically.</string>
     <string name="iam_logout_successful_heading">Logged out successfully!</string>

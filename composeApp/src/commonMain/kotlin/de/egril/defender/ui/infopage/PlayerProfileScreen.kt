@@ -22,6 +22,7 @@ import de.egril.defender.ui.getLocalizedDescription
 import de.egril.defender.ui.icon.LockIcon
 import de.egril.defender.ui.icon.TrophyIcon
 import de.egril.defender.ui.icon.UnlockIcon
+import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.utils.formatTimestamp
 import defender_of_egril.composeapp.generated.resources.*
@@ -60,20 +61,98 @@ fun PlayerProfileScreen(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Header with player name
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 24.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(Res.string.player_profile),
-                        style = MaterialTheme.typography.displayMedium,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
+                // Header: toggle between full and compact view
+                var headerCollapsed by remember { mutableStateOf(false) }
+
+                if (headerCollapsed) {
+                    // Compact single-row header: name | remote account | XP | ability points
+                    val remoteAccountName = if (iamState.isAuthenticated && iamState.username != null) {
+                        iamState.username
+                    } else {
+                        playerProfile.remoteUsername
+                    }
+                    val stats = playerProfile.abilities
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        // Player name
+                        Text(
+                            text = playerProfile.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        if (remoteAccountName != null) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(2.dp)
+                            ) {
+                                UnlockIcon(size = 12.dp)
+                                Text(
+                                    text = remoteAccountName,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                        }
+                        // XP
+                        Text(
+                            text = stringResource(Res.string.xp_progress, stats.totalXP, de.egril.defender.model.PlayerAbilities.getXPForNextLevel(stats.level)),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        // Available ability points
+                        if (stats.availableAbilityPoints > 0) {
+                            Text(
+                                text = stringResource(Res.string.available_stat_points, stats.availableAbilityPoints),
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        Spacer(modifier = Modifier.weight(1f))
+                        // Expand button
+                        TextButton(
+                            onClick = { headerCollapsed = false },
+                            modifier = Modifier.height(28.dp)
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.expand),
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
+                    }
+                } else {
+                    // Full header with player name title and collapse button
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 24.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.player_profile),
+                            style = MaterialTheme.typography.displayMedium,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.weight(1f)
+                        )
+                        // Collapse button
+                        TextButton(
+                            onClick = { headerCollapsed = true },
+                            modifier = Modifier.height(36.dp)
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.collapse),
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
+                    }
                 }
                 
                 // Scrollable content
@@ -85,16 +164,21 @@ fun PlayerProfileScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                 ) {
-                    // Player Info Card
-                    PlayerInfoCard(
-                        playerProfile = playerProfile,
-                        onEditName = onEditName
-                    )
-                    
-                    Spacer(modifier = Modifier.height(12.dp))
+                    if (!headerCollapsed) {
+                        // Player Info Card (only shown in full-header mode)
+                        PlayerInfoCard(
+                            playerProfile = playerProfile,
+                            onEditName = onEditName
+                        )
+                        
+                        Spacer(modifier = Modifier.height(12.dp))
+                    } else {
+                        // Small top spacer when the Player Info Card is hidden
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
 
-                    // Keycloak account card
-                    KeycloakAccountCard(
+                    // User Account card (always shown)
+                    UserAccountCard(
                         iamState = iamState,
                         iamLoginInProgress = iamLoginInProgress,
                         onIamLogin = onIamLogin,
@@ -606,15 +690,17 @@ private fun AchievementItem(achievement: Achievement) {
 }
 
 /**
- * Card showing the Keycloak/IAM account state (logged-in info or login/logout button).
+ * Card showing the IAM / user account state (logged-in info, login/logout button,
+ * and the "always log in" toggle).
  */
 @Composable
-private fun KeycloakAccountCard(
+private fun UserAccountCard(
     iamState: IamState,
     iamLoginInProgress: Boolean,
     onIamLogin: () -> Unit,
     onIamLogout: () -> Unit
 ) {
+    val alwaysLogin by AppSettings.alwaysLogin
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -628,7 +714,7 @@ private fun KeycloakAccountCard(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = stringResource(Res.string.keycloak_account),
+                text = stringResource(Res.string.user_account),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -709,6 +795,25 @@ private fun KeycloakAccountCard(
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
+            }
+
+            HorizontalDivider()
+
+            // "Always log in" toggle
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(Res.string.always_log_in),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Switch(
+                    checked = alwaysLogin,
+                    onCheckedChange = { AppSettings.saveAlwaysLogin(it) }
+                )
             }
         }
     }

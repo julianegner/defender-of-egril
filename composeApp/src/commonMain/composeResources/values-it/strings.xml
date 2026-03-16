@@ -376,6 +376,7 @@
     <string name="select_tile_type">Seleziona tipo di tessera:</string>
     <string name="click_hexagons_to_paint">Clicca o trascina per dipingere gli esagoni. Usa Ctrl+Rotella per zoomare:</string>
     <string name="collapse">Comprimi</string>
+    <string name="expand">Espandi</string>
     <string name="change_all_no_play_to_path">Cambia tutti NO_PLAY in PATH</string>
     <string name="change_all_no_play_confirm_title">Cambiare tutti NO_PLAY in PATH?</string>
     <string name="change_all_no_play_confirm_message">Questo sostituirà tutte le tessere NO_PLAY con tessere PATH. Sei sicuro?</string>
@@ -1494,6 +1495,7 @@
     <string name="iam_logout">Disconnetti</string>
     <string name="iam_login_waiting">In attesa del browser...</string>
     <string name="keycloak_account">Account Keycloak</string>
+    <string name="user_account">Account utente</string>
     <string name="iam_login_successful_heading">Accesso riuscito!</string>
     <string name="iam_login_successful_message">Ritorno al gioco... puoi chiudere questa finestra se non si chiude automaticamente.</string>
     <string name="iam_logout_successful_heading">Disconnessione riuscita!</string>
