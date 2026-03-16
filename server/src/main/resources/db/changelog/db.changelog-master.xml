@@ -8,5 +8,6 @@
     <include file="db/changelog/migrations/001-initial-schema.sql"/>
     <include file="db/changelog/migrations/002-savefiles.sql"/>
     <include file="db/changelog/migrations/003-community-files.sql"/>
+    <include file="db/changelog/migrations/004-userdata.sql"/>
 
 </databaseChangeLog>

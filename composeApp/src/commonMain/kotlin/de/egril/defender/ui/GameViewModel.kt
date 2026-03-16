@@ -497,6 +497,8 @@ class GameViewModel {
         if (playerLevel >= 100) {
             tempAchievementManager.onPlayerLevel100()
         }
+        // Sync updated abilities to backend
+        uploadUserDataToBackend()
     }
 
     fun unlockSpell(spell: de.egril.defender.model.SpellType) {
@@ -517,6 +519,8 @@ class GameViewModel {
         if (oldStats.unlockedSpells.isEmpty()) {
             tempAchievementManager.onFirstSpellUnlock()
         }
+        // Sync updated spell list to backend
+        uploadUserDataToBackend()
     }
 
     fun startLevel(levelId: Int) {
@@ -1031,6 +1035,10 @@ class GameViewModel {
                 // Save world map status
                 saveWorldMapStatus()
             }
+        }
+        // Sync updated abilities and level progress to backend after a won level
+        if (won) {
+            uploadUserDataToBackend()
         }
         _currentScreen.value = Screen.LevelComplete(levelId, won, isLastLevel, xpEarned)
     }
@@ -1643,6 +1651,8 @@ class GameViewModel {
                 de.egril.defender.save.PlayerProfileStorage.linkRemoteUser(player.id, username)
                 _currentPlayer.value = player.copy(remoteUsername = username)
             }
+            // Download and merge remote user data (abilities, level progress) on login
+            downloadAndMergeUserData()
         }
         viewModelScope.launch { refreshSavedGames() }
     }
@@ -1741,6 +1751,107 @@ class GameViewModel {
     
     private fun saveWorldMapStatus() {
         de.egril.defender.save.SaveFileStorage.saveWorldMapStatus(_worldLevels.value)
+    }
+
+    /**
+     * Uploads the current player's general user data (abilities, level progress, local username)
+     * to the backend if the user is currently logged in.
+     * Runs in the background so it never blocks gameplay.
+     */
+    private fun uploadUserDataToBackend() {
+        val token = de.egril.defender.iam.IamService.getToken()
+        if (token == null) {
+            if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                println("Skipping userdata upload: not authenticated")
+            }
+            return
+        }
+        val player = _currentPlayer.value ?: return
+        val levelProgress = _worldLevels.value
+            .filter { it.level.editorLevelId != null }
+            .associate { it.level.editorLevelId!! to it.status.name }
+
+        viewModelScope.launch {
+            try {
+                val jsonData = de.egril.defender.save.serializeUserDataJson(
+                    localUsername = player.name,
+                    abilities = player.abilities,
+                    levelProgress = levelProgress
+                )
+                val success = de.egril.defender.save.BackendUserDataService.uploadUserData(jsonData, token)
+                if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Userdata upload ${if (success) "succeeded" else "failed"} for player ${player.name}")
+                }
+            } catch (e: Exception) {
+                if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Failed to upload userdata to backend: ${e.message}")
+                }
+            }
+        }
+    }
+
+    /**
+     * Downloads the user's general data from the backend and merges it with the current local
+     * state. Remote data wins only when it contains higher XP than the local profile or when
+     * a level has a higher status remotely (UNLOCKED or WON) than locally.
+     */
+    private fun downloadAndMergeUserData() {
+        val token = de.egril.defender.iam.IamService.getToken() ?: return
+        viewModelScope.launch {
+            try {
+                val remote = de.egril.defender.save.BackendUserDataService.fetchUserData(token) ?: return@launch
+                if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Downloaded userdata for ${remote.localUsername}")
+                }
+
+                var playerUpdated = false
+
+                // Merge abilities: prefer whichever has higher total XP
+                val player = _currentPlayer.value ?: return@launch
+                val remoteAbilities = remote.abilities
+                if (remoteAbilities != null && remoteAbilities.totalXP > player.abilities.totalXP) {
+                    val updatedPlayer = player.copy(abilities = remoteAbilities)
+                    _currentPlayer.value = updatedPlayer
+                    de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+                    playerUpdated = true
+                    if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                        println("Merged remote abilities: totalXP=${remoteAbilities.totalXP}")
+                    }
+                }
+
+                // Merge level progress: apply any levels that are WON/UNLOCKED remotely
+                // but not yet at that status locally
+                val remoteLevelProgress = remote.levelProgress
+                if (remoteLevelProgress != null && remoteLevelProgress.isNotEmpty()) {
+                    val updatedLevels = _worldLevels.value.toMutableList()
+                    var levelsChanged = false
+                    for (i in updatedLevels.indices) {
+                        val wl = updatedLevels[i]
+                        val editorId = wl.level.editorLevelId ?: continue
+                        val remoteStatusStr = remoteLevelProgress[editorId] ?: continue
+                        val remoteStatus = try {
+                            de.egril.defender.model.LevelStatus.valueOf(remoteStatusStr)
+                        } catch (_: Exception) { continue }
+                        // Only upgrade the status (LOCKED → UNLOCKED → WON), never downgrade
+                        if (remoteStatus.ordinal > wl.status.ordinal) {
+                            updatedLevels[i] = wl.copy(status = remoteStatus)
+                            levelsChanged = true
+                        }
+                    }
+                    if (levelsChanged) {
+                        _worldLevels.value = updatedLevels
+                        de.egril.defender.save.SaveFileStorage.saveWorldMapStatus(updatedLevels)
+                        if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                            println("Merged remote level progress into local world map")
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Failed to download/merge userdata: ${e.message}")
+                }
+            }
+        }
     }
     
     // Player Profile Management

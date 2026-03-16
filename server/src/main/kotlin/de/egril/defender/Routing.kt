@@ -12,6 +12,7 @@ import javax.sql.DataSource
 private val analyticsLogger = LoggerFactory.getLogger("Analytics")
 private val savefileLogger = LoggerFactory.getLogger("Savefiles")
 private val communityLogger = LoggerFactory.getLogger("Community")
+private val userDataLogger = LoggerFactory.getLogger("UserData")
 
 fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
     routing {
@@ -191,6 +192,100 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                 } catch (e: Exception) {
                     savefileLogger.error("Failed to retrieve savefiles: ${e.message}", e)
                     call.respond(HttpStatusCode.InternalServerError, "Failed to retrieve savefiles")
+                }
+            }
+        }
+
+        // ---------------------------------------------------------------------------
+        // User data endpoints (abilities, level progress, local username)
+        // ---------------------------------------------------------------------------
+
+        /**
+         * Upload (create or replace) general user data for the authenticated user.
+         * Stores abilities, level progress, and local username separately from save files.
+         * Requires a valid Bearer token in the Authorization header.
+         * Returns 401 if no valid user can be extracted from the token.
+         */
+        post("/api/userdata") {
+            val userId = extractUserIdFromBearerToken(call.request.header(HttpHeaders.Authorization))
+            if (userId == null) {
+                call.respond(HttpStatusCode.Unauthorized, "Authentication required")
+                return@post
+            }
+
+            val request = try {
+                call.receive<UserDataUploadRequest>()
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid payload: ${e.message}")
+                return@post
+            }
+
+            val ds = dataSourceRef.get() ?: run {
+                call.respond(HttpStatusCode.ServiceUnavailable, "Database not available")
+                return@post
+            }
+            ds.connection.use { conn ->
+                try {
+                    conn.prepareStatement(
+                        """
+                        INSERT INTO userdata (user_id, data, updated_at)
+                        VALUES (?, ?, NOW())
+                        ON CONFLICT (user_id)
+                        DO UPDATE SET data = EXCLUDED.data, updated_at = NOW()
+                        """.trimIndent()
+                    ).use { stmt ->
+                        stmt.setString(1, userId)
+                        stmt.setString(2, request.data)
+                        stmt.executeUpdate()
+                    }
+                    userDataLogger.info("User data uploaded: userId=$userId")
+                    call.respond(HttpStatusCode.OK)
+                } catch (e: Exception) {
+                    userDataLogger.error("Failed to store user data: ${e.message}", e)
+                    call.respond(HttpStatusCode.InternalServerError, "Failed to store user data")
+                }
+            }
+        }
+
+        /**
+         * Fetch the general user data for the authenticated user.
+         * Returns 401 if unauthenticated, 404 if no data has been uploaded yet.
+         */
+        get("/api/userdata") {
+            val userId = extractUserIdFromBearerToken(call.request.header(HttpHeaders.Authorization))
+            if (userId == null) {
+                call.respond(HttpStatusCode.Unauthorized, "Authentication required")
+                return@get
+            }
+
+            val ds = dataSourceRef.get() ?: run {
+                call.respond(HttpStatusCode.ServiceUnavailable, "Database not available")
+                return@get
+            }
+            ds.connection.use { conn ->
+                try {
+                    var result: UserDataResponse? = null
+                    conn.prepareStatement(
+                        "SELECT data, updated_at FROM userdata WHERE user_id = ?"
+                    ).use { stmt ->
+                        stmt.setString(1, userId)
+                        stmt.executeQuery().use { rs ->
+                            if (rs.next()) {
+                                result = UserDataResponse(
+                                    data = rs.getString("data"),
+                                    updatedAt = rs.getTimestamp("updated_at").toInstant().toString()
+                                )
+                            }
+                        }
+                    }
+                    if (result == null) {
+                        call.respond(HttpStatusCode.NotFound, "No user data found")
+                    } else {
+                        call.respond(result)
+                    }
+                } catch (e: Exception) {
+                    userDataLogger.error("Failed to retrieve user data: ${e.message}", e)
+                    call.respond(HttpStatusCode.InternalServerError, "Failed to retrieve user data")
                 }
             }
         }
