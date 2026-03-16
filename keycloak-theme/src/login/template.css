@@ -1,0 +1,392 @@
+/* ─────────────────────────────────────────────────────────────────────────── *
+ * Egril Keycloakify Theme                                                     *
+ * Dark mode: activated when the KEYCLOAKIFY_DARK_MODE=dark cookie is present  *
+ * or the OS prefers dark colors.                                               *
+ * ─────────────────────────────────────────────────────────────────────────── */
+
+/* Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Root container ─────────────────────────────────────────────────── */
+
+.egril-root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 16px;
+}
+
+/* Dark mode */
+.egril-root.dark {
+  background-color: #2a2a2a;
+  color: #f0f0f0;
+}
+
+/* Light mode */
+.egril-root.light {
+  background-color: #f5f5f5;
+  color: #1a1a1a;
+}
+
+/* ── Banners ─────────────────────────────────────────────────────────── */
+
+.brand-banner {
+  display: flex;
+  align-items: center;
+  padding: 12px 32px;
+  width: 100%;
+}
+
+/* Defender of Egril banner – always dark, matching the game's look */
+.defender-banner {
+  background-color: #1a1a1a;
+  gap: 16px;
+  min-height: 80px;
+}
+
+/* cosha.nu banner – always dark */
+.coshanu-banner {
+  background-color: #111111;
+  gap: 12px;
+  min-height: 52px;
+}
+
+/* ── Defender of Egril banner internals ─────────────────────────────── */
+
+.game-icons {
+  width: 180px;
+  height: 80px;
+  flex-shrink: 0;
+}
+
+.defender-title {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  color: #f0f0f0;
+  line-height: 1.1;
+  flex: 1;
+}
+
+.defender-of {
+  font-size: 1.4rem;
+  font-style: italic;
+  font-weight: 300;
+  letter-spacing: 0.03em;
+}
+
+.egril-text {
+  font-size: 2.6rem;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.shield-img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* ── cosha.nu banner internals ───────────────────────────────────────── */
+
+.coshanu-shapes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.coshanu-text {
+  font-size: 1.4rem;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  color: #d0d0d0;
+}
+
+/* ── Main login area ─────────────────────────────────────────────────── */
+
+.login-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 440px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Dark card */
+.dark .login-card {
+  background-color: #3a3a3a;
+  border: 1px solid #555;
+}
+
+/* Light card */
+.light .login-card {
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+}
+
+/* ── Card header ─────────────────────────────────────────────────────── */
+
+.login-card-header {
+  padding: 24px 32px 16px;
+  border-bottom: 1px solid;
+}
+
+.dark .login-card-header {
+  border-color: #555;
+}
+
+.light .login-card-header {
+  border-color: #e0e0e0;
+}
+
+.login-card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.dark .login-card-title {
+  color: #f0f0f0;
+}
+
+.light .login-card-title {
+  color: #1a1a1a;
+}
+
+/* ── Card body ───────────────────────────────────────────────────────── */
+
+.login-card-body {
+  padding: 24px 32px;
+}
+
+/* Alert messages */
+.kc-alert {
+  padding: 10px 14px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+
+.kc-alert-error {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ef9a9a;
+}
+
+.dark .kc-alert-error {
+  background-color: #4e1c1c;
+  color: #ef9a9a;
+  border-color: #7f2020;
+}
+
+.kc-alert-warning {
+  background-color: #fff8e1;
+  color: #e65100;
+  border: 1px solid #ffcc80;
+}
+
+.dark .kc-alert-warning {
+  background-color: #4e3800;
+  color: #ffcc80;
+  border-color: #7f5800;
+}
+
+.kc-alert-success {
+  background-color: #e8f5e9;
+  color: #1b5e20;
+  border: 1px solid #a5d6a7;
+}
+
+.dark .kc-alert-success {
+  background-color: #1b3820;
+  color: #a5d6a7;
+  border-color: #2e7d32;
+}
+
+.kc-alert-info {
+  background-color: #e3f2fd;
+  color: #0d47a1;
+  border: 1px solid #90caf9;
+}
+
+.dark .kc-alert-info {
+  background-color: #0d2a4e;
+  color: #90caf9;
+  border-color: #1565c0;
+}
+
+/* Forms – style Keycloak's default form elements */
+.login-card-body input[type="text"],
+.login-card-body input[type="email"],
+.login-card-body input[type="password"] {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 4px;
+  border: 1px solid;
+  font-size: 1rem;
+  margin-bottom: 4px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.dark .login-card-body input[type="text"],
+.dark .login-card-body input[type="email"],
+.dark .login-card-body input[type="password"] {
+  background-color: #2a2a2a;
+  color: #f0f0f0;
+  border-color: #666;
+}
+
+.dark .login-card-body input:focus {
+  border-color: #ffa000;
+}
+
+.light .login-card-body input[type="text"],
+.light .login-card-body input[type="email"],
+.light .login-card-body input[type="password"] {
+  background-color: #ffffff;
+  color: #1a1a1a;
+  border-color: #bbb;
+}
+
+.light .login-card-body input:focus {
+  border-color: #ffa000;
+}
+
+/* Labels */
+.login-card-body label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.dark .login-card-body label {
+  color: #ccc;
+}
+
+.light .login-card-body label {
+  color: #444;
+}
+
+/* Submit button */
+.login-card-body input[type="submit"],
+.login-card-body button[type="submit"] {
+  width: 100%;
+  padding: 12px;
+  background-color: #ffa000;
+  color: #1a1a1a;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background-color 0.2s;
+}
+
+.login-card-body input[type="submit"]:hover,
+.login-card-body button[type="submit"]:hover {
+  background-color: #ffb300;
+}
+
+/* Links */
+.login-card-body a {
+  color: #ffa000;
+  text-decoration: none;
+}
+
+.login-card-body a:hover {
+  text-decoration: underline;
+}
+
+/* Checkboxes */
+.login-card-body .checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+/* ── Social providers ─────────────────────────────────────────────────── */
+
+.social-providers {
+  margin-top: 16px;
+  border-top: 1px solid;
+  padding-top: 16px;
+}
+
+.dark .social-providers {
+  border-color: #555;
+}
+
+.light .social-providers {
+  border-color: #e0e0e0;
+}
+
+/* ── Card footer ─────────────────────────────────────────────────────── */
+
+.login-card-footer {
+  padding: 12px 32px 20px;
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+.login-card-footer a {
+  color: #ffa000;
+  text-decoration: none;
+}
+
+.login-card-footer a:hover {
+  text-decoration: underline;
+}
+
+/* ── Responsive adjustments ──────────────────────────────────────────── */
+
+@media (max-width: 540px) {
+  .brand-banner {
+    padding: 8px 16px;
+  }
+
+  .game-icons {
+    width: 120px;
+    height: 56px;
+  }
+
+  .defender-of {
+    font-size: 1.1rem;
+  }
+
+  .egril-text {
+    font-size: 2rem;
+  }
+
+  .shield-img {
+    width: 52px;
+    height: 52px;
+  }
+
+  .login-card-header,
+  .login-card-body {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}

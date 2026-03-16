@@ -3,7 +3,7 @@
   "enabled": true,
   "displayName": "Egril",
   "displayNameHtml": "<b>Egril</b>",
-  "loginTheme": "keycloak",
+  "loginTheme": "egril",
   "registrationAllowed": true,
   "loginWithEmailAllowed": true,
   "registrationEmailAsUsername": true,

@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.hyperether.resources.currentLanguage
 
 // ---------------------------------------------------------------------------
 // JS interop – all interaction with the Keycloak JS adapter goes through here
@@ -37,8 +38,40 @@ private external fun jsGetKcLastName(): String?
 @JsFun("() => { return window._kcToken || null; }")
 private external fun jsGetKcToken(): String?
 
-@JsFun("() => { if (window._keycloak) { window._keycloak.login({ prompt: 'login' }); } }")
-private external fun jsKcLogin()
+/**
+ * Reads the 'dark_mode' key from localStorage.
+ * The multiplatform-settings library stores boolean values as "true"/"false" strings in
+ * localStorage on WASM/JS, using the key name directly.
+ *
+ * NOTE: The key 'dark_mode' must match [AppSettings.KEY_DARK_MODE] in AppSettings.kt.
+ * If that constant is renamed, this function must be updated accordingly.
+ */
+@JsFun("() => { return localStorage.getItem('dark_mode') === 'true'; }")
+private external fun jsGetIsDarkMode(): Boolean
+
+/**
+ * Sets the KEYCLOAKIFY_DARK_MODE cookie so that the Keycloakify theme on the
+ * Keycloak login page can read the app's dark-mode preference.
+ *
+ * Cookies are scoped to the domain (not the port), so a cookie set on
+ * localhost:8080 is readable by Keycloak on localhost:8081.
+ *
+ * NOTE: The cookie is set without the `Secure` flag so that it works on
+ * plain-HTTP localhost during development. In production, where both the app
+ * and Keycloak are served over HTTPS, browsers enforce Secure automatically
+ * for cross-origin cookies, so this is safe in practice.
+ *
+ * @param isDark true for dark mode, false for light mode.
+ */
+@JsFun("(isDark) => { document.cookie = 'KEYCLOAKIFY_DARK_MODE=' + (isDark ? 'dark' : 'light') + '; path=/; SameSite=Strict'; }")
+private external fun jsSetDarkModeCookie(isDark: Boolean)
+
+/**
+ * Initiates a Keycloak login, forwarding the app's selected [locale] so the
+ * login page is shown in the same language as the game.
+ */
+@JsFun("(locale) => { if (window._keycloak) { window._keycloak.login({ prompt: 'login', locale: locale }); } }")
+private external fun jsKcLoginWithLocale(locale: String)
 
 @JsFun("() => { if (window._keycloak) { window._keycloak.logout({ redirectUri: window.location.origin }); } }")
 private external fun jsKcLogout()
@@ -50,7 +83,13 @@ private external fun jsKcLogout()
 actual fun getIamBaseUrl(): String = jsGetKeycloakUrl()
 
 internal actual fun startPlatformLogin() {
-    jsKcLogin()
+    // Sync the app's dark-mode preference to a cookie so the Keycloakify theme
+    // on the Keycloak login page can apply the correct color scheme.
+    jsSetDarkModeCookie(jsGetIsDarkMode())
+
+    // Forward the app's selected language to the Keycloak login page.
+    val locale = currentLanguage.value
+    jsKcLoginWithLocale(locale.code)
 }
 
 internal actual fun performPlatformLogout() {
