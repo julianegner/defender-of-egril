@@ -44,9 +44,15 @@ This produces:
 
 ## Deploying to Local Keycloak
 
-The `local-keycloak/docker-compose.yml` file mounts the built JAR into the
-Keycloak container automatically when it finds the file at
-`keycloak-theme/dist_keycloak/egril-keycloak-theme-*.jar`.
+The `local-keycloak/start.sh` script builds the theme JAR (if absent) and starts Keycloak in
+one step:
+
+```bash
+./local-keycloak/start.sh        # from the repo root, foreground
+./local-keycloak/start.sh -d     # detached (background)
+```
+
+Or build manually and use docker compose directly:
 
 ```bash
 # 1. Build the theme
@@ -57,6 +63,9 @@ npm install && npm run build
 cd ..
 docker compose -f local-keycloak/docker-compose.yml up -d --force-recreate
 ```
+
+> **Note:** `dist_keycloak/` is git-ignored; the JARs must be built locally
+> before starting Keycloak.
 
 After Keycloak starts, the `egril` realm is automatically configured to use
 the `egril` login theme.
