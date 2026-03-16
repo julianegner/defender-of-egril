@@ -202,19 +202,14 @@ fun App() {
                 onSelectPlayer = { playerId ->
                     val newPlayerHasRemoteAccount = allPlayers.find { it.id == playerId }?.remoteUsername != null
                     if (iamState.isAuthenticated) {
-                        if (newPlayerHasRemoteAccount) {
-                            // New player has a remote account: use local-only logout so the
-                            // subsequent auto-login (alwaysLogin) can acquire the PKCE callback
-                            // port without conflict.
-                            de.egril.defender.iam.IamService.logoutLocal()
-                        } else {
-                            // New player has no remote account: use backchannel logout to
-                            // revoke the Keycloak session server-side via HTTP POST. This
-                            // terminates the SSO session without opening a browser window or
-                            // binding the PKCE callback port, so a subsequent manual login
-                            // will always present a fresh Keycloak login page.
-                            de.egril.defender.iam.IamService.logoutBackchannel()
-                        }
+                        // Any player switch while authenticated: revoke the Keycloak session
+                        // server-side via HTTP POST and set the nextLoginUsesRestartUrl flag so
+                        // that the next login (whether triggered by alwaysLogin or manually)
+                        // opens the /login-actions/restart URL with skip_logout=false. This shows
+                        // a completely blank login form and prevents Keycloak from silently
+                        // re-authenticating as the previous user via an active SSO browser cookie,
+                        // regardless of whether the new player has a remote account or not.
+                        de.egril.defender.iam.IamService.logoutBackchannel()
                     } else if (!newPlayerHasRemoteAccount) {
                         // Not authenticated but switching to a player with no remote account:
                         // clear any stale local state just in case.
