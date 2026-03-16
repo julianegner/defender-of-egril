@@ -195,6 +195,12 @@ fun App() {
                 players = allPlayers,
                 currentPlayerId = currentPlayer?.id,
                 onSelectPlayer = { playerId ->
+                    // Logout from Keycloak when switching players so each player
+                    // starts with a fresh auth state. If the new player has "always
+                    // login" enabled the existing LaunchedEffect will re-trigger login.
+                    if (iamState.isAuthenticated) {
+                        de.egril.defender.iam.IamService.logout()
+                    }
                     viewModel.switchPlayer(playerId)
                     showPlayerSelection = false
                 },
@@ -247,7 +253,6 @@ fun App() {
                     hasAutosave = viewModel.hasAutosave(),
                     onShowRules = { viewModel.navigateToRules() },
                     onShowInstallationInfo = { viewModel.navigateToInstallationInfo() },
-                    onSelectPlayer = { showPlayerSelection = true },
                     onEditPlayerName = { viewModel.navigateToPlayerProfile() },
                     currentPlayerName = currentPlayer?.name,
                     iamState = iamState,
@@ -298,6 +303,7 @@ fun App() {
                         playerProfile = profile,
                         onBack = { viewModel.navigateToMainMenu() },
                         onEditName = { showEditPlayer = true },
+                        onSelectPlayer = { showPlayerSelection = true },
                         onNavigateToStats = { viewModel.navigateToStatsUpgrade() },
                         onUpgradeAbility = { abilityType -> viewModel.upgradeAbility(abilityType) },
                         onUnlockSpell = { spell -> viewModel.unlockSpell(spell) },
