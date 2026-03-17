@@ -54,25 +54,20 @@ body.login-pf.light {
   color: #1a1a1a;
 }
 
-/* ── Banners ─────────────────────────────────────────────────────────── */
+/* ── Banner row ──────────────────────────────────────────────────────── */
 
-.brand-banner {
+/*
+ * Both brand images are placed in a single dark row.
+ * Defender of Egril is pinned to the left, cosha.nu to the right.
+ * 10 % horizontal padding keeps both images away from the screen edges.
+ */
+.brand-banner-row {
   display: flex;
   align-items: center;
-  width: 100%;
-  overflow: hidden;
-}
-
-/* Defender of Egril banner – always dark, matching the game's look */
-.defender-banner {
+  justify-content: space-between;
   background-color: #1a1a1a;
-  min-height: 80px;
-}
-
-/* cosha.nu banner – always dark */
-.coshanu-banner {
-  background-color: #111111;
-  min-height: 52px;
+  padding: 12px 10%;
+  width: 100%;
 }
 
 /* ── Banner images ───────────────────────────────────────────────────── */
@@ -305,6 +300,54 @@ body.login-pf.light {
   margin: 8px 0;
 }
 
+/* ── Registration button ─────────────────────────────────────────────── */
+
+/*
+ * Rendered in Template.tsx below the login form; styled as a secondary
+ * button so it is clearly visible but distinct from the primary Log In button.
+ *
+ * The keycloakify Login component also renders #kc-registration-container
+ * with a plain link – we hide it to avoid duplication.
+ */
+#kc-registration-container {
+  display: none;
+}
+
+.register-section {
+  margin-top: 16px;
+  border-top: 1px solid;
+  padding-top: 16px;
+}
+
+.dark .register-section {
+  border-color: #555;
+}
+
+.light .register-section {
+  border-color: #e0e0e0;
+}
+
+.register-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background-color: #3949ab;
+  color: #ffffff !important;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none !important;
+  transition: background-color 0.2s;
+}
+
+.register-btn:hover {
+  background-color: #5c6bc0 !important;
+  text-decoration: none !important;
+}
+
 /* ── Social providers ─────────────────────────────────────────────────── */
 
 .social-providers {
@@ -341,6 +384,11 @@ body.login-pf.light {
 /* ── Responsive adjustments ──────────────────────────────────────────── */
 
 @media (max-width: 540px) {
+  .brand-banner-row {
+    padding-left: 5%;
+    padding-right: 5%;
+  }
+
   .defender-banner-img {
     height: 56px;
   }

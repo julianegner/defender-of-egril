@@ -77,17 +77,13 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
 
   return (
     <div className={`egril-root ${darkMode ? "dark" : "light"}`}>
-      {/* ── Top banner: Defender of Egril ── */}
-      <div className="brand-banner defender-banner">
+      {/* ── Brand banner row: Defender of Egril (left) and cosha.nu (right) ── */}
+      <div className="brand-banner-row">
         <img
           src={`${import.meta.env.BASE_URL}images/defender_of_egril.png`}
           alt="Defender of Egril"
           className="defender-banner-img"
         />
-      </div>
-
-      {/* ── Second banner: cosha.nu ── */}
-      <div className="brand-banner coshanu-banner">
         <img
           src={`${import.meta.env.BASE_URL}images/coshanu.png`}
           alt="cosha.nu"
@@ -122,6 +118,20 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
             )}
 
             {children}
+
+            {/* Registration button – only shown on the login page when the realm allows it */}
+            {kcContext.pageId === "login.ftl" && (() => {
+              const loginCtx = kcContext as { realm?: { registrationAllowed?: boolean }; registrationUrl?: string };
+              return loginCtx.realm?.registrationAllowed && loginCtx.registrationUrl
+                ? (
+                  <div className="register-section">
+                    <a href={loginCtx.registrationUrl} className="register-btn">
+                      {msg("doRegister")}
+                    </a>
+                  </div>
+                )
+                : null;
+            })()}
 
             {socialProvidersNode !== null && (
               <div className="social-providers">{socialProvidersNode}</div>
