@@ -27,7 +27,8 @@ enum class AnimationType {
     DOUBLE_LEVEL_SPELL,
     INSTANT_TOWER_SPELL,
     FEAR_SPELL,
-    BOMB_EXPLOSION
+    BOMB_EXPLOSION,
+    WATER_FLOW
 }
 
 /**
@@ -51,6 +52,7 @@ fun LottieAnimation(
         AnimationType.INSTANT_TOWER_SPELL -> "files/animations/instant_tower_spell.json"
         AnimationType.FEAR_SPELL -> "files/animations/fear_spell.json"
         AnimationType.BOMB_EXPLOSION -> "files/animations/bomb_explosion.json"
+        AnimationType.WATER_FLOW -> "files/animations/water_flow.json"
     }
     
     // Load the animation JSON asynchronously
@@ -102,6 +104,7 @@ fun LottieAnimation(
                     AnimationType.INSTANT_TOWER_SPELL -> "Instant tower spell animation"
                     AnimationType.FEAR_SPELL -> "Fear spell dark cloud animation"
                     AnimationType.BOMB_EXPLOSION -> "Bomb explosion animation"
+                    AnimationType.WATER_FLOW -> "Water flow animation"
                 },
                 contentScale = contentScale,
                 modifier = Modifier.fillMaxSize()
