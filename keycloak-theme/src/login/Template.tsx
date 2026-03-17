@@ -59,7 +59,7 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
     socialProvidersNode
   } = props;
 
-  const { msg } = i18n;
+  const { msg, msgStr } = i18n;
 
   useInitialize({ kcContext, doUseDefaultCss: false });
 
@@ -74,6 +74,19 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
       document.body.classList.remove("dark", "light");
     };
   }, [darkMode]);
+
+  // Set the browser tab title dynamically from the Keycloak realm name so that
+  // it reads "Log in to {realm}" (or the localised equivalent) instead of the
+  // static "Egril Keycloak Theme" value from index.html.
+  useEffect(() => {
+    const realm = "realm" in kcContext
+      ? (kcContext.realm as Record<string, unknown>)
+      : undefined;
+    const displayName = (realm?.displayName ?? realm?.name) as string | undefined;
+    if (displayName) {
+      document.title = msgStr("loginTitle", displayName);
+    }
+  }, [msgStr]);
 
   return (
     <div className={`egril-root ${darkMode ? "dark" : "light"}`}>
@@ -119,13 +132,17 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
 
             {children}
 
-            {/* Registration button – only shown on the login page when the realm allows it */}
+            {/* Registration section – only shown on the login page when the realm allows it */}
             {kcContext.pageId === "login.ftl" && (() => {
-              const loginCtx = kcContext as { realm?: { registrationAllowed?: boolean }; registrationUrl?: string };
-              return loginCtx.realm?.registrationAllowed && loginCtx.registrationUrl
+              const loginCtx = kcContext as {
+                realm?: { registrationAllowed?: boolean };
+                url?: { registrationUrl?: string };
+              };
+              return loginCtx.realm?.registrationAllowed && loginCtx.url?.registrationUrl
                 ? (
                   <div className="register-section">
-                    <a href={loginCtx.registrationUrl} className="register-btn">
+                    <p className="register-label">{msg("noAccount")}</p>
+                    <a href={loginCtx.url.registrationUrl} className="register-btn">
                       {msg("doRegister")}
                     </a>
                   </div>
