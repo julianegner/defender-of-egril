@@ -56,6 +56,10 @@ services:
       - "8081:8080"
     volumes:
       - ./local-keycloak/egril-realm.json:/opt/keycloak/data/import/egril-realm.json:ro
+      # Mount the built Keycloakify theme JAR so Keycloak picks it up automatically.
+      # Build the theme first: cd ../keycloak-theme && npm install && npm run build
+      # The JAR is produced in keycloak-theme/dist_keycloak/
+      - ../keycloak-theme/dist_keycloak:/opt/keycloak/providers:ro-
     command: start-dev --import-realm --health-enabled=true
     # curl/wget are not available in the ubi9-micro-based Keycloak 24 image.
     # /bin/sh is a symlink to bash, so CMD-SHELL works fine.
@@ -68,8 +72,8 @@ services:
       test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && printf 'GET /health/ready HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && timeout 5 cat <&3 | grep -q 'UP'"]
       interval: 15s
       timeout: 10s
-      retries: 20
-      start_period: 180s
+      retries: 12
+      start_period: 60s
 
   backend:
     build:
