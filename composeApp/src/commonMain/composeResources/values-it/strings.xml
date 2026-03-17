@@ -1501,6 +1501,7 @@
     <string name="iam_logout_successful_heading">Disconnessione riuscita!</string>
     <string name="iam_logout_successful_message">Puoi chiudere questa finestra o tornare al gioco.</string>
     <string name="always_log_in">Accedi sempre</string>
+    <string name="use_remote_settings">Usa impostazioni remote</string>
     <string name="account">Account</string>
 
     <!-- Community maps/levels -->

@@ -1498,6 +1498,7 @@
     <string name="iam_logout_successful_heading">Erfolgreich abgemeldet!</string>
     <string name="iam_logout_successful_message">Du kannst dieses Fenster schließen oder zum Spiel zurückkehren.</string>
     <string name="always_log_in">Immer anmelden</string>
+    <string name="use_remote_settings">Remote-Einstellungen verwenden</string>
     <string name="account">Konto</string>
 
     <!-- Community maps/levels -->

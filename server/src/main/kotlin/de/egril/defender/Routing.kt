@@ -13,6 +13,7 @@ private val analyticsLogger = LoggerFactory.getLogger("Analytics")
 private val savefileLogger = LoggerFactory.getLogger("Savefiles")
 private val communityLogger = LoggerFactory.getLogger("Community")
 private val userDataLogger = LoggerFactory.getLogger("UserData")
+private val settingsLogger = LoggerFactory.getLogger("Settings")
 
 fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
     routing {
@@ -286,6 +287,101 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                 } catch (e: Exception) {
                     userDataLogger.error("Failed to retrieve user data: ${e.message}", e)
                     call.respond(HttpStatusCode.InternalServerError, "Failed to retrieve user data")
+                }
+            }
+        }
+
+        // ---------------------------------------------------------------------------
+        // Player settings endpoints (separate from game save files and user data)
+        // ---------------------------------------------------------------------------
+
+        /**
+         * Upload (create or replace) player settings for the authenticated user.
+         * Stores application settings (dark mode, language, sound, etc.) in a
+         * dedicated table independent from userdata and save files.
+         * Requires a valid Bearer token in the Authorization header.
+         * Returns 401 if no valid user can be extracted from the token.
+         */
+        post("/api/settings") {
+            val userId = extractUserIdFromBearerToken(call.request.header(HttpHeaders.Authorization))
+            if (userId == null) {
+                call.respond(HttpStatusCode.Unauthorized, "Authentication required")
+                return@post
+            }
+
+            val request = try {
+                call.receive<SettingsUploadRequest>()
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid payload: ${e.message}")
+                return@post
+            }
+
+            val ds = dataSourceRef.get() ?: run {
+                call.respond(HttpStatusCode.ServiceUnavailable, "Database not available")
+                return@post
+            }
+            ds.connection.use { conn ->
+                try {
+                    conn.prepareStatement(
+                        """
+                        INSERT INTO player_settings (user_id, data, updated_at)
+                        VALUES (?, ?, NOW())
+                        ON CONFLICT (user_id)
+                        DO UPDATE SET data = EXCLUDED.data, updated_at = NOW()
+                        """.trimIndent()
+                    ).use { stmt ->
+                        stmt.setString(1, userId)
+                        stmt.setString(2, request.data)
+                        stmt.executeUpdate()
+                    }
+                    settingsLogger.info("Player settings uploaded: userId=$userId")
+                    call.respond(HttpStatusCode.OK)
+                } catch (e: Exception) {
+                    settingsLogger.error("Failed to store player settings: ${e.message}", e)
+                    call.respond(HttpStatusCode.InternalServerError, "Failed to store player settings")
+                }
+            }
+        }
+
+        /**
+         * Fetch the player settings for the authenticated user.
+         * Returns 401 if unauthenticated, 404 if no settings have been uploaded yet.
+         */
+        get("/api/settings") {
+            val userId = extractUserIdFromBearerToken(call.request.header(HttpHeaders.Authorization))
+            if (userId == null) {
+                call.respond(HttpStatusCode.Unauthorized, "Authentication required")
+                return@get
+            }
+
+            val ds = dataSourceRef.get() ?: run {
+                call.respond(HttpStatusCode.ServiceUnavailable, "Database not available")
+                return@get
+            }
+            ds.connection.use { conn ->
+                try {
+                    var result: SettingsResponse? = null
+                    conn.prepareStatement(
+                        "SELECT data, updated_at FROM player_settings WHERE user_id = ?"
+                    ).use { stmt ->
+                        stmt.setString(1, userId)
+                        stmt.executeQuery().use { rs ->
+                            if (rs.next()) {
+                                result = SettingsResponse(
+                                    data = rs.getString("data"),
+                                    updatedAt = rs.getTimestamp("updated_at").toInstant().toString()
+                                )
+                            }
+                        }
+                    }
+                    if (result == null) {
+                        call.respond(HttpStatusCode.NotFound, "No settings found")
+                    } else {
+                        call.respond(result)
+                    }
+                } catch (e: Exception) {
+                    settingsLogger.error("Failed to retrieve player settings: ${e.message}", e)
+                    call.respond(HttpStatusCode.InternalServerError, "Failed to retrieve player settings")
                 }
             }
         }

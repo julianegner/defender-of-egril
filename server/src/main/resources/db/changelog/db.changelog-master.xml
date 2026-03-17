@@ -9,5 +9,6 @@
     <include file="db/changelog/migrations/002-savefiles.sql"/>
     <include file="db/changelog/migrations/003-community-files.sql"/>
     <include file="db/changelog/migrations/004-userdata.sql"/>
+    <include file="db/changelog/migrations/005-settings.sql"/>
 
 </databaseChangeLog>
