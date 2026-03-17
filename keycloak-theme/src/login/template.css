@@ -13,6 +13,25 @@
   padding: 0;
 }
 
+/* ── Body / html background tied to dark/light mode ─────────────────────── */
+/*
+ * Keycloak sets class="login-pf" on the <body>. We add "dark" or "light"
+ * via useEffect so both selectors are covered.
+ * body.login-pf.dark has higher specificity (0,2,1) than PatternFly's
+ * .login-pf body (0,1,1), so no !important is needed.
+ */
+html.dark,
+body.dark,
+body.login-pf.dark {
+  background-color: #2a2a2a;
+}
+
+html.light,
+body.light,
+body.login-pf.light {
+  background-color: #f5f5f5;
+}
+
 /* ── Root container ─────────────────────────────────────────────────── */
 
 .egril-root {

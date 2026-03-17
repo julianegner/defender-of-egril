@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useEffect } from "react";
 import type { TemplateProps } from "keycloakify/login/TemplateProps";
 import { useInitialize } from "keycloakify/login/Template.useInitialize";
 import type { KcContext } from "keycloakify/login/KcContext";
@@ -64,6 +64,16 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
   useInitialize({ kcContext, doUseDefaultCss: false });
 
   const darkMode = isDarkModeEnabled();
+
+  // Apply dark/light class to the body so the full-page background matches the theme.
+  // This covers the .login-pf body selector used by PatternFly / Keycloak's base CSS.
+  useEffect(() => {
+    document.body.classList.toggle("dark", darkMode);
+    document.body.classList.toggle("light", !darkMode);
+    return () => {
+      document.body.classList.remove("dark", "light");
+    };
+  }, [darkMode]);
 
   return (
     <div className={`egril-root ${darkMode ? "dark" : "light"}`}>
