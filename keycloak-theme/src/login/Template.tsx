@@ -88,7 +88,23 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
     }
   }, [msgStr]);
 
+  // Belt-and-suspenders: inline CSS that forces the password-input-group
+  // grid layout and button appearance regardless of any conflicting
+  // stylesheet that Keycloak or the browser might load.
+  const btnBg = darkMode ? "#555" : "#d0d0d0";
+  const btnBorder = darkMode ? "#666" : "#bbb";
+  const btnColor = darkMode ? "#eee" : "#333";
+  const passwordGroupCss = `
+    .pf-c-input-group{display:grid!important;grid-template-columns:1fr 44px!important;align-items:stretch!important;width:100%!important;margin-bottom:4px!important}
+    .pf-c-input-group>input[type="password"],.pf-c-input-group>.pf-c-form-control{width:100%!important;border-right:none!important;border-radius:4px 0 0 4px!important;margin-bottom:0!important}
+    .pf-c-button.pf-m-control{width:44px!important;min-height:42px!important;padding:0!important;border:1px solid ${btnBorder}!important;border-radius:0 4px 4px 0!important;cursor:pointer!important;font-size:1.1rem!important;display:flex!important;align-items:center!important;justify-content:center!important;background-color:${btnBg}!important;color:${btnColor}!important}
+    .pf-c-button.pf-m-control:hover{filter:brightness(1.15)!important}
+  `;
+
   return (
+    <>
+    {/* Inject password-group styles after all other stylesheets so they win */}
+    <style dangerouslySetInnerHTML={{ __html: passwordGroupCss }} />
     <div className={`egril-root ${darkMode ? "dark" : "light"}`}>
       {/* ── Brand banner row: Defender of Egril (left) and cosha.nu (right) ── */}
       <div className="brand-banner-row">
@@ -167,5 +183,6 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
         </div>
       </main>
     </div>
+    </>
   );
 }
