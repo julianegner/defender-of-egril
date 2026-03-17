@@ -68,6 +68,12 @@ object AppSettings {
     private const val KEY_ENABLE_ANIMATIONS = "enable_animations"
     
     private val settings: Settings = Settings()
+
+    /**
+     * Optional callback invoked after any setting is persisted (excluding debug/hint-only fields).
+     * Set by GameViewModel to trigger a remote settings upload whenever settings change.
+     */
+    var onPersist: (() -> Unit)? = null
     
     /**
      * Dark mode state - automatically saved when changed
@@ -292,6 +298,7 @@ object AppSettings {
     fun saveDarkMode(enabled: Boolean) {
         isDarkMode.value = enabled
         settings[KEY_DARK_MODE] = enabled
+        onPersist?.invoke()
     }
     
     /**
@@ -300,6 +307,7 @@ object AppSettings {
     fun saveLanguage(locale: AppLocale) {
         currentLanguage.value = locale
         settings[KEY_LANGUAGE] = locale.code
+        onPersist?.invoke()
     }
     
     /**
@@ -308,6 +316,7 @@ object AppSettings {
     fun saveSoundEnabled(enabled: Boolean) {
         isSoundEnabled.value = enabled
         settings[KEY_SOUND_ENABLED] = enabled
+        onPersist?.invoke()
     }
     
     /**
@@ -317,6 +326,7 @@ object AppSettings {
         val clampedVolume = volume.coerceIn(0f, 1f)
         soundVolume.value = clampedVolume
         settings.putFloat(KEY_SOUND_VOLUME, clampedVolume)
+        onPersist?.invoke()
     }
     
     /**
@@ -325,6 +335,7 @@ object AppSettings {
     fun saveEffectsEnabled(enabled: Boolean) {
         isEffectsEnabled.value = enabled
         settings.putBoolean(KEY_EFFECTS_ENABLED, enabled)
+        onPersist?.invoke()
     }
     
     /**
@@ -334,6 +345,7 @@ object AppSettings {
         val clampedVolume = volume.coerceIn(0f, 1f)
         effectsVolume.value = clampedVolume
         settings.putFloat(KEY_EFFECTS_VOLUME, clampedVolume)
+        onPersist?.invoke()
     }
     
     /**
@@ -342,6 +354,7 @@ object AppSettings {
     fun saveMusicEnabled(enabled: Boolean) {
         isMusicEnabled.value = enabled
         settings.putBoolean(KEY_MUSIC_ENABLED, enabled)
+        onPersist?.invoke()
     }
     
     /**
@@ -351,6 +364,7 @@ object AppSettings {
         val clampedVolume = volume.coerceIn(0f, 1f)
         musicVolume.value = clampedVolume
         settings.putFloat(KEY_MUSIC_VOLUME, clampedVolume)
+        onPersist?.invoke()
     }
     
     /**
@@ -359,6 +373,7 @@ object AppSettings {
     fun saveWorldMapMusicEnabled(enabled: Boolean) {
         isWorldMapMusicEnabled.value = enabled
         settings.putBoolean(KEY_WORLDMAP_MUSIC_ENABLED, enabled)
+        onPersist?.invoke()
     }
     
     /**
@@ -368,6 +383,7 @@ object AppSettings {
         val clampedVolume = volume.coerceIn(0f, 1f)
         worldMapMusicVolume.value = clampedVolume
         settings.putFloat(KEY_WORLDMAP_MUSIC_VOLUME, clampedVolume)
+        onPersist?.invoke()
     }
     
     /**
@@ -376,6 +392,7 @@ object AppSettings {
     fun saveGameplayMusicEnabled(enabled: Boolean) {
         isGameplayMusicEnabled.value = enabled
         settings.putBoolean(KEY_GAMEPLAY_MUSIC_ENABLED, enabled)
+        onPersist?.invoke()
     }
     
     /**
@@ -385,6 +402,7 @@ object AppSettings {
         val clampedVolume = volume.coerceIn(0f, 1f)
         gameplayMusicVolume.value = clampedVolume
         settings.putFloat(KEY_GAMEPLAY_MUSIC_VOLUME, clampedVolume)
+        onPersist?.invoke()
     }
     
     /**
@@ -393,6 +411,7 @@ object AppSettings {
     fun saveShowControlPad(show: Boolean) {
         showControlPad.value = show
         settings.putBoolean(KEY_SHOW_CONTROL_PAD, show)
+        onPersist?.invoke()
     }
     
     /**
@@ -401,6 +420,7 @@ object AppSettings {
     fun saveDifficulty(level: DifficultyLevel) {
         difficulty.value = level
         settings[KEY_DIFFICULTY] = level.name
+        onPersist?.invoke()
     }
     
     /**
@@ -409,6 +429,7 @@ object AppSettings {
     fun saveUseLevelCards(useLevelCards: Boolean) {
         this.useLevelCards.value = useLevelCards
         settings.putBoolean(KEY_USE_LEVEL_CARDS, useLevelCards)
+        onPersist?.invoke()
     }
     
     /**
@@ -425,6 +446,7 @@ object AppSettings {
     fun saveUseTileImages(useTiles: Boolean) {
         useTileImages.value = useTiles
         settings.putBoolean(KEY_USE_TILE_IMAGES, useTiles)
+        onPersist?.invoke()
     }
     
     /**
@@ -434,6 +456,7 @@ object AppSettings {
     fun saveUseTileSmoothTransitions(useTransitions: Boolean) {
         useTileSmoothTransitions.value = useTransitions
         settings.putBoolean(KEY_USE_TILE_SMOOTH_TRANSITIONS, useTransitions)
+        onPersist?.invoke()
     }
     
     /**
@@ -442,6 +465,7 @@ object AppSettings {
     fun saveShowTestingLevels(show: Boolean) {
         showTestingLevels.value = show
         settings.putBoolean(KEY_SHOW_TESTING_LEVELS, show)
+        onPersist?.invoke()
     }
     
     /**
@@ -450,11 +474,13 @@ object AppSettings {
     fun saveHeaderTextSize(size: HeaderTextSize) {
         headerTextSize.value = size
         settings[KEY_HEADER_TEXT_SIZE] = size.name
+        onPersist?.invoke()
     }
 
     fun saveUseLevelMapImage(use: Boolean) {
         useLevelMapImage.value = use
         settings.putBoolean(KEY_USE_LEVEL_MAP_IMAGE, use)
+        onPersist?.invoke()
     }
 
     fun saveShowDebugOptions(show: Boolean) {
@@ -468,6 +494,7 @@ object AppSettings {
     fun saveEnableAnimations(enabled: Boolean) {
         enableAnimations.value = enabled
         settings.putBoolean(KEY_ENABLE_ANIMATIONS, enabled)
+        onPersist?.invoke()
     }
 
     /**
@@ -501,35 +528,42 @@ object AppSettings {
     /**
      * Apply settings from a remote map (downloaded from the backend).
      * Unknown keys are silently ignored for forward compatibility.
+     * The [onPersist] callback is suppressed during application to prevent re-upload loops.
      */
     fun applyFromSettingsMap(map: Map<String, String>) {
-        map[KEY_DARK_MODE]?.toBooleanStrictOrNull()?.let { saveDarkMode(it) }
-        map[KEY_LANGUAGE]?.let { code ->
-            AppLocale.entries.find { it.code == code }?.let { saveLanguage(it) }
+        val savedCallback = onPersist
+        onPersist = null
+        try {
+            map[KEY_DARK_MODE]?.toBooleanStrictOrNull()?.let { saveDarkMode(it) }
+            map[KEY_LANGUAGE]?.let { code ->
+                AppLocale.entries.find { it.code == code }?.let { saveLanguage(it) }
+            }
+            map[KEY_SOUND_ENABLED]?.toBooleanStrictOrNull()?.let { saveSoundEnabled(it) }
+            map[KEY_SOUND_VOLUME]?.toFloatOrNull()?.let { saveSoundVolume(it) }
+            map[KEY_EFFECTS_ENABLED]?.toBooleanStrictOrNull()?.let { saveEffectsEnabled(it) }
+            map[KEY_EFFECTS_VOLUME]?.toFloatOrNull()?.let { saveEffectsVolume(it) }
+            map[KEY_MUSIC_ENABLED]?.toBooleanStrictOrNull()?.let { saveMusicEnabled(it) }
+            map[KEY_MUSIC_VOLUME]?.toFloatOrNull()?.let { saveMusicVolume(it) }
+            map[KEY_WORLDMAP_MUSIC_ENABLED]?.toBooleanStrictOrNull()?.let { saveWorldMapMusicEnabled(it) }
+            map[KEY_WORLDMAP_MUSIC_VOLUME]?.toFloatOrNull()?.let { saveWorldMapMusicVolume(it) }
+            map[KEY_GAMEPLAY_MUSIC_ENABLED]?.toBooleanStrictOrNull()?.let { saveGameplayMusicEnabled(it) }
+            map[KEY_GAMEPLAY_MUSIC_VOLUME]?.toFloatOrNull()?.let { saveGameplayMusicVolume(it) }
+            map[KEY_SHOW_CONTROL_PAD]?.toBooleanStrictOrNull()?.let { saveShowControlPad(it) }
+            map[KEY_DIFFICULTY]?.let { name ->
+                try { saveDifficulty(DifficultyLevel.valueOf(name)) } catch (_: Exception) {}
+            }
+            map[KEY_USE_LEVEL_CARDS]?.toBooleanStrictOrNull()?.let { saveUseLevelCards(it) }
+            map[KEY_USE_TILE_IMAGES]?.toBooleanStrictOrNull()?.let { saveUseTileImages(it) }
+            map[KEY_USE_TILE_SMOOTH_TRANSITIONS]?.toBooleanStrictOrNull()?.let { saveUseTileSmoothTransitions(it) }
+            map[KEY_SHOW_TESTING_LEVELS]?.toBooleanStrictOrNull()?.let { saveShowTestingLevels(it) }
+            map[KEY_HEADER_TEXT_SIZE]?.let { name ->
+                try { saveHeaderTextSize(HeaderTextSize.valueOf(name)) } catch (_: Exception) {}
+            }
+            map[KEY_USE_LEVEL_MAP_IMAGE]?.toBooleanStrictOrNull()?.let { saveUseLevelMapImage(it) }
+            map[KEY_ENABLE_ANIMATIONS]?.toBooleanStrictOrNull()?.let { saveEnableAnimations(it) }
+        } finally {
+            onPersist = savedCallback
         }
-        map[KEY_SOUND_ENABLED]?.toBooleanStrictOrNull()?.let { saveSoundEnabled(it) }
-        map[KEY_SOUND_VOLUME]?.toFloatOrNull()?.let { saveSoundVolume(it) }
-        map[KEY_EFFECTS_ENABLED]?.toBooleanStrictOrNull()?.let { saveEffectsEnabled(it) }
-        map[KEY_EFFECTS_VOLUME]?.toFloatOrNull()?.let { saveEffectsVolume(it) }
-        map[KEY_MUSIC_ENABLED]?.toBooleanStrictOrNull()?.let { saveMusicEnabled(it) }
-        map[KEY_MUSIC_VOLUME]?.toFloatOrNull()?.let { saveMusicVolume(it) }
-        map[KEY_WORLDMAP_MUSIC_ENABLED]?.toBooleanStrictOrNull()?.let { saveWorldMapMusicEnabled(it) }
-        map[KEY_WORLDMAP_MUSIC_VOLUME]?.toFloatOrNull()?.let { saveWorldMapMusicVolume(it) }
-        map[KEY_GAMEPLAY_MUSIC_ENABLED]?.toBooleanStrictOrNull()?.let { saveGameplayMusicEnabled(it) }
-        map[KEY_GAMEPLAY_MUSIC_VOLUME]?.toFloatOrNull()?.let { saveGameplayMusicVolume(it) }
-        map[KEY_SHOW_CONTROL_PAD]?.toBooleanStrictOrNull()?.let { saveShowControlPad(it) }
-        map[KEY_DIFFICULTY]?.let { name ->
-            try { saveDifficulty(DifficultyLevel.valueOf(name)) } catch (_: Exception) {}
-        }
-        map[KEY_USE_LEVEL_CARDS]?.toBooleanStrictOrNull()?.let { saveUseLevelCards(it) }
-        map[KEY_USE_TILE_IMAGES]?.toBooleanStrictOrNull()?.let { saveUseTileImages(it) }
-        map[KEY_USE_TILE_SMOOTH_TRANSITIONS]?.toBooleanStrictOrNull()?.let { saveUseTileSmoothTransitions(it) }
-        map[KEY_SHOW_TESTING_LEVELS]?.toBooleanStrictOrNull()?.let { saveShowTestingLevels(it) }
-        map[KEY_HEADER_TEXT_SIZE]?.let { name ->
-            try { saveHeaderTextSize(HeaderTextSize.valueOf(name)) } catch (_: Exception) {}
-        }
-        map[KEY_USE_LEVEL_MAP_IMAGE]?.toBooleanStrictOrNull()?.let { saveUseLevelMapImage(it) }
-        map[KEY_ENABLE_ANIMATIONS]?.toBooleanStrictOrNull()?.let { saveEnableAnimations(it) }
     }
 
     /**

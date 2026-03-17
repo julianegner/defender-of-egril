@@ -165,6 +165,10 @@ class GameViewModel {
         // the initial composition).  This avoids an NPE that would occur if
         // refreshSavedGames() were called here directly, because _savedGames is declared
         // further down in the file and not yet initialised at this point in the constructor.
+
+        // Upload settings to the dedicated backend table whenever a setting is changed
+        // and the user is authenticated.
+        de.egril.defender.ui.settings.AppSettings.onPersist = { uploadSettingsToBackend() }
     }
     
     /**
@@ -1661,6 +1665,8 @@ class GameViewModel {
             }
             // Download and merge remote user data (abilities, level progress) on login
             downloadAndMergeUserData()
+            // Download and apply remote settings independently (dedicated player_settings table)
+            downloadAndApplySettings()
         }
         viewModelScope.launch { refreshSavedGames() }
     }
@@ -1784,8 +1790,7 @@ class GameViewModel {
                 val jsonData = de.egril.defender.save.serializeUserDataJson(
                     localUsername = player.name,
                     abilities = player.abilities,
-                    levelProgress = levelProgress,
-                    settings = de.egril.defender.ui.settings.AppSettings.toSettingsMap()
+                    levelProgress = levelProgress
                 )
                 val success = de.egril.defender.save.BackendUserDataService.uploadUserData(jsonData, token)
                 if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
@@ -1794,6 +1799,29 @@ class GameViewModel {
             } catch (e: Exception) {
                 if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
                     println("Failed to upload userdata to backend: ${e.message}")
+                }
+            }
+        }
+    }
+
+    /**
+     * Uploads the current player's settings to the backend independently of userdata.
+     * Settings are stored in a dedicated `player_settings` table on the server.
+     */
+    private fun uploadSettingsToBackend() {
+        val token = de.egril.defender.iam.IamService.getToken() ?: return
+        viewModelScope.launch {
+            try {
+                val settingsJson = de.egril.defender.save.serializeSettingsJson(
+                    de.egril.defender.ui.settings.AppSettings.toSettingsMap()
+                )
+                val success = de.egril.defender.save.BackendSettingsService.uploadSettings(settingsJson, token)
+                if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Settings upload ${if (success) "succeeded" else "failed"}")
+                }
+            } catch (e: Exception) {
+                if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Failed to upload settings to backend: ${e.message}")
                 }
             }
         }
@@ -1859,21 +1887,40 @@ class GameViewModel {
                         }
                     }
                 }
+            } catch (e: Exception) {
+                if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Failed to download/merge userdata: ${e.message}")
+                }
+            }
+        }
+    }
 
-                // Apply remote settings if the player has useRemoteSettings = true
-                val remoteSettings = remote.settings
+    /**
+     * Downloads and applies the player's settings from the backend.
+     * Only applied when the current player has [useRemoteSettings] set to true.
+     * Settings are fetched from the dedicated `player_settings` table, independent of userdata.
+     */
+    private fun downloadAndApplySettings() {
+        val token = de.egril.defender.iam.IamService.getToken() ?: return
+        val player = _currentPlayer.value ?: return
+        if (!player.useRemoteSettings) {
+            if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                println("Skipping remote settings download: useRemoteSettings=false for player ${player.name}")
+            }
+            return
+        }
+        viewModelScope.launch {
+            try {
+                val remoteSettings = de.egril.defender.save.BackendSettingsService.fetchSettings(token)
                 if (remoteSettings != null && remoteSettings.isNotEmpty()) {
-                    val playerAfterSync = _currentPlayer.value ?: return@launch
-                    if (playerAfterSync.useRemoteSettings) {
-                        de.egril.defender.ui.settings.AppSettings.applyFromSettingsMap(remoteSettings)
-                        if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-                            println("Applied remote settings for player ${playerAfterSync.name}")
-                        }
+                    de.egril.defender.ui.settings.AppSettings.applyFromSettingsMap(remoteSettings)
+                    if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                        println("Applied remote settings for player ${player.name}")
                     }
                 }
             } catch (e: Exception) {
                 if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-                    println("Failed to download/merge userdata: ${e.message}")
+                    println("Failed to download/apply settings: ${e.message}")
                 }
             }
         }
