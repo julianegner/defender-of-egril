@@ -1615,6 +1615,7 @@ private fun BoxScope.GridCellContent(
                         if (showWaterAnimation) {
                             WaterFlowAnimation(
                                 flowDirection = riverTile.flowDirection,
+                                flowSpeed = riverTile.flowSpeed,
                                 modifier = Modifier.fillMaxSize()
                             )
                         }

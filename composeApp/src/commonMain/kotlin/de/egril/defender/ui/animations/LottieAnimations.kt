@@ -41,6 +41,7 @@ fun LottieAnimation(
     modifier: Modifier = Modifier,
     size: Dp = 40.dp,
     iterations: Int = 1, // Number of times to play the animation (use Int.MAX_VALUE for infinite loop)
+    speed: Float = 1f,   // Playback speed multiplier (1f = normal, 2f = double speed)
     contentScale: ContentScale = ContentScale.Fit
 ) {
     // Get the animation file path based on type
@@ -81,6 +82,7 @@ fun LottieAnimation(
             composition = composition,
             iterations = iterations,
             isPlaying = true,
+            speed = speed,
             restartOnPlay = true
         )
         

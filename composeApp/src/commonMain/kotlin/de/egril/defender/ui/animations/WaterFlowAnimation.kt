@@ -15,9 +15,12 @@ import de.egril.defender.model.RiverFlow
  * (rotated 180°, 120°, 240° respectively) so the water flows in the correct direction.
  *
  * NONE and MAELSTROM directions are not animated (no flow to display).
+ *
+ * @param flowDirection the direction of the river flow
+ * @param flowSpeed the river flow speed (1 = normal, 2 = double speed animation)
  */
 @Composable
-fun WaterFlowAnimation(flowDirection: RiverFlow, modifier: Modifier = Modifier) {
+fun WaterFlowAnimation(flowDirection: RiverFlow, flowSpeed: Int = 1, modifier: Modifier = Modifier) {
     // Rotation angle for the animation based on flow direction.
     // Base animation flows WEST (right to left, 0° rotation).
     // Positive rotation = clockwise in screen coordinates (y-down).
@@ -34,6 +37,7 @@ fun WaterFlowAnimation(flowDirection: RiverFlow, modifier: Modifier = Modifier) 
     LottieAnimation(
         animationType = AnimationType.WATER_FLOW,
         modifier = modifier.graphicsLayer { rotationZ = rotationDeg },
-        iterations = Int.MAX_VALUE
+        iterations = Int.MAX_VALUE,
+        speed = if (flowSpeed >= 2) 2f else 1f
     )
 }
