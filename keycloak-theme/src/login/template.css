@@ -233,69 +233,65 @@ body.login-pf.light {
  *     <input class="pf-c-form-control" type="password" />
  *     <button class="pf-c-button pf-m-control"><i class="fa fa-eye"></i></button>
  *   </div>
- * Since doUseDefaultCss=false, we provide the necessary PatternFly layout
- * ourselves so the toggle button appears at a proper size.
+ * We position the input group relatively and the button absolutely so the
+ * eye icon appears INSIDE the right edge of the input — matching the standard
+ * Keycloak theme. The input gets extra right-padding so typed text never
+ * slides under the button.
  */
 .pf-c-input-group {
-  display: flex;
+  position: relative;
   width: 100%;
-  align-items: stretch;
   margin-bottom: 4px;
 }
+
+/* Input inside the group: full-width, leave room for the button on the right */
 .pf-c-input-group input[type="password"],
 .pf-c-input-group .pf-c-form-control {
-  flex: 1 1 auto;
-  min-width: 0;
-  border-right: none;
-  border-radius: 4px 0 0 4px;
+  width: 100%;
+  padding-right: 44px;
   margin-bottom: 0;
 }
 
-/* Password visibility toggle button */
+/* Password visibility toggle button – overlaid on the right of the input */
 .pf-c-button.pf-m-control {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 44px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  width: 44px;
-  padding: 0;
-  border: 1px solid;
-  border-left: none;
-  border-radius: 0 4px 4px 0;
-  background-color: transparent;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.15s;
+  transition: color 0.15s;
 }
 
 .dark .pf-c-button.pf-m-control {
-  border-color: #666;
-  color: #ccc;
+  color: #aaa;
 }
 
 .dark .pf-c-button.pf-m-control:hover {
-  background-color: rgba(255, 255, 255, 0.08);
   color: #f0f0f0;
 }
 
 .light .pf-c-button.pf-m-control {
-  border-color: #bbb;
-  color: #555;
+  color: #777;
 }
 
 .light .pf-c-button.pf-m-control:hover {
-  background-color: rgba(0, 0, 0, 0.06);
   color: #1a1a1a;
 }
 
-/* Keep focus ring on the input even when the border-right is gone */
-.dark .pf-c-input-group:focus-within input,
-.dark .pf-c-input-group:focus-within .pf-c-button.pf-m-control {
+/* Focus ring follows the input when focused */
+.dark .pf-c-input-group:focus-within input {
   border-color: #ffa000;
 }
 
-.light .pf-c-input-group:focus-within input,
-.light .pf-c-input-group:focus-within .pf-c-button.pf-m-control {
+.light .pf-c-input-group:focus-within input {
   border-color: #ffa000;
 }
 
