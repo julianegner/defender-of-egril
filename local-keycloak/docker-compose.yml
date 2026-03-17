@@ -4,6 +4,9 @@ services:
     working_dir: /app
     volumes:
       - ../keycloak-theme:/app
+      # Anonymous volume so node_modules is managed by Docker (Alpine-native
+      # binaries) and never overwritten by the host directory's node_modules.
+      - /app/node_modules
     command: sh -c "npm install && npm run build"
 
   keycloak:
