@@ -141,6 +141,9 @@ internal actual fun startPlatformLogin() {
                 append("&state=").append(state)
                 append("&code_challenge=").append(codeChallenge)
                 append("&code_challenge_method=S256")
+                // Forward the app's selected language so the Keycloak login page
+                // is displayed in the same language as the game UI.
+                append("&ui_locales=").append(locale.code)
             }
 
             // Open the Keycloak login page in a new browser window in the foreground.

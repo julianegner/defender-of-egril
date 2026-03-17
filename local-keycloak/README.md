@@ -21,10 +21,26 @@ This single command starts:
 
 ## Starting Keycloak Only
 
+The `start.sh` script **builds the Keycloak theme** (if needed) and then starts Keycloak.
+Run it once before your first start, or after any theme source changes:
+
 ```bash
 cd local-keycloak
+./start.sh        # foreground
+./start.sh -d     # background (detached)
+```
+
+Alternatively, build the theme manually first and then use docker compose directly:
+
+```bash
+cd keycloak-theme
+npm install && npm run build   # produces dist_keycloak/*.jar
+cd ../local-keycloak
 docker compose up -d
 ```
+
+> **Note:** `keycloak-theme/dist_keycloak/` is git-ignored.
+> The JARs must be built locally before starting Keycloak.
 
 Keycloak will start on **http://localhost:8081** and automatically import the `egril` realm
 (including the `defender-of-egril` client) on first startup.
