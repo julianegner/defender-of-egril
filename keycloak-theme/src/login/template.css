@@ -350,6 +350,25 @@ body.login-pf.light {
   font-weight: 500;
 }
 
+/*
+ * keycloakify renders the label text and the required " *" marker as siblings
+ * inside .kcLabelWrapperClass — the asterisk is NOT inside the <label> element.
+ * Because <label> is display:block it claims the full line width and the " *"
+ * text node wraps to the next line.  Making the wrapper a flex row keeps the
+ * label and the asterisk on the same baseline.
+ */
+.kcLabelWrapperClass {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: nowrap;
+  gap: 2px;
+  margin-bottom: 6px;
+}
+
+.kcLabelWrapperClass label {
+  margin-bottom: 0;
+}
+
 .dark .login-card-body label {
   color: #ccc;
 }
