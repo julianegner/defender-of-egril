@@ -1,4 +1,19 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: defender-of-egril-keycloak-db
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: defender
+      POSTGRES_PASSWORD: defender
+    volumes:
+      - keycloak_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U defender -d keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   keycloak-theme-builder:
     image: node:20-alpine
     working_dir: /app
@@ -16,6 +31,12 @@ services:
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_PORT: 5432
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: defender
+      KC_DB_PASSWORD: defender
     ports:
       - "8081:8080"
     volumes:
@@ -28,6 +49,8 @@ services:
     depends_on:
       keycloak-theme-builder:
         condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
     # curl/wget are not available in the ubi9-micro-based Keycloak 24 image.
     # /bin/sh is a symlink to bash, so CMD-SHELL works fine.
     # We use bash's built-in /dev/tcp to call Keycloak's own /health/ready endpoint
@@ -39,3 +62,6 @@ services:
       timeout: 10s
       retries: 12
       start_period: 60s
+
+volumes:
+  keycloak_postgres_data:
