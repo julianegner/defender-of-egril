@@ -97,7 +97,7 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
   const btnColor = darkMode ? "#eee" : "#333";
   const passwordGroupCss = `
     .kcInputGroup{display:grid!important;grid-template-columns:1fr 44px!important;align-items:stretch!important;width:100%!important;margin-bottom:4px!important}
-    .kcInputGroup input[type="password"]{width:100%!important;height:42px!important;box-sizing:border-box!important;border-right:none!important;border-radius:4px 0 0 4px!important;margin-bottom:0!important}
+    .kcInputGroup input{width:100%!important;height:42px!important;box-sizing:border-box!important;border-right:none!important;border-radius:4px 0 0 4px!important;margin-bottom:0!important}
     .kcFormPasswordVisibilityButtonClass{width:44px!important;height:42px!important;padding:0!important;border:1px solid ${btnBorder}!important;border-radius:0 4px 4px 0!important;cursor:pointer!important;font-size:1rem!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;background-color:${btnBg}!important;color:${btnColor}!important}
     .kcFormPasswordVisibilityButtonClass>i{display:block!important;line-height:1!important;font-size:1rem!important}
     .kcFormPasswordVisibilityButtonClass:hover{filter:brightness(1.15)!important}
