@@ -6,17 +6,16 @@
 #      production realm JSON (no test users), and the theme JAR.
 #   3. Starts / recreates the Keycloak container.
 #
+# Server: ubuntu-8gb-nbg1-2
+#   Public IP:   178.104.79.60
+#   Private IP:  10.0.0.3
+#
 # Required GitHub Secrets:
 #   PROD_SSH_PRIVATE_KEY         – SSH private key for all three production
 #                                   servers
-#   PROD_KEYCLOAK_HOST           – Public IP or hostname of ubuntu-8gb-nbg1-2
 #   PROD_DB_PASSWORD             – Password for the 'defender' PostgreSQL user
 #                                   (Keycloak stores its data in the DB server)
 #   PROD_KEYCLOAK_ADMIN_PASSWORD – Password for the Keycloak 'admin' account
-#   PROD_KEYCLOAK_HOSTNAME       – Public hostname or IP that browsers use to
-#                                   reach Keycloak (e.g. the server's public IP
-#                                   or a domain name).  Used for token issuer
-#                                   URLs and redirect validation.
 name: Deploy Keycloak
 
 on:
@@ -78,7 +77,7 @@ jobs:
       - name: "📂 Upload compose file and realm JSON"
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.PROD_KEYCLOAK_HOST }}
+          host: 178.104.79.60
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           source: "deploy/keycloak/docker-compose.yml,keycloak/production/egril-realm.json"
@@ -88,7 +87,7 @@ jobs:
       - name: "📂 Upload theme JAR"
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.PROD_KEYCLOAK_HOST }}
+          host: 178.104.79.60
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           source: "/tmp/keycloak-theme-jar/*.jar"
@@ -98,7 +97,7 @@ jobs:
       - name: "🚀 Start / update Keycloak"
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.PROD_KEYCLOAK_HOST }}
+          host: 178.104.79.60
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           script: |
@@ -109,7 +108,7 @@ jobs:
             cat > .env <<EOF
             DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
             KEYCLOAK_ADMIN_PASSWORD=${{ secrets.PROD_KEYCLOAK_ADMIN_PASSWORD }}
-            KEYCLOAK_HOSTNAME=${{ secrets.PROD_KEYCLOAK_HOSTNAME }}
+            KEYCLOAK_HOSTNAME=178.104.79.60
             EOF
 
             # Recreate the container so any updated realm JSON / theme JAR

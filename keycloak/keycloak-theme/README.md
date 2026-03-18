@@ -44,12 +44,12 @@ This produces:
 
 ## Deploying to Local Keycloak
 
-The `local-keycloak/start.sh` script builds the theme JAR (if absent) and starts Keycloak in
+The `keycloak/local/start.sh` script builds the theme JAR (if absent) and starts Keycloak in
 one step:
 
 ```bash
-./local-keycloak/start.sh        # from the repo root, foreground
-./local-keycloak/start.sh -d     # detached (background)
+./keycloak/local/start.sh        # from the repo root, foreground
+./keycloak/local/start.sh -d     # detached (background)
 ```
 
 Or build manually and use docker compose directly:
@@ -61,7 +61,7 @@ npm install && npm run build
 
 # 2. Start / restart Keycloak
 cd ..
-docker compose -f local-keycloak/docker-compose.yml up -d --force-recreate
+docker compose -f keycloak/local/docker-compose.yml up -d --force-recreate
 ```
 
 > **Note:** `dist_keycloak/` is git-ignored; the JARs must be built locally

@@ -5,14 +5,15 @@ production Hetzner vServers.
 
 ## Server Overview
 
-| Directory | Server | Service | Private network IP |
-|-----------|--------|---------|-------------------|
-| `db/`      | ubuntu-8gb-nbg1-1 | PostgreSQL 16 | 10.0.0.2 |
-| `keycloak/` | ubuntu-8gb-nbg1-2 | Keycloak 24 | – |
-| `backend/`  | ubuntu-8gb-nbg1-3 | Backend (Ktor) | – |
+| Directory | Server | Service | Public IP | Private IP |
+|-----------|--------|---------|-----------|-----------|
+| `db/`      | ubuntu-8gb-nbg1-1 | PostgreSQL 16 | 178.104.64.170 | 10.0.0.2 |
+| `keycloak/` | ubuntu-8gb-nbg1-2 | Keycloak 24 | 178.104.79.60 | 10.0.0.3 |
+| `backend/`  | ubuntu-8gb-nbg1-3 | Backend (Ktor) | 178.104.84.83 | 10.0.0.4 |
 
 Keycloak and the backend both connect to the database over the shared Hetzner
 private network using the DB server's private IP **10.0.0.2**.
+The backend connects to Keycloak over the private network using **10.0.0.3**.
 
 ## Deployment via GitHub Actions
 
@@ -34,13 +35,11 @@ Add the following secrets to the repository
 | Secret | Description |
 |--------|-------------|
 | `PROD_SSH_PRIVATE_KEY` | SSH private key for all three production servers. Add the corresponding public key to `~/.ssh/authorized_keys` on each server. |
-| `PROD_DB_HOST` | Public IP or hostname of the database server (ubuntu-8gb-nbg1-1). Used by GitHub Actions to SSH in. |
-| `PROD_KEYCLOAK_HOST` | Public IP or hostname of the Keycloak server (ubuntu-8gb-nbg1-2). |
-| `PROD_BACKEND_HOST` | Public IP or hostname of the backend server (ubuntu-8gb-nbg1-3). |
 | `PROD_DB_PASSWORD` | Password for the `defender` PostgreSQL user. Used by all three services. |
 | `PROD_KEYCLOAK_ADMIN_PASSWORD` | Password for the Keycloak `admin` account. |
-| `PROD_KEYCLOAK_HOSTNAME` | Public hostname or IP address that browsers use to reach Keycloak (used by Keycloak to generate correct issuer/redirect URLs). |
-| `PROD_IAM_BASE_URL` | Keycloak base URL as seen by the backend server (e.g. `http://10.0.0.X:8080` via private network or the public URL). |
+
+All server IPs and inter-service URLs are hardcoded in the workflows and are
+not required as secrets.
 
 ## First-Time Setup on Each Server
 

@@ -3,11 +3,14 @@
 # This workflow SSHes into the database server and starts (or updates) the
 # PostgreSQL Docker container using the compose file in deploy/db/.
 #
+# Server: ubuntu-8gb-nbg1-1
+#   Public IP:   178.104.64.170
+#   Private IP:  10.0.0.2
+#
 # Required GitHub Secrets:
 #   PROD_SSH_PRIVATE_KEY  – SSH private key that grants access to all three
 #                           production servers (add the corresponding public key
 #                           to ~/.ssh/authorized_keys on each server)
-#   PROD_DB_HOST          – Public IP or hostname of ubuntu-8gb-nbg1-1
 #   PROD_DB_PASSWORD      – Password for the 'defender' PostgreSQL user
 name: Deploy Database
 
@@ -28,7 +31,7 @@ jobs:
       - name: "📂 Upload compose file"
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.PROD_DB_HOST }}
+          host: 178.104.64.170
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           source: "deploy/db/docker-compose.yml"
@@ -38,7 +41,7 @@ jobs:
       - name: "📂 Upload DB init scripts"
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.PROD_DB_HOST }}
+          host: 178.104.64.170
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           source: "db-init/"
@@ -48,7 +51,7 @@ jobs:
       - name: "🚀 Start / update PostgreSQL"
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.PROD_DB_HOST }}
+          host: 178.104.64.170
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           script: |

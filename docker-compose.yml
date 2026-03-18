@@ -11,7 +11,7 @@
 # IMPORTANT – always rebuild the backend after pulling new code:
 #   docker compose up -d --build backend
 #
-# IMPORTANT – after changes to local-keycloak/egril-realm.json (e.g. new users),
+# IMPORTANT – after changes to keycloak/local/egril-realm.json (e.g. new users),
 # recreate the Keycloak container so the realm is re-imported:
 #   docker compose rm -sf keycloak && docker compose up -d keycloak
 #   (wait ~2 minutes for the realm to import, then restart backend)
@@ -86,7 +86,7 @@ services:
     ports:
       - "8081:8080"
     volumes:
-      - ./local-keycloak/egril-realm.json:/opt/keycloak/data/import/egril-realm.json:ro
+      - ./keycloak/local/egril-realm.json:/opt/keycloak/data/import/egril-realm.json:ro
       # Mount the built Keycloakify theme JAR so Keycloak picks it up automatically.
       # The JAR is built by the keycloak-theme-builder service above.
       # The JAR is produced in keycloak/keycloak-theme/dist_keycloak/

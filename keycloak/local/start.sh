@@ -3,8 +3,8 @@
 # Keycloak instance via docker compose.
 #
 # Usage:
-#   ./local-keycloak/start.sh           # start in the foreground
-#   ./local-keycloak/start.sh -d        # start in detached (background) mode
+#   ./keycloak/local/start.sh           # start in the foreground
+#   ./keycloak/local/start.sh -d        # start in detached (background) mode
 #
 # Prerequisites: Node.js 18+, npm 9+, Docker with Compose v2
 

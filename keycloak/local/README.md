@@ -25,7 +25,7 @@ The `start.sh` script **builds the Keycloak theme** (if needed) and then starts 
 Run it once before your first start, or after any theme source changes:
 
 ```bash
-cd local-keycloak
+cd keycloak/local
 ./start.sh        # foreground
 ./start.sh -d     # background (detached)
 ```
@@ -35,7 +35,7 @@ Alternatively, build the theme manually first and then use docker compose direct
 ```bash
 cd keycloak/keycloak-theme
 npm install && npm run build   # produces dist_keycloak/*.jar
-cd ../local-keycloak
+cd ../keycloak/local
 docker compose up -d
 ```
 
@@ -97,14 +97,14 @@ a remote Keycloak instance. It creates the same realm and client as the JSON imp
 ### Requirements
 
 ```bash
-cd local-keycloak/terraform
+cd keycloak/local/terraform
 terraform init
 ```
 
 ### Apply
 
 ```bash
-cd local-keycloak/terraform
+cd keycloak/local/terraform
 terraform apply
 ```
 
@@ -117,7 +117,7 @@ terraform apply -var="keycloak_url=https://your-keycloak.example.com"
 ### Destroy (reset to defaults)
 
 ```bash
-cd local-keycloak/terraform
+cd keycloak/local/terraform
 terraform destroy
 ```
 

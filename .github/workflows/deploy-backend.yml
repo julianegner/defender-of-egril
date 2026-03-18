@@ -6,13 +6,13 @@
 #   3. SSHes into the backend server, writes the .env file, pulls the new
 #      image, and restarts the container.
 #
+# Server: ubuntu-8gb-nbg1-3
+#   Public IP:   178.104.84.83
+#   Private IP:  10.0.0.4
+#
 # Required GitHub Secrets:
 #   PROD_SSH_PRIVATE_KEY  – SSH private key for all three production servers
-#   PROD_BACKEND_HOST     – Public IP or hostname of ubuntu-8gb-nbg1-3
 #   PROD_DB_PASSWORD      – Password for the 'defender' PostgreSQL user
-#   PROD_IAM_BASE_URL     – Keycloak base URL as seen by the backend
-#                           (e.g. http://<keycloak-private-ip>:8080 or the
-#                            public URL of the Keycloak server)
 name: Deploy Backend
 
 on:
@@ -76,7 +76,7 @@ jobs:
       - name: "📂 Upload compose file"
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.PROD_BACKEND_HOST }}
+          host: 178.104.84.83
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           source: "deploy/backend/docker-compose.yml"
@@ -86,7 +86,7 @@ jobs:
       - name: "🚀 Pull new image and restart backend"
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.PROD_BACKEND_HOST }}
+          host: 178.104.84.83
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           script: |
@@ -98,7 +98,7 @@ jobs:
             GITHUB_REPOSITORY=${{ github.repository }}
             IMAGE_TAG=${{ needs.build-and-push.outputs.image_tag }}
             DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
-            IAM_BASE_URL=${{ secrets.PROD_IAM_BASE_URL }}
+            IAM_BASE_URL=http://10.0.0.3:8080
             EOF
 
             # Log in to ghcr.io so the server can pull the image.
