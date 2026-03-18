@@ -1486,4 +1486,12 @@
     <string name="ewhad_retreats_text">Vous avez forcé Ewhad à se retirer !</string>
     <string name="ewhad_defeated_title">Ewhad est vaincu</string>
     <string name="ewhad_defeated_text">Vous avez vaincu Ewhad ! Terminez maintenant les autres Ennemis et gagnez le jeu !</string>
+    <!-- Final Credits screen -->
+    <string name="credits_game_title">Defender of Egril</string>
+    <string name="credits_title">Générique de Fin</string>
+    <string name="credits_section_developers">Développeurs</string>
+    <string name="credits_section_sound_effects">Effets Sonores</string>
+    <string name="credits_section_background_music">Musique de Fond</string>
+    <string name="credits_thank_you">Merci d'avoir joué !</string>
+    <string name="credits_click_to_skip">Cliquez pour revenir à la carte du monde</string>
 </resources>

@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -327,8 +328,18 @@ fun LevelCompleteScreen(
     isLastLevel: Boolean,
     xpEarned: Int = 0,
     onRestart: () -> Unit,
-    onBackToMap: () -> Unit
+    onBackToMap: () -> Unit,
+    onShowFinalCredits: (() -> Unit)? = null
 ) {
+    // After winning the final level, transition to the credits after 5 seconds
+    val navigateToCredits: (() -> Unit)? = if (won && isLastLevel) onShowFinalCredits else null
+    if (navigateToCredits != null) {
+        LaunchedEffect(Unit) {
+            kotlinx.coroutines.delay(FINAL_CREDITS_TRANSITION_DELAY_MS)
+            navigateToCredits()
+        }
+    }
+
     // Determine which image/icon and text to show
     val imageResource = when {
         won && isLastLevel -> Res.drawable.emoji_crown  // Crown for winning the game
@@ -349,7 +360,15 @@ fun LevelCompleteScreen(
     }
     
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .then(
+                if (navigateToCredits != null) {
+                    Modifier.clickable { navigateToCredits() }
+                } else {
+                    Modifier
+                }
+            ),
         color = MaterialTheme.colorScheme.background
     ) {
         Box(
