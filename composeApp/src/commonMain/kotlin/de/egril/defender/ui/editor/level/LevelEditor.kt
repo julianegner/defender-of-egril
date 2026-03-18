@@ -43,7 +43,7 @@ import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.official_level_saved_warning_title
 import defender_of_egril.composeapp.generated.resources.official_level_saved_warning_message
 import kotlin.random.Random
-import de.egril.defender.utils.getCurrentUsername
+import de.egril.defender.ui.editor.getDefaultAuthorName
 import de.egril.defender.config.LogConfig
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.launch
@@ -58,6 +58,7 @@ fun LevelEditorContent() {
     var editingLevel by remember { mutableStateOf<EditorLevel?>(null) }
     var showCreateDialog by remember { mutableStateOf(false) }
     var levelToDelete by remember { mutableStateOf<EditorLevel?>(null) }
+    val iamState by de.egril.defender.iam.IamService.state
     
     if (editingLevel != null) {
         // Level editing view
@@ -155,9 +156,11 @@ fun LevelEditorContent() {
     }
     
     if (showCreateDialog) {
+        val defaultAuthor = getDefaultAuthorName(iamState)
         CreateLevelDialog(
             onDismiss = { showCreateDialog = false },
-            onCreate = { title ->
+            defaultAuthor = defaultAuthor,
+            onCreate = { title, author ->
                 // Generate ID from title with underscores (lowercase, no "level_" prefix)
                 val sanitizedTitle = title.trim().lowercase()
                     .replace(" ", "_")
@@ -181,7 +184,7 @@ fun LevelEditorContent() {
                     availableTowers = DefenderType.entries.filter {
                         it != DefenderType.DRAGONS_LAIR
                     }.toSet(),
-                    author = getCurrentUsername()
+                    author = author
                 )
                 EditorStorage.saveLevel(newLevel)
                 levels.value = EditorStorage.getAllLevels()

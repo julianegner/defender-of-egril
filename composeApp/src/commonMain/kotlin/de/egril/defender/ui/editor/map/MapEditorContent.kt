@@ -18,7 +18,8 @@ import kotlin.random.Random
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import de.egril.defender.ui.MapImageProvider
-import de.egril.defender.utils.getCurrentUsername
+import de.egril.defender.iam.IamService
+import de.egril.defender.ui.editor.getDefaultAuthorName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -33,6 +34,7 @@ fun MapEditorContent() {
     var editingMap by remember { mutableStateOf<EditorMap?>(null) }
     var showCreateDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+    val iamState by IamService.state
 
     var showGenerationDialog by remember { mutableStateOf(false) }
     var generationRunning by remember { mutableStateOf(false) }
@@ -165,9 +167,11 @@ fun MapEditorContent() {
     }
     
     if (showCreateDialog) {
+        val defaultAuthor = getDefaultAuthorName(iamState)
         CreateMapDialog(
             onDismiss = { showCreateDialog = false },
-            onCreate = { name, width, height ->
+            defaultAuthor = defaultAuthor,
+            onCreate = { name, width, height, author ->
                 // Generate ID from name with underscores (lowercase)
                 val sanitizedName = name.trim().lowercase()
                     .replace(" ", "_")
@@ -184,7 +188,7 @@ fun MapEditorContent() {
                     width = width,
                     height = height,
                     tiles = emptyMap(),
-                    author = getCurrentUsername()
+                    author = author
                 )
                 EditorStorage.saveMap(newMap)
                 maps.value = EditorStorage.getAllMaps()

@@ -14,7 +14,9 @@ data class CommunityFileMetadata(
     val fileType: String,
     val fileId: String,
     val authorUsername: String,
-    val updatedAt: String
+    val authorId: String,
+    val updatedAt: String,
+    val uploadedAt: String
 )
 
 @Serializable
@@ -22,6 +24,8 @@ data class CommunityFileData(
     val fileType: String,
     val fileId: String,
     val authorUsername: String,
+    val authorId: String,
     val data: String,
-    val updatedAt: String
+    val updatedAt: String,
+    val uploadedAt: String
 )

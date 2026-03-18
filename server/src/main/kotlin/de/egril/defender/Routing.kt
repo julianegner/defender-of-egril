@@ -477,9 +477,9 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                 try {
                     val files = mutableListOf<CommunityFileMetadata>()
                     val query = if (fileType != null) {
-                        "SELECT file_type, file_id, username, updated_at FROM community_files WHERE file_type = ? ORDER BY updated_at DESC"
+                        "SELECT file_type, file_id, user_id, username, updated_at, created_at FROM community_files WHERE file_type = ? ORDER BY updated_at DESC"
                     } else {
-                        "SELECT file_type, file_id, username, updated_at FROM community_files ORDER BY updated_at DESC"
+                        "SELECT file_type, file_id, user_id, username, updated_at, created_at FROM community_files ORDER BY updated_at DESC"
                     }
                     conn.prepareStatement(query).use { stmt ->
                         if (fileType != null) stmt.setString(1, fileType)
@@ -490,7 +490,9 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                                         fileType = rs.getString("file_type"),
                                         fileId = rs.getString("file_id"),
                                         authorUsername = rs.getString("username"),
-                                        updatedAt = rs.getTimestamp("updated_at").toInstant().toString()
+                                        authorId = rs.getString("user_id"),
+                                        updatedAt = rs.getTimestamp("updated_at").toInstant().toString(),
+                                        uploadedAt = rs.getTimestamp("created_at").toInstant().toString()
                                     )
                                 )
                             }
@@ -529,7 +531,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                 try {
                     var result: CommunityFileData? = null
                     conn.prepareStatement(
-                        "SELECT file_type, file_id, username, data, updated_at FROM community_files WHERE file_type = ? AND file_id = ?"
+                        "SELECT file_type, file_id, user_id, username, data, updated_at, created_at FROM community_files WHERE file_type = ? AND file_id = ?"
                     ).use { stmt ->
                         stmt.setString(1, fileType)
                         stmt.setString(2, fileId)
@@ -539,8 +541,10 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                                     fileType = rs.getString("file_type"),
                                     fileId = rs.getString("file_id"),
                                     authorUsername = rs.getString("username"),
+                                    authorId = rs.getString("user_id"),
                                     data = rs.getString("data"),
-                                    updatedAt = rs.getTimestamp("updated_at").toInstant().toString()
+                                    updatedAt = rs.getTimestamp("updated_at").toInstant().toString(),
+                                    uploadedAt = rs.getTimestamp("created_at").toInstant().toString()
                                 )
                             }
                         }

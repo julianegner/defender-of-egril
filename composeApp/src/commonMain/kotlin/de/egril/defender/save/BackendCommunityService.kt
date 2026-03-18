@@ -7,7 +7,9 @@ data class CommunityFileInfo(
     val fileType: String,       // "MAP" or "LEVEL"
     val fileId: String,
     val authorUsername: String,
-    val updatedAt: String
+    val authorId: String,
+    val updatedAt: String,
+    val uploadedAt: String
 )
 
 /**
@@ -17,8 +19,10 @@ data class CommunityFileData(
     val fileType: String,
     val fileId: String,
     val authorUsername: String,
+    val authorId: String,
     val data: String,
-    val updatedAt: String
+    val updatedAt: String,
+    val uploadedAt: String
 )
 
 /**
@@ -80,10 +84,12 @@ fun parseCommunityFileListJson(json: String): List<CommunityFileInfo> {
         val fileType = extractJsonStringField(obj, "fileType") ?: ""
         val fileId = extractJsonStringField(obj, "fileId") ?: ""
         val authorUsername = extractJsonStringField(obj, "authorUsername") ?: ""
+        val authorId = extractJsonStringField(obj, "authorId") ?: ""
         val updatedAt = extractJsonStringField(obj, "updatedAt") ?: ""
+        val uploadedAt = extractJsonStringField(obj, "uploadedAt") ?: ""
 
         if (fileType.isNotEmpty() && fileId.isNotEmpty()) {
-            result.add(CommunityFileInfo(fileType, fileId, authorUsername, updatedAt))
+            result.add(CommunityFileInfo(fileType, fileId, authorUsername, authorId, updatedAt, uploadedAt))
         }
         pos = objEnd + 1
     }
@@ -97,10 +103,12 @@ fun parseCommunityFileDataJson(json: String): CommunityFileData? {
     val fileType = extractJsonStringField(trimmed, "fileType") ?: return null
     val fileId = extractJsonStringField(trimmed, "fileId") ?: return null
     val authorUsername = extractJsonStringField(trimmed, "authorUsername") ?: ""
+    val authorId = extractJsonStringField(trimmed, "authorId") ?: ""
     val updatedAt = extractJsonStringField(trimmed, "updatedAt") ?: ""
+    val uploadedAt = extractJsonStringField(trimmed, "uploadedAt") ?: ""
     val data = extractJsonStringField(trimmed, "data") ?: return null
 
-    return CommunityFileData(fileType, fileId, authorUsername, data, updatedAt)
+    return CommunityFileData(fileType, fileId, authorUsername, authorId, data, updatedAt, uploadedAt)
 }
 
 private fun extractJsonStringField(json: String, key: String): String? {
