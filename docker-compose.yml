@@ -58,6 +58,19 @@ services:
       timeout: 5s
       retries: 5
 
+  keycloak-db-init:
+    image: postgres:16-alpine
+    environment:
+      PGPASSWORD: defender
+    # Creates the 'keycloak' database if it does not already exist.
+    # This runs on every 'docker compose up', so it handles both fresh volumes
+    # (where the db-init SQL script may not have run yet) and existing volumes
+    # (where the init script was skipped because the data directory was non-empty).
+    command: sh -c "psql -h postgres -U defender -d defenderofegril -c 'CREATE DATABASE keycloak' || true && psql -h postgres -U defender -d defenderofegril -c 'GRANT ALL PRIVILEGES ON DATABASE keycloak TO defender'"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   keycloak:
     image: quay.io/keycloak/keycloak:24.0
     container_name: defender-of-egril-keycloak
@@ -82,8 +95,8 @@ services:
     depends_on:
       keycloak-theme-builder:
         condition: service_completed_successfully
-      postgres:
-        condition: service_healthy
+      keycloak-db-init:
+        condition: service_completed_successfully
     # curl/wget are not available in the ubi9-micro-based Keycloak 24 image.
     # /bin/sh is a symlink to bash, so CMD-SHELL works fine.
     # We use bash's built-in /dev/tcp to call Keycloak's own /health/ready endpoint
