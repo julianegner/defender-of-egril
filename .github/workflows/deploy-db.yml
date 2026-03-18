@@ -1,0 +1,66 @@
+# Deploy the PostgreSQL database to ubuntu-8gb-nbg1-1.
+#
+# This workflow SSHes into the database server and starts (or updates) the
+# PostgreSQL Docker container using the compose file in deploy/db/.
+#
+# Required GitHub Secrets:
+#   PROD_SSH_PRIVATE_KEY  – SSH private key that grants access to all three
+#                           production servers (add the corresponding public key
+#                           to ~/.ssh/authorized_keys on each server)
+#   PROD_DB_HOST          – Public IP or hostname of ubuntu-8gb-nbg1-1
+#   PROD_DB_PASSWORD      – Password for the 'defender' PostgreSQL user
+name: Deploy Database
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-db:
+    name: Deploy PostgreSQL to ubuntu-8gb-nbg1-1
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: "✅ Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "📂 Upload compose file"
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.PROD_DB_HOST }}
+          username: root
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          source: "deploy/db/docker-compose.yml"
+          target: /opt/defender-of-egril/db
+          strip_components: 2
+
+      - name: "📂 Upload DB init scripts"
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.PROD_DB_HOST }}
+          username: root
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          source: "db-init/"
+          target: /opt/defender-of-egril/db/db-init
+          strip_components: 1
+
+      - name: "🚀 Start / update PostgreSQL"
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PROD_DB_HOST }}
+          username: root
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          script: |
+            set -euo pipefail
+            cd /opt/defender-of-egril/db
+
+            # Write the .env file (overwrites on every deploy to pick up secret
+            # rotation).
+            cat > .env <<EOF
+            DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
+            EOF
+
+            docker compose pull
+            docker compose up -d
+            echo "✅ Database deployed"

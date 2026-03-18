@@ -33,13 +33,13 @@ cd local-keycloak
 Alternatively, build the theme manually first and then use docker compose directly:
 
 ```bash
-cd keycloak-theme
+cd keycloak/keycloak-theme
 npm install && npm run build   # produces dist_keycloak/*.jar
 cd ../local-keycloak
 docker compose up -d
 ```
 
-> **Note:** `keycloak-theme/dist_keycloak/` is git-ignored.
+> **Note:** `keycloak/keycloak-theme/dist_keycloak/` is git-ignored.
 > The JARs must be built locally before starting Keycloak.
 
 Keycloak will start on **http://localhost:8081** and automatically import the `egril` realm

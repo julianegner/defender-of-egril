@@ -18,7 +18,7 @@ services:
     image: node:20-alpine
     working_dir: /app
     volumes:
-      - ../keycloak-theme:/app
+      - ../keycloak/keycloak-theme:/app
     # Remove any host-built node_modules first so Alpine-native packages are
     # always used. Everything stays on the same bind-mount device, which lets
     # keycloakify rename the built JAR from node_modules/.cache into
@@ -43,8 +43,8 @@ services:
       - ./egril-realm.json:/opt/keycloak/data/import/egril-realm.json:ro
       # Mount the built Keycloakify theme JAR so Keycloak picks it up automatically.
       # The JAR is built by the keycloak-theme-builder service above.
-      # The JAR is produced in keycloak-theme/dist_keycloak/
-      - ../keycloak-theme/dist_keycloak:/opt/keycloak/providers:ro
+      # The JAR is produced in keycloak/keycloak-theme/dist_keycloak/
+      - ../keycloak/keycloak-theme/dist_keycloak:/opt/keycloak/providers:ro
     command: start-dev --import-realm --health-enabled=true
     depends_on:
       keycloak-theme-builder:

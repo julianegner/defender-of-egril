@@ -1,0 +1,45 @@
+# Production Keycloak Realm Configuration
+
+This directory contains the production Keycloak realm for Defender of Egril.
+
+## Differences from Local
+
+| Setting | Local (`local-keycloak/`) | Production (`keycloak/production/`) |
+|---------|--------------------------|--------------------------------------|
+| Test user (`tester@test.org`) | ✅ present | ❌ removed |
+| `sslRequired` | `none` | `external` |
+| Redirect URIs | localhost dev ports | localhost wildcard + `egril://` |
+
+## Before Going Live: Configure Production URIs
+
+The realm JSON ships with minimal redirect URIs suitable for native-app
+(desktop/mobile) logins.  Before the first deployment you **must** add your
+production web-app URLs.
+
+Edit `egril-realm.json` and update the `defender-of-egril` client:
+
+```json
+"redirectUris": [
+  "http://localhost:*/*",
+  "egril://callback",
+  "https://your-domain.example.com/*"
+],
+"webOrigins": [
+  "https://your-domain.example.com"
+],
+"attributes": {
+  "pkce.code.challenge.method": "S256",
+  "post.logout.redirect.uris": "http://localhost:*/*##egril://callback##+##https://your-domain.example.com/*"
+}
+```
+
+Replace `https://your-domain.example.com` with the actual public URL where
+the Defender of Egril web app is served.
+
+## Realm Import Behaviour
+
+Keycloak imports the realm **once** on first startup (when the realm does not
+yet exist in the database).  Subsequent container restarts do **not**
+re-import.  To apply realm changes to an existing deployment, use the
+Keycloak Admin Console or run the deploy-keycloak workflow which recreates
+the container.

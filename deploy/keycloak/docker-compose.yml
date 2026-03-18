@@ -1,0 +1,64 @@
+# Production Keycloak deployment for ubuntu-8gb-nbg1-2.
+#
+# Keycloak connects to the shared PostgreSQL database on the DB server
+# (private network IP 10.0.0.2).  The Keycloak database and user are
+# created by the db-init scripts on the DB server.
+#
+# Required environment variables (set in .env on the server or passed inline):
+#   DB_PASSWORD              – password for the 'defender' PostgreSQL user
+#   KEYCLOAK_ADMIN_PASSWORD  – password for the Keycloak 'admin' account
+#   KEYCLOAK_HOSTNAME        – public hostname/IP used by browsers to reach
+#                              Keycloak (e.g. keycloak.example.com or the
+#                              server's public IP).  Used for token issuer URLs.
+#
+# The egril-realm.json and the theme JAR are copied to the server by the
+# GitHub Actions deploy-keycloak workflow before this compose file is started.
+#
+# First-time setup on the server:
+#   mkdir -p /opt/defender-of-egril/keycloak/providers
+#   # (workflow copies egril-realm.json + theme JAR here)
+#   echo "DB_PASSWORD=<secret>"              >> /opt/defender-of-egril/keycloak/.env
+#   echo "KEYCLOAK_ADMIN_PASSWORD=<secret>"  >> /opt/defender-of-egril/keycloak/.env
+#   echo "KEYCLOAK_HOSTNAME=<public-ip-or-hostname>" >> /opt/defender-of-egril/keycloak/.env
+#   docker compose up -d
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    container_name: defender-of-egril-keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      # Connect to the shared PostgreSQL on the DB server via the private network.
+      KC_DB: postgres
+      KC_DB_URL_HOST: 10.0.0.2
+      KC_DB_URL_PORT: 5432
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: defender
+      KC_DB_PASSWORD: ${DB_PASSWORD}
+      # Public hostname so Keycloak issues correct issuer/redirect URLs.
+      KC_HOSTNAME: ${KEYCLOAK_HOSTNAME}
+      # Allow plain HTTP on the internal port; put a TLS-terminating reverse
+      # proxy in front for HTTPS, or set KC_HTTPS_* variables as needed.
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_STRICT_HTTPS: "false"
+    ports:
+      - "8080:8080"
+    volumes:
+      # Production realm (no test users).
+      - ./egril-realm.json:/opt/keycloak/data/import/egril-realm.json:ro
+      # Keycloakify theme JAR built and deployed by the CI workflow.
+      - ./providers:/opt/keycloak/providers:ro
+    # Use production 'start' mode (not start-dev) with HTTP enabled.
+    # The realm is imported on first start only (Keycloak skips re-import when
+    # the realm already exists in the database).
+    command: start --import-realm --health-enabled=true
+    # curl/wget are not available in the Keycloak 24 image; use bash /dev/tcp.
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && printf 'GET /health/ready HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && timeout 5 cat <&3 | grep -q 'UP'"]
+      interval: 15s
+      timeout: 10s
+      retries: 12
+      start_period: 60s
+    restart: unless-stopped

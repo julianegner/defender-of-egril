@@ -68,6 +68,6 @@ scripts/package-lock.json
 scripts/.scraper_temp.js
 scripts/package.json
 # Keycloak theme - node_modules and build artifacts
-keycloak-theme/node_modules/
-keycloak-theme/dist/
-keycloak-theme/dist_keycloak/
+keycloak/keycloak-theme/node_modules/
+keycloak/keycloak-theme/dist/
+keycloak/keycloak-theme/dist_keycloak/

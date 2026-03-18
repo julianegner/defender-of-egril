@@ -1,0 +1,110 @@
+# Deploy the backend server to ubuntu-8gb-nbg1-3.
+#
+# This workflow:
+#   1. Builds the backend Docker image using server/Dockerfile.
+#   2. Pushes it to the GitHub Container Registry (ghcr.io).
+#   3. SSHes into the backend server, writes the .env file, pulls the new
+#      image, and restarts the container.
+#
+# Required GitHub Secrets:
+#   PROD_SSH_PRIVATE_KEY  – SSH private key for all three production servers
+#   PROD_BACKEND_HOST     – Public IP or hostname of ubuntu-8gb-nbg1-3
+#   PROD_DB_PASSWORD      – Password for the 'defender' PostgreSQL user
+#   PROD_IAM_BASE_URL     – Keycloak base URL as seen by the backend
+#                           (e.g. http://<keycloak-private-ip>:8080 or the
+#                            public URL of the Keycloak server)
+name: Deploy Backend
+
+on:
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/backend
+
+jobs:
+  build-and-push:
+    name: Build and push backend Docker image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    outputs:
+      image_tag: ${{ steps.meta.outputs.version }}
+
+    steps:
+      - name: "✅ Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "🔐 Log in to GitHub Container Registry"
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "🏷️ Extract Docker metadata (tags & labels)"
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=sha,prefix=sha-
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
+
+      - name: "🛠️ Build and push Docker image"
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: server/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  deploy-backend:
+    name: Deploy backend to ubuntu-8gb-nbg1-3
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    permissions:
+      contents: read
+
+    steps:
+      - name: "✅ Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "📂 Upload compose file"
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.PROD_BACKEND_HOST }}
+          username: root
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          source: "deploy/backend/docker-compose.yml"
+          target: /opt/defender-of-egril/backend
+          strip_components: 2
+
+      - name: "🚀 Pull new image and restart backend"
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PROD_BACKEND_HOST }}
+          username: root
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          script: |
+            set -euo pipefail
+            cd /opt/defender-of-egril/backend
+
+            # Write the .env file (overwrites on every deploy).
+            cat > .env <<EOF
+            GITHUB_REPOSITORY=${{ github.repository }}
+            IMAGE_TAG=${{ needs.build-and-push.outputs.image_tag }}
+            DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
+            IAM_BASE_URL=${{ secrets.PROD_IAM_BASE_URL }}
+            EOF
+
+            # Log in to ghcr.io so the server can pull the image.
+            echo "${{ secrets.GITHUB_TOKEN }}" | \
+              docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            docker compose pull
+            docker compose up -d
+            echo "✅ Backend deployed (image tag: ${{ needs.build-and-push.outputs.image_tag }})"

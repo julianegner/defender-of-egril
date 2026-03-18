@@ -12,7 +12,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-THEME_DIR="$REPO_ROOT/keycloak-theme"
+THEME_DIR="$REPO_ROOT/keycloak/keycloak-theme"
 JAR_DIR="$THEME_DIR/dist_keycloak"
 
 # Build the theme JAR if it is missing or the source is newer.
