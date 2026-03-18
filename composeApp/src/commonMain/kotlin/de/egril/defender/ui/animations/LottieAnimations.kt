@@ -27,7 +27,8 @@ enum class AnimationType {
     DOUBLE_LEVEL_SPELL,
     INSTANT_TOWER_SPELL,
     FEAR_SPELL,
-    BOMB_EXPLOSION
+    BOMB_EXPLOSION,
+    WATER_FLOW
 }
 
 /**
@@ -40,6 +41,7 @@ fun LottieAnimation(
     modifier: Modifier = Modifier,
     size: Dp = 40.dp,
     iterations: Int = 1, // Number of times to play the animation (use Int.MAX_VALUE for infinite loop)
+    speed: Float = 1f,   // Playback speed multiplier (1f = normal, 2f = double speed)
     contentScale: ContentScale = ContentScale.Fit
 ) {
     // Get the animation file path based on type
@@ -51,6 +53,7 @@ fun LottieAnimation(
         AnimationType.INSTANT_TOWER_SPELL -> "files/animations/instant_tower_spell.json"
         AnimationType.FEAR_SPELL -> "files/animations/fear_spell.json"
         AnimationType.BOMB_EXPLOSION -> "files/animations/bomb_explosion.json"
+        AnimationType.WATER_FLOW -> "files/animations/water_flow.json"
     }
     
     // Load the animation JSON asynchronously
@@ -79,6 +82,7 @@ fun LottieAnimation(
             composition = composition,
             iterations = iterations,
             isPlaying = true,
+            speed = speed,
             restartOnPlay = true
         )
         
@@ -102,6 +106,7 @@ fun LottieAnimation(
                     AnimationType.INSTANT_TOWER_SPELL -> "Instant tower spell animation"
                     AnimationType.FEAR_SPELL -> "Fear spell dark cloud animation"
                     AnimationType.BOMB_EXPLOSION -> "Bomb explosion animation"
+                    AnimationType.WATER_FLOW -> "Water flow animation"
                 },
                 contentScale = contentScale,
                 modifier = Modifier.fillMaxSize()
