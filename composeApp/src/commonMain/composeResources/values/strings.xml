@@ -1490,4 +1490,12 @@
     <string name="ewhad_retreats_text">You have forced Ewhad to retreat!</string>
     <string name="ewhad_defeated_title">Ewhad is defeated</string>
     <string name="ewhad_defeated_text">You defeated Ewhad! Now finish off the other Enemies and Win the Game!</string>
+    <!-- Final Credits screen -->
+    <string name="credits_game_title">Defender of Egril</string>
+    <string name="credits_title">Final Credits</string>
+    <string name="credits_section_developers">Developers</string>
+    <string name="credits_section_sound_effects">Sound Effects</string>
+    <string name="credits_section_background_music">Background Music</string>
+    <string name="credits_thank_you">Thank you for playing!</string>
+    <string name="credits_click_to_skip">Click anywhere to return to the world map</string>
 </resources>

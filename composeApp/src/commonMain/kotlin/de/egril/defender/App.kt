@@ -376,7 +376,18 @@ fun App() {
                     isLastLevel = screen.isLastLevel,
                     xpEarned = screen.xpEarned,
                     onRestart = { viewModel.restartLevel() },
-                    onBackToMap = { viewModel.navigateToWorldMap() }
+                    onBackToMap = { viewModel.navigateToWorldMap() },
+                    onShowFinalCredits = if (screen.isLastLevel && screen.won) {
+                        { viewModel.navigateToFinalCredits() }
+                    } else {
+                        null
+                    }
+                )
+            }
+            
+            is Screen.FinalCredits -> {
+                FinalCreditsScreen(
+                    onDismiss = { viewModel.navigateToWorldMap() }
                 )
             }
             
