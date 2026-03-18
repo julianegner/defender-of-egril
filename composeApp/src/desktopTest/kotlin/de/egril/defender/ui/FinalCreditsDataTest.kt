@@ -8,29 +8,31 @@ import kotlin.test.fail
 /**
  * Validates that [FinalCreditsData] stays in sync with the actual project assets.
  *
- * This test suite enforces the following invariants:
+ * All extraction logic lives in [CreditsExtractor]. These tests simply compare the
+ * extractor's output against the static lists in [FinalCreditsData]. When a test fails,
+ * update [FinalCreditsData] to match what [CreditsExtractor] reports.
  *
- * 1. **testAllDevelopersAreListed** – Every human developer (non-bot committer) found
- *    in `git log` must be present in [FinalCreditsData.developers].
- *    Update [FinalCreditsData.developers] whenever a new human developer commits.
+ * Tests:
  *
- * 2. **testAllSoundEffectsAuthorsAreListed** – Every Freesound.org author referenced in
- *    `composeResources/files/sounds/README.md` must appear in
+ * 1. **testDevelopersAreUpToDate** – Every developer found by [CreditsExtractor.extractDevelopers]
+ *    must be present in [FinalCreditsData.developers].
+ *    Developers who commit with a GitHub no-reply address must be added **manually**.
+ *
+ * 2. **testSoundEffectCreditsAreUpToDate** – Every Freesound.org author found by
+ *    [CreditsExtractor.extractSoundEffectAuthors] must appear in
  *    [FinalCreditsData.soundEffectsCredits].
- *    Update the list whenever new sound files (with new authors) are added.
  *
- * 3. **testAllBackgroundMusicAuthorsAreListed** – Every music author mentioned in
- *    `composeResources/files/sounds/background/README.md` must appear in
+ * 3. **testBackgroundMusicCreditsAreUpToDate** – Every music author/source found by
+ *    [CreditsExtractor.extractBackgroundMusicAuthors] must appear in
  *    [FinalCreditsData.backgroundMusicCredits].
- *    Update the list whenever new music files are added.
  *
- * 4. **testBackgroundImagesExcludeEmojiAndTile** – All names in
- *    [FinalCreditsData.backgroundImageNames] must not start with "emoji_" or "tile_".
+ * 4. **testBackgroundImagesExcludeEmojiAndTile** – No entry in
+ *    [FinalCreditsData.backgroundImageNames] may start with "emoji_" or "tile_".
  *
- * 5. **testAllNonEmojiNonTileDrawablesAreListed** – Every PNG file in
- *    `composeResources/drawable` that does NOT start with "emoji_" or "tile_" must have
- *    a corresponding entry in [FinalCreditsData.backgroundImageNames].
- *    Update the list whenever new drawable images (without those prefixes) are added.
+ * 5. **testAllNonEmojiNonTileDrawablesAccountedFor** – Every PNG in
+ *    `composeResources/drawable` that does NOT start with "emoji_" or "tile_" must
+ *    appear in either [FinalCreditsData.backgroundImageNames] or
+ *    [FinalCreditsData.backgroundImageExclusions].
  */
 class FinalCreditsDataTest {
 
@@ -41,116 +43,64 @@ class FinalCreditsDataTest {
 
     // ─── Developer coverage ───────────────────────────────────────────────────
 
-    /**
-     * Returns the set of unique human committer names from git history.
-     * Bot accounts are identified by names ending with "[bot]".
-     */
-    private fun humanDevelopersFromGit(): Set<String> {
-        return try {
-            val process = ProcessBuilder("git", "log", "--format=%an")
-                .directory(projectRoot)
-                .redirectErrorStream(true)
-                .start()
-            val output = process.inputStream.bufferedReader().readText()
-            process.waitFor()
-            output.lines()
-                .map { it.trim() }
-                .filter { it.isNotEmpty() && !it.endsWith("[bot]") }
-                .toSet()
-        } catch (e: Exception) {
-            emptySet()
-        }
-    }
-
     @Test
-    fun testAllDevelopersAreListed() {
-        val gitDevelopers = humanDevelopersFromGit()
-        if (gitDevelopers.isEmpty()) {
-            // Cannot read git history (e.g. shallow clone in CI) – skip gracefully
+    fun testDevelopersAreUpToDate() {
+        val extracted = CreditsExtractor.extractDevelopers(projectRoot)
+        if (extracted.isEmpty()) {
+            // Cannot reach git history (e.g. shallow CI clone without noreply-filtered commits) – skip.
             return
         }
 
-        val creditedDevelopers = FinalCreditsData.developers.toSet()
-        val missing = gitDevelopers - creditedDevelopers
+        val credited = FinalCreditsData.developers.toSet()
+        val missing = extracted - credited
 
         if (missing.isNotEmpty()) {
             fail(
-                "The following developers committed code but are missing from " +
-                "FinalCreditsData.developers:\n" +
-                missing.joinToString("\n") { "  - \"$it\"" } +
-                "\nPlease add them to FinalCreditsData.kt."
+                "The following developers committed with a non-noreply email but are missing " +
+                "from FinalCreditsData.developers.\n" +
+                "Run CreditsExtractor.extractDevelopers() and add them to FinalCreditsData.kt:\n" +
+                missing.joinToString("\n") { "  - \"$it\"" }
             )
         }
     }
 
     // ─── Sound effects author coverage ───────────────────────────────────────
 
-    /**
-     * Extracts Freesound.org author names from a README.md.
-     * Looks for lines matching `https://freesound.org/people/<Author>/sounds/...`.
-     * URL-decodes percent-encoded characters (e.g. %20 → space).
-     */
-    private fun freesoundAuthorsFromReadme(readmeFile: File): Set<String> {
-        if (!readmeFile.exists()) return emptySet()
-        val pattern = Regex("""https://freesound\.org/people/([^/]+)/sounds/""")
-        return readmeFile.readLines()
-            .flatMap { pattern.findAll(it).map { m -> m.groupValues[1] } }
-            .filter { it.isNotEmpty() }
-            .map { java.net.URLDecoder.decode(it, "UTF-8") }
-            .toSet()
-    }
-
     @Test
-    fun testAllSoundEffectsAuthorsAreListed() {
+    fun testSoundEffectCreditsAreUpToDate() {
         val readmeFile = File(
             projectRoot,
             "composeApp/src/commonMain/composeResources/files/sounds/README.md"
         )
         assertTrue(readmeFile.exists(), "Sound effects README not found: ${readmeFile.absolutePath}")
 
-        val readmeAuthors = freesoundAuthorsFromReadme(readmeFile)
-        if (readmeAuthors.isEmpty()) {
-            fail("Could not extract any Freesound author names from ${readmeFile.absolutePath}. " +
-                 "Check the README format.")
+        val extracted = CreditsExtractor.extractSoundEffectAuthors(projectRoot)
+        if (extracted.isEmpty()) {
+            fail(
+                "CreditsExtractor could not extract any Freesound author names from " +
+                "${readmeFile.absolutePath}. Check that the README contains freesound.org URLs."
+            )
         }
 
-        val creditedAuthors = FinalCreditsData.soundEffectsCredits.map { it.author }.toSet()
-
-        // Each README author must appear in at least one credit entry (case-insensitive)
-        val missing = readmeAuthors.filter { readmeAuthor ->
-            creditedAuthors.none { it.equals(readmeAuthor, ignoreCase = true) }
+        val credited = FinalCreditsData.soundEffectsCredits.map { it.author }.toSet()
+        val missing = extracted.filter { author ->
+            credited.none { it.equals(author, ignoreCase = true) }
         }
 
         if (missing.isNotEmpty()) {
             fail(
                 "The following Freesound.org authors appear in sounds/README.md but are " +
-                "missing from FinalCreditsData.soundEffectsCredits:\n" +
-                missing.joinToString("\n") { "  - \"$it\"" } +
-                "\nPlease add them to FinalCreditsData.kt."
+                "missing from FinalCreditsData.soundEffectsCredits.\n" +
+                "Run CreditsExtractor.extractSoundEffectAuthors() and update FinalCreditsData.kt:\n" +
+                missing.joinToString("\n") { "  - \"$it\"" }
             )
         }
     }
 
     // ─── Background music author coverage ────────────────────────────────────
 
-    /**
-     * Extracts named authors from the background music README.
-     * Looks for known author names/sources that appear in the file content.
-     *
-     * **Maintenance note**: When new music sources are added to the background README,
-     * add the new author/source name to [knownAuthors] below AND to
-     * [FinalCreditsData.backgroundMusicCredits]. This ensures the test continues to
-     * verify coverage for all music sources.
-     */
-    private fun backgroundMusicAuthorsFromReadme(readmeFile: File): Set<String> {
-        if (!readmeFile.exists()) return emptySet()
-        val content = readmeFile.readText()
-        val knownAuthors = listOf("David Fesliyan", "fesliyanstudios", "pixabay")
-        return knownAuthors.filter { content.contains(it, ignoreCase = true) }.toSet()
-    }
-
     @Test
-    fun testAllBackgroundMusicAuthorsAreListed() {
+    fun testBackgroundMusicCreditsAreUpToDate() {
         val readmeFile = File(
             projectRoot,
             "composeApp/src/commonMain/composeResources/files/sounds/background/README.md"
@@ -160,21 +110,19 @@ class FinalCreditsDataTest {
             "Background music README not found: ${readmeFile.absolutePath}"
         )
 
-        val readmeAuthors = backgroundMusicAuthorsFromReadme(readmeFile)
+        val extracted = CreditsExtractor.extractBackgroundMusicAuthors(projectRoot)
         val creditedText = FinalCreditsData.backgroundMusicCredits
             .joinToString(" ") { "${it.author} ${it.description}" }
             .lowercase()
 
-        val missing = readmeAuthors.filter { author ->
-            !creditedText.contains(author.lowercase())
-        }
+        val missing = extracted.filter { !creditedText.contains(it.lowercase()) }
 
         if (missing.isNotEmpty()) {
             fail(
                 "The following music authors/sources appear in sounds/background/README.md " +
-                "but are missing from FinalCreditsData.backgroundMusicCredits:\n" +
-                missing.joinToString("\n") { "  - \"$it\"" } +
-                "\nPlease add them to FinalCreditsData.kt."
+                "but are missing from FinalCreditsData.backgroundMusicCredits.\n" +
+                "Run CreditsExtractor.extractBackgroundMusicAuthors() and update FinalCreditsData.kt:\n" +
+                missing.joinToString("\n") { "  - \"$it\"" }
             )
         }
     }
@@ -196,7 +144,7 @@ class FinalCreditsDataTest {
     }
 
     @Test
-    fun testAllNonEmojiNonTileDrawablesAreListed() {
+    fun testAllNonEmojiNonTileDrawablesAccountedFor() {
         val drawableDir = File(
             projectRoot,
             "composeApp/src/commonMain/composeResources/drawable"
@@ -214,17 +162,18 @@ class FinalCreditsDataTest {
             ?.toSet()
             ?: emptySet()
 
-        val listedImages = FinalCreditsData.backgroundImageNames.toSet()
-        val missing = actualImages - listedImages
+        val accounted = FinalCreditsData.backgroundImageNames.toSet() +
+                        FinalCreditsData.backgroundImageExclusions
+        val missing = actualImages - accounted
 
         if (missing.isNotEmpty()) {
             fail(
-                "The following drawable files (excluding emoji_* and tile_*) exist in " +
-                "composeResources/drawable but are NOT listed in " +
-                "FinalCreditsData.backgroundImageNames:\n" +
-                missing.sorted().joinToString("\n") { "  - $it" } +
-                "\nPlease add them to FinalCreditsData.kt."
+                "The following drawable files (excluding emoji_* and tile_*) are not " +
+                "accounted for in FinalCreditsData. Add each to either " +
+                "backgroundImageNames (to show it) or backgroundImageExclusions (to skip it):\n" +
+                missing.sorted().joinToString("\n") { "  - $it" }
             )
         }
     }
 }
+

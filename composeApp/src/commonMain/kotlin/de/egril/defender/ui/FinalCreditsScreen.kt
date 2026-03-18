@@ -1,5 +1,6 @@
 package de.egril.defender.ui
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -16,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -36,11 +36,49 @@ private val CREDITS_TEXT_COLOR = Color(0xFFE0E0E0)
 private val CREDITS_SUB_TEXT_COLOR = Color(0xFFAAAAAA)
 
 private const val SCROLL_DURATION_MS = 60_000
-private const val IMAGE_BACKGROUND_ALPHA = 0.18f
-private const val IMAGES_PER_ROW = 4
 
 /** Delay in milliseconds before auto-transitioning from the victory screen to credits. */
 const val FINAL_CREDITS_TRANSITION_DELAY_MS = 5_000L
+
+// ── Background image animation constants ─────────────────────────────────────
+/** How long each image fades in (ms). */
+private const val IMAGE_FADE_IN_MS = 1_200
+/** How long each image stays fully visible (ms). */
+private const val IMAGE_HOLD_MS = 5_000
+/** How long each image fades out (ms). */
+private const val IMAGE_FADE_OUT_MS = 1_200
+/** Total lifetime of one image (ms). */
+private const val IMAGE_TOTAL_MS = (IMAGE_FADE_IN_MS + IMAGE_HOLD_MS + IMAGE_FADE_OUT_MS).toLong()
+/** How often a new image slot is started (ms). Keeps 1-3 images visible simultaneously. */
+private const val IMAGE_SPAWN_INTERVAL_MS = 2_500L
+/** Maximum number of images visible at the same time. */
+private const val MAX_SIMULTANEOUS_IMAGES = 3
+
+/**
+ * Pre-defined display slots: (widthFraction, offsetXFraction, offsetYFraction).
+ * widthFraction   – image width as fraction of screen width (0–1).
+ * offsetXFraction – left edge as fraction of screen width.
+ * offsetYFraction – top edge as fraction of screen height.
+ * The sequence is cycled deterministically (no randomness).
+ */
+private data class ImageSlot(
+    val widthFraction: Float,
+    val offsetXFraction: Float,
+    val offsetYFraction: Float
+)
+
+private val IMAGE_SLOTS = listOf(
+    ImageSlot(0.45f, 0.05f, 0.08f),   // upper-left, large
+    ImageSlot(0.30f, 0.62f, 0.04f),   // upper-right, medium
+    ImageSlot(0.38f, 0.28f, 0.52f),   // center, medium
+    ImageSlot(0.25f, 0.70f, 0.62f),   // lower-right, small
+    ImageSlot(0.42f, 0.03f, 0.55f),   // lower-left, large
+    ImageSlot(0.28f, 0.55f, 0.35f),   // center-right, small
+    ImageSlot(0.40f, 0.15f, 0.22f),   // center-left, large
+    ImageSlot(0.32f, 0.46f, 0.68f),   // lower-center, medium
+    ImageSlot(0.35f, 0.60f, 0.15f),   // upper-right-mid, medium
+    ImageSlot(0.22f, 0.08f, 0.35f),   // left-mid, small
+)
 
 /**
  * Maps a drawable resource name (without extension) to a [DrawableResource].
@@ -51,7 +89,6 @@ private fun drawableResourceByName(name: String): DrawableResource? = when (name
     "dragon_destroying_mine" -> Res.drawable.dragon_destroying_mine
     "ewhad_message_background" -> Res.drawable.ewhad_message_background
     "story_message_background" -> Res.drawable.story_message_background
-    "example_map_cutout" -> Res.drawable.example_map_cutout
     "location_fortress" -> Res.drawable.location_fortress
     "location_round_tower" -> Res.drawable.location_round_tower
     "location_square_tower" -> Res.drawable.location_square_tower
@@ -82,14 +119,24 @@ private fun drawableResourceByName(name: String): DrawableResource? = when (name
     else -> null
 }
 
+/** An active background image being animated. */
+private class AnimatedBackgroundImage(
+    val resource: DrawableResource,
+    val slot: ImageSlot,
+    val id: Int
+) {
+    val alpha = Animatable(0f)
+}
+
 /**
  * Final credits screen shown after winning "The Final Stand" (the last level).
  *
  * Two-layer display:
- * - Lower layer: a mosaic of game images in a fixed order, shown at low opacity.
+ * - Lower layer: game images that fade in one at a time at different sizes and positions,
+ *   with 1–3 images visible simultaneously.
  * - Upper layer: scrolling credits text (developers, sound effects, background music).
  *
- * The whole display is deterministic – images and text appear in the same order every time.
+ * The display is fully deterministic – images and text always appear in the same order.
  * Clicking/tapping anywhere dismisses the credits and returns to the world map.
  */
 @Composable
@@ -99,7 +146,7 @@ fun FinalCreditsScreen(
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
 
-    // Start scrolling automatically when the composable is first shown
+    // Start auto-scrolling when the screen appears
     LaunchedEffect(Unit) {
         delay(500)
         scrollState.animateScrollTo(
@@ -112,12 +159,10 @@ fun FinalCreditsScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(CREDITS_BACKGROUND_COLOR)
-            .clickable {
-                coroutineScope.launch { onDismiss() }
-            }
+            .clickable { coroutineScope.launch { onDismiss() } }
     ) {
-        // ── Lower layer: background image mosaic ──────────────────────────────
-        CreditsBackgroundImages()
+        // ── Lower layer: animated background images ───────────────────────────
+        CreditsAnimatedBackground()
 
         // ── Upper layer: scrolling credits text ───────────────────────────────
         Column(
@@ -126,28 +171,16 @@ fun FinalCreditsScreen(
                 .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Extra space at the top so text starts below the screen
             Spacer(modifier = Modifier.height(600.dp))
-
             CreditsTitle()
-
             Spacer(modifier = Modifier.height(48.dp))
-
             CreditsDeveloperSection()
-
             Spacer(modifier = Modifier.height(48.dp))
-
             CreditsSoundEffectsSection()
-
             Spacer(modifier = Modifier.height(48.dp))
-
             CreditsBackgroundMusicSection()
-
             Spacer(modifier = Modifier.height(64.dp))
-
             CreditsThankYou()
-
-            // Extra space at the bottom so last line scrolls fully off screen
             Spacer(modifier = Modifier.height(600.dp))
         }
 
@@ -164,39 +197,72 @@ fun FinalCreditsScreen(
     }
 }
 
+/**
+ * Lower layer: images fade in one by one at varying sizes and positions,
+ * with 1–[MAX_SIMULTANEOUS_IMAGES] images visible at a time.
+ * The sequence is deterministic (no randomness).
+ */
 @Composable
-private fun CreditsBackgroundImages() {
-    val imageResources = FinalCreditsData.backgroundImageNames
-        .mapNotNull { drawableResourceByName(it) }
+private fun CreditsAnimatedBackground() {
+    val imageResources = remember {
+        FinalCreditsData.backgroundImageNames.mapNotNull { drawableResourceByName(it) }
+    }
+    val activeImages = remember { mutableStateListOf<AnimatedBackgroundImage>() }
+    val scope = rememberCoroutineScope()
 
-    val rows = imageResources.chunked(IMAGES_PER_ROW)
+    // Spawn images in a fixed order on a fixed schedule
+    LaunchedEffect(imageResources) {
+        var imageIndex = 0
+        var slotIndex = 0
+        var nextId = 0
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .alpha(IMAGE_BACKGROUND_ALPHA),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        rows.forEach { rowImages ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                rowImages.forEach { resource ->
-                    Image(
-                        painter = painterResource(resource),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .weight(1f)
-                            .aspectRatio(1f),
-                        contentScale = ContentScale.Crop
+        while (true) {
+            if (activeImages.size < MAX_SIMULTANEOUS_IMAGES && imageResources.isNotEmpty()) {
+                val resource = imageResources[imageIndex % imageResources.size]
+                val slot = IMAGE_SLOTS[slotIndex % IMAGE_SLOTS.size]
+                val display = AnimatedBackgroundImage(resource, slot, nextId++)
+
+                activeImages.add(display)
+                imageIndex++
+                slotIndex++
+
+                // Animate this image independently
+                scope.launch {
+                    display.alpha.animateTo(
+                        0.25f,
+                        animationSpec = tween(IMAGE_FADE_IN_MS, easing = LinearEasing)
                     )
-                }
-                // Fill remaining cells in the last row if it is not full
-                repeat(IMAGES_PER_ROW - rowImages.size) {
-                    Spacer(modifier = Modifier.weight(1f))
+                    delay(IMAGE_HOLD_MS.toLong())
+                    display.alpha.animateTo(
+                        0f,
+                        animationSpec = tween(IMAGE_FADE_OUT_MS, easing = LinearEasing)
+                    )
+                    activeImages.remove(display)
                 }
             }
+            delay(IMAGE_SPAWN_INTERVAL_MS)
+        }
+    }
+
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val screenWidth = maxWidth
+        val screenHeight = maxHeight
+
+        activeImages.forEach { img ->
+            val imageWidth = screenWidth * img.slot.widthFraction
+            val offsetX = screenWidth * img.slot.offsetXFraction
+            val offsetY = screenHeight * img.slot.offsetYFraction
+
+            Image(
+                painter = painterResource(img.resource),
+                contentDescription = null,
+                modifier = Modifier
+                    .offset(x = offsetX, y = offsetY)
+                    .width(imageWidth)
+                    .wrapContentHeight()
+                    .alpha(img.alpha.value),
+                contentScale = ContentScale.FillWidth
+            )
         }
     }
 }
@@ -223,7 +289,11 @@ private fun CreditsTitle() {
 @Composable
 private fun CreditsSectionHeader(title: String) {
     Spacer(modifier = Modifier.height(8.dp))
-    HorizontalDivider(color = CREDITS_SECTION_COLOR.copy(alpha = 0.4f), thickness = 1.dp, modifier = Modifier.fillMaxWidth(0.6f))
+    HorizontalDivider(
+        color = CREDITS_SECTION_COLOR.copy(alpha = 0.4f),
+        thickness = 1.dp,
+        modifier = Modifier.fillMaxWidth(0.6f)
+    )
     Spacer(modifier = Modifier.height(8.dp))
     Text(
         text = title,
@@ -233,14 +303,17 @@ private fun CreditsSectionHeader(title: String) {
         textAlign = TextAlign.Center
     )
     Spacer(modifier = Modifier.height(8.dp))
-    HorizontalDivider(color = CREDITS_SECTION_COLOR.copy(alpha = 0.4f), thickness = 1.dp, modifier = Modifier.fillMaxWidth(0.6f))
+    HorizontalDivider(
+        color = CREDITS_SECTION_COLOR.copy(alpha = 0.4f),
+        thickness = 1.dp,
+        modifier = Modifier.fillMaxWidth(0.6f)
+    )
     Spacer(modifier = Modifier.height(16.dp))
 }
 
 @Composable
 private fun CreditsDeveloperSection() {
     CreditsSectionHeader(title = stringResource(Res.string.credits_section_developers))
-
     FinalCreditsData.developers.forEach { name ->
         Text(
             text = name,
@@ -255,7 +328,6 @@ private fun CreditsDeveloperSection() {
 @Composable
 private fun CreditsSoundEffectsSection() {
     CreditsSectionHeader(title = stringResource(Res.string.credits_section_sound_effects))
-
     FinalCreditsData.soundEffectsCredits.forEach { entry ->
         Text(
             text = entry.author,
@@ -277,7 +349,6 @@ private fun CreditsSoundEffectsSection() {
 @Composable
 private fun CreditsBackgroundMusicSection() {
     CreditsSectionHeader(title = stringResource(Res.string.credits_section_background_music))
-
     FinalCreditsData.backgroundMusicCredits.forEach { entry ->
         Text(
             text = entry.author,
@@ -306,3 +377,4 @@ private fun CreditsThankYou() {
         textAlign = TextAlign.Center
     )
 }
+

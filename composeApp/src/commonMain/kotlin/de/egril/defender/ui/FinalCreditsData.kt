@@ -19,8 +19,15 @@ object FinalCreditsData {
 
     /**
      * Human developers who contributed code to the project.
-     * Update this list when new developers make commits.
-     * Bot accounts (e.g. names ending in "[bot]") are excluded by convention.
+     * Update this list when new developers make commits using a real email address
+     * (not a GitHub no-reply address).
+     *
+     * Excluded automatically by [FinalCreditsDataTest]:
+     * - Accounts whose email ends with "@users.noreply.github.com"
+     * - The copilot-swe-agent bot
+     *
+     * Developers who commit with a GitHub no-reply email but want to be credited should
+     * be added here manually.
      */
     val developers: List<String> = listOf(
         "Julian Egner"
@@ -67,17 +74,18 @@ object FinalCreditsData {
     )
 
     /**
-     * Names of drawable resources (without file extension) to display as background images.
-     * Excludes files with "emoji_" or "tile_" prefixes.
+     * Names of drawable resources (without file extension) to display as animated background images.
+     * Excludes files with "emoji_" or "tile_" prefixes, and excludes example_map_cutout.png
+     * (which is outdated).
      * Update when new drawable images (without those prefixes) are added.
      * The order here determines the fixed display order (no randomness).
+     * Always starts with the world map image.
      */
     val backgroundImageNames: List<String> = listOf(
         "world_map_background",
         "dragon_destroying_mine",
         "ewhad_message_background",
         "story_message_background",
-        "example_map_cutout",
         "location_fortress",
         "location_round_tower",
         "location_square_tower",
@@ -105,5 +113,14 @@ object FinalCreditsData {
         "dig_outcome_silver",
         "dig_outcome_dragon",
         "dig_outcome_rubble"
+    )
+
+    /**
+     * Image names that are intentionally excluded from the background display.
+     * Tested by [FinalCreditsDataTest] to ensure all non-emoji, non-tile drawables
+     * are either listed in [backgroundImageNames] or in this exclusion list.
+     */
+    val backgroundImageExclusions: Set<String> = setOf(
+        "example_map_cutout"  // outdated, not representative of current game state
     )
 }
