@@ -228,87 +228,82 @@ body.login-pf.light {
 /* ── Password input group (wrapper + visibility-toggle button) ───────── */
 
 /*
- * Keycloakify renders the password field inside:
- *   <div class="pf-c-input-group">
- *     <input class="pf-c-form-control" type="password" />
- *     <button class="pf-c-button pf-m-control"><i class="fa fa-eye"></i></button>
+ * With doUseDefaultCss=false, keycloakify's kcClsx() returns the literal
+ * KC key names as HTML class names — NOT the PatternFly pf-c-* aliases.
+ * Actual DOM structure:
+ *   <div class="kcInputGroup">
+ *     <input class="kcInputClass" type="password" />
+ *     <button class="kcFormPasswordVisibilityButtonClass">
+ *       <i class="kcFormPasswordVisibilityIconShow fa fa-eye"></i>
+ *     </button>
  *   </div>
+ * (The fa/fa-eye classes are added via the `classes` prop in KcPage.tsx.)
  *
  * CSS Grid two-column layout: the input fills the flexible first column
- * ("1fr"), the button occupies a fixed 44 px second column.  Inside a grid
- * track, "width: 100%" resolves to the track width, so the general
- * ".login-card-body input { width: 100% }" rule is harmless — the input
- * still fills exactly the 1fr column without overflowing.
- *
- * align-items: stretch gives both children the same height (the row height
- * is set by the taller of the two, which is the input).  The button's
- * min-height guard ensures it is never rendered zero-height in case the
- * grid algorithm encounters an edge case.
+ * (1fr), the button occupies a fixed 44 px second column.
  */
-.pf-c-input-group {
-  display: grid !important;
-  grid-template-columns: 1fr 44px !important;
+.kcInputGroup {
+  display: grid;
+  grid-template-columns: 1fr 44px;
   align-items: stretch;
   width: 100%;
   margin-bottom: 4px;
 }
 
-/* Input: occupies the 1fr column; width:100% = fill the grid track */
-.pf-c-input-group > input[type="password"],
-.pf-c-input-group > .pf-c-form-control {
+/* Input: fills the 1fr column */
+.kcInputGroup input[type="password"] {
   width: 100%;
   border-radius: 4px 0 0 4px;
   border-right: none;
   margin-bottom: 0;
 }
 
-/* Button: occupies the 44px column; explicit sizes ensure visibility */
-.pf-c-button.pf-m-control {
-  width: 44px !important;
-  min-height: 42px !important;
-  padding: 0 !important;
-  border: 1px solid !important;
-  border-radius: 0 4px 4px 0 !important;
-  cursor: pointer !important;
-  font-size: 1.1rem !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  background-color: #888 !important;   /* safe gray fallback */
+/* Visibility-toggle button: fixed 44 px column, same height as input */
+.kcFormPasswordVisibilityButtonClass {
+  width: 44px;
+  min-height: 42px;
+  padding: 0;
+  border: 1px solid;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: background-color 0.15s, color 0.15s;
 }
 
-.dark .pf-c-button.pf-m-control {
-  background-color: #555 !important;
-  border-color: #666 !important;
-  color: #eee !important;
+.dark .kcFormPasswordVisibilityButtonClass {
+  background-color: #555;
+  border-color: #666;
+  color: #eee;
 }
 
-.dark .pf-c-button.pf-m-control:hover {
-  background-color: #666 !important;
-  color: #fff !important;
+.dark .kcFormPasswordVisibilityButtonClass:hover {
+  background-color: #666;
+  color: #fff;
 }
 
-.light .pf-c-button.pf-m-control {
-  background-color: #d0d0d0 !important;
-  border-color: #bbb !important;
-  color: #333 !important;
+.light .kcFormPasswordVisibilityButtonClass {
+  background-color: #d0d0d0;
+  border-color: #bbb;
+  color: #333;
 }
 
-.light .pf-c-button.pf-m-control:hover {
-  background-color: #bbb !important;
-  color: #111 !important;
+.light .kcFormPasswordVisibilityButtonClass:hover {
+  background-color: #bbb;
+  color: #111;
 }
 
 /* Focus ring: both input and button share the accent colour */
-.dark .pf-c-input-group:focus-within input,
-.dark .pf-c-input-group:focus-within .pf-c-button.pf-m-control {
-  border-color: #ffa000 !important;
+.dark .kcInputGroup:focus-within input,
+.dark .kcInputGroup:focus-within .kcFormPasswordVisibilityButtonClass {
+  border-color: #ffa000;
 }
 
-.light .pf-c-input-group:focus-within input,
-.light .pf-c-input-group:focus-within .pf-c-button.pf-m-control {
-  border-color: #ffa000 !important;
+.light .kcInputGroup:focus-within input,
+.light .kcInputGroup:focus-within .kcFormPasswordVisibilityButtonClass {
+  border-color: #ffa000;
 }
 
 .dark .login-card-body input[type="text"],
