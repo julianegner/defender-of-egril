@@ -30,7 +30,8 @@ object FinalCreditsData {
      * be added here manually.
      */
     val developers: List<String> = listOf(
-        "Julian Egner"
+        "Julian Egner",
+        "Kathrin Kläs-Dickhof"
     )
 
     data class SoundCreditEntry(
@@ -97,13 +98,10 @@ object FinalCreditsData {
         "location_dance",
         "location_cross",
         "location_scroll",
-        "ic_menu_compass",
         "gate",
         "barricade",
         "trap",
         "bomb",
-        "black_shield",
-        "black_shield2",
         "dig_outcome_gold",
         "dig_outcome_diamond",
         "dig_outcome_gem_blue",
@@ -121,6 +119,9 @@ object FinalCreditsData {
      * are either listed in [backgroundImageNames] or in this exclusion list.
      */
     val backgroundImageExclusions: Set<String> = setOf(
-        "example_map_cutout"  // outdated, not representative of current game state
+        "example_map_cutout",  // outdated, not representative of current game state
+        "ic_menu_compass",     // UI icon, not a game scene image
+        "black_shield",        // UI icon, not a game scene image
+        "black_shield2"        // UI icon, not a game scene image
     )
 }

@@ -43,8 +43,8 @@ const val FINAL_CREDITS_TRANSITION_DELAY_MS = 5_000L
 // ── Background image animation constants ─────────────────────────────────────
 /** How long each image fades in (ms). */
 private const val IMAGE_FADE_IN_MS = 1_200
-/** How long each image stays fully visible (ms). */
-private const val IMAGE_HOLD_MS = 5_000
+/** How long each image stays fully visible (ms). 1.6× the original 5 000 ms. */
+private const val IMAGE_HOLD_MS = 8_000
 /** How long each image fades out (ms). */
 private const val IMAGE_FADE_OUT_MS = 1_200
 /** Total lifetime of one image (ms). */
@@ -60,6 +60,16 @@ private const val MAX_SIMULTANEOUS_IMAGES = 3
  * offsetXFraction – left edge as fraction of screen width.
  * offsetYFraction – top edge as fraction of screen height.
  * The sequence is cycled deterministically (no randomness).
+ *
+ * The screen is divided into four non-overlapping quadrants:
+ *   A = upper-left  (x ≤ 0.48, y ≤ 0.48)
+ *   B = lower-right (x ≥ 0.52, y ≥ 0.52)
+ *   C = upper-right (x ≥ 0.52, y ≤ 0.48)
+ *   D = lower-left  (x ≤ 0.48, y ≥ 0.52)
+ *
+ * Slots follow the pattern A,B,C,D,A,B,C,D so every group of three
+ * simultaneously visible images occupies three different quadrants,
+ * guaranteeing zero pixel overlap.
  */
 private data class ImageSlot(
     val widthFraction: Float,
@@ -68,16 +78,14 @@ private data class ImageSlot(
 )
 
 private val IMAGE_SLOTS = listOf(
-    ImageSlot(0.45f, 0.05f, 0.08f),   // upper-left, large
-    ImageSlot(0.30f, 0.62f, 0.04f),   // upper-right, medium
-    ImageSlot(0.38f, 0.28f, 0.52f),   // center, medium
-    ImageSlot(0.25f, 0.70f, 0.62f),   // lower-right, small
-    ImageSlot(0.42f, 0.03f, 0.55f),   // lower-left, large
-    ImageSlot(0.28f, 0.55f, 0.35f),   // center-right, small
-    ImageSlot(0.40f, 0.15f, 0.22f),   // center-left, large
-    ImageSlot(0.32f, 0.46f, 0.68f),   // lower-center, medium
-    ImageSlot(0.35f, 0.60f, 0.15f),   // upper-right-mid, medium
-    ImageSlot(0.22f, 0.08f, 0.35f),   // left-mid, small
+    ImageSlot(0.42f, 0.03f, 0.05f),   // A – upper-left,  large
+    ImageSlot(0.40f, 0.56f, 0.56f),   // B – lower-right, large
+    ImageSlot(0.34f, 0.62f, 0.06f),   // C – upper-right, medium
+    ImageSlot(0.36f, 0.04f, 0.58f),   // D – lower-left,  medium
+    ImageSlot(0.28f, 0.06f, 0.08f),   // A – upper-left,  small
+    ImageSlot(0.30f, 0.64f, 0.62f),   // B – lower-right, small
+    ImageSlot(0.38f, 0.58f, 0.05f),   // C – upper-right, large
+    ImageSlot(0.40f, 0.03f, 0.54f),   // D – lower-left,  large
 )
 
 /**
@@ -100,13 +108,10 @@ private fun drawableResourceByName(name: String): DrawableResource? = when (name
     "location_dance" -> Res.drawable.location_dance
     "location_cross" -> Res.drawable.location_cross
     "location_scroll" -> Res.drawable.location_scroll
-    "ic_menu_compass" -> Res.drawable.ic_menu_compass
     "gate" -> Res.drawable.gate
     "barricade" -> Res.drawable.barricade
     "trap" -> Res.drawable.trap
     "bomb" -> Res.drawable.bomb
-    "black_shield" -> Res.drawable.black_shield
-    "black_shield2" -> Res.drawable.black_shield2
     "dig_outcome_gold" -> Res.drawable.dig_outcome_gold
     "dig_outcome_diamond" -> Res.drawable.dig_outcome_diamond
     "dig_outcome_gem_blue" -> Res.drawable.dig_outcome_gem_blue
@@ -252,6 +257,8 @@ private fun CreditsAnimatedBackground() {
             val imageWidth = screenWidth * img.slot.widthFraction
             val offsetX = screenWidth * img.slot.offsetXFraction
             val offsetY = screenHeight * img.slot.offsetYFraction
+            // Cap height to 44% of screen height so images stay within their quadrant
+            val maxImageHeight = screenHeight * 0.44f
 
             Image(
                 painter = painterResource(img.resource),
@@ -259,7 +266,7 @@ private fun CreditsAnimatedBackground() {
                 modifier = Modifier
                     .offset(x = offsetX, y = offsetY)
                     .width(imageWidth)
-                    .wrapContentHeight()
+                    .heightIn(max = maxImageHeight)
                     .alpha(img.alpha.value),
                 contentScale = ContentScale.FillWidth
             )
