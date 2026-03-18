@@ -59,7 +59,7 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
     socialProvidersNode
   } = props;
 
-  const { msg } = i18n;
+  const { msg, msgStr } = i18n;
 
   useInitialize({ kcContext, doUseDefaultCss: false });
 
@@ -75,7 +75,38 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
     };
   }, [darkMode]);
 
+  // Set the browser tab title dynamically from the Keycloak realm name so that
+  // it reads "Log in to {realm}" (or the localised equivalent) instead of the
+  // static "Egril Keycloak Theme" value from index.html.
+  useEffect(() => {
+    const realm = "realm" in kcContext
+      ? (kcContext.realm as Record<string, unknown>)
+      : undefined;
+    const displayName = (realm?.displayName ?? realm?.name) as string | undefined;
+    if (displayName) {
+      document.title = msgStr("loginTitle", displayName);
+    }
+  }, [msgStr]);
+
+  // Belt-and-suspenders: inline CSS that forces the password-input-group
+  // grid layout and button appearance. Uses the actual KC class names that
+  // doUseDefaultCss=false generates (kcInputGroup, kcFormPasswordVisibilityButtonClass)
+  // rather than the PatternFly pf-c-* aliases.
+  const btnBg = darkMode ? "#555" : "#d0d0d0";
+  const btnBorder = darkMode ? "#666" : "#bbb";
+  const btnColor = darkMode ? "#eee" : "#333";
+  const passwordGroupCss = `
+    .kcInputGroup{display:grid!important;grid-template-columns:1fr 44px!important;align-items:stretch!important;width:100%!important;margin-bottom:4px!important}
+    .kcInputGroup input{width:100%!important;height:42px!important;box-sizing:border-box!important;border-right:none!important;border-radius:4px 0 0 4px!important;margin-bottom:0!important}
+    .kcFormPasswordVisibilityButtonClass{width:44px!important;height:42px!important;padding:0!important;border:1px solid ${btnBorder}!important;border-radius:0 4px 4px 0!important;cursor:pointer!important;font-size:1rem!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;background-color:${btnBg}!important;color:${btnColor}!important}
+    .kcFormPasswordVisibilityButtonClass>i{display:block!important;line-height:1!important;font-size:1rem!important}
+    .kcFormPasswordVisibilityButtonClass:hover{filter:brightness(1.15)!important}
+  `;
+
   return (
+    <>
+    {/* Inject password-group styles after all other stylesheets so they win */}
+    <style dangerouslySetInnerHTML={{ __html: passwordGroupCss }} />
     <div className={`egril-root ${darkMode ? "dark" : "light"}`}>
       {/* ── Brand banner row: Defender of Egril (left) and cosha.nu (right) ── */}
       <div className="brand-banner-row">
@@ -119,13 +150,17 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
 
             {children}
 
-            {/* Registration button – only shown on the login page when the realm allows it */}
+            {/* Registration section – only shown on the login page when the realm allows it */}
             {kcContext.pageId === "login.ftl" && (() => {
-              const loginCtx = kcContext as { realm?: { registrationAllowed?: boolean }; registrationUrl?: string };
-              return loginCtx.realm?.registrationAllowed && loginCtx.registrationUrl
+              const loginCtx = kcContext as {
+                realm?: { registrationAllowed?: boolean };
+                url?: { registrationUrl?: string };
+              };
+              return loginCtx.realm?.registrationAllowed && loginCtx.url?.registrationUrl
                 ? (
                   <div className="register-section">
-                    <a href={loginCtx.registrationUrl} className="register-btn">
+                    <p className="register-label">{msg("noAccount")}</p>
+                    <a href={loginCtx.url.registrationUrl} className="register-btn">
                       {msg("doRegister")}
                     </a>
                   </div>
@@ -150,5 +185,6 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
         </div>
       </main>
     </div>
+    </>
   );
 }

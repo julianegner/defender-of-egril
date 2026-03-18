@@ -4,6 +4,9 @@
  * or the OS prefers dark colors.                                               *
  * ─────────────────────────────────────────────────────────────────────────── */
 
+/* Font Awesome – required for the password-visibility eye icon */
+@import "@fortawesome/fontawesome-free/css/all.min.css";
+
 /* Reset */
 *,
 *::before,
@@ -57,7 +60,8 @@ body.login-pf.light {
 /* ── Banner row ──────────────────────────────────────────────────────── */
 
 /*
- * Both brand images are placed in a single dark row.
+ * Both brand images are placed in a single row that blends into the page
+ * background so the header and body form a seamless backdrop.
  * Defender of Egril is pinned to the left, cosha.nu to the right.
  * 10 % horizontal padding keeps both images away from the screen edges.
  */
@@ -65,7 +69,7 @@ body.login-pf.light {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: #1a1a1a;
+  background-color: transparent;
   padding: 12px 10%;
   width: 100%;
 }
@@ -80,7 +84,7 @@ body.login-pf.light {
 }
 
 .coshanu-banner-img {
-  height: 52px;
+  height: 80px;
   width: auto;
   object-fit: contain;
   display: block;
@@ -221,6 +225,99 @@ body.login-pf.light {
   transition: border-color 0.2s;
 }
 
+/* ── Password input group (wrapper + visibility-toggle button) ───────── */
+
+/*
+ * With doUseDefaultCss=false, keycloakify's kcClsx() returns the literal
+ * KC key names as HTML class names — NOT the PatternFly pf-c-* aliases.
+ * Actual DOM structure:
+ *   <div class="kcInputGroup">
+ *     <input class="kcInputClass" type="password" />
+ *     <button class="kcFormPasswordVisibilityButtonClass">
+ *       <i class="kcFormPasswordVisibilityIconShow fa fa-eye"></i>
+ *     </button>
+ *   </div>
+ * (The fa/fa-eye classes are added via the `classes` prop in KcPage.tsx.)
+ *
+ * CSS Grid two-column layout: the input fills the flexible first column
+ * (1fr), the button occupies a fixed 44 px second column.
+ */
+.kcInputGroup {
+  display: grid;
+  grid-template-columns: 1fr 44px;
+  align-items: stretch;
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+/* Input: fills the 1fr column; explicit height so the grid track is fixed.
+ * Target all input types because Keycloak toggles type="password"→"text"
+ * when the eye button is clicked, which would drop the type-specific rules. */
+.kcInputGroup input {
+  width: 100%;
+  height: 42px;
+  box-sizing: border-box;
+  border-radius: 4px 0 0 4px;
+  border-right: none;
+  margin-bottom: 0;
+}
+
+/* Visibility-toggle button: explicit height matches the input exactly */
+.kcFormPasswordVisibilityButtonClass {
+  width: 44px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+/* Prevent the icon glyph metrics from inflating the button height */
+.kcFormPasswordVisibilityButtonClass > i {
+  display: block;
+  line-height: 1;
+  font-size: 1rem;
+}
+
+.dark .kcFormPasswordVisibilityButtonClass {
+  background-color: #555;
+  border-color: #666;
+  color: #eee;
+}
+
+.dark .kcFormPasswordVisibilityButtonClass:hover {
+  background-color: #666;
+  color: #fff;
+}
+
+.light .kcFormPasswordVisibilityButtonClass {
+  background-color: #d0d0d0;
+  border-color: #bbb;
+  color: #333;
+}
+
+.light .kcFormPasswordVisibilityButtonClass:hover {
+  background-color: #bbb;
+  color: #111;
+}
+
+/* Focus ring: both input and button share the accent colour */
+.dark .kcInputGroup:focus-within input,
+.dark .kcInputGroup:focus-within .kcFormPasswordVisibilityButtonClass {
+  border-color: #ffa000;
+}
+
+.light .kcInputGroup:focus-within input,
+.light .kcInputGroup:focus-within .kcFormPasswordVisibilityButtonClass {
+  border-color: #ffa000;
+}
+
 .dark .login-card-body input[type="text"],
 .dark .login-card-body input[type="email"],
 .dark .login-card-body input[type="password"] {
@@ -327,6 +424,20 @@ body.login-pf.light {
   border-color: #e0e0e0;
 }
 
+.register-label {
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.dark .register-label {
+  color: #ccc;
+}
+
+.light .register-label {
+  color: #555;
+}
+
 .register-btn {
   display: block;
   width: 100%;
@@ -394,7 +505,7 @@ body.login-pf.light {
   }
 
   .coshanu-banner-img {
-    height: 40px;
+    height: 56px;
   }
 
   .login-card-header,
