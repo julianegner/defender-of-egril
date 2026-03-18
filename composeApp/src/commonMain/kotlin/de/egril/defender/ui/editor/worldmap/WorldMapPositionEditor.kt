@@ -11,7 +11,10 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -32,6 +35,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextOverflow
 import de.egril.defender.editor.ConnectionType
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.WorldMapData
@@ -39,6 +43,7 @@ import de.egril.defender.editor.WorldMapLocationData
 import de.egril.defender.editor.WorldMapPathData
 import de.egril.defender.editor.WorldMapPoint
 import de.egril.defender.model.Position
+import de.egril.defender.ui.IconGridScrollbar
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.icon.WarningIcon
@@ -1351,39 +1356,58 @@ private fun AddLocationDialog(
                 
                 // Icon selection grid/slider
                 Text(stringResource(Res.string.available_icons), style = MaterialTheme.typography.bodySmall)
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                val iconGridState = rememberLazyGridState()
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .padding(vertical = 8.dp)
                 ) {
-                    items(LocationIconUtils.AVAILABLE_LOCATION_ICONS) { iconName ->
-                        val iconPainter = LocationIconUtils.loadIconPainter(iconName)
-                        if (iconPainter != null) {
-                            Surface(
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .clickable {
-                                        selectedIconResourceName = iconName
-                                    },
-                                shape = RoundedCornerShape(8.dp),
-                                color = if (selectedIconResourceName == iconName)
-                                    MaterialTheme.colorScheme.primaryContainer
-                                else
-                                    MaterialTheme.colorScheme.surfaceVariant,
-                                shadowElevation = if (selectedIconResourceName == iconName) 4.dp else 1.dp
-                            ) {
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier.fillMaxSize().padding(8.dp)
+                    LazyVerticalGrid(
+                        columns = GridCells.Adaptive(minSize = 72.dp),
+                        state = iconGridState,
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(LocationIconUtils.AVAILABLE_LOCATION_ICONS) { iconName ->
+                            val iconPainter = LocationIconUtils.loadIconPainter(iconName)
+                            if (iconPainter != null) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.clickable { selectedIconResourceName = iconName }
                                 ) {
-                                    Image(
-                                        painter = iconPainter,
-                                        contentDescription = LocationIconUtils.getIconDisplayName(iconName),
-                                        modifier = Modifier.fillMaxSize()
+                                    Surface(
+                                        modifier = Modifier.size(48.dp),
+                                        shape = RoundedCornerShape(8.dp),
+                                        color = if (selectedIconResourceName == iconName)
+                                            MaterialTheme.colorScheme.primaryContainer
+                                        else
+                                            MaterialTheme.colorScheme.surfaceVariant,
+                                        shadowElevation = if (selectedIconResourceName == iconName) 4.dp else 1.dp
+                                    ) {
+                                        Box(
+                                            contentAlignment = Alignment.Center,
+                                            modifier = Modifier.fillMaxSize().padding(8.dp)
+                                        ) {
+                                            Image(
+                                                painter = iconPainter,
+                                                contentDescription = LocationIconUtils.getIconDisplayName(iconName),
+                                                modifier = Modifier.fillMaxSize()
+                                            )
+                                        }
+                                    }
+                                    Text(
+                                        text = LocationIconUtils.getIconDisplayName(iconName),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
                                     )
                                 }
                             }
                         }
                     }
+                    IconGridScrollbar(iconGridState)
                 }
             }
         },
@@ -1540,39 +1564,58 @@ private fun EditLocationDialog(
                 
                 // Icon selection grid/slider
                 Text(stringResource(Res.string.available_icons), style = MaterialTheme.typography.bodySmall)
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                val iconGridState = rememberLazyGridState()
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .padding(vertical = 8.dp)
                 ) {
-                    items(LocationIconUtils.AVAILABLE_LOCATION_ICONS) { iconName ->
-                        val iconPainter = LocationIconUtils.loadIconPainter(iconName)
-                        if (iconPainter != null) {
-                            Surface(
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .clickable {
-                                        selectedIconResourceName = iconName
-                                    },
-                                shape = RoundedCornerShape(8.dp),
-                                color = if (selectedIconResourceName == iconName)
-                                    MaterialTheme.colorScheme.primaryContainer
-                                else
-                                    MaterialTheme.colorScheme.surfaceVariant,
-                                shadowElevation = if (selectedIconResourceName == iconName) 4.dp else 1.dp
-                            ) {
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier.fillMaxSize().padding(8.dp)
+                    LazyVerticalGrid(
+                        columns = GridCells.Adaptive(minSize = 72.dp),
+                        state = iconGridState,
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(LocationIconUtils.AVAILABLE_LOCATION_ICONS) { iconName ->
+                            val iconPainter = LocationIconUtils.loadIconPainter(iconName)
+                            if (iconPainter != null) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.clickable { selectedIconResourceName = iconName }
                                 ) {
-                                    Image(
-                                        painter = iconPainter,
-                                        contentDescription = LocationIconUtils.getIconDisplayName(iconName),
-                                        modifier = Modifier.fillMaxSize()
+                                    Surface(
+                                        modifier = Modifier.size(48.dp),
+                                        shape = RoundedCornerShape(8.dp),
+                                        color = if (selectedIconResourceName == iconName)
+                                            MaterialTheme.colorScheme.primaryContainer
+                                        else
+                                            MaterialTheme.colorScheme.surfaceVariant,
+                                        shadowElevation = if (selectedIconResourceName == iconName) 4.dp else 1.dp
+                                    ) {
+                                        Box(
+                                            contentAlignment = Alignment.Center,
+                                            modifier = Modifier.fillMaxSize().padding(8.dp)
+                                        ) {
+                                            Image(
+                                                painter = iconPainter,
+                                                contentDescription = LocationIconUtils.getIconDisplayName(iconName),
+                                                modifier = Modifier.fillMaxSize()
+                                            )
+                                        }
+                                    }
+                                    Text(
+                                        text = LocationIconUtils.getIconDisplayName(iconName),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
                                     )
                                 }
                             }
                         }
                     }
+                    IconGridScrollbar(iconGridState)
                 }
             }
         },

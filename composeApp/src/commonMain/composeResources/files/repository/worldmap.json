@@ -47,7 +47,8 @@
       "name": "The Village",
       "nameKey": "location_the_village_name",
       "position": {"x": 309, "y": 306},
-      "levelIds": ["the_rush"]
+      "levelIds": ["the_rush"],
+      "iconResourceName": "village"
     },
     {
       "id": "the_woods",
