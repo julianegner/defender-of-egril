@@ -37,7 +37,7 @@ object BackgroundMusicSettings {
 
     /**
      * Base volume multiplier for final credits music
-     * Final credits music plays at world map loudness so it is clearly audible.
+     * Matches [WORLD_MAP_BASE_MULTIPLIER] (0.6x) so the credits music is clearly audible.
      */
     const val FINAL_CREDITS_BASE_MULTIPLIER = 0.6f
 
