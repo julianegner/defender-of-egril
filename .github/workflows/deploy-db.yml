@@ -100,6 +100,12 @@ jobs:
             DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
             EOF
 
+            # Ensure Docker Compose V2 plugin is available (docker.io on Ubuntu
+            # does not include it by default).
+            if ! docker compose version >/dev/null 2>&1; then
+              apt-get update -qq && apt-get install -y docker-compose-plugin
+            fi
+
             docker compose pull
             docker compose up -d
             echo "✅ Database deployed"
