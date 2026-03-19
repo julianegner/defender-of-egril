@@ -71,6 +71,7 @@ object FinalCreditsData {
     val backgroundMusicCredits: List<SoundCreditEntry> = listOf(
         SoundCreditEntry("David Fesliyan", "Fantasy Ambience (fesliyanstudios.com)"),
         SoundCreditEntry("David Fesliyan", "The Dark Castle (fesliyanstudios.com)"),
+        SoundCreditEntry("David Fesliyan", "Beautiful Memories (fesliyanstudios.com)"),
         SoundCreditEntry("Pixabay", "Mystic Fantasy Orchestral Music (pixabay.com)")
     )
 

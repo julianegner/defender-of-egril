@@ -6,7 +6,8 @@ package de.egril.defender.audio
 enum class BackgroundMusic {
     WORLD_MAP,           // Mystic fantasy orchestral for world map
     GAMEPLAY_NORMAL,     // Fantasy ambience for normal gameplay
-    GAMEPLAY_LOW_HEALTH  // Dark castle music when HP < 5
+    GAMEPLAY_LOW_HEALTH, // Dark castle music when HP < 5
+    FINAL_CREDITS        // Beautiful Memories for the final credits screen
 }
 
 /**
