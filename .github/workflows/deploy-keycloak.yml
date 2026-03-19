@@ -88,7 +88,7 @@ jobs:
           host: 178.104.79.60
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          key_passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
+          passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
           source: "deploy/keycloak/docker-compose.yml,keycloak/production/egril-realm.json,keycloak/production/nginx.conf"
           target: /opt/keycloak
           strip_components: 2
@@ -99,7 +99,7 @@ jobs:
           host: 178.104.79.60
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          key_passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
+          passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
           source: "/tmp/keycloak-theme-jar/*.jar"
           target: /opt/keycloak/providers
           strip_components: 3
@@ -110,7 +110,7 @@ jobs:
           host: 178.104.79.60
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          key_passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
+          passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
           script: |
             set -euo pipefail
             cd /opt/keycloak

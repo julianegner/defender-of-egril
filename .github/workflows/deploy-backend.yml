@@ -81,7 +81,7 @@ jobs:
           host: 178.104.84.83
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          key_passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
+          passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
           source: "deploy/backend/docker-compose.yml"
           target: /opt/defender-of-egril/backend
           strip_components: 2
@@ -92,7 +92,7 @@ jobs:
           host: 178.104.84.83
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          key_passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
+          passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
           script: |
             set -euo pipefail
             cd /opt/defender-of-egril/backend
