@@ -3,16 +3,16 @@
 # Keycloak instance via docker compose.
 #
 # Usage:
-#   ./local-keycloak/start.sh           # start in the foreground
-#   ./local-keycloak/start.sh -d        # start in detached (background) mode
+#   ./keycloak/local/start.sh           # start in the foreground
+#   ./keycloak/local/start.sh -d        # start in detached (background) mode
 #
 # Prerequisites: Node.js 18+, npm 9+, Docker with Compose v2
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-THEME_DIR="$REPO_ROOT/keycloak-theme"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+THEME_DIR="$REPO_ROOT/keycloak/theme"
 JAR_DIR="$THEME_DIR/dist_keycloak"
 
 # Build the theme JAR if it is missing or the source is newer.

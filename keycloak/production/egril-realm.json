@@ -1,0 +1,60 @@
+{
+  "realm": "egril",
+  "enabled": true,
+  "displayName": "Egril",
+  "displayNameHtml": "<b>Egril</b>",
+  "loginTheme": "egril",
+  "registrationAllowed": true,
+  "loginWithEmailAllowed": true,
+  "registrationEmailAsUsername": true,
+  "rememberMe": true,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": true,
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "sslRequired": "external",
+  "internationalizationEnabled": true,
+  "supportedLocales": [
+    "en",
+    "de",
+    "es",
+    "fr",
+    "it"
+  ],
+  "defaultLocale": "en",
+  "clients": [
+    {
+      "clientId": "defender-of-egril",
+      "name": "Defender of Egril",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "protocol": "openid-connect",
+      "redirectUris": [
+        "http://localhost:*/*",
+        "egril://callback",
+        "https://defender.egril.de/*"
+      ],
+      "webOrigins": [
+        "+"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:*/*##egril://callback##https://defender.egril.de/*##+##"
+      }
+    },
+    {
+      "clientId": "defender-of-egril-cli",
+      "name": "Defender of Egril CLI",
+      "description": "Public client for developer scripts and API testing. Allows Resource Owner Password Credentials flow.",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "protocol": "openid-connect",
+      "attributes": {}
+    }
+  ]
+}
