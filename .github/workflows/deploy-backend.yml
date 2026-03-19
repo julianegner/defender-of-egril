@@ -98,7 +98,7 @@ jobs:
             GITHUB_REPOSITORY=${{ github.repository }}
             IMAGE_TAG=${{ needs.build-and-push.outputs.image_tag }}
             DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
-            IAM_BASE_URL=http://10.0.0.3:8080
+            IAM_BASE_URL=https://sso.julianegner.de
             EOF
 
             # Log in to ghcr.io so the server can pull the image.

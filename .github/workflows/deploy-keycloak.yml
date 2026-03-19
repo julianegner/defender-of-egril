@@ -108,7 +108,7 @@ jobs:
             cat > .env <<EOF
             DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
             KEYCLOAK_ADMIN_PASSWORD=${{ secrets.PROD_KEYCLOAK_ADMIN_PASSWORD }}
-            KEYCLOAK_HOSTNAME=178.104.79.60
+            KEYCLOAK_HOSTNAME=sso.julianegner.de
             EOF
 
             # Recreate the container so any updated realm JSON / theme JAR
