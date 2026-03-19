@@ -29,18 +29,12 @@ jobs:
       - name: "✅ Checkout code"
         uses: actions/checkout@v4
 
-      - name: "🔑 Prepare SSH key"
-        run: |
-          mkdir -p "$RUNNER_TEMP/.ssh"
-          printf '%s\n' "${{ secrets.PROD_SSH_PRIVATE_KEY }}" > "$RUNNER_TEMP/.ssh/deploy_key"
-          chmod 600 "$RUNNER_TEMP/.ssh/deploy_key"
-
       - name: "📂 Upload compose file"
         uses: appleboy/scp-action@v0.1.7
         with:
           host: 178.104.64.170
           username: root
-          key_path: /github/runner_temp/.ssh/deploy_key
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           source: "deploy/db/docker-compose.yml"
           target: /opt/postgres
           strip_components: 2
@@ -50,7 +44,7 @@ jobs:
         with:
           host: 178.104.64.170
           username: root
-          key_path: /github/runner_temp/.ssh/deploy_key
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           source: "db-init/"
           target: /opt/postgres/db-init
           strip_components: 1
@@ -60,7 +54,7 @@ jobs:
         with:
           host: 178.104.64.170
           username: root
-          key_path: /github/runner_temp/.ssh/deploy_key
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           script: |
             set -euo pipefail
             cd /opt/postgres
