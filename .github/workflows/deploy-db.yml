@@ -10,7 +10,8 @@
 # Required GitHub Secrets:
 #   PROD_SSH_PRIVATE_KEY  – SSH private key that grants access to all three
 #                           production servers (add the corresponding public key
-#                           to ~/.ssh/authorized_keys on each server)
+#                           to ~/.ssh/authorized_keys on each server;
+#                           see deploy/README.md for step-by-step instructions)
 #   PROD_DB_PASSWORD      – Password for the 'defender' PostgreSQL user
 name: Deploy Database
 
@@ -28,12 +29,18 @@ jobs:
       - name: "✅ Checkout code"
         uses: actions/checkout@v4
 
+      - name: "🔑 Prepare SSH key"
+        run: |
+          mkdir -p "$RUNNER_TEMP/.ssh"
+          printf '%s\n' "${{ secrets.PROD_SSH_PRIVATE_KEY }}" > "$RUNNER_TEMP/.ssh/deploy_key"
+          chmod 600 "$RUNNER_TEMP/.ssh/deploy_key"
+
       - name: "📂 Upload compose file"
         uses: appleboy/scp-action@v0.1.7
         with:
           host: 178.104.64.170
           username: root
-          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          key_path: /github/runner_temp/.ssh/deploy_key
           source: "deploy/db/docker-compose.yml"
           target: /opt/postgres
           strip_components: 2
@@ -43,7 +50,7 @@ jobs:
         with:
           host: 178.104.64.170
           username: root
-          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          key_path: /github/runner_temp/.ssh/deploy_key
           source: "db-init/"
           target: /opt/postgres/db-init
           strip_components: 1
@@ -53,7 +60,7 @@ jobs:
         with:
           host: 178.104.64.170
           username: root
-          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          key_path: /github/runner_temp/.ssh/deploy_key
           script: |
             set -euo pipefail
             cd /opt/postgres
