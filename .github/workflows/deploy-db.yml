@@ -34,8 +34,24 @@ jobs:
           TMPKEY=$(mktemp)
           printf '%s' "${{ secrets.PROD_SSH_PRIVATE_KEY }}" > "$TMPKEY"
           chmod 600 "$TMPKEY"
+          echo "--- Key diagnostics ---"
+          echo "First line : $(head -1 "$TMPKEY")"
+          echo "Last line  : $(tail -1 "$TMPKEY")"
+          echo "Line count : $(wc -l < "$TMPKEY")"
+          echo "Char count : $(wc -c < "$TMPKEY")"
+          echo ""
           echo "Key fingerprint (must match a key in root@178.104.64.170:~/.ssh/authorized_keys):"
-          ssh-keygen -l -f "$TMPKEY" || echo "⚠️  PROD_SSH_PRIVATE_KEY is not a valid private key – check its content and newlines"
+          if ssh-keygen -l -f "$TMPKEY"; then
+            echo "✅ Key is valid"
+          else
+            echo ""
+            echo "⚠️  PROD_SSH_PRIVATE_KEY is NOT a valid private key."
+            echo "   The most common cause is that newlines were lost when the key was"
+            echo "   copied manually. Re-copy using a clipboard command (see deploy/README.md):"
+            echo "     macOS : pbcopy < ~/.ssh/defender_deploy_key"
+            echo "     Linux : xclip -sel clip < ~/.ssh/defender_deploy_key"
+            echo "   Then paste the clipboard contents into the GitHub Secret."
+          fi
           rm -f "$TMPKEY"
 
       - name: "📂 Upload compose file"
