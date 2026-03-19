@@ -24,3 +24,15 @@ val isPlatformAndroid = getPlatform().name.startsWith("Android")
 val isPlatformIos = getPlatform().name.startsWith("iOS")
 val isPlatformDesktop = getPlatform().name.startsWith("Java")
 val isPlatformMobile = isPlatformAndroid || isPlatformIos
+
+/**
+ * Returns a short platform identifier suitable for backend API calls and analytics.
+ * Maps platform names to the canonical string values used throughout the backend.
+ */
+fun getClientPlatformName(): String = when {
+    isPlatformWasm -> "WEB"
+    isPlatformAndroid -> "ANDROID"
+    isPlatformIos -> "IOS"
+    isPlatformDesktop -> "DESKTOP"
+    else -> "UNKNOWN"
+}

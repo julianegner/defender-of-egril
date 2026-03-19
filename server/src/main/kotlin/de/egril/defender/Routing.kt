@@ -81,6 +81,8 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
             val message = buildString {
                 append("[${event.event}] platform=${event.platform}")
                 if (event.levelName != null) append(" levelName=${event.levelName}")
+                if (event.versionName != null) append(" version=${event.versionName}")
+                if (event.commitHash != null) append(" commit=${event.commitHash}")
                 if (authUser != null) append(" user=$authUser")
             }
             analyticsLogger.info(message)
@@ -88,11 +90,13 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
             dataSourceRef.get()?.connection?.use { conn ->
                 try {
                     conn.prepareStatement(
-                        "INSERT INTO events (event_type, platform, level_name) VALUES (?, ?, ?)"
+                        "INSERT INTO events (event_type, platform, level_name, version_name, commit_hash) VALUES (?, ?, ?, ?, ?)"
                     ).use { stmt ->
                         stmt.setString(1, event.event)
                         stmt.setString(2, event.platform)
                         stmt.setString(3, event.levelName)
+                        stmt.setString(4, event.versionName)
+                        stmt.setString(5, event.commitHash)
                         stmt.executeUpdate()
                     }
                 } catch (e: Exception) {
@@ -134,15 +138,18 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                 try {
                     conn.prepareStatement(
                         """
-                        INSERT INTO savefiles (user_id, save_id, data, updated_at)
-                        VALUES (?, ?, ?, NOW())
+                        INSERT INTO savefiles (user_id, save_id, data, platform, version_name, commit_hash, updated_at)
+                        VALUES (?, ?, ?, ?, ?, ?, NOW())
                         ON CONFLICT (user_id, save_id)
-                        DO UPDATE SET data = EXCLUDED.data, updated_at = NOW()
+                        DO UPDATE SET data = EXCLUDED.data, platform = EXCLUDED.platform, version_name = EXCLUDED.version_name, commit_hash = EXCLUDED.commit_hash, updated_at = NOW()
                         """.trimIndent()
                     ).use { stmt ->
                         stmt.setString(1, userId)
                         stmt.setString(2, request.saveId)
                         stmt.setString(3, request.data)
+                        stmt.setString(4, request.platform)
+                        stmt.setString(5, request.versionName)
+                        stmt.setString(6, request.commitHash)
                         stmt.executeUpdate()
                     }
                     savefileLogger.info("Savefile uploaded: userId=$userId saveId=${request.saveId}")
@@ -229,14 +236,17 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                 try {
                     conn.prepareStatement(
                         """
-                        INSERT INTO userdata (user_id, data, updated_at)
-                        VALUES (?, ?, NOW())
+                        INSERT INTO userdata (user_id, data, platform, version_name, commit_hash, updated_at)
+                        VALUES (?, ?, ?, ?, ?, NOW())
                         ON CONFLICT (user_id)
-                        DO UPDATE SET data = EXCLUDED.data, updated_at = NOW()
+                        DO UPDATE SET data = EXCLUDED.data, platform = EXCLUDED.platform, version_name = EXCLUDED.version_name, commit_hash = EXCLUDED.commit_hash, updated_at = NOW()
                         """.trimIndent()
                     ).use { stmt ->
                         stmt.setString(1, userId)
                         stmt.setString(2, request.data)
+                        stmt.setString(3, request.platform)
+                        stmt.setString(4, request.versionName)
+                        stmt.setString(5, request.commitHash)
                         stmt.executeUpdate()
                     }
                     userDataLogger.info("User data uploaded: userId=$userId")
@@ -324,14 +334,17 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                 try {
                     conn.prepareStatement(
                         """
-                        INSERT INTO player_settings (user_id, data, updated_at)
-                        VALUES (?, ?, NOW())
+                        INSERT INTO player_settings (user_id, data, platform, version_name, commit_hash, updated_at)
+                        VALUES (?, ?, ?, ?, ?, NOW())
                         ON CONFLICT (user_id)
-                        DO UPDATE SET data = EXCLUDED.data, updated_at = NOW()
+                        DO UPDATE SET data = EXCLUDED.data, platform = EXCLUDED.platform, version_name = EXCLUDED.version_name, commit_hash = EXCLUDED.commit_hash, updated_at = NOW()
                         """.trimIndent()
                     ).use { stmt ->
                         stmt.setString(1, userId)
                         stmt.setString(2, request.data)
+                        stmt.setString(3, request.platform)
+                        stmt.setString(4, request.versionName)
+                        stmt.setString(5, request.commitHash)
                         stmt.executeUpdate()
                     }
                     settingsLogger.info("Player settings uploaded: userId=$userId")

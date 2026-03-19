@@ -550,4 +550,109 @@ class BackendIntegrationTest {
             assertEquals(HttpStatusCode.OK, status)
         }
     }
+
+    @Test
+    fun `POST events with versionName and commitHash succeeds`() = withRealDatabase {
+        client.post("/api/events") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"event":"APP_STARTED","platform":"DESKTOP","versionName":"1.0","commitHash":"abc1234"}""")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+    }
+
+    @Test
+    fun `POST events without versionName and commitHash still succeeds`() = withRealDatabase {
+        client.post("/api/events") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"event":"LEVEL_STARTED","levelName":"Level 1","platform":"ANDROID"}""")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+    }
+
+    @Test
+    fun `POST savefiles with versionName and commitHash stores successfully`() = withRealDatabase {
+        val token = fakeToken("user-savefile-version")
+        client.post("/api/savefiles") {
+            contentType(ContentType.Application.Json)
+            header(HttpHeaders.Authorization, "Bearer $token")
+            setBody("""{"saveId":"save-v1","data":"\"gamedata\"","platform":"WEB","versionName":"1.0","commitHash":"abc1234"}""")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+    }
+
+    @Test
+    fun `POST userdata with versionName and commitHash stores successfully`() = withRealDatabase {
+        val token = fakeToken("user-userdata-version")
+        val userData = """{"localUsername":"Tester","abilities":{},"levelProgress":{}}"""
+        client.post("/api/userdata") {
+            contentType(ContentType.Application.Json)
+            header(HttpHeaders.Authorization, "Bearer $token")
+            setBody("""{"data":${jsonString(userData)},"platform":"DESKTOP","versionName":"1.0","commitHash":"abc1234"}""")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+    }
+
+    @Test
+    fun `POST settings with versionName and commitHash stores successfully`() = withRealDatabase {
+        val token = fakeToken("user-settings-version")
+        val settings = """{"darkMode":false,"language":"en"}"""
+        client.post("/api/settings") {
+            contentType(ContentType.Application.Json)
+            header(HttpHeaders.Authorization, "Bearer $token")
+            setBody("""{"data":${jsonString(settings)},"platform":"IOS","versionName":"1.0","commitHash":"abc1234"}""")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+    }
+
+    @Test
+    fun `GET userdata does not expose versionName or commitHash to frontend`() = withRealDatabase {
+        val token = fakeToken("user-userdata-no-expose")
+        val userData = """{"localUsername":"NoExpose","abilities":{},"levelProgress":{}}"""
+
+        client.post("/api/userdata") {
+            contentType(ContentType.Application.Json)
+            header(HttpHeaders.Authorization, "Bearer $token")
+            setBody("""{"data":${jsonString(userData)},"platform":"WEB","versionName":"1.0","commitHash":"abc1234"}""")
+        }.apply { assertEquals(HttpStatusCode.OK, status) }
+
+        client.get("/api/userdata") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+            val body = bodyAsText()
+            // Response must contain the user data but must NOT expose version/commit fields
+            assertContains(body, "NoExpose")
+            assert(!body.contains("versionName")) { "Response must not expose versionName" }
+            assert(!body.contains("commitHash")) { "Response must not expose commitHash" }
+            assert(!body.contains("\"platform\"")) { "Response must not expose platform" }
+        }
+    }
+
+    @Test
+    fun `GET settings does not expose versionName or commitHash to frontend`() = withRealDatabase {
+        val token = fakeToken("user-settings-no-expose")
+        val settings = """{"darkMode":true}"""
+
+        client.post("/api/settings") {
+            contentType(ContentType.Application.Json)
+            header(HttpHeaders.Authorization, "Bearer $token")
+            setBody("""{"data":${jsonString(settings)},"platform":"WEB","versionName":"1.0","commitHash":"abc1234"}""")
+        }.apply { assertEquals(HttpStatusCode.OK, status) }
+
+        client.get("/api/settings") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+            val body = bodyAsText()
+            assertContains(body, "darkMode")
+            assert(!body.contains("versionName")) { "Response must not expose versionName" }
+            assert(!body.contains("commitHash")) { "Response must not expose commitHash" }
+            assert(!body.contains("\"platform\"")) { "Response must not expose platform" }
+        }
+    }
 }

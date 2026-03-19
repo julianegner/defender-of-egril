@@ -63,9 +63,27 @@ internal fun escapeJsonString(s: String): String = buildString {
     }
 }
 
+/**
+ * Appends the shared client information JSON fields (platform, versionName, commitHash)
+ * to this [StringBuilder]. The fields are written without a trailing comma.
+ */
+internal fun StringBuilder.appendClientInfo(platform: String, versionName: String, commitHash: String) {
+    append("\"platform\":\"${escapeJsonString(platform)}\",")
+    append("\"versionName\":\"${escapeJsonString(versionName)}\",")
+    append("\"commitHash\":\"${escapeJsonString(commitHash)}\"")
+}
+
 /** Builds the JSON payload for a savefile upload request. */
-internal fun buildUploadJson(saveId: String, jsonData: String): String =
-    """{"saveId":"${escapeJsonString(saveId)}","data":"${escapeJsonString(jsonData)}"}"""
+internal fun buildUploadJson(saveId: String, jsonData: String): String = buildString {
+    val platform = de.egril.defender.utils.getClientPlatformName()
+    val versionName = de.egril.defender.BuildConfig.VERSION_NAME
+    val commitHash = de.egril.defender.BuildConfig.COMMIT_HASH
+    append("{")
+    append("\"saveId\":\"${escapeJsonString(saveId)}\",")
+    append("\"data\":\"${escapeJsonString(jsonData)}\",")
+    appendClientInfo(platform, versionName, commitHash)
+    append("}")
+}
 
 /**
  * Parses a JSON array of [RemoteSavefileInfo] objects returned by GET /api/savefiles.

@@ -7,11 +7,17 @@ import kotlinx.serialization.Serializable
  *
  * @param saveId Unique identifier of the save (e.g. "savegame_1234567890")
  * @param data   Raw JSON content of the savefile
+ * @param platform The frontend platform (e.g. WEB, DESKTOP, ANDROID, IOS), optional
+ * @param versionName The version name of the frontend (e.g. "1.0"), optional
+ * @param commitHash The short git commit hash of the frontend build, optional
  */
 @Serializable
 data class SavefileUploadRequest(
     val saveId: String,
-    val data: String
+    val data: String,
+    val platform: String? = null,
+    val versionName: String? = null,
+    val commitHash: String? = null
 )
 
 /**
