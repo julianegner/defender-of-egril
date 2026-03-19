@@ -143,10 +143,15 @@ private class AnimatedBackgroundImage(
  *
  * The display is fully deterministic – images and text always appear in the same order.
  * Clicking/tapping anywhere dismisses the credits and returns to the world map.
+ *
+ * @param animationsEnabled When false, all continuous animations (background image cycle and
+ *   auto-scroll) are disabled. Use this in tests to prevent infinite animation loops from
+ *   blocking [androidx.compose.ui.test.ComposeTestRule.setContent] via its internal idle-wait.
  */
 @Composable
 fun FinalCreditsScreen(
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    animationsEnabled: Boolean = true
 ) {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
@@ -166,13 +171,15 @@ fun FinalCreditsScreen(
         }
     }
 
-    // Start auto-scrolling when the screen appears
-    LaunchedEffect(Unit) {
-        delay(500)
-        scrollState.animateScrollTo(
-            value = scrollState.maxValue,
-            animationSpec = tween(durationMillis = SCROLL_DURATION_MS, easing = LinearEasing)
-        )
+    // Start auto-scrolling when the screen appears (skipped in tests)
+    if (animationsEnabled) {
+        LaunchedEffect(Unit) {
+            delay(500)
+            scrollState.animateScrollTo(
+                value = scrollState.maxValue,
+                animationSpec = tween(durationMillis = SCROLL_DURATION_MS, easing = LinearEasing)
+            )
+        }
     }
 
     Box(
@@ -182,7 +189,9 @@ fun FinalCreditsScreen(
             .clickable { coroutineScope.launch { onDismiss() } }
     ) {
         // ── Lower layer: animated background images ───────────────────────────
-        CreditsAnimatedBackground()
+        if (animationsEnabled) {
+            CreditsAnimatedBackground()
+        }
 
         // ── Upper layer: scrolling credits text ───────────────────────────────
         Column(
