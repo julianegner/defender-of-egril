@@ -13,6 +13,11 @@ import org.junit.Test
  *
  * Verifies that the credits screen renders with the expected sections
  * and captures a screenshot for visual verification.
+ *
+ * Note: Clock auto-advance is disabled to prevent the test from hanging indefinitely.
+ * FinalCreditsScreen contains a while(true) background animation loop and a 60-second
+ * scroll animation. With autoAdvance=true (the default), waitForIdle() would advance the
+ * virtual clock through these animations forever, causing the test to never complete.
  */
 class FinalCreditsScreenTest {
 
@@ -20,8 +25,13 @@ class FinalCreditsScreenTest {
     val composeTestRule = createComposeRule()
 
     @Before
-    fun setDefaultLanguage() {
+    fun setUp() {
         currentLanguage.value = AppLocale.DEFAULT
+        // Disable automatic clock advancement to prevent the test from hanging.
+        // FinalCreditsScreen has an infinite background-image loop and a 60-second scroll
+        // animation. If the clock auto-advances, waitForIdle() advances through the loop
+        // forever and never returns.
+        composeTestRule.mainClock.autoAdvance = false
     }
 
     @Test

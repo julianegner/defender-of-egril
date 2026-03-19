@@ -304,6 +304,12 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>> {
     dependsOn(generateOfficialEditModeConstant)
 }
 
+// Set a per-test-method timeout on JVM test tasks (desktop and Android unit tests).
+// This prevents a single stuck test from blocking CI for hours.
+tasks.withType<Test> {
+    timeout.set(java.time.Duration.ofMinutes(5))
+}
+
 android {
     namespace = "de.egril.defender"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
