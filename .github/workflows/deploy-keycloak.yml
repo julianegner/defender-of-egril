@@ -115,6 +115,13 @@ jobs:
             set -euo pipefail
             cd /opt/keycloak
 
+            # Ensure Docker Compose V2 plugin is available (docker.io on Ubuntu
+            # does not include it by default; docker-compose-v2 is in the
+            # Ubuntu universe repo and does not require the Docker CE repo).
+            if ! docker compose version >/dev/null 2>&1; then
+              apt-get update -qq && apt-get install -y docker-compose-v2
+            fi
+
             # Write the .env file (overwrites on every deploy).
             cat > .env <<EOF
             DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}

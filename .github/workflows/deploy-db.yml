@@ -101,9 +101,10 @@ jobs:
             EOF
 
             # Ensure Docker Compose V2 plugin is available (docker.io on Ubuntu
-            # does not include it by default).
+            # does not include it by default; docker-compose-v2 is in the
+            # Ubuntu universe repo and does not require the Docker CE repo).
             if ! docker compose version >/dev/null 2>&1; then
-              apt-get update -qq && apt-get install -y docker-compose-plugin
+              apt-get update -qq && apt-get install -y docker-compose-v2
             fi
 
             docker compose pull
