@@ -80,7 +80,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: keycloak-theme-jar
-          path: /tmp/keycloak-theme-jar
+          path: keycloak-theme-jar
 
       - name: "📂 Upload compose file, realm JSON, and nginx config"
         uses: appleboy/scp-action@v0.1.7
@@ -100,9 +100,9 @@ jobs:
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
-          source: "/tmp/keycloak-theme-jar/*.jar"
+          source: "keycloak-theme-jar/*.jar"
           target: /opt/keycloak/providers
-          strip_components: 3
+          strip_components: 1
 
       - name: "🚀 Start / update Keycloak and nginx"
         uses: appleboy/ssh-action@v1.0.3
@@ -114,6 +114,13 @@ jobs:
           script: |
             set -euo pipefail
             cd /opt/keycloak
+
+            # Ensure Docker Compose V2 plugin is available (docker.io on Ubuntu
+            # does not include it by default; docker-compose-v2 is in the
+            # Ubuntu universe repo and does not require the Docker CE repo).
+            if ! docker compose version >/dev/null 2>&1; then
+              apt-get update -qq && apt-get install -y docker-compose-v2
+            fi
 
             # Write the .env file (overwrites on every deploy).
             cat > .env <<EOF

@@ -120,7 +120,7 @@ Compose v2) is installed on each server and the SSH key is configured
 
 ```bash
 # On each server (as root):
-apt-get update && apt-get install -y docker.io
+apt-get update && apt-get install -y docker.io docker-compose-v2
 ```
 
 **DB server only** (`/opt/postgres` is created automatically by the workflow):
