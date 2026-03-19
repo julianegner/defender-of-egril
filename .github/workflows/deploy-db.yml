@@ -35,7 +35,7 @@ jobs:
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           source: "deploy/db/docker-compose.yml"
-          target: /opt/defender-of-egril/db
+          target: /opt/postgres
           strip_components: 2
 
       - name: "📂 Upload DB init scripts"
@@ -45,7 +45,7 @@ jobs:
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           source: "db-init/"
-          target: /opt/defender-of-egril/db/db-init
+          target: /opt/postgres/db-init
           strip_components: 1
 
       - name: "🚀 Start / update PostgreSQL"
@@ -56,7 +56,7 @@ jobs:
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           script: |
             set -euo pipefail
-            cd /opt/defender-of-egril/db
+            cd /opt/postgres
 
             # Write the .env file (overwrites on every deploy to pick up secret
             # rotation).

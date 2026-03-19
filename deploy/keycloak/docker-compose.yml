@@ -4,25 +4,41 @@
 # (private network IP 10.0.0.2).  The Keycloak database and user are
 # created by the db-init scripts on the DB server.
 #
-# Required environment variables (set in .env on the server or passed inline):
+# nginx terminates TLS for sso.julianegner.de and proxies to Keycloak
+# on the internal Docker network.  The SSL certificate must be obtained
+# with certbot before the first deploy (see keycloak/production/nginx.conf).
+#
+# Required environment variables (written to .env by the GitHub Actions workflow):
 #   DB_PASSWORD              – password for the 'defender' PostgreSQL user
 #   KEYCLOAK_ADMIN_PASSWORD  – password for the Keycloak 'admin' account
-#   KEYCLOAK_HOSTNAME        – public hostname/IP used by browsers to reach
-#                              Keycloak (e.g. keycloak.example.com or the
-#                              server's public IP).  Used for token issuer URLs.
+#   KEYCLOAK_HOSTNAME        – public hostname (sso.julianegner.de)
 #
-# The egril-realm.json and the theme JAR are copied to the server by the
-# GitHub Actions deploy-keycloak workflow before this compose file is started.
+# The egril-realm.json, nginx.conf, and the theme JAR are copied to the server
+# by the GitHub Actions deploy-keycloak workflow before this compose file is started.
 #
 # First-time setup on the server:
-#   mkdir -p /opt/defender-of-egril/keycloak/providers
-#   # (workflow copies egril-realm.json + theme JAR here)
-#   echo "DB_PASSWORD=<secret>"              >> /opt/defender-of-egril/keycloak/.env
-#   echo "KEYCLOAK_ADMIN_PASSWORD=<secret>"  >> /opt/defender-of-egril/keycloak/.env
-#   echo "KEYCLOAK_HOSTNAME=<public-ip-or-hostname>" >> /opt/defender-of-egril/keycloak/.env
-#   docker compose up -d
+#   mkdir -p /opt/keycloak/providers
+#   apt-get install -y certbot
+#   certbot certonly --standalone -d sso.julianegner.de
+#   # then trigger the Deploy Keycloak workflow
 
 services:
+  nginx:
+    image: nginx:alpine
+    container_name: keycloak-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # nginx.conf is uploaded by the deploy-keycloak workflow.
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # Let's Encrypt certificates obtained with certbot on the host.
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    restart: unless-stopped
+
   keycloak:
     image: quay.io/keycloak/keycloak:24.0
     container_name: defender-of-egril-keycloak
@@ -38,13 +54,13 @@ services:
       KC_DB_PASSWORD: ${DB_PASSWORD}
       # Public hostname so Keycloak issues correct issuer/redirect URLs.
       KC_HOSTNAME: ${KEYCLOAK_HOSTNAME}
-      # Allow plain HTTP on the internal port; put a TLS-terminating reverse
-      # proxy in front for HTTPS, or set KC_HTTPS_* variables as needed.
+      # Allow plain HTTP on the internal port; TLS is terminated by nginx.
       KC_HTTP_ENABLED: "true"
       KC_HOSTNAME_STRICT: "false"
       KC_HOSTNAME_STRICT_HTTPS: "false"
-    ports:
-      - "8080:8080"
+      # Trust X-Forwarded-* headers from nginx so Keycloak generates https:// URLs.
+      KC_PROXY_HEADERS: xforwarded
+    # Keycloak is not exposed on the host; nginx proxies to it on the internal network.
     volumes:
       # Production realm (no test users).
       - ./egril-realm.json:/opt/keycloak/data/import/egril-realm.json:ro

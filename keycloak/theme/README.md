@@ -56,7 +56,7 @@ Or build manually and use docker compose directly:
 
 ```bash
 # 1. Build the theme
-cd keycloak-theme
+cd keycloak/theme
 npm install && npm run build
 
 # 2. Start / restart Keycloak

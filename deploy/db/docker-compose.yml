@@ -7,10 +7,8 @@
 #   DB_PASSWORD  – password for the 'defender' PostgreSQL user
 #
 # First-time setup on the server:
-#   mkdir -p /opt/defender-of-egril/db
-#   cp docker-compose.yml /opt/defender-of-egril/db/
-#   cp -r db-init/       /opt/defender-of-egril/db/
-#   echo "DB_PASSWORD=<secret>" > /opt/defender-of-egril/db/.env
+#   mkdir -p /opt/postgres
+#   # workflow uploads docker-compose.yml and db-init/ then writes .env
 #   docker compose up -d
 #
 # The PostgreSQL port is bound to all interfaces so that other servers on the

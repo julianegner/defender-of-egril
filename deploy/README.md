@@ -49,19 +49,33 @@ Compose v2) is installed on each server:
 ```bash
 # On each server (as root):
 apt-get update && apt-get install -y docker.io
-mkdir -p /opt/defender-of-egril
 ```
 
-The workflows create the necessary subdirectories under
-`/opt/defender-of-egril/` automatically.
+**DB server only** (`/opt/postgres` is created automatically by the workflow):
+```bash
+mkdir -p /opt/postgres
+```
+
+**Keycloak server only** — obtain a TLS certificate before the first deploy:
+```bash
+apt-get install -y certbot
+mkdir -p /opt/keycloak/providers
+certbot certonly --standalone -d sso.julianegner.de
+```
+
+**Backend server** (created automatically by the workflow):
+```bash
+mkdir -p /opt/defender-of-egril/backend
+```
 
 ## Security Notes
 
 - PostgreSQL (port 5432) is bound to `10.0.0.2` only – not accessible from
   the public internet.  Ensure the Hetzner firewall allows port 5432 only
   from within the private network.
-- Keycloak runs with `KC_HTTP_ENABLED=true` and no built-in TLS.  For a
-  production-grade setup place a TLS-terminating reverse proxy (e.g. nginx or
-  Caddy) in front of Keycloak.
+- Keycloak is not exposed directly; nginx (in the same Docker Compose) terminates
+  TLS on ports 80/443 and proxies to Keycloak's internal HTTP port.  The TLS
+  certificate for `sso.julianegner.de` is obtained via certbot on the host and
+  mounted read-only into the nginx container.
 - The backend Docker image is published to the GitHub Container Registry
   (`ghcr.io`).  The image visibility follows the repository visibility.
