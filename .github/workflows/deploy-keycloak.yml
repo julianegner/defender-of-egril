@@ -79,12 +79,18 @@ jobs:
           name: keycloak-theme-jar
           path: /tmp/keycloak-theme-jar
 
+      - name: "🔑 Prepare SSH key"
+        run: |
+          mkdir -p "$RUNNER_TEMP/.ssh"
+          printf '%s\n' "${{ secrets.PROD_SSH_PRIVATE_KEY }}" > "$RUNNER_TEMP/.ssh/deploy_key"
+          chmod 600 "$RUNNER_TEMP/.ssh/deploy_key"
+
       - name: "📂 Upload compose file, realm JSON, and nginx config"
         uses: appleboy/scp-action@v0.1.7
         with:
           host: 178.104.79.60
           username: root
-          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          key_path: /github/runner_temp/.ssh/deploy_key
           source: "deploy/keycloak/docker-compose.yml,keycloak/production/egril-realm.json,keycloak/production/nginx.conf"
           target: /opt/keycloak
           strip_components: 2
@@ -94,7 +100,7 @@ jobs:
         with:
           host: 178.104.79.60
           username: root
-          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          key_path: /github/runner_temp/.ssh/deploy_key
           source: "/tmp/keycloak-theme-jar/*.jar"
           target: /opt/keycloak/providers
           strip_components: 3
@@ -104,7 +110,7 @@ jobs:
         with:
           host: 178.104.79.60
           username: root
-          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          key_path: /github/runner_temp/.ssh/deploy_key
           script: |
             set -euo pipefail
             cd /opt/keycloak
