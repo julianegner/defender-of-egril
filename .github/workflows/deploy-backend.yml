@@ -70,6 +70,7 @@ jobs:
     needs: build-and-push
     permissions:
       contents: read
+      packages: read
 
     steps:
       - name: "✅ Checkout code"
