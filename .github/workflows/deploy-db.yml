@@ -1,0 +1,105 @@
+# Deploy the PostgreSQL database to ubuntu-8gb-nbg1-1.
+#
+# This workflow SSHes into the database server and starts (or updates) the
+# PostgreSQL Docker container using the compose file in deploy/db/.
+#
+# Server: ubuntu-8gb-nbg1-1
+#   Public IP:   178.104.64.170
+#   Private IP:  10.0.0.2
+#
+# Required GitHub Secrets:
+#   PROD_SSH_PRIVATE_KEY       – SSH private key that grants access to all three
+#                                production servers (add the corresponding public
+#                                key to ~/.ssh/authorized_keys on each server;
+#                                see deploy/README.md for step-by-step instructions)
+#   PROD_SSH_KEY_PASSPHRASE    – Passphrase protecting the SSH private key
+#                                (leave the secret empty if the key has no passphrase)
+#   PROD_DB_PASSWORD           – Password for the 'defender' PostgreSQL user
+name: Deploy Database
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-db:
+    name: Deploy PostgreSQL to ubuntu-8gb-nbg1-1
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: "✅ Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "🔍 Validate SSH key (show fingerprint)"
+        env:
+          SSH_KEY_PASSPHRASE: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
+        run: |
+          TMPKEY=$(mktemp)
+          printf '%s' "${{ secrets.PROD_SSH_PRIVATE_KEY }}" > "$TMPKEY"
+          chmod 600 "$TMPKEY"
+          echo "--- Key diagnostics ---"
+          echo "First line : $(head -1 "$TMPKEY")"
+          echo "Last line  : $(tail -1 "$TMPKEY")"
+          echo "Line count : $(wc -l < "$TMPKEY")"
+          echo "Char count : $(wc -c < "$TMPKEY")"
+          echo ""
+          echo "Key fingerprint (must match a key in root@178.104.64.170:~/.ssh/authorized_keys):"
+          if ssh-keygen -y -P "$SSH_KEY_PASSPHRASE" -f "$TMPKEY" > /dev/null 2>&1; then
+            ssh-keygen -l -P "$SSH_KEY_PASSPHRASE" -f "$TMPKEY" 2>/dev/null || true
+            echo "✅ Key is valid"
+          else
+            echo ""
+            echo "⚠️  PROD_SSH_PRIVATE_KEY is NOT a valid private key (or the passphrase is wrong)."
+            echo "   Common causes:"
+            echo "   1. Newlines were lost when copying the key. Re-copy using a clipboard command"
+            echo "      (see deploy/README.md):"
+            echo "        macOS : pbcopy < ~/.ssh/defender_deploy_key"
+            echo "        Linux : xclip -sel clip < ~/.ssh/defender_deploy_key"
+            echo "   2. The key is passphrase-protected but PROD_SSH_KEY_PASSPHRASE is not set or"
+            echo "      contains the wrong value."
+          fi
+          rm -f "$TMPKEY"
+
+      - name: "📂 Upload compose file"
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: 178.104.64.170
+          username: root
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
+          source: "deploy/db/docker-compose.yml"
+          target: /opt/postgres
+          strip_components: 2
+
+      - name: "📂 Upload DB init scripts"
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: 178.104.64.170
+          username: root
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
+          source: "db-init/"
+          target: /opt/postgres/db-init
+          strip_components: 1
+
+      - name: "🚀 Start / update PostgreSQL"
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 178.104.64.170
+          username: root
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
+          script: |
+            set -euo pipefail
+            cd /opt/postgres
+
+            # Write the .env file (overwrites on every deploy to pick up secret
+            # rotation).
+            cat > .env <<EOF
+            DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
+            EOF
+
+            docker compose pull
+            docker compose up -d
+            echo "✅ Database deployed"

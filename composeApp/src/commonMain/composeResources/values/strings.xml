@@ -95,6 +95,8 @@
     <string name="download_savefile_tooltip">Download this save file</string>
     <string name="download_all_tooltip">Download all save files as a ZIP archive</string>
     <string name="upload_tooltip">Upload save files (JSON or ZIP)</string>
+    <string name="savefile_chip_local">local</string>
+    <string name="savefile_chip_remote">remote</string>
     <string name="file_override_title">File Already Exists</string>
     <string name="file_override_message">A save file named "%s" already exists. What would you like to do?</string>
     <string name="skip_file">Skip</string>
@@ -131,6 +133,7 @@
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">No saved games found</string>
+    <string name="loading_remote_savefiles">loading remote savefiles</string>
     <string name="savegame_folder">savegame folder:</string>
     
     <!-- Rules Screen -->
@@ -377,6 +380,7 @@
     <string name="select_tile_type">Select Tile Type:</string>
     <string name="click_hexagons_to_paint">Click or drag to paint hexagons. Use Ctrl+Scroll to zoom:</string>
     <string name="collapse">Collapse</string>
+    <string name="expand">Expand</string>
     <string name="change_all_no_play_to_path">Change All NO_PLAY to PATH</string>
     <string name="change_all_no_play_confirm_title">Change All NO_PLAY to PATH?</string>
     <string name="change_all_no_play_confirm_message">This will replace all NO_PLAY tiles with PATH tiles. Are you sure?</string>
@@ -1165,6 +1169,7 @@
     <!-- Official Content Badges -->
     <string name="official">Official</string>
     <string name="user_levels">User Levels</string>
+    <string name="community_levels">Community</string>
     <string name="user_map">User Map</string>
     <string name="official_level">Official Level</string>
     <string name="user_level">User Level</string>
@@ -1265,7 +1270,7 @@
     <string name="audio_battle_start_name">Battle Start</string>
     <string name="audio_bomb_ticking_name">Bomb Ticking</string>
     <string name="audio_bomb_exploding_name">Bomb Exploding</string>
-    
+
     <!-- Audio Item Labels -->
     <string name="audio_file_label">File: %s</string>
     <string name="audio_source_label">Source: %s</string>
@@ -1498,4 +1503,27 @@
     <string name="credits_section_background_music">Background Music</string>
     <string name="credits_thank_you">Thank you for playing!</string>
     <string name="credits_click_to_skip">Click anywhere to return to the world map</string>
+
+    <!-- IAM / Keycloak -->
+    <string name="iam_login">Login</string>
+    <string name="iam_logout">Logout</string>
+    <string name="iam_login_waiting">Waiting for browser...</string>
+    <string name="keycloak_account">Keycloak Account</string>
+    <string name="user_account">User Account</string>
+    <string name="iam_login_successful_heading">Login successful!</string>
+    <string name="iam_login_successful_message">Returning to the game... you can close this window if it does not close automatically.</string>
+    <string name="iam_logout_successful_heading">Logged out successfully!</string>
+    <string name="iam_logout_successful_message">You can close this window or return to the game.</string>
+    <string name="always_log_in">Always log in</string>
+    <string name="use_remote_settings">Use remote settings</string>
+    <string name="account">Account</string>
+
+    <!-- Community maps/levels -->
+    <string name="upload_as_community_level">Upload as Community Level</string>
+    <string name="update_community_level">Update Community Level</string>
+    <string name="upload_as_community_map">Upload as Community Map</string>
+    <string name="update_community_map">Update Community Map</string>
+    <string name="community_uploading">Uploading...</string>
+    <string name="community_upload_success">Uploaded successfully!</string>
+    <string name="community_upload_failed">Upload failed. Please try again.</string>
 </resources>

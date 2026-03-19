@@ -259,6 +259,7 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.oidc.appsupport)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
@@ -293,6 +294,7 @@ kotlin {
         }
         
         iosMain.dependencies {
+            implementation(libs.oidc.appsupport)
         }
     }
 }
@@ -315,6 +317,9 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        
+        // Redirect scheme for OIDC (kotlin-multiplatform-oidc library)
+        addManifestPlaceholders(mapOf("oidcRedirectScheme" to "egril"))
         
         // Configure test instrumentation runner
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -361,6 +366,13 @@ tasks.register<JavaExec>("generateMapImages") {
     )
     mainClass.set("de.egril.defender.mapgen.GenerateMapImagesKt")
     workingDir = rootDir
+}
+
+// Workaround for Gradle 9.x: Compose resource tasks declare output files that may not exist
+// yet on a fresh build/clean, causing "Cannot access output property" errors. Marking them
+// as untracked forces them to always run (still fast) and avoids the spurious failure.
+tasks.matching { it.name.startsWith("copyNonXmlValueResourcesFor") }.configureEach {
+    doNotTrackState("Gradle 9.x output-property validation workaround for Compose resource tasks")
 }
 
 compose.desktop {

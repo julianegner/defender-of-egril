@@ -93,6 +93,8 @@
     <string name="download_savefile_tooltip">Scarica questo salvataggio</string>
     <string name="download_all_tooltip">Scarica tutti i salvataggi come archivio ZIP</string>
     <string name="upload_tooltip">Carica salvataggi (JSON o ZIP)</string>
+    <string name="savefile_chip_local">locale</string>
+    <string name="savefile_chip_remote">online</string>
     <string name="file_override_title">Il file esiste già</string>
     <string name="file_override_message">Un salvataggio chiamato "%s" esiste già. Cosa vuoi fare?</string>
     <string name="skip_file">Salta</string>
@@ -129,6 +131,7 @@
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">Nessuna partita salvata trovata</string>
+    <string name="loading_remote_savefiles">caricamento dei salvataggi remoti</string>
     <string name="savegame_folder">cartella di salvataggio:</string>
     
     <!-- Rules Screen -->
@@ -373,6 +376,7 @@
     <string name="select_tile_type">Seleziona tipo di tessera:</string>
     <string name="click_hexagons_to_paint">Clicca o trascina per dipingere gli esagoni. Usa Ctrl+Rotella per zoomare:</string>
     <string name="collapse">Comprimi</string>
+    <string name="expand">Espandi</string>
     <string name="change_all_no_play_to_path">Cambia tutti NO_PLAY in PATH</string>
     <string name="change_all_no_play_confirm_title">Cambiare tutti NO_PLAY in PATH?</string>
     <string name="change_all_no_play_confirm_message">Questo sostituirà tutte le tessere NO_PLAY con tessere PATH. Sei sicuro?</string>
@@ -1163,6 +1167,7 @@
     <!-- Official Content Badges -->
     <string name="official">Ufficiale</string>
     <string name="user_levels">Livelli Utente</string>
+    <string name="community_levels">Comunità</string>
     <string name="user_map">Mappa Utente</string>
     <string name="official_level">Livello Ufficiale</string>
     <string name="user_level">Livello Utente</string>
@@ -1263,7 +1268,7 @@
     <string name="audio_battle_start_name">Inizio Battaglia</string>
     <string name="audio_bomb_ticking_name">Bomba che Ticchetta</string>
     <string name="audio_bomb_exploding_name">Bomba che Esplode</string>
-    
+
     <!-- Audio Item Labels -->
     <string name="audio_file_label">File: %s</string>
     <string name="audio_source_label">Fonte: %s</string>
@@ -1495,4 +1500,26 @@
     <string name="credits_section_background_music">Musica di Sottofondo</string>
     <string name="credits_thank_you">Grazie per aver giocato!</string>
     <string name="credits_click_to_skip">Clicca per tornare alla mappa del mondo</string>
+    <!-- IAM / Keycloak -->
+    <string name="iam_login">Accedi</string>
+    <string name="iam_logout">Disconnetti</string>
+    <string name="iam_login_waiting">In attesa del browser...</string>
+    <string name="keycloak_account">Account Keycloak</string>
+    <string name="user_account">Account utente</string>
+    <string name="iam_login_successful_heading">Accesso riuscito!</string>
+    <string name="iam_login_successful_message">Ritorno al gioco... puoi chiudere questa finestra se non si chiude automaticamente.</string>
+    <string name="iam_logout_successful_heading">Disconnessione riuscita!</string>
+    <string name="iam_logout_successful_message">Puoi chiudere questa finestra o tornare al gioco.</string>
+    <string name="always_log_in">Accedi sempre</string>
+    <string name="use_remote_settings">Usa impostazioni remote</string>
+    <string name="account">Account</string>
+
+    <!-- Community maps/levels -->
+    <string name="upload_as_community_level">Pubblica come Livello della Comunità</string>
+    <string name="update_community_level">Aggiorna il Livello della Comunità</string>
+    <string name="upload_as_community_map">Pubblica come Mappa della Comunità</string>
+    <string name="update_community_map">Aggiorna la Mappa della Comunità</string>
+    <string name="community_uploading">Pubblicazione in corso...</string>
+    <string name="community_upload_success">Pubblicato con successo!</string>
+    <string name="community_upload_failed">Pubblicazione fallita. Riprova.</string>
 </resources>

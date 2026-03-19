@@ -20,7 +20,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.BuildConfig
+import de.egril.defender.iam.IamState
 import de.egril.defender.ui.infopage.ImpressumWrapper
+import de.egril.defender.ui.icon.LockIcon
+import de.egril.defender.ui.icon.UnlockIcon
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.SettingsHintBox
@@ -42,9 +45,13 @@ fun MainMenuScreen(
     hasAutosave: Boolean,
     onShowRules: () -> Unit,
     onShowInstallationInfo: () -> Unit,
-    onSelectPlayer: () -> Unit,
     onEditPlayerName: () -> Unit,
-    currentPlayerName: String?
+    currentPlayerName: String?,
+    iamState: IamState = IamState(),
+    iamLoginInProgress: Boolean = false,
+    onIamLogin: () -> Unit = {},
+    onIamLogout: () -> Unit = {},
+    onIamLoginCancel: () -> Unit = {}
 ) {
     // Track if settings hint should be shown
     val showSettingsHint by AppSettings.settingsHintShown
@@ -131,16 +138,62 @@ fun MainMenuScreen(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
                         )
+                        // Show Keycloak username below the local player name when logged in
+                        if (iamState.isAuthenticated && iamState.username != null) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(2.dp)
+                            ) {
+                                UnlockIcon(size = 12.dp)
+                                Text(
+                                    text = iamState.username,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                        }
                     }
                     
-                    OutlinedButton(
-                        onClick = onSelectPlayer,
-                        modifier = Modifier.height(36.dp)
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.switch_player),
-                            style = MaterialTheme.typography.bodySmall
-                        )
+                    // IAM login / logout button
+                    if (iamState.isAuthenticated) {
+                        OutlinedButton(
+                            onClick = onIamLogout,
+                            modifier = Modifier.height(36.dp)
+                        ) {
+                            LockIcon(size = 14.dp)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = stringResource(Res.string.iam_logout),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    } else if (iamLoginInProgress) {
+                        OutlinedButton(
+                            onClick = onIamLoginCancel,
+                            modifier = Modifier.height(36.dp)
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(14.dp),
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = stringResource(Res.string.iam_login_waiting),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    } else {
+                        OutlinedButton(
+                            onClick = onIamLogin,
+                            modifier = Modifier.height(36.dp)
+                        ) {
+                            UnlockIcon(size = 14.dp)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = stringResource(Res.string.iam_login),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
                     }
                 }
             }
