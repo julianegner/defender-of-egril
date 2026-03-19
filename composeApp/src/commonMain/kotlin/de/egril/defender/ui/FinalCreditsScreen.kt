@@ -151,6 +151,21 @@ fun FinalCreditsScreen(
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
 
+    // Start background music when entering final credits
+    LaunchedEffect(Unit) {
+        de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
+            de.egril.defender.audio.BackgroundMusic.FINAL_CREDITS,
+            loop = true
+        )
+    }
+
+    // Stop background music when leaving final credits
+    DisposableEffect(Unit) {
+        onDispose {
+            de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
+        }
+    }
+
     // Start auto-scrolling when the screen appears
     LaunchedEffect(Unit) {
         delay(500)
