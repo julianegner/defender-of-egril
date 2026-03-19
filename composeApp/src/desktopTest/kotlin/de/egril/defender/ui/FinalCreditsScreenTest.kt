@@ -14,10 +14,15 @@ import org.junit.Test
  * Verifies that the credits screen renders with the expected sections
  * and captures a screenshot for visual verification.
  *
- * Note: Clock auto-advance is disabled to prevent the test from hanging indefinitely.
- * FinalCreditsScreen contains a while(true) background animation loop and a 60-second
- * scroll animation. With autoAdvance=true (the default), waitForIdle() would advance the
- * virtual clock through these animations forever, causing the test to never complete.
+ * Note: Clock auto-advance is disabled and waitForIdle() is intentionally NOT used.
+ * FinalCreditsScreen contains a while(true) background-animation loop and a 60-second
+ * scroll animation. Running animations continuously register for the next frame, so
+ * waitForIdle() never returns – even with autoAdvance=false.
+ *
+ * Instead, we advance the clock by a small fixed amount (advanceTimeBy) after setContent.
+ * setContent already performs the initial composition synchronously, so all text nodes
+ * are available immediately. The small clock advance flushes any pending coroutine
+ * dispatch without entering the infinite animation loop.
  */
 class FinalCreditsScreenTest {
 
@@ -27,10 +32,9 @@ class FinalCreditsScreenTest {
     @Before
     fun setUp() {
         currentLanguage.value = AppLocale.DEFAULT
-        // Disable automatic clock advancement to prevent the test from hanging.
-        // FinalCreditsScreen has an infinite background-image loop and a 60-second scroll
-        // animation. If the clock auto-advances, waitForIdle() advances through the loop
-        // forever and never returns.
+        // Disable automatic clock advancement. Combined with advanceTimeBy(100) below,
+        // this lets us settle the initial composition without spinning through the
+        // infinite background-image loop or 60-second scroll animation.
         composeTestRule.mainClock.autoAdvance = false
     }
 
@@ -40,7 +44,8 @@ class FinalCreditsScreenTest {
             FinalCreditsScreen(onDismiss = {})
         }
 
-        composeTestRule.waitForIdle()
+        // Advance 100 ms to flush initial effects without entering the infinite loop.
+        composeTestRule.mainClock.advanceTimeBy(100)
 
         // The game title should be visible
         composeTestRule.onNodeWithText("Defender of Egril", substring = true)
@@ -53,7 +58,7 @@ class FinalCreditsScreenTest {
             FinalCreditsScreen(onDismiss = {})
         }
 
-        composeTestRule.waitForIdle()
+        composeTestRule.mainClock.advanceTimeBy(100)
 
         // Developers section header should be present
         composeTestRule.onNodeWithText("Developers", substring = true, ignoreCase = true)
@@ -72,7 +77,7 @@ class FinalCreditsScreenTest {
             FinalCreditsScreen(onDismiss = {})
         }
 
-        composeTestRule.waitForIdle()
+        composeTestRule.mainClock.advanceTimeBy(100)
 
         // Sound Effects section header should be present
         composeTestRule.onNodeWithText("Sound Effects", substring = true, ignoreCase = true)
@@ -85,7 +90,7 @@ class FinalCreditsScreenTest {
             FinalCreditsScreen(onDismiss = {})
         }
 
-        composeTestRule.waitForIdle()
+        composeTestRule.mainClock.advanceTimeBy(100)
 
         // Background Music section header should be present
         composeTestRule.onNodeWithText("Background Music", substring = true, ignoreCase = true)
@@ -100,12 +105,13 @@ class FinalCreditsScreenTest {
             FinalCreditsScreen(onDismiss = { dismissed = true })
         }
 
-        composeTestRule.waitForIdle()
+        composeTestRule.mainClock.advanceTimeBy(100)
 
         // Click the screen to dismiss
         composeTestRule.onRoot().performClick()
 
-        composeTestRule.waitForIdle()
+        // Advance time to allow the coroutineScope.launch { onDismiss() } to execute.
+        composeTestRule.mainClock.advanceTimeBy(100)
 
         assert(dismissed) { "Clicking the credits screen should invoke onDismiss" }
     }
@@ -116,7 +122,7 @@ class FinalCreditsScreenTest {
             FinalCreditsScreen(onDismiss = {})
         }
 
-        composeTestRule.waitForIdle()
+        composeTestRule.mainClock.advanceTimeBy(100)
 
         ScreenshotTestUtils.captureScreenshot(
             composeTestRule,
