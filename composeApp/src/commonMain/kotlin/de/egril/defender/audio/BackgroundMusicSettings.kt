@@ -34,7 +34,18 @@ object BackgroundMusicSettings {
      * Relative volume for low health gameplay music (0.6 = 60% of world map volume within gameplay category)
      */
     const val GAMEPLAY_LOW_HEALTH_VOLUME = 0.6f
-    
+
+    /**
+     * Base volume multiplier for final credits music
+     * Matches [WORLD_MAP_BASE_MULTIPLIER] (0.6x) so the credits music is clearly audible.
+     */
+    const val FINAL_CREDITS_BASE_MULTIPLIER = 0.6f
+
+    /**
+     * Relative volume for final credits music (1.0 = full volume within the final credits category)
+     */
+    const val FINAL_CREDITS_VOLUME = 1.0f
+
     /**
      * Get the relative volume for a specific background music track
      */
@@ -43,6 +54,7 @@ object BackgroundMusicSettings {
             BackgroundMusic.WORLD_MAP -> WORLD_MAP_VOLUME
             BackgroundMusic.GAMEPLAY_NORMAL -> GAMEPLAY_NORMAL_VOLUME
             BackgroundMusic.GAMEPLAY_LOW_HEALTH -> GAMEPLAY_LOW_HEALTH_VOLUME
+            BackgroundMusic.FINAL_CREDITS -> FINAL_CREDITS_VOLUME
         }
         if (LogConfig.ENABLE_UI_LOGGING) {
         println("BackgroundMusicSettings.getRelativeVolume(${music.name}) = $volume")
@@ -57,6 +69,7 @@ object BackgroundMusicSettings {
         return when (music) {
             BackgroundMusic.WORLD_MAP -> WORLD_MAP_BASE_MULTIPLIER
             BackgroundMusic.GAMEPLAY_NORMAL, BackgroundMusic.GAMEPLAY_LOW_HEALTH -> GAMEPLAY_BASE_MULTIPLIER
+            BackgroundMusic.FINAL_CREDITS -> FINAL_CREDITS_BASE_MULTIPLIER
         }
     }
 }

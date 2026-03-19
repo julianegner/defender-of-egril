@@ -1266,7 +1266,9 @@
     <string name="audio_dragon_eat_name">Drago che Mangia</string>
     <string name="audio_tower_upgraded_name">Torre Potenziata</string>
     <string name="audio_battle_start_name">Inizio Battaglia</string>
-    
+    <string name="audio_bomb_ticking_name">Bomba che Ticchetta</string>
+    <string name="audio_bomb_exploding_name">Bomba che Esplode</string>
+
     <!-- Audio Item Labels -->
     <string name="audio_file_label">File: %s</string>
     <string name="audio_source_label">Fonte: %s</string>
@@ -1490,6 +1492,14 @@
     <string name="ewhad_retreats_text">Hai costretto Ewhad a ritirarsi!</string>
     <string name="ewhad_defeated_title">Ewhad è sconfitto</string>
     <string name="ewhad_defeated_text">Hai sconfitto Ewhad! Ora elimina gli altri Nemici e vinci il gioco!</string>
+    <!-- Final Credits screen -->
+    <string name="credits_game_title">Defender of Egril</string>
+    <string name="credits_title">Titoli di Coda</string>
+    <string name="credits_section_developers">Sviluppatori</string>
+    <string name="credits_section_sound_effects">Effetti Sonori</string>
+    <string name="credits_section_background_music">Musica di Sottofondo</string>
+    <string name="credits_thank_you">Grazie per aver giocato!</string>
+    <string name="credits_click_to_skip">Clicca per tornare alla mappa del mondo</string>
     <!-- IAM / Keycloak -->
     <string name="iam_login">Accedi</string>
     <string name="iam_logout">Disconnetti</string>

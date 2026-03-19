@@ -35,6 +35,7 @@ class IOSBackgroundMusicManager : BackgroundMusicManager {
         val categoryEnabled = when (music) {
             BackgroundMusic.WORLD_MAP -> AppSettings.isWorldMapMusicEnabled.value
             BackgroundMusic.GAMEPLAY_NORMAL, BackgroundMusic.GAMEPLAY_LOW_HEALTH -> AppSettings.isGameplayMusicEnabled.value
+            BackgroundMusic.FINAL_CREDITS -> AppSettings.isGameplayMusicEnabled.value
         }
         
         if (!enabled || !AppSettings.isSoundEnabled.value || !AppSettings.isMusicEnabled.value || !categoryEnabled) {
@@ -53,6 +54,7 @@ class IOSBackgroundMusicManager : BackgroundMusicManager {
                     BackgroundMusic.WORLD_MAP -> "atmosphere-mystic-fantasy-orchestral-music-335263"
                     BackgroundMusic.GAMEPLAY_NORMAL -> "2021-02-23_-_Fantasy_Ambience_-_David_Fesliyan"
                     BackgroundMusic.GAMEPLAY_LOW_HEALTH -> "2017-06-16_-_The_Dark_Castle_-_David_Fesliyan"
+                    BackgroundMusic.FINAL_CREDITS -> "Happy_Music-2018-09-18_-_Beautiful_Memories_-_David_Fesliyan"
                 }
                 
                 // Get file URL from bundle (placeholder - needs actual implementation)
@@ -80,6 +82,7 @@ class IOSBackgroundMusicManager : BackgroundMusicManager {
                 val categoryVolume = when (music) {
                     BackgroundMusic.WORLD_MAP -> AppSettings.worldMapMusicVolume.value
                     BackgroundMusic.GAMEPLAY_NORMAL, BackgroundMusic.GAMEPLAY_LOW_HEALTH -> AppSettings.gameplayMusicVolume.value
+                    BackgroundMusic.FINAL_CREDITS -> AppSettings.gameplayMusicVolume.value
                 }
                 
                 // Set volume (master * category * track * baseMultiplier)

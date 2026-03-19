@@ -155,6 +155,7 @@ For testing and debugging, the game includes cheat codes:
 
 **World Map Cheat Codes** (accessed by clicking the "World Map - Meadows of Egril" title):
 - **unlock**, **unlockall**, **unlock all**: Unlocks all levels for testing
+- **credits**: Opens the final credits screen directly (for testing without completing the game)
 
 #### Unit Tests
 
@@ -251,6 +252,36 @@ When contributing:
 3. Test on at least one platform before submitting
 4. Update documentation for new features
 5. Maintain backward compatibility for save data
+
+#### Updating the Final Credits
+
+The final credits screen is shown after winning "The Final Stand" (the last level).
+Its content is defined in `composeApp/src/commonMain/kotlin/de/egril/defender/ui/FinalCreditsData.kt`.
+
+**When a new human developer commits code:**
+- Add their name to `FinalCreditsData.developers`.
+- Bot accounts (names ending in `[bot]`) are excluded by convention.
+
+**When new sound effects are added** (with new Freesound.org credits in `composeResources/files/sounds/README.md`):
+- Add a `SoundCreditEntry` to `FinalCreditsData.soundEffectsCredits`.
+
+**When new background music is added** (with new credits in `composeResources/files/sounds/background/README.md`):
+- Add a `SoundCreditEntry` to `FinalCreditsData.backgroundMusicCredits`.
+
+**When new drawable images are added** (without `emoji_` or `tile_` prefixes):
+- Add the resource name (without file extension, hyphens replaced by underscores) to `FinalCreditsData.backgroundImageNames`.
+- Also add the corresponding `when` branch in `drawableResourceByName()` inside `FinalCreditsScreen.kt`. The branch maps the string name to the Compose `DrawableResource`. Example:
+  ```kotlin
+  // In FinalCreditsScreen.kt → drawableResourceByName()
+  "my_new_image" -> Res.drawable.my_new_image
+  ```
+
+The `FinalCreditsDataTest` suite validates all the above invariants automatically – run it to verify:
+```bash
+./gradlew :composeApp:desktopTest --tests "de.egril.defender.ui.FinalCreditsDataTest"
+```
+
+You can test the credits screen directly using the cheat code **credits** on the world map screen (click the title to enter cheat codes).
 
 ### License
 

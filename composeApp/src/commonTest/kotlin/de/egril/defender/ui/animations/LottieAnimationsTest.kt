@@ -19,6 +19,7 @@ class LottieAnimationsTest {
         val instantTowerType = AnimationType.INSTANT_TOWER_SPELL
 
         val fearType = AnimationType.FEAR_SPELL
+        val waterFlowType = AnimationType.WATER_FLOW
 
         assertNotNull(healingType, "Green witch healing animation type should exist")
         assertNotNull(damageType, "Barricade damage animation type should exist")
@@ -26,12 +27,13 @@ class LottieAnimationsTest {
         assertNotNull(doubleLevelType, "Double level spell animation type should exist")
         assertNotNull(instantTowerType, "Instant tower spell animation type should exist")
         assertNotNull(fearType, "Fear spell animation type should exist")
+        assertNotNull(waterFlowType, "Water flow animation type should exist")
     }
     
     @Test
     fun testAnimationTypeCount() {
-        // Verify we have exactly 7 animation types as specified
+        // Verify we have exactly 8 animation types as specified
         val animationTypes = AnimationType.values()
-        assertEquals(7, animationTypes.size, "Should have exactly 5 animation types")
+        assertEquals(8, animationTypes.size, "Should have exactly 8 animation types")
     }
 }

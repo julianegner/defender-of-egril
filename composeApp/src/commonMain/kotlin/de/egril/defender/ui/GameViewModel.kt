@@ -34,6 +34,7 @@ sealed class Screen {
     object PlayerProfile : Screen()
     object LoadingSpinnerDemo : Screen()
     object StatsUpgrade : Screen()  // New screen for stats/spells upgrade
+    object FinalCredits : Screen()
     data class GamePlay(val levelId: Int) : Screen()
     data class LevelComplete(
         val levelId: Int,
@@ -464,6 +465,10 @@ class GameViewModel {
     
     fun navigateToStatsUpgrade() {
         _currentScreen.value = Screen.StatsUpgrade
+    }
+
+    fun navigateToFinalCredits() {
+        _currentScreen.value = Screen.FinalCredits
     }
 
     fun upgradeAbility(statType: de.egril.defender.model.AbilityType) {
@@ -1241,6 +1246,12 @@ class GameViewModel {
         // Check for "spinner" cheat code (shows loading spinner demo for 30s)
         if (code.lowercase().trim() == "spinner") {
             navigateToLoadingSpinnerDemo()
+            return true
+        }
+
+        // Check for "credits" cheat code (shows the final credits screen)
+        if (code.lowercase().trim() == "credits") {
+            navigateToFinalCredits()
             return true
         }
 
