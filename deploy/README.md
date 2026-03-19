@@ -58,15 +58,38 @@ This creates two files **on your local machine**:
 
 ### 2. Add the private key to GitHub Secrets (on your local machine)
 
-Copy the **entire content** of `~/.ssh/defender_deploy_key` (including the
-`-----BEGIN OPENSSH PRIVATE KEY-----` header and `-----END OPENSSH PRIVATE KEY-----`
-footer) and add it as `PROD_SSH_PRIVATE_KEY` in
-**Settings → Secrets and variables → Actions**.
+**Important:** Private SSH keys contain newlines that are required for the key to be valid.
+Copying by visually selecting text in a terminal can silently strip those newlines, making
+the key unusable. Use a clipboard command instead:
 
 ```bash
-# Display the private key to copy:
+# macOS – copies the key to your clipboard:
+pbcopy < ~/.ssh/defender_deploy_key
+
+# Linux (requires xclip):
+xclip -sel clip < ~/.ssh/defender_deploy_key
+
+# If neither tool is available, print the key and copy from the terminal
+# (select from the BEGIN line to the END line, inclusive):
 cat ~/.ssh/defender_deploy_key
 ```
+
+Open **Settings → Secrets and variables → Actions → New repository secret**, set the
+name to `PROD_SSH_PRIVATE_KEY`, paste the clipboard contents into the value field,
+and save.
+
+The stored value must look exactly like this (with all internal newlines preserved):
+
+```
+-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAA...
+...AAAA
+-----END OPENSSH PRIVATE KEY-----
+```
+
+> **Tip:** After saving the secret, run the "Deploy Database" workflow — the
+> `🔍 Validate SSH key` step will print `✅ Key is valid` if the newlines are
+> intact, or give a specific error message if they are not.
 
 ### 3. Add the public key to each server
 
@@ -127,3 +150,96 @@ mkdir -p /opt/defender-of-egril/backend
   mounted read-only into the nginx container.
 - The backend Docker image is published to the GitHub Container Registry
   (`ghcr.io`).  The image visibility follows the repository visibility.
+
+## Troubleshooting
+
+### `ssh: unable to authenticate, attempted methods [none publickey]`
+
+The SSH handshake reached the server but the server rejected the key.
+Work through this checklist in order:
+
+**1. Verify the public key is on every server**
+
+The most common cause: the public key that matches `PROD_SSH_PRIVATE_KEY` has
+never been added to `~/.ssh/authorized_keys` on the server.
+
+Derive the public key from the private key you put in the secret (run this
+on your local machine where the key file exists):
+
+```bash
+ssh-keygen -y -f ~/.ssh/defender_deploy_key
+# → prints something like: ssh-ed25519 AAAA... github-actions-deploy
+```
+
+Then check what is in the server's `authorized_keys`:
+
+```bash
+# Log into the server (e.g. via Hetzner Console) and run:
+cat ~/.ssh/authorized_keys
+```
+
+If the line printed by `ssh-keygen -y` is not in `authorized_keys`, add it:
+
+```bash
+echo "ssh-ed25519 AAAA... github-actions-deploy" >> ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+```
+
+**2. Confirm the key fingerprint shown by the workflow matches the server**
+
+The "Deploy Database" workflow prints the fingerprint of `PROD_SSH_PRIVATE_KEY`
+during the `🔍 Validate SSH key` step.  To see what fingerprint the server
+trusts, run on the server:
+
+```bash
+ssh-keygen -l -f ~/.ssh/authorized_keys
+```
+
+If the fingerprints don't match, the wrong private key was stored in the secret.
+
+**3. Check that `PROD_SSH_PRIVATE_KEY` has the correct format**
+
+The secret must be the **complete** private key file, including the header and
+footer lines **and all internal newlines**.
+
+If the `🔍 Validate SSH key` step prints `⚠️  PROD_SSH_PRIVATE_KEY is NOT a valid private key`,
+the most likely cause is that newlines inside the key were lost when the key was
+copied manually (e.g. by selecting text in a terminal window).
+
+**Fix:** Use a clipboard command to copy the key — this preserves all newlines:
+
+```bash
+# macOS:
+pbcopy < ~/.ssh/defender_deploy_key
+
+# Linux (requires xclip):
+xclip -sel clip < ~/.ssh/defender_deploy_key
+```
+
+Then open **Settings → Secrets and variables → Actions**, delete the existing
+`PROD_SSH_PRIVATE_KEY` secret, create a new one with the same name, and paste
+the clipboard contents.  A valid key looks like this in the secret value field:
+
+```
+-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAA...
+...AAAA
+-----END OPENSSH PRIVATE KEY-----
+```
+
+The `🔍 Validate SSH key` step also prints `Line count` — a valid ed25519 key
+typically has around 8–10 lines.  If the line count is 1, newlines were lost.
+
+**4. Check server-side SSH settings**
+
+If everything above looks correct, log in to the server and check:
+
+```bash
+# Ensure authorized_keys has strict permissions (must be 600 or 640):
+stat ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+
+# Check SSH daemon logs for the exact rejection reason:
+journalctl -u ssh --since "10 minutes ago" | tail -30
+```
+
