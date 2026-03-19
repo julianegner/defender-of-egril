@@ -29,6 +29,15 @@ jobs:
       - name: "✅ Checkout code"
         uses: actions/checkout@v4
 
+      - name: "🔍 Validate SSH key (show fingerprint)"
+        run: |
+          TMPKEY=$(mktemp)
+          printf '%s' "${{ secrets.PROD_SSH_PRIVATE_KEY }}" > "$TMPKEY"
+          chmod 600 "$TMPKEY"
+          echo "Key fingerprint (must match a key in root@178.104.64.170:~/.ssh/authorized_keys):"
+          ssh-keygen -l -f "$TMPKEY" || echo "⚠️  PROD_SSH_PRIVATE_KEY is not a valid private key – check its content and newlines"
+          rm -f "$TMPKEY"
+
       - name: "📂 Upload compose file"
         uses: appleboy/scp-action@v0.1.7
         with:

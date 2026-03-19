@@ -127,3 +127,83 @@ mkdir -p /opt/defender-of-egril/backend
   mounted read-only into the nginx container.
 - The backend Docker image is published to the GitHub Container Registry
   (`ghcr.io`).  The image visibility follows the repository visibility.
+
+## Troubleshooting
+
+### `ssh: unable to authenticate, attempted methods [none publickey]`
+
+The SSH handshake reached the server but the server rejected the key.
+Work through this checklist in order:
+
+**1. Verify the public key is on every server**
+
+The most common cause: the public key that matches `PROD_SSH_PRIVATE_KEY` has
+never been added to `~/.ssh/authorized_keys` on the server.
+
+Derive the public key from the private key you put in the secret (run this
+on your local machine where the key file exists):
+
+```bash
+ssh-keygen -y -f ~/.ssh/defender_deploy_key
+# → prints something like: ssh-ed25519 AAAA... github-actions-deploy
+```
+
+Then check what is in the server's `authorized_keys`:
+
+```bash
+# Log into the server (e.g. via Hetzner Console) and run:
+cat ~/.ssh/authorized_keys
+```
+
+If the line printed by `ssh-keygen -y` is not in `authorized_keys`, add it:
+
+```bash
+echo "ssh-ed25519 AAAA... github-actions-deploy" >> ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+```
+
+**2. Confirm the key fingerprint shown by the workflow matches the server**
+
+The "Deploy Database" workflow prints the fingerprint of `PROD_SSH_PRIVATE_KEY`
+during the `🔍 Validate SSH key` step.  To see what fingerprint the server
+trusts, run on the server:
+
+```bash
+ssh-keygen -l -f ~/.ssh/authorized_keys
+```
+
+If the fingerprints don't match, the wrong private key was stored in the secret.
+
+**3. Check that `PROD_SSH_PRIVATE_KEY` has the correct format**
+
+The secret must be the **complete** private key file, including the header and
+footer lines and all internal newlines:
+
+```
+-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAA...
+...
+-----END OPENSSH PRIVATE KEY-----
+```
+
+If the `🔍 Validate SSH key` step prints `not a valid private key`, the key
+was stored incorrectly (e.g. newlines stripped, or only the public key was
+stored).  Re-copy the private key from your local machine:
+
+```bash
+cat ~/.ssh/defender_deploy_key   # copy the entire output into the secret
+```
+
+**4. Check server-side SSH settings**
+
+If everything above looks correct, log in to the server and check:
+
+```bash
+# Ensure authorized_keys has strict permissions (must be 600 or 640):
+stat ~/.ssh/authorized_keys
+chmod 600 ~/.ssh/authorized_keys
+
+# Check SSH daemon logs for the exact rejection reason:
+journalctl -u ssh --since "10 minutes ago" | tail -30
+```
+
