@@ -93,6 +93,8 @@
     <string name="download_savefile_tooltip">Télécharger cette sauvegarde</string>
     <string name="download_all_tooltip">Télécharger toutes les sauvegardes sous forme d'archive ZIP</string>
     <string name="upload_tooltip">Téléverser des sauvegardes (JSON ou ZIP)</string>
+    <string name="savefile_chip_local">local</string>
+    <string name="savefile_chip_remote">en ligne</string>
     <string name="file_override_title">Le fichier existe déjà</string>
     <string name="file_override_message">Une sauvegarde nommée "%s" existe déjà. Que voulez-vous faire?</string>
     <string name="skip_file">Ignorer</string>
@@ -129,6 +131,7 @@
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">Aucune partie sauvegardée trouvée</string>
+    <string name="loading_remote_savefiles">chargement des sauvegardes distantes</string>
     <string name="savegame_folder">dossier de sauvegarde:</string>
     
     <!-- Rules Screen -->
@@ -373,6 +376,7 @@
     <string name="select_tile_type">Sélectionner le type de tuile:</string>
     <string name="click_hexagons_to_paint">Cliquez ou faites glisser pour peindre les hexagones. Ctrl+Molette pour zoomer:</string>
     <string name="collapse">Réduire</string>
+    <string name="expand">Développer</string>
     <string name="change_all_no_play_to_path">Changer tous NO_PLAY en PATH</string>
     <string name="change_all_no_play_confirm_title">Changer tous NO_PLAY en PATH?</string>
     <string name="change_all_no_play_confirm_message">Cela remplacera toutes les tuiles NO_PLAY par des tuiles PATH. Êtes-vous sûr?</string>
@@ -1163,6 +1167,7 @@
     <!-- Official Content Badges -->
     <string name="official">Officiel</string>
     <string name="user_levels">Niveaux Utilisateur</string>
+    <string name="community_levels">Communauté</string>
     <string name="user_map">Carte Utilisateur</string>
     <string name="official_level">Niveau Officiel</string>
     <string name="user_level">Niveau Utilisateur</string>
@@ -1263,7 +1268,7 @@
     <string name="audio_battle_start_name">Début de Bataille</string>
     <string name="audio_bomb_ticking_name">Bombe qui Tique</string>
     <string name="audio_bomb_exploding_name">Bombe Explosant</string>
-    
+
     <!-- Audio Item Labels -->
     <string name="audio_file_label">Fichier: %s</string>
     <string name="audio_source_label">Source: %s</string>
@@ -1494,4 +1499,26 @@
     <string name="credits_section_background_music">Musique de Fond</string>
     <string name="credits_thank_you">Merci d'avoir joué !</string>
     <string name="credits_click_to_skip">Cliquez pour revenir à la carte du monde</string>
+    <!-- IAM / Keycloak -->
+    <string name="iam_login">Connexion</string>
+    <string name="iam_logout">Déconnexion</string>
+    <string name="iam_login_waiting">En attente du navigateur...</string>
+    <string name="keycloak_account">Compte Keycloak</string>
+    <string name="user_account">Compte utilisateur</string>
+    <string name="iam_login_successful_heading">Connexion réussie !</string>
+    <string name="iam_login_successful_message">Retour au jeu... vous pouvez fermer cette fenêtre si elle ne se ferme pas automatiquement.</string>
+    <string name="iam_logout_successful_heading">Déconnexion réussie !</string>
+    <string name="iam_logout_successful_message">Vous pouvez fermer cette fenêtre ou revenir au jeu.</string>
+    <string name="always_log_in">Toujours se connecter</string>
+    <string name="use_remote_settings">Utiliser les paramètres distants</string>
+    <string name="account">Compte</string>
+
+    <!-- Community maps/levels -->
+    <string name="upload_as_community_level">Publier comme Niveau Communautaire</string>
+    <string name="update_community_level">Mettre à jour le Niveau Communautaire</string>
+    <string name="upload_as_community_map">Publier comme Carte Communautaire</string>
+    <string name="update_community_map">Mettre à jour la Carte Communautaire</string>
+    <string name="community_uploading">Publication en cours...</string>
+    <string name="community_upload_success">Publié avec succès !</string>
+    <string name="community_upload_failed">Échec de la publication. Veuillez réessayer.</string>
 </resources>

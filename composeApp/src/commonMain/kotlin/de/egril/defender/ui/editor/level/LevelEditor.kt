@@ -20,6 +20,7 @@ import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.EditorWaypoint
 import de.egril.defender.editor.WaypointValidationResult
+import de.egril.defender.editor.EditorJsonSerializer
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.Position
@@ -42,8 +43,10 @@ import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.official_level_saved_warning_title
 import defender_of_egril.composeapp.generated.resources.official_level_saved_warning_message
 import kotlin.random.Random
-import de.egril.defender.utils.getCurrentUsername
+import de.egril.defender.ui.editor.getDefaultAuthorName
 import de.egril.defender.config.LogConfig
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * Main content for the Level Editor tab
@@ -55,6 +58,7 @@ fun LevelEditorContent() {
     var editingLevel by remember { mutableStateOf<EditorLevel?>(null) }
     var showCreateDialog by remember { mutableStateOf(false) }
     var levelToDelete by remember { mutableStateOf<EditorLevel?>(null) }
+    val iamState by de.egril.defender.iam.IamService.state
     
     if (editingLevel != null) {
         // Level editing view
@@ -152,9 +156,11 @@ fun LevelEditorContent() {
     }
     
     if (showCreateDialog) {
+        val defaultAuthor = getDefaultAuthorName(iamState)
         CreateLevelDialog(
             onDismiss = { showCreateDialog = false },
-            onCreate = { title ->
+            defaultAuthor = defaultAuthor,
+            onCreate = { title, author ->
                 // Generate ID from title with underscores (lowercase, no "level_" prefix)
                 val sanitizedTitle = title.trim().lowercase()
                     .replace(" ", "_")
@@ -178,7 +184,7 @@ fun LevelEditorContent() {
                     availableTowers = DefenderType.entries.filter {
                         it != DefenderType.DRAGONS_LAIR
                     }.toSet(),
-                    author = getCurrentUsername()
+                    author = author
                 )
                 EditorStorage.saveLevel(newLevel)
                 levels.value = EditorStorage.getAllLevels()
@@ -378,6 +384,9 @@ fun LevelEditorView(
     var showOfficialLevelSavedWarning by remember { mutableStateOf(false) }
     var pendingLevelToSave by remember { mutableStateOf<EditorLevel?>(null) }
     var selectedTabIndex by remember { mutableStateOf(0) }
+    var communityUploadStatus by remember { mutableStateOf<String?>(null) }
+    var isUploadingToCommunity by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
     var showRemoveAllTurnsDialog by remember { mutableStateOf(false) }
     // Track the maximum turn number explicitly to support empty turns
     var maxTurnNumber by remember { 
@@ -652,6 +661,97 @@ fun LevelEditorView(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(Res.string.cancel))
+            }
+
+            // Community upload button - only shown for non-official levels when user is authenticated
+            val iamState by de.egril.defender.iam.IamService.state
+            if (!level.isOfficial && iamState.isAuthenticated) {
+                val storedCommunityJson = remember(level.id) {
+                    de.egril.defender.editor.EditorStorage.getStoredCommunityLevelJson(level.id)
+                }
+                val currentLevelJson = remember(level.id, level.hashCode()) {
+                    de.egril.defender.editor.EditorJsonSerializer.serializeLevel(level)
+                }
+                val storedCommunityLevel = remember(level.id) {
+                    de.egril.defender.editor.EditorStorage.getCommunityLevel(level.id)
+                }
+                val isMyUpload = storedCommunityLevel?.communityAuthorUsername == iamState.username
+                val isChanged = storedCommunityJson != null && storedCommunityJson != currentLevelJson
+
+                if (storedCommunityJson == null) {
+                    // Level not yet in community - show upload button
+                    Button(
+                        onClick = {
+                            val token = de.egril.defender.iam.IamService.getToken() ?: return@Button
+                            isUploadingToCommunity = true
+                            communityUploadStatus = null
+                            coroutineScope.launch {
+                                val success = de.egril.defender.save.BackendCommunityService
+                                    .uploadCommunityFile("LEVEL", level.id, currentLevelJson, token)
+                                if (success) {
+                                    de.egril.defender.editor.EditorStorage.saveCommunityLevel(
+                                        level.copy(
+                                            isCommunity = true,
+                                            communityAuthorUsername = iamState.username ?: ""
+                                        )
+                                    )
+                                    communityUploadStatus = "success"
+                                } else {
+                                    communityUploadStatus = "error"
+                                }
+                                isUploadingToCommunity = false
+                            }
+                        },
+                        enabled = !isUploadingToCommunity,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            if (isUploadingToCommunity) stringResource(Res.string.community_uploading)
+                            else stringResource(Res.string.upload_as_community_level)
+                        )
+                    }
+                } else if (isMyUpload && isChanged) {
+                    // Level exists in community and belongs to this user and has been changed - show update button
+                    Button(
+                        onClick = {
+                            val token = de.egril.defender.iam.IamService.getToken() ?: return@Button
+                            isUploadingToCommunity = true
+                            communityUploadStatus = null
+                            coroutineScope.launch {
+                                val success = de.egril.defender.save.BackendCommunityService
+                                    .uploadCommunityFile("LEVEL", level.id, currentLevelJson, token)
+                                if (success) {
+                                    de.egril.defender.editor.EditorStorage.saveCommunityLevel(
+                                        level.copy(
+                                            isCommunity = true,
+                                            communityAuthorUsername = iamState.username ?: ""
+                                        )
+                                    )
+                                    communityUploadStatus = "success"
+                                } else {
+                                    communityUploadStatus = "error"
+                                }
+                                isUploadingToCommunity = false
+                            }
+                        },
+                        enabled = !isUploadingToCommunity,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            if (isUploadingToCommunity) stringResource(Res.string.community_uploading)
+                            else stringResource(Res.string.update_community_level)
+                        )
+                    }
+                }
+                communityUploadStatus?.let { status ->
+                    Text(
+                        text = if (status == "success") stringResource(Res.string.community_upload_success)
+                               else stringResource(Res.string.community_upload_failed),
+                        color = if (status == "success") androidx.compose.ui.graphics.Color(0xFF2E7D32)
+                                else MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
             }
         }
     }

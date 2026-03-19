@@ -65,7 +65,7 @@ object LogConfig {
      * Shows timing information, frame rates, render performance.
      */
     var ENABLE_PERFORMANCE_LOGGING = false
-    
+
     /**
      * Enable all debug logging (useful for comprehensive debugging).
      * This overrides individual flags when set to true.

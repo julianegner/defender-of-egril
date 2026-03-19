@@ -13,7 +13,10 @@ data class PlayerProfile(
     val createdAt: Long,  // Timestamp when profile was created
     val lastPlayedAt: Long,  // Timestamp when profile was last used
     val achievements: List<Achievement> = emptyList(),  // List of earned achievements
-    val abilities: PlayerAbilities = PlayerAbilities()  // Player abilities and XP progression
+    val abilities: PlayerAbilities = PlayerAbilities(),  // Player abilities and XP progression
+    val remoteUsername: String? = null,  // Keycloak username linked to this profile (set on first remote login)
+    val alwaysLogin: Boolean = false,   // Auto-login to Keycloak when this player is active (per-player setting)
+    val useRemoteSettings: Boolean = true  // Load settings from remote when authenticated (local-only, not synced)
 )
 
 /**

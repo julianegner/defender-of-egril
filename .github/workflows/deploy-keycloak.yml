@@ -1,0 +1,123 @@
+# Deploy Keycloak to ubuntu-8gb-nbg1-2.
+#
+# This workflow:
+#   1. Builds the Keycloakify theme JAR (Node 20 + Maven).
+#   2. SSHes into the Keycloak server and uploads the compose file, the
+#      production realm JSON (no test users), the nginx config, and the theme JAR.
+#   3. Starts / recreates the Keycloak and nginx containers.
+#
+# Server: ubuntu-8gb-nbg1-2
+#   Public IP:   178.104.79.60
+#   Private IP:  10.0.0.3
+#
+# Required GitHub Secrets:
+#   PROD_SSH_PRIVATE_KEY         – SSH private key for all three production
+#                                   servers
+#   PROD_DB_PASSWORD             – Password for the 'defender' PostgreSQL user
+#                                   (Keycloak stores its data in the DB server)
+#   PROD_KEYCLOAK_ADMIN_PASSWORD – Password for the Keycloak 'admin' account
+#
+# One-time server preparation before the first run:
+#   apt-get install -y certbot docker.io
+#   certbot certonly --standalone -d sso.julianegner.de
+#   mkdir -p /opt/keycloak/providers
+name: Deploy Keycloak
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-theme:
+    name: Build Keycloak theme JAR
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: "✅ Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "⚙️ Set up Node 20"
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: "⚙️ Set up Java (Maven is needed by Keycloakify)"
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: "🛠️ Build theme JAR"
+        working-directory: keycloak/theme
+        run: |
+          npm install
+          npm run build
+
+      - name: "📤 Upload theme JAR artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: keycloak-theme-jar
+          # Keycloakify places the built JAR in dist_keycloak/
+          path: keycloak/theme/dist_keycloak/*.jar
+          retention-days: 1
+
+  deploy-keycloak:
+    name: Deploy Keycloak to ubuntu-8gb-nbg1-2
+    runs-on: ubuntu-latest
+    needs: build-theme
+    permissions:
+      contents: read
+
+    steps:
+      - name: "✅ Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "📥 Download theme JAR artifact"
+        uses: actions/download-artifact@v4
+        with:
+          name: keycloak-theme-jar
+          path: /tmp/keycloak-theme-jar
+
+      - name: "📂 Upload compose file, realm JSON, and nginx config"
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: 178.104.79.60
+          username: root
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          source: "deploy/keycloak/docker-compose.yml,keycloak/production/egril-realm.json,keycloak/production/nginx.conf"
+          target: /opt/keycloak
+          strip_components: 2
+
+      - name: "📂 Upload theme JAR"
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: 178.104.79.60
+          username: root
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          source: "/tmp/keycloak-theme-jar/*.jar"
+          target: /opt/keycloak/providers
+          strip_components: 3
+
+      - name: "🚀 Start / update Keycloak and nginx"
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 178.104.79.60
+          username: root
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          script: |
+            set -euo pipefail
+            cd /opt/keycloak
+
+            # Write the .env file (overwrites on every deploy).
+            cat > .env <<EOF
+            DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
+            KEYCLOAK_ADMIN_PASSWORD=${{ secrets.PROD_KEYCLOAK_ADMIN_PASSWORD }}
+            KEYCLOAK_HOSTNAME=sso.julianegner.de
+            EOF
+
+            # Recreate the containers so any updated realm JSON / theme JAR,
+            # nginx config, and environment changes take effect.
+            docker compose down keycloak nginx || true
+            docker compose up -d
+            echo "✅ Keycloak and nginx deployed"

@@ -229,6 +229,55 @@ object PlayerProfileStorage {
     }
     
     /**
+     * Link a remote Keycloak username to a player profile.
+     * This is called the first time a player logs in via Keycloak.
+     * @param playerId The ID of the player to link
+     * @param remoteUsername The Keycloak username to associate
+     */
+    fun linkRemoteUser(playerId: String, remoteUsername: String) {
+        val profiles = getAllProfiles()
+        val profile = profiles.profiles.find { it.id == playerId } ?: return
+        val updatedProfile = profile.copy(remoteUsername = remoteUsername)
+        val updatedProfiles = profiles.copy(
+            profiles = profiles.profiles.map { p ->
+                if (p.id == playerId) updatedProfile else p
+            }
+        )
+        saveProfiles(updatedProfiles)
+    }
+
+    /**
+     * Save the "always log in" preference for a specific player profile.
+     * @param playerId The ID of the player
+     * @param value The new value for alwaysLogin
+     */
+    fun saveAlwaysLogin(playerId: String, value: Boolean) {
+        val profiles = getAllProfiles()
+        val profile = profiles.profiles.find { it.id == playerId } ?: return
+        val updatedProfiles = profiles.copy(
+            profiles = profiles.profiles.map { p ->
+                if (p.id == playerId) p.copy(alwaysLogin = value) else p
+            }
+        )
+        saveProfiles(updatedProfiles)
+    }
+
+    /**
+     * Save the "use remote settings" preference for a specific player profile.
+     * @param playerId The ID of the player
+     * @param value The new value for useRemoteSettings
+     */
+    fun saveUseRemoteSettings(playerId: String, value: Boolean) {
+        val profiles = getAllProfiles()
+        val updatedProfiles = profiles.copy(
+            profiles = profiles.profiles.map { p ->
+                if (p.id == playerId) p.copy(useRemoteSettings = value) else p
+            }
+        )
+        saveProfiles(updatedProfiles)
+    }
+
+    /**
      * Sanitize a name to create a safe file system ID
      * - Convert to lowercase
      * - Replace spaces and special characters with underscore

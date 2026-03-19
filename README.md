@@ -331,6 +331,18 @@ npx playwright show-report
 
 The tests automatically capture 30+ screenshots per run, documenting every step of gameplay. See [Playwright UI Tests Guide](docs/testing/PLAYWRIGHT_UI_TESTS.md) for details.
 
+### Backend
+run backend:
+./gradlew server:run
+
+compile backend:
+./gradlew server:build
+
+#### local buildup (Database, Keycloak (IAM), Backend)
+```bash
+docker compose up -d
+```
+
 ### CI/CD
 
 The project uses GitHub Actions for continuous integration and deployment:

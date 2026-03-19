@@ -93,6 +93,8 @@
     <string name="download_savefile_tooltip">Descargar esta partida guardada</string>
     <string name="download_all_tooltip">Descargar todas las partidas guardadas como archivo ZIP</string>
     <string name="upload_tooltip">Subir partidas guardadas (JSON o ZIP)</string>
+    <string name="savefile_chip_local">local</string>
+    <string name="savefile_chip_remote">online</string>
     <string name="file_override_title">El archivo ya existe</string>
     <string name="file_override_message">Ya existe una partida guardada llamada "%s". ¿Qué te gustaría hacer?</string>
     <string name="skip_file">Saltar</string>
@@ -129,6 +131,7 @@
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">No se encontraron partidas guardadas</string>
+    <string name="loading_remote_savefiles">cargando partidas remotas</string>
     <string name="savegame_folder">carpeta de guardados:</string>
     
     <!-- Rules Screen -->
@@ -373,6 +376,7 @@
     <string name="select_tile_type">Seleccionar tipo de baldosa:</string>
     <string name="click_hexagons_to_paint">Haz clic o arrastra para pintar hexágonos. Usa Ctrl+Rueda para zoom:</string>
     <string name="collapse">Contraer</string>
+    <string name="expand">Expandir</string>
     <string name="change_all_no_play_to_path">Cambiar todos NO_PLAY a PATH</string>
     <string name="change_all_no_play_confirm_title">¿Cambiar todos NO_PLAY a PATH?</string>
     <string name="change_all_no_play_confirm_message">Esto reemplazará todas las baldosas NO_PLAY con baldosas PATH. ¿Está seguro?</string>
@@ -1163,6 +1167,7 @@
     <!-- Official Content Badges -->
     <string name="official">Oficial</string>
     <string name="user_levels">Niveles de Usuario</string>
+    <string name="community_levels">Comunidad</string>
     <string name="user_map">Mapa de Usuario</string>
     <string name="official_level">Nivel Oficial</string>
     <string name="user_level">Nivel de Usuario</string>
@@ -1263,7 +1268,7 @@
     <string name="audio_battle_start_name">Inicio de Batalla</string>
     <string name="audio_bomb_ticking_name">Bomba Haciendo Tictac</string>
     <string name="audio_bomb_exploding_name">Bomba Explotando</string>
-    
+
     <!-- Audio Item Labels -->
     <string name="audio_file_label">Archivo: %s</string>
     <string name="audio_source_label">Fuente: %s</string>
@@ -1493,4 +1498,26 @@
     <string name="credits_section_background_music">Música de Fondo</string>
     <string name="credits_thank_you">¡Gracias por jugar!</string>
     <string name="credits_click_to_skip">Haz clic para volver al mapa del mundo</string>
+    <!-- IAM / Keycloak -->
+    <string name="iam_login">Iniciar sesión</string>
+    <string name="iam_logout">Cerrar sesión</string>
+    <string name="iam_login_waiting">Esperando al navegador...</string>
+    <string name="keycloak_account">Cuenta de Keycloak</string>
+    <string name="user_account">Cuenta de usuario</string>
+    <string name="iam_login_successful_heading">¡Inicio de sesión exitoso!</string>
+    <string name="iam_login_successful_message">Volviendo al juego... puedes cerrar esta ventana si no se cierra automáticamente.</string>
+    <string name="iam_logout_successful_heading">¡Sesión cerrada correctamente!</string>
+    <string name="iam_logout_successful_message">Puedes cerrar esta ventana o volver al juego.</string>
+    <string name="always_log_in">Iniciar sesión siempre</string>
+    <string name="use_remote_settings">Usar configuración remota</string>
+    <string name="account">Cuenta</string>
+
+    <!-- Community maps/levels -->
+    <string name="upload_as_community_level">Subir como Nivel de Comunidad</string>
+    <string name="update_community_level">Actualizar Nivel de Comunidad</string>
+    <string name="upload_as_community_map">Subir como Mapa de Comunidad</string>
+    <string name="update_community_map">Actualizar Mapa de Comunidad</string>
+    <string name="community_uploading">Subiendo...</string>
+    <string name="community_upload_success">¡Subido con éxito!</string>
+    <string name="community_upload_failed">Error al subir. Por favor, inténtalo de nuevo.</string>
 </resources>

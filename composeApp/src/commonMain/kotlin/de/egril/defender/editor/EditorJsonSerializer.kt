@@ -228,7 +228,7 @@ object EditorJsonSerializer {
                 // targetInfo is optional, continue without it
             }
             
-            return EditorMap(id, name, nameKey, width, height, tiles, readyToUse, worldMapPosition, riverTiles, isOfficial, author, targetInfoMap)
+            return EditorMap(id, name, nameKey, width, height, tiles, readyToUse, worldMapPosition, riverTiles, isOfficial, author, targetInfoMap = targetInfoMap)
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Error deserializing map: ${e.message}")

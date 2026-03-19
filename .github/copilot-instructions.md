@@ -330,6 +330,7 @@ Add to `LevelData.createLevels()` with:
 6. Test language switching via Settings dialog
 7. All ~550+ strings must be translated for complete localization
 8. Run `TranslationCoverageTest` to verify all keys are present
+9. **Add the language to the Keycloak realm**: In `local-keycloak/egril-realm.json`, add the ISO 639-1 code to the `"supportedLocales"` array so the Keycloak login/logout UI is also available in the new language.
 
 #### Adding New UI Strings
 1. **Add to English first**: Add new string to `values/strings.xml`

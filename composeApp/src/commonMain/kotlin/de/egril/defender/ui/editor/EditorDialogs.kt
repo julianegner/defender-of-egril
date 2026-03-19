@@ -6,7 +6,22 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import de.egril.defender.iam.IamState
+import de.egril.defender.utils.getCurrentUsername
 import defender_of_egril.composeapp.generated.resources.*
+
+/**
+ * Returns the default author name to pre-fill in create dialogs.
+ * If the user is authenticated, uses their first and last name from the IAM token.
+ * Falls back to the OS username when not authenticated.
+ */
+fun getDefaultAuthorName(iamState: IamState): String {
+    return if (iamState.isAuthenticated) {
+        listOfNotNull(iamState.firstName, iamState.lastName).joinToString(" ")
+    } else {
+        getCurrentUsername()
+    }
+}
 
 /**
  * Generic "Save As" dialog that can be used for both maps and levels
@@ -57,11 +72,13 @@ fun SaveAsDialog(
 @Composable
 fun CreateMapDialog(
     onDismiss: () -> Unit,
-    onCreate: (String, Int, Int) -> Unit
+    onCreate: (String, Int, Int, String) -> Unit,
+    defaultAuthor: String = ""
 ) {
     var name by remember { mutableStateOf("") }
     var width by remember { mutableStateOf("30") }
     var height by remember { mutableStateOf("8") }
+    var author by remember { mutableStateOf(defaultAuthor) }
     
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -84,6 +101,12 @@ fun CreateMapDialog(
                     value = height,
                     onValueChange = { if (it.all { c -> c.isDigit() }) height = it },
                     label = { Text(stringResource(Res.string.height)) },
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                )
+                OutlinedTextField(
+                    value = author,
+                    onValueChange = { author = it },
+                    label = { Text(stringResource(Res.string.author_optional)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -93,7 +116,7 @@ fun CreateMapDialog(
                 onClick = {
                     val w = width.toIntOrNull() ?: 30
                     val h = height.toIntOrNull() ?: 8
-                    onCreate(name, w, h)
+                    onCreate(name, w, h, author)
                 }
             ) {
                 Text(stringResource(Res.string.create))
@@ -113,23 +136,33 @@ fun CreateMapDialog(
 @Composable
 fun CreateLevelDialog(
     onDismiss: () -> Unit,
-    onCreate: (String) -> Unit
+    onCreate: (String, String) -> Unit,
+    defaultAuthor: String = ""
 ) {
     var title by remember { mutableStateOf("") }
+    var author by remember { mutableStateOf(defaultAuthor) }
     
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(Res.string.create_new_level_title)) },
         text = {
-            OutlinedTextField(
-                value = title,
-                onValueChange = { title = it },
-                label = { Text(stringResource(Res.string.level_title)) },
-                modifier = Modifier.fillMaxWidth()
-            )
+            Column {
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text(stringResource(Res.string.level_title)) },
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                )
+                OutlinedTextField(
+                    value = author,
+                    onValueChange = { author = it },
+                    label = { Text(stringResource(Res.string.author_optional)) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         },
         confirmButton = {
-            Button(onClick = { onCreate(title) }) {
+            Button(onClick = { onCreate(title, author) }) {
                 Text(stringResource(Res.string.create))
             }
         },

@@ -1,0 +1,44 @@
+# Production backend deployment for ubuntu-8gb-nbg1-3.
+#
+# The backend connects to:
+#   - PostgreSQL on the DB server via the private Hetzner network (10.0.0.2)
+#   - Keycloak on the Keycloak server (IAM_BASE_URL)
+#
+# The Docker image is built by GitHub Actions and pushed to the GitHub
+# Container Registry (ghcr.io).  The workflow updates the image tag in .env
+# before running 'docker compose pull && docker compose up -d'.
+#
+# Required environment variables (set in .env on the server or passed inline):
+#   IMAGE_TAG        – Docker image tag to deploy (e.g. sha-abc1234 or latest)
+#   DB_PASSWORD      – password for the 'defender' PostgreSQL user
+#   IAM_BASE_URL     – base URL of the Keycloak server as seen by the backend
+#                      (e.g. http://<keycloak-private-ip>:8080 or public URL)
+#
+# First-time setup on the server:
+#   mkdir -p /opt/defender-of-egril/backend
+#   # (workflow writes .env with correct IMAGE_TAG, DB_PASSWORD, IAM_BASE_URL)
+#   docker compose pull
+#   docker compose up -d
+
+services:
+  backend:
+    image: ghcr.io/${GITHUB_REPOSITORY:-qvest-digital/defender-of-egril-fork}/backend:${IMAGE_TAG:-latest}
+    container_name: defender-of-egril-backend
+    ports:
+      - "8080:8080"
+    environment:
+      # Database – connect via private Hetzner network.
+      DB_HOST: 10.0.0.2
+      DB_PORT: 5432
+      DB_NAME: defenderofegril
+      DB_USER: defender
+      DB_PASSWORD: ${DB_PASSWORD}
+      # Keycloak IAM.
+      IAM_BASE_URL: ${IAM_BASE_URL}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health | grep -q '\"UP\"' || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
