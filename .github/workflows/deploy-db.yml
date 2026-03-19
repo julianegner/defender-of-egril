@@ -67,7 +67,7 @@ jobs:
           host: 178.104.64.170
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          key_passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
+          passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
           source: "deploy/db/docker-compose.yml"
           target: /opt/postgres
           strip_components: 2
@@ -78,7 +78,7 @@ jobs:
           host: 178.104.64.170
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          key_passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
+          passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
           source: "db-init/"
           target: /opt/postgres/db-init
           strip_components: 1
@@ -89,7 +89,7 @@ jobs:
           host: 178.104.64.170
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
-          key_passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
+          passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
           script: |
             set -euo pipefail
             cd /opt/postgres
