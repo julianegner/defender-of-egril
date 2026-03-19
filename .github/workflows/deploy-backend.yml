@@ -105,6 +105,13 @@ jobs:
             IAM_BASE_URL=https://sso.julianegner.de
             EOF
 
+            # Ensure Docker Compose V2 plugin is available (docker.io on Ubuntu
+            # does not include it by default; docker-compose-v2 is in the
+            # Ubuntu universe repo and does not require the Docker CE repo).
+            if ! docker compose version >/dev/null 2>&1; then
+              apt-get update -qq && apt-get install -y docker-compose-v2
+            fi
+
             # Log in to ghcr.io so the server can pull the image.
             echo "${{ secrets.GITHUB_TOKEN }}" | \
               docker login ghcr.io -u ${{ github.actor }} --password-stdin
