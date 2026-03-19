@@ -80,7 +80,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: keycloak-theme-jar
-          path: /tmp/keycloak-theme-jar
+          path: keycloak-theme-jar
 
       - name: "📂 Upload compose file, realm JSON, and nginx config"
         uses: appleboy/scp-action@v0.1.7
@@ -100,9 +100,9 @@ jobs:
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
-          source: "/tmp/keycloak-theme-jar/*.jar"
+          source: "keycloak-theme-jar/*.jar"
           target: /opt/keycloak/providers
-          strip_components: 3
+          strip_components: 1
 
       - name: "🚀 Start / update Keycloak and nginx"
         uses: appleboy/ssh-action@v1.0.3
