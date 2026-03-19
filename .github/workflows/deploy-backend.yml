@@ -12,6 +12,8 @@
 #
 # Required GitHub Secrets:
 #   PROD_SSH_PRIVATE_KEY  – SSH private key for all three production servers
+#   PROD_SSH_KEY_PASSPHRASE – Passphrase protecting the SSH private key
+#                             (leave the secret empty if the key has no passphrase)
 #   PROD_DB_PASSWORD      – Password for the 'defender' PostgreSQL user
 name: Deploy Backend
 
@@ -79,6 +81,7 @@ jobs:
           host: 178.104.84.83
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          key_passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
           source: "deploy/backend/docker-compose.yml"
           target: /opt/defender-of-egril/backend
           strip_components: 2
@@ -89,6 +92,7 @@ jobs:
           host: 178.104.84.83
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          key_passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
           script: |
             set -euo pipefail
             cd /opt/defender-of-egril/backend
