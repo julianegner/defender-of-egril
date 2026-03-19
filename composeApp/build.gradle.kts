@@ -1,3 +1,4 @@
+import java.time.Duration as JavaDuration
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
@@ -307,7 +308,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>> {
 // Set a per-test-method timeout on JVM test tasks (desktop and Android unit tests).
 // This prevents a single stuck test from blocking CI for hours.
 tasks.withType<Test> {
-    timeout.set(java.time.Duration.ofMinutes(5))
+    timeout.set(JavaDuration.ofMinutes(5))
 }
 
 android {
