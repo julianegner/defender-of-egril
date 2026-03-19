@@ -35,6 +35,7 @@ Add the following secrets to the repository
 | Secret | Description |
 |--------|-------------|
 | `PROD_SSH_PRIVATE_KEY` | SSH private key for all three production servers. Add the corresponding public key to `~/.ssh/authorized_keys` on each server. |
+| `PROD_SSH_KEY_PASSPHRASE` | Passphrase that protects `PROD_SSH_PRIVATE_KEY`. If you generated the key without a passphrase (using `-N ""`), create the secret with an empty value — the workflows treat an empty or undefined `PROD_SSH_KEY_PASSPHRASE` as "no passphrase". |
 | `PROD_DB_PASSWORD` | Password for the `defender` PostgreSQL user. Used by all three services. |
 | `PROD_KEYCLOAK_ADMIN_PASSWORD` | Password for the Keycloak `admin` account. |
 
@@ -153,6 +154,27 @@ mkdir -p /opt/defender-of-egril/backend
 
 ## Troubleshooting
 
+### `ssh: this private key is passphrase protected`
+
+The SSH private key stored in `PROD_SSH_PRIVATE_KEY` is encrypted with a
+passphrase, but the `PROD_SSH_KEY_PASSPHRASE` secret is either missing or
+contains an incorrect value.
+
+**Fix:** Add (or update) the `PROD_SSH_KEY_PASSPHRASE` secret
+(**Settings → Secrets and variables → Actions → New repository secret**) with
+the passphrase that was used when the key was created.
+
+If you want a key without a passphrase, regenerate it with `-N ""`:
+
+```bash
+ssh-keygen -t ed25519 -C "github-actions-deploy" -f ~/.ssh/defender_deploy_key -N ""
+```
+
+Then store the new private key in `PROD_SSH_PRIVATE_KEY`, create the
+`PROD_SSH_KEY_PASSPHRASE` secret with an empty value (the workflows treat an
+empty passphrase as "no passphrase"), and add the new public key to
+`~/.ssh/authorized_keys` on every server.
+
 ### `ssh: unable to authenticate, attempted methods [none publickey]`
 
 The SSH handshake reached the server but the server rejected the key.
@@ -202,9 +224,14 @@ If the fingerprints don't match, the wrong private key was stored in the secret.
 The secret must be the **complete** private key file, including the header and
 footer lines **and all internal newlines**.
 
-If the `🔍 Validate SSH key` step prints `⚠️  PROD_SSH_PRIVATE_KEY is NOT a valid private key`,
-the most likely cause is that newlines inside the key were lost when the key was
-copied manually (e.g. by selecting text in a terminal window).
+If the `🔍 Validate SSH key` step prints `⚠️  PROD_SSH_PRIVATE_KEY is NOT a valid private key (or the passphrase is wrong)`,
+there are two likely causes:
+
+1. **Wrong or missing passphrase** – ensure `PROD_SSH_KEY_PASSPHRASE` contains the
+   correct value (see the *"ssh: this private key is passphrase protected"* section
+   above).
+2. **Newlines lost** – newlines inside the key were lost when it was copied manually
+   (e.g. by selecting text in a terminal window).
 
 **Fix:** Use a clipboard command to copy the key — this preserves all newlines:
 
