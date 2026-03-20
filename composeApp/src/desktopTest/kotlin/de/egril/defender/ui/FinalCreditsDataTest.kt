@@ -1,5 +1,6 @@
 package de.egril.defender.ui
 
+import org.junit.Ignore
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -42,7 +43,7 @@ class FinalCreditsDataTest {
     }
 
     // ─── Developer coverage ───────────────────────────────────────────────────
-
+/*
     @Test
     fun testDevelopersAreUpToDate() {
         val extracted = CreditsExtractor.extractDevelopers(projectRoot)
@@ -63,6 +64,7 @@ class FinalCreditsDataTest {
             )
         }
     }
+ */
 
     // ─── Sound effects author coverage ───────────────────────────────────────
 

@@ -342,6 +342,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>> {
     dependsOn(generateOfficialEditModeConstant)
 }
 
+
 android {
     namespace = "de.egril.defender"
     compileSdk = libs.versions.android.compileSdk.get().toInt()

@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.currentLanguage
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
@@ -14,25 +15,25 @@ import org.junit.Test
  * Verifies that the credits screen renders with the expected sections
  * and captures a screenshot for visual verification.
  */
+
 class FinalCreditsScreenTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
 
     @Before
-    fun setDefaultLanguage() {
+    fun setUp() {
         currentLanguage.value = AppLocale.DEFAULT
     }
 
     @Test
     fun testFinalCreditsScreenRendersTitle() {
         composeTestRule.setContent {
-            FinalCreditsScreen(onDismiss = {})
+            FinalCreditsScreen(onDismiss = {}, animationsEnabled = false)
         }
 
         composeTestRule.waitForIdle()
 
-        // The game title should be visible
         composeTestRule.onNodeWithText("Defender of Egril", substring = true)
             .assertExists()
     }
@@ -40,16 +41,14 @@ class FinalCreditsScreenTest {
     @Test
     fun testFinalCreditsScreenRendersDevelopersSection() {
         composeTestRule.setContent {
-            FinalCreditsScreen(onDismiss = {})
+            FinalCreditsScreen(onDismiss = {}, animationsEnabled = false)
         }
 
         composeTestRule.waitForIdle()
 
-        // Developers section header should be present
         composeTestRule.onNodeWithText("Developers", substring = true, ignoreCase = true)
             .assertExists()
 
-        // At least one developer name should appear
         FinalCreditsData.developers.forEach { dev ->
             composeTestRule.onNodeWithText(dev, substring = true)
                 .assertExists()
@@ -59,12 +58,11 @@ class FinalCreditsScreenTest {
     @Test
     fun testFinalCreditsScreenRendersSoundSection() {
         composeTestRule.setContent {
-            FinalCreditsScreen(onDismiss = {})
+            FinalCreditsScreen(onDismiss = {}, animationsEnabled = false)
         }
 
         composeTestRule.waitForIdle()
 
-        // Sound Effects section header should be present
         composeTestRule.onNodeWithText("Sound Effects", substring = true, ignoreCase = true)
             .assertExists()
     }
@@ -72,12 +70,11 @@ class FinalCreditsScreenTest {
     @Test
     fun testFinalCreditsScreenRendersMusicSection() {
         composeTestRule.setContent {
-            FinalCreditsScreen(onDismiss = {})
+            FinalCreditsScreen(onDismiss = {}, animationsEnabled = false)
         }
 
         composeTestRule.waitForIdle()
 
-        // Background Music section header should be present
         composeTestRule.onNodeWithText("Background Music", substring = true, ignoreCase = true)
             .assertExists()
     }
@@ -87,12 +84,11 @@ class FinalCreditsScreenTest {
         var dismissed = false
 
         composeTestRule.setContent {
-            FinalCreditsScreen(onDismiss = { dismissed = true })
+            FinalCreditsScreen(onDismiss = { dismissed = true }, animationsEnabled = false)
         }
 
         composeTestRule.waitForIdle()
 
-        // Click the screen to dismiss
         composeTestRule.onRoot().performClick()
 
         composeTestRule.waitForIdle()
@@ -103,7 +99,7 @@ class FinalCreditsScreenTest {
     @Test
     fun testFinalCreditsScreenScreenshot() {
         composeTestRule.setContent {
-            FinalCreditsScreen(onDismiss = {})
+            FinalCreditsScreen(onDismiss = {}, animationsEnabled = false)
         }
 
         composeTestRule.waitForIdle()
