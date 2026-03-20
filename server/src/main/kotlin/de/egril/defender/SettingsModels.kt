@@ -6,7 +6,8 @@ import kotlinx.serialization.Serializable
  * Request body for uploading player settings.
  *
  * @param data Raw JSON content of the settings map
- * @param platform The frontend platform (e.g. WEB, DESKTOP, ANDROID, IOS), optional
+ * @param platform The short frontend platform identifier (e.g. WEB, DESKTOP, ANDROID, IOS), optional
+ * @param platformLong The full platform name including user agent for web, optional
  * @param versionName The version name of the frontend (e.g. "1.0"), optional
  * @param commitHash The short git commit hash of the frontend build, optional
  */
@@ -14,6 +15,7 @@ import kotlinx.serialization.Serializable
 data class SettingsUploadRequest(
     val data: String,
     val platform: String? = null,
+    val platformLong: String? = null,
     val versionName: String? = null,
     val commitHash: String? = null
 )

@@ -34,11 +34,12 @@ expect object BackendSettingsService {
 /** Builds the JSON payload for a settings upload request. */
 internal fun buildSettingsUploadJson(settingsJson: String): String = buildString {
     val platform = de.egril.defender.utils.getClientPlatformName()
+    val platformLong = de.egril.defender.utils.getPlatform().name
     val versionName = de.egril.defender.BuildConfig.VERSION_NAME
     val commitHash = de.egril.defender.BuildConfig.COMMIT_HASH
     append("{")
     append("\"data\":\"${escapeJsonString(settingsJson)}\",")
-    appendClientInfo(platform, versionName, commitHash)
+    appendClientInfo(platform, platformLong, versionName, commitHash)
     append("}")
 }
 

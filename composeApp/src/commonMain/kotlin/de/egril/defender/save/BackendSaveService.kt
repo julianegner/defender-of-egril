@@ -64,11 +64,18 @@ internal fun escapeJsonString(s: String): String = buildString {
 }
 
 /**
- * Appends the shared client information JSON fields (platform, versionName, commitHash)
+ * Appends the shared client information JSON fields (platform, platformLong, versionName, commitHash)
  * to this [StringBuilder]. The fields are written without a trailing comma.
+ *
+ * @param platform     Short platform identifier (e.g. "WEB", "DESKTOP", "ANDROID", "IOS")
+ * @param platformLong Long platform name from [de.egril.defender.utils.Platform.name]
+ *                     (e.g. "Web with Kotlin/Wasm Mozilla/5.0 (...)")
+ * @param versionName  Frontend version name (e.g. "1.0")
+ * @param commitHash   Short git commit hash of the frontend build
  */
-internal fun StringBuilder.appendClientInfo(platform: String, versionName: String, commitHash: String) {
+internal fun StringBuilder.appendClientInfo(platform: String, platformLong: String, versionName: String, commitHash: String) {
     append("\"platform\":\"${escapeJsonString(platform)}\",")
+    append("\"platformLong\":\"${escapeJsonString(platformLong)}\",")
     append("\"versionName\":\"${escapeJsonString(versionName)}\",")
     append("\"commitHash\":\"${escapeJsonString(commitHash)}\"")
 }
@@ -76,12 +83,13 @@ internal fun StringBuilder.appendClientInfo(platform: String, versionName: Strin
 /** Builds the JSON payload for a savefile upload request. */
 internal fun buildUploadJson(saveId: String, jsonData: String): String = buildString {
     val platform = de.egril.defender.utils.getClientPlatformName()
+    val platformLong = de.egril.defender.utils.getPlatform().name
     val versionName = de.egril.defender.BuildConfig.VERSION_NAME
     val commitHash = de.egril.defender.BuildConfig.COMMIT_HASH
     append("{")
     append("\"saveId\":\"${escapeJsonString(saveId)}\",")
     append("\"data\":\"${escapeJsonString(jsonData)}\",")
-    appendClientInfo(platform, versionName, commitHash)
+    appendClientInfo(platform, platformLong, versionName, commitHash)
     append("}")
 }
 

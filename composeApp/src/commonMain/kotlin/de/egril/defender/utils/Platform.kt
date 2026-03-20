@@ -19,7 +19,7 @@ expect fun getSystemLanguageCode(): String?
  */
 expect fun getCurrentUsername(): String
 
-val isPlatformWasm = ("Web with Kotlin/Wasm" == getPlatform().name)
+val isPlatformWasm = getPlatform().name.startsWith("Web with Kotlin/Wasm")
 val isPlatformAndroid = getPlatform().name.startsWith("Android")
 val isPlatformIos = getPlatform().name.startsWith("iOS")
 val isPlatformDesktop = getPlatform().name.startsWith("Java")

@@ -555,7 +555,7 @@ class BackendIntegrationTest {
     fun `POST events with versionName and commitHash succeeds`() = withRealDatabase {
         client.post("/api/events") {
             contentType(ContentType.Application.Json)
-            setBody("""{"event":"APP_STARTED","platform":"DESKTOP","versionName":"1.0","commitHash":"abc1234"}""")
+            setBody("""{"event":"APP_STARTED","platform":"DESKTOP","platformLong":"Java HotSpot(TM) 64-Bit Server VM","versionName":"1.0","commitHash":"abc1234"}""")
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
         }
@@ -577,7 +577,7 @@ class BackendIntegrationTest {
         client.post("/api/savefiles") {
             contentType(ContentType.Application.Json)
             header(HttpHeaders.Authorization, "Bearer $token")
-            setBody("""{"saveId":"save-v1","data":"\"gamedata\"","platform":"WEB","versionName":"1.0","commitHash":"abc1234"}""")
+            setBody("""{"saveId":"save-v1","data":"\"gamedata\"","platform":"WEB","platformLong":"Web with Kotlin/Wasm Mozilla/5.0 (X11)","versionName":"1.0","commitHash":"abc1234"}""")
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
         }
@@ -590,7 +590,7 @@ class BackendIntegrationTest {
         client.post("/api/userdata") {
             contentType(ContentType.Application.Json)
             header(HttpHeaders.Authorization, "Bearer $token")
-            setBody("""{"data":${jsonString(userData)},"platform":"DESKTOP","versionName":"1.0","commitHash":"abc1234"}""")
+            setBody("""{"data":${jsonString(userData)},"platform":"DESKTOP","platformLong":"Java HotSpot 64-Bit","versionName":"1.0","commitHash":"abc1234"}""")
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
         }
@@ -603,7 +603,7 @@ class BackendIntegrationTest {
         client.post("/api/settings") {
             contentType(ContentType.Application.Json)
             header(HttpHeaders.Authorization, "Bearer $token")
-            setBody("""{"data":${jsonString(settings)},"platform":"IOS","versionName":"1.0","commitHash":"abc1234"}""")
+            setBody("""{"data":${jsonString(settings)},"platform":"IOS","platformLong":"iOS 18.0","versionName":"1.0","commitHash":"abc1234"}""")
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
         }
@@ -617,7 +617,7 @@ class BackendIntegrationTest {
         client.post("/api/userdata") {
             contentType(ContentType.Application.Json)
             header(HttpHeaders.Authorization, "Bearer $token")
-            setBody("""{"data":${jsonString(userData)},"platform":"WEB","versionName":"1.0","commitHash":"abc1234"}""")
+            setBody("""{"data":${jsonString(userData)},"platform":"WEB","platformLong":"Web with Kotlin/Wasm Mozilla/5.0","versionName":"1.0","commitHash":"abc1234"}""")
         }.apply { assertEquals(HttpStatusCode.OK, status) }
 
         client.get("/api/userdata") {
@@ -630,6 +630,7 @@ class BackendIntegrationTest {
             assert(!body.contains("versionName")) { "Response must not expose versionName" }
             assert(!body.contains("commitHash")) { "Response must not expose commitHash" }
             assert(!body.contains("\"platform\"")) { "Response must not expose platform" }
+            assert(!body.contains("platformLong")) { "Response must not expose platformLong" }
         }
     }
 
@@ -641,7 +642,7 @@ class BackendIntegrationTest {
         client.post("/api/settings") {
             contentType(ContentType.Application.Json)
             header(HttpHeaders.Authorization, "Bearer $token")
-            setBody("""{"data":${jsonString(settings)},"platform":"WEB","versionName":"1.0","commitHash":"abc1234"}""")
+            setBody("""{"data":${jsonString(settings)},"platform":"WEB","platformLong":"Web with Kotlin/Wasm Mozilla/5.0","versionName":"1.0","commitHash":"abc1234"}""")
         }.apply { assertEquals(HttpStatusCode.OK, status) }
 
         client.get("/api/settings") {
@@ -653,6 +654,7 @@ class BackendIntegrationTest {
             assert(!body.contains("versionName")) { "Response must not expose versionName" }
             assert(!body.contains("commitHash")) { "Response must not expose commitHash" }
             assert(!body.contains("\"platform\"")) { "Response must not expose platform" }
+            assert(!body.contains("platformLong")) { "Response must not expose platformLong" }
         }
     }
 }
