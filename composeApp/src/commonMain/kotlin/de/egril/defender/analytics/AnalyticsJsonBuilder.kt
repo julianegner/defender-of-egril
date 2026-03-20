@@ -1,13 +1,23 @@
 package de.egril.defender.analytics
 
+import de.egril.defender.BuildConfig
+import de.egril.defender.utils.getPlatform
+
 /**
  * Builds the JSON payload for an analytics event.
  */
 internal fun buildEventJson(eventType: String, levelName: String?, platform: String): String = buildString {
+    val platformLong = getPlatform().name
     append("{\"event\":\"")
     append(escapeJson(eventType))
     append("\",\"platform\":\"")
     append(escapeJson(platform))
+    append("\",\"platformLong\":\"")
+    append(escapeJson(platformLong))
+    append("\",\"versionName\":\"")
+    append(escapeJson(BuildConfig.VERSION_NAME))
+    append("\",\"commitHash\":\"")
+    append(escapeJson(BuildConfig.COMMIT_HASH))
     append("\"")
     if (levelName != null) {
         append(",\"levelName\":\"")

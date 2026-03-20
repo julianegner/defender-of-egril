@@ -10,5 +10,6 @@
     <include file="db/changelog/migrations/003-community-files.sql"/>
     <include file="db/changelog/migrations/004-userdata.sql"/>
     <include file="db/changelog/migrations/005-settings.sql"/>
+    <include file="db/changelog/migrations/006-frontend-version.sql"/>
 
 </databaseChangeLog>
