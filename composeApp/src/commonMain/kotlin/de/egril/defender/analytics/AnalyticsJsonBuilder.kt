@@ -1,6 +1,6 @@
 package de.egril.defender.analytics
 
-import de.egril.defender.BuildConfig
+import de.egril.defender.AppBuildInfo
 import de.egril.defender.utils.getPlatform
 
 /**
@@ -15,9 +15,9 @@ internal fun buildEventJson(eventType: String, levelName: String?, platform: Str
     append("\",\"platformLong\":\"")
     append(escapeJson(platformLong))
     append("\",\"versionName\":\"")
-    append(escapeJson(BuildConfig.VERSION_NAME))
+    append(escapeJson(AppBuildInfo.VERSION_NAME))
     append("\",\"commitHash\":\"")
-    append(escapeJson(BuildConfig.COMMIT_HASH))
+    append(escapeJson(AppBuildInfo.COMMIT_HASH))
     append("\"")
     if (levelName != null) {
         append(",\"levelName\":\"")
