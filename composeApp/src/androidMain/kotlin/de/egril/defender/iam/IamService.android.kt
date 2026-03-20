@@ -1,5 +1,6 @@
 package de.egril.defender.iam
 
+import de.egril.defender.BuildConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -8,11 +9,11 @@ import kotlinx.coroutines.launch
 import org.publicvalue.multiplatform.oidc.OpenIdConnectClient
 import org.publicvalue.multiplatform.oidc.types.CodeChallengeMethod
 
-// On Android, environment variables are not accessible to apps.
-// The Keycloak URL defaults to the local development value and should be
-// overridden by setting the IAM_BASE_URL system property via ADB or build config.
-actual fun getIamBaseUrl(): String =
-    System.getProperty("iam.base.url") ?: "http://localhost:8081"
+// On Android, JVM system properties for custom keys are not accessible at runtime.
+// The Keycloak URL is therefore baked into the APK at build time via BuildConfig,
+// which is populated from profiles/local.properties or profiles/production.properties
+// depending on the selected product flavor.
+actual fun getIamBaseUrl(): String = BuildConfig.IAM_BASE_URL
 
 // ---------------------------------------------------------------------------
 // OIDC redirect URI – must match the oidcRedirectScheme in build.gradle.kts

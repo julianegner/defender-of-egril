@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import de.egril.defender.BuildConfig
+import de.egril.defender.AppBuildInfo
 import de.egril.defender.iam.IamState
 import de.egril.defender.ui.infopage.ImpressumWrapper
 import de.egril.defender.ui.icon.LockIcon
@@ -304,7 +304,7 @@ fun MainMenuScreen(
             
             // Version info at the bottom - clickable to show commit info
             Text(
-                text = "v${BuildConfig.VERSION_NAME} (${BuildConfig.COMMIT_HASH})",
+                text = "v${AppBuildInfo.VERSION_NAME} (${AppBuildInfo.COMMIT_HASH})",
                 style = MaterialTheme.typography.bodySmall,
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,

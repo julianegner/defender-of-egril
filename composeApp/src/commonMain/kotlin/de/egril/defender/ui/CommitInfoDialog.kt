@@ -8,7 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
-import de.egril.defender.BuildConfig
+import de.egril.defender.AppBuildInfo
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -35,7 +35,7 @@ fun CommitInfoDialog(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = BuildConfig.COMMIT_HASH,
+                        text = AppBuildInfo.COMMIT_HASH,
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -48,7 +48,7 @@ fun CommitInfoDialog(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = BuildConfig.COMMIT_DATE,
+                        text = AppBuildInfo.COMMIT_DATE,
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
@@ -61,7 +61,7 @@ fun CommitInfoDialog(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = BuildConfig.COMMIT_MESSAGE,
+                        text = AppBuildInfo.COMMIT_MESSAGE,
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }

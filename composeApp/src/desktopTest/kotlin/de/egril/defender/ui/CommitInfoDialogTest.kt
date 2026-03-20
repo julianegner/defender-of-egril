@@ -2,7 +2,7 @@ package de.egril.defender.ui
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import de.egril.defender.BuildConfig
+import de.egril.defender.AppBuildInfo
 import org.junit.Rule
 import org.junit.Test
 
@@ -36,19 +36,19 @@ class CommitInfoDialogTest {
         // Verify commit hash label and value are displayed
         composeTestRule.onNodeWithText("Commit Hash", substring = true, ignoreCase = true)
             .assertExists()
-        composeTestRule.onNodeWithText(BuildConfig.COMMIT_HASH, substring = true)
+        composeTestRule.onNodeWithText(AppBuildInfo.COMMIT_HASH, substring = true)
             .assertExists()
         
         // Verify commit date label and value are displayed
         composeTestRule.onNodeWithText("Commit Date", substring = true, ignoreCase = true)
             .assertExists()
-        composeTestRule.onNodeWithText(BuildConfig.COMMIT_DATE, substring = true)
+        composeTestRule.onNodeWithText(AppBuildInfo.COMMIT_DATE, substring = true)
             .assertExists()
         
         // Verify commit message label and value are displayed
         composeTestRule.onNodeWithText("Commit Message", substring = true, ignoreCase = true)
             .assertExists()
-        composeTestRule.onNodeWithText(BuildConfig.COMMIT_MESSAGE, substring = true)
+        composeTestRule.onNodeWithText(AppBuildInfo.COMMIT_MESSAGE, substring = true)
             .assertExists()
         
         // Verify close button exists
