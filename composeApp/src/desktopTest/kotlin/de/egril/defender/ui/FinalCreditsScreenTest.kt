@@ -14,13 +14,8 @@ import org.junit.Test
  *
  * Verifies that the credits screen renders with the expected sections
  * and captures a screenshot for visual verification.
- *
- * Note: These tests are disabled because FinalCreditsScreen contains a `while(true)`
- * background-animation loop and a 60-second auto-scroll animation that keep requesting
- * the next Compose frame. Even with `animationsEnabled = false`, the Compose test
- * runtime's internal idle-wait inside `setContent` does not terminate reliably in CI.
  */
-@Ignore("FinalCreditsScreen animations cause setContent to hang indefinitely in CI")
+
 class FinalCreditsScreenTest {
 
     @get:Rule
