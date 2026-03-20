@@ -1186,6 +1186,16 @@
     <string name="info_tab_audio_licenses">Audio-Lizenzen</string>
     <string name="info_tab_license">Lizenz</string>
     <string name="info_tab_keyboard_shortcuts">Tastenkürzel</string>
+    <string name="info_tab_backend">Konto &amp; Datenschutz</string>
+
+    <!-- Backend Info -->
+    <string name="backend_info_title">Konto &amp; Datenschutz</string>
+    <string name="backend_info_logging_heading">Was wird protokolliert?</string>
+    <string name="backend_info_logging_body">Beim Spielen werden grundlegende technische Daten für den Serverbetrieb protokolliert (z. B. Fehlermeldungen und Serverstatus). Persönliche Spieldaten werden nur gespeichert, wenn Sie ein Konto erstellen.</string>
+    <string name="backend_info_account_heading">Optionales Benutzerkonto</string>
+    <string name="backend_info_account_body">Sie können optional ein kostenloses Konto erstellen. Mit einem Konto können Sie:\n\n• Ihren Spielfortschritt auf dem Server speichern und auf jedem Gerät weiterspielen\n• Zwischen Geräten wechseln und Ihr Spiel dort fortsetzen, wo Sie aufgehört haben\n• Eigene Karten und Level als Community-Inhalt hochladen\n• Community-Level anderer Spieler herunterladen und spielen</string>
+    <string name="backend_info_account_how_heading">Wie bekomme ich ein Konto?</string>
+    <string name="backend_info_account_how_body">Klicken Sie auf der Startseite auf den Login-Button. Sie werden zu einer Registrierungsseite weitergeleitet, auf der Sie ein kostenloses Konto erstellen können. Es werden keine persönlichen Daten außer einer E-Mail-Adresse benötigt.</string>
 
     <!-- Keyboard Shortcuts Info -->
     <string name="keyboard_shortcuts_title">Tastenkürzel</string>

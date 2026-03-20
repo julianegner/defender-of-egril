@@ -28,6 +28,7 @@ sealed class Screen {
     object WorldMap : Screen()
     object Rules : Screen()
     object InstallationInfo : Screen()
+    data class InstallationInfoAtTab(val initialTab: de.egril.defender.ui.infopage.InfoTab) : Screen()
     object LevelEditor : Screen()
     object LoadGame : Screen()
     object Sticker : Screen()
@@ -445,6 +446,10 @@ class GameViewModel {
     
     fun navigateToInstallationInfo() {
         _currentScreen.value = Screen.InstallationInfo
+    }
+
+    fun navigateToBackendInfo() {
+        _currentScreen.value = Screen.InstallationInfoAtTab(de.egril.defender.ui.infopage.InfoTab.BACKEND)
     }
     
     fun navigateToLevelEditor() {

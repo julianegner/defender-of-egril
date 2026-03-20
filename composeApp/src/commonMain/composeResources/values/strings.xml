@@ -1191,6 +1191,16 @@
     <string name="info_tab_audio_licenses">Audio Licenses</string>
     <string name="info_tab_license">License</string>
     <string name="info_tab_keyboard_shortcuts">Keyboard Shortcuts</string>
+    <string name="info_tab_backend">Account &amp; Privacy</string>
+
+    <!-- Backend Info -->
+    <string name="backend_info_title">Account &amp; Privacy</string>
+    <string name="backend_info_logging_heading">What is logged?</string>
+    <string name="backend_info_logging_body">When you play the game, basic technical data is logged on the server for operational purposes (e.g. error messages and server health). No personal gameplay data is stored unless you create an account.</string>
+    <string name="backend_info_account_heading">Optional User Account</string>
+    <string name="backend_info_account_body">You can optionally create a free account. With an account you can:\n\n• Save your game progress on the server and continue on any device\n• Switch between devices and resume your game where you left off\n• Upload your own maps and levels as community content for others to discover and play\n• Download and play community levels created by other players</string>
+    <string name="backend_info_account_how_heading">How to get an account?</string>
+    <string name="backend_info_account_how_body">Click the login button on the start page. You will be taken to a registration page where you can create a free account. No personal data beyond an e-mail address is required.</string>
 
     <!-- Keyboard Shortcuts Info -->
     <string name="keyboard_shortcuts_title">Keyboard Shortcuts</string>

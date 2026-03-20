@@ -1189,6 +1189,16 @@
     <string name="info_tab_audio_licenses">Licencias de Audio</string>
     <string name="info_tab_license">Licencia</string>
     <string name="info_tab_keyboard_shortcuts">Atajos de Teclado</string>
+    <string name="info_tab_backend">Cuenta y Privacidad</string>
+
+    <!-- Backend Info -->
+    <string name="backend_info_title">Cuenta y Privacidad</string>
+    <string name="backend_info_logging_heading">¿Qué se registra?</string>
+    <string name="backend_info_logging_body">Al jugar, se registran datos técnicos básicos en el servidor con fines operativos (p. ej., mensajes de error y estado del servidor). No se almacenan datos personales de juego a menos que crees una cuenta.</string>
+    <string name="backend_info_account_heading">Cuenta de usuario opcional</string>
+    <string name="backend_info_account_body">Puedes crear una cuenta gratuita de forma opcional. Con una cuenta puedes:\n\n• Guardar tu progreso en el servidor y continuar en cualquier dispositivo\n• Cambiar de dispositivo y retomar el juego donde lo dejaste\n• Subir tus propios mapas y niveles como contenido de la comunidad\n• Descargar y jugar niveles creados por otros jugadores</string>
+    <string name="backend_info_account_how_heading">¿Cómo obtener una cuenta?</string>
+    <string name="backend_info_account_how_body">Haz clic en el botón de inicio de sesión en la pantalla de inicio. Serás redirigido a una página de registro donde puedes crear una cuenta gratuita. Solo se requiere una dirección de correo electrónico.</string>
 
     <!-- Keyboard Shortcuts Info -->
     <string name="keyboard_shortcuts_title">Atajos de Teclado</string>

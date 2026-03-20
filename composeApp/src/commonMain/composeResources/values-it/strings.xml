@@ -1189,6 +1189,16 @@
     <string name="info_tab_audio_licenses">Licenze Audio</string>
     <string name="info_tab_license">Licenza</string>
     <string name="info_tab_keyboard_shortcuts">Scorciatoie da Tastiera</string>
+    <string name="info_tab_backend">Account e Privacy</string>
+
+    <!-- Backend Info -->
+    <string name="backend_info_title">Account e Privacy</string>
+    <string name="backend_info_logging_heading">Cosa viene registrato?</string>
+    <string name="backend_info_logging_body">Durante il gioco, vengono registrati dati tecnici di base sul server per scopi operativi (es. messaggi di errore e stato del server). Nessun dato personale di gioco viene memorizzato senza un account.</string>
+    <string name="backend_info_account_heading">Account utente opzionale</string>
+    <string name="backend_info_account_body">Puoi creare facoltativamente un account gratuito. Con un account puoi:\n\n• Salvare i progressi sul server e continuare su qualsiasi dispositivo\n• Cambiare dispositivo e riprendere il gioco da dove ti eri fermato\n• Caricare le tue mappe e livelli come contenuto della community\n• Scaricare e giocare i livelli creati da altri giocatori</string>
+    <string name="backend_info_account_how_heading">Come ottenere un account?</string>
+    <string name="backend_info_account_how_body">Fai clic sul pulsante di accesso nella schermata iniziale. Verrai reindirizzato a una pagina di registrazione dove puoi creare un account gratuito. È richiesto solo un indirizzo e-mail.</string>
 
     <!-- Keyboard Shortcuts Info -->
     <string name="keyboard_shortcuts_title">Scorciatoie da Tastiera</string>
