@@ -1238,7 +1238,7 @@
     <string name="audio_mine_events_subtitle">Mine Events</string>
     <string name="audio_other_events_subtitle">Other Game Events</string>
     
-    <!-- Background Music -->
+    <!-- Background Music - Music piece names are not translated, the original names are used -->
     <string name="audio_fantasy_ambience_name">Fantasy Ambience</string>
     <string name="audio_fantasy_ambience_license">100% copyright free, no attribution required. Cannot be re-sold as audio, must be used in context of a project.</string>
     <string name="audio_dark_castle_name">The Dark Castle</string>

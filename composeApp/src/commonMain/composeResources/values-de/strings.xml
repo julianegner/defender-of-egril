@@ -1233,13 +1233,13 @@
     <string name="audio_mine_events_subtitle">Minen-Ereignisse</string>
     <string name="audio_other_events_subtitle">Andere Spiel-Ereignisse</string>
     
-    <!-- Background Music -->
-    <string name="audio_fantasy_ambience_name">Fantasy-Ambiente</string>
+    <!-- Background Music - Music piece names are not translated, the original names are used -->
+    <string name="audio_fantasy_ambience_name">Fantasy Ambience</string>
     <string name="audio_fantasy_ambience_license">100% urheberrechtsfrei, keine Namensnennung erforderlich. Darf nicht als Audio weiterverkauft werden, muss im Kontext eines Projekts verwendet werden.</string>
-    <string name="audio_dark_castle_name">Die dunkle Burg</string>
+    <string name="audio_dark_castle_name">The Dark Castle</string>
     <string name="audio_beautiful_memories_name">Beautiful Memories</string>
     <string name="audio_fesliyan_license">Lizenzfreie Musik von Fesliyan Studios. Verwendung in Videospielen erlaubt.</string>
-    <string name="audio_fantasy_orchestral_name">Mystische Fantasy-Orchestermusik</string>
+    <string name="audio_fantasy_orchestral_name">Mystic Fantasy Orchestral Music</string>
     <string name="audio_pixabay_license">Pixabay-Inhaltslizenz - Kostenlos verwendbar, keine Namensnennung erforderlich</string>
     
     <!-- Tower Attacks -->
