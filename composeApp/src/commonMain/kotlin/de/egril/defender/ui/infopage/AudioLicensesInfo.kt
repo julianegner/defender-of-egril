@@ -64,6 +64,17 @@ fun AudioLicensesInfo() {
                 
                 Spacer(modifier = Modifier.height(12.dp))
                 
+                // Beautiful Memories
+                AudioItem(
+                    name = stringResource(Res.string.audio_beautiful_memories_name),
+                    file = "Happy_Music-2018-09-18_-_Beautiful_Memories_-_David_Fesliyan.mp3",
+                    source = "https://www.fesliyanstudios.com/",
+                    license = stringResource(Res.string.audio_fesliyan_license),
+                    licenseUrl = "https://www.fesliyanstudios.com/policy"
+                )
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
                 // Fantasy Orchestral Music
                 AudioItem(
                     name = stringResource(Res.string.audio_fantasy_orchestral_name),
