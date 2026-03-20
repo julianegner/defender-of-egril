@@ -524,19 +524,21 @@ afterEvaluate {
         logger.lifecycle("Desktop 'run' task configured with profile '$profile'")
     }
 
-    // ── Web/WASM: temporarily substitute the Keycloak URL in index.html ─────
+    // ── Web/WASM: temporarily substitute profile URLs for the dev server ─────
     // The Kotlin/WASM webpack dev server serves resources from
-    // src/wasmJsMain/resources/. We modify index.html in doFirst and restore
-    // it in doLast so the source file is not permanently changed.
+    // src/wasmJsMain/resources/. We modify index.html and dev-server-proxy.js
+    // in doFirst and restore them in doLast so source files are not permanently
+    // changed.
     tasks.matching { it.name == "wasmJsBrowserDevelopmentRun" }.configureEach {
-        val iamUrl = loadProfileProperties(profile).getProperty("iam.base.url") ?: return@configureEach
+        val profileProps = loadProfileProperties(profile)
+        val iamUrl = profileProps.getProperty("iam.base.url")
+        val backendUrl = profileProps.getProperty("defender.backend.url")
         val indexHtml = project.file("src/wasmJsMain/resources/index.html")
+        val proxyJs = project.file("webpack.config.d/dev-server-proxy.js")
         val backupDir = project.layout.buildDirectory.get().asFile.resolve("tmp/profile-backup")
 
         doFirst {
             backupDir.mkdirs()
-            val original = indexHtml.readText()
-            backupDir.resolve("index.html").writeText(original)
 
             // Replace the Keycloak URL in the window.keycloakConfig default block.
             // The block in index.html always looks like:
@@ -544,22 +546,47 @@ afterEvaluate {
             //       url: 'http://...',
             //   };
             // We target only the url value between single quotes on that specific line.
-            val urlLinePattern = Regex("""(window\.keycloakConfig\s*=\s*window\.keycloakConfig\s*\|\|\s*\{[^}]*\burl:\s*')[^']*""")
-            val modified = urlLinePattern.find(original)?.let { match ->
-                val replacement = "${match.groupValues[1]}$iamUrl"
-                original.substring(0, match.range.first) + replacement + original.substring(match.range.last + 1)
-            } ?: original
+            if (iamUrl != null) {
+                val original = indexHtml.readText()
+                backupDir.resolve("index.html").writeText(original)
+                val urlLinePattern = Regex("""(window\.keycloakConfig\s*=\s*window\.keycloakConfig\s*\|\|\s*\{[^}]*\burl:\s*')[^']*""")
+                val modified = urlLinePattern.find(original)?.let { match ->
+                    val replacement = "${match.groupValues[1]}$iamUrl"
+                    original.substring(0, match.range.first) + replacement + original.substring(match.range.last + 1)
+                } ?: original
+                indexHtml.writeText(modified)
+                logger.lifecycle("WASM dev server configured with IAM URL: $iamUrl (profile: $profile)")
+            }
 
-            indexHtml.writeText(modified)
-            logger.lifecycle("WASM dev server configured with IAM URL: $iamUrl (profile: $profile)")
+            // Replace the backend proxy target URL in dev-server-proxy.js.
+            // The relevant line always looks like:
+            //   target: "http://localhost:8080",
+            // We target only the URL value between double quotes after "target:".
+            if (backendUrl != null) {
+                val originalProxy = proxyJs.readText()
+                backupDir.resolve("dev-server-proxy.js").writeText(originalProxy)
+                val proxyTargetPattern = Regex("""(target:\s*")[^"]*""")
+                val modifiedProxy = proxyTargetPattern.find(originalProxy)?.let { match ->
+                    val replacement = "${match.groupValues[1]}$backendUrl"
+                    originalProxy.substring(0, match.range.first) + replacement + originalProxy.substring(match.range.last + 1)
+                } ?: originalProxy
+                proxyJs.writeText(modifiedProxy)
+                logger.lifecycle("WASM proxy configured with backend URL: $backendUrl (profile: $profile)")
+            }
         }
 
         doLast {
-            val backup = backupDir.resolve("index.html")
-            if (backup.exists()) {
-                indexHtml.writeText(backup.readText())
-                backup.delete()
+            val indexHtmlBackup = backupDir.resolve("index.html")
+            if (indexHtmlBackup.exists()) {
+                indexHtml.writeText(indexHtmlBackup.readText())
+                indexHtmlBackup.delete()
                 logger.lifecycle("Restored index.html after WASM dev run")
+            }
+            val proxyJsBackup = backupDir.resolve("dev-server-proxy.js")
+            if (proxyJsBackup.exists()) {
+                proxyJs.writeText(proxyJsBackup.readText())
+                proxyJsBackup.delete()
+                logger.lifecycle("Restored dev-server-proxy.js after WASM dev run")
             }
         }
     }
