@@ -3,8 +3,8 @@
 # This workflow:
 #   1. Builds the backend Docker image using server/Dockerfile.
 #   2. Pushes it to the GitHub Container Registry (ghcr.io).
-#   3. SSHes into the backend server, writes the .env file, pulls the new
-#      image, and restarts the container.
+#   3. SSHes into the backend server, uploads the compose file and nginx config,
+#      writes the .env file, pulls the new image, and restarts the containers.
 #
 # Server: ubuntu-8gb-nbg1-3
 #   Public IP:   178.104.84.83
@@ -76,14 +76,14 @@ jobs:
       - name: "✅ Checkout code"
         uses: actions/checkout@v4
 
-      - name: "📂 Upload compose file"
+      - name: "📂 Upload compose file and nginx config"
         uses: appleboy/scp-action@v0.1.7
         with:
           host: 178.104.84.83
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
-          source: "deploy/backend/docker-compose.yml"
+          source: "deploy/backend/docker-compose.yml,deploy/backend/nginx.conf"
           target: /opt/defender-of-egril/backend
           strip_components: 2
 
@@ -117,6 +117,9 @@ jobs:
             echo "${{ secrets.GITHUB_TOKEN }}" | \
               docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            docker compose pull
+            # Recreate backend and nginx so the updated image and nginx config
+            # take effect.  || true ignores "no such container" on first deploy.
+            docker compose down backend nginx || true
+            docker compose pull backend
             docker compose up -d
             echo "✅ Backend deployed (image tag: ${{ needs.build-and-push.outputs.image_tag }})"

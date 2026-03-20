@@ -138,6 +138,8 @@ certbot certonly --standalone -d sso.julianegner.de
 **Backend server** (created automatically by the workflow):
 ```bash
 mkdir -p /opt/defender-of-egril/backend
+apt-get install -y certbot
+certbot certonly --standalone -d defender-backend.egril.de
 ```
 
 ## Security Notes
@@ -149,6 +151,10 @@ mkdir -p /opt/defender-of-egril/backend
   TLS on ports 80/443 and proxies to Keycloak's internal HTTP port.  The TLS
   certificate for `sso.julianegner.de` is obtained via certbot on the host and
   mounted read-only into the nginx container.
+- The backend is not exposed directly either; nginx (in the same Docker Compose)
+  terminates TLS on ports 80/443 and proxies to the backend's internal HTTP port.
+  The TLS certificate for `defender-backend.egril.de` is obtained via certbot on
+  the host and mounted read-only into the nginx container.
 - The backend Docker image is published to the GitHub Container Registry
   (`ghcr.io`).  The image visibility follows the repository visibility.
 
