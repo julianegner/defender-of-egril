@@ -1,3 +1,4 @@
+import java.util.Properties
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
@@ -399,5 +400,68 @@ compose.desktop {
                 packageName = "defender-of-egril"
             }
         }
+    }
+}
+
+/**
+ * Loads JVM system property arguments from a named profile file.
+ *
+ * Profile files live in the `profiles/` directory at the repository root.
+ * Each non-comment line follows the `key=value` format. All properties are
+ * forwarded as JVM system properties (i.e. `-Dkey=value`) when the desktop
+ * application starts.
+ *
+ * Available profiles:
+ *   - `local`  – local Docker Compose stack (default URLs: localhost:8081 / localhost:8080)
+ *   - `remote` – remote server (configure URLs in profiles/remote.properties)
+ *
+ * @param profileName the name of the profile (e.g. "local" or "remote")
+ * @return a list of JVM args like `["-Diam.base.url=http://localhost:8081", …]`
+ */
+fun profileJvmArgs(profileName: String): List<String> {
+    val profileFile = rootProject.file("profiles/$profileName.properties")
+    if (!profileFile.exists()) {
+        logger.warn(
+            "Profile file not found: profiles/$profileName.properties. " +
+                "Available profiles: local, remote. " +
+                "To create a custom profile, add a properties file in the profiles/ directory."
+        )
+        return emptyList()
+    }
+    val props = Properties()
+    profileFile.reader().use { props.load(it) }
+    return props.stringPropertyNames().map { key -> "-D$key=${props.getProperty(key)}" }
+}
+
+// Configure the built-in `run` task with JVM args from the selected profile.
+// Usage: ./gradlew run -Pprofile=local   or   ./gradlew run -Pprofile=remote
+afterEvaluate {
+    val profile = project.findProperty("profile")?.toString()
+    if (profile != null) {
+        tasks.named<JavaExec>("run") {
+            jvmArgs(profileJvmArgs(profile))
+            logger.lifecycle("Desktop 'run' task configured with profile '$profile'")
+        }
+    }
+}
+
+// Convenience tasks that bake in the profile selection, so you can run:
+//   ./gradlew runLocal    (equivalent to ./gradlew run -Pprofile=local)
+//   ./gradlew runRemote   (equivalent to ./gradlew run -Pprofile=remote)
+listOf("local", "remote").forEach { profileName ->
+    tasks.register<JavaExec>("run${profileName.replaceFirstChar { it.uppercase() }}") {
+        group = "application"
+        description = "Runs the desktop application with the '$profileName' profile. " +
+            "Equivalent to: ./gradlew run -Pprofile=$profileName"
+        dependsOn("compileKotlinDesktop")
+        classpath = files(
+            kotlin.targets.named("desktop").map { target ->
+                (target as org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget)
+                    .compilations["main"].output.classesDirs
+            },
+            configurations.named("desktopRuntimeClasspath")
+        )
+        mainClass.set("de.egril.defender.MainKt")
+        jvmArgs(profileJvmArgs(profileName))
     }
 }
