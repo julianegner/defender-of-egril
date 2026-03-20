@@ -38,7 +38,7 @@ jobs:
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v3
         with:
-          arguments: :composeApp:testDebugUnitTest
+          arguments: :composeApp:testProductionDebugUnitTest
 
   run_tests_wasmjs:
     runs-on: ubuntu-latest
