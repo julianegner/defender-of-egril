@@ -1,3 +1,4 @@
+import java.util.Properties
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
@@ -24,7 +25,7 @@ val official: Boolean = project.findProperty("official")?.toString()?.toBoolean(
 
 // Task to generate BuildConfig with current commit hash
 val generateBuildConfig by tasks.registering {
-    val outputFile = buildConfigOutputDir.get().file("de/egril/defender/BuildConfig.kt")
+    val outputFile = buildConfigOutputDir.get().file("de/egril/defender/AppBuildInfo.kt")
     
     outputs.dir(buildConfigOutputDir)
     outputs.upToDateWhen { false } // Always regenerate to ensure latest commit hash
@@ -85,10 +86,12 @@ val generateBuildConfig by tasks.registering {
             |package de.egril.defender
             |
             |/**
-            | * Build configuration with version and commit information
-            | * This file is auto-generated during build
+            | * Application build information with version and commit details.
+            | * This file is auto-generated during build.
+            | * Named AppBuildInfo (not BuildConfig) to avoid clashing with the
+            | * Android-generated BuildConfig that holds flavor-specific URLs.
             | */
-            |object BuildConfig {
+            |object AppBuildInfo {
             |    const val VERSION_NAME = "$versionName"
             |    const val COMMIT_HASH = "$commitHash"
             |    const val COMMIT_DATE = "$commitDate"
@@ -101,7 +104,7 @@ val generateBuildConfig by tasks.registering {
             writeText(buildConfigContent)
         }
         
-        logger.info("Generated BuildConfig with commit hash: $commitHash, date: $commitDate")
+        logger.info("Generated AppBuildInfo with commit hash: $commitHash, date: $commitDate")
     }
 }
 
@@ -161,6 +164,39 @@ val generateOfficialEditModeConstant by tasks.registering {
             |""".trimMargin()
         )
     }
+}
+
+// ---------------------------------------------------------------------------
+// Profile helpers – defined early so they can be used in the android {} block
+// ---------------------------------------------------------------------------
+
+/**
+ * Loads properties from a named profile file.
+ *
+ * Profile files live in the `profiles/` directory at the repository root.
+ * Each non-comment line follows the `key=value` format.
+ *
+ * Available profiles:
+ *   - `local`      – local Docker Compose stack (localhost:8081 / localhost:8080)
+ *   - `production` – production server (configure URLs in profiles/production.properties)
+ *   - `remote`     – alias for production (backward compatibility)
+ *
+ * @param profileName the name of the profile (e.g. "local" or "production")
+ * @return the loaded [Properties], or an empty [Properties] if the file is missing
+ */
+fun loadProfileProperties(profileName: String): Properties {
+    val profileFile = rootProject.file("profiles/$profileName.properties")
+    if (!profileFile.exists()) {
+        logger.warn(
+            "Profile file not found: profiles/$profileName.properties. " +
+                "Available profiles: local, production. " +
+                "To create a custom profile, add a properties file in the profiles/ directory."
+        )
+        return Properties()
+    }
+    val props = Properties()
+    profileFile.reader().use { props.load(it) }
+    return props
 }
 
 kotlin {
@@ -329,6 +365,50 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+
+    // Enable BuildConfig generation so flavors can inject URLs
+    buildFeatures {
+        buildConfig = true
+    }
+
+    // Product flavors bake the Keycloak and backend URLs into the APK at build
+    // time, since Android apps cannot read JVM system properties at runtime.
+    //
+    //   local      – points at the local Docker Compose stack (localhost URLs)
+    //   production – points at the production server (configure profiles/production.properties)
+    //
+    // Generated tasks (install on connected device):
+    //   installLocalDebug        → ./gradlew :composeApp:installLocal
+    //   installProductionDebug   → ./gradlew :composeApp:installDebug / installProduction
+    flavorDimensions += "env"
+    productFlavors {
+        val localProps = loadProfileProperties("local")
+        val productionProps = loadProfileProperties("production")
+
+        create("local") {
+            dimension = "env"
+            buildConfigField(
+                "String", "IAM_BASE_URL",
+                "\"${localProps.getProperty("iam.base.url") ?: "http://localhost:8081"}\""
+            )
+            buildConfigField(
+                "String", "BACKEND_URL",
+                "\"${localProps.getProperty("defender.backend.url") ?: "http://localhost:8080"}\""
+            )
+        }
+        create("production") {
+            dimension = "env"
+            buildConfigField(
+                "String", "IAM_BASE_URL",
+                "\"${productionProps.getProperty("iam.base.url") ?: "https://keycloak.your-server.com"}\""
+            )
+            buildConfigField(
+                "String", "BACKEND_URL",
+                "\"${productionProps.getProperty("defender.backend.url") ?: "https://backend.your-server.com"}\""
+            )
+        }
+    }
+
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
@@ -400,5 +480,133 @@ compose.desktop {
                 packageName = "defender-of-egril"
             }
         }
+    }
+}
+
+/**
+ * Converts a profile's properties into JVM `-D` arguments suitable for
+ * passing to a [JavaExec] task.
+ *
+ * @param profileName the name of the profile (e.g. "local" or "production")
+ * @return a list of JVM args like `["-Diam.base.url=http://localhost:8081", …]`
+ */
+fun profileJvmArgs(profileName: String): List<String> {
+    val props = loadProfileProperties(profileName)
+    return props.stringPropertyNames().map { key -> "-D$key=${props.getProperty(key)}" }
+}
+
+// ---------------------------------------------------------------------------
+// Profile-aware frontend task configuration
+//
+// The DEFAULT profile is "production". Pass -Pprofile=local to use the local
+// Docker Compose stack instead.
+//
+// Desktop (JVM):
+//   ./gradlew :composeApp:run -Pprofile=local
+//   ./gradlew :composeApp:runLocal
+//   ./gradlew :composeApp:runProduction   (default)
+//
+// Web/WASM:
+//   ./gradlew :composeApp:wasmJsBrowserDevelopmentRun -Pprofile=local
+//
+// Android:
+//   ./gradlew :composeApp:installLocal         (local flavor, debug build)
+//   ./gradlew :composeApp:installDebug         (production flavor, debug build – default)
+//   ./gradlew :composeApp:installProduction    (production flavor, debug build)
+// ---------------------------------------------------------------------------
+
+afterEvaluate {
+    val profile = project.findProperty("profile")?.toString() ?: "production"
+
+    // ── Desktop: configure the built-in `run` task ──────────────────────────
+    tasks.named<JavaExec>("run") {
+        jvmArgs(profileJvmArgs(profile))
+        logger.lifecycle("Desktop 'run' task configured with profile '$profile'")
+    }
+
+    // ── Web/WASM: temporarily substitute the Keycloak URL in index.html ─────
+    // The Kotlin/WASM webpack dev server serves resources from
+    // src/wasmJsMain/resources/. We modify index.html in doFirst and restore
+    // it in doLast so the source file is not permanently changed.
+    tasks.matching { it.name == "wasmJsBrowserDevelopmentRun" }.configureEach {
+        val iamUrl = loadProfileProperties(profile).getProperty("iam.base.url") ?: return@configureEach
+        val indexHtml = project.file("src/wasmJsMain/resources/index.html")
+        val backupDir = project.layout.buildDirectory.get().asFile.resolve("tmp/profile-backup")
+
+        doFirst {
+            backupDir.mkdirs()
+            val original = indexHtml.readText()
+            backupDir.resolve("index.html").writeText(original)
+
+            // Replace the Keycloak URL in the window.keycloakConfig default block.
+            // The block in index.html always looks like:
+            //   window.keycloakConfig = window.keycloakConfig || {
+            //       url: 'http://...',
+            //   };
+            // We target only the url value between single quotes on that specific line.
+            val urlLinePattern = Regex("""(window\.keycloakConfig\s*=\s*window\.keycloakConfig\s*\|\|\s*\{[^}]*\burl:\s*')[^']*""")
+            val modified = urlLinePattern.find(original)?.let { match ->
+                val replacement = "${match.groupValues[1]}$iamUrl"
+                original.substring(0, match.range.first) + replacement + original.substring(match.range.last + 1)
+            } ?: original
+
+            indexHtml.writeText(modified)
+            logger.lifecycle("WASM dev server configured with IAM URL: $iamUrl (profile: $profile)")
+        }
+
+        doLast {
+            val backup = backupDir.resolve("index.html")
+            if (backup.exists()) {
+                indexHtml.writeText(backup.readText())
+                backup.delete()
+                logger.lifecycle("Restored index.html after WASM dev run")
+            }
+        }
+    }
+
+    // ── Android: create convenience alias tasks ──────────────────────────────
+    // Product flavors (local / production) are declared in the android {} block
+    // below.  When flavors exist, the generic installDebug task is no longer
+    // generated; it is replaced by installLocalDebug / installProductionDebug.
+    // We register new tasks under the familiar names so existing workflows
+    // continue to work and the default (installDebug → production) is clear.
+    tasks.register("installDebug") {
+        group = "install"
+        description = "Installs the Production Debug build on a connected device (default profile). " +
+            "Use installLocal for the local-stack flavor."
+        dependsOn("installProductionDebug")
+    }
+
+    tasks.register("installProduction") {
+        group = "install"
+        description = "Installs the Production Debug build on a connected device."
+        dependsOn("installProductionDebug")
+    }
+
+    tasks.register("installLocal") {
+        group = "install"
+        description = "Installs the Local Debug build on a connected device " +
+            "(connects to the local Docker Compose stack)."
+        dependsOn("installLocalDebug")
+    }
+}
+
+// ── Desktop convenience tasks (profile baked in) ────────────────────────────
+// Equivalent to: ./gradlew run -Pprofile=<profileName>
+listOf("local", "production", "remote").forEach { profileName ->
+    tasks.register<JavaExec>("run${profileName.replaceFirstChar { it.uppercase() }}") {
+        group = "application"
+        description = "Runs the desktop application with the '$profileName' profile. " +
+            "Equivalent to: ./gradlew :composeApp:run -Pprofile=$profileName"
+        dependsOn("compileKotlinDesktop")
+        classpath = files(
+            kotlin.targets.named("desktop").map { target ->
+                (target as org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget)
+                    .compilations["main"].output.classesDirs
+            },
+            configurations.named("desktopRuntimeClasspath")
+        )
+        mainClass.set("de.egril.defender.MainKt")
+        jvmArgs(profileJvmArgs(profileName))
     }
 }

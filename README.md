@@ -157,6 +157,25 @@ The web version uses browser localStorage for save games and supports:
 - Click and drag to pan
 - All game features available on other platforms (except level editor)
 
+## run frontends against local / production IAM and backend
+# Desktop (JVM)
+./gradlew :composeApp:run                          # production (default)
+./gradlew :composeApp:run -Pprofile=local          # local Docker Compose stack
+./gradlew :composeApp:runLocal                     # convenience task
+./gradlew :composeApp:runProduction                # convenience task
+
+# Web / WASM
+./gradlew :composeApp:wasmJsBrowserDevelopmentRun              # production (default)
+./gradlew :composeApp:wasmJsBrowserDevelopmentRun -Pprofile=local  # local stack
+
+# Android (profile baked into APK at build time via product flavors)
+./gradlew :composeApp:installDebug       # production flavor, debug build (default)
+./gradlew :composeApp:installProduction  # production flavor, debug build
+./gradlew :composeApp:installLocal       # local flavor (localhost URLs)
+
+# Custom profiles are supported
+./gradlew :composeApp:run -Pprofile=staging   # reads profiles/staging.properties
+
 ### run Tests
 
 ```bash

@@ -33,7 +33,7 @@
       "directAccessGrantsEnabled": false,
       "protocol": "openid-connect",
       "redirectUris": [
-        "http://localhost:*/*",
+        "http://localhost:10001/callback",
         "egril://callback",
         "https://defender.egril.de/*"
       ],
@@ -42,7 +42,7 @@
       ],
       "attributes": {
         "pkce.code.challenge.method": "S256",
-        "post.logout.redirect.uris": "http://localhost:*/*##egril://callback##https://defender.egril.de/*##+##"
+        "post.logout.redirect.uris": "http://localhost:10001/*##egril://callback##https://defender.egril.de/*##+##"
       }
     },
     {
