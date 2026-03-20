@@ -15,7 +15,12 @@ import de.egril.defender.save.AndroidFileExportImport
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
+        // Inject the backend URL baked in at build time so that the shared
+        // jvmMain BackendSaveHttpHelper can read it via System.getProperty().
+        // This must happen before any backend call is made.
+        System.setProperty("defender.backend.url", BuildConfig.BACKEND_URL)
+
         // Initialize context provider for file storage
         AndroidContextProvider.initialize(this)
         
