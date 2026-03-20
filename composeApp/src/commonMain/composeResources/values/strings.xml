@@ -1502,6 +1502,9 @@
     <string name="credits_section_developers">Developers</string>
     <string name="credits_section_sound_effects">Sound Effects</string>
     <string name="credits_section_background_music">Background Music</string>
+    <string name="credits_section_contributors">Contributors</string>
+    <string name="credits_section_software_used">Software Used</string>
+    <string name="credits_section_special_thanks">Special Thanks</string>
     <string name="credits_thank_you">Thank you for playing!</string>
     <string name="credits_click_to_skip">Click anywhere to return to the world map</string>
 

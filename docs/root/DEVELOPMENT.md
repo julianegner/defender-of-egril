@@ -262,11 +262,22 @@ Its content is defined in `composeApp/src/commonMain/kotlin/de/egril/defender/ui
 - Add their name to `FinalCreditsData.developers`.
 - Bot accounts (names ending in `[bot]`) are excluded by convention.
 
+**When a contributor should be credited** (testers, designers, non-committing helpers):
+- Add their name to `FinalCreditsData.contributors`.
+- The Contributors section is only shown in the credits when this list is non-empty.
+
 **When new sound effects are added** (with new Freesound.org credits in `composeResources/files/sounds/README.md`):
 - Add a `SoundCreditEntry` to `FinalCreditsData.soundEffectsCredits`.
 
 **When new background music is added** (with new credits in `composeResources/files/sounds/background/README.md`):
 - Add a `SoundCreditEntry` to `FinalCreditsData.backgroundMusicCredits`.
+
+**When new third-party software or tools are used** (e.g. AI image generators):
+- Add a `SoftwareCreditEntry` to `FinalCreditsData.softwareCredits`.
+- Also update `composeResources/drawable/README.MD` if images were generated with the tool.
+
+**When a special acknowledgement is warranted** (e.g. open-source libraries, tutorials):
+- Add a `SpecialThanksEntry` to `FinalCreditsData.specialThanks`.
 
 **When new drawable images are added** (without `emoji_` or `tile_` prefixes):
 - Add the resource name (without file extension, hyphens replaced by underscores) to `FinalCreditsData.backgroundImageNames`.

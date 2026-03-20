@@ -5,7 +5,10 @@ package de.egril.defender.ui
  *
  * This file must be updated when:
  * - New developers commit code to the repository (add to [developers])
+ * - Other contributors should be credited (add to [contributors])
  * - New sound files are added with credits in the sounds README files (add to [soundEffectsCredits] or [backgroundMusicCredits])
+ * - New software / tools are used (add to [softwareCredits])
+ * - New special-thanks entries are needed (add to [specialThanks])
  *
  * Tests in FinalCreditsDataTest validate that this data stays in sync with:
  * - Git history (for developers)
@@ -34,9 +37,29 @@ object FinalCreditsData {
         "Kathrin Kläs-Dickhof"
     )
 
+    /**
+     * Other contributors who helped the project in any capacity
+     * (testing, bug reports, design feedback, etc.) but are not
+     * part of the core development team.
+     * Add names here when new contributors should be credited.
+     */
+    val contributors: List<String> = listOf(
+        // Add contributor names here
+    )
+
     data class SoundCreditEntry(
         val author: String,
         val description: String
+    )
+
+    data class SoftwareCreditEntry(
+        val name: String,
+        val description: String
+    )
+
+    data class SpecialThanksEntry(
+        val name: String,
+        val reason: String
     )
 
     /**
@@ -73,6 +96,33 @@ object FinalCreditsData {
         SoundCreditEntry("David Fesliyan", "The Dark Castle (fesliyanstudios.com)"),
         SoundCreditEntry("David Fesliyan", "Beautiful Memories (fesliyanstudios.com)"),
         SoundCreditEntry("Pixabay", "Mystic Fantasy Orchestral Music (pixabay.com)")
+    )
+
+    /**
+     * Third-party software and tools used to create the game's assets.
+     * Update when new tools or services are used.
+     * See also: composeResources/drawable/README.MD
+     */
+    val softwareCredits: List<SoftwareCreditEntry> = listOf(
+        SoftwareCreditEntry(
+            "Black Forest Labs – FLUX.1-dev",
+            "AI image generation (huggingface.co/black-forest-labs/FLUX.1-dev)"
+        ),
+        SoftwareCreditEntry(
+            "Black Forest Labs – FLUX.2-dev",
+            "AI image generation (huggingface.co/black-forest-labs/FLUX.2-dev)"
+        )
+    )
+
+    /**
+     * Individuals and projects deserving special recognition.
+     * Update when new acknowledgements are warranted.
+     */
+    val specialThanks: List<SpecialThanksEntry> = listOf(
+        SpecialThanksEntry(
+            "Amit Patel – Red Blob Games (redblobgames.com)",
+            "Invaluable explanations of hex maps, range & pathfinding algorithms,\nand mapgen4 which is the foundation of our world map."
+        )
     )
 
     /**

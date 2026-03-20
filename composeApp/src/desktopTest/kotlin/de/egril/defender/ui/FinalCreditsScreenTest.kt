@@ -80,6 +80,40 @@ class FinalCreditsScreenTest {
     }
 
     @Test
+    fun testFinalCreditsScreenRendersSoftwareSection() {
+        composeTestRule.setContent {
+            FinalCreditsScreen(onDismiss = {}, animationsEnabled = false)
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Software Used", substring = true, ignoreCase = true)
+            .assertExists()
+
+        FinalCreditsData.softwareCredits.forEach { entry ->
+            composeTestRule.onNodeWithText(entry.name, substring = true)
+                .assertExists()
+        }
+    }
+
+    @Test
+    fun testFinalCreditsScreenRendersSpecialThanksSection() {
+        composeTestRule.setContent {
+            FinalCreditsScreen(onDismiss = {}, animationsEnabled = false)
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Special Thanks", substring = true, ignoreCase = true)
+            .assertExists()
+
+        FinalCreditsData.specialThanks.forEach { entry ->
+            composeTestRule.onNodeWithText(entry.name, substring = true)
+                .assertExists()
+        }
+    }
+
+    @Test
     fun testFinalCreditsScreenDismissCallback() {
         var dismissed = false
 

@@ -204,10 +204,18 @@ fun FinalCreditsScreen(
             CreditsTitle()
             Spacer(modifier = Modifier.height(48.dp))
             CreditsDeveloperSection()
+            if (FinalCreditsData.contributors.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(48.dp))
+                CreditsContributorsSection()
+            }
             Spacer(modifier = Modifier.height(48.dp))
             CreditsSoundEffectsSection()
             Spacer(modifier = Modifier.height(48.dp))
             CreditsBackgroundMusicSection()
+            Spacer(modifier = Modifier.height(48.dp))
+            CreditsSoftwareSection()
+            Spacer(modifier = Modifier.height(48.dp))
+            CreditsSpecialThanksSection()
             Spacer(modifier = Modifier.height(64.dp))
             CreditsThankYou()
             Spacer(modifier = Modifier.height(600.dp))
@@ -390,6 +398,62 @@ private fun CreditsBackgroundMusicSection() {
         )
         Text(
             text = entry.description,
+            color = CREDITS_SUB_TEXT_COLOR,
+            fontSize = 13.sp,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+    }
+}
+
+@Composable
+private fun CreditsContributorsSection() {
+    CreditsSectionHeader(title = stringResource(Res.string.credits_section_contributors))
+    FinalCreditsData.contributors.forEach { name ->
+        Text(
+            text = name,
+            color = CREDITS_TEXT_COLOR,
+            fontSize = 18.sp,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(6.dp))
+    }
+}
+
+@Composable
+private fun CreditsSoftwareSection() {
+    CreditsSectionHeader(title = stringResource(Res.string.credits_section_software_used))
+    FinalCreditsData.softwareCredits.forEach { entry ->
+        Text(
+            text = entry.name,
+            color = CREDITS_TEXT_COLOR,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = entry.description,
+            color = CREDITS_SUB_TEXT_COLOR,
+            fontSize = 13.sp,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+    }
+}
+
+@Composable
+private fun CreditsSpecialThanksSection() {
+    CreditsSectionHeader(title = stringResource(Res.string.credits_section_special_thanks))
+    FinalCreditsData.specialThanks.forEach { entry ->
+        Text(
+            text = entry.name,
+            color = CREDITS_TEXT_COLOR,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = entry.reason,
             color = CREDITS_SUB_TEXT_COLOR,
             fontSize = 13.sp,
             textAlign = TextAlign.Center
