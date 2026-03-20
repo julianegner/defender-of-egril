@@ -1236,12 +1236,13 @@
     <string name="audio_mine_events_subtitle">Eventi della Miniera</string>
     <string name="audio_other_events_subtitle">Altri Eventi di Gioco</string>
     
-    <!-- Background Music -->
-    <string name="audio_fantasy_ambience_name">Ambiente Fantasy</string>
+    <!-- Background Music - Music piece names are not translated, the original names are used -->
+    <string name="audio_fantasy_ambience_name">Fantasy Ambience</string>
     <string name="audio_fantasy_ambience_license">100% libero da copyright, nessuna attribuzione richiesta. Non può essere rivenduto come audio, deve essere utilizzato nel contesto di un progetto.</string>
-    <string name="audio_dark_castle_name">Il Castello Oscuro</string>
+    <string name="audio_dark_castle_name">The Dark Castle</string>
+    <string name="audio_beautiful_memories_name">Beautiful Memories</string>
     <string name="audio_fesliyan_license">Musica esente da royalty da Fesliyan Studios. Utilizzo nei videogiochi consentito.</string>
-    <string name="audio_fantasy_orchestral_name">Musica Orchestrale Fantasy Mistica</string>
+    <string name="audio_fantasy_orchestral_name">Mystic Fantasy Orchestral Music</string>
     <string name="audio_pixabay_license">Licenza Contenuti Pixabay - Utilizzo gratuito, nessuna attribuzione richiesta</string>
     
     <!-- Tower Attacks -->
