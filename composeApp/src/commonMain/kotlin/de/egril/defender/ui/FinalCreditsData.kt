@@ -127,7 +127,7 @@ object FinalCreditsData {
     val specialThanks: List<SpecialThanksEntry> = listOf(
         SpecialThanksEntry(
             "Amit Patel – Red Blob Games (redblobgames.com)",
-            "Invaluable explanations of hex maps, range & pathfinding algorithms,\nand mapgen4 which is the foundation of our world map."
+            "Invaluable explanations of hex maps, range & pathfinding algorithms,\nmapgen4 which was used for our world map and is the foundation of the level map image generator."
         )
     )
 
