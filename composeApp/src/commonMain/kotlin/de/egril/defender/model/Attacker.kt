@@ -25,7 +25,6 @@ enum class AttackerType(
     EVIL_WIZARD("Evil Wizard", health = 30, speed = 2, reward = 15, xp = 9, canBuildBridge = true),
     BLUE_DEMON("Blue Demon", health = 15, speed = 6, reward = 10, xp = 6, immuneToAcid = true),
     RED_DEMON("Red Demon", health = 60, speed = 1, reward = 15, xp = 9, immuneToFireball = true),
-    EVIL_MAGE("Evil Mage", health = 40, speed = 2, reward = 20, xp = 12, canSummon = true),
     RED_WITCH("Red Witch", health = 30, speed = 5, reward = 18, xp = 11, canDisableTowers = true),
     GREEN_WITCH("Green Witch", health = 25, speed = 5, reward = 15, xp = 9, canHeal = true),
     EWHAD("Ewhad", health = 200, speed = 1, reward = 100, xp = 60, canSummon = true, isBoss = true, canBuildBridge = true),
@@ -105,7 +104,6 @@ data class Attacker(
             AttackerType.EVIL_WIZARD,
             AttackerType.RED_WITCH,
             AttackerType.GREEN_WITCH,
-            AttackerType.EVIL_MAGE,
             AttackerType.BLUE_DEMON,
             AttackerType.RED_DEMON,
             AttackerType.DRAGON -> level.value

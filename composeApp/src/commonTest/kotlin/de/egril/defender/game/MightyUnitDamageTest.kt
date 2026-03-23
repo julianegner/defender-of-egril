@@ -100,18 +100,6 @@ class MightyUnitDamageTest {
     }
     
     @Test
-    fun testEvilMageDealsLevelDamage() {
-        val evilMage = Attacker(
-            id = 1,
-            type = AttackerType.EVIL_MAGE,
-            position = mutableStateOf(Position(0, 0)),
-            level = mutableStateOf(6)
-        )
-        assertEquals(6, evilMage.calculateTargetDamage(), 
-            "Evil Mage at level 6 should deal 6 HP damage")
-    }
-    
-    @Test
     fun testBlueDemonDealsLevelDamage() {
         val blueDemon = Attacker(
             id = 1,
@@ -194,7 +182,6 @@ class MightyUnitDamageTest {
             AttackerType.EVIL_WIZARD,
             AttackerType.RED_WITCH,
             AttackerType.GREEN_WITCH,
-            AttackerType.EVIL_MAGE,
             AttackerType.BLUE_DEMON,
             AttackerType.RED_DEMON,
             AttackerType.DRAGON
@@ -219,7 +206,6 @@ class MightyUnitDamageTest {
             AttackerType.EVIL_WIZARD,
             AttackerType.RED_WITCH,
             AttackerType.GREEN_WITCH,
-            AttackerType.EVIL_MAGE,
             AttackerType.BLUE_DEMON,
             AttackerType.RED_DEMON,
             AttackerType.DRAGON

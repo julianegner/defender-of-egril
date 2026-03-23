@@ -175,7 +175,6 @@
     <string name="witch">Sorcière : Magie noire</string>
     <string name="blue_demon">Démon bleu : Rapide, immunisé contre l'acide</string>
     <string name="red_demon">Démon rouge : Résistant, immunisé contre la boule de feu</string>
-    <string name="evil_mage">Mage maléfique : Peut invoquer des serviteurs</string>
     <string name="red_witch">Sorcière rouge : Peut désactiver les tours</string>
     <string name="green_witch">Sorcière verte : Peut soigner d'autres ennemis</string>
     <string name="ewhad">Ewhad : Boss avec invocation</string>
@@ -242,7 +241,6 @@
     <string name="witch_name">Sorcière</string>
     <string name="blue_demon_name">Démon bleu</string>
     <string name="red_demon_name">Démon rouge</string>
-    <string name="evil_mage_name">Mage maléfique</string>
     <string name="red_witch_name">Sorcière rouge</string>
     <string name="green_witch_name">Sorcière verte</string>
     <string name="ewhad_name">Ewhad</string>

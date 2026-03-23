@@ -175,7 +175,6 @@
     <string name="witch">Bruja: Magia oscura</string>
     <string name="blue_demon">Demonio azul: Rápido, inmune al ácido</string>
     <string name="red_demon">Demonio rojo: Resistente, inmune a la bola de fuego</string>
-    <string name="evil_mage">Mago oscuro: Puede invocar sirvientes</string>
     <string name="red_witch">Bruja roja: Puede desactivar torres</string>
     <string name="green_witch">Bruja verde: Puede curar a otros enemigos</string>
     <string name="ewhad">Ewhad: Jefe con invocación</string>
@@ -242,7 +241,6 @@
     <string name="witch_name">Bruja</string>
     <string name="blue_demon_name">Demonio azul</string>
     <string name="red_demon_name">Demonio rojo</string>
-    <string name="evil_mage_name">Mago oscuro</string>
     <string name="red_witch_name">Bruja roja</string>
     <string name="green_witch_name">Bruja verde</string>
     <string name="ewhad_name">Ewhad</string>

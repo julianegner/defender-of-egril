@@ -73,18 +73,6 @@ class NewEnemiesTest {
     }
     
     @Test
-    fun testEvilMageCanSummon() {
-        val evilMage = Attacker(
-            id = 1,
-            type = AttackerType.EVIL_MAGE,
-            position = mutableStateOf(Position(0, 0)),
-            level = mutableStateOf(1)
-        )
-        
-        assertTrue(evilMage.type.canSummon, "Evil Mage should be able to summon")
-    }
-    
-    @Test
     fun testRedWitchCanDisable() {
         val redWitch = Attacker(
             id = 1,

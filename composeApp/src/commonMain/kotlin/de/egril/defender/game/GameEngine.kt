@@ -272,7 +272,6 @@ class GameEngine(private val state: GameState) {
             AttackerType.DRAGON -> 90
             AttackerType.GREEN_WITCH -> 80
             AttackerType.RED_WITCH -> 75
-            AttackerType.EVIL_MAGE -> 70
             AttackerType.EVIL_WIZARD -> 65
             AttackerType.RED_DEMON -> 60
             AttackerType.BLUE_DEMON -> 55

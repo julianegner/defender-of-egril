@@ -175,7 +175,6 @@
     <string name="witch">Hexe: Dunkle Magie</string>
     <string name="blue_demon">Blauer Dämon: Schnell, säureimmun</string>
     <string name="red_demon">Roter Dämon: Zäh, feuerballimmun</string>
-    <string name="evil_mage">Böser Magier: Kann Diener beschwören</string>
     <string name="red_witch">Rote Hexe: Kann Türme deaktivieren</string>
     <string name="green_witch">Grüne Hexe: Kann andere Feinde heilen</string>
     <string name="ewhad">Ewhad: Boss mit Beschwörung</string>
@@ -242,7 +241,6 @@
     <string name="witch_name">Hexe</string>
     <string name="blue_demon_name">Blauer Dämon</string>
     <string name="red_demon_name">Roter Dämon</string>
-    <string name="evil_mage_name">Böser Magier</string>
     <string name="red_witch_name">Rote Hexe</string>
     <string name="green_witch_name">Grüne Hexe</string>
     <string name="ewhad_name">Ewhad</string>
