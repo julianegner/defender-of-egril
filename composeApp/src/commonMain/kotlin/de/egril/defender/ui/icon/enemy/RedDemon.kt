@@ -49,6 +49,10 @@ fun DrawScope.drawRedDemonSymbol(centerX: Float, centerY: Float, size: Float, ou
             lineTo(centerX + size * 0.15f, centerY - size * 0.25f)
             close()
         }
+        if (outlineColor != null) {
+            drawPath(hornPath1, outlineColor, style = Stroke(width = 3f))
+            drawPath(hornPath2, outlineColor, style = Stroke(width = 3f))
+        }
         drawPath(hornPath1, Color(0xFF2A0000))
         drawPath(hornPath2, Color(0xFF2A0000))
 

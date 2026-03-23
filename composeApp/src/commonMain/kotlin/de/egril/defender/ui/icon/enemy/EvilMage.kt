@@ -38,9 +38,20 @@ fun DrawScope.drawEvilMageSymbol(centerX: Float, centerY: Float, size: Float, ou
             lineTo(centerX + size * 0.3f, centerY - size * 0.05f)
             close()
         }
+        if (outlineColor != null) {
+            drawPath(hoodPath, outlineColor, style = Stroke(width = 3f))
+        }
         drawPath(hoodPath, Color(0xFF1A0030))
 
         // Face in shadow
+        if (outlineColor != null) {
+            drawCircle(
+                color = outlineColor,
+                radius = size * 0.15f + 2f,
+                center = Offset(centerX, centerY),
+                style = Stroke(width = 3f)
+            )
+        }
         drawCircle(
             color = Color(0xFF4A0080),
             radius = size * 0.15f,
@@ -53,6 +64,20 @@ fun DrawScope.drawEvilMageSymbol(centerX: Float, centerY: Float, size: Float, ou
     }
 
     // Staff with dark orb (not scaled)
+    if (outlineColor != null) {
+        drawLine(
+            color = outlineColor,
+            start = Offset(centerX + size * 0.3f, centerY - size * 0.1f),
+            end = Offset(centerX + size * 0.4f, centerY + size * 0.4f),
+            strokeWidth = 5f
+        )
+        drawCircle(
+            color = outlineColor,
+            radius = size * 0.1f + 2f,
+            center = Offset(centerX + size * 0.4f, centerY - size * 0.15f),
+            style = Stroke(width = 3f)
+        )
+    }
     drawLine(
         color = Color(0xFF1A1A1A),
         start = Offset(centerX + size * 0.3f, centerY - size * 0.1f),

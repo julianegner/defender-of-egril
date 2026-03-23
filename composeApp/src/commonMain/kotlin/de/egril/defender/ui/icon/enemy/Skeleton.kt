@@ -47,6 +47,23 @@ fun DrawScope.drawSkeletonSymbol(centerX: Float, centerY: Float, size: Float, ou
     }
 
     // Crossbones (not scaled)
+    if (outlineColor != null) {
+        // Outline drawn first (thicker) so white bones are visible against any background
+        drawLine(
+            color = outlineColor,
+            start = Offset(centerX - size * 0.3f, centerY + size * 0.25f),
+            end = Offset(centerX + size * 0.3f, centerY + size * 0.35f),
+            strokeWidth = 7f,
+            cap = StrokeCap.Round
+        )
+        drawLine(
+            color = outlineColor,
+            start = Offset(centerX - size * 0.3f, centerY + size * 0.35f),
+            end = Offset(centerX + size * 0.3f, centerY + size * 0.25f),
+            strokeWidth = 7f,
+            cap = StrokeCap.Round
+        )
+    }
     drawLine(
         color = Color.White,
         start = Offset(centerX - size * 0.3f, centerY + size * 0.25f),
