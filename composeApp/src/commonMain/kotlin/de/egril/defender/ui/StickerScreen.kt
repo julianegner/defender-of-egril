@@ -23,18 +23,19 @@ import de.egril.defender.ui.icon.defender.*
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.*
-import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.Font
 import org.jetbrains.compose.resources.painterResource
 
 /**
  * Screen for displaying sticker merchandise preview.
  * Reachable with the "sticker" cheat code.
- * 
- * Contains three tabs:
- * Tab 1: Original sticker with ApplicationBanner, tagline and URL
- * Tab 2: Cycling symbol sticker with "Defender of Egril" text and URL
- * Tab 3: QR code sticker with URL title below
+ *
+ * Contains multiple tabs:
+ * Tab 0: Original sticker with ApplicationBanner, tagline and URL
+ * Tab 1: Banner enemies sticker (Goblin, Ork, EvilWizard group with outline)
+ * Tab 2: Banner towers sticker (Bow, Wizard group)
+ * Tabs 3-14: One tab per enemy type (each with outline), following AttackerType order
+ * Last tab: QR code sticker with URL title below
  */
 @Composable
 fun StickerScreen(
@@ -42,6 +43,19 @@ fun StickerScreen(
     modifier: Modifier = Modifier
 ) {
     var selectedTab by remember { mutableStateOf(0) }
+
+    // Build the ordered list of symbol tabs (group tabs first, then individual enemy tabs)
+    val symbolTabs: List<SymbolTab> = remember {
+        buildList {
+            add(SymbolTab.BannerEnemies)
+            add(SymbolTab.BannerTowers)
+            AttackerType.entries.forEach { add(SymbolTab.SingleEnemy(it)) }
+        }
+    }
+
+    // Total tabs = original + symbolTabs + QR code
+    val totalTabs = 1 + symbolTabs.size + 1
+    val qrCodeTabIndex = totalTabs - 1
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -76,33 +90,45 @@ fun StickerScreen(
                     .padding(top = 70.dp)
                     .fillMaxSize()
             ) {
-                PrimaryTabRow(
+                // Use ScrollableTabRow because there are many tabs
+                ScrollableTabRow(
                     selectedTabIndex = selectedTab,
                     modifier = Modifier.fillMaxWidth()
                 ) {
+                    // Tab 0: original sticker
                     Tab(
                         selected = selectedTab == 0,
                         onClick = { selectedTab = 0 },
                         text = { Text(stringResource(Res.string.sticker_tab_original)) }
                     )
+                    // Tabs 1..(1+symbolTabs.size-1): symbol tabs
+                    symbolTabs.forEachIndexed { idx, tab ->
+                        val tabIndex = 1 + idx
+                        Tab(
+                            selected = selectedTab == tabIndex,
+                            onClick = { selectedTab = tabIndex },
+                            text = { Text(tab.label()) }
+                        )
+                    }
+                    // Last tab: QR code
                     Tab(
-                        selected = selectedTab == 1,
-                        onClick = { selectedTab = 1 },
-                        text = { Text(stringResource(Res.string.sticker_tab_symbols)) }
-                    )
-                    Tab(
-                        selected = selectedTab == 2,
-                        onClick = { selectedTab = 2 },
+                        selected = selectedTab == qrCodeTabIndex,
+                        onClick = { selectedTab = qrCodeTabIndex },
                         text = { Text(stringResource(Res.string.sticker_tab_qr_code)) }
                     )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                when (selectedTab) {
-                    0 -> StickerOriginalTab()
-                    1 -> StickerSymbolsTab()
-                    2 -> StickerQrCodeTab()
+                when {
+                    selectedTab == 0 -> StickerOriginalTab()
+                    selectedTab == qrCodeTabIndex -> StickerQrCodeTab()
+                    else -> {
+                        val symbolTabIndex = selectedTab - 1
+                        if (symbolTabIndex in symbolTabs.indices) {
+                            StickerSymbolTab(symbolTabs[symbolTabIndex])
+                        }
+                    }
                 }
             }
         }
@@ -110,7 +136,29 @@ fun StickerScreen(
 }
 
 /**
- * Tab 1: Original sticker content with ApplicationBanner, tagline and URL.
+ * Describes one of the symbol sticker designs.
+ */
+private sealed interface SymbolTab {
+    /** The three banner enemies (Goblin, Ork, EvilWizard) together */
+    data object BannerEnemies : SymbolTab
+    /** The two banner towers (Bow, Wizard) */
+    data object BannerTowers : SymbolTab
+    /** A single enemy type with outline */
+    data class SingleEnemy(val type: AttackerType) : SymbolTab
+}
+
+/**
+ * Returns the tab label for this [SymbolTab], using localized strings.
+ */
+@Composable
+private fun SymbolTab.label(): String = when (this) {
+    is SymbolTab.BannerEnemies -> stringResource(Res.string.sticker_tab_enemies)
+    is SymbolTab.BannerTowers -> stringResource(Res.string.sticker_tab_towers)
+    is SymbolTab.SingleEnemy -> type.getLocalizedName()
+}
+
+/**
+ * Tab 0: Original sticker content with ApplicationBanner, tagline and URL.
  */
 @Composable
 private fun StickerOriginalTab() {
@@ -145,40 +193,11 @@ private fun StickerOriginalTab() {
 }
 
 /**
- * Describes a single frame in the cycling symbols animation.
- */
-private sealed interface SymbolFrame {
-    /** The three banner enemies (Goblin, Ork, EvilWizard) together */
-    data object BannerEnemies : SymbolFrame
-    /** The two banner towers (Bow, Wizard) */
-    data object BannerTowers : SymbolFrame
-    /** A single enemy type with outline */
-    data class SingleEnemy(val type: AttackerType) : SymbolFrame
-}
-
-private const val SYMBOL_CYCLE_DELAY_MS = 2000L
-
-private val symbolCycleFrames: List<SymbolFrame> = buildList {
-    add(SymbolFrame.BannerEnemies)
-    add(SymbolFrame.BannerTowers)
-    AttackerType.entries.forEach { add(SymbolFrame.SingleEnemy(it)) }
-}
-
-/**
- * Tab 2: Cycling symbol sticker.
- * Shows a rotating symbol at the top, followed by "Defender of Egril" text and the URL.
+ * A symbol sticker tab showing a static symbol at the top, followed by
+ * "Defender of Egril" text (Great Vibes font) and the URL.
  */
 @Composable
-private fun StickerSymbolsTab() {
-    var frameIndex by remember { mutableStateOf(0) }
-
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(SYMBOL_CYCLE_DELAY_MS)
-            frameIndex = (frameIndex + 1) % symbolCycleFrames.size
-        }
-    }
-
+private fun StickerSymbolTab(tab: SymbolTab) {
     val lineColor = MaterialTheme.colorScheme.onBackground
     val backgroundColor = MaterialTheme.colorScheme.background
     val outlineColor = if (MaterialTheme.colorScheme.background.luminance() < 0.5f) {
@@ -193,20 +212,15 @@ private fun StickerSymbolsTab() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Cycling symbol canvas
         val canvasSize = if (isPlatformMobile) 160.dp else 200.dp
-        Box(
-            modifier = Modifier
-                .size(canvasSize)
-        ) {
+        Box(modifier = Modifier.size(canvasSize)) {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 val centerX = size.width / 2
                 val centerY = size.height / 2
                 val iconSize = minOf(size.width, size.height)
 
-                when (val frame = symbolCycleFrames[frameIndex]) {
-                    is SymbolFrame.BannerEnemies -> {
-                        // Render three banner enemies like ApplicationBanner
+                when (tab) {
+                    is SymbolTab.BannerEnemies -> {
                         val goblinOffsetX = if (isPlatformMobile) 15f else 20f
                         val goblinOffsetY = if (isPlatformMobile) -15f else -20f
                         val orkOffsetX = if (isPlatformMobile) -50f else 0f
@@ -217,8 +231,7 @@ private fun StickerSymbolsTab() {
                         drawOrkSymbol(centerX + orkOffsetX, centerY + orkOffsetY, iconSize * 0.7f, outlineColor)
                         drawEvilWizardSymbol(centerX + wizardOffsetX, centerY + wizardOffsetY, iconSize * 0.7f, outlineColor)
                     }
-                    is SymbolFrame.BannerTowers -> {
-                        // Render two banner towers like ApplicationBanner
+                    is SymbolTab.BannerTowers -> {
                         val bowOffsetX = if (isPlatformMobile) 40f else -30f
                         val bowOffsetY = if (isPlatformMobile) 0f else -20f
                         val wizardTowerOffsetX = if (isPlatformMobile) 80f else 30f
@@ -226,7 +239,6 @@ private fun StickerSymbolsTab() {
                         drawTower(DefenderType.BOW_TOWER, centerX + bowOffsetX, centerY + bowOffsetY, iconSize, lineColor)
                         val wizardCenterX = centerX + wizardTowerOffsetX
                         val wizardCenterY = centerY + wizardTowerOffsetY
-                        // Draw background mask for wizard tower (same logic as ApplicationBanner)
                         val wizardBaseSize = iconSize * 0.8f
                         val topWidth = wizardBaseSize * 0.4f
                         val bottomWidth = wizardBaseSize * 0.6f
@@ -252,9 +264,9 @@ private fun StickerSymbolsTab() {
                         }
                         drawTower(DefenderType.WIZARD_TOWER, wizardCenterX, wizardCenterY, iconSize, lineColor)
                     }
-                    is SymbolFrame.SingleEnemy -> {
+                    is SymbolTab.SingleEnemy -> {
                         val s = iconSize * 0.75f
-                        when (frame.type) {
+                        when (tab.type) {
                             AttackerType.GOBLIN -> drawGoblinSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.ORK -> drawOrkSymbol(centerX, centerY, s, outlineColor)
                             AttackerType.OGRE -> drawOgreSymbol(centerX, centerY, s * 1.05f, outlineColor)
@@ -275,7 +287,6 @@ private fun StickerSymbolsTab() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // "Defender of" in Great Vibes font
         Text(
             text = "Defender of",
             fontSize = 32.sp,
@@ -283,7 +294,6 @@ private fun StickerSymbolsTab() {
             fontWeight = FontWeight.Normal,
             color = MaterialTheme.colorScheme.onBackground
         )
-        // "Egril" in larger Great Vibes font
         Text(
             text = "Egril",
             fontSize = 56.sp,
@@ -304,7 +314,7 @@ private fun StickerSymbolsTab() {
 }
 
 /**
- * Tab 3: QR code sticker.
+ * Last tab: QR code sticker.
  * Shows a QR code for "defender.egril.de" with the URL as title below.
  */
 @Composable
