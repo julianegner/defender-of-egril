@@ -33,10 +33,13 @@ import org.jetbrains.compose.resources.painterResource
  * - First row: "Defender of" in Great Vibes handwritten font
  * - Second row: "Egril" in larger Great Vibes handwritten font
  * - Right side: Application logo (shield with crossed swords)
+ *
+ * @param scale A scale factor applied to all banner dimensions (e.g. 0.7f for 30% smaller).
  */
 @Composable
 fun ApplicationBanner(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    scale: Float = 1f
 ) {
     // Get theme-aware colors
     val lineColor = MaterialTheme.colorScheme.onBackground
@@ -54,10 +57,7 @@ fun ApplicationBanner(
     val greatVibesFont = FontFamily(Font(Res.font.greatvibes_regular))
     
     // Platform-specific spacing values
-    // Mobile (Android/iOS) needs more spacing to prevent overlap
-    // Desktop and WASM use original tighter spacing
-
-    val elementOffsetX = if (isPlatformMobile) 60f else 0f
+    val elementOffsetX = 0f
     val elementOffsetY = if (isPlatformMobile) -80f else 0f
 
     val goblinOffsetX = elementOffsetX + (if (isPlatformMobile) 15f else 20f)
@@ -72,13 +72,15 @@ fun ApplicationBanner(
     val wizardTowerOffsetX = elementOffsetX + (if (isPlatformMobile) 240f else 100f)
     val wizardTowerOffsetY = elementOffsetY + (if (isPlatformMobile) 60f else 0f)
 
-    val spacerWidth = if (isPlatformMobile) 80.dp else 80.dp
-    val canvasWidth = if (isPlatformMobile) 80.dp else 80.dp
+    // On mobile, add extra spacer to shift title text and shield to the right,
+    // matching the leftward shift of icons and towers.
+    val spacerWidth = if (isPlatformMobile) 80.dp * scale + 20.dp else 80.dp * scale
+    val canvasWidth = 80.dp * scale
     
     // Calculate banner width from component widths to prevent stretching on different screen sizes
     // Components: Canvas (80dp) + Spacer (80dp) + Text (~200dp) + Spacer (24dp) + Shield (120dp)
-    val textApproximateWidth = 200.dp  // Approximate width for "Defender of Egril" text
-    val totalBannerWidth = canvasWidth + spacerWidth + textApproximateWidth + 24.dp + 120.dp
+    val textApproximateWidth = 200.dp * scale  // Approximate width for "Defender of Egril" text
+    val totalBannerWidth = canvasWidth + spacerWidth + textApproximateWidth + 24.dp * scale + 120.dp * scale
     
     // Fixed width container to prevent banner stretching on different screen sizes
     // Uses widthIn to cap maximum width while adapting to smaller screens
@@ -96,7 +98,7 @@ fun ApplicationBanner(
         // Canvas with enemy and tower symbols
         Box(
             modifier = Modifier
-                .height(80.dp)
+                .height(80.dp * scale)
                 .width(canvasWidth)
         ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
@@ -157,7 +159,7 @@ fun ApplicationBanner(
             // First row: "Defender of" - smaller size, Great Vibes font
             Text(
                 text = "Defender of",
-                fontSize = 32.sp,
+                fontSize = (32 * scale).sp,
                 fontFamily = greatVibesFont,
                 fontWeight = FontWeight.Normal,
                 color = MaterialTheme.colorScheme.onBackground
@@ -166,20 +168,20 @@ fun ApplicationBanner(
             // Second row: "Egril" - larger size, Great Vibes font
             Text(
                 text = "Egril",
-                fontSize = 56.sp,
+                fontSize = (56 * scale).sp,
                 fontFamily = greatVibesFont,
                 fontWeight = FontWeight.Normal,
                 color = MaterialTheme.colorScheme.onBackground
             )
         }
         
-        Spacer(modifier = Modifier.width(24.dp))
+        Spacer(modifier = Modifier.width(24.dp * scale))
         
         // Right side: Application logo
         Image(
             painter = painterResource(Res.drawable.black_shield),
             contentDescription = "Defender of Egril Logo",
-            modifier = Modifier.size(120.dp)
+            modifier = Modifier.size(120.dp * scale)
         )
         }
     }

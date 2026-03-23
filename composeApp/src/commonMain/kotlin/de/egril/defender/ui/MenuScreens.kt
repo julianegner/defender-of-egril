@@ -209,7 +209,7 @@ fun MainMenuScreen(
                 }
                 
                 // Application banner with logo and styled text
-                ApplicationBanner()
+                ApplicationBanner(scale = if (isPlatformMobile) 0.7f else 1f)
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
@@ -224,41 +224,42 @@ fun MainMenuScreen(
                 
                 // On mobile, buttons are in a column; on desktop, in a column as well
                 if (isPlatformMobile) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp)
+                    BoxWithConstraints(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            modifier = Modifier.fillMaxWidth()
+                        val buttonWidth = maxWidth * 0.5f
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.width(buttonWidth)
                         ) {
                             Button(
                                 onClick = onStartGame,
-                                modifier = Modifier.weight(1f).height(60.dp)
+                                modifier = Modifier.fillMaxWidth().height(40.dp)
                             ) {
-                                Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
+                                Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.bodyMedium)
                             }
                             
                             // Continue Game button (only visible if autosave exists)
                             if (hasAutosave) {
                                 Button(
                                     onClick = onContinueGame,
-                                    modifier = Modifier.weight(1f).height(60.dp),
+                                    modifier = Modifier.fillMaxWidth().height(40.dp),
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = MaterialTheme.colorScheme.secondary
                                     )
                                 ) {
-                                    Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.titleMedium)
+                                    Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.bodyMedium)
                                 }
                             }
-                        }
-                        
-                        Button(
-                            onClick = onShowRules,
-                            modifier = Modifier.fillMaxWidth().height(60.dp)
-                        ) {
-                            Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
+                            
+                            Button(
+                                onClick = onShowRules,
+                                modifier = Modifier.fillMaxWidth().height(40.dp)
+                            ) {
+                                Text(stringResource(Res.string.rules), style = MaterialTheme.typography.bodyMedium)
+                            }
                         }
                     }
                 } else {
