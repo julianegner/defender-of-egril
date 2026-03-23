@@ -179,6 +179,7 @@ object FinalCreditsData {
         "example_map_cutout",  // outdated, not representative of current game state
         "ic_menu_compass",     // UI icon, not a game scene image
         "black_shield",        // UI icon, not a game scene image
-        "black_shield2"        // UI icon, not a game scene image
+        "black_shield2",       // UI icon, not a game scene image
+        "qr_code_defender"     // QR code, not a game scene image
     )
 }
