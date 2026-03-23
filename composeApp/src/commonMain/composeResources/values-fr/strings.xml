@@ -1189,6 +1189,16 @@
     <string name="info_tab_audio_licenses">Licences Audio</string>
     <string name="info_tab_license">Licence</string>
     <string name="info_tab_keyboard_shortcuts">Raccourcis Clavier</string>
+    <string name="info_tab_backend">Compte et Confidentialité</string>
+
+    <!-- Backend Info -->
+    <string name="backend_info_title">Compte et Confidentialité</string>
+    <string name="backend_info_logging_heading">Qu\'est-ce qui est enregistré ?</string>
+    <string name="backend_info_logging_body">Lorsque vous ouvrez le jeu, démarrez un niveau ou le terminez (en gagnant, perdant ou quittant), un événement est envoyé au serveur du jeu.\nChaque événement enregistre la date et l\'heure du serveur, la version du jeu et la plateforme utilisée (bureau, mobile ou web).\nTous les événements sont entièrement anonymes — aucun nom d\'utilisateur, identifiant ou adresse IP n\'est jamais enregistré.\n\nCes données servent à comprendre le nombre de joueurs et à identifier les niveaux trop difficiles.\nAucune donnée n\'est partagée avec des tiers.\nEn mode hors ligne, les appels de journalisation échouent silencieusement — le jeu fonctionne entièrement sans internet.</string>
+    <string name="backend_info_account_heading">Compte utilisateur optionnel</string>
+    <string name="backend_info_account_body">Un compte est entièrement facultatif — vous pouvez jouer sans vous inscrire. Avec un compte gratuit vous pouvez :\n\n• Sauvegarder votre progression sur le serveur et continuer sur n\'importe quel appareil\n• Passer entre bureau, mobile et web — et reprendre exactement où vous en étiez\n• Téléverser vos propres cartes et niveaux comme contenu communautaire pour que d\'autres les découvrent et y jouent\n• Télécharger et jouer les niveaux créés par d\'autres joueurs</string>
+    <string name="backend_info_account_how_heading">Comment obtenir un compte ?</string>
+    <string name="backend_info_account_how_body">Cliquez sur le bouton de connexion sur la page de démarrage. Vous serez redirigé vers une page d\'inscription. Seule une adresse e-mail est requise.</string>
 
     <!-- Keyboard Shortcuts Info -->
     <string name="keyboard_shortcuts_title">Raccourcis Clavier</string>

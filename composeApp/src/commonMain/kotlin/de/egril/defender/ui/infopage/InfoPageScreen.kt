@@ -15,14 +15,15 @@ import de.egril.defender.ui.settings.SettingsButton
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
- * Main info page screen that combines installation info and audio licenses.
- * This screen is accessible via the info button on the main menu (web version only).
+ * Main info page screen that combines installation info, audio licenses, and backend info.
+ * This screen is accessible via the info button on the main menu (all platforms).
  */
 @Composable
 fun InfoPageScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    initialTab: InfoTab = InfoTab.INSTALLATION
 ) {
-    var selectedTab by remember { mutableStateOf(InfoTab.INSTALLATION) }
+    var selectedTab by remember { mutableStateOf(initialTab) }
     
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -70,6 +71,11 @@ fun InfoPageScreen(
                         onClick = { selectedTab = InfoTab.KEYBOARD_SHORTCUTS },
                         text = { Text(stringResource(Res.string.info_tab_keyboard_shortcuts)) }
                     )
+                    Tab(
+                        selected = selectedTab == InfoTab.BACKEND,
+                        onClick = { selectedTab = InfoTab.BACKEND },
+                        text = { Text(stringResource(Res.string.info_tab_backend)) }
+                    )
                 }
                 
                 // Content area
@@ -83,6 +89,7 @@ fun InfoPageScreen(
                         InfoTab.AUDIO_LICENSES -> AudioLicensesInfo()
                         InfoTab.LICENSE -> LicenseInfo()
                         InfoTab.KEYBOARD_SHORTCUTS -> KeyboardShortcutsInfo()
+                        InfoTab.BACKEND -> BackendInfo()
                     }
                 }
                 
@@ -107,5 +114,6 @@ enum class InfoTab {
     INSTALLATION,
     AUDIO_LICENSES,
     LICENSE,
-    KEYBOARD_SHORTCUTS
+    KEYBOARD_SHORTCUTS,
+    BACKEND
 }

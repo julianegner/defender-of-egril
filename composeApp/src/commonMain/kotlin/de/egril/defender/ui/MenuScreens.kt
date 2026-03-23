@@ -3,8 +3,10 @@
 package de.egril.defender.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -15,6 +17,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -45,6 +49,7 @@ fun MainMenuScreen(
     hasAutosave: Boolean,
     onShowRules: () -> Unit,
     onShowInstallationInfo: () -> Unit,
+    onShowBackendInfo: () -> Unit = {},
     onEditPlayerName: () -> Unit,
     currentPlayerName: String?,
     iamState: IamState = IamState(),
@@ -76,18 +81,16 @@ fun MainMenuScreen(
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Info button (web version only)
-                if (isPlatformWasm) {
-                    IconButton(
-                        onClick = onShowInstallationInfo,
-                        modifier = Modifier.size(48.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(Res.drawable.emoji_info),
-                            contentDescription = stringResource(Res.string.installation_info),
-                            modifier = Modifier.size(32.dp)
-                        )
-                    }
+                // Info button (all platforms)
+                IconButton(
+                    onClick = onShowInstallationInfo,
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Image(
+                        painter = painterResource(Res.drawable.emoji_info),
+                        contentDescription = stringResource(Res.string.installation_info),
+                        modifier = Modifier.size(32.dp)
+                    )
                 }
                 
                 SettingsButton()
@@ -192,6 +195,28 @@ fun MainMenuScreen(
                             Text(
                                 text = stringResource(Res.string.iam_login),
                                 style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+
+                    // "?" info button about backend/account
+                    val backendInfoDesc = stringResource(Res.string.backend_info_title)
+                    IconButton(
+                        onClick = onShowBackendInfo,
+                        modifier = Modifier
+                            .size(28.dp)
+                            .semantics { contentDescription = backendInfoDesc }
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .background(Color(0xFFB3E5FC), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "?",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }

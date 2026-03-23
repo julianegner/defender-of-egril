@@ -267,6 +267,7 @@ fun App() {
                     hasAutosave = viewModel.hasAutosave(),
                     onShowRules = { viewModel.navigateToRules() },
                     onShowInstallationInfo = { viewModel.navigateToInstallationInfo() },
+                    onShowBackendInfo = { viewModel.navigateToBackendInfo() },
                     onEditPlayerName = { viewModel.navigateToPlayerProfile() },
                     currentPlayerName = currentPlayer?.name,
                     iamState = iamState,
@@ -308,6 +309,13 @@ fun App() {
             is Screen.InstallationInfo -> {
                 InfoPageScreen(
                     onBack = { viewModel.navigateToMainMenu() }
+                )
+            }
+            
+            is Screen.InstallationInfoAtTab -> {
+                InfoPageScreen(
+                    onBack = { viewModel.navigateToMainMenu() },
+                    initialTab = screen.initialTab
                 )
             }
             
