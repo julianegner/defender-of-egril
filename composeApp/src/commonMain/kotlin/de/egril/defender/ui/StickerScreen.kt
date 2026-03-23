@@ -45,7 +45,7 @@ fun StickerScreen(
     var selectedTab by remember { mutableStateOf(0) }
 
     // Build the ordered list of symbol tabs (group tabs first, then individual enemy tabs)
-    val symbolTabs: List<SymbolTab> = remember {
+    val allSymbolTabs: List<SymbolTab> = remember {
         buildList {
             add(SymbolTab.BannerEnemies)
             add(SymbolTab.BannerTowers)
@@ -53,8 +53,8 @@ fun StickerScreen(
         }
     }
 
-    // Total tabs = original + symbolTabs + QR code
-    val totalTabs = 1 + symbolTabs.size + 1
+    // Total tabs = original + allSymbolTabs + QR code
+    val totalTabs = 1 + allSymbolTabs.size + 1
     val qrCodeTabIndex = totalTabs - 1
 
     Surface(
@@ -101,8 +101,8 @@ fun StickerScreen(
                         onClick = { selectedTab = 0 },
                         text = { Text(stringResource(Res.string.sticker_tab_original)) }
                     )
-                    // Tabs 1..(1+symbolTabs.size-1): symbol tabs
-                    symbolTabs.forEachIndexed { idx, tab ->
+                    // Tabs 1..(1+allSymbolTabs.size-1): symbol tabs
+                    allSymbolTabs.forEachIndexed { idx, tab ->
                         val tabIndex = 1 + idx
                         Tab(
                             selected = selectedTab == tabIndex,
@@ -125,8 +125,8 @@ fun StickerScreen(
                     selectedTab == qrCodeTabIndex -> StickerQrCodeTab()
                     else -> {
                         val symbolTabIndex = selectedTab - 1
-                        if (symbolTabIndex in symbolTabs.indices) {
-                            StickerSymbolTab(symbolTabs[symbolTabIndex])
+                        if (symbolTabIndex in allSymbolTabs.indices) {
+                            StickerSymbolTab(allSymbolTabs[symbolTabIndex])
                         }
                     }
                 }
