@@ -175,7 +175,6 @@
     <string name="witch">Bruja: Magia oscura</string>
     <string name="blue_demon">Demonio azul: Rápido, inmune al ácido</string>
     <string name="red_demon">Demonio rojo: Resistente, inmune a la bola de fuego</string>
-    <string name="evil_mage">Mago oscuro: Puede invocar sirvientes</string>
     <string name="red_witch">Bruja roja: Puede desactivar torres</string>
     <string name="green_witch">Bruja verde: Puede curar a otros enemigos</string>
     <string name="ewhad">Ewhad: Jefe con invocación</string>
@@ -242,7 +241,6 @@
     <string name="witch_name">Bruja</string>
     <string name="blue_demon_name">Demonio azul</string>
     <string name="red_demon_name">Demonio rojo</string>
-    <string name="evil_mage_name">Mago oscuro</string>
     <string name="red_witch_name">Bruja roja</string>
     <string name="green_witch_name">Bruja verde</string>
     <string name="ewhad_name">Ewhad</string>
@@ -1534,4 +1532,10 @@
     <string name="community_uploading">Subiendo...</string>
     <string name="community_upload_success">¡Subido con éxito!</string>
     <string name="community_upload_failed">Error al subir. Por favor, inténtalo de nuevo.</string>
+
+    <!-- Sticker screen tabs -->
+    <string name="sticker_tab_original">Pegatina</string>
+    <string name="sticker_tab_enemies">Enemigos</string>
+    <string name="sticker_tab_towers">Torres</string>
+    <string name="sticker_tab_qr_code">Código QR</string>
 </resources>

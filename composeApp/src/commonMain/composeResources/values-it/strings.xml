@@ -175,7 +175,6 @@
     <string name="witch">Strega: Magia oscura</string>
     <string name="blue_demon">Demone blu: Veloce, immune all'acido</string>
     <string name="red_demon">Demone rosso: Resistente, immune alla palla di fuoco</string>
-    <string name="evil_mage">Mago oscuro: Può evocare servitori</string>
     <string name="red_witch">Strega rossa: Può disabilitare le torri</string>
     <string name="green_witch">Strega verde: Può curare altri nemici</string>
     <string name="ewhad">Ewhad: Boss con evocazione</string>
@@ -242,7 +241,6 @@
     <string name="witch_name">Strega</string>
     <string name="blue_demon_name">Demone blu</string>
     <string name="red_demon_name">Demone rosso</string>
-    <string name="evil_mage_name">Mago oscuro</string>
     <string name="red_witch_name">Strega rossa</string>
     <string name="green_witch_name">Strega verde</string>
     <string name="ewhad_name">Ewhad</string>
@@ -1536,4 +1534,10 @@
     <string name="community_uploading">Pubblicazione in corso...</string>
     <string name="community_upload_success">Pubblicato con successo!</string>
     <string name="community_upload_failed">Pubblicazione fallita. Riprova.</string>
+
+    <!-- Sticker screen tabs -->
+    <string name="sticker_tab_original">Adesivo</string>
+    <string name="sticker_tab_enemies">Nemici</string>
+    <string name="sticker_tab_towers">Torri</string>
+    <string name="sticker_tab_qr_code">Codice QR</string>
 </resources>

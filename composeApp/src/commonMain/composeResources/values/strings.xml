@@ -178,7 +178,6 @@
     <string name="witch">Witch: Dark magic</string>
     <string name="blue_demon">Blue Demon: Fast, acid immune</string>
     <string name="red_demon">Red Demon: Tough, fireball immune</string>
-    <string name="evil_mage">Evil Mage: Can summon minions</string>
     <string name="red_witch">Red Witch: Can disable towers</string>
     <string name="green_witch">Green Witch: Can heal other enemies</string>
     <string name="ewhad">Ewhad: Boss with summoning</string>
@@ -245,7 +244,6 @@
     <string name="witch_name">Witch</string>
     <string name="blue_demon_name">Blue Demon</string>
     <string name="red_demon_name">Red Demon</string>
-    <string name="evil_mage_name">Evil Mage</string>
     <string name="red_witch_name">Red Witch</string>
     <string name="green_witch_name">Green Witch</string>
     <string name="ewhad_name">Ewhad</string>
@@ -1540,4 +1538,10 @@
     <string name="community_uploading">Uploading...</string>
     <string name="community_upload_success">Uploaded successfully!</string>
     <string name="community_upload_failed">Upload failed. Please try again.</string>
+
+    <!-- Sticker screen tabs -->
+    <string name="sticker_tab_original">Sticker</string>
+    <string name="sticker_tab_enemies">Enemies</string>
+    <string name="sticker_tab_towers">Towers</string>
+    <string name="sticker_tab_qr_code">QR Code</string>
 </resources>

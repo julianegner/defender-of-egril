@@ -10,11 +10,23 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 /**
  * Draw blue demon symbol (fast demon with blue flames)
  */
-fun DrawScope.drawBlueDemonSymbol(centerX: Float, centerY: Float, size: Float, headScale: Float = 1.0f) {
+fun DrawScope.drawBlueDemonSymbol(centerX: Float, centerY: Float, size: Float, outlineColor: Color? = null, headScale: Float = 1.0f) {
     val headCenterY = centerY - size * 0.05f
 
     // Head with horns and eyes (scaled)
     withTransform({ scale(headScale, headScale, Offset(centerX, headCenterY)) }) {
+        if (outlineColor != null) {
+            val headOutlinePath = Path().apply {
+                moveTo(centerX, centerY - size * 0.3f)
+                lineTo(centerX + size * 0.2f, centerY - size * 0.1f)
+                lineTo(centerX + size * 0.15f, centerY + size * 0.1f)
+                lineTo(centerX, centerY + size * 0.2f)
+                lineTo(centerX - size * 0.15f, centerY + size * 0.1f)
+                lineTo(centerX - size * 0.2f, centerY - size * 0.1f)
+                close()
+            }
+            drawPath(headOutlinePath, outlineColor, style = Stroke(width = 3f))
+        }
         // Demon head (angular)
         val headPath = Path().apply {
             moveTo(centerX, centerY - size * 0.3f)

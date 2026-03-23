@@ -5,14 +5,23 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 
 /**
  * Draw red demon symbol (slow but tanky with red armor)
  */
-fun DrawScope.drawRedDemonSymbol(centerX: Float, centerY: Float, size: Float, headScale: Float = 1.0f) {
+fun DrawScope.drawRedDemonSymbol(centerX: Float, centerY: Float, size: Float, outlineColor: Color? = null, headScale: Float = 1.0f) {
     // Entire figure is the head/face (scaled)
     withTransform({ scale(headScale, headScale, Offset(centerX, centerY)) }) {
+        if (outlineColor != null) {
+            drawCircle(
+                color = outlineColor,
+                radius = size * 0.35f + 2f,
+                center = Offset(centerX, centerY),
+                style = Stroke(width = 3f)
+            )
+        }
         // Large armored body/head
         drawCircle(
             color = Color(0xFF8B0000), // Dark red
@@ -39,6 +48,10 @@ fun DrawScope.drawRedDemonSymbol(centerX: Float, centerY: Float, size: Float, he
             lineTo(centerX + size * 0.4f, centerY - size * 0.45f)
             lineTo(centerX + size * 0.15f, centerY - size * 0.25f)
             close()
+        }
+        if (outlineColor != null) {
+            drawPath(hornPath1, outlineColor, style = Stroke(width = 3f))
+            drawPath(hornPath2, outlineColor, style = Stroke(width = 3f))
         }
         drawPath(hornPath1, Color(0xFF2A0000))
         drawPath(hornPath2, Color(0xFF2A0000))

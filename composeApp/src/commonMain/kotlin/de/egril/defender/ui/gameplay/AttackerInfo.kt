@@ -394,7 +394,6 @@ fun AttackerInfo(
                         AttackerType.EVIL_WIZARD,
                         AttackerType.RED_WITCH,
                         AttackerType.GREEN_WITCH,
-                        AttackerType.EVIL_MAGE,
                         AttackerType.BLUE_DEMON,
                         AttackerType.RED_DEMON,
                         AttackerType.DRAGON -> true
