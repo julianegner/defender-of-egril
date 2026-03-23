@@ -16,6 +16,15 @@ fun DrawScope.drawSkeletonSymbol(centerX: Float, centerY: Float, size: Float, ou
 
     // Skull with facial features (scaled)
     withTransform({ scale(headScale, headScale, Offset(centerX, headCenterY)) }) {
+        if (outlineColor != null && outlineColor != Color.White) {
+            // Skull outline in light mode only (skull is white, needs outline on light backgrounds)
+            drawCircle(
+                color = outlineColor,
+                radius = size * 0.25f + 2f,
+                center = Offset(centerX, headCenterY),
+                style = Stroke(width = 3f)
+            )
+        }
         // Skull
         drawCircle(
             color = Color.White,
