@@ -149,12 +149,14 @@ private fun StickerOriginalTab() {
  */
 private sealed interface SymbolFrame {
     /** The three banner enemies (Goblin, Ork, EvilWizard) together */
-    object BannerEnemies : SymbolFrame
+    data object BannerEnemies : SymbolFrame
     /** The two banner towers (Bow, Wizard) */
-    object BannerTowers : SymbolFrame
+    data object BannerTowers : SymbolFrame
     /** A single enemy type with outline */
     data class SingleEnemy(val type: AttackerType) : SymbolFrame
 }
+
+private const val SYMBOL_CYCLE_DELAY_MS = 2000L
 
 private val symbolCycleFrames: List<SymbolFrame> = buildList {
     add(SymbolFrame.BannerEnemies)
@@ -172,7 +174,7 @@ private fun StickerSymbolsTab() {
 
     LaunchedEffect(Unit) {
         while (true) {
-            delay(2000L)
+            delay(SYMBOL_CYCLE_DELAY_MS)
             frameIndex = (frameIndex + 1) % symbolCycleFrames.size
         }
     }
