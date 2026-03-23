@@ -1508,6 +1508,9 @@
     <string name="credits_section_developers">Développeurs</string>
     <string name="credits_section_sound_effects">Effets Sonores</string>
     <string name="credits_section_background_music">Musique de Fond</string>
+    <string name="credits_section_contributors">Contributeurs</string>
+    <string name="credits_section_software_used">Logiciels Utilisés</string>
+    <string name="credits_section_special_thanks">Remerciements Spéciaux</string>
     <string name="credits_thank_you">Merci d'avoir joué !</string>
     <string name="credits_click_to_skip">Cliquez pour revenir à la carte du monde</string>
     <!-- IAM / Keycloak -->

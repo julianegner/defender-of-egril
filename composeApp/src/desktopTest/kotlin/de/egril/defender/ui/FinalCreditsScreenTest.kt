@@ -56,6 +56,25 @@ class FinalCreditsScreenTest {
     }
 
     @Test
+    fun testFinalCreditsScreenRendersContributorsSection() {
+        composeTestRule.setContent {
+            FinalCreditsScreen(onDismiss = {}, animationsEnabled = false)
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Contributors", substring = true, ignoreCase = true)
+            .assertExists()
+
+        FinalCreditsData.contributors.forEach { entry ->
+            composeTestRule.onNodeWithText(entry.name, substring = true)
+                .assertExists()
+            composeTestRule.onNodeWithText(entry.contribution, substring = true)
+                .assertExists()
+        }
+    }
+
+    @Test
     fun testFinalCreditsScreenRendersSoundSection() {
         composeTestRule.setContent {
             FinalCreditsScreen(onDismiss = {}, animationsEnabled = false)
@@ -77,6 +96,40 @@ class FinalCreditsScreenTest {
 
         composeTestRule.onNodeWithText("Background Music", substring = true, ignoreCase = true)
             .assertExists()
+    }
+
+    @Test
+    fun testFinalCreditsScreenRendersSoftwareSection() {
+        composeTestRule.setContent {
+            FinalCreditsScreen(onDismiss = {}, animationsEnabled = false)
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Software Used", substring = true, ignoreCase = true)
+            .assertExists()
+
+        FinalCreditsData.softwareCredits.forEach { entry ->
+            composeTestRule.onNodeWithText(entry.name, substring = true)
+                .assertExists()
+        }
+    }
+
+    @Test
+    fun testFinalCreditsScreenRendersSpecialThanksSection() {
+        composeTestRule.setContent {
+            FinalCreditsScreen(onDismiss = {}, animationsEnabled = false)
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Special Thanks", substring = true, ignoreCase = true)
+            .assertExists()
+
+        FinalCreditsData.specialThanks.forEach { entry ->
+            composeTestRule.onNodeWithText(entry.name, substring = true)
+                .assertExists()
+        }
     }
 
     @Test
