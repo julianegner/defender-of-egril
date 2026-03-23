@@ -1194,11 +1194,11 @@
     <!-- Backend Info -->
     <string name="backend_info_title">Account e Privacy</string>
     <string name="backend_info_logging_heading">Cosa viene registrato?</string>
-    <string name="backend_info_logging_body">Durante il gioco, vengono registrati dati tecnici di base sul server per scopi operativi (es. messaggi di errore e stato del server). Nessun dato personale di gioco viene memorizzato senza un account.</string>
+    <string name="backend_info_logging_body">Quando apri il gioco, inizi un livello o lo termini (vincendo, perdendo o uscendo), viene inviato un evento al server del gioco. Ogni evento registra la data e l\'ora del server, la versione del gioco e la piattaforma utilizzata (desktop, mobile o web).\n\nSenza accesso, tutti gli eventi sono completamente anonimi. Se sei connesso, viene incluso anche il tuo ID utente IAM anonimo (non il tuo nome utente).\n\nQuesti dati vengono utilizzati per capire quante persone giocano e per identificare livelli troppo difficili. Nessun dato viene condiviso con terze parti. Se giochi offline, le chiamate di registrazione falliscono silenziosamente — il gioco funziona completamente senza internet.</string>
     <string name="backend_info_account_heading">Account utente opzionale</string>
-    <string name="backend_info_account_body">Puoi creare facoltativamente un account gratuito. Con un account puoi:\n\n• Salvare i progressi sul server e continuare su qualsiasi dispositivo\n• Cambiare dispositivo e riprendere il gioco da dove ti eri fermato\n• Caricare le tue mappe e livelli come contenuto della community\n• Scaricare e giocare i livelli creati da altri giocatori</string>
+    <string name="backend_info_account_body">Un account è completamente opzionale — puoi giocare senza registrarti. Con un account gratuito puoi:\n\n• Salvare i progressi sul server e continuare su qualsiasi dispositivo\n• Passare tra desktop, mobile e web — e riprendere esattamente da dove ti eri fermato\n• Caricare le tue mappe e livelli come contenuto della community affinché altri li scoprano e ci giochino\n• Scaricare e giocare i livelli creati da altri giocatori</string>
     <string name="backend_info_account_how_heading">Come ottenere un account?</string>
-    <string name="backend_info_account_how_body">Fai clic sul pulsante di accesso nella schermata iniziale. Verrai reindirizzato a una pagina di registrazione dove puoi creare un account gratuito. È richiesto solo un indirizzo e-mail.</string>
+    <string name="backend_info_account_how_body">Fai clic sul pulsante di accesso nella schermata iniziale. Verrai reindirizzato a una pagina di registrazione. È richiesto solo un indirizzo e-mail.</string>
 
     <!-- Keyboard Shortcuts Info -->
     <string name="keyboard_shortcuts_title">Scorciatoie da Tastiera</string>

@@ -1194,11 +1194,11 @@
     <!-- Backend Info -->
     <string name="backend_info_title">Cuenta y Privacidad</string>
     <string name="backend_info_logging_heading">¿Qué se registra?</string>
-    <string name="backend_info_logging_body">Al jugar, se registran datos técnicos básicos en el servidor con fines operativos (p. ej., mensajes de error y estado del servidor). No se almacenan datos personales de juego a menos que crees una cuenta.</string>
+    <string name="backend_info_logging_body">Cuando abres el juego, comienzas un nivel o lo terminas (ganando, perdiendo o saliendo), se envía un evento al servidor propio del juego. Cada evento incluye la fecha y hora del servidor, la versión del juego y la plataforma que usas (escritorio, móvil o web).\n\nSin iniciar sesión, todos los eventos son completamente anónimos. Si has iniciado sesión, también se incluye tu ID de usuario IAM anónimo (no tu nombre de usuario).\n\nEstos datos se usan para entender cuántas personas juegan e identificar niveles que puedan ser demasiado difíciles. No se comparten datos con terceros. Si juegas sin conexión, las llamadas de registro fallan silenciosamente — el juego funciona completamente sin internet.</string>
     <string name="backend_info_account_heading">Cuenta de usuario opcional</string>
-    <string name="backend_info_account_body">Puedes crear una cuenta gratuita de forma opcional. Con una cuenta puedes:\n\n• Guardar tu progreso en el servidor y continuar en cualquier dispositivo\n• Cambiar de dispositivo y retomar el juego donde lo dejaste\n• Subir tus propios mapas y niveles como contenido de la comunidad\n• Descargar y jugar niveles creados por otros jugadores</string>
+    <string name="backend_info_account_body">Una cuenta es completamente opcional — puedes jugar el juego completo sin registrarte. Con una cuenta gratuita puedes:\n\n• Guardar tu progreso en el servidor y continuar en cualquier dispositivo\n• Cambiar entre escritorio, móvil y web — y retomar exactamente donde lo dejaste\n• Subir tus propios mapas y niveles como contenido de la comunidad para que otros los descubran y jueguen\n• Descargar y jugar niveles creados por otros jugadores</string>
     <string name="backend_info_account_how_heading">¿Cómo obtener una cuenta?</string>
-    <string name="backend_info_account_how_body">Haz clic en el botón de inicio de sesión en la pantalla de inicio. Serás redirigido a una página de registro donde puedes crear una cuenta gratuita. Solo se requiere una dirección de correo electrónico.</string>
+    <string name="backend_info_account_how_body">Haz clic en el botón de inicio de sesión en la pantalla de inicio. Serás redirigido a una página de registro. Solo se requiere una dirección de correo electrónico.</string>
 
     <!-- Keyboard Shortcuts Info -->
     <string name="keyboard_shortcuts_title">Atajos de Teclado</string>

@@ -1194,11 +1194,11 @@
     <!-- Backend Info -->
     <string name="backend_info_title">Compte et Confidentialité</string>
     <string name="backend_info_logging_heading">Qu\'est-ce qui est enregistré ?</string>
-    <string name="backend_info_logging_body">Lors du jeu, des données techniques de base sont enregistrées sur le serveur à des fins opérationnelles (ex. messages d\'erreur et état du serveur). Aucune donnée personnelle de jeu n\'est stockée sans compte.</string>
+    <string name="backend_info_logging_body">Lorsque vous ouvrez le jeu, démarrez un niveau ou le terminez (en gagnant, perdant ou quittant), un événement est envoyé au serveur du jeu. Chaque événement enregistre la date et l\'heure du serveur, la version du jeu et la plateforme utilisée (bureau, mobile ou web).\n\nSans connexion, tous les événements sont entièrement anonymes. Si vous êtes connecté, votre identifiant IAM anonyme (pas votre nom d\'utilisateur) est également inclus.\n\nCes données servent à comprendre le nombre de joueurs et à identifier les niveaux trop difficiles. Aucune donnée n\'est partagée avec des tiers. En mode hors ligne, les appels de journalisation échouent silencieusement — le jeu fonctionne entièrement sans internet.</string>
     <string name="backend_info_account_heading">Compte utilisateur optionnel</string>
-    <string name="backend_info_account_body">Vous pouvez créer un compte gratuit de manière optionnelle. Avec un compte vous pouvez :\n\n• Sauvegarder votre progression sur le serveur et continuer sur n\'importe quel appareil\n• Changer d\'appareil et reprendre votre partie là où vous l\'avez laissée\n• Téléverser vos propres cartes et niveaux comme contenu communautaire\n• Télécharger et jouer les niveaux créés par d\'autres joueurs</string>
+    <string name="backend_info_account_body">Un compte est entièrement facultatif — vous pouvez jouer sans vous inscrire. Avec un compte gratuit vous pouvez :\n\n• Sauvegarder votre progression sur le serveur et continuer sur n\'importe quel appareil\n• Passer entre bureau, mobile et web — et reprendre exactement où vous en étiez\n• Téléverser vos propres cartes et niveaux comme contenu communautaire pour que d\'autres les découvrent et y jouent\n• Télécharger et jouer les niveaux créés par d\'autres joueurs</string>
     <string name="backend_info_account_how_heading">Comment obtenir un compte ?</string>
-    <string name="backend_info_account_how_body">Cliquez sur le bouton de connexion sur la page de démarrage. Vous serez redirigé vers une page d\'inscription où vous pouvez créer un compte gratuit. Seule une adresse e-mail est requise.</string>
+    <string name="backend_info_account_how_body">Cliquez sur le bouton de connexion sur la page de démarrage. Vous serez redirigé vers une page d\'inscription. Seule une adresse e-mail est requise.</string>
 
     <!-- Keyboard Shortcuts Info -->
     <string name="keyboard_shortcuts_title">Raccourcis Clavier</string>
