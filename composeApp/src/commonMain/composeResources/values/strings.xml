@@ -1540,4 +1540,9 @@
     <string name="community_uploading">Uploading...</string>
     <string name="community_upload_success">Uploaded successfully!</string>
     <string name="community_upload_failed">Upload failed. Please try again.</string>
+
+    <!-- Sticker screen tabs -->
+    <string name="sticker_tab_original">Sticker</string>
+    <string name="sticker_tab_symbols">Symbols</string>
+    <string name="sticker_tab_qr_code">QR Code</string>
 </resources>

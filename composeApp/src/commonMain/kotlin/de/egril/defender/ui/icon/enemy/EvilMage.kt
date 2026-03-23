@@ -4,13 +4,23 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 
 /**
  * Draw evil mage symbol (similar to wizard but more menacing)
  */
-fun DrawScope.drawEvilMageSymbol(centerX: Float, centerY: Float, size: Float, headScale: Float = 1.0f) {
+fun DrawScope.drawEvilMageSymbol(centerX: Float, centerY: Float, size: Float, outlineColor: Color? = null, headScale: Float = 1.0f) {
     // Robe/body (not scaled)
+    if (outlineColor != null) {
+        val robeOutlinePath = Path().apply {
+            moveTo(centerX, centerY - size * 0.35f)
+            lineTo(centerX - size * 0.25f, centerY + size * 0.3f)
+            lineTo(centerX + size * 0.25f, centerY + size * 0.3f)
+            close()
+        }
+        drawPath(robeOutlinePath, outlineColor, style = Stroke(width = 3f))
+    }
     val robePath = Path().apply {
         moveTo(centerX, centerY - size * 0.35f)
         lineTo(centerX - size * 0.25f, centerY + size * 0.3f)

@@ -5,14 +5,23 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 
 /**
  * Draw red demon symbol (slow but tanky with red armor)
  */
-fun DrawScope.drawRedDemonSymbol(centerX: Float, centerY: Float, size: Float, headScale: Float = 1.0f) {
+fun DrawScope.drawRedDemonSymbol(centerX: Float, centerY: Float, size: Float, outlineColor: Color? = null, headScale: Float = 1.0f) {
     // Entire figure is the head/face (scaled)
     withTransform({ scale(headScale, headScale, Offset(centerX, centerY)) }) {
+        if (outlineColor != null) {
+            drawCircle(
+                color = outlineColor,
+                radius = size * 0.35f + 2f,
+                center = Offset(centerX, centerY),
+                style = Stroke(width = 3f)
+            )
+        }
         // Large armored body/head
         drawCircle(
             color = Color(0xFF8B0000), // Dark red

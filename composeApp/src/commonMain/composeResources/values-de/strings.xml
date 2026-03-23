@@ -1533,4 +1533,9 @@
     <string name="community_uploading">Wird hochgeladen...</string>
     <string name="community_upload_success">Erfolgreich hochgeladen!</string>
     <string name="community_upload_failed">Upload fehlgeschlagen. Bitte erneut versuchen.</string>
+
+    <!-- Sticker screen tabs -->
+    <string name="sticker_tab_original">Aufkleber</string>
+    <string name="sticker_tab_symbols">Symbole</string>
+    <string name="sticker_tab_qr_code">QR-Code</string>
 </resources>

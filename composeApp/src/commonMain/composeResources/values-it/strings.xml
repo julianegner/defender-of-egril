@@ -1536,4 +1536,9 @@
     <string name="community_uploading">Pubblicazione in corso...</string>
     <string name="community_upload_success">Pubblicato con successo!</string>
     <string name="community_upload_failed">Pubblicazione fallita. Riprova.</string>
+
+    <!-- Sticker screen tabs -->
+    <string name="sticker_tab_original">Adesivo</string>
+    <string name="sticker_tab_symbols">Simboli</string>
+    <string name="sticker_tab_qr_code">Codice QR</string>
 </resources>

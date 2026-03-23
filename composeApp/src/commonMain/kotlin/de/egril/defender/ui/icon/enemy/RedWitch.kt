@@ -5,16 +5,32 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 
 /**
  * Draw red witch symbol (witch in red, focused on tower disruption)
  */
-fun DrawScope.drawRedWitchSymbol(centerX: Float, centerY: Float, size: Float, headScale: Float = 1.0f) {
+fun DrawScope.drawRedWitchSymbol(centerX: Float, centerY: Float, size: Float, outlineColor: Color? = null, headScale: Float = 1.0f) {
     val headCenterY = centerY + size * 0.1f
 
     // Head: hat + face + eyes (scaled)
     withTransform({ scale(headScale, headScale, Offset(centerX, headCenterY)) }) {
+        if (outlineColor != null) {
+            val hatOutlinePath = Path().apply {
+                moveTo(centerX, centerY - size * 0.35f)
+                lineTo(centerX - size * 0.25f, centerY - size * 0.05f)
+                lineTo(centerX + size * 0.25f, centerY - size * 0.05f)
+                close()
+            }
+            drawPath(hatOutlinePath, outlineColor, style = Stroke(width = 3f))
+            drawCircle(
+                color = outlineColor,
+                radius = size * 0.18f + 2f,
+                center = Offset(centerX, headCenterY),
+                style = Stroke(width = 2f)
+            )
+        }
         // Red witch hat
         val hatPath = Path().apply {
             moveTo(centerX, centerY - size * 0.35f)

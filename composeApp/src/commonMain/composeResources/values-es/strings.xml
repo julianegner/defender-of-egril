@@ -1534,4 +1534,9 @@
     <string name="community_uploading">Subiendo...</string>
     <string name="community_upload_success">¡Subido con éxito!</string>
     <string name="community_upload_failed">Error al subir. Por favor, inténtalo de nuevo.</string>
+
+    <!-- Sticker screen tabs -->
+    <string name="sticker_tab_original">Pegatina</string>
+    <string name="sticker_tab_symbols">Símbolos</string>
+    <string name="sticker_tab_qr_code">Código QR</string>
 </resources>

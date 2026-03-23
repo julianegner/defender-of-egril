@@ -4,12 +4,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 
 /**
  * Draw Ewhad symbol (evil arch mage boss) - unique symbol ☠ Ψ
  */
-fun DrawScope.drawEwhadSymbol(centerX: Float, centerY: Float, size: Float, headScale: Float = 1.0f) {
+fun DrawScope.drawEwhadSymbol(centerX: Float, centerY: Float, size: Float, outlineColor: Color? = null, headScale: Float = 1.0f) {
     val headCenterY = centerY - size * 0.05f
 
     // Large dark robe (not scaled)
@@ -20,6 +21,9 @@ fun DrawScope.drawEwhadSymbol(centerX: Float, centerY: Float, size: Float, headS
         close()
     }
     drawPath(robePath, Color(0xFF0A0015)) // Almost black with purple tint
+    if (outlineColor != null) {
+        drawPath(robePath, outlineColor, style = Stroke(width = 3f))
+    }
 
     // Elaborate hood with points (not scaled)
     val hoodPath = Path().apply {
