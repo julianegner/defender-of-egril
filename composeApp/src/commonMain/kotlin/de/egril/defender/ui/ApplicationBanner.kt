@@ -57,10 +57,7 @@ fun ApplicationBanner(
     val greatVibesFont = FontFamily(Font(Res.font.greatvibes_regular))
     
     // Platform-specific spacing values
-    // Mobile (Android/iOS) needs more spacing to prevent overlap
-    // Desktop and WASM use original tighter spacing
-
-    val elementOffsetX = if (isPlatformMobile) 60f else 0f
+    val elementOffsetX = 0f
     val elementOffsetY = if (isPlatformMobile) -80f else 0f
 
     val goblinOffsetX = elementOffsetX + (if (isPlatformMobile) 15f else 20f)
@@ -75,8 +72,10 @@ fun ApplicationBanner(
     val wizardTowerOffsetX = elementOffsetX + (if (isPlatformMobile) 240f else 100f)
     val wizardTowerOffsetY = elementOffsetY + (if (isPlatformMobile) 60f else 0f)
 
-    val spacerWidth = (if (isPlatformMobile) 80.dp else 80.dp) * scale
-    val canvasWidth = (if (isPlatformMobile) 80.dp else 80.dp) * scale
+    // On mobile, add extra spacer to shift title text and shield to the right,
+    // matching the leftward shift of icons and towers.
+    val spacerWidth = if (isPlatformMobile) 80.dp * scale + 20.dp else 80.dp * scale
+    val canvasWidth = 80.dp * scale
     
     // Calculate banner width from component widths to prevent stretching on different screen sizes
     // Components: Canvas (80dp) + Spacer (80dp) + Text (~200dp) + Spacer (24dp) + Shield (120dp)
