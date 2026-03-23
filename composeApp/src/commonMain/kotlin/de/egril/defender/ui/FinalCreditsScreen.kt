@@ -204,10 +204,8 @@ fun FinalCreditsScreen(
             CreditsTitle()
             Spacer(modifier = Modifier.height(48.dp))
             CreditsDeveloperSection()
-            if (FinalCreditsData.contributors.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(48.dp))
-                CreditsContributorsSection()
-            }
+            Spacer(modifier = Modifier.height(48.dp))
+            CreditsContributorsSection()
             Spacer(modifier = Modifier.height(48.dp))
             CreditsSoundEffectsSection()
             Spacer(modifier = Modifier.height(48.dp))
@@ -409,9 +407,9 @@ private fun CreditsBackgroundMusicSection() {
 @Composable
 private fun CreditsContributorsSection() {
     CreditsSectionHeader(title = stringResource(Res.string.credits_section_contributors))
-    FinalCreditsData.contributors.forEach { name ->
+    FinalCreditsData.contributors.forEach { entry ->
         Text(
-            text = name,
+            text = "${entry.name} – ${entry.contribution}",
             color = CREDITS_TEXT_COLOR,
             fontSize = 18.sp,
             textAlign = TextAlign.Center

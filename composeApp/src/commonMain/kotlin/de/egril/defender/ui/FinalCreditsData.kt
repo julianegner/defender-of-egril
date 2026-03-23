@@ -33,18 +33,24 @@ object FinalCreditsData {
      * be added here manually.
      */
     val developers: List<String> = listOf(
-        "Julian Egner",
-        "Kathrin Kläs-Dickhof"
+        "Julian Egner"
+    )
+
+    data class ContributorEntry(
+        val name: String,
+        val contribution: String
     )
 
     /**
      * Other contributors who helped the project in any capacity
      * (testing, bug reports, design feedback, etc.) but are not
      * part of the core development team.
-     * Add names here when new contributors should be credited.
+     * Each entry carries the contributor's name and a short description
+     * of their contribution, which is displayed on the same line.
+     * Add entries here when new contributors should be credited.
      */
-    val contributors: List<String> = listOf(
-        // Add contributor names here
+    val contributors: List<ContributorEntry> = listOf(
+        ContributorEntry("Kathrin Kläs-Dickhof", "Auto-attack function")
     )
 
     data class SoundCreditEntry(

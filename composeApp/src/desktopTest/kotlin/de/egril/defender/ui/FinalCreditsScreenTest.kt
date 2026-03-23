@@ -56,6 +56,25 @@ class FinalCreditsScreenTest {
     }
 
     @Test
+    fun testFinalCreditsScreenRendersContributorsSection() {
+        composeTestRule.setContent {
+            FinalCreditsScreen(onDismiss = {}, animationsEnabled = false)
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Contributors", substring = true, ignoreCase = true)
+            .assertExists()
+
+        FinalCreditsData.contributors.forEach { entry ->
+            composeTestRule.onNodeWithText(entry.name, substring = true)
+                .assertExists()
+            composeTestRule.onNodeWithText(entry.contribution, substring = true)
+                .assertExists()
+        }
+    }
+
+    @Test
     fun testFinalCreditsScreenRendersSoundSection() {
         composeTestRule.setContent {
             FinalCreditsScreen(onDismiss = {}, animationsEnabled = false)
