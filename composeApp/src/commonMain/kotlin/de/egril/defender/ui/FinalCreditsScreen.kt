@@ -194,9 +194,12 @@ fun FinalCreditsScreen(
         }
 
         // ── Upper layer: scrolling credits text ───────────────────────────────
+        // Bottom padding reserves space for the "Click anywhere" hint so credits
+        // text never scrolls behind it.
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(bottom = 48.dp)
                 .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
