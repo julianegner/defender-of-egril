@@ -309,9 +309,9 @@ kotlin {
             implementation(libs.flagkit)
             implementation(libs.multiplatform.settings)
             // Compottie for Lottie animations
-            implementation("io.github.alexzhirkevich:compottie:2.0.2")
-            implementation("io.github.alexzhirkevich:compottie-dot:2.0.2")
-            implementation("io.github.alexzhirkevich:compottie-network:2.0.2")
+            implementation("io.github.alexzhirkevich:compottie:2.1.0")
+            implementation("io.github.alexzhirkevich:compottie-dot:2.1.0")
+            implementation("io.github.alexzhirkevich:compottie-network:2.1.0")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
