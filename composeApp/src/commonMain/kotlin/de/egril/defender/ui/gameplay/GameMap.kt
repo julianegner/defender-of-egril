@@ -1279,6 +1279,12 @@ private fun BoxScope.GridCellContent(
                         val barbsSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
                         maxOf(0, barbsSpeed - 1) == 0
                     }
+                    // Compute the actual tile background color so the icon can derive the correct outline color
+                    val attackerTileBackground = if (freezeEffect != null || coolingReducesToZero) {
+                        TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f)
+                    } else {
+                        GamePlayColors.Error
+                    }
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = if (freezeEffect != null || coolingReducesToZero)
@@ -1286,7 +1292,7 @@ private fun BoxScope.GridCellContent(
                         else
                             Modifier
                     ) {
-                        EnemyIcon(attacker = attacker)
+                        EnemyIcon(attacker = attacker, backgroundColor = attackerTileBackground)
                         // Show healing effect overlay if present
                         if (healingEffect != null) {
                             GreenWitchHealingAnimation(

@@ -25,9 +25,10 @@ import de.egril.defender.utils.BigHeadMode
 fun EnemyIcon(
     attacker: Attacker,
     modifier: Modifier = Modifier,
-    healthTextColor: Color = Color.White
+    healthTextColor: Color = Color.White,
+    backgroundColor: Color? = null
 ) {
-    val bgLuminance = MaterialTheme.colorScheme.background.luminance()
+    val bgLuminance = (backgroundColor ?: MaterialTheme.colorScheme.background).luminance()
     val contrastOutlineColor = if (bgLuminance < 0.5f) Color.White else Color.Black
 
     Box(
@@ -92,9 +93,10 @@ fun EnemyIcon(
 @Composable
 fun EnemyTypeIcon(
     attackerType: AttackerType,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    backgroundColor: Color? = null
 ) {
-    val bgLuminance = MaterialTheme.colorScheme.background.luminance()
+    val bgLuminance = (backgroundColor ?: MaterialTheme.colorScheme.background).luminance()
     val contrastOutlineColor = if (bgLuminance < 0.5f) Color.White else Color.Black
 
     Box(
