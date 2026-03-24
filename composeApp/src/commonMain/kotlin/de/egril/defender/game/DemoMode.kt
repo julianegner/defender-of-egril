@@ -1,7 +1,6 @@
 package de.egril.defender.game
 
 import de.egril.defender.editor.EditorStorage
-import de.egril.defender.editor.InitialData
 import de.egril.defender.editor.InitialDefender
 import de.egril.defender.model.*
 
@@ -20,6 +19,9 @@ object DemoMode {
     /** Delay in ms before auto-starting from the initial building phase */
     const val INITIAL_BUILDING_DELAY_MS = 1500L
 
+    /** Delay in ms between placing each tower (also in initial building phase) */
+    const val TOWER_PLACE_DELAY_MS = 800L
+
     /** Delay in ms before auto-attacking and ending the player turn */
     const val PLAYER_TURN_DELAY_MS = 2000L
 
@@ -29,11 +31,15 @@ object DemoMode {
     /** Delay in ms to show the final game state before loading the next demo level */
     const val LEVEL_END_DELAY_MS = 2000L
 
+    /** Delay in ms after level start before any showing info dialogs are dismissed */
+    const val INFO_DISMISS_DELAY_MS = 3000L
+
     /**
      * Pre-placed tower configurations for each demo map.
-     * Each list defines the towers that are placed before the battle starts.
+     * Each list defines the towers that are placed one by one during the INITIAL_BUILDING phase.
+     * The second and third maps include wizard towers for area-of-effect coverage.
      */
-    private val DEMO_TOWERS: Map<String, List<InitialDefender>> = mapOf(
+    val DEMO_TOWERS: Map<String, List<InitialDefender>> = mapOf(
         "map_straight" to listOf(
             InitialDefender(DefenderType.BOW_TOWER, Position(8, 3)),
             InitialDefender(DefenderType.BOW_TOWER, Position(9, 4)),
@@ -49,10 +55,10 @@ object DemoMode {
         "map_the_creek" to listOf(
             InitialDefender(DefenderType.BOW_TOWER, Position(8, 1)),
             InitialDefender(DefenderType.SPEAR_TOWER, Position(2, 8)),
-            InitialDefender(DefenderType.BOW_TOWER, Position(7, 7)),
+            InitialDefender(DefenderType.WIZARD_TOWER, Position(7, 7)),
             InitialDefender(DefenderType.SPEAR_TOWER, Position(9, 19)),
             InitialDefender(DefenderType.BOW_TOWER, Position(10, 18)),
-            InitialDefender(DefenderType.SPEAR_TOWER, Position(18, 18)),
+            InitialDefender(DefenderType.WIZARD_TOWER, Position(18, 18)),
             InitialDefender(DefenderType.BOW_TOWER, Position(10, 24)),
             InitialDefender(DefenderType.SPEAR_TOWER, Position(26, 24)),
             InitialDefender(DefenderType.BOW_TOWER, Position(25, 28)),
@@ -61,13 +67,25 @@ object DemoMode {
         "map_plains" to listOf(
             InitialDefender(DefenderType.BOW_TOWER, Position(16, 19)),
             InitialDefender(DefenderType.BOW_TOWER, Position(17, 19)),
-            InitialDefender(DefenderType.BOW_TOWER, Position(19, 16)),
-            InitialDefender(DefenderType.SPEAR_TOWER, Position(20, 16)),
-            InitialDefender(DefenderType.BOW_TOWER, Position(19, 22)),
-            InitialDefender(DefenderType.SPEAR_TOWER, Position(20, 22)),
+            InitialDefender(DefenderType.WIZARD_TOWER, Position(19, 16)),
+            InitialDefender(DefenderType.WIZARD_TOWER, Position(19, 22)),
             InitialDefender(DefenderType.BOW_TOWER, Position(22, 19)),
             InitialDefender(DefenderType.SPEAR_TOWER, Position(23, 19))
         )
+    )
+
+    /** Tower types available for building/upgrading during gameplay for each demo map */
+    val DEMO_AVAILABLE_TOWERS: Map<String, Set<DefenderType>> = mapOf(
+        "map_straight" to setOf(DefenderType.BOW_TOWER, DefenderType.SPEAR_TOWER),
+        "map_the_creek" to setOf(DefenderType.BOW_TOWER, DefenderType.SPEAR_TOWER, DefenderType.WIZARD_TOWER),
+        "map_plains" to setOf(DefenderType.BOW_TOWER, DefenderType.SPEAR_TOWER, DefenderType.WIZARD_TOWER)
+    )
+
+    /** Starting coins for each demo level (enough to build all initial towers with some extra) */
+    val DEMO_START_COINS: Map<String, Int> = mapOf(
+        "map_straight" to 250,   // 6 BOW (120) + 4 SPEAR (60) = 180, surplus for upgrades
+        "map_the_creek" to 320,  // 4 BOW (80) + 4 SPEAR (60) + 2 WIZARD (100) = 240, surplus for upgrades
+        "map_plains" to 250      // 3 BOW (60) + 1 SPEAR (15) + 2 WIZARD (100) = 175, surplus for upgrades
     )
 
     /**
@@ -129,14 +147,17 @@ object DemoMode {
 
     /**
      * Creates a demo [Level] for the given [demoIndex] (0, 1, or 2).
+     * Towers are NOT pre-placed — they are placed one by one during the INITIAL_BUILDING phase
+     * by the auto-play loop so the 800 ms delay is visible.
      * Returns `null` if the map cannot be loaded.
      */
     fun createDemoLevel(demoIndex: Int): Level? {
         val mapId = DEMO_MAP_IDS.getOrNull(demoIndex) ?: return null
         val map = EditorStorage.getMap(mapId) ?: return null
 
-        val towers = DEMO_TOWERS[mapId] ?: emptyList()
         val spawns = DEMO_SPAWNS[mapId] ?: emptyList()
+        val availableTowers = DEMO_AVAILABLE_TOWERS[mapId] ?: emptySet()
+        val startCoins = DEMO_START_COINS[mapId] ?: 300
 
         val targets = map.getTargets()
         if (targets.isEmpty()) return null
@@ -152,13 +173,13 @@ object DemoMode {
             pathCells = map.getPathCells(),
             buildAreas = map.getBuildAreas(),
             attackerWaves = emptyList(),
-            initialCoins = 0,
+            initialCoins = startCoins,
             healthPoints = 10,
             directSpawnPlan = spawns,
-            availableTowers = emptySet(),
+            availableTowers = availableTowers,
             riverTiles = map.getRiverTilesMap(),
-            mapId = mapId,
-            initialData = InitialData(defenders = towers)
+            mapId = mapId
+            // No initialData: towers are placed dynamically by startDemoAutoPlay()
         )
     }
 }

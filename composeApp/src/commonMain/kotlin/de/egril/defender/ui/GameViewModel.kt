@@ -1107,11 +1107,23 @@ class GameViewModel {
             healthPoints = mutableStateOf(demoLevel.healthPoints),
             spawnPlan = demoLevel.directSpawnPlan ?: emptyList()
         )
-        newGameState.initializePrePlacedElements()
+        // Towers are placed dynamically by startDemoAutoPlay() — no pre-placed elements here.
 
         _gameState.value = newGameState
         gameEngine = GameEngine(newGameState)
         _currentScreen.value = Screen.GamePlay(demoLevel.id)
+
+        // Dismiss any info dialogs (e.g. river info on the creek level) after a short delay
+        viewModelScope.launch {
+            delay(de.egril.defender.game.DemoMode.INFO_DISMISS_DELAY_MS)
+            if (_isDemoMode.value) {
+                _gameState.value?.let { state ->
+                    if (state.infoState.value.currentInfo != de.egril.defender.model.InfoType.NONE) {
+                        state.infoState.value = state.infoState.value.dismissInfo()
+                    }
+                }
+            }
+        }
 
         startDemoAutoPlay()
     }
@@ -1119,30 +1131,79 @@ class GameViewModel {
     private fun startDemoAutoPlay() {
         demoJob?.cancel()
         demoJob = viewModelScope.launch {
+            val mapId = de.egril.defender.game.DemoMode.DEMO_MAP_IDS.getOrNull(demoLevelIndex)
+            val initialTowers = mapId?.let { de.egril.defender.game.DemoMode.DEMO_TOWERS[it] } ?: emptyList()
+
+            // Phase 1: place initial towers one by one with delays in the INITIAL_BUILDING phase
+            delay(de.egril.defender.game.DemoMode.INITIAL_BUILDING_DELAY_MS)
+            for (tower in initialTowers) {
+                if (!_isDemoMode.value || _gameState.value?.phase?.value != GamePhase.INITIAL_BUILDING) break
+                delay(de.egril.defender.game.DemoMode.TOWER_PLACE_DELAY_MS)
+                gameEngine?.placeDefender(tower.type, tower.position)
+            }
+            // Brief pause after last tower is placed so the player can see all towers before battle starts
+            delay(de.egril.defender.game.DemoMode.INITIAL_BUILDING_DELAY_MS)
+            if (_isDemoMode.value && _gameState.value?.phase?.value == GamePhase.INITIAL_BUILDING) {
+                startFirstPlayerTurn()
+            }
+
+            // Phase 2: auto-play turns
             while (_isDemoMode.value) {
-                val state = _gameState.value
-                when (state?.phase?.value) {
-                    GamePhase.INITIAL_BUILDING -> {
-                        delay(de.egril.defender.game.DemoMode.INITIAL_BUILDING_DELAY_MS)
-                        if (_isDemoMode.value && _gameState.value?.phase?.value == GamePhase.INITIAL_BUILDING) {
-                            startFirstPlayerTurn()
-                        }
-                    }
+                when (_gameState.value?.phase?.value) {
                     GamePhase.PLAYER_TURN -> {
                         delay(de.egril.defender.game.DemoMode.PLAYER_TURN_DELAY_MS)
-                        val currentState = _gameState.value
-                        if (_isDemoMode.value &&
-                            currentState?.phase?.value == GamePhase.PLAYER_TURN &&
-                            currentState.isLevelWon().not() && currentState.isLevelLost().not()
-                        ) {
-                            gameEngine?.autoDefenderAttacks()
-                            endPlayerTurn()
+                        val currentState = _gameState.value ?: break
+                        if (!_isDemoMode.value || currentState.phase.value != GamePhase.PLAYER_TURN) continue
+                        if (currentState.isLevelWon() || currentState.isLevelLost()) {
+                            delay(de.egril.defender.game.DemoMode.ENEMY_TURN_POLL_MS)
+                            continue
                         }
+
+                        // Try to place a new tower if coins allow and a free build area exists
+                        val occupiedPositions = currentState.defenders.map { it.position.value }.toSet()
+                        val freeBuildAreas = currentState.level.buildAreas - occupiedPositions
+                        if (freeBuildAreas.isNotEmpty()) {
+                            for (type in currentState.level.availableTowers.sortedByDescending { it.baseCost }) {
+                                if (currentState.canPlaceDefender(type)) {
+                                    val targetPos = freeBuildAreas.first()
+                                    delay(de.egril.defender.game.DemoMode.TOWER_PLACE_DELAY_MS)
+                                    val stateNow = _gameState.value
+                                    // Re-check that position is still free after the delay
+                                    val stillFree = stateNow?.defenders?.none { it.position.value == targetPos } == true
+                                    if (_isDemoMode.value && stateNow?.phase?.value == GamePhase.PLAYER_TURN && stillFree) {
+                                        gameEngine?.placeDefender(type, targetPos)
+                                    }
+                                    break
+                                }
+                            }
+                        }
+
+                        // Try to upgrade the cheapest upgradeable tower
+                        val stateForUpgrade = _gameState.value
+                        if (stateForUpgrade != null && _isDemoMode.value &&
+                            stateForUpgrade.phase.value == GamePhase.PLAYER_TURN
+                        ) {
+                            val upgradeCandidate = stateForUpgrade.defenders
+                                .filter { stateForUpgrade.canUpgradeDefender(it) }
+                                .minByOrNull { it.upgradeCost }
+                            if (upgradeCandidate != null) {
+                                delay(de.egril.defender.game.DemoMode.TOWER_PLACE_DELAY_MS)
+                                val stateNow = _gameState.value
+                                if (_isDemoMode.value && stateNow?.phase?.value == GamePhase.PLAYER_TURN) {
+                                    gameEngine?.upgradeDefender(upgradeCandidate.id)
+                                }
+                            }
+                        }
+
+                        // Auto-attack and end turn
+                        val finalState = _gameState.value ?: break
+                        if (!_isDemoMode.value || finalState.phase.value != GamePhase.PLAYER_TURN) continue
+                        if (finalState.isLevelWon() || finalState.isLevelLost()) continue
+                        gameEngine?.autoDefenderAttacks()
+                        endPlayerTurn()
                     }
-                    GamePhase.ENEMY_TURN -> {
-                        // Wait while enemy turn processes
-                        delay(de.egril.defender.game.DemoMode.ENEMY_TURN_POLL_MS)
-                    }
+                    GamePhase.ENEMY_TURN,
+                    GamePhase.INITIAL_BUILDING -> delay(de.egril.defender.game.DemoMode.ENEMY_TURN_POLL_MS)
                     null -> break
                 }
             }

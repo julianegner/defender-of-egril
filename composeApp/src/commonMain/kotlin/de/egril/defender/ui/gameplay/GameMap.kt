@@ -86,7 +86,8 @@ fun GameGrid(
     onCellClick: (Position) -> Unit,
     modifier: Modifier = Modifier,
     scrollToPosition: Position? = null,
-    onScrollToPositionConsumed: (() -> Unit)? = null
+    onScrollToPositionConsumed: (() -> Unit)? = null,
+    isDemoMode: Boolean = false
 ) {
     // State for pan and zoom
     var scale by remember { mutableStateOf(1f) }
@@ -101,27 +102,32 @@ fun GameGrid(
 
     val hexSize = 40.dp  // Radius of hexagon (center to corner)
 
-    // Initialize viewport to show spawn points (upper left) instead of center
+    // Initialize viewport: zoom-to-fit in demo mode, show spawn points otherwise
     LaunchedEffect(containerSize, contentSize) {
         if (!isInitialized && containerSize.width > 0 && containerSize.height > 0 
             && contentSize.width > 0 && contentSize.height > 0) {
-            // Calculate the maximum offset to show the left edge (spawn points at x=0)
-            // When content is larger than container, we can pan within the range
-            val contentWidth = contentSize.width * scale
-            val contentHeight = contentSize.height * scale
-            
-            if (contentWidth > containerSize.width) {
-                // Set offsetX to maximum positive value to show left edge (spawn points)
-                val maxOffsetX = (contentWidth - containerSize.width) / 2
-                offsetX = maxOffsetX
+            if (isDemoMode) {
+                // Zoom out to show the entire map
+                val fitScaleX = containerSize.width.toFloat() / contentSize.width.toFloat()
+                val fitScaleY = containerSize.height.toFloat() / contentSize.height.toFloat()
+                scale = minOf(fitScaleX, fitScaleY).coerceAtLeast(0.3f)
+                offsetX = 0f
+                offsetY = 0f
+            } else {
+                // Show spawn points (upper left) instead of center
+                val contentWidth = contentSize.width * scale
+                val contentHeight = contentSize.height * scale
+
+                if (contentWidth > containerSize.width) {
+                    val maxOffsetX = (contentWidth - containerSize.width) / 2
+                    offsetX = maxOffsetX
+                }
+
+                if (contentHeight > containerSize.height) {
+                    val maxOffsetY = (contentHeight - containerSize.height) / 2
+                    offsetY = maxOffsetY
+                }
             }
-            
-            if (contentHeight > containerSize.height) {
-                // Set offsetY to maximum positive value to show top edge
-                val maxOffsetY = (contentHeight - containerSize.height) / 2
-                offsetY = maxOffsetY
-            }
-            
             isInitialized = true
         }
     }

@@ -869,7 +869,8 @@ private fun GamePlayScreenContent(
                 },
                 modifier = Modifier.fillMaxSize(),
                 scrollToPosition = scrollToPosition,
-                onScrollToPositionConsumed = onScrollToPositionConsumed
+                onScrollToPositionConsumed = onScrollToPositionConsumed,
+                isDemoMode = isDemoMode
             )
 
             // Overlay panel with Legend and Enemy List (conditionally shown)
