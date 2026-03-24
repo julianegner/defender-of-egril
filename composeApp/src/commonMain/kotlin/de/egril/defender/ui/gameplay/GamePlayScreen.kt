@@ -1,5 +1,6 @@
 package de.egril.defender.ui.gameplay
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -1010,8 +1011,12 @@ private fun GamePlayScreenContent(
             }
         }
 
+        // Controls panel: hidden in demo mode (prevents map from resizing during phase transitions).
+        // In normal gameplay, animateContentSize() smooths the height change between phases.
+        if (!isDemoMode) {
+        // Wrap in Box with animateContentSize so height transitions between phases are smooth
+        Box(modifier = Modifier.fillMaxWidth().animateContentSize()) {
         Spacer(modifier = Modifier.height(8.dp))
-
         // Show magic panel inline (non-overlay) when open - map remains accessible
         if (showMagicPanel && playerStats != null && onCloseMagicPanel != null && onCastSpell != null) {
             MagicPanel(
@@ -1246,6 +1251,8 @@ private fun GamePlayScreenContent(
             }
         }
         }
+        } // end Box(animateContentSize)
+        } // end if (!isDemoMode)
 
         // Dig outcome dialog
         if (showDigOutcomeDialog && currentDigOutcome != null) {
