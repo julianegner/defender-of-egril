@@ -93,6 +93,8 @@
     <string name="download_savefile_tooltip">Descargar esta partida guardada</string>
     <string name="download_all_tooltip">Descargar todas las partidas guardadas como archivo ZIP</string>
     <string name="upload_tooltip">Subir partidas guardadas (JSON o ZIP)</string>
+    <string name="savefile_chip_local">local</string>
+    <string name="savefile_chip_remote">online</string>
     <string name="file_override_title">El archivo ya existe</string>
     <string name="file_override_message">Ya existe una partida guardada llamada "%s". ¿Qué te gustaría hacer?</string>
     <string name="skip_file">Saltar</string>
@@ -129,6 +131,7 @@
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">No se encontraron partidas guardadas</string>
+    <string name="loading_remote_savefiles">cargando partidas remotas</string>
     <string name="savegame_folder">carpeta de guardados:</string>
     
     <!-- Rules Screen -->
@@ -172,7 +175,6 @@
     <string name="witch">Bruja: Magia oscura</string>
     <string name="blue_demon">Demonio azul: Rápido, inmune al ácido</string>
     <string name="red_demon">Demonio rojo: Resistente, inmune a la bola de fuego</string>
-    <string name="evil_mage">Mago oscuro: Puede invocar sirvientes</string>
     <string name="red_witch">Bruja roja: Puede desactivar torres</string>
     <string name="green_witch">Bruja verde: Puede curar a otros enemigos</string>
     <string name="ewhad">Ewhad: Jefe con invocación</string>
@@ -239,7 +241,6 @@
     <string name="witch_name">Bruja</string>
     <string name="blue_demon_name">Demonio azul</string>
     <string name="red_demon_name">Demonio rojo</string>
-    <string name="evil_mage_name">Mago oscuro</string>
     <string name="red_witch_name">Bruja roja</string>
     <string name="green_witch_name">Bruja verde</string>
     <string name="ewhad_name">Ewhad</string>
@@ -373,6 +374,7 @@
     <string name="select_tile_type">Seleccionar tipo de baldosa:</string>
     <string name="click_hexagons_to_paint">Haz clic o arrastra para pintar hexágonos. Usa Ctrl+Rueda para zoom:</string>
     <string name="collapse">Contraer</string>
+    <string name="expand">Expandir</string>
     <string name="change_all_no_play_to_path">Cambiar todos NO_PLAY a PATH</string>
     <string name="change_all_no_play_confirm_title">¿Cambiar todos NO_PLAY a PATH?</string>
     <string name="change_all_no_play_confirm_message">Esto reemplazará todas las baldosas NO_PLAY con baldosas PATH. ¿Está seguro?</string>
@@ -1163,6 +1165,7 @@
     <!-- Official Content Badges -->
     <string name="official">Oficial</string>
     <string name="user_levels">Niveles de Usuario</string>
+    <string name="community_levels">Comunidad</string>
     <string name="user_map">Mapa de Usuario</string>
     <string name="official_level">Nivel Oficial</string>
     <string name="user_level">Nivel de Usuario</string>
@@ -1184,6 +1187,16 @@
     <string name="info_tab_audio_licenses">Licencias de Audio</string>
     <string name="info_tab_license">Licencia</string>
     <string name="info_tab_keyboard_shortcuts">Atajos de Teclado</string>
+    <string name="info_tab_backend">Cuenta y Privacidad</string>
+
+    <!-- Backend Info -->
+    <string name="backend_info_title">Cuenta y Privacidad</string>
+    <string name="backend_info_logging_heading">¿Qué se registra?</string>
+    <string name="backend_info_logging_body">Cuando abres el juego, comienzas un nivel o lo terminas (ganando, perdiendo o saliendo), se envía un evento al servidor propio del juego.\nCada evento incluye la fecha y hora del servidor, la versión del juego y la plataforma que usas (escritorio, móvil o web).\nTodos los eventos son completamente anónimos: no se registra ningún nombre de usuario, ID de usuario ni dirección IP.\n\nEstos datos se usan para entender cuántas personas juegan e identificar niveles que puedan ser demasiado difíciles.\nNo se comparten datos con terceros.\nSi juegas sin conexión, las llamadas de registro fallan silenciosamente — el juego funciona completamente sin internet.</string>
+    <string name="backend_info_account_heading">Cuenta de usuario opcional</string>
+    <string name="backend_info_account_body">Una cuenta es completamente opcional — puedes jugar el juego completo sin registrarte. Con una cuenta gratuita puedes:\n\n• Guardar tu progreso en el servidor y continuar en cualquier dispositivo\n• Cambiar entre escritorio, móvil y web — y retomar exactamente donde lo dejaste\n• Subir tus propios mapas y niveles como contenido de la comunidad para que otros los descubran y jueguen\n• Descargar y jugar niveles creados por otros jugadores</string>
+    <string name="backend_info_account_how_heading">¿Cómo obtener una cuenta?</string>
+    <string name="backend_info_account_how_body">Haz clic en el botón de inicio de sesión en la pantalla de inicio. Serás redirigido a una página de registro. Solo se requiere una dirección de correo electrónico.</string>
 
     <!-- Keyboard Shortcuts Info -->
     <string name="keyboard_shortcuts_title">Atajos de Teclado</string>
@@ -1231,12 +1244,13 @@
     <string name="audio_mine_events_subtitle">Eventos de Minas</string>
     <string name="audio_other_events_subtitle">Otros Eventos del Juego</string>
     
-    <!-- Background Music -->
-    <string name="audio_fantasy_ambience_name">Ambiente de Fantasía</string>
+    <!-- Background Music - Music piece names are not translated, the original names are used -->
+    <string name="audio_fantasy_ambience_name">Fantasy Ambience</string>
     <string name="audio_fantasy_ambience_license">100% libre de derechos de autor, no requiere atribución. No puede revenderse como audio, debe usarse en el contexto de un proyecto.</string>
-    <string name="audio_dark_castle_name">El Castillo Oscuro</string>
+    <string name="audio_dark_castle_name">The Dark Castle</string>
+    <string name="audio_beautiful_memories_name">Beautiful Memories</string>
     <string name="audio_fesliyan_license">Música libre de regalías de Fesliyan Studios. Uso en videojuegos permitido.</string>
-    <string name="audio_fantasy_orchestral_name">Música Orquestal Mística de Fantasía</string>
+    <string name="audio_fantasy_orchestral_name">Mystic Fantasy Orchestral Music</string>
     <string name="audio_pixabay_license">Licencia de Contenido Pixabay - Uso gratuito, no requiere atribución</string>
     
     <!-- Tower Attacks -->
@@ -1261,7 +1275,9 @@
     <string name="audio_dragon_eat_name">Dragón Comiendo</string>
     <string name="audio_tower_upgraded_name">Torre Mejorada</string>
     <string name="audio_battle_start_name">Inicio de Batalla</string>
-    
+    <string name="audio_bomb_ticking_name">Bomba Haciendo Tictac</string>
+    <string name="audio_bomb_exploding_name">Bomba Explotando</string>
+
     <!-- Audio Item Labels -->
     <string name="audio_file_label">Archivo: %s</string>
     <string name="audio_source_label">Fuente: %s</string>
@@ -1483,4 +1499,43 @@
     <string name="ewhad_retreats_text">¡Has forzado a Ewhad a retirarse!</string>
     <string name="ewhad_defeated_title">Ewhad es derrotado</string>
     <string name="ewhad_defeated_text">¡Derrotaste a Ewhad! ¡Ahora acaba con los demás Enemigos y gana el juego!</string>
+    <!-- Final Credits screen -->
+    <string name="credits_game_title">Defender of Egril</string>
+    <string name="credits_title">Créditos Finales</string>
+    <string name="credits_section_developers">Desarrolladores</string>
+    <string name="credits_section_sound_effects">Efectos de Sonido</string>
+    <string name="credits_section_background_music">Música de Fondo</string>
+    <string name="credits_section_contributors">Colaboradores</string>
+    <string name="credits_section_software_used">Software Utilizado</string>
+    <string name="credits_section_special_thanks">Agradecimientos Especiales</string>
+    <string name="credits_thank_you">¡Gracias por jugar!</string>
+    <string name="credits_click_to_skip">Haz clic para volver al mapa del mundo</string>
+    <!-- IAM / Keycloak -->
+    <string name="iam_login">Iniciar sesión</string>
+    <string name="iam_logout">Cerrar sesión</string>
+    <string name="iam_login_waiting">Esperando al navegador...</string>
+    <string name="keycloak_account">Cuenta de Keycloak</string>
+    <string name="user_account">Cuenta de usuario</string>
+    <string name="iam_login_successful_heading">¡Inicio de sesión exitoso!</string>
+    <string name="iam_login_successful_message">Volviendo al juego... puedes cerrar esta ventana si no se cierra automáticamente.</string>
+    <string name="iam_logout_successful_heading">¡Sesión cerrada correctamente!</string>
+    <string name="iam_logout_successful_message">Puedes cerrar esta ventana o volver al juego.</string>
+    <string name="always_log_in">Iniciar sesión siempre</string>
+    <string name="use_remote_settings">Usar configuración remota</string>
+    <string name="account">Cuenta</string>
+
+    <!-- Community maps/levels -->
+    <string name="upload_as_community_level">Subir como Nivel de Comunidad</string>
+    <string name="update_community_level">Actualizar Nivel de Comunidad</string>
+    <string name="upload_as_community_map">Subir como Mapa de Comunidad</string>
+    <string name="update_community_map">Actualizar Mapa de Comunidad</string>
+    <string name="community_uploading">Subiendo...</string>
+    <string name="community_upload_success">¡Subido con éxito!</string>
+    <string name="community_upload_failed">Error al subir. Por favor, inténtalo de nuevo.</string>
+
+    <!-- Sticker screen tabs -->
+    <string name="sticker_tab_original">Pegatina</string>
+    <string name="sticker_tab_enemies">Enemigos</string>
+    <string name="sticker_tab_towers">Torres</string>
+    <string name="sticker_tab_qr_code">Código QR</string>
 </resources>

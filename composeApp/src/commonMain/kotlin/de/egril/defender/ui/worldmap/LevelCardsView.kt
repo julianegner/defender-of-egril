@@ -21,8 +21,9 @@ import defender_of_egril.composeapp.generated.resources.*
  * 
  * @param worldLevels List of all levels to display
  * @param onLevelSelected Callback when a level is selected
- * @param showUserLevelsTab If true, shows tabs to filter between Official and User Levels
+ * @param showUserLevelsTab If true, shows tabs to filter between Official, Community, and User Levels
  * @param filterToUserLevelsOnly If true, only shows user levels (ignores showUserLevelsTab)
+ * @param filterToCommunityOnly If true, only shows community levels (ignores showUserLevelsTab)
  * @param modifier Modifier for the layout
  */
 @Composable
@@ -31,36 +32,60 @@ fun LevelCardsView(
     onLevelSelected: (Int) -> Unit,
     showUserLevelsTab: Boolean = false,
     filterToUserLevelsOnly: Boolean = false,
+    filterToCommunityOnly: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
     
     // Filter levels based on tab selection or direct filter
-    val filteredLevels = remember(worldLevels, selectedTabIndex, showUserLevelsTab, filterToUserLevelsOnly) {
-        if (filterToUserLevelsOnly) {
-            // Direct filter: only user levels
-            worldLevels.filter { worldLevel ->
-                val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(worldLevel.level.editorLevelId ?: "")
-                editorLevel?.isOfficial == false
-            }
-        } else if (showUserLevelsTab) {
-            // Tab-based filter
-            if (selectedTabIndex == 0) {
-                // Official tab
+    val filteredLevels = remember(worldLevels, selectedTabIndex, showUserLevelsTab, filterToUserLevelsOnly, filterToCommunityOnly) {
+        when {
+            filterToCommunityOnly -> {
+                // Direct filter: only community levels
                 worldLevels.filter { worldLevel ->
-                    val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(worldLevel.level.editorLevelId ?: "")
-                    editorLevel?.isOfficial == true
-                }
-            } else {
-                // User Levels tab
-                worldLevels.filter { worldLevel ->
-                    val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(worldLevel.level.editorLevelId ?: "")
-                    editorLevel?.isOfficial == false
+                    val editorLevel = de.egril.defender.editor.EditorStorage.getCommunityLevel(worldLevel.level.editorLevelId ?: "")
+                    editorLevel?.isCommunity == true
                 }
             }
-        } else {
-            // No filtering
-            worldLevels
+            filterToUserLevelsOnly -> {
+                // Direct filter: only user levels (not official, not community)
+                worldLevels.filter { worldLevel ->
+                    val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(worldLevel.level.editorLevelId ?: "")
+                        ?: de.egril.defender.editor.EditorStorage.getCommunityLevel(worldLevel.level.editorLevelId ?: "")
+                    editorLevel?.isOfficial == false && editorLevel?.isCommunity == false
+                }
+            }
+            showUserLevelsTab -> {
+                when (selectedTabIndex) {
+                    0 -> {
+                        // Official tab
+                        worldLevels.filter { worldLevel ->
+                            val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(worldLevel.level.editorLevelId ?: "")
+                                ?: de.egril.defender.editor.EditorStorage.getCommunityLevel(worldLevel.level.editorLevelId ?: "")
+                            editorLevel?.isOfficial == true
+                        }
+                    }
+                    1 -> {
+                        // Community tab
+                        worldLevels.filter { worldLevel ->
+                            val editorLevel = de.egril.defender.editor.EditorStorage.getCommunityLevel(worldLevel.level.editorLevelId ?: "")
+                            editorLevel?.isCommunity == true
+                        }
+                    }
+                    else -> {
+                        // User Levels tab
+                        worldLevels.filter { worldLevel ->
+                            val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(worldLevel.level.editorLevelId ?: "")
+                                ?: de.egril.defender.editor.EditorStorage.getCommunityLevel(worldLevel.level.editorLevelId ?: "")
+                            editorLevel?.isOfficial == false && editorLevel?.isCommunity == false
+                        }
+                    }
+                }
+            }
+            else -> {
+                // No filtering
+                worldLevels
+            }
         }
     }
     
@@ -76,6 +101,11 @@ fun LevelCardsView(
                 Tab(
                     selected = selectedTabIndex == 1,
                     onClick = { selectedTabIndex = 1 },
+                    text = { Text(stringResource(Res.string.community_levels)) }
+                )
+                Tab(
+                    selected = selectedTabIndex == 2,
+                    onClick = { selectedTabIndex = 2 },
                     text = { Text(stringResource(Res.string.user_levels)) }
                 )
             }

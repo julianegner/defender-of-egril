@@ -4,16 +4,26 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 
 /**
  * Draw ogre symbol (very large creature)
  */
-fun DrawScope.drawOgreSymbol(centerX: Float, centerY: Float, size: Float, headScale: Float = 1.0f) {
+fun DrawScope.drawOgreSymbol(centerX: Float, centerY: Float, size: Float, outlineColor: Color? = null, headScale: Float = 1.0f) {
     val headCenterY = centerY - size * 0.05f
 
     // Head with facial features (scaled)
     withTransform({ scale(headScale, headScale, Offset(centerX, headCenterY)) }) {
+        if (outlineColor != null) {
+            // Head outline
+            drawCircle(
+                color = outlineColor,
+                radius = size * 0.35f + 2f,
+                center = Offset(centerX, headCenterY),
+                style = Stroke(width = 3f)
+            )
+        }
         // Huge head
         drawCircle(
             color = Color(0xFFA0522D), // Sienna/brown

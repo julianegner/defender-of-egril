@@ -18,6 +18,8 @@ object EditorStorage {
     private val fileStorage = getFileStorage()
     private val mapsCache = mutableMapOf<String, EditorMap>()
     private val levelsCache = mutableMapOf<String, EditorLevel>()
+    private val communityMapsCache = mutableMapOf<String, EditorMap>()
+    private val communityLevelsCache = mutableMapOf<String, EditorLevel>()
     private var levelSequenceCache: LevelSequence? = null
     private var userLevelSequenceCache: LevelSequence? = null
     
@@ -31,6 +33,10 @@ object EditorStorage {
     private val USER_MAPS_DIR = "gamedata/user/maps"
     private val USER_LEVELS_DIR = "gamedata/user/levels"
     private val USER_SEQUENCE_FILE = "gamedata/user/sequence.json"
+
+    // Community content directories (downloaded from backend)
+    private val COMMUNITY_MAPS_DIR = "gamedata/community/maps"
+    private val COMMUNITY_LEVELS_DIR = "gamedata/community/levels"
     
     // Legacy directories (for backward compatibility)
     private val LEGACY_MAPS_DIR = "gamedata/maps"
@@ -252,32 +258,50 @@ object EditorStorage {
         if (mapsCache.containsKey(id)) {
             return mapsCache[id]
         }
+
+        // Check community cache
+        if (communityMapsCache.containsKey(id)) {
+            return communityMapsCache[id]
+        }
         
-        // Try to load from official directory first, then user, then legacy
+        // Try to load from official directory first, then user, then community, then legacy
         var json = fileStorage.readFile("$OFFICIAL_MAPS_DIR/$id.json")
         var isOfficial = true
+        var isCommunity = false
         
         if (json == null) {
             json = fileStorage.readFile("$USER_MAPS_DIR/$id.json")
             isOfficial = false
+        }
+
+        if (json == null) {
+            json = fileStorage.readFile("$COMMUNITY_MAPS_DIR/$id.json")
+            isOfficial = false
+            isCommunity = json != null
         }
         
         if (json == null) {
             json = fileStorage.readFile("$LEGACY_MAPS_DIR/$id.json")
             // For legacy files, check if it's an official map
             isOfficial = OfficialContent.isOfficialMap(id)
+            isCommunity = false
         }
         
         if (json != null) {
             val map = EditorJsonSerializer.deserializeMap(json)
             if (map != null) {
                 // Always recalculate readyToUse when loading from file
-                // Set isOfficial flag based on which directory it was found in
+                // Set isOfficial and isCommunity flags based on which directory it was found in
                 val validatedMap = map.copy(
                     readyToUse = map.validateReadyToUse(),
-                    isOfficial = map.isOfficial || isOfficial
+                    isOfficial = map.isOfficial || isOfficial,
+                    isCommunity = isCommunity
                 )
-                mapsCache[id] = validatedMap
+                if (isCommunity) {
+                    communityMapsCache[id] = validatedMap
+                } else {
+                    mapsCache[id] = validatedMap
+                }
                 return validatedMap
             }
         }
@@ -458,6 +482,121 @@ object EditorStorage {
         }
         
         return levelsCache.values.toList()
+    }
+
+    // ---------------------------------------------------------------------------
+    // Community content (downloaded from backend)
+    // ---------------------------------------------------------------------------
+
+    /**
+     * Store a community level downloaded from the backend.
+     * @param level The level to store (will have isCommunity = true)
+     */
+    fun saveCommunityLevel(level: EditorLevel) {
+        fileStorage.createDirectory(COMMUNITY_LEVELS_DIR)
+        val communityLevel = level.copy(isCommunity = true)
+        val json = EditorJsonSerializer.serializeLevel(communityLevel)
+        fileStorage.writeFile("$COMMUNITY_LEVELS_DIR/${level.id}.json", json)
+        communityLevelsCache[level.id] = communityLevel
+    }
+
+    /**
+     * Store a community map downloaded from the backend.
+     * @param map The map to store (will have isCommunity = true)
+     * @param authorUsername The username of the map author
+     */
+    fun saveCommunityMap(map: EditorMap, authorUsername: String) {
+        fileStorage.createDirectory(COMMUNITY_MAPS_DIR)
+        val communityMap = map.copy(isCommunity = true, communityAuthorUsername = authorUsername)
+        val json = EditorJsonSerializer.serializeMap(communityMap)
+        fileStorage.writeFile("$COMMUNITY_MAPS_DIR/${map.id}.json", json)
+        communityMapsCache[map.id] = communityMap
+    }
+
+    /**
+     * Get a community level by ID (from community cache/directory only).
+     * Returns null if not found.
+     */
+    fun getCommunityLevel(id: String): EditorLevel? {
+        if (communityLevelsCache.containsKey(id)) {
+            return communityLevelsCache[id]
+        }
+        val json = fileStorage.readFile("$COMMUNITY_LEVELS_DIR/$id.json") ?: return null
+        val level = EditorJsonSerializer.deserializeLevel(json) ?: return null
+        val communityLevel = level.copy(isCommunity = true)
+        communityLevelsCache[id] = communityLevel
+        return communityLevel
+    }
+
+    /**
+     * Get a community map by ID (from community cache/directory only).
+     * Returns null if not found.
+     */
+    fun getCommunityMap(id: String): EditorMap? {
+        if (communityMapsCache.containsKey(id)) {
+            return communityMapsCache[id]
+        }
+        val json = fileStorage.readFile("$COMMUNITY_MAPS_DIR/$id.json") ?: return null
+        val map = EditorJsonSerializer.deserializeMap(json) ?: return null
+        val communityMap = map.copy(isCommunity = true)
+        communityMapsCache[id] = communityMap
+        return communityMap
+    }
+
+    /**
+     * Get all locally stored community levels.
+     */
+    fun getAllCommunityLevels(): List<EditorLevel> {
+        fileStorage.createDirectory(COMMUNITY_LEVELS_DIR)
+        val files = fileStorage.listFiles(COMMUNITY_LEVELS_DIR)
+        for (filename in files) {
+            if (!filename.endsWith(".json")) continue
+            val id = filename.removeSuffix(".json")
+            if (!communityLevelsCache.containsKey(id)) {
+                getCommunityLevel(id)
+            }
+        }
+        return communityLevelsCache.values.toList()
+    }
+
+    /**
+     * Get all locally stored community maps.
+     */
+    fun getAllCommunityMaps(): List<EditorMap> {
+        fileStorage.createDirectory(COMMUNITY_MAPS_DIR)
+        val files = fileStorage.listFiles(COMMUNITY_MAPS_DIR)
+        for (filename in files) {
+            if (!filename.endsWith(".json")) continue
+            val id = filename.removeSuffix(".json")
+            if (!communityMapsCache.containsKey(id)) {
+                getCommunityMap(id)
+            }
+        }
+        return communityMapsCache.values.toList()
+    }
+
+    /**
+     * Get the locally stored community version of a level (for change detection).
+     * Returns null if the level has never been uploaded to community.
+     */
+    fun getStoredCommunityLevelJson(levelId: String): String? {
+        return fileStorage.readFile("$COMMUNITY_LEVELS_DIR/$levelId.json")
+    }
+
+    /**
+     * Get the locally stored community version of a map (for change detection).
+     * Returns null if the map has never been uploaded to community.
+     */
+    fun getStoredCommunityMapJson(mapId: String): String? {
+        return fileStorage.readFile("$COMMUNITY_MAPS_DIR/$mapId.json")
+    }
+
+    /**
+     * Clear the in-memory community caches (forces reload from disk on next access).
+     */
+    fun clearCommunityCache() {
+        communityLevelsCache.clear()
+        communityMapsCache.clear()
     }
     
     fun getLevelSequence(): LevelSequence {

@@ -42,6 +42,8 @@ data class EditorMap(
     val riverTiles: Map<String, de.egril.defender.model.RiverTile> = emptyMap(),  // "x,y" -> RiverTile (for tiles with TileType.RIVER)
     val isOfficial: Boolean = false,  // True if map is from official repository (read-only in editor)
     val author: String = "",  // Optional author name
+    val isCommunity: Boolean = false,  // True if map is a community-shared map from the backend
+    val communityAuthorUsername: String = "",  // Username of the community author (only set if isCommunity == true)
     val targetInfoMap: Map<String, EditorTargetInfo> = emptyMap()  // "x,y" -> EditorTargetInfo for TARGET tiles
 ) {
     fun getTileType(x: Int, y: Int): TileType {
@@ -305,6 +307,8 @@ data class EditorLevel(
     val allowAutoAttack: Boolean = false,  // If true, shows auto-attack button in end turn confirmation dialog
     val isOfficial: Boolean = false,  // True if level is from official repository (read-only in editor)
     val author: String = "",  // Optional author name
+    val isCommunity: Boolean = false,  // True if level is a community-shared level from the backend
+    val communityAuthorUsername: String = "",  // Username of the community author (only set if isCommunity == true)
     // Initial placements (optional) - new nested structure
     val initialData: InitialData? = null,
     // Legacy fields for backward compatibility (deprecated - use initialData instead)

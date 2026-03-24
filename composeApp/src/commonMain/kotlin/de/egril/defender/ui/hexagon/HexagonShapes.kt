@@ -115,6 +115,6 @@ fun EnemyIconOnHexagon(
             .background(Color(0xFFF44336)), // Red background for enemies
         contentAlignment = Alignment.Center
     ) {
-        EnemyTypeIcon(attackerType = attackerType)
+        EnemyTypeIcon(attackerType = attackerType, backgroundColor = Color(0xFFF44336))
     }
 }

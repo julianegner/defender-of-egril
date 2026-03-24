@@ -95,6 +95,8 @@
     <string name="download_savefile_tooltip">Download this save file</string>
     <string name="download_all_tooltip">Download all save files as a ZIP archive</string>
     <string name="upload_tooltip">Upload save files (JSON or ZIP)</string>
+    <string name="savefile_chip_local">local</string>
+    <string name="savefile_chip_remote">remote</string>
     <string name="file_override_title">File Already Exists</string>
     <string name="file_override_message">A save file named "%s" already exists. What would you like to do?</string>
     <string name="skip_file">Skip</string>
@@ -131,6 +133,7 @@
     
     <!-- Load Game Screen -->
     <string name="no_saved_games">No saved games found</string>
+    <string name="loading_remote_savefiles">loading remote savefiles</string>
     <string name="savegame_folder">savegame folder:</string>
     
     <!-- Rules Screen -->
@@ -175,7 +178,6 @@
     <string name="witch">Witch: Dark magic</string>
     <string name="blue_demon">Blue Demon: Fast, acid immune</string>
     <string name="red_demon">Red Demon: Tough, fireball immune</string>
-    <string name="evil_mage">Evil Mage: Can summon minions</string>
     <string name="red_witch">Red Witch: Can disable towers</string>
     <string name="green_witch">Green Witch: Can heal other enemies</string>
     <string name="ewhad">Ewhad: Boss with summoning</string>
@@ -242,7 +244,6 @@
     <string name="witch_name">Witch</string>
     <string name="blue_demon_name">Blue Demon</string>
     <string name="red_demon_name">Red Demon</string>
-    <string name="evil_mage_name">Evil Mage</string>
     <string name="red_witch_name">Red Witch</string>
     <string name="green_witch_name">Green Witch</string>
     <string name="ewhad_name">Ewhad</string>
@@ -377,6 +378,7 @@
     <string name="select_tile_type">Select Tile Type:</string>
     <string name="click_hexagons_to_paint">Click or drag to paint hexagons. Use Ctrl+Scroll to zoom:</string>
     <string name="collapse">Collapse</string>
+    <string name="expand">Expand</string>
     <string name="change_all_no_play_to_path">Change All NO_PLAY to PATH</string>
     <string name="change_all_no_play_confirm_title">Change All NO_PLAY to PATH?</string>
     <string name="change_all_no_play_confirm_message">This will replace all NO_PLAY tiles with PATH tiles. Are you sure?</string>
@@ -1165,6 +1167,7 @@
     <!-- Official Content Badges -->
     <string name="official">Official</string>
     <string name="user_levels">User Levels</string>
+    <string name="community_levels">Community</string>
     <string name="user_map">User Map</string>
     <string name="official_level">Official Level</string>
     <string name="user_level">User Level</string>
@@ -1186,6 +1189,16 @@
     <string name="info_tab_audio_licenses">Audio Licenses</string>
     <string name="info_tab_license">License</string>
     <string name="info_tab_keyboard_shortcuts">Keyboard Shortcuts</string>
+    <string name="info_tab_backend">Account &amp; Privacy</string>
+
+    <!-- Backend Info -->
+    <string name="backend_info_title">Account &amp; Privacy</string>
+    <string name="backend_info_logging_heading">What is logged?</string>
+    <string name="backend_info_logging_body">When you open the game, start a level, or finish a level (by winning, losing, or leaving), an event is sent to the game\'s own server.\nEach event records the server date and time, the game version, and the platform you are using (desktop, mobile, or web).\nAll events are fully anonymous — no username, user ID, or IP address is ever logged.\n\nThis data is used to understand how many people play the game and to identify levels that may be too difficult.\nNo data is shared with third parties.\nIf you play offline, the logging calls fail silently — the game works completely without internet access.</string>
+    <string name="backend_info_account_heading">Optional User Account</string>
+    <string name="backend_info_account_body">An account is entirely optional — you can play the full game without registering. With a free account you can:\n\n• Save your game progress on the server and continue on any device\n• Switch between desktop, mobile, and web — and resume exactly where you left off\n• Upload your own custom maps and levels as community content for others to discover and play\n• Download and play levels created by other players</string>
+    <string name="backend_info_account_how_heading">How to get an account?</string>
+    <string name="backend_info_account_how_body">Click the login button on the start page. You will be directed to a registration page where you can create a free account. Only an e-mail address is required.</string>
 
     <!-- Keyboard Shortcuts Info -->
     <string name="keyboard_shortcuts_title">Keyboard Shortcuts</string>
@@ -1233,10 +1246,11 @@
     <string name="audio_mine_events_subtitle">Mine Events</string>
     <string name="audio_other_events_subtitle">Other Game Events</string>
     
-    <!-- Background Music -->
+    <!-- Background Music - Music piece names are not translated, the original names are used -->
     <string name="audio_fantasy_ambience_name">Fantasy Ambience</string>
     <string name="audio_fantasy_ambience_license">100% copyright free, no attribution required. Cannot be re-sold as audio, must be used in context of a project.</string>
     <string name="audio_dark_castle_name">The Dark Castle</string>
+    <string name="audio_beautiful_memories_name">Beautiful Memories</string>
     <string name="audio_fesliyan_license">Royalty-free music from Fesliyan Studios. Video game use permitted.</string>
     <string name="audio_fantasy_orchestral_name">Mystic Fantasy Orchestral Music</string>
     <string name="audio_pixabay_license">Pixabay Content License - Free to use, no attribution required</string>
@@ -1263,7 +1277,9 @@
     <string name="audio_dragon_eat_name">Dragon Eating</string>
     <string name="audio_tower_upgraded_name">Tower Upgraded</string>
     <string name="audio_battle_start_name">Battle Start</string>
-    
+    <string name="audio_bomb_ticking_name">Bomb Ticking</string>
+    <string name="audio_bomb_exploding_name">Bomb Exploding</string>
+
     <!-- Audio Item Labels -->
     <string name="audio_file_label">File: %s</string>
     <string name="audio_source_label">Source: %s</string>
@@ -1488,4 +1504,44 @@
     <string name="ewhad_retreats_text">You have forced Ewhad to retreat!</string>
     <string name="ewhad_defeated_title">Ewhad is defeated</string>
     <string name="ewhad_defeated_text">You defeated Ewhad! Now finish off the other Enemies and Win the Game!</string>
+    <!-- Final Credits screen -->
+    <string name="credits_game_title">Defender of Egril</string>
+    <string name="credits_title">Final Credits</string>
+    <string name="credits_section_developers">Developers</string>
+    <string name="credits_section_sound_effects">Sound Effects</string>
+    <string name="credits_section_background_music">Background Music</string>
+    <string name="credits_section_contributors">Contributors</string>
+    <string name="credits_section_software_used">Software Used</string>
+    <string name="credits_section_special_thanks">Special Thanks</string>
+    <string name="credits_thank_you">Thank you for playing!</string>
+    <string name="credits_click_to_skip">Click anywhere to return to the world map</string>
+
+    <!-- IAM / Keycloak -->
+    <string name="iam_login">Login</string>
+    <string name="iam_logout">Logout</string>
+    <string name="iam_login_waiting">Waiting for browser...</string>
+    <string name="keycloak_account">Keycloak Account</string>
+    <string name="user_account">User Account</string>
+    <string name="iam_login_successful_heading">Login successful!</string>
+    <string name="iam_login_successful_message">Returning to the game... you can close this window if it does not close automatically.</string>
+    <string name="iam_logout_successful_heading">Logged out successfully!</string>
+    <string name="iam_logout_successful_message">You can close this window or return to the game.</string>
+    <string name="always_log_in">Always log in</string>
+    <string name="use_remote_settings">Use remote settings</string>
+    <string name="account">Account</string>
+
+    <!-- Community maps/levels -->
+    <string name="upload_as_community_level">Upload as Community Level</string>
+    <string name="update_community_level">Update Community Level</string>
+    <string name="upload_as_community_map">Upload as Community Map</string>
+    <string name="update_community_map">Update Community Map</string>
+    <string name="community_uploading">Uploading...</string>
+    <string name="community_upload_success">Uploaded successfully!</string>
+    <string name="community_upload_failed">Upload failed. Please try again.</string>
+
+    <!-- Sticker screen tabs -->
+    <string name="sticker_tab_original">Sticker</string>
+    <string name="sticker_tab_enemies">Enemies</string>
+    <string name="sticker_tab_towers">Towers</string>
+    <string name="sticker_tab_qr_code">QR Code</string>
 </resources>

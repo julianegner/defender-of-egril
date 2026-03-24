@@ -3,10 +3,13 @@
 package de.egril.defender.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -14,12 +17,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import de.egril.defender.BuildConfig
+import de.egril.defender.AppBuildInfo
+import de.egril.defender.iam.IamState
 import de.egril.defender.ui.infopage.ImpressumWrapper
+import de.egril.defender.ui.icon.LockIcon
+import de.egril.defender.ui.icon.UnlockIcon
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.SettingsHintBox
@@ -41,9 +49,14 @@ fun MainMenuScreen(
     hasAutosave: Boolean,
     onShowRules: () -> Unit,
     onShowInstallationInfo: () -> Unit,
-    onSelectPlayer: () -> Unit,
+    onShowBackendInfo: () -> Unit = {},
     onEditPlayerName: () -> Unit,
-    currentPlayerName: String?
+    currentPlayerName: String?,
+    iamState: IamState = IamState(),
+    iamLoginInProgress: Boolean = false,
+    onIamLogin: () -> Unit = {},
+    onIamLogout: () -> Unit = {},
+    onIamLoginCancel: () -> Unit = {}
 ) {
     // Track if settings hint should be shown
     val showSettingsHint by AppSettings.settingsHintShown
@@ -68,18 +81,16 @@ fun MainMenuScreen(
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Info button (web version only)
-                if (isPlatformWasm) {
-                    IconButton(
-                        onClick = onShowInstallationInfo,
-                        modifier = Modifier.size(48.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(Res.drawable.emoji_info),
-                            contentDescription = stringResource(Res.string.installation_info),
-                            modifier = Modifier.size(32.dp)
-                        )
-                    }
+                // Info button (all platforms)
+                IconButton(
+                    onClick = onShowInstallationInfo,
+                    modifier = Modifier.size(48.dp)
+                ) {
+                    Image(
+                        painter = painterResource(Res.drawable.emoji_info),
+                        contentDescription = stringResource(Res.string.installation_info),
+                        modifier = Modifier.size(32.dp)
+                    )
                 }
                 
                 SettingsButton()
@@ -130,16 +141,84 @@ fun MainMenuScreen(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
                         )
+                        // Show Keycloak username below the local player name when logged in
+                        if (iamState.isAuthenticated && iamState.username != null) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(2.dp)
+                            ) {
+                                UnlockIcon(size = 12.dp)
+                                Text(
+                                    text = iamState.username,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                        }
                     }
                     
-                    OutlinedButton(
-                        onClick = onSelectPlayer,
-                        modifier = Modifier.height(36.dp)
+                    // IAM login / logout button
+                    if (iamState.isAuthenticated) {
+                        OutlinedButton(
+                            onClick = onIamLogout,
+                            modifier = Modifier.height(36.dp)
+                        ) {
+                            LockIcon(size = 14.dp)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = stringResource(Res.string.iam_logout),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    } else if (iamLoginInProgress) {
+                        OutlinedButton(
+                            onClick = onIamLoginCancel,
+                            modifier = Modifier.height(36.dp)
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(14.dp),
+                                strokeWidth = 2.dp
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = stringResource(Res.string.iam_login_waiting),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    } else {
+                        OutlinedButton(
+                            onClick = onIamLogin,
+                            modifier = Modifier.height(36.dp)
+                        ) {
+                            UnlockIcon(size = 14.dp)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = stringResource(Res.string.iam_login),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+
+                    // "?" info button about backend/account
+                    val backendInfoDesc = stringResource(Res.string.backend_info_title)
+                    IconButton(
+                        onClick = onShowBackendInfo,
+                        modifier = Modifier
+                            .size(28.dp)
+                            .semantics { contentDescription = backendInfoDesc }
                     ) {
-                        Text(
-                            text = stringResource(Res.string.switch_player),
-                            style = MaterialTheme.typography.bodySmall
-                        )
+                        Box(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .background(Color(0xFFB3E5FC), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "?",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                 }
             }
@@ -155,7 +234,7 @@ fun MainMenuScreen(
                 }
                 
                 // Application banner with logo and styled text
-                ApplicationBanner()
+                ApplicationBanner(scale = if (isPlatformMobile) 0.7f else 1f)
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
@@ -170,41 +249,42 @@ fun MainMenuScreen(
                 
                 // On mobile, buttons are in a column; on desktop, in a column as well
                 if (isPlatformMobile) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 32.dp)
+                    BoxWithConstraints(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            modifier = Modifier.fillMaxWidth()
+                        val buttonWidth = maxWidth * 0.5f
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.width(buttonWidth)
                         ) {
                             Button(
                                 onClick = onStartGame,
-                                modifier = Modifier.weight(1f).height(60.dp)
+                                modifier = Modifier.fillMaxWidth().height(40.dp)
                             ) {
-                                Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
+                                Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.bodyMedium)
                             }
                             
                             // Continue Game button (only visible if autosave exists)
                             if (hasAutosave) {
                                 Button(
                                     onClick = onContinueGame,
-                                    modifier = Modifier.weight(1f).height(60.dp),
+                                    modifier = Modifier.fillMaxWidth().height(40.dp),
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = MaterialTheme.colorScheme.secondary
                                     )
                                 ) {
-                                    Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.titleMedium)
+                                    Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.bodyMedium)
                                 }
                             }
-                        }
-                        
-                        Button(
-                            onClick = onShowRules,
-                            modifier = Modifier.fillMaxWidth().height(60.dp)
-                        ) {
-                            Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
+                            
+                            Button(
+                                onClick = onShowRules,
+                                modifier = Modifier.fillMaxWidth().height(40.dp)
+                            ) {
+                                Text(stringResource(Res.string.rules), style = MaterialTheme.typography.bodyMedium)
+                            }
                         }
                     }
                 } else {
@@ -250,7 +330,7 @@ fun MainMenuScreen(
             
             // Version info at the bottom - clickable to show commit info
             Text(
-                text = "v${BuildConfig.VERSION_NAME} (${BuildConfig.COMMIT_HASH})",
+                text = "v${AppBuildInfo.VERSION_NAME} (${AppBuildInfo.COMMIT_HASH})",
                 style = MaterialTheme.typography.bodySmall,
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -327,8 +407,18 @@ fun LevelCompleteScreen(
     isLastLevel: Boolean,
     xpEarned: Int = 0,
     onRestart: () -> Unit,
-    onBackToMap: () -> Unit
+    onBackToMap: () -> Unit,
+    onShowFinalCredits: (() -> Unit)? = null
 ) {
+    // After winning the final level, transition to the credits after 5 seconds
+    val navigateToCredits: (() -> Unit)? = if (won && isLastLevel) onShowFinalCredits else null
+    if (navigateToCredits != null) {
+        LaunchedEffect(Unit) {
+            kotlinx.coroutines.delay(FINAL_CREDITS_TRANSITION_DELAY_MS)
+            navigateToCredits()
+        }
+    }
+
     // Determine which image/icon and text to show
     val imageResource = when {
         won && isLastLevel -> Res.drawable.emoji_crown  // Crown for winning the game
@@ -349,7 +439,15 @@ fun LevelCompleteScreen(
     }
     
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .then(
+                if (navigateToCredits != null) {
+                    Modifier.clickable { navigateToCredits() }
+                } else {
+                    Modifier
+                }
+            ),
         color = MaterialTheme.colorScheme.background
     ) {
         Box(

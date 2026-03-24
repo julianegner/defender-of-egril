@@ -10,7 +10,8 @@
       "name": "Tutorial",
       "nameKey": "location_tutorial_name",
       "position": {"x": 82, "y": 873},
-      "levelIds": ["welcome_to_defender_of_egril"]
+      "levelIds": ["welcome_to_defender_of_egril"],
+      "iconResourceName": "scroll"
     },
     {
       "id": "the_beginning",
@@ -38,14 +39,16 @@
       "name": "The Dance",
       "nameKey": "location_the_dance_name",
       "position": {"x": 251, "y": 337},
-      "levelIds": ["the_dance"]
+      "levelIds": ["the_dance"],
+      "iconResourceName": "dance"
     },
     {
       "id": "the_village",
       "name": "The Village",
       "nameKey": "location_the_village_name",
       "position": {"x": 309, "y": 306},
-      "levelIds": ["the_rush"]
+      "levelIds": ["the_rush"],
+      "iconResourceName": "village"
     },
     {
       "id": "the_woods",
@@ -66,7 +69,8 @@
       "name": "The Cross",
       "nameKey": "location_the_cross_name",
       "position": {"x": 580, "y": 517},
-      "levelIds": ["the_cross"]
+      "levelIds": ["the_cross"],
+      "iconResourceName": "cross"
     },
     {
       "id": "the_winding_path",
@@ -130,21 +134,24 @@
       "name": "The Prison",
       "nameKey": "location_the_prison_name",
       "position": {"x": 263, "y": 643},
-      "levelIds": ["prison_break"]
+      "levelIds": ["prison_break"],
+      "iconResourceName": "prison2"
     },
     {
       "id": "the_city",
       "name": "The City",
       "nameKey": "location_the_city_name",
       "position": {"x": 310, "y": 617},
-      "levelIds": ["defend_the_city"]
+      "levelIds": ["defend_the_city"],
+      "iconResourceName": "city"
     },
     {
       "id": "the_tower_of_the_hermit",
       "name": "The Tower of the Hermit",
       "nameKey": "location_the_tower_of_the_hermit_name",
       "position": {"x": 237, "y": 482},
-      "levelIds": ["the_tower_of_the_hermit"]
+      "levelIds": ["the_tower_of_the_hermit"],
+      "iconResourceName": "round_tower"
     }
   ],
   "paths": [

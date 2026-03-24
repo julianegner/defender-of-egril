@@ -64,6 +64,17 @@ fun AudioLicensesInfo() {
                 
                 Spacer(modifier = Modifier.height(12.dp))
                 
+                // Beautiful Memories
+                AudioItem(
+                    name = stringResource(Res.string.audio_beautiful_memories_name),
+                    file = "Happy_Music-2018-09-18_-_Beautiful_Memories_-_David_Fesliyan.mp3",
+                    source = "https://www.fesliyanstudios.com/",
+                    license = stringResource(Res.string.audio_fesliyan_license),
+                    licenseUrl = "https://www.fesliyanstudios.com/policy"
+                )
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
                 // Fantasy Orchestral Music
                 AudioItem(
                     name = stringResource(Res.string.audio_fantasy_orchestral_name),
@@ -262,6 +273,26 @@ fun AudioLicensesInfo() {
                     source = "https://freesound.org/people/Porphyr/sounds/188815/",
                     license = "Attribution 4.0",
                     licenseUrl = "https://creativecommons.org/licenses/by/4.0/"
+                )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                AudioItem(
+                    name = stringResource(Res.string.audio_bomb_ticking_name),
+                    file = "487725__lilmati__ticking-timer-05-sec.wav",
+                    source = "https://freesound.org/people/LilMati/sounds/487725/",
+                    license = "Creative Commons 0",
+                    licenseUrl = "https://creativecommons.org/publicdomain/zero/1.0/"
+                )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                AudioItem(
+                    name = stringResource(Res.string.audio_bomb_exploding_name),
+                    file = "473941__sangnamsa__impact.wav",
+                    source = "https://freesound.org/people/sangnamsa/sounds/473941/",
+                    license = "Creative Commons 0",
+                    licenseUrl = "https://creativecommons.org/publicdomain/zero/1.0/"
                 )
             }
             

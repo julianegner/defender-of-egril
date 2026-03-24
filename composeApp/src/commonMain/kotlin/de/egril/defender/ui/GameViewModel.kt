@@ -21,18 +21,21 @@ import kotlinx.coroutines.launch
 import de.egril.defender.config.LogConfig
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
+import de.egril.defender.editor.EditorJsonSerializer
 
 sealed class Screen {
     object MainMenu : Screen()
     object WorldMap : Screen()
     object Rules : Screen()
     object InstallationInfo : Screen()
+    data class InstallationInfoAtTab(val initialTab: de.egril.defender.ui.infopage.InfoTab) : Screen()
     object LevelEditor : Screen()
     object LoadGame : Screen()
     object Sticker : Screen()
     object PlayerProfile : Screen()
     object LoadingSpinnerDemo : Screen()
     object StatsUpgrade : Screen()  // New screen for stats/spells upgrade
+    object FinalCredits : Screen()
     data class GamePlay(val levelId: Int) : Screen()
     data class LevelComplete(
         val levelId: Int,
@@ -155,8 +158,19 @@ class GameViewModel {
         // Ensure EditorStorage is initialized with repository data
         de.egril.defender.editor.EditorStorage.ensureInitialized()
         
+        de.egril.defender.analytics.reportEvent("APP_STARTED", null)
+
         initializePlayerProfile()
         initializeWorldMap()
+        // Note: saved games are loaded via onAuthStateChanged() which is called by a
+        // LaunchedEffect in App.kt on every change of iamState.isAuthenticated (including
+        // the initial composition).  This avoids an NPE that would occur if
+        // refreshSavedGames() were called here directly, because _savedGames is declared
+        // further down in the file and not yet initialised at this point in the constructor.
+
+        // Upload settings to the dedicated backend table whenever a setting is changed
+        // and the user is authenticated.
+        de.egril.defender.ui.settings.AppSettings.onPersist = { uploadSettingsToBackend() }
     }
     
     /**
@@ -241,8 +255,26 @@ class GameViewModel {
         println("DEBUG: Total user levels loaded: ${userLevels.size}")
         }
 
-        // Combine official and user levels
-        val allLevels = officialLevels + userLevels
+        // Load community levels from community directory (skip any already present as user levels)
+        val userLevelIds = userSequence.sequence.toSet()
+        val communityEditorLevels = de.egril.defender.editor.EditorStorage.getAllCommunityLevels()
+            .filter { it.id !in userLevelIds }  // Avoid duplicating levels the user also has locally
+        val communityLevels = communityEditorLevels.mapIndexedNotNull { index, editorLevel ->
+            if (de.egril.defender.editor.EditorStorage.isLevelReadyToPlay(editorLevel)) {
+                de.egril.defender.editor.EditorStorage.convertToGameLevel(
+                    editorLevel,
+                    officialLevels.size + userLevels.size + index + 1
+                )
+            } else {
+                null
+            }
+        }
+        if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+        println("DEBUG: Total community levels loaded: ${communityLevels.size}")
+        }
+
+        // Combine official, user, and community levels
+        val allLevels = officialLevels + userLevels + communityLevels
         
         // Load saved world map status
         val savedStatuses = de.egril.defender.save.SaveFileStorage.loadWorldMapStatus()
@@ -261,8 +293,9 @@ class GameViewModel {
                 if (savedStatus != null) {
                     savedStatus
                 } else {
-                    // User levels are always unlocked
+                    // User and community levels are always unlocked
                     val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(level.editorLevelId)
+                        ?: de.egril.defender.editor.EditorStorage.getCommunityLevel(level.editorLevelId)
                     if (editorLevel?.isOfficial == false) {
                         LevelStatus.UNLOCKED
                     } else {
@@ -296,6 +329,100 @@ class GameViewModel {
         }
         initializeWorldMap()
     }
+
+    /**
+     * Downloads community levels and maps from the backend and stores them locally.
+     * After download, reloads the world map to include community levels.
+     */
+    fun downloadCommunityContent() {
+        viewModelScope.launch {
+            try {
+                // Download community level list
+                val communityLevelMeta = de.egril.defender.save.BackendCommunityService
+                    .fetchCommunityFileList("LEVEL")
+                if (communityLevelMeta != null) {
+                    for (meta in communityLevelMeta) {
+                        val fileData = de.egril.defender.save.BackendCommunityService
+                            .fetchCommunityFile("LEVEL", meta.fileId)
+                        if (fileData != null) {
+                            val level = de.egril.defender.editor.EditorJsonSerializer
+                                .deserializeLevel(fileData.data)
+                            if (level != null) {
+                                de.egril.defender.editor.EditorStorage.saveCommunityLevel(
+                                    level.copy(
+                                        isCommunity = true,
+                                        communityAuthorUsername = meta.authorUsername
+                                    )
+                                )
+                                // Also download the map used by this level if not already present
+                                if (de.egril.defender.editor.EditorStorage.getMap(level.mapId) == null) {
+                                    val mapData = de.egril.defender.save.BackendCommunityService
+                                        .fetchCommunityFile("MAP", level.mapId)
+                                    if (mapData != null) {
+                                        val map = de.egril.defender.editor.EditorJsonSerializer
+                                            .deserializeMap(mapData.data)
+                                        if (map != null) {
+                                            de.egril.defender.editor.EditorStorage.saveCommunityMap(
+                                                map,
+                                                mapData.authorUsername
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    de.egril.defender.editor.EditorStorage.clearCommunityCache()
+                    initializeWorldMap()
+                }
+            } catch (e: Exception) {
+                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Failed to download community content: ${e.message}")
+                }
+            }
+        }
+    }
+
+    /**
+     * Uploads a user level to the community backend.
+     * @param levelId The ID of the level to upload
+     * @param token Bearer token for authentication
+     * @return true on success, false on failure
+     */
+    suspend fun uploadCommunityLevel(levelId: String, token: String): Boolean {
+        val level = de.egril.defender.editor.EditorStorage.getLevel(levelId) ?: return false
+        val json = de.egril.defender.editor.EditorJsonSerializer.serializeLevel(level)
+        val success = de.egril.defender.save.BackendCommunityService
+            .uploadCommunityFile("LEVEL", levelId, json, token)
+        if (success) {
+            // Store the uploaded version locally in the community directory so we can detect changes
+            de.egril.defender.editor.EditorStorage.saveCommunityLevel(
+                level.copy(
+                    isCommunity = true,
+                    communityAuthorUsername = de.egril.defender.iam.IamService.state.value.username ?: ""
+                )
+            )
+        }
+        return success
+    }
+
+    /**
+     * Uploads a user map to the community backend.
+     * @param mapId The ID of the map to upload
+     * @param token Bearer token for authentication
+     * @return true on success, false on failure
+     */
+    suspend fun uploadCommunityMap(mapId: String, token: String): Boolean {
+        val map = de.egril.defender.editor.EditorStorage.getMap(mapId) ?: return false
+        val json = de.egril.defender.editor.EditorJsonSerializer.serializeMap(map)
+        val success = de.egril.defender.save.BackendCommunityService
+            .uploadCommunityFile("MAP", mapId, json, token)
+        if (success) {
+            val username = de.egril.defender.iam.IamService.state.value.username ?: ""
+            de.egril.defender.editor.EditorStorage.saveCommunityMap(map, username)
+        }
+        return success
+    }
     
     fun navigateToMainMenu() {
         stopTimeTracking()
@@ -303,6 +430,10 @@ class GameViewModel {
     }
     
     fun navigateToWorldMap() {
+        if (_currentScreen.value is Screen.GamePlay) {
+            val levelName = _gameState.value?.level?.name ?: "unknown"
+            de.egril.defender.analytics.reportEvent("GAME_LEFT", levelName)
+        }
         stopTimeTracking()
         // Reload levels from disk to ensure latest changes are visible
         reloadWorldMap()
@@ -315,6 +446,10 @@ class GameViewModel {
     
     fun navigateToInstallationInfo() {
         _currentScreen.value = Screen.InstallationInfo
+    }
+
+    fun navigateToBackendInfo() {
+        _currentScreen.value = Screen.InstallationInfoAtTab(de.egril.defender.ui.infopage.InfoTab.BACKEND)
     }
     
     fun navigateToLevelEditor() {
@@ -335,6 +470,10 @@ class GameViewModel {
     
     fun navigateToStatsUpgrade() {
         _currentScreen.value = Screen.StatsUpgrade
+    }
+
+    fun navigateToFinalCredits() {
+        _currentScreen.value = Screen.FinalCredits
     }
 
     fun upgradeAbility(statType: de.egril.defender.model.AbilityType) {
@@ -372,6 +511,8 @@ class GameViewModel {
         if (playerLevel >= 100) {
             tempAchievementManager.onPlayerLevel100()
         }
+        // Sync updated abilities to backend
+        uploadUserDataToBackend()
     }
 
     fun unlockSpell(spell: de.egril.defender.model.SpellType) {
@@ -392,6 +533,8 @@ class GameViewModel {
         if (oldStats.unlockedSpells.isEmpty()) {
             tempAchievementManager.onFirstSpellUnlock()
         }
+        // Sync updated spell list to backend
+        uploadUserDataToBackend()
     }
 
     fun startLevel(levelId: Int) {
@@ -444,6 +587,8 @@ class GameViewModel {
             // Capture initial state snapshot
             initialGameStateSnapshot = createGameStateSnapshot(newGameState)
             lastSaveSnapshot = initialGameStateSnapshot
+
+            de.egril.defender.analytics.reportEvent("LEVEL_STARTED", level.name)
             
             // Initialize achievement manager for this level
             val playerId = _currentPlayer.value?.id
@@ -857,6 +1002,9 @@ class GameViewModel {
     private fun completeLevel(levelId: Int, won: Boolean) {
         val currentHP = _gameState.value?.healthPoints?.value ?: 0
         val xpEarned = _gameState.value?.xpEarnedThisLevel?.value ?: 0
+        val levelName = _gameState.value?.level?.name ?: "unknown"
+
+        de.egril.defender.analytics.reportEvent(if (won) "LEVEL_WON" else "LEVEL_LOST", levelName)
 
         // Track achievement for level completion
         if (won) {
@@ -901,6 +1049,8 @@ class GameViewModel {
                 // Save world map status
                 saveWorldMapStatus()
             }
+            // Sync updated abilities (XP awarded) and level progress to backend
+            uploadUserDataToBackend()
         }
         _currentScreen.value = Screen.LevelComplete(levelId, won, isLastLevel, xpEarned)
     }
@@ -984,6 +1134,7 @@ class GameViewModel {
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+        uploadUserDataToBackend()
     }
 
     private fun removePlayerXP(amount: Int) {
@@ -995,6 +1146,7 @@ class GameViewModel {
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+        uploadUserDataToBackend()
     }
 
     private fun addPlayerStat(statName: String, amount: Int) {
@@ -1013,6 +1165,7 @@ class GameViewModel {
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+        uploadUserDataToBackend()
     }
 
     private fun removePlayerStat(statName: String, amount: Int) {
@@ -1031,6 +1184,7 @@ class GameViewModel {
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+        uploadUserDataToBackend()
     }
 
     private fun unlockPlayerSpell(spellName: String) {
@@ -1057,6 +1211,7 @@ class GameViewModel {
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+        uploadUserDataToBackend()
     }
 
     private fun lockPlayerSpell(spellName: String) {
@@ -1083,6 +1238,7 @@ class GameViewModel {
         val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
         _currentPlayer.value = updatedPlayer
         de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+        uploadUserDataToBackend()
     }
 
     fun applyWorldMapCheatCode(code: String): Boolean {
@@ -1095,6 +1251,12 @@ class GameViewModel {
         // Check for "spinner" cheat code (shows loading spinner demo for 30s)
         if (code.lowercase().trim() == "spinner") {
             navigateToLoadingSpinnerDemo()
+            return true
+        }
+
+        // Check for "credits" cheat code (shows the final credits screen)
+        if (code.lowercase().trim() == "credits") {
+            navigateToFinalCredits()
             return true
         }
 
@@ -1120,30 +1282,44 @@ class GameViewModel {
         _worldLevels.value = CheatCodeHandler.unlockAllLevels(_worldLevels.value)
         // Save updated world map status
         saveWorldMapStatus()
+        uploadUserDataToBackend()
     }
     
     private fun unlockLevel(editorLevelId: String) {
         _worldLevels.value = CheatCodeHandler.unlockLevel(_worldLevels.value, editorLevelId)
         // Save updated world map status
         saveWorldMapStatus()
+        uploadUserDataToBackend()
     }
     
     private fun lockAllLevels() {
         _worldLevels.value = CheatCodeHandler.lockAllLevels(_worldLevels.value)
         // Save updated world map status
         saveWorldMapStatus()
+        uploadUserDataToBackend()
     }
     
     private fun lockLevel(editorLevelId: String) {
         _worldLevels.value = CheatCodeHandler.lockLevel(_worldLevels.value, editorLevelId)
         // Save updated world map status
         saveWorldMapStatus()
+        uploadUserDataToBackend()
     }
     
     // Save/Load functionality
     
     private val _savedGames = MutableStateFlow<List<de.egril.defender.save.SaveGameMetadata>>(emptyList())
     val savedGames: StateFlow<List<de.egril.defender.save.SaveGameMetadata>> = _savedGames.asStateFlow()
+
+    private val _isLoadingRemoteSaves = MutableStateFlow(false)
+    val isLoadingRemoteSaves: StateFlow<Boolean> = _isLoadingRemoteSaves.asStateFlow()
+
+    /**
+     * In-memory cache of raw JSON for remote-only savefiles. Keyed by saveId.
+     * Populated during [refreshSavedGames] so that [loadGame] can download and
+     * store a remote-only save locally without a second network round-trip.
+     */
+    private val remoteFilesCache = mutableMapOf<String, String>()
     
     fun navigateToLoadGame() {
         refreshSavedGames()
@@ -1156,6 +1332,8 @@ class GameViewModel {
         refreshSavedGames()
         // Update the last save snapshot
         lastSaveSnapshot = createGameStateSnapshot(state)
+        // Upload to backend in background if the user is logged in
+        uploadSavefileToBackend(saveId)
         return saveId
     }
     
@@ -1168,7 +1346,58 @@ class GameViewModel {
         // Use fixed ID "autosave_game" and add "Autosave" as comment
         de.egril.defender.save.SaveFileStorage.saveGameState(state, comment = "Autosave", saveId = "autosave_game")
         refreshSavedGames()
+        // Upload autosave to backend in background if the user is logged in
+        uploadSavefileToBackend("autosave_game")
         // Don't update lastSaveSnapshot for autosaves - we still want to track manual saves separately
+    }
+
+    /**
+     * Uploads a locally-saved game to the backend if the user is currently logged in.
+     * Runs in the background so it never blocks gameplay.
+     */
+    private fun uploadSavefileToBackend(saveId: String) {
+        val token = de.egril.defender.iam.IamService.getToken()
+        if (token == null) {
+            if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                println("Skipping backend upload for $saveId: not authenticated")
+            }
+            return
+        }
+        viewModelScope.launch {
+            val json = de.egril.defender.save.SaveFileStorage.getSaveGameJson(saveId) ?: return@launch
+            try {
+                val success = de.egril.defender.save.BackendSaveService.uploadSavefile(saveId, json, token)
+                if (success) {
+                    // Re-merge so the card shows the "remote" chip
+                    refreshSavedGames()
+                }
+            } catch (e: Exception) {
+                if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Failed to upload savefile $saveId to backend: ${e.message}")
+                }
+            }
+        }
+    }
+
+    /**
+     * Imports a savefile from [remoteFilesCache] into local storage and loads it.
+     * Returns the deserialized [SavedGame] on success, null if the save ID is not in the
+     * cache or the import fails.
+     */
+    private fun importAndLoadFromRemoteCache(saveId: String): de.egril.defender.save.SavedGame? {
+        val remoteJson = remoteFilesCache[saveId] ?: return null
+        val imported = de.egril.defender.save.SaveFileStorage.importSaveGame(
+            filename = "$saveId.json",
+            jsonContent = remoteJson,
+            overwrite = true
+        )
+        if (!imported) {
+            if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                println("Failed to import remote savefile $saveId into local storage")
+            }
+            return null
+        }
+        return de.egril.defender.save.SaveFileStorage.loadGameState(saveId)
     }
     
     /**
@@ -1219,7 +1448,10 @@ class GameViewModel {
     }
     
     fun loadGame(saveId: String) {
-        val savedGame = de.egril.defender.save.SaveFileStorage.loadGameState(saveId) ?: return
+        // Try to load from local storage first; if not present, import from remote cache
+        val savedGame = de.egril.defender.save.SaveFileStorage.loadGameState(saveId)
+            ?: importAndLoadFromRemoteCache(saveId)
+            ?: return
         
         // Find the level by ID
         val level = _worldLevels.value.find { it.level.id == savedGame.levelId }?.level
@@ -1435,12 +1667,288 @@ class GameViewModel {
         return success
     }
     
+    /** Public wrapper so App.kt can trigger a refresh when the IAM state changes (e.g. user logs in). */
+    fun onAuthStateChanged() {
+        // When the user logs in, link their Keycloak username to the current player profile
+        // if no remote username is stored yet for this profile
+        val iamState = de.egril.defender.iam.IamService.state.value
+        if (iamState.isAuthenticated) {
+            val username = iamState.username
+            val player = _currentPlayer.value
+            if (username != null && player != null && player.remoteUsername == null) {
+                de.egril.defender.save.PlayerProfileStorage.linkRemoteUser(player.id, username)
+                _currentPlayer.value = player.copy(remoteUsername = username)
+            }
+            // Download and merge remote user data (abilities, level progress) on login
+            downloadAndMergeUserData()
+            // Download and apply remote settings independently (dedicated player_settings table)
+            downloadAndApplySettings()
+        }
+        viewModelScope.launch { refreshSavedGames() }
+    }
+
+    /**
+     * Persists the "always log in" preference for the current player profile.
+     * This is a per-player setting: each local player can independently opt-in to
+     * automatic Keycloak login whenever they are the active player.
+     */
+    fun setAlwaysLogin(value: Boolean) {
+        val player = _currentPlayer.value ?: return
+        de.egril.defender.save.PlayerProfileStorage.saveAlwaysLogin(player.id, value)
+        _currentPlayer.value = player.copy(alwaysLogin = value)
+    }
+
     private fun refreshSavedGames() {
-        _savedGames.value = de.egril.defender.save.SaveFileStorage.getAllSavedGames()
+        val localGames = de.egril.defender.save.SaveFileStorage.getAllSavedGames()
+        _savedGames.value = localGames
+        // Asynchronously enrich with remote save information
+        viewModelScope.launch {
+            val token = de.egril.defender.iam.IamService.getToken() ?: return@launch
+            _isLoadingRemoteSaves.value = true
+            try {
+                val remoteFiles = de.egril.defender.save.BackendSaveService.fetchSavefiles(token)
+                    ?: return@launch
+                // Cache all remote file data so loadGame() can import remote-only saves on demand
+                remoteFilesCache.clear()
+                for (remote in remoteFiles) {
+                    remoteFilesCache[remote.saveId] = remote.data
+                }
+                val localIds = localGames.map { it.id }.toSet()
+                // Build a map of remote saves by saveId for timestamp comparison
+                val remoteById = remoteFiles.associateBy { it.saveId }
+                // Build merged list: union of local and remote saves
+                val merged = mutableListOf<de.egril.defender.save.SaveGameMetadata>()
+                // For each local save, check if a newer version exists remotely
+                for (local in localGames) {
+                    val remote = remoteById[local.id]
+                    if (remote != null) {
+                        // Both local and remote exist for this save ID – prefer the newer one
+                        val remoteGame = try {
+                            de.egril.defender.save.SaveJsonSerializer.deserializeSavedGame(remote.data)
+                        } catch (e: Exception) {
+                            if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                                println("Failed to parse remote savefile ${remote.saveId}: ${e.message}")
+                            }
+                            null
+                        }
+                        if (remoteGame != null && remoteGame.timestamp > local.timestamp) {
+                            // Remote version is newer – overwrite local save and use remote metadata
+                            de.egril.defender.save.SaveFileStorage.importSaveGame(
+                                filename = "${remote.saveId}.json",
+                                jsonContent = remote.data,
+                                overwrite = true
+                            )
+                            val metadata = de.egril.defender.save.SaveFileStorage
+                                .buildMetadataFromSavedGame(remoteGame)
+                            merged.add(metadata.copy(isLocal = true, isRemote = true))
+                        } else {
+                            merged.add(local.copy(isLocal = true, isRemote = true))
+                        }
+                    } else {
+                        merged.add(local.copy(isLocal = true, isRemote = false))
+                    }
+                }
+                // Add remote-only saves (not present locally) using metadata from remote JSON
+                for (remote in remoteFiles) {
+                    if (remote.saveId !in localIds) {
+                        val savedGame = try {
+                            de.egril.defender.save.SaveJsonSerializer.deserializeSavedGame(remote.data)
+                        } catch (e: Exception) {
+                            if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                                println("Failed to parse remote savefile ${remote.saveId}: ${e.message}")
+                            }
+                            null
+                        }
+                        if (savedGame != null) {
+                            val metadata = de.egril.defender.save.SaveFileStorage
+                                .buildMetadataFromSavedGame(savedGame)
+                            merged.add(metadata.copy(isLocal = false, isRemote = true))
+                        }
+                    }
+                }
+                // Sort by timestamp descending (newest first)
+                merged.sortByDescending { it.timestamp }
+                _savedGames.value = merged
+            } catch (e: Exception) {
+                if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Failed to fetch remote savefiles: ${e.message}")
+                }
+            } finally {
+                _isLoadingRemoteSaves.value = false
+            }
+        }
     }
     
     private fun saveWorldMapStatus() {
         de.egril.defender.save.SaveFileStorage.saveWorldMapStatus(_worldLevels.value)
+    }
+
+    /**
+     * Uploads the current player's general user data (abilities, level progress, local username)
+     * to the backend if the user is currently logged in.
+     * Runs in the background so it never blocks gameplay.
+     */
+    private fun uploadUserDataToBackend() {
+        val token = de.egril.defender.iam.IamService.getToken()
+        if (token == null) {
+            if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                println("Skipping userdata upload: not authenticated")
+            }
+            return
+        }
+        val player = _currentPlayer.value ?: return
+        val levelProgress = _worldLevels.value
+            .filter { it.level.editorLevelId != null }
+            .associate { it.level.editorLevelId!! to it.status.name }
+
+        viewModelScope.launch {
+            try {
+                val jsonData = de.egril.defender.save.serializeUserDataJson(
+                    localUsername = player.name,
+                    abilities = player.abilities,
+                    levelProgress = levelProgress
+                )
+                val success = de.egril.defender.save.BackendUserDataService.uploadUserData(jsonData, token)
+                if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Userdata upload ${if (success) "succeeded" else "failed"} for player ${player.name}")
+                }
+            } catch (e: Exception) {
+                if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Failed to upload userdata to backend: ${e.message}")
+                }
+            }
+        }
+    }
+
+    /**
+     * Uploads the current player's settings to the backend independently of userdata.
+     * Settings are stored in a dedicated `player_settings` table on the server.
+     */
+    private fun uploadSettingsToBackend() {
+        val token = de.egril.defender.iam.IamService.getToken() ?: return
+        viewModelScope.launch {
+            try {
+                val settingsJson = de.egril.defender.save.serializeSettingsJson(
+                    de.egril.defender.ui.settings.AppSettings.toSettingsMap()
+                )
+                val success = de.egril.defender.save.BackendSettingsService.uploadSettings(settingsJson, token)
+                if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Settings upload ${if (success) "succeeded" else "failed"}")
+                }
+            } catch (e: Exception) {
+                if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Failed to upload settings to backend: ${e.message}")
+                }
+            }
+        }
+    }
+
+    /**
+     * Downloads the user's general data from the backend and merges it with the current local
+     * state. Remote data wins only when it contains higher XP than the local profile or when
+     * a level has a higher status remotely (UNLOCKED or WON) than locally.
+     */
+    private fun downloadAndMergeUserData() {
+        val token = de.egril.defender.iam.IamService.getToken() ?: return
+        viewModelScope.launch {
+            try {
+                val remote = de.egril.defender.save.BackendUserDataService.fetchUserData(token) ?: return@launch
+                if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Downloaded userdata for ${remote.localUsername}")
+                }
+
+                var playerUpdated = false
+
+                // Merge abilities: prefer remote when it has higher XP, or when XP is equal but
+                // the ability distribution differs (spending points doesn't change XP, so the
+                // remote is more recent in that case – last writer wins).
+                val player = _currentPlayer.value ?: return@launch
+                val remoteAbilities = remote.abilities
+                if (remoteAbilities != null &&
+                    (remoteAbilities.totalXP > player.abilities.totalXP ||
+                     (remoteAbilities.totalXP == player.abilities.totalXP && remoteAbilities != player.abilities))) {
+                    val updatedPlayer = player.copy(abilities = remoteAbilities)
+                    _currentPlayer.value = updatedPlayer
+                    de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+                    playerUpdated = true
+                    if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                        println("Merged remote abilities: totalXP=${remoteAbilities.totalXP}")
+                    }
+                }
+
+                // Merge level progress: apply any levels that are WON/UNLOCKED remotely
+                // but not yet at that status locally
+                val remoteLevelProgress = remote.levelProgress
+                if (remoteLevelProgress != null && remoteLevelProgress.isNotEmpty()) {
+                    val updatedLevels = _worldLevels.value.toMutableList()
+                    var levelsChanged = false
+                    for (i in updatedLevels.indices) {
+                        val wl = updatedLevels[i]
+                        val editorId = wl.level.editorLevelId ?: continue
+                        val remoteStatusStr = remoteLevelProgress[editorId] ?: continue
+                        val remoteStatus = try {
+                            de.egril.defender.model.LevelStatus.valueOf(remoteStatusStr)
+                        } catch (_: Exception) { continue }
+                        // Only upgrade the status (LOCKED → UNLOCKED → WON), never downgrade
+                        if (remoteStatus.ordinal > wl.status.ordinal) {
+                            updatedLevels[i] = wl.copy(status = remoteStatus)
+                            levelsChanged = true
+                        }
+                    }
+                    if (levelsChanged) {
+                        _worldLevels.value = updatedLevels
+                        de.egril.defender.save.SaveFileStorage.saveWorldMapStatus(updatedLevels)
+                        if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                            println("Merged remote level progress into local world map")
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Failed to download/merge userdata: ${e.message}")
+                }
+            }
+        }
+    }
+
+    /**
+     * Downloads and applies the player's settings from the backend.
+     * Only applied when the current player has [useRemoteSettings] set to true.
+     * Settings are fetched from the dedicated `player_settings` table, independent of userdata.
+     */
+    private fun downloadAndApplySettings() {
+        val token = de.egril.defender.iam.IamService.getToken() ?: return
+        val player = _currentPlayer.value ?: return
+        if (!player.useRemoteSettings) {
+            if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                println("Skipping remote settings download: useRemoteSettings=false for player ${player.name}")
+            }
+            return
+        }
+        viewModelScope.launch {
+            try {
+                val remoteSettings = de.egril.defender.save.BackendSettingsService.fetchSettings(token)
+                if (remoteSettings != null && remoteSettings.isNotEmpty()) {
+                    de.egril.defender.ui.settings.AppSettings.applyFromSettingsMap(remoteSettings)
+                    if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                        println("Applied remote settings for player ${player.name}")
+                    }
+                }
+            } catch (e: Exception) {
+                if (de.egril.defender.config.LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Failed to download/apply settings: ${e.message}")
+                }
+            }
+        }
+    }
+
+    /**
+     * Persists the "use remote settings" preference for the current player profile.
+     */
+    fun setUseRemoteSettings(value: Boolean) {
+        val player = _currentPlayer.value ?: return
+        de.egril.defender.save.PlayerProfileStorage.saveUseRemoteSettings(player.id, value)
+        _currentPlayer.value = player.copy(useRemoteSettings = value)
     }
     
     // Player Profile Management
@@ -1515,6 +2023,8 @@ class GameViewModel {
                 de.egril.defender.save.SaveFileStorage.setCurrentPlayer(updatedProfile.id)
             }
             
+            // Sync the new local username to the backend
+            uploadUserDataToBackend()
             return true
         }
         return false

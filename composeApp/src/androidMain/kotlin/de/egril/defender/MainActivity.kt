@@ -9,14 +9,24 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import de.egril.defender.audio.initializeAndroidAudio
 import de.egril.defender.audio.setAndroidContext
+import de.egril.defender.iam.AndroidIamFlowProvider
 import de.egril.defender.save.AndroidFileExportImport
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
+
+        // Inject the backend URL baked in at build time so that the shared
+        // jvmMain BackendSaveHttpHelper can read it via System.getProperty().
+        // This must happen before any backend call is made.
+        System.setProperty("defender.backend.url", BuildConfig.BACKEND_URL)
+
         // Initialize context provider for file storage
         AndroidContextProvider.initialize(this)
+        
+        // Register activity with the OIDC auth-flow factory so Chrome Custom Tabs
+        // can redirect back to the app and the login flow can be continued/resumed.
+        AndroidIamFlowProvider.registerActivity(this)
         
         // Initialize file export/import for save files
         AndroidFileExportImport.initialize(this)

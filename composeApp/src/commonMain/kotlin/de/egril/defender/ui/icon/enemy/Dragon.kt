@@ -5,12 +5,13 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 
 /**
  * Draw dragon symbol (large flying beast)
  */
-fun DrawScope.drawDragonSymbol(centerX: Float, centerY: Float, size: Float, headScale: Float = 1.0f) {
+fun DrawScope.drawDragonSymbol(centerX: Float, centerY: Float, size: Float, outlineColor: Color? = null, headScale: Float = 1.0f) {
     val headCenterX = centerX + size * 0.25f
     val headCenterY = centerY - size * 0.15f
 
@@ -20,6 +21,14 @@ fun DrawScope.drawDragonSymbol(centerX: Float, centerY: Float, size: Float, head
         topLeft = Offset(centerX - size * 0.2f, centerY - size * 0.1f),
         size = Size(size * 0.4f, size * 0.2f)
     )
+    if (outlineColor != null) {
+        drawOval(
+            color = outlineColor,
+            topLeft = Offset(centerX - size * 0.2f - 2f, centerY - size * 0.1f - 2f),
+            size = Size(size * 0.4f + 4f, size * 0.2f + 4f),
+            style = Stroke(width = 3f)
+        )
+    }
 
     // Wings (not scaled)
     val leftWing = Path().apply {

@@ -25,6 +25,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun LoadGameScreen(
     savedGames: List<SaveGameMetadata>,
+    isLoadingRemoteSaves: Boolean = false,
     onLoadGame: (String) -> Unit,
     onDeleteGame: (String) -> Unit,
     onDownloadGame: (String, Boolean) -> Unit,  // Added includeGameState parameter
@@ -105,6 +106,7 @@ fun LoadGameScreen(
     if (isPlatformMobile) {
         LoadGameScreenMobile(
             savedGames = savedGames,
+            isLoadingRemoteSaves = isLoadingRemoteSaves,
             gameDataTransferEnabled = gameDataTransferEnabled,
             onGameDataTransferToggle = { gameDataTransferEnabled = it },
             onLoadGame = onLoadGame,
@@ -118,6 +120,7 @@ fun LoadGameScreen(
     } else {
         LoadGameScreenDesktop(
             savedGames = savedGames,
+            isLoadingRemoteSaves = isLoadingRemoteSaves,
             gameDataTransferEnabled = gameDataTransferEnabled,
             onGameDataTransferToggle = { gameDataTransferEnabled = it },
             onLoadGame = onLoadGame,
@@ -213,6 +216,7 @@ fun LoadGameScreen(
 @Composable
 private fun LoadGameScreenDesktop(
     savedGames: List<SaveGameMetadata>,
+    isLoadingRemoteSaves: Boolean = false,
     gameDataTransferEnabled: Boolean,
     onGameDataTransferToggle: (Boolean) -> Unit,
     onLoadGame: (String) -> Unit,
@@ -331,7 +335,7 @@ private fun LoadGameScreenDesktop(
                     }
                 }
             
-                if (savedGames.isEmpty()) {
+                if (savedGames.isEmpty() && !isLoadingRemoteSaves) {
                     Box(
                         modifier = Modifier.weight(1f).fillMaxWidth(),
                         contentAlignment = Alignment.Center
@@ -358,6 +362,27 @@ private fun LoadGameScreenDesktop(
                         modifier = Modifier.weight(1f).fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
+                        if (isLoadingRemoteSaves) {
+                            item {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(16.dp),
+                                        strokeWidth = 2.dp
+                                    )
+                                    Text(
+                                        text = stringResource(Res.string.loading_remote_savefiles),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
                         items(savedGames) { saveGame ->
                             SavedGameCard(
                                 saveGame = saveGame,
@@ -409,6 +434,7 @@ private fun rememberSavegamePath(): String {
 @Composable
 private fun LoadGameScreenMobile(
     savedGames: List<SaveGameMetadata>,
+    isLoadingRemoteSaves: Boolean = false,
     gameDataTransferEnabled: Boolean,
     onGameDataTransferToggle: (Boolean) -> Unit,
     onLoadGame: (String) -> Unit,
@@ -576,7 +602,7 @@ private fun LoadGameScreenMobile(
                     SettingsButton()
                 }
                 
-                if (savedGames.isEmpty()) {
+                if (savedGames.isEmpty() && !isLoadingRemoteSaves) {
                     Box(
                         modifier = Modifier.weight(1f).fillMaxWidth(),
                         contentAlignment = Alignment.Center
@@ -592,6 +618,27 @@ private fun LoadGameScreenMobile(
                         modifier = Modifier.weight(1f).fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
+                        if (isLoadingRemoteSaves) {
+                            item {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(16.dp),
+                                        strokeWidth = 2.dp
+                                    )
+                                    Text(
+                                        text = stringResource(Res.string.loading_remote_savefiles),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
                         items(savedGames) { saveGame ->
                             SavedGameCard(
                                 saveGame = saveGame,

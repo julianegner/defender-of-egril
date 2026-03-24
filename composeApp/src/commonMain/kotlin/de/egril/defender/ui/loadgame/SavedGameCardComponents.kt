@@ -33,13 +33,38 @@ private const val MOBILE_MAX_ENEMIES_DISPLAYED = 2
 fun SavedGameCardHeader(
     levelName: String,
     dateStr: String,
+    isLocal: Boolean = true,
+    isRemote: Boolean = false,
     isMobile: Boolean = false
 ) {
-    Text(
-        text = levelName,
-        style = if (isMobile) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium
-    )
-    
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        Text(
+            text = levelName,
+            style = if (isMobile) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium,
+            modifier = Modifier.weight(1f, fill = false)
+        )
+        // Local / Remote presence chips
+        if (isLocal) {
+            SavefileLocationChip(
+                label = stringResource(Res.string.savefile_chip_local),
+                color = MaterialTheme.colorScheme.tertiary,
+                onColor = MaterialTheme.colorScheme.onTertiary,
+                isMobile = isMobile
+            )
+        }
+        if (isRemote) {
+            SavefileLocationChip(
+                label = stringResource(Res.string.savefile_chip_remote),
+                color = MaterialTheme.colorScheme.primary,
+                onColor = MaterialTheme.colorScheme.onPrimary,
+                isMobile = isMobile
+            )
+        }
+    }
+
     Spacer(modifier = Modifier.height(if (isMobile) 2.dp else 4.dp))
     
     Text(
@@ -48,6 +73,28 @@ fun SavedGameCardHeader(
         fontSize = if (isMobile) 10.sp else 12.sp,
         color = MaterialTheme.colorScheme.onSurfaceVariant
     )
+}
+
+@Composable
+private fun SavefileLocationChip(
+    label: String,
+    color: Color,
+    onColor: Color,
+    isMobile: Boolean
+) {
+    Box(
+        modifier = Modifier
+            .clip(MaterialTheme.shapes.small)
+            .background(color)
+            .padding(horizontal = if (isMobile) 4.dp else 6.dp, vertical = if (isMobile) 1.dp else 2.dp)
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            fontSize = if (isMobile) 9.sp else 10.sp,
+            color = onColor
+        )
+    }
 }
 
 @Composable

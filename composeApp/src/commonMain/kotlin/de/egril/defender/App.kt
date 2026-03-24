@@ -15,13 +15,16 @@ import de.egril.defender.ui.worldmap.WorldMapScreen
 import de.egril.defender.utils.WindowCloseHandler
 import kotlinx.coroutines.delay
 
+import de.egril.defender.iam.initPlatformIam
+
 @Composable
 fun App() {
-    // Initialize settings and sound on app start
+    // Initialize settings, sound, and IAM on app start
     LaunchedEffect(Unit) {
         AppSettings.initialize()
         de.egril.defender.audio.GlobalSoundManager.initialize()
         de.egril.defender.audio.GlobalBackgroundMusicManager.initialize()
+        initPlatformIam()
     }
     
     // Observe dark mode state
@@ -69,6 +72,7 @@ fun App() {
         val worldLevels by viewModel.worldLevels.collectAsState()
         val gameState by viewModel.gameState.collectAsState()
         val savedGames by viewModel.savedGames.collectAsState()
+        val isLoadingRemoteSaves by viewModel.isLoadingRemoteSaves.collectAsState()
         val cheatDigOutcome by viewModel.cheatDigOutcome.collectAsState()
         val showPlatformInfo by viewModel.showPlatformInfo.collectAsState()
         val showCheatHelp by viewModel.showCheatHelp.collectAsState()
@@ -86,6 +90,35 @@ fun App() {
         val showFreezeImmuneWarning by viewModel.showFreezeImmuneWarning.collectAsState()
         val pendingScrollToPosition by viewModel.pendingScrollToPosition.collectAsState()
         val pendingGameMessage by viewModel.pendingGameMessage.collectAsState()
+
+        // Observe IAM state for login/logout UI updates
+        val iamState by de.egril.defender.iam.IamService.state
+        val iamLoginInProgress by de.egril.defender.iam.IamService.loginInProgress
+
+        // Refresh saved games whenever authentication state changes (login/logout/session restore).
+        // This ensures remote saves appear immediately after the user logs in or after the
+        // platform IAM SDK restores an existing session on startup.
+        LaunchedEffect(iamState.isAuthenticated) {
+            viewModel.onAuthStateChanged()
+        }
+
+        // "Always log in" is now a per-player preference stored in PlayerProfile.
+        // Auto-login only fires when:
+        //   1. the current player has alwaysLogin = true, AND
+        //   2. the player has a linked remote account (remoteUsername != null), AND
+        //   3. we are not already authenticated or in the middle of a login flow.
+        val alwaysLogin = currentPlayer?.alwaysLogin ?: false
+        val hasRemoteAccount = currentPlayer?.remoteUsername != null
+
+        // If "always log in" is enabled, automatically start the login flow when the
+        // authentication state changes (e.g. on startup or after logging out).
+        // We only check alwaysLogin, hasRemoteAccount, and isAuthenticated as keys so that
+        // cancelling a login attempt does not immediately restart the flow.
+        LaunchedEffect(alwaysLogin, hasRemoteAccount, iamState.isAuthenticated) {
+            if (alwaysLogin && hasRemoteAccount && !iamState.isAuthenticated && !iamLoginInProgress) {
+                de.egril.defender.iam.IamService.login()
+            }
+        }
 
         // Show player selection dialog if needed
         var showPlayerSelection by remember { mutableStateOf(false) }
@@ -167,6 +200,21 @@ fun App() {
                 players = allPlayers,
                 currentPlayerId = currentPlayer?.id,
                 onSelectPlayer = { playerId ->
+                    val newPlayerHasRemoteAccount = allPlayers.find { it.id == playerId }?.remoteUsername != null
+                    if (iamState.isAuthenticated) {
+                        // Any player switch while authenticated: revoke the Keycloak session
+                        // server-side via HTTP POST and set the nextLoginUsesRestartUrl flag so
+                        // that the next login (whether triggered by alwaysLogin or manually)
+                        // opens the /login-actions/restart URL with skip_logout=false. This shows
+                        // a completely blank login form and prevents Keycloak from silently
+                        // re-authenticating as the previous user via an active SSO browser cookie,
+                        // regardless of whether the new player has a remote account or not.
+                        de.egril.defender.iam.IamService.logoutBackchannel()
+                    } else if (!newPlayerHasRemoteAccount) {
+                        // Not authenticated but switching to a player with no remote account:
+                        // clear any stale local state just in case.
+                        de.egril.defender.iam.IamService.logoutLocal()
+                    }
                     viewModel.switchPlayer(playerId)
                     showPlayerSelection = false
                 },
@@ -219,9 +267,14 @@ fun App() {
                     hasAutosave = viewModel.hasAutosave(),
                     onShowRules = { viewModel.navigateToRules() },
                     onShowInstallationInfo = { viewModel.navigateToInstallationInfo() },
-                    onSelectPlayer = { showPlayerSelection = true },
+                    onShowBackendInfo = { viewModel.navigateToBackendInfo() },
                     onEditPlayerName = { viewModel.navigateToPlayerProfile() },
-                    currentPlayerName = currentPlayer?.name
+                    currentPlayerName = currentPlayer?.name,
+                    iamState = iamState,
+                    iamLoginInProgress = iamLoginInProgress,
+                    onIamLogin = { de.egril.defender.iam.IamService.login() },
+                    onIamLogout = { de.egril.defender.iam.IamService.logout() },
+                    onIamLoginCancel = { de.egril.defender.iam.IamService.loginInProgress.value = false }
                 )
             }
             
@@ -235,9 +288,11 @@ fun App() {
                     onLoadGame = { viewModel.navigateToLoadGame() },
                     onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) },
                     onReloadWorldMap = { viewModel.reloadWorldMap() },
+                    onDownloadCommunityContent = { viewModel.downloadCommunityContent() },
                     onSwitchPlayer = { showPlayerSelection = true },
                     onEditPlayerName = { viewModel.navigateToPlayerProfile() },
                     currentPlayerName = currentPlayer?.name,
+                    iamState = iamState,
                     showPlatformInfo = showPlatformInfo,
                     onClearPlatformInfo = { viewModel.clearPlatformInfo() },
                     showCheatHelp = showCheatHelp,
@@ -257,15 +312,29 @@ fun App() {
                 )
             }
             
+            is Screen.InstallationInfoAtTab -> {
+                InfoPageScreen(
+                    onBack = { viewModel.navigateToMainMenu() },
+                    initialTab = screen.initialTab
+                )
+            }
+            
             is Screen.PlayerProfile -> {
                 currentPlayer?.let { profile ->
                     de.egril.defender.ui.infopage.PlayerProfileScreen(
                         playerProfile = profile,
                         onBack = { viewModel.navigateToMainMenu() },
                         onEditName = { showEditPlayer = true },
+                        onSelectPlayer = { showPlayerSelection = true },
                         onNavigateToStats = { viewModel.navigateToStatsUpgrade() },
                         onUpgradeAbility = { abilityType -> viewModel.upgradeAbility(abilityType) },
-                        onUnlockSpell = { spell -> viewModel.unlockSpell(spell) }
+                        onUnlockSpell = { spell -> viewModel.unlockSpell(spell) },
+                        iamState = iamState,
+                        iamLoginInProgress = iamLoginInProgress,
+                        onIamLogin = { de.egril.defender.iam.IamService.login() },
+                        onIamLogout = { de.egril.defender.iam.IamService.logout() },
+                        onAlwaysLoginChanged = { value -> viewModel.setAlwaysLogin(value) },
+                        onUseRemoteSettingsChanged = { value -> viewModel.setUseRemoteSettings(value) }
                     )
                 }
             }
@@ -291,6 +360,7 @@ fun App() {
             is Screen.LoadGame -> {
                 LoadGameScreen(
                     savedGames = savedGames,
+                    isLoadingRemoteSaves = isLoadingRemoteSaves,
                     onLoadGame = { saveId -> viewModel.loadGame(saveId) },
                     onDeleteGame = { saveId -> viewModel.deleteSavedGame(saveId) },
                     onDownloadGame = { saveId, includeGameState -> viewModel.downloadSaveGame(saveId, includeGameState) },
@@ -376,7 +446,18 @@ fun App() {
                     isLastLevel = screen.isLastLevel,
                     xpEarned = screen.xpEarned,
                     onRestart = { viewModel.restartLevel() },
-                    onBackToMap = { viewModel.navigateToWorldMap() }
+                    onBackToMap = { viewModel.navigateToWorldMap() },
+                    onShowFinalCredits = if (screen.isLastLevel && screen.won) {
+                        { viewModel.navigateToFinalCredits() }
+                    } else {
+                        null
+                    }
+                )
+            }
+            
+            is Screen.FinalCredits -> {
+                FinalCreditsScreen(
+                    onDismiss = { viewModel.navigateToWorldMap() }
                 )
             }
             

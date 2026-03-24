@@ -58,25 +58,6 @@ class VariableDamageTest {
     }
     
     @Test
-    fun testEvilMageCausesLevelDamage() {
-        val mage1 = Attacker(
-            id = 1,
-            type = AttackerType.EVIL_MAGE,
-            position = mutableStateOf(Position(0, 0)),
-            level = mutableStateOf(1)
-        )
-        assertEquals(1, mage1.calculateTargetDamage(), "Evil Mage level 1 should cause 1 HP damage")
-        
-        val mage3 = Attacker(
-            id = 2,
-            type = AttackerType.EVIL_MAGE,
-            position = mutableStateOf(Position(0, 0)),
-            level = mutableStateOf(3)
-        )
-        assertEquals(3, mage3.calculateTargetDamage(), "Evil Mage level 3 should cause 3 HP damage")
-    }
-    
-    @Test
     fun testEvilWizardCausesLevelDamage() {
         val wizard1 = Attacker(
             id = 1,

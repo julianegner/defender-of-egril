@@ -1,0 +1,79 @@
+{
+  "realm": "egril",
+  "enabled": true,
+  "displayName": "Egril",
+  "displayNameHtml": "<b>Egril</b>",
+  "loginTheme": "egril",
+  "registrationAllowed": true,
+  "loginWithEmailAllowed": true,
+  "registrationEmailAsUsername": true,
+  "rememberMe": true,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": true,
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "sslRequired": "none",
+  "internationalizationEnabled": true,
+  "supportedLocales": ["en", "de", "es", "fr", "it"],
+  "defaultLocale": "en",
+  "clients": [
+    {
+      "clientId": "defender-of-egril",
+      "name": "Defender of Egril",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "protocol": "openid-connect",
+      "redirectUris": [
+        "http://localhost:8080/*",
+        "http://localhost:8081/*",
+        "http://localhost:8082/*",
+        "http://localhost:8888/*",
+        "http://localhost:10001/callback",
+        "egril://callback"
+      ],
+      "webOrigins": [
+        "http://localhost:8080",
+        "http://localhost:8081",
+        "http://localhost:8082",
+        "http://localhost:8888",
+        "+"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:8080/*##http://localhost:8081/*##http://localhost:8082/*##http://localhost:8888/*##http://localhost:10001/*##+##egril://callback"
+      }
+    },
+    {
+      "clientId": "defender-of-egril-cli",
+      "name": "Defender of Egril CLI",
+      "description": "Public client for developer scripts and API testing. Allows Resource Owner Password Credentials flow.",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "protocol": "openid-connect",
+      "attributes": {}
+    }
+  ],
+  "users": [
+    {
+      "username": "tester@test.org",
+      "email": "tester@test.org",
+      "firstName": "Test",
+      "lastName": "User",
+      "enabled": true,
+      "emailVerified": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "test",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}

@@ -28,7 +28,6 @@ class MainMenuLayoutTest {
                 hasAutosave = false,  // No autosave in tests
                 onShowRules = {},
                 onShowInstallationInfo = {},
-                onSelectPlayer = {},
                 onEditPlayerName = {},  // No player selection in tests
                 currentPlayerName = null  // No player name in tests
             )

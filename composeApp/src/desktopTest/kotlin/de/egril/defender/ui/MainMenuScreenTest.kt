@@ -31,7 +31,6 @@ class MainMenuScreenTest {
                 hasAutosave = false,
                 onShowRules = { showRulesClicked = true },
                 onShowInstallationInfo = {},
-                onSelectPlayer = {},
                 onEditPlayerName = {},  // No player selection in tests
                 currentPlayerName = null  // No player name in tests
             )
@@ -89,7 +88,6 @@ class MainMenuScreenTest {
                 hasAutosave = false,
                 onShowRules = { showRulesClicked = true },
                 onShowInstallationInfo = {},
-                onSelectPlayer = {},
                 onEditPlayerName = {},  // No player selection in tests
                 currentPlayerName = null  // No player name in tests
             )
@@ -124,7 +122,6 @@ class MainMenuScreenTest {
                 hasAutosave = false,
                 onShowRules = {},
                 onShowInstallationInfo = {},
-                onSelectPlayer = {},
                 onEditPlayerName = {},  // No player selection in tests
                 currentPlayerName = null  // No player name in tests
             )
@@ -146,7 +143,6 @@ class MainMenuScreenTest {
                 hasAutosave = false,
                 onShowRules = {},
                 onShowInstallationInfo = {},
-                onSelectPlayer = {},
                 onEditPlayerName = {},
                 currentPlayerName = null
             )
@@ -169,7 +165,6 @@ class MainMenuScreenTest {
                 hasAutosave = false,
                 onShowRules = {},
                 onShowInstallationInfo = {},
-                onSelectPlayer = {},
                 onEditPlayerName = {},
                 currentPlayerName = null
             )
@@ -210,7 +205,6 @@ class MainMenuScreenTest {
                 hasAutosave = false,
                 onShowRules = {},
                 onShowInstallationInfo = {},
-                onSelectPlayer = {},
                 onEditPlayerName = {},
                 currentPlayerName = null
             )
@@ -244,7 +238,6 @@ class MainMenuScreenTest {
                 hasAutosave = false,
                 onShowRules = {},
                 onShowInstallationInfo = {},
-                onSelectPlayer = {},
                 onEditPlayerName = {},
                 currentPlayerName = null
             )
@@ -276,7 +269,6 @@ class MainMenuScreenTest {
                 hasAutosave = false,
                 onShowRules = {},
                 onShowInstallationInfo = {},
-                onSelectPlayer = {},
                 onEditPlayerName = {},
                 currentPlayerName = null
             )

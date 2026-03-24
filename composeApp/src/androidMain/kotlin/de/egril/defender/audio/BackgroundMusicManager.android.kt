@@ -33,6 +33,7 @@ class AndroidBackgroundMusicManager(private val context: Context) : BackgroundMu
         val categoryEnabled = when (music) {
             BackgroundMusic.WORLD_MAP -> AppSettings.isWorldMapMusicEnabled.value
             BackgroundMusic.GAMEPLAY_NORMAL, BackgroundMusic.GAMEPLAY_LOW_HEALTH -> AppSettings.isGameplayMusicEnabled.value
+            BackgroundMusic.FINAL_CREDITS -> AppSettings.isGameplayMusicEnabled.value
         }
         
         if (!enabled || !AppSettings.isSoundEnabled.value || !AppSettings.isMusicEnabled.value || !categoryEnabled) {
@@ -52,6 +53,7 @@ class AndroidBackgroundMusicManager(private val context: Context) : BackgroundMu
                     BackgroundMusic.WORLD_MAP -> "background/atmosphere-mystic-fantasy-orchestral-music-335263.mp3"
                     BackgroundMusic.GAMEPLAY_NORMAL -> "background/2021-02-23_-_Fantasy_Ambience_-_David_Fesliyan.mp3"
                     BackgroundMusic.GAMEPLAY_LOW_HEALTH -> "background/2017-06-16_-_The_Dark_Castle_-_David_Fesliyan.mp3"
+                    BackgroundMusic.FINAL_CREDITS -> "background/Happy_Music-2018-09-18_-_Beautiful_Memories_-_David_Fesliyan.mp3"
                 }
                 
                 try {
@@ -90,6 +92,7 @@ class AndroidBackgroundMusicManager(private val context: Context) : BackgroundMu
                             val categoryVolume = when (music) {
                                 BackgroundMusic.WORLD_MAP -> AppSettings.worldMapMusicVolume.value
                                 BackgroundMusic.GAMEPLAY_NORMAL, BackgroundMusic.GAMEPLAY_LOW_HEALTH -> AppSettings.gameplayMusicVolume.value
+                                BackgroundMusic.FINAL_CREDITS -> AppSettings.gameplayMusicVolume.value
                             }
                             
                             // Set volume (master * category * track * baseMultiplier)

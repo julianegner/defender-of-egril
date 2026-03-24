@@ -41,6 +41,7 @@ import de.egril.defender.ui.animations.SpellDoubleReachColor
 import de.egril.defender.ui.animations.FearSpellAnimation
 import de.egril.defender.ui.animations.FreezeSpellAnimation
 import de.egril.defender.ui.animations.GreenWitchHealingAnimation
+import de.egril.defender.ui.animations.WaterFlowAnimation
 import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.icon.BombIcon
 import de.egril.defender.ui.icon.ExplosionIcon
@@ -1278,6 +1279,12 @@ private fun BoxScope.GridCellContent(
                         val barbsSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
                         maxOf(0, barbsSpeed - 1) == 0
                     }
+                    // Compute the actual tile background color so the icon can derive the correct outline color
+                    val attackerTileBackground = if (freezeEffect != null || coolingReducesToZero) {
+                        TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f)
+                    } else {
+                        GamePlayColors.Error
+                    }
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = if (freezeEffect != null || coolingReducesToZero)
@@ -1285,7 +1292,7 @@ private fun BoxScope.GridCellContent(
                         else
                             Modifier
                     ) {
-                        EnemyIcon(attacker = attacker)
+                        EnemyIcon(attacker = attacker, backgroundColor = attackerTileBackground)
                         // Show healing effect overlay if present
                         if (healingEffect != null) {
                             GreenWitchHealingAnimation(
@@ -1605,6 +1612,19 @@ private fun BoxScope.GridCellContent(
                         // (the tile_river_maelstrom.png image already shows the maelstrom visually)
                         val useTileImages = AppSettings.useTileImages.value
                         val isMaelstromWithTileImage = riverTile.flowDirection == RiverFlow.MAELSTROM && useTileImages
+
+                        // Show water flow animation when animations are enabled (not for NONE/MAELSTROM)
+                        val enableAnimations = AppSettings.enableAnimations.value
+                        val showWaterAnimation = enableAnimations &&
+                            riverTile.flowDirection != RiverFlow.NONE &&
+                            riverTile.flowDirection != RiverFlow.MAELSTROM
+                        if (showWaterAnimation) {
+                            WaterFlowAnimation(
+                                flowDirection = riverTile.flowDirection,
+                                flowSpeed = riverTile.flowSpeed,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
 
                         if (!isMaelstromWithTileImage) {
                             RiverFlowIndicator(

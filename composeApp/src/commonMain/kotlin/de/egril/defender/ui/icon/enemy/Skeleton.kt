@@ -5,16 +5,26 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 
 /**
  * Draw skeleton symbol (skull and bones)
  */
-fun DrawScope.drawSkeletonSymbol(centerX: Float, centerY: Float, size: Float, headScale: Float = 1.0f) {
+fun DrawScope.drawSkeletonSymbol(centerX: Float, centerY: Float, size: Float, outlineColor: Color? = null, headScale: Float = 1.0f) {
     val headCenterY = centerY - size * 0.1f
 
     // Skull with facial features (scaled)
     withTransform({ scale(headScale, headScale, Offset(centerX, headCenterY)) }) {
+        if (outlineColor != null && outlineColor != Color.White) {
+            // Skull outline in light mode only (skull is white, needs outline on light backgrounds)
+            drawCircle(
+                color = outlineColor,
+                radius = size * 0.25f + 2f,
+                center = Offset(centerX, headCenterY),
+                style = Stroke(width = 3f)
+            )
+        }
         // Skull
         drawCircle(
             color = Color.White,
@@ -37,6 +47,23 @@ fun DrawScope.drawSkeletonSymbol(centerX: Float, centerY: Float, size: Float, he
     }
 
     // Crossbones (not scaled)
+    if (outlineColor != null) {
+        // Outline drawn first (thicker) so white bones are visible against any background
+        drawLine(
+            color = outlineColor,
+            start = Offset(centerX - size * 0.3f, centerY + size * 0.25f),
+            end = Offset(centerX + size * 0.3f, centerY + size * 0.35f),
+            strokeWidth = 7f,
+            cap = StrokeCap.Round
+        )
+        drawLine(
+            color = outlineColor,
+            start = Offset(centerX - size * 0.3f, centerY + size * 0.35f),
+            end = Offset(centerX + size * 0.3f, centerY + size * 0.25f),
+            strokeWidth = 7f,
+            cap = StrokeCap.Round
+        )
+    }
     drawLine(
         color = Color.White,
         start = Offset(centerX - size * 0.3f, centerY + size * 0.25f),
