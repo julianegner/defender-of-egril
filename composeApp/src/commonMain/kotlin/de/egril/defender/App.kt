@@ -90,6 +90,7 @@ fun App() {
         val showFreezeImmuneWarning by viewModel.showFreezeImmuneWarning.collectAsState()
         val pendingScrollToPosition by viewModel.pendingScrollToPosition.collectAsState()
         val pendingGameMessage by viewModel.pendingGameMessage.collectAsState()
+        val isDemoMode by viewModel.isDemoMode.collectAsState()
 
         // Observe IAM state for login/logout UI updates
         val iamState by de.egril.defender.iam.IamService.state
@@ -434,7 +435,9 @@ fun App() {
                         scrollToPosition = pendingScrollToPosition,
                         onScrollToPositionConsumed = { viewModel.clearPendingScrollPosition() },
                         pendingGameMessage = pendingGameMessage,
-                        onDismissGameMessage = { viewModel.dismissGameMessage() }
+                        onDismissGameMessage = { viewModel.dismissGameMessage() },
+                        isDemoMode = isDemoMode,
+                        onStopDemoMode = { viewModel.stopDemoMode() }
                     )
                 }
             }

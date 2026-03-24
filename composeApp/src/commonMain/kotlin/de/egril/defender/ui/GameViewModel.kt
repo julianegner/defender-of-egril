@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import de.egril.defender.config.LogConfig
@@ -152,6 +153,12 @@ class GameViewModel {
 
     private var gameEngine: GameEngine? = null
     private val viewModelScope = CoroutineScope(Dispatchers.Default)
+
+    // Demo mode state
+    private val _isDemoMode = MutableStateFlow(false)
+    val isDemoMode: StateFlow<Boolean> = _isDemoMode.asStateFlow()
+    private var demoLevelIndex = 0
+    private var demoJob: Job? = null
     
     
     init {
@@ -1052,6 +1059,18 @@ class GameViewModel {
             // Sync updated abilities (XP awarded) and level progress to backend
             uploadUserDataToBackend()
         }
+
+        if (_isDemoMode.value) {
+            // In demo mode: show the final game state briefly, then load the next demo level
+            viewModelScope.launch {
+                delay(de.egril.defender.game.DemoMode.LEVEL_END_DELAY_MS)
+                if (_isDemoMode.value) {
+                    demoLevelIndex = (demoLevelIndex + 1) % de.egril.defender.game.DemoMode.DEMO_MAP_IDS.size
+                    loadDemoLevel(demoLevelIndex)
+                }
+            }
+            return
+        }
         _currentScreen.value = Screen.LevelComplete(levelId, won, isLastLevel, xpEarned)
     }
     
@@ -1060,6 +1079,74 @@ class GameViewModel {
             ?: (_currentScreen.value as? Screen.GamePlay)?.levelId
             ?: return
         startLevel(levelId)
+    }
+
+    // -------------------------------------------------------------------------
+    // Demo Mode
+    // -------------------------------------------------------------------------
+
+    fun startDemoMode() {
+        _isDemoMode.value = true
+        demoLevelIndex = 0
+        loadDemoLevel(0)
+    }
+
+    fun stopDemoMode() {
+        demoJob?.cancel()
+        demoJob = null
+        _isDemoMode.value = false
+        navigateToWorldMap()
+    }
+
+    private fun loadDemoLevel(index: Int) {
+        val demoLevel = de.egril.defender.game.DemoMode.createDemoLevel(index) ?: return
+
+        val newGameState = GameState(
+            level = demoLevel,
+            coins = mutableStateOf(demoLevel.initialCoins),
+            healthPoints = mutableStateOf(demoLevel.healthPoints),
+            spawnPlan = demoLevel.directSpawnPlan ?: emptyList()
+        )
+        newGameState.initializePrePlacedElements()
+
+        _gameState.value = newGameState
+        gameEngine = GameEngine(newGameState)
+        _currentScreen.value = Screen.GamePlay(demoLevel.id)
+
+        startDemoAutoPlay()
+    }
+
+    private fun startDemoAutoPlay() {
+        demoJob?.cancel()
+        demoJob = viewModelScope.launch {
+            while (_isDemoMode.value) {
+                val state = _gameState.value
+                when (state?.phase?.value) {
+                    GamePhase.INITIAL_BUILDING -> {
+                        delay(de.egril.defender.game.DemoMode.INITIAL_BUILDING_DELAY_MS)
+                        if (_isDemoMode.value && _gameState.value?.phase?.value == GamePhase.INITIAL_BUILDING) {
+                            startFirstPlayerTurn()
+                        }
+                    }
+                    GamePhase.PLAYER_TURN -> {
+                        delay(de.egril.defender.game.DemoMode.PLAYER_TURN_DELAY_MS)
+                        val currentState = _gameState.value
+                        if (_isDemoMode.value &&
+                            currentState?.phase?.value == GamePhase.PLAYER_TURN &&
+                            currentState.isLevelWon().not() && currentState.isLevelLost().not()
+                        ) {
+                            gameEngine?.autoDefenderAttacks()
+                            endPlayerTurn()
+                        }
+                    }
+                    GamePhase.ENEMY_TURN -> {
+                        // Wait while enemy turn processes
+                        delay(de.egril.defender.game.DemoMode.ENEMY_TURN_POLL_MS)
+                    }
+                    null -> break
+                }
+            }
+        }
     }
     
     fun applyCheatCode(code: String): Boolean {
@@ -1242,6 +1329,12 @@ class GameViewModel {
     }
 
     fun applyWorldMapCheatCode(code: String): Boolean {
+        // Check for "demo" cheat code (starts automated demo mode)
+        if (code.lowercase().trim() == "demo") {
+            startDemoMode()
+            return true
+        }
+
         // Check for "sticker" cheat code first (navigation cheat)
         if (code.lowercase().trim() == "sticker") {
             navigateToSticker()

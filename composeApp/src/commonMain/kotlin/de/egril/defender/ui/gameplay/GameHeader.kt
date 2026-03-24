@@ -36,7 +36,8 @@ fun GameHeader(
     onSaveGame: (() -> Unit)?,
     onCheatCode: (() -> Unit)?,
     onEnemyCountClick: (() -> Unit)? = null,
-    onManaClick: (() -> Unit)? = null
+    onManaClick: (() -> Unit)? = null,
+    isDemoMode: Boolean = false
 ) {
     val headerTextSize = de.egril.defender.ui.settings.AppSettings.headerTextSize.value
     var showDebugMenu by remember { mutableStateOf(false) }
@@ -78,9 +79,10 @@ fun GameHeader(
             }
             
             Text(
-                text = gameState.level.getLocalizedTitle(locale),
+                text = if (isDemoMode) stringResource(Res.string.demo_mode) else gameState.level.getLocalizedTitle(locale),
                 fontSize = titleFontSize,
                 fontWeight = FontWeight.Bold,
+                color = if (isDemoMode) Color.Red else Color.Unspecified,
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.Center
             )

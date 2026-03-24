@@ -1540,4 +1540,7 @@
     <string name="sticker_tab_enemies">Nemici</string>
     <string name="sticker_tab_towers">Torri</string>
     <string name="sticker_tab_qr_code">Codice QR</string>
+    <string name="stop_demo_title">Fermare la demo?</string>
+    <string name="stop_demo_message">Vuoi fermare la demo e tornare alla mappa del mondo?</string>
+    <string name="demo_mode">MODALITÀ DEMO</string>
 </resources>

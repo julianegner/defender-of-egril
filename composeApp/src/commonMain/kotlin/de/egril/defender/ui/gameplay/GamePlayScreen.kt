@@ -78,7 +78,9 @@ fun GamePlayScreen(
     scrollToPosition: de.egril.defender.model.Position? = null,  // Scroll map to position (e.g. bomb explosion)
     onScrollToPositionConsumed: (() -> Unit)? = null,  // Callback after scroll consumed
     pendingGameMessage: de.egril.defender.model.GameMessage? = null,  // In-game event message (target taken, gate destroyed)
-    onDismissGameMessage: (() -> Unit)? = null  // Callback to dismiss current message and show next
+    onDismissGameMessage: (() -> Unit)? = null,  // Callback to dismiss current message and show next
+    isDemoMode: Boolean = false,  // True when demo mode is active
+    onStopDemoMode: (() -> Unit)? = null  // Callback to stop demo mode
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -131,7 +133,9 @@ fun GamePlayScreen(
         scrollToPosition = scrollToPosition,
         onScrollToPositionConsumed = onScrollToPositionConsumed,
         pendingGameMessage = pendingGameMessage,
-        onDismissGameMessage = onDismissGameMessage
+        onDismissGameMessage = onDismissGameMessage,
+        isDemoMode = isDemoMode,
+        onStopDemoMode = onStopDemoMode
     )
 }
 
@@ -188,7 +192,9 @@ private fun GamePlayScreenContent(
     scrollToPosition: de.egril.defender.model.Position? = null,
     onScrollToPositionConsumed: (() -> Unit)? = null,
     pendingGameMessage: de.egril.defender.model.GameMessage? = null,  // In-game event message (target taken, gate destroyed)
-    onDismissGameMessage: (() -> Unit)? = null  // Callback to dismiss current message and show next
+    onDismissGameMessage: (() -> Unit)? = null,  // Callback to dismiss current message and show next
+    isDemoMode: Boolean = false,  // True when demo mode is active
+    onStopDemoMode: (() -> Unit)? = null  // Callback to stop demo mode
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
@@ -219,6 +225,9 @@ private fun GamePlayScreenContent(
     var showUnsavedChangesDialog by remember { mutableStateOf(false) }  // Unsaved changes dialog
     var showEndTurnConfirmation by remember { mutableStateOf(false) }  // End turn confirmation dialog
     var showAbortInstantTowerDialog by remember { mutableStateOf(false) }  // Abort instant tower spell dialog
+
+    // Demo mode: "stop demo?" confirmation dialog
+    var showStopDemoDialog by remember { mutableStateOf(false) }
 
     // Check if unsaved changes feature is enabled (both hasUnsavedChanges and onSaveGame must be available)
     val unsavedChangesEnabled = hasUnsavedChanges != null && onSaveGame != null
@@ -476,10 +485,15 @@ private fun GamePlayScreenContent(
     // This works in the "capture" phase and doesn't require focus on this element
     val keyboardHandler: (KeyEvent) -> Boolean = remember(
         onSaveGame, onCheatCode, onEndPlayerTurn, onAutoAttackAndEndTurn, onStartFirstPlayerTurn,
-        onDefenderAttack, onDefenderAttackPosition
+        onDefenderAttack, onDefenderAttackPosition, isDemoMode
     ) {
         { event ->
             when {
+                // In demo mode any key press shows "stop demo?" dialog
+                isDemoMode && event.type == KeyEventType.KeyDown -> {
+                    showStopDemoDialog = true
+                    true
+                }
                 // Ctrl+S: Save game
                 event.type == KeyEventType.KeyDown &&
                         event.key == Key.S && event.isCtrlPressed &&
@@ -559,6 +573,17 @@ private fun GamePlayScreenContent(
             modifier = Modifier
                 .fillMaxSize()
                 .onPreviewKeyEvent(keyboardHandler)
+                // In demo mode, intercept any click/tap to show "stop demo?" dialog
+                .then(
+                    if (isDemoMode) {
+                        Modifier.clickable(
+                            indication = null,
+                            interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+                        ) { showStopDemoDialog = true }
+                    } else {
+                        Modifier
+                    }
+                )
         ) {
             val windowSize = remember(maxWidth, maxHeight) {
                 "Window: ${maxWidth.value.toInt()} x ${maxHeight.value.toInt()} dp"
@@ -578,17 +603,18 @@ private fun GamePlayScreenContent(
             showOverlay = showOverlay,
             onShowOverlayChange = { showOverlay = it },
             onBackToMap = {
-                // Check for unsaved changes before navigating back
-                if (unsavedChangesEnabled && hasUnsavedChanges.invoke()) {
+                if (isDemoMode) {
+                    showStopDemoDialog = true
+                } else if (unsavedChangesEnabled && hasUnsavedChanges.invoke()) {
                     showUnsavedChangesDialog = true
                 } else {
                     onBackToMap()
                 }
             },
-            onSaveGame = if (onSaveGame != null) {{ showSaveDialog = true }} else null,
-            onCheatCode = if (onCheatCode != null) {{ showCheatDialog = true }} else null,
+            onSaveGame = if (onSaveGame != null && !isDemoMode) {{ showSaveDialog = true }} else null,
+            onCheatCode = if (onCheatCode != null && !isDemoMode) {{ showCheatDialog = true }} else null,
             onEnemyCountClick = { showOverlay = !showOverlay },
-            onManaClick = if (onOpenMagicPanel != null && gameState.maxMana.value > 0) {
+            onManaClick = if (onOpenMagicPanel != null && gameState.maxMana.value > 0 && !isDemoMode) {
                 {
                     if (gameState.instantTowerSpellActive.value) {
                         showAbortInstantTowerDialog = true
@@ -598,7 +624,8 @@ private fun GamePlayScreenContent(
                         onOpenMagicPanel.invoke()
                     }
                 }
-            } else null
+            } else null,
+            isDemoMode = isDemoMode
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -1463,6 +1490,28 @@ private fun GamePlayScreenContent(
                     onDismiss = { onDismissGameMessage?.invoke() }
                 )
             }
+        }
+
+        // Stop demo mode confirmation dialog
+        if (showStopDemoDialog && onStopDemoMode != null) {
+            AlertDialog(
+                onDismissRequest = { showStopDemoDialog = false },
+                title = { Text(stringResource(Res.string.stop_demo_title)) },
+                text = { Text(stringResource(Res.string.stop_demo_message)) },
+                confirmButton = {
+                    Button(onClick = {
+                        showStopDemoDialog = false
+                        onStopDemoMode.invoke()
+                    }) {
+                        Text(stringResource(Res.string.yes))
+                    }
+                },
+                dismissButton = {
+                    OutlinedButton(onClick = { showStopDemoDialog = false }) {
+                        Text(stringResource(Res.string.no))
+                    }
+                }
+            )
         }
             }
         }
