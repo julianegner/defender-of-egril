@@ -454,7 +454,9 @@ fun App() {
                         { viewModel.navigateToFinalCredits() }
                     } else {
                         null
-                    }
+                    },
+                    isDemoMode = isDemoMode,
+                    onStopDemoMode = if (isDemoMode) {{ viewModel.stopDemoMode() }} else null
                 )
             }
             

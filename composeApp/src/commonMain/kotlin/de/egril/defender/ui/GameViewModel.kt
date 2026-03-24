@@ -1061,9 +1061,10 @@ class GameViewModel {
         }
 
         if (_isDemoMode.value) {
-            // In demo mode: show the final game state briefly, then load the next demo level
+            // In demo mode: show the Level Won/Lost screen for 4 seconds, then load the next level
+            _currentScreen.value = Screen.LevelComplete(levelId, won, isLastLevel, xpEarned)
             viewModelScope.launch {
-                delay(de.egril.defender.game.DemoMode.LEVEL_END_DELAY_MS)
+                delay(4000L)
                 if (_isDemoMode.value) {
                     demoLevelIndex = (demoLevelIndex + 1) % de.egril.defender.game.DemoMode.DEMO_MAP_IDS.size
                     loadDemoLevel(demoLevelIndex)

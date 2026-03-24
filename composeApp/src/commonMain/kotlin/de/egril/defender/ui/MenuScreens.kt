@@ -408,8 +408,12 @@ fun LevelCompleteScreen(
     xpEarned: Int = 0,
     onRestart: () -> Unit,
     onBackToMap: () -> Unit,
-    onShowFinalCredits: (() -> Unit)? = null
+    onShowFinalCredits: (() -> Unit)? = null,
+    isDemoMode: Boolean = false,
+    onStopDemoMode: (() -> Unit)? = null
 ) {
+    // In demo mode, allow the user to click anywhere to stop the demo
+    var showStopDemoDialog by remember { mutableStateOf(false) }
     // After winning the final level, transition to the credits after 5 seconds
     val navigateToCredits: (() -> Unit)? = if (won && isLastLevel) onShowFinalCredits else null
     if (navigateToCredits != null) {
@@ -442,10 +446,10 @@ fun LevelCompleteScreen(
         modifier = Modifier
             .fillMaxSize()
             .then(
-                if (navigateToCredits != null) {
-                    Modifier.clickable { navigateToCredits() }
-                } else {
-                    Modifier
+                when {
+                    isDemoMode -> Modifier.clickable { showStopDemoDialog = true }
+                    navigateToCredits != null -> Modifier.clickable { navigateToCredits() }
+                    else -> Modifier
                 }
             ),
         color = MaterialTheme.colorScheme.background
@@ -453,12 +457,14 @@ fun LevelCompleteScreen(
         Box(
             modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
-            // Settings button in top-right corner
+            // Settings button in top-right corner (hidden in demo mode to keep UI clean)
+            if (!isDemoMode) {
             SettingsButton(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(8.dp)
             )
+            }
             
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -538,6 +544,15 @@ fun LevelCompleteScreen(
                 
                 Spacer(modifier = Modifier.height(48.dp))
                 
+                if (isDemoMode) {
+                    // In demo mode, show a hint that the user can click to stop
+                    Text(
+                        text = stringResource(Res.string.stop_demo_message),
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
+                    )
+                } else {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
@@ -555,7 +570,18 @@ fun LevelCompleteScreen(
                         Text(stringResource(Res.string.world_map))
                     }
                 }
+                }
             }
+        }
+
+        // Stop demo confirmation dialog
+        if (showStopDemoDialog && onStopDemoMode != null) {
+            de.egril.defender.ui.editor.ConfirmationDialog(
+                title = stringResource(Res.string.stop_demo_title),
+                message = stringResource(Res.string.stop_demo_message),
+                onConfirm = { onStopDemoMode() },
+                onDismiss = { showStopDemoDialog = false }
+            )
         }
     }
 }

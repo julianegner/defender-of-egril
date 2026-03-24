@@ -625,7 +625,8 @@ private fun GamePlayScreenContent(
                     }
                 }
             } else null,
-            isDemoMode = isDemoMode
+            isDemoMode = isDemoMode,
+            onDemoTitleClick = if (isDemoMode) {{ showStopDemoDialog = true }} else null
         )
 
         Spacer(modifier = Modifier.height(8.dp))
