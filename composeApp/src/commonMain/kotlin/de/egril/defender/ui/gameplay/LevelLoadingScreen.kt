@@ -150,7 +150,7 @@ private fun EnemyHexIcon(attackerType: AttackerType, size: androidx.compose.ui.u
             .background(Color(0xFFF44336)),
         contentAlignment = Alignment.Center
     ) {
-        EnemyTypeIcon(attackerType = attackerType)
+        EnemyTypeIcon(attackerType = attackerType, backgroundColor = Color(0xFFF44336))
     }
 }
 
