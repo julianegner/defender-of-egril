@@ -56,9 +56,11 @@ object DemoMode {
             InitialDefender(DefenderType.BOW_TOWER, Position(8, 1)),
             InitialDefender(DefenderType.SPEAR_TOWER, Position(2, 8)),
             InitialDefender(DefenderType.WIZARD_TOWER, Position(7, 7)),
+            InitialDefender(DefenderType.BOW_TOWER, Position(13, 14)),  // raft on river
             InitialDefender(DefenderType.SPEAR_TOWER, Position(9, 19)),
             InitialDefender(DefenderType.BOW_TOWER, Position(10, 18)),
             InitialDefender(DefenderType.WIZARD_TOWER, Position(18, 18)),
+            InitialDefender(DefenderType.BOW_TOWER, Position(20, 14)),  // raft on river
             InitialDefender(DefenderType.BOW_TOWER, Position(10, 24)),
             InitialDefender(DefenderType.SPEAR_TOWER, Position(26, 24)),
             InitialDefender(DefenderType.BOW_TOWER, Position(25, 28)),
@@ -84,7 +86,7 @@ object DemoMode {
     /** Starting coins for each demo level (enough to build all initial towers with some extra) */
     val DEMO_START_COINS: Map<String, Int> = mapOf(
         "map_straight" to 250,   // 6 BOW (120) + 4 SPEAR (60) = 180, surplus for upgrades
-        "map_the_creek" to 320,  // 4 BOW (80) + 4 SPEAR (60) + 2 WIZARD (100) = 240, surplus for upgrades
+        "map_the_creek" to 360,  // 4 BOW (80) + 4 SPEAR (60) + 2 WIZARD (100) + 2 rafts BOW (40) = 280, surplus for upgrades
         "map_plains" to 250      // 3 BOW (60) + 1 SPEAR (15) + 2 WIZARD (100) = 175, surplus for upgrades
     )
 
@@ -164,7 +166,8 @@ object DemoMode {
 
         return Level(
             id = DEMO_LEVEL_ID_BASE + demoIndex,
-            name = "DEMO MODE",
+            name = map.name.ifBlank { "Demo" },  // Use map's display name (e.g. "The Creek"); titleKey handles localization
+            titleKey = map.nameKey,               // Use map's localized string key (e.g. "map_the_creek_name")
             subtitle = "",
             gridWidth = map.width,
             gridHeight = map.height,

@@ -547,7 +547,7 @@ fun LevelCompleteScreen(
                 if (isDemoMode) {
                     // In demo mode, show a hint that the user can click to stop
                     Text(
-                        text = stringResource(Res.string.stop_demo_message),
+                        text = stringResource(Res.string.demo_click_to_stop),
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)

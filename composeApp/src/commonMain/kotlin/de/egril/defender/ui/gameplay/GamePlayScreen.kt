@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -1011,11 +1012,27 @@ private fun GamePlayScreenContent(
             }
         }
 
-        // Controls panel: hidden in demo mode (prevents map from resizing during phase transitions).
-        // In normal gameplay, animateContentSize() smooths the height change between phases.
-        if (!isDemoMode) {
-        // Wrap in Box with animateContentSize so height transitions between phases are smooth
-        Box(modifier = Modifier.fillMaxWidth().animateContentSize()) {
+        // Track the maximum height the controls panel has reached (in pixels).
+        // Using heightIn(min = ...) on the container prevents it from shrinking when switching
+        // between the tall PLAYER_TURN panel and the short ENEMY_TURN indicator, which would
+        // otherwise cause the map area (weight=1f) to expand and the map to visibly jump.
+        var maxControlsHeightPx by remember { mutableStateOf(0) }
+
+        // Wrap in Box that tracks and maintains its maximum seen height to prevent map jumping
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .animateContentSize()
+            .then(
+                if (maxControlsHeightPx > 0) {
+                    with(LocalDensity.current) { Modifier.heightIn(min = maxControlsHeightPx.toDp()) }
+                } else Modifier
+            )
+            .onSizeChanged { size ->
+                if (size.height > maxControlsHeightPx) {
+                    maxControlsHeightPx = size.height
+                }
+            }
+        ) {
         Spacer(modifier = Modifier.height(8.dp))
         // Show magic panel inline (non-overlay) when open - map remains accessible
         if (showMagicPanel && playerStats != null && onCloseMagicPanel != null && onCastSpell != null) {
@@ -1251,8 +1268,7 @@ private fun GamePlayScreenContent(
             }
         }
         }
-        } // end Box(animateContentSize)
-        } // end if (!isDemoMode)
+        } // end Box(height-locked controls panel)
 
         // Dig outcome dialog
         if (showDigOutcomeDialog && currentDigOutcome != null) {

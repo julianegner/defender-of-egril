@@ -1541,4 +1541,5 @@
     <string name="stop_demo_title">¿Detener demo?</string>
     <string name="stop_demo_message">¿Deseas detener la demo y volver al mapa del mundo?</string>
     <string name="demo_mode">MODO DEMO</string>
+    <string name="demo_click_to_stop">Haz clic en cualquier lugar para detener la demo</string>
 </resources>
