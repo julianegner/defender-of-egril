@@ -21,6 +21,7 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.ui.common.LevelInfoEnemiesColumn
 import de.egril.defender.ui.hexagon.HexagonMinimap
 import de.egril.defender.ui.hexagon.MinimapConfig
+import de.egril.defender.ui.loadgame.SavefileLocationChip
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 
@@ -52,7 +53,13 @@ fun LevelCard(
     val editorLevel = worldLevel.level.editorLevelId?.let { EditorStorage.getLevel(it) }
     val prerequisites = editorLevel?.prerequisites ?: emptySet()
     val requiredCount = editorLevel?.getEffectiveRequiredCount() ?: 0
-    
+
+    // Community level detection: check local community storage
+    val communityEditorLevel = worldLevel.level.editorLevelId?.let { EditorStorage.getCommunityLevel(it) }
+    val isLocalCommunity = communityEditorLevel != null
+    // All locally-stored community levels were downloaded from the backend, so they are also online
+    val isOnlineCommunity = isLocalCommunity
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -74,6 +81,32 @@ fun LevelCard(
                     .fillMaxHeight(),
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
+                // Local / Online chips for community levels (same position as savefile card chips)
+                if (isLocalCommunity || isOnlineCommunity) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.End),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (isLocalCommunity) {
+                            SavefileLocationChip(
+                                label = stringResource(Res.string.savefile_chip_local),
+                                color = MaterialTheme.colorScheme.tertiary,
+                                onColor = MaterialTheme.colorScheme.onTertiary,
+                                isMobile = false
+                            )
+                        }
+                        if (isOnlineCommunity) {
+                            SavefileLocationChip(
+                                label = stringResource(Res.string.savefile_chip_remote),
+                                color = MaterialTheme.colorScheme.primary,
+                                onColor = MaterialTheme.colorScheme.onPrimary,
+                                isMobile = false
+                            )
+                        }
+                    }
+                }
+
                 // Minimap preview
                 Box(
                     modifier = Modifier

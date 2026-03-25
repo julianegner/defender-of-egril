@@ -77,7 +77,7 @@ fun SavedGameCardHeader(
 }
 
 @Composable
-private fun SavefileLocationChip(
+internal fun SavefileLocationChip(
     label: String,
     color: Color,
     onColor: Color,
