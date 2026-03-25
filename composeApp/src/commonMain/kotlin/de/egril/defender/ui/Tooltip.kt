@@ -12,12 +12,20 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 
@@ -25,35 +33,61 @@ import androidx.compose.ui.zIndex
  * Wraps content with hover-based tooltip support.
  * The tooltip is shown when the user hovers over the content (desktop/web platforms).
  *
+ * The tooltip appears **below** the element by default.
+ * When there is not enough space below (i.e. the element is near the bottom of the window),
+ * the tooltip is shown **above** instead.
+ *
  * @param text Tooltip text to display, or null/empty to disable the tooltip
  * @param modifier Modifier for the wrapper Box
- * @param offset Position offset for the tooltip relative to the top-left of the wrapped content
  * @param content The composable content to wrap
  */
 @Composable
 fun TooltipWrapper(
     text: String?,
     modifier: Modifier = Modifier,
-    offset: DpOffset = DpOffset(0.dp, (-40).dp),
     content: @Composable () -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val isHovered = remember { mutableStateOf(false) }
+    var isHovered by remember { mutableStateOf(false) }
+    val density = LocalDensity.current
+    val windowInfo = LocalWindowInfo.current
+
+    // Track element size and position, updated after each layout pass
+    var elementHeightPx by remember { mutableIntStateOf(0) }
+    var elementBottomPx by remember { mutableFloatStateOf(0f) }
 
     LaunchedEffect(interactionSource) {
         interactionSource.interactions.collect { interaction ->
             when (interaction) {
-                is HoverInteraction.Enter -> isHovered.value = true
-                is HoverInteraction.Exit -> isHovered.value = false
+                is HoverInteraction.Enter -> isHovered = true
+                is HoverInteraction.Exit -> isHovered = false
             }
         }
     }
 
     Box(
-        modifier = modifier.hoverable(interactionSource = interactionSource)
+        modifier = modifier
+            .hoverable(interactionSource = interactionSource)
+            .onGloballyPositioned { coordinates ->
+                elementHeightPx = coordinates.size.height
+                elementBottomPx = coordinates.positionInWindow().y + coordinates.size.height
+            }
     ) {
-        if (isHovered.value && !text.isNullOrEmpty()) {
-            TooltipBox(text, offset)
+        if (isHovered && !text.isNullOrEmpty()) {
+            val windowHeightPx = windowInfo.containerSize.height.toFloat()
+            val spaceBelowPx = windowHeightPx - elementBottomPx
+
+            // Show above when less than 60dp of space remains below the element
+            val minSpaceBelowPx = with(density) { 60.dp.toPx() }
+            val showAbove = windowHeightPx > 0 && spaceBelowPx < minSpaceBelowPx
+
+            val offsetY: Dp = if (showAbove) {
+                (-40).dp  // above the element
+            } else {
+                with(density) { elementHeightPx.toDp() } + 4.dp  // below with a small gap
+            }
+
+            TooltipBox(text = text, offsetY = offsetY)
         }
         content()
     }
@@ -62,7 +96,7 @@ fun TooltipWrapper(
 @Composable
 private fun TooltipBox(
     text: String,
-    offset: DpOffset = DpOffset(0.dp, (-40).dp),
+    offsetY: Dp = 0.dp,
 ) {
     Box(
         modifier = Modifier
@@ -74,7 +108,7 @@ private fun TooltipBox(
                     placeable.place(0, 0)
                 }
             }
-            .offset(x = offset.x, y = offset.y)
+            .offset(x = 0.dp, y = offsetY)
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.inverseSurface)
             .padding(horizontal = 10.dp, vertical = 6.dp)
