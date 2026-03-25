@@ -1543,6 +1543,7 @@
     <string name="demo_click_to_stop">Klicken um die Demo zu beenden</string>
 
     <!-- Editor How-To Guide -->
+    <string name="info_tab_how_to_play">Wie man spielt</string>
     <string name="info_tab_editor_howto">Editor-Anleitung</string>
     <string name="editor_howto_title">Level-Editor – Anleitung</string>
     <string name="editor_howto_intro">Der Level-Editor ermöglicht es dir, eigene Karten, Level und Sequenzen für Defender of Egril zu erstellen. Er besteht aus vier Hauptreitern: Karten-Editor, Level-Editor, Level-Sequenz und Weltkartenposition. Diese Anleitung erklärt die Verwendung der einzelnen Reiter.</string>

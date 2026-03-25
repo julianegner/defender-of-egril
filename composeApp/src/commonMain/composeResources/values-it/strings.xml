@@ -1546,6 +1546,7 @@
     <string name="demo_click_to_stop">Clicca ovunque per fermare la demo</string>
 
     <!-- Editor How-To Guide -->
+    <string name="info_tab_how_to_play">Come giocare</string>
     <string name="info_tab_editor_howto">Guida all\'Editor</string>
     <string name="editor_howto_title">Editor di Livelli – Guida all\'Uso</string>
     <string name="editor_howto_intro">L\'Editor di Livelli ti permette di creare mappe, livelli e sequenze personalizzate per Defender of Egril. Ha quattro schede principali: Editor Mappe, Editor Livelli, Sequenza Livelli e Posizioni Mappa del Mondo. Questa guida spiega come usare ciascuna scheda.</string>

@@ -1544,6 +1544,7 @@
     <string name="demo_click_to_stop">Haz clic en cualquier lugar para detener la demo</string>
 
     <!-- Editor How-To Guide -->
+    <string name="info_tab_how_to_play">Cómo jugar</string>
     <string name="info_tab_editor_howto">Guía del Editor</string>
     <string name="editor_howto_title">Editor de Niveles – Guía de Uso</string>
     <string name="editor_howto_intro">El Editor de Niveles te permite crear mapas, niveles y secuencias personalizadas para Defender of Egril. Tiene cuatro pestañas principales: Editor de Mapas, Editor de Niveles, Secuencia de Niveles y Posiciones del Mapa del Mundo. Esta guía explica cómo usar cada una.</string>

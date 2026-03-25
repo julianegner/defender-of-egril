@@ -1550,6 +1550,7 @@
     <string name="demo_click_to_stop">Click anywhere to stop the demo</string>
 
     <!-- Editor How-To Guide -->
+    <string name="info_tab_how_to_play">How to Play</string>
     <string name="info_tab_editor_howto">Editor Guide</string>
     <string name="editor_howto_title">Level Editor – How-To Guide</string>
     <string name="editor_howto_intro">The Level Editor lets you create custom maps, levels, and sequences for Defender of Egril. It has four main tabs: Map Editor, Level Editor, Level Sequence, and World Map Positions. Use this guide to learn how to use each one.</string>
