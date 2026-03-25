@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import de.egril.defender.ui.icon.LeftArrowIcon
 import de.egril.defender.ui.editor.EditorTab
-import de.egril.defender.ui.editor.EditorInfoPage
+import de.egril.defender.ui.editor.EditorHowToContent
 import de.egril.defender.ui.editor.map.MapEditorContent
 import de.egril.defender.ui.editor.worldmap.WorldMapPositionEditorContent
 import de.egril.defender.ui.settings.SettingsButton
@@ -28,6 +28,7 @@ fun LevelEditorScreen(
     onBack: () -> Unit
 ) {
     var currentTab by remember { mutableStateOf(EditorTab.LEVEL_EDITOR) }
+    var showHowToDialog by remember { mutableStateOf(false) }
     
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -49,7 +50,6 @@ fun LevelEditorScreen(
                 EditorTab.LEVEL_EDITOR -> LevelEditorContent()
                 EditorTab.LEVEL_SEQUENCE -> LevelSequenceContent()
                 EditorTab.WORLD_MAP_POSITIONS -> WorldMapPositionEditorContent()
-                EditorTab.INFO -> EditorInfoPage()
             }
         }
         
@@ -85,13 +85,7 @@ fun LevelEditorScreen(
                         SettingsButton()
                         
                         Button(
-                            onClick = { currentTab = EditorTab.INFO },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (currentTab == EditorTab.INFO)
-                                    MaterialTheme.colorScheme.primary 
-                                else 
-                                    MaterialTheme.colorScheme.secondary
-                            )
+                            onClick = { showHowToDialog = true }
                         ) {
                             Text(stringResource(Res.string.info))
                         }
@@ -114,8 +108,6 @@ fun LevelEditorScreen(
                     EditorTab.WORLD_MAP_POSITIONS to stringResource(Res.string.world_map_positions)
                 )
                 
-                // Find the selected tab index. INFO tab is not in the tab list (separate button),
-                // so when INFO is selected, default to LEVEL_EDITOR for visual consistency.
                 val selectedTabIndex = tabs.indexOfFirst { it.first == currentTab }.let { index ->
                     if (index == -1) tabs.indexOfFirst { it.first == EditorTab.LEVEL_EDITOR } else index
                 }
@@ -133,6 +125,30 @@ fun LevelEditorScreen(
                     }
                 }
             }
+        }
+
+        // How-To dialog shown when the Info button is clicked
+        if (showHowToDialog) {
+            AlertDialog(
+                onDismissRequest = { showHowToDialog = false },
+                title = {
+                    Text(
+                        text = stringResource(Res.string.editor_howto_title),
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
+                text = {
+                    // Limit dialog height so it doesn't exceed the screen on typical desktop resolutions
+                    Box(modifier = Modifier.heightIn(max = 560.dp)) {
+                        EditorHowToContent()
+                    }
+                },
+                confirmButton = {
+                    Button(onClick = { showHowToDialog = false }) {
+                        Text(stringResource(Res.string.editor_howto_close))
+                    }
+                }
+            )
         }
         }
     }

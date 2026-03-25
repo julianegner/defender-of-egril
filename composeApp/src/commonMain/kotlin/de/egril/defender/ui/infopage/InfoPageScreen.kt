@@ -11,6 +11,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.editor.EditorHowToContent
+import de.egril.defender.ui.isEditorAvailable
 import de.egril.defender.ui.settings.SettingsButton
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -24,6 +26,24 @@ fun InfoPageScreen(
     initialTab: InfoTab = InfoTab.INSTALLATION
 ) {
     var selectedTab by remember { mutableStateOf(initialTab) }
+
+    val visibleTabs = remember(isEditorAvailable()) {
+        buildList {
+            add(InfoTab.INSTALLATION)
+            add(InfoTab.AUDIO_LICENSES)
+            add(InfoTab.LICENSE)
+            add(InfoTab.KEYBOARD_SHORTCUTS)
+            add(InfoTab.BACKEND)
+            if (isEditorAvailable()) add(InfoTab.EDITOR_HOWTO)
+        }
+    }
+
+    // If the initial tab is not visible (e.g. EDITOR_HOWTO on mobile), fall back to INSTALLATION
+    if (selectedTab !in visibleTabs) {
+        selectedTab = InfoTab.INSTALLATION
+    }
+
+    val selectedTabIndex = visibleTabs.indexOf(selectedTab).coerceAtLeast(0)
     
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -48,34 +68,27 @@ fun InfoPageScreen(
                 
                 // Tab selector
                 PrimaryTabRow(
-                    selectedTabIndex = selectedTab.ordinal,
+                    selectedTabIndex = selectedTabIndex,
                     modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
                 ) {
-                    Tab(
-                        selected = selectedTab == InfoTab.INSTALLATION,
-                        onClick = { selectedTab = InfoTab.INSTALLATION },
-                        text = { Text(stringResource(Res.string.info_tab_installation)) }
-                    )
-                    Tab(
-                        selected = selectedTab == InfoTab.AUDIO_LICENSES,
-                        onClick = { selectedTab = InfoTab.AUDIO_LICENSES },
-                        text = { Text(stringResource(Res.string.info_tab_audio_licenses)) }
-                    )
-                    Tab(
-                        selected = selectedTab == InfoTab.LICENSE,
-                        onClick = { selectedTab = InfoTab.LICENSE },
-                        text = { Text(stringResource(Res.string.info_tab_license)) }
-                    )
-                    Tab(
-                        selected = selectedTab == InfoTab.KEYBOARD_SHORTCUTS,
-                        onClick = { selectedTab = InfoTab.KEYBOARD_SHORTCUTS },
-                        text = { Text(stringResource(Res.string.info_tab_keyboard_shortcuts)) }
-                    )
-                    Tab(
-                        selected = selectedTab == InfoTab.BACKEND,
-                        onClick = { selectedTab = InfoTab.BACKEND },
-                        text = { Text(stringResource(Res.string.info_tab_backend)) }
-                    )
+                    visibleTabs.forEachIndexed { index, tab ->
+                        Tab(
+                            selected = index == selectedTabIndex,
+                            onClick = { selectedTab = tab },
+                            text = {
+                                Text(
+                                    when (tab) {
+                                        InfoTab.INSTALLATION -> stringResource(Res.string.info_tab_installation)
+                                        InfoTab.AUDIO_LICENSES -> stringResource(Res.string.info_tab_audio_licenses)
+                                        InfoTab.LICENSE -> stringResource(Res.string.info_tab_license)
+                                        InfoTab.KEYBOARD_SHORTCUTS -> stringResource(Res.string.info_tab_keyboard_shortcuts)
+                                        InfoTab.BACKEND -> stringResource(Res.string.info_tab_backend)
+                                        InfoTab.EDITOR_HOWTO -> stringResource(Res.string.info_tab_editor_howto)
+                                    }
+                                )
+                            }
+                        )
+                    }
                 }
                 
                 // Content area
@@ -90,6 +103,7 @@ fun InfoPageScreen(
                         InfoTab.LICENSE -> LicenseInfo()
                         InfoTab.KEYBOARD_SHORTCUTS -> KeyboardShortcutsInfo()
                         InfoTab.BACKEND -> BackendInfo()
+                        InfoTab.EDITOR_HOWTO -> EditorHowToContent()
                     }
                 }
                 
@@ -115,5 +129,6 @@ enum class InfoTab {
     AUDIO_LICENSES,
     LICENSE,
     KEYBOARD_SHORTCUTS,
-    BACKEND
+    BACKEND,
+    EDITOR_HOWTO
 }
