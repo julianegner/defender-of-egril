@@ -36,7 +36,9 @@ fun GameHeader(
     onSaveGame: (() -> Unit)?,
     onCheatCode: (() -> Unit)?,
     onEnemyCountClick: (() -> Unit)? = null,
-    onManaClick: (() -> Unit)? = null
+    onManaClick: (() -> Unit)? = null,
+    isDemoMode: Boolean = false,
+    onDemoTitleClick: (() -> Unit)? = null
 ) {
     val headerTextSize = de.egril.defender.ui.settings.AppSettings.headerTextSize.value
     var showDebugMenu by remember { mutableStateOf(false) }
@@ -69,7 +71,7 @@ fun GameHeader(
                 )
             }
 
-            // Level name in center (without prefix, bold when collapsed)
+            // Level name in center
             val locale = com.hyperether.resources.currentLanguage.value
             val titleFontSize = when (headerTextSize) {
                 de.egril.defender.ui.settings.HeaderTextSize.SMALL -> GamePlayConstants.TextSizes.Body
@@ -77,13 +79,43 @@ fun GameHeader(
                 de.egril.defender.ui.settings.HeaderTextSize.LARGE -> GamePlayConstants.TextSizes.Large
             }
             
-            Text(
-                text = gameState.level.getLocalizedTitle(locale),
-                fontSize = titleFontSize,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(1f),
-                textAlign = TextAlign.Center
-            )
+            if (isDemoMode) {
+                // Demo title: "*** DEMO MODE ***  [original title]  *** DEMO MODE ***"
+                // The "*** DEMO MODE ***" parts are in red and clickable to stop the demo
+                Row(
+                    modifier = Modifier
+                        .weight(1f)
+                        .then(if (onDemoTitleClick != null) Modifier.clickable { onDemoTitleClick() } else Modifier),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "*** DEMO MODE ***",
+                        fontSize = titleFontSize,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Red
+                    )
+                    Text(
+                        text = "  ${gameState.level.getLocalizedTitle(locale)}  ",
+                        fontSize = titleFontSize,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "*** DEMO MODE ***",
+                        fontSize = titleFontSize,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Red
+                    )
+                }
+            } else {
+                Text(
+                    text = gameState.level.getLocalizedTitle(locale),
+                    fontSize = titleFontSize,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Center
+                )
+            }
 
             // Buttons and difficulty at far right
             val buttonHeight = when (headerTextSize) {

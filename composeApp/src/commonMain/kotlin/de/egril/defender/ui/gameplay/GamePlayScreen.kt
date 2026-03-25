@@ -1,5 +1,6 @@
 package de.egril.defender.ui.gameplay
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -8,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -78,7 +80,13 @@ fun GamePlayScreen(
     scrollToPosition: de.egril.defender.model.Position? = null,  // Scroll map to position (e.g. bomb explosion)
     onScrollToPositionConsumed: (() -> Unit)? = null,  // Callback after scroll consumed
     pendingGameMessage: de.egril.defender.model.GameMessage? = null,  // In-game event message (target taken, gate destroyed)
-    onDismissGameMessage: (() -> Unit)? = null  // Callback to dismiss current message and show next
+    onDismissGameMessage: (() -> Unit)? = null,  // Callback to dismiss current message and show next
+    isDemoMode: Boolean = false,  // True when demo mode is active
+    onStopDemoMode: (() -> Unit)? = null,  // Callback to stop demo mode
+    demoSelectedDefenderType: DefenderType? = null,
+    demoHoveredPosition: Position? = null,
+    demoSelectedDefenderId: Int? = null,
+    demoSelectedTargetPosition: Position? = null
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -131,7 +139,13 @@ fun GamePlayScreen(
         scrollToPosition = scrollToPosition,
         onScrollToPositionConsumed = onScrollToPositionConsumed,
         pendingGameMessage = pendingGameMessage,
-        onDismissGameMessage = onDismissGameMessage
+        onDismissGameMessage = onDismissGameMessage,
+        isDemoMode = isDemoMode,
+        onStopDemoMode = onStopDemoMode,
+        demoSelectedDefenderType = demoSelectedDefenderType,
+        demoHoveredPosition = demoHoveredPosition,
+        demoSelectedDefenderId = demoSelectedDefenderId,
+        demoSelectedTargetPosition = demoSelectedTargetPosition
     )
 }
 
@@ -188,7 +202,14 @@ private fun GamePlayScreenContent(
     scrollToPosition: de.egril.defender.model.Position? = null,
     onScrollToPositionConsumed: (() -> Unit)? = null,
     pendingGameMessage: de.egril.defender.model.GameMessage? = null,  // In-game event message (target taken, gate destroyed)
-    onDismissGameMessage: (() -> Unit)? = null  // Callback to dismiss current message and show next
+    onDismissGameMessage: (() -> Unit)? = null,  // Callback to dismiss current message and show next
+    isDemoMode: Boolean = false,  // True when demo mode is active
+    onStopDemoMode: (() -> Unit)? = null,  // Callback to stop demo mode
+    // Demo visual state – drives placement preview and attack aiming in the UI
+    demoSelectedDefenderType: DefenderType? = null,
+    demoHoveredPosition: Position? = null,
+    demoSelectedDefenderId: Int? = null,
+    demoSelectedTargetPosition: Position? = null
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
@@ -219,6 +240,25 @@ private fun GamePlayScreenContent(
     var showUnsavedChangesDialog by remember { mutableStateOf(false) }  // Unsaved changes dialog
     var showEndTurnConfirmation by remember { mutableStateOf(false) }  // End turn confirmation dialog
     var showAbortInstantTowerDialog by remember { mutableStateOf(false) }  // Abort instant tower spell dialog
+
+    // Demo mode: "stop demo?" confirmation dialog
+    var showStopDemoDialog by remember { mutableStateOf(false) }
+
+    // When demo mode visual state changes, sync it into the local selection state so
+    // the existing rendering code (GameGrid, GameControls) shows the preview without any changes.
+    if (isDemoMode) {
+        LaunchedEffect(demoSelectedDefenderType) { selectedDefenderType = demoSelectedDefenderType }
+        LaunchedEffect(demoSelectedDefenderId) { selectedDefenderId = demoSelectedDefenderId }
+        LaunchedEffect(demoSelectedTargetPosition) { selectedTargetPosition = demoSelectedTargetPosition }
+    }
+    // When demo mode ends, clear any leftover selection state so normal play starts clean
+    LaunchedEffect(isDemoMode) {
+        if (!isDemoMode) {
+            selectedDefenderType = null
+            selectedDefenderId = null
+            selectedTargetPosition = null
+        }
+    }
 
     // Check if unsaved changes feature is enabled (both hasUnsavedChanges and onSaveGame must be available)
     val unsavedChangesEnabled = hasUnsavedChanges != null && onSaveGame != null
@@ -476,10 +516,15 @@ private fun GamePlayScreenContent(
     // This works in the "capture" phase and doesn't require focus on this element
     val keyboardHandler: (KeyEvent) -> Boolean = remember(
         onSaveGame, onCheatCode, onEndPlayerTurn, onAutoAttackAndEndTurn, onStartFirstPlayerTurn,
-        onDefenderAttack, onDefenderAttackPosition
+        onDefenderAttack, onDefenderAttackPosition, isDemoMode
     ) {
         { event ->
             when {
+                // In demo mode any key press shows "stop demo?" dialog
+                isDemoMode && event.type == KeyEventType.KeyDown -> {
+                    showStopDemoDialog = true
+                    true
+                }
                 // Ctrl+S: Save game
                 event.type == KeyEventType.KeyDown &&
                         event.key == Key.S && event.isCtrlPressed &&
@@ -559,6 +604,17 @@ private fun GamePlayScreenContent(
             modifier = Modifier
                 .fillMaxSize()
                 .onPreviewKeyEvent(keyboardHandler)
+                // In demo mode, intercept any click/tap to show "stop demo?" dialog
+                .then(
+                    if (isDemoMode) {
+                        Modifier.clickable(
+                            indication = null,
+                            interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+                        ) { showStopDemoDialog = true }
+                    } else {
+                        Modifier
+                    }
+                )
         ) {
             val windowSize = remember(maxWidth, maxHeight) {
                 "Window: ${maxWidth.value.toInt()} x ${maxHeight.value.toInt()} dp"
@@ -578,17 +634,18 @@ private fun GamePlayScreenContent(
             showOverlay = showOverlay,
             onShowOverlayChange = { showOverlay = it },
             onBackToMap = {
-                // Check for unsaved changes before navigating back
-                if (unsavedChangesEnabled && hasUnsavedChanges.invoke()) {
+                if (isDemoMode) {
+                    showStopDemoDialog = true
+                } else if (unsavedChangesEnabled && hasUnsavedChanges.invoke()) {
                     showUnsavedChangesDialog = true
                 } else {
                     onBackToMap()
                 }
             },
-            onSaveGame = if (onSaveGame != null) {{ showSaveDialog = true }} else null,
-            onCheatCode = if (onCheatCode != null) {{ showCheatDialog = true }} else null,
+            onSaveGame = if (onSaveGame != null && !isDemoMode) {{ showSaveDialog = true }} else null,
+            onCheatCode = if (onCheatCode != null && !isDemoMode) {{ showCheatDialog = true }} else null,
             onEnemyCountClick = { showOverlay = !showOverlay },
-            onManaClick = if (onOpenMagicPanel != null && gameState.maxMana.value > 0) {
+            onManaClick = if (onOpenMagicPanel != null && gameState.maxMana.value > 0 && !isDemoMode) {
                 {
                     if (gameState.instantTowerSpellActive.value) {
                         showAbortInstantTowerDialog = true
@@ -598,7 +655,9 @@ private fun GamePlayScreenContent(
                         onOpenMagicPanel.invoke()
                     }
                 }
-            } else null
+            } else null,
+            isDemoMode = isDemoMode,
+            onDemoTitleClick = if (isDemoMode) {{ showStopDemoDialog = true }} else null
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -842,7 +901,9 @@ private fun GamePlayScreenContent(
                 },
                 modifier = Modifier.fillMaxSize(),
                 scrollToPosition = scrollToPosition,
-                onScrollToPositionConsumed = onScrollToPositionConsumed
+                onScrollToPositionConsumed = onScrollToPositionConsumed,
+                isDemoMode = isDemoMode,
+                demoHoveredPosition = demoHoveredPosition
             )
 
             // Overlay panel with Legend and Enemy List (conditionally shown)
@@ -981,8 +1042,28 @@ private fun GamePlayScreenContent(
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        // Track the maximum height the controls panel has reached (in pixels).
+        // Using heightIn(min = ...) on the container prevents it from shrinking when switching
+        // between the tall PLAYER_TURN panel and the short ENEMY_TURN indicator, which would
+        // otherwise cause the map area (weight=1f) to expand and the map to visibly jump.
+        var maxControlsHeightPx by remember { mutableStateOf(0) }
 
+        // Wrap in Box that tracks and maintains its maximum seen height to prevent map jumping
+        Box(modifier = Modifier
+            .fillMaxWidth()
+            .animateContentSize()
+            .then(
+                if (maxControlsHeightPx > 0) {
+                    with(LocalDensity.current) { Modifier.heightIn(min = maxControlsHeightPx.toDp()) }
+                } else Modifier
+            )
+            .onSizeChanged { size ->
+                if (size.height > maxControlsHeightPx) {
+                    maxControlsHeightPx = size.height
+                }
+            }
+        ) {
+        Spacer(modifier = Modifier.height(8.dp))
         // Show magic panel inline (non-overlay) when open - map remains accessible
         if (showMagicPanel && playerStats != null && onCloseMagicPanel != null && onCastSpell != null) {
             MagicPanel(
@@ -1217,6 +1298,7 @@ private fun GamePlayScreenContent(
             }
         }
         }
+        } // end Box(height-locked controls panel)
 
         // Dig outcome dialog
         if (showDigOutcomeDialog && currentDigOutcome != null) {
@@ -1463,6 +1545,28 @@ private fun GamePlayScreenContent(
                     onDismiss = { onDismissGameMessage?.invoke() }
                 )
             }
+        }
+
+        // Stop demo mode confirmation dialog
+        if (showStopDemoDialog && onStopDemoMode != null) {
+            AlertDialog(
+                onDismissRequest = { showStopDemoDialog = false },
+                title = { Text(stringResource(Res.string.stop_demo_title)) },
+                text = { Text(stringResource(Res.string.stop_demo_message)) },
+                confirmButton = {
+                    Button(onClick = {
+                        showStopDemoDialog = false
+                        onStopDemoMode.invoke()
+                    }) {
+                        Text(stringResource(Res.string.yes))
+                    }
+                },
+                dismissButton = {
+                    OutlinedButton(onClick = { showStopDemoDialog = false }) {
+                        Text(stringResource(Res.string.no))
+                    }
+                }
+            )
         }
             }
         }

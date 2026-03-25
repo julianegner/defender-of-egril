@@ -1539,4 +1539,8 @@
     <string name="sticker_tab_enemies">Ennemis</string>
     <string name="sticker_tab_towers">Tours</string>
     <string name="sticker_tab_qr_code">Code QR</string>
+    <string name="stop_demo_title">Arrêter la démo ?</string>
+    <string name="stop_demo_message">Voulez-vous arrêter la démo et retourner à la carte du monde ?</string>
+    <string name="demo_mode">MODE DÉMO</string>
+    <string name="demo_click_to_stop">Cliquez n\'importe où pour arrêter la démo</string>
 </resources>
