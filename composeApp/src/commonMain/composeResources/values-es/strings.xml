@@ -1579,4 +1579,10 @@
     <string name="editor_howto_tips_title">Consejos</string>
     <string name="editor_howto_tips">Guarda con frecuencia para no perder el trabajo - Prueba los niveles jugándolos después de cada cambio - Copia mapas y niveles existentes como plantillas de inicio - Un mapa puede reutilizarse en varios niveles - Los badges rojos en sub-pestañas indican configuración faltante o inválida - El botón "Restaurar Datos del Juego" en Ajustes restablece todo el contenido oficial a su estado original</string>
     <string name="editor_howto_close">Cerrar</string>
+    <string name="tooltip_enemy_list_and_legend">Lista de unidades enemigas y leyenda</string>
+    <string name="tooltip_save_the_game">Guardar la partida</string>
+    <string name="tooltip_log_out_from_remote">Cerrar sesión remota</string>
+    <string name="tooltip_info_installation">Info sobre instalación, licencia y privacidad</string>
+    <string name="tooltip_enemies_on_map_and_planned">Enemigos en el mapa y planificados</string>
+    <string name="tooltip_return_to_worldmap">Volver al mapa del mundo</string>
 </resources>

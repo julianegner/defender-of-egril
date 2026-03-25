@@ -1580,4 +1580,10 @@
     <string name="editor_howto_tips_title">Conseils</string>
     <string name="editor_howto_tips">Sauvegardez fréquemment pour éviter de perdre votre travail - Testez vos niveaux en jouant après chaque modification - Copiez des cartes et niveaux existants comme modèles de départ - Une carte peut être réutilisée pour plusieurs niveaux - Les badges rouges sur les sous-onglets indiquent une configuration manquante ou invalide - Le bouton « Restaurer les Données du Jeu » dans les Paramètres remet tout le contenu officiel dans son état d\'origine</string>
     <string name="editor_howto_close">Fermer</string>
+    <string name="tooltip_enemy_list_and_legend">Liste des unités ennemies et légende</string>
+    <string name="tooltip_save_the_game">Sauvegarder la partie</string>
+    <string name="tooltip_log_out_from_remote">Se déconnecter du serveur</string>
+    <string name="tooltip_info_installation">Info sur l\'installation, la licence et la confidentialité</string>
+    <string name="tooltip_enemies_on_map_and_planned">Ennemis sur la carte et planifiés</string>
+    <string name="tooltip_return_to_worldmap">Retour à la carte du monde</string>
 </resources>

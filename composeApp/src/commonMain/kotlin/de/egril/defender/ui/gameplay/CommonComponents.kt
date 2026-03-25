@@ -11,6 +11,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.HeartIcon
@@ -19,6 +20,9 @@ import de.egril.defender.ui.icon.ReloadIcon
 import de.egril.defender.ui.icon.TriangleDownIcon
 import de.egril.defender.ui.icon.TriangleLeftIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
+import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.spells
+import defender_of_egril.composeapp.generated.resources.tooltip_enemies_on_map_and_planned
 
 /**
  * Reusable expandable card component with collapse/expand functionality.
@@ -162,20 +166,22 @@ fun GameStatsDisplay(
     
     // Mana (only show if mana values are provided)
     if (currentMana != null && maxMana != null && maxMana > 0) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = if (onManaClick != null) {
-                Modifier.clickable(onClick = onManaClick)
-            } else {
-                Modifier
+        TooltipWrapper(text = stringResource(Res.string.spells)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = if (onManaClick != null) {
+                    Modifier.clickable(onClick = onManaClick)
+                } else {
+                    Modifier
+                }
+            ) {
+                de.egril.defender.ui.icon.PentagramIcon(
+                    size = iconSize,
+                    color = Color(0xFF9C27B0)  // Purple for mana
+                )
+                Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+                Text("$currentMana/$maxMana", style = textStyle)
             }
-        ) {
-            de.egril.defender.ui.icon.PentagramIcon(
-                size = iconSize,
-                color = Color(0xFF9C27B0)  // Purple for mana
-            )
-            Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
-            Text("$currentMana/$maxMana", style = textStyle)
         }
     }
         
@@ -187,16 +193,18 @@ fun GameStatsDisplay(
     }
 
     // Enemy count (clickable if callback provided)
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = if (onEnemyCountClick != null) {
-            Modifier.clickable(onClick = onEnemyCountClick)
-        } else {
-            Modifier
+    TooltipWrapper(text = stringResource(Res.string.tooltip_enemies_on_map_and_planned)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = if (onEnemyCountClick != null) {
+                Modifier.clickable(onClick = onEnemyCountClick)
+            } else {
+                Modifier
+            }
+        ) {
+            EnemyTypeIcon(AttackerType.GOBLIN, modifier = Modifier.size(iconSize + 4.dp))
+            Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+            Text("$activeEnemyCount | $remainingEnemyCount", style = textStyle)
         }
-    ) {
-        EnemyTypeIcon(AttackerType.GOBLIN, modifier = Modifier.size(iconSize + 4.dp))
-        Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
-        Text("$activeEnemyCount | $remainingEnemyCount", style = textStyle)
     }
 }
