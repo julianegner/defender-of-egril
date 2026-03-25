@@ -1545,6 +1545,7 @@
     <string name="demo_click_to_stop">Cliquez n\'importe où pour arrêter la démo</string>
 
     <!-- Editor How-To Guide -->
+    <string name="info_tab_how_to_play">Comment jouer</string>
     <string name="info_tab_editor_howto">Guide de l\'Éditeur</string>
     <string name="editor_howto_title">Éditeur de Niveaux – Guide d\'Utilisation</string>
     <string name="editor_howto_intro">L\'Éditeur de Niveaux vous permet de créer des cartes, des niveaux et des séquences personnalisés pour Defender of Egril. Il comporte quatre onglets principaux : Éditeur de Cartes, Éditeur de Niveaux, Séquence de Niveaux et Positions de la Carte du Monde. Ce guide explique comment utiliser chacun d\'eux.</string>

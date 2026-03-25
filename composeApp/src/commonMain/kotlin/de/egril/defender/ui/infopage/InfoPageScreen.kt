@@ -30,6 +30,7 @@ fun InfoPageScreen(
     val visibleTabs = remember(isEditorAvailable()) {
         buildList {
             add(InfoTab.INSTALLATION)
+            add(InfoTab.HOW_TO_PLAY)
             add(InfoTab.AUDIO_LICENSES)
             add(InfoTab.LICENSE)
             add(InfoTab.KEYBOARD_SHORTCUTS)
@@ -79,6 +80,7 @@ fun InfoPageScreen(
                                 Text(
                                     when (tab) {
                                         InfoTab.INSTALLATION -> stringResource(Res.string.info_tab_installation)
+                                        InfoTab.HOW_TO_PLAY -> stringResource(Res.string.info_tab_how_to_play)
                                         InfoTab.AUDIO_LICENSES -> stringResource(Res.string.info_tab_audio_licenses)
                                         InfoTab.LICENSE -> stringResource(Res.string.info_tab_license)
                                         InfoTab.KEYBOARD_SHORTCUTS -> stringResource(Res.string.info_tab_keyboard_shortcuts)
@@ -99,6 +101,7 @@ fun InfoPageScreen(
                 ) {
                     when (selectedTab) {
                         InfoTab.INSTALLATION -> InstallationInfo()
+                        InfoTab.HOW_TO_PLAY -> HowToPlayContent()
                         InfoTab.AUDIO_LICENSES -> AudioLicensesInfo()
                         InfoTab.LICENSE -> LicenseInfo()
                         InfoTab.KEYBOARD_SHORTCUTS -> KeyboardShortcutsInfo()
@@ -126,6 +129,7 @@ fun InfoPageScreen(
  */
 enum class InfoTab {
     INSTALLATION,
+    HOW_TO_PLAY,
     AUDIO_LICENSES,
     LICENSE,
     KEYBOARD_SHORTCUTS,
