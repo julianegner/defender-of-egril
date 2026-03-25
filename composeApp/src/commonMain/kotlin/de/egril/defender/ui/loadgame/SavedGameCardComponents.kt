@@ -21,6 +21,7 @@ import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.TimerIcon
 import de.egril.defender.ui.icon.TrashIcon
+import de.egril.defender.ui.icon.SpeechBubbleIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
@@ -167,10 +168,8 @@ fun SavedGameCardComment(
         verticalAlignment = Alignment.Top,
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text(
-            text = "💬",
-            style = MaterialTheme.typography.bodyMedium,
-            fontSize = if (isMobile) 12.sp else 16.sp
+        SpeechBubbleIcon(
+            size = if (isMobile) 12.dp else 16.dp
         )
         Spacer(modifier = Modifier.width(if (isMobile) 2.dp else 4.dp))
         Text(

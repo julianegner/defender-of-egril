@@ -76,6 +76,8 @@ import defender_of_egril.composeapp.generated.resources.emoji_plus
 import defender_of_egril.composeapp.generated.resources.emoji_cross
 import defender_of_egril.composeapp.generated.resources.emoji_pencil
 import defender_of_egril.composeapp.generated.resources.emoji_crown
+import defender_of_egril.composeapp.generated.resources.emoji_shield
+import defender_of_egril.composeapp.generated.resources.emoji_speech_bubble
 import defender_of_egril.composeapp.generated.resources.trap
 import org.jetbrains.compose.resources.painterResource
 import kotlin.math.PI
@@ -1333,7 +1335,39 @@ fun FearSpellAreaIcon(
 }
 
 /**
- * Displays a snowflake icon using Canvas for freeze effects
+ * Displays a shield icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+1F6E1)
+ */
+@Composable
+fun ShieldIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_shield),
+        contentDescription = "Shield",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a speech bubble icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+1F4AC)
+ */
+@Composable
+fun SpeechBubbleIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp
+) {
+    Image(
+        painter = painterResource(Res.drawable.emoji_speech_bubble),
+        contentDescription = "Speech Bubble",
+        modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a snowflake icon using Canvas for cross-platform compatibility
  */
 @Composable
 fun SnowflakeIcon(

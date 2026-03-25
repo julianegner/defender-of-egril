@@ -90,6 +90,11 @@ fun App() {
         val showFreezeImmuneWarning by viewModel.showFreezeImmuneWarning.collectAsState()
         val pendingScrollToPosition by viewModel.pendingScrollToPosition.collectAsState()
         val pendingGameMessage by viewModel.pendingGameMessage.collectAsState()
+        val isDemoMode by viewModel.isDemoMode.collectAsState()
+        val demoSelectedDefenderType by viewModel.demoSelectedDefenderType.collectAsState()
+        val demoHoveredPosition by viewModel.demoHoveredPosition.collectAsState()
+        val demoSelectedDefenderId by viewModel.demoSelectedDefenderId.collectAsState()
+        val demoSelectedTargetPosition by viewModel.demoSelectedTargetPosition.collectAsState()
 
         // Observe IAM state for login/logout UI updates
         val iamState by de.egril.defender.iam.IamService.state
@@ -434,7 +439,13 @@ fun App() {
                         scrollToPosition = pendingScrollToPosition,
                         onScrollToPositionConsumed = { viewModel.clearPendingScrollPosition() },
                         pendingGameMessage = pendingGameMessage,
-                        onDismissGameMessage = { viewModel.dismissGameMessage() }
+                        onDismissGameMessage = { viewModel.dismissGameMessage() },
+                        isDemoMode = isDemoMode,
+                        onStopDemoMode = { viewModel.stopDemoMode() },
+                        demoSelectedDefenderType = demoSelectedDefenderType,
+                        demoHoveredPosition = demoHoveredPosition,
+                        demoSelectedDefenderId = demoSelectedDefenderId,
+                        demoSelectedTargetPosition = demoSelectedTargetPosition
                     )
                 }
             }
@@ -451,7 +462,9 @@ fun App() {
                         { viewModel.navigateToFinalCredits() }
                     } else {
                         null
-                    }
+                    },
+                    isDemoMode = isDemoMode,
+                    onStopDemoMode = if (isDemoMode) {{ viewModel.stopDemoMode() }} else null
                 )
             }
             

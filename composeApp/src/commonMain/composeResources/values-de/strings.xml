@@ -1537,4 +1537,8 @@
     <string name="sticker_tab_enemies">Gegner</string>
     <string name="sticker_tab_towers">Türme</string>
     <string name="sticker_tab_qr_code">QR-Code</string>
+    <string name="stop_demo_title">Demo beenden?</string>
+    <string name="stop_demo_message">Möchtest du die Demo beenden und zur Weltkarte zurückkehren?</string>
+    <string name="demo_mode">DEMO-MODUS</string>
+    <string name="demo_click_to_stop">Klicken um die Demo zu beenden</string>
 </resources>

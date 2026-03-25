@@ -34,6 +34,7 @@ import de.egril.defender.utils.isPlatformAndroid
 import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.ui.getLocalizedName
+import de.egril.defender.ui.icon.LockIcon
 import org.jetbrains.compose.resources.painterResource
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.world_map_background
@@ -504,6 +505,23 @@ private fun BoxScope.LocationMarkersOverlay(
                                         color = Color.White,
                                         fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                                     )
+                                }
+                            }
+                        } else if (allLocked) {
+                            // Lock badge for single locked level
+                            Surface(
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .size((18 * scaleFactor).dp),
+                                shape = androidx.compose.foundation.shape.CircleShape,
+                                color = markerColor,
+                                shadowElevation = (2 * scaleFactor).dp
+                            ) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier.fillMaxSize()
+                                ) {
+                                    LockIcon(size = (12 * scaleFactor).dp)
                                 }
                             }
                         }

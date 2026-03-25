@@ -1544,4 +1544,8 @@
     <string name="sticker_tab_enemies">Enemies</string>
     <string name="sticker_tab_towers">Towers</string>
     <string name="sticker_tab_qr_code">QR Code</string>
+    <string name="stop_demo_title">Stop Demo?</string>
+    <string name="stop_demo_message">Do you want to stop the demo and return to the world map?</string>
+    <string name="demo_mode">DEMO MODE</string>
+    <string name="demo_click_to_stop">Click anywhere to stop the demo</string>
 </resources>
