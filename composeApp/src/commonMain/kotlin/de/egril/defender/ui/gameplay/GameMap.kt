@@ -107,11 +107,11 @@ fun GameGrid(
         if (!isInitialized && containerSize.width > 0 && containerSize.height > 0 
             && contentSize.width > 0 && contentSize.height > 0) {
             if (isDemoMode) {
-                // Zoom out to 85% of the perfect fit so the entire map stays visible
-                // even with minor layout shifts or borders during play
+                // Zoom to 100% fit-to-screen so the entire map fills the available space
+                // (controls panel height is locked at its max so no layout jumps occur)
                 val fitScaleX = containerSize.width.toFloat() / contentSize.width.toFloat()
                 val fitScaleY = containerSize.height.toFloat() / contentSize.height.toFloat()
-                scale = (minOf(fitScaleX, fitScaleY) * 0.85f).coerceAtLeast(0.2f)
+                scale = minOf(fitScaleX, fitScaleY).coerceAtLeast(0.2f)
                 offsetX = 0f
                 offsetY = 0f
             } else {
