@@ -1548,4 +1548,40 @@
     <string name="stop_demo_message">Do you want to stop the demo and return to the world map?</string>
     <string name="demo_mode">DEMO MODE</string>
     <string name="demo_click_to_stop">Click anywhere to stop the demo</string>
+
+    <!-- Editor How-To Guide -->
+    <string name="info_tab_editor_howto">Editor Guide</string>
+    <string name="editor_howto_title">Level Editor – How-To Guide</string>
+    <string name="editor_howto_intro">The Level Editor lets you create custom maps, levels, and sequences for Defender of Egril. It has four main tabs: Map Editor, Level Editor, Level Sequence, and World Map Positions. Use this guide to learn how to use each one.</string>
+    <string name="editor_howto_workflow_title">Recommended Workflow</string>
+    <string name="editor_howto_workflow_steps">1. Create or select a map in the Map Editor tab - 2. Create a level in the Level Editor tab that uses that map - 3. Test your level by playing it in the game - Note: Steps 4 and 5 are only required for official levels shipped with the game; user-created and community levels are playable without them - 4. (Official levels only) Add the level to the sequence in the Level Sequence tab - 5. (Official levels only) Place and connect the level on the World Map Positions tab</string>
+    <string name="editor_howto_map_editor_title">Map Editor Tab</string>
+    <string name="editor_howto_map_editor_intro">Design the hexagonal tile layout for your level. Select an existing map from the list to edit it, or click "New Map" to create a blank map. Give the map a name, set its width and height, then paint tiles to build your terrain.</string>
+    <string name="editor_howto_tile_types_title">Tile Types</string>
+    <string name="editor_howto_tile_types">PATH: The route enemies walk along - BUILD_AREA: Areas where towers can be placed (adjacent to PATH tiles, auto-calculated) - ISLAND: A 2×2 build area in the middle of paths - NO_PLAY: Non-playable background area (default for unset tiles) - SPAWN_POINT: Where enemies enter the map - TARGET: The goal enemies try to reach - RIVER: Water tile with a configurable flow direction and speed</string>
+    <string name="editor_howto_map_controls_title">Map Editor Controls</string>
+    <string name="editor_howto_map_controls">Click a tile to paint it with the selected tile type - Click and drag to paint multiple tiles at once - Ctrl+Scroll or the zoom buttons to zoom in and out - Click the ▲/▼ button to collapse or expand the header for more editing space - "Change All NO_PLAY to PATH" converts every background tile to PATH at once</string>
+    <string name="editor_howto_river_title">River Tiles</string>
+    <string name="editor_howto_river_text">Select the RIVER tile type, then configure the flow direction (e.g. NORTH, EAST, SOUTH_WEST) and flow speed using the controls that appear. River tiles are visual only and do not affect gameplay.</string>
+    <string name="editor_howto_level_editor_title">Level Editor Tab</string>
+    <string name="editor_howto_level_editor_intro">Create gameplay levels using existing maps. Select a level from the list to edit it, or click "New Level" to create one. Each level has five configuration sub-tabs shown at the top of the editing view.</string>
+    <string name="editor_howto_level_info_title">Sub-Tab: Level Info</string>
+    <string name="editor_howto_level_info_fields">Title: The level name displayed on the world map - Subtitle: Optional short description shown below the title - Author: Your name or handle - Map: Select which map this level uses - Start Coins: The coins the player begins with - Start Health Points: The lives the player starts with - Test Level: Hides the level from normal gameplay (useful for testing) - Allow Auto-Attack: Lets towers attack automatically without player input</string>
+    <string name="editor_howto_enemy_spawns_title">Sub-Tab: Enemy Spawns</string>
+    <string name="editor_howto_enemy_spawns_text">Define which enemies appear during the level and when. Click "Add Enemy" to add a new entry. For each spawn, select the enemy type, set its level (higher level scales health), choose the turn number when it appears, and optionally pick the spawn point on the map. A red badge on the tab means required information is missing.</string>
+    <string name="editor_howto_towers_title">Sub-Tab: Towers</string>
+    <string name="editor_howto_towers_text">Choose which tower types are available to the player in this level. Toggle each tower type on or off using the checkboxes. At least one tower must be enabled – a red badge appears on the tab if no towers are selected.</string>
+    <string name="editor_howto_waypoints_title">Sub-Tab: Waypoints</string>
+    <string name="editor_howto_waypoints_text">Waypoints define intermediate or branching points on enemy paths between spawn points and the target. Click "Add Waypoint" to add a new waypoint, set its grid position, and link it to a spawn point or another waypoint to form a path chain. The minimap shows all waypoint positions relative to the map. A red badge means the waypoint configuration is incomplete or invalid.</string>
+    <string name="editor_howto_initial_setup_title">Sub-Tab: Initial Setup</string>
+    <string name="editor_howto_initial_setup_text">Pre-place towers on the map before the player starts the level. Select a tower type from the list, then click a tile on the minimap to place it there. Click an already-placed tower to remove it. This is useful for tutorial levels or levels that begin with pre-built defenses.</string>
+    <string name="editor_howto_sequence_title">Level Sequence Tab (Official Levels Only)</string>
+    <string name="editor_howto_sequence_text">The Level Sequence defines the order in which official levels appear in the game and sets their dependencies. This tab is not needed for user-created or community levels, which are managed separately and always accessible from the world map.</string>
+    <string name="editor_howto_sequence_features">Use the ↑ and ↓ buttons to reorder levels in the sequence - Levels are linked by dependency: a level is unlocked when its predecessor is completed - The sequence is saved to sequence.json - Only levels in the sequence appear in the game</string>
+    <string name="editor_howto_worldmap_title">World Map Positions Tab (Official Levels Only)</string>
+    <string name="editor_howto_worldmap_text">Place official levels on the visual world map and define the connections between them. User-created and community levels do not need to be placed here – they are always accessible via the dedicated user/community level panels on the world map.</string>
+    <string name="editor_howto_worldmap_features">Each entry represents a level location on the world map image - Set X/Y pixel coordinates to position the location on the map - Add connections between locations to link them visually - Choose the connection type: Road (land path) or Sea Route (ocean path) - Add control points to curve a connection line between two locations - The minimap shows a preview of all locations and connections</string>
+    <string name="editor_howto_tips_title">Tips</string>
+    <string name="editor_howto_tips">Save frequently to avoid losing work - Test your levels by playing the game after each change - Copy existing maps and levels as starting templates to learn the format - A map can be reused across multiple levels - Red badges on sub-tabs indicate missing or invalid configuration - The "Restore Game Data" button in Settings resets all official content to its original state</string>
+    <string name="editor_howto_close">Close</string>
 </resources>
