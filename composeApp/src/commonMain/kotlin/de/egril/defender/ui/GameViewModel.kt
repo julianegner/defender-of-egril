@@ -1164,6 +1164,13 @@ class GameViewModel {
      * Before each attack the aiming circles are shown for [DemoMode.ATTACK_AIM_MS] ms,
      * and after each attack there is a [DemoMode.ATTACK_AFTER_MS] ms pause.
      * Reuses the same target-selection logic as [GameEngine.autoDefenderAttacks].
+     *
+     * The selected defender is kept highlighted across all its attacks (no flicker between
+     * attacks of the same tower) and switches directly to the next defender without going
+     * through an unselected state. Selection is only cleared after all attacks are done.
+     *
+     * If the level is won or lost mid-attack, [completeLevel] is called immediately so the
+     * demo advances to the level-complete screen without waiting for the player to end the turn.
      */
     private suspend fun demoAttackOneByOne() {
         val engine = gameEngine ?: return
@@ -1172,28 +1179,49 @@ class GameViewModel {
             ?.map { it.id }
             ?: return
 
-        for (id in defenderIds) {
-            if (!_isDemoMode.value || _gameState.value?.phase?.value != GamePhase.PLAYER_TURN) return
-            // Keep attacking while this defender still has action points
-            while (_isDemoMode.value && _gameState.value?.phase?.value == GamePhase.PLAYER_TURN) {
-                val defender = _gameState.value?.defenders?.find { it.id == id } ?: break
-                if (defender.actionsRemaining.value <= 0) break
-                val targetPos = engine.getNextAutoAttackTargetPosition(defender) ?: break
-
-                // Show aiming circles
+        try {
+            for (id in defenderIds) {
+                if (!_isDemoMode.value || _gameState.value?.phase?.value != GamePhase.PLAYER_TURN) return
+                // Select this defender now — switching directly from the previous one (no unselected gap)
                 _demoSelectedDefenderId.value = id
-                _demoSelectedTargetPosition.value = targetPos
-                delay(de.egril.defender.game.DemoMode.ATTACK_AIM_MS)
+                // Keep attacking while this defender still has action points
+                while (_isDemoMode.value && _gameState.value?.phase?.value == GamePhase.PLAYER_TURN) {
+                    val defender = _gameState.value?.defenders?.find { it.id == id } ?: break
+                    if (defender.actionsRemaining.value <= 0) break
+                    val targetPos = engine.getNextAutoAttackTargetPosition(defender) ?: break
 
-                // Clear visual state before executing the attack
-                _demoSelectedDefenderId.value = null
-                _demoSelectedTargetPosition.value = null
+                    // Show aiming circles (defender already selected above)
+                    _demoSelectedTargetPosition.value = targetPos
+                    delay(de.egril.defender.game.DemoMode.ATTACK_AIM_MS)
 
-                val success = engine.performOneAutoAttack(id)
-                if (!success) break
+                    // Clear only the target position before executing the attack;
+                    // keep the defender highlighted so the UI stays in tower-selected view
+                    _demoSelectedTargetPosition.value = null
 
-                delay(de.egril.defender.game.DemoMode.ATTACK_AFTER_MS)
+                    val success = engine.performOneAutoAttack(id)
+                    if (!success) break
+
+                    // Check for immediate level end (last enemy killed) — trigger completeLevel
+                    // right now instead of waiting for endPlayerTurn so the demo advances immediately.
+                    val stateAfterAttack = _gameState.value
+                    if (stateAfterAttack != null) {
+                        if (stateAfterAttack.isLevelWon()) {
+                            completeLevel(stateAfterAttack.level.id, won = true)
+                            return
+                        } else if (stateAfterAttack.isLevelLost()) {
+                            completeLevel(stateAfterAttack.level.id, won = false)
+                            return
+                        }
+                    }
+
+                    delay(de.egril.defender.game.DemoMode.ATTACK_AFTER_MS)
+                }
+                // Loop will directly set the next defender id without an unselected frame
             }
+        } finally {
+            // Clear selection only once, after all attacks are complete
+            _demoSelectedDefenderId.value = null
+            _demoSelectedTargetPosition.value = null
         }
     }
 
