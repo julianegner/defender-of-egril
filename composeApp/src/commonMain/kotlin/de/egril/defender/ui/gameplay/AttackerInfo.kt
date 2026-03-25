@@ -18,6 +18,7 @@ import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.HeartIcon
 import de.egril.defender.ui.icon.LockIcon
 import de.egril.defender.ui.icon.SnowflakeIcon
+import de.egril.defender.ui.icon.ShieldIcon
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -361,10 +362,7 @@ fun AttackerInfo(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            Text(
-                                "🛡️",
-                                style = MaterialTheme.typography.bodySmall
-                            )
+                            ShieldIcon(size = 14.dp)
                             Text(
                                 stringResource(Res.string.immune_to_acid),
                                 style = MaterialTheme.typography.bodySmall,
@@ -377,10 +375,7 @@ fun AttackerInfo(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            Text(
-                                "🛡️",
-                                style = MaterialTheme.typography.bodySmall
-                            )
+                            ShieldIcon(size = 14.dp)
                             Text(
                                 stringResource(Res.string.immune_to_fireball),
                                 style = MaterialTheme.typography.bodySmall,
