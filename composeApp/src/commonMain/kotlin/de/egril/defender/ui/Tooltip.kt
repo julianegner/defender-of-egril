@@ -35,7 +35,8 @@ import androidx.compose.ui.zIndex
  * The tooltip appears **below** the element by default.
  * When there is not enough space below (i.e. the element is near the bottom of the window),
  * the tooltip is shown **above** instead.
- * The tooltip is also clamped horizontally so it is never clipped by the left or right window edge.
+ * The tooltip is also clamped horizontally so it is never clipped by the left or right window edge,
+ * and always keeps a small margin from both edges so it is never flush against the screen border.
  *
  * @param text Tooltip text to display, or null/empty to disable the tooltip
  * @param modifier Modifier for the wrapper Box
@@ -116,18 +117,20 @@ private fun TooltipBox(
                 val placeable = measurable.measure(constraints)
                 val yOffsetPx = offsetY.roundToPx()
 
-                // Compute a horizontal shift so the tooltip stays within the window bounds.
+                // Compute a horizontal shift so the tooltip stays within the window bounds,
+                // keeping a small margin from both screen edges so the tooltip never touches the border.
                 // By default the tooltip's left edge aligns with the element's left edge (xOffset = 0).
                 var xOffsetPx = 0
                 if (windowWidthPx > 0 && windowWidthPx < Float.MAX_VALUE) {
+                    val edgeMarginPx = 8.dp.roundToPx()
                     val rightEdge = elementLeftPx + placeable.width
-                    if (rightEdge > windowWidthPx) {
-                        // Tooltip would overflow to the right — shift it left
-                        xOffsetPx = -(rightEdge - windowWidthPx).toInt()
+                    if (rightEdge > windowWidthPx - edgeMarginPx) {
+                        // Tooltip would overflow to the right — shift it left, keeping margin from right edge
+                        xOffsetPx = -(rightEdge - windowWidthPx + edgeMarginPx).toInt()
                     }
-                    // Ensure the left edge is never pushed off the left side of the window
-                    if (elementLeftPx + xOffsetPx < 0f) {
-                        xOffsetPx = -elementLeftPx.toInt()
+                    // Ensure the left edge always respects the margin from the left edge
+                    if (elementLeftPx + xOffsetPx < edgeMarginPx) {
+                        xOffsetPx = (edgeMarginPx - elementLeftPx).toInt()
                     }
                 }
 
