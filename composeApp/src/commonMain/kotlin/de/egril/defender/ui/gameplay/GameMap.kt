@@ -87,7 +87,8 @@ fun GameGrid(
     modifier: Modifier = Modifier,
     scrollToPosition: Position? = null,
     onScrollToPositionConsumed: (() -> Unit)? = null,
-    isDemoMode: Boolean = false
+    isDemoMode: Boolean = false,
+    demoHoveredPosition: Position? = null   // overrides the local hover in demo mode
 ) {
     // State for pan and zoom
     var scale by remember { mutableStateOf(1f) }
@@ -98,7 +99,9 @@ fun GameGrid(
     var isInitialized by remember { mutableStateOf(false) }
     
     // State for hover position (for tower placement preview)
-    var hoveredPosition by remember { mutableStateOf<Position?>(null) }
+    var localHoveredPosition by remember { mutableStateOf<Position?>(null) }
+    // In demo mode use the externally-driven hover; in normal play use the local hover
+    val hoveredPosition: Position? = if (isDemoMode) demoHoveredPosition else localHoveredPosition
 
     val hexSize = 40.dp  // Radius of hexagon (center to corner)
 
@@ -530,7 +533,7 @@ fun GameGrid(
                 selectedDefenderType = selectedDefenderType,
                 hoveredPosition = hoveredPosition,
                 onHoverChange = { isHovering ->
-                    hoveredPosition = if (isHovering) position else null
+                    localHoveredPosition = if (isHovering) position else null
                 },
                 useTransparentBackground = hasMapImage
             )

@@ -19,8 +19,17 @@ object DemoMode {
     /** Delay in ms before auto-starting from the initial building phase */
     const val INITIAL_BUILDING_DELAY_MS = 1500L
 
-    /** Delay in ms between placing each tower (also in initial building phase) */
+    /** How long (ms) the tower placement preview is shown before the tower is actually placed */
     const val TOWER_PLACE_DELAY_MS = 800L
+
+    /** How long (ms) to wait after a tower has been placed before continuing */
+    const val TOWER_AFTER_PLACE_MS = 500L
+
+    /** How long (ms) the aiming circles are shown before an attack is executed */
+    const val ATTACK_AIM_MS = 800L
+
+    /** How long (ms) to wait after an attack before the next one */
+    const val ATTACK_AFTER_MS = 200L
 
     /** Delay in ms before auto-attacking and ending the player turn */
     const val PLAYER_TURN_DELAY_MS = 2000L

@@ -82,7 +82,11 @@ fun GamePlayScreen(
     pendingGameMessage: de.egril.defender.model.GameMessage? = null,  // In-game event message (target taken, gate destroyed)
     onDismissGameMessage: (() -> Unit)? = null,  // Callback to dismiss current message and show next
     isDemoMode: Boolean = false,  // True when demo mode is active
-    onStopDemoMode: (() -> Unit)? = null  // Callback to stop demo mode
+    onStopDemoMode: (() -> Unit)? = null,  // Callback to stop demo mode
+    demoSelectedDefenderType: DefenderType? = null,
+    demoHoveredPosition: Position? = null,
+    demoSelectedDefenderId: Int? = null,
+    demoSelectedTargetPosition: Position? = null
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -137,7 +141,11 @@ fun GamePlayScreen(
         pendingGameMessage = pendingGameMessage,
         onDismissGameMessage = onDismissGameMessage,
         isDemoMode = isDemoMode,
-        onStopDemoMode = onStopDemoMode
+        onStopDemoMode = onStopDemoMode,
+        demoSelectedDefenderType = demoSelectedDefenderType,
+        demoHoveredPosition = demoHoveredPosition,
+        demoSelectedDefenderId = demoSelectedDefenderId,
+        demoSelectedTargetPosition = demoSelectedTargetPosition
     )
 }
 
@@ -196,7 +204,12 @@ private fun GamePlayScreenContent(
     pendingGameMessage: de.egril.defender.model.GameMessage? = null,  // In-game event message (target taken, gate destroyed)
     onDismissGameMessage: (() -> Unit)? = null,  // Callback to dismiss current message and show next
     isDemoMode: Boolean = false,  // True when demo mode is active
-    onStopDemoMode: (() -> Unit)? = null  // Callback to stop demo mode
+    onStopDemoMode: (() -> Unit)? = null,  // Callback to stop demo mode
+    // Demo visual state – drives placement preview and attack aiming in the UI
+    demoSelectedDefenderType: DefenderType? = null,
+    demoHoveredPosition: Position? = null,
+    demoSelectedDefenderId: Int? = null,
+    demoSelectedTargetPosition: Position? = null
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
@@ -230,6 +243,22 @@ private fun GamePlayScreenContent(
 
     // Demo mode: "stop demo?" confirmation dialog
     var showStopDemoDialog by remember { mutableStateOf(false) }
+
+    // When demo mode visual state changes, sync it into the local selection state so
+    // the existing rendering code (GameGrid, GameControls) shows the preview without any changes.
+    if (isDemoMode) {
+        LaunchedEffect(demoSelectedDefenderType) { selectedDefenderType = demoSelectedDefenderType }
+        LaunchedEffect(demoSelectedDefenderId) { selectedDefenderId = demoSelectedDefenderId }
+        LaunchedEffect(demoSelectedTargetPosition) { selectedTargetPosition = demoSelectedTargetPosition }
+    }
+    // When demo mode ends, clear any leftover selection state so normal play starts clean
+    LaunchedEffect(isDemoMode) {
+        if (!isDemoMode) {
+            selectedDefenderType = null
+            selectedDefenderId = null
+            selectedTargetPosition = null
+        }
+    }
 
     // Check if unsaved changes feature is enabled (both hasUnsavedChanges and onSaveGame must be available)
     val unsavedChangesEnabled = hasUnsavedChanges != null && onSaveGame != null
@@ -873,7 +902,8 @@ private fun GamePlayScreenContent(
                 modifier = Modifier.fillMaxSize(),
                 scrollToPosition = scrollToPosition,
                 onScrollToPositionConsumed = onScrollToPositionConsumed,
-                isDemoMode = isDemoMode
+                isDemoMode = isDemoMode,
+                demoHoveredPosition = demoHoveredPosition
             )
 
             // Overlay panel with Legend and Enemy List (conditionally shown)

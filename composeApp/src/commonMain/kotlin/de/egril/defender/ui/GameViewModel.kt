@@ -159,6 +159,16 @@ class GameViewModel {
     val isDemoMode: StateFlow<Boolean> = _isDemoMode.asStateFlow()
     private var demoLevelIndex = 0
     private var demoJob: Job? = null
+
+    // Demo visual state – drives placement preview and attack aiming circles in the UI
+    private val _demoSelectedDefenderType = MutableStateFlow<DefenderType?>(null)
+    val demoSelectedDefenderType: StateFlow<DefenderType?> = _demoSelectedDefenderType.asStateFlow()
+    private val _demoHoveredPosition = MutableStateFlow<Position?>(null)
+    val demoHoveredPosition: StateFlow<Position?> = _demoHoveredPosition.asStateFlow()
+    private val _demoSelectedDefenderId = MutableStateFlow<Int?>(null)
+    val demoSelectedDefenderId: StateFlow<Int?> = _demoSelectedDefenderId.asStateFlow()
+    private val _demoSelectedTargetPosition = MutableStateFlow<Position?>(null)
+    val demoSelectedTargetPosition: StateFlow<Position?> = _demoSelectedTargetPosition.asStateFlow()
     
     
     init {
@@ -1096,6 +1106,11 @@ class GameViewModel {
         demoJob?.cancel()
         demoJob = null
         _isDemoMode.value = false
+        // Clear any pending visual preview state
+        _demoSelectedDefenderType.value = null
+        _demoHoveredPosition.value = null
+        _demoSelectedDefenderId.value = null
+        _demoSelectedTargetPosition.value = null
         navigateToWorldMap()
     }
 
@@ -1129,18 +1144,70 @@ class GameViewModel {
         startDemoAutoPlay()
     }
 
+    /**
+     * Place a tower with a visual preview: shows the placement highlight for
+     * [DemoMode.TOWER_PLACE_DELAY_MS] ms, then places the tower, then waits
+     * [DemoMode.TOWER_AFTER_PLACE_MS] ms before continuing.
+     */
+    private suspend fun demoPlaceTowerWithPreview(type: DefenderType, position: Position) {
+        _demoSelectedDefenderType.value = type
+        _demoHoveredPosition.value = position
+        delay(de.egril.defender.game.DemoMode.TOWER_PLACE_DELAY_MS)
+        _demoSelectedDefenderType.value = null
+        _demoHoveredPosition.value = null
+        gameEngine?.placeDefender(type, position)
+        delay(de.egril.defender.game.DemoMode.TOWER_AFTER_PLACE_MS)
+    }
+
+    /**
+     * Perform all remaining auto-attacks for the current player turn, one attack at a time.
+     * Before each attack the aiming circles are shown for [DemoMode.ATTACK_AIM_MS] ms,
+     * and after each attack there is a [DemoMode.ATTACK_AFTER_MS] ms pause.
+     * Reuses the same target-selection logic as [GameEngine.autoDefenderAttacks].
+     */
+    private suspend fun demoAttackOneByOne() {
+        val engine = gameEngine ?: return
+        val defenderIds = _gameState.value?.defenders
+            ?.filter { it.isReady && !it.isDisabled.value && it.type.attackType != AttackType.NONE }
+            ?.map { it.id }
+            ?: return
+
+        for (id in defenderIds) {
+            if (!_isDemoMode.value || _gameState.value?.phase?.value != GamePhase.PLAYER_TURN) return
+            // Keep attacking while this defender still has action points
+            while (_isDemoMode.value && _gameState.value?.phase?.value == GamePhase.PLAYER_TURN) {
+                val defender = _gameState.value?.defenders?.find { it.id == id } ?: break
+                if (defender.actionsRemaining.value <= 0) break
+                val targetPos = engine.getNextAutoAttackTargetPosition(defender) ?: break
+
+                // Show aiming circles
+                _demoSelectedDefenderId.value = id
+                _demoSelectedTargetPosition.value = targetPos
+                delay(de.egril.defender.game.DemoMode.ATTACK_AIM_MS)
+
+                // Clear visual state before executing the attack
+                _demoSelectedDefenderId.value = null
+                _demoSelectedTargetPosition.value = null
+
+                val success = engine.performOneAutoAttack(id)
+                if (!success) break
+
+                delay(de.egril.defender.game.DemoMode.ATTACK_AFTER_MS)
+            }
+        }
+    }
+
     private fun startDemoAutoPlay() {
         demoJob?.cancel()
         demoJob = viewModelScope.launch {
             val mapId = de.egril.defender.game.DemoMode.DEMO_MAP_IDS.getOrNull(demoLevelIndex)
             val initialTowers = mapId?.let { de.egril.defender.game.DemoMode.DEMO_TOWERS[it] } ?: emptyList()
 
-            // Phase 1: place initial towers one by one with delays in the INITIAL_BUILDING phase
+            // Phase 1: place initial towers one by one with preview + delays in the INITIAL_BUILDING phase
             delay(de.egril.defender.game.DemoMode.INITIAL_BUILDING_DELAY_MS)
             for (tower in initialTowers) {
                 if (!_isDemoMode.value || _gameState.value?.phase?.value != GamePhase.INITIAL_BUILDING) break
-                delay(de.egril.defender.game.DemoMode.TOWER_PLACE_DELAY_MS)
-                gameEngine?.placeDefender(tower.type, tower.position)
+                demoPlaceTowerWithPreview(tower.type, tower.position)
             }
             // Brief pause after last tower is placed so the player can see all towers before battle starts
             delay(de.egril.defender.game.DemoMode.INITIAL_BUILDING_DELAY_MS)
@@ -1167,12 +1234,18 @@ class GameViewModel {
                             for (type in currentState.level.availableTowers.sortedByDescending { it.baseCost }) {
                                 if (currentState.canPlaceDefender(type)) {
                                     val targetPos = freeBuildAreas.first()
+                                    // Show preview, then place
+                                    _demoSelectedDefenderType.value = type
+                                    _demoHoveredPosition.value = targetPos
                                     delay(de.egril.defender.game.DemoMode.TOWER_PLACE_DELAY_MS)
+                                    _demoSelectedDefenderType.value = null
+                                    _demoHoveredPosition.value = null
                                     val stateNow = _gameState.value
                                     // Re-check that position is still free after the delay
                                     val stillFree = stateNow?.defenders?.none { it.position.value == targetPos } == true
                                     if (_isDemoMode.value && stateNow?.phase?.value == GamePhase.PLAYER_TURN && stillFree) {
                                         gameEngine?.placeDefender(type, targetPos)
+                                        delay(de.egril.defender.game.DemoMode.TOWER_AFTER_PLACE_MS)
                                     }
                                     break
                                 }
@@ -1196,12 +1269,16 @@ class GameViewModel {
                             }
                         }
 
-                        // Auto-attack and end turn
+                        // Attack one by one with aiming circles, then end turn
                         val finalState = _gameState.value ?: break
                         if (!_isDemoMode.value || finalState.phase.value != GamePhase.PLAYER_TURN) continue
                         if (finalState.isLevelWon() || finalState.isLevelLost()) continue
-                        gameEngine?.autoDefenderAttacks()
-                        endPlayerTurn()
+                        demoAttackOneByOne()
+                        if (_isDemoMode.value && _gameState.value?.phase?.value == GamePhase.PLAYER_TURN &&
+                            !(_gameState.value?.isLevelWon() ?: false) && !(_gameState.value?.isLevelLost() ?: false)
+                        ) {
+                            endPlayerTurn()
+                        }
                     }
                     GamePhase.ENEMY_TURN,
                     GamePhase.INITIAL_BUILDING -> delay(de.egril.defender.game.DemoMode.ENEMY_TURN_POLL_MS)

@@ -91,6 +91,10 @@ fun App() {
         val pendingScrollToPosition by viewModel.pendingScrollToPosition.collectAsState()
         val pendingGameMessage by viewModel.pendingGameMessage.collectAsState()
         val isDemoMode by viewModel.isDemoMode.collectAsState()
+        val demoSelectedDefenderType by viewModel.demoSelectedDefenderType.collectAsState()
+        val demoHoveredPosition by viewModel.demoHoveredPosition.collectAsState()
+        val demoSelectedDefenderId by viewModel.demoSelectedDefenderId.collectAsState()
+        val demoSelectedTargetPosition by viewModel.demoSelectedTargetPosition.collectAsState()
 
         // Observe IAM state for login/logout UI updates
         val iamState by de.egril.defender.iam.IamService.state
@@ -437,7 +441,11 @@ fun App() {
                         pendingGameMessage = pendingGameMessage,
                         onDismissGameMessage = { viewModel.dismissGameMessage() },
                         isDemoMode = isDemoMode,
-                        onStopDemoMode = { viewModel.stopDemoMode() }
+                        onStopDemoMode = { viewModel.stopDemoMode() },
+                        demoSelectedDefenderType = demoSelectedDefenderType,
+                        demoHoveredPosition = demoHoveredPosition,
+                        demoSelectedDefenderId = demoSelectedDefenderId,
+                        demoSelectedTargetPosition = demoSelectedTargetPosition
                     )
                 }
             }

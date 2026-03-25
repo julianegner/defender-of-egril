@@ -160,6 +160,48 @@ class GameEngine(private val state: GameState) {
         mineOperations.checkAndActivateTraps { combatSystem.processDefeatedAttackers() }
     }
 
+    /**
+     * Returns the next auto-attack target position for a single defender action, without performing
+     * the attack. Used by demo mode to show aiming circles before committing the attack.
+     * Returns null if this defender has no valid target right now.
+     */
+    fun getNextAutoAttackTargetPosition(defender: Defender): Position? {
+        if (defender.actionsRemaining.value <= 0 || defender.isDisabled.value) return null
+        val activeAttackers = state.attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
+        if (activeAttackers.isEmpty()) return null
+        return when (defender.type.attackType) {
+            AttackType.MELEE, AttackType.RANGED ->
+                selectAutoTargetForDefender(defender, activeAttackers)?.position?.value
+            AttackType.AREA, AttackType.LASTING ->
+                selectBestAreaAttackPosition(defender, activeAttackers)
+            AttackType.NONE -> null
+        }
+    }
+
+    /**
+     * Performs exactly one auto-attack action for the defender identified by [defenderId].
+     * Returns true if an attack was successfully executed, false if nothing could be done.
+     * Used by demo mode so that aiming circles can be displayed between individual attacks.
+     */
+    fun performOneAutoAttack(defenderId: Int): Boolean {
+        val defender = state.defenders.find { it.id == defenderId } ?: return false
+        if (!defender.isReady || defender.actionsRemaining.value <= 0 || defender.isDisabled.value) return false
+        if (defender.type.attackType == AttackType.NONE) return false
+        val activeAttackers = state.attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
+        if (activeAttackers.isEmpty()) return false
+        return when (defender.type.attackType) {
+            AttackType.MELEE, AttackType.RANGED -> {
+                val target = selectAutoTargetForDefender(defender, activeAttackers) ?: return false
+                combatSystem.defenderAttack(defender.id, target.id) { combatSystem.processDefeatedAttackers() }
+            }
+            AttackType.AREA, AttackType.LASTING -> {
+                val targetPosition = selectBestAreaAttackPosition(defender, activeAttackers) ?: return false
+                combatSystem.defenderAttackPosition(defender.id, targetPosition) { combatSystem.processDefeatedAttackers() }
+            }
+            AttackType.NONE -> false
+        }
+    }
+
     private fun selectAutoTargetForDefender(defender: Defender, candidates: List<Attacker>): Attacker? {
         val attackable = candidates.filter { attacker ->
             !attacker.isDefeated.value && defender.canAttack(attacker)
