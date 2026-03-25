@@ -1048,22 +1048,26 @@ private fun GamePlayScreenContent(
         // otherwise cause the map area (weight=1f) to expand and the map to visibly jump.
         var maxControlsHeightPx by remember { mutableStateOf(0) }
 
-        // Wrap in Box that tracks and maintains its maximum seen height to prevent map jumping
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .animateContentSize()
-            .then(
-                if (maxControlsHeightPx > 0) {
-                    with(LocalDensity.current) { Modifier.heightIn(min = maxControlsHeightPx.toDp()) }
-                } else Modifier
-            )
-            .onSizeChanged { size ->
-                if (size.height > maxControlsHeightPx) {
-                    maxControlsHeightPx = size.height
-                }
-            }
+        // Wrap in Box that tracks and maintains its maximum seen height to prevent map jumping.
+        // contentAlignment = BottomStart ensures that when the current content is shorter than
+        // the maximum recorded height, it stays pinned to the bottom of the reserved area so
+        // the tower buttons and enemy-turn banner appear as low on the screen as possible.
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .animateContentSize()
+                .then(
+                    if (maxControlsHeightPx > 0) {
+                        with(LocalDensity.current) { Modifier.heightIn(min = maxControlsHeightPx.toDp()) }
+                    } else Modifier
+                )
+                .onSizeChanged { size ->
+                    if (size.height > maxControlsHeightPx) {
+                        maxControlsHeightPx = size.height
+                    }
+                },
+            contentAlignment = Alignment.BottomStart
         ) {
-        Spacer(modifier = Modifier.height(8.dp))
         // Show magic panel inline (non-overlay) when open - map remains accessible
         if (showMagicPanel && playerStats != null && onCloseMagicPanel != null && onCastSpell != null) {
             MagicPanel(
