@@ -4,12 +4,14 @@ package de.egril.defender.ui.editor.level
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import de.egril.defender.ui.icon.LeftArrowIcon
 import de.egril.defender.ui.editor.EditorTab
@@ -129,26 +131,31 @@ fun LevelEditorScreen(
 
         // How-To dialog shown when the Info button is clicked
         if (showHowToDialog) {
-            AlertDialog(
-                onDismissRequest = { showHowToDialog = false },
-                title = {
-                    Text(
-                        text = stringResource(Res.string.editor_howto_title),
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                },
-                text = {
-                    // Limit dialog height so it doesn't exceed the screen on typical desktop resolutions
-                    Box(modifier = Modifier.heightIn(max = 560.dp)) {
-                        EditorHowToContent()
-                    }
-                },
-                confirmButton = {
-                    Button(onClick = { showHowToDialog = false }) {
-                        Text(stringResource(Res.string.editor_howto_close))
+            Dialog(onDismissRequest = { showHowToDialog = false }) {
+                Card(
+                    modifier = Modifier
+                        .widthIn(min = 700.dp, max = 900.dp)
+                        .heightIn(max = 620.dp),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Column(modifier = Modifier.padding(24.dp)) {
+                        Text(
+                            text = stringResource(Res.string.editor_howto_title),
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.padding(bottom = 12.dp)
+                        )
+                        Box(modifier = Modifier.weight(1f)) {
+                            EditorHowToContent()
+                        }
+                        Button(
+                            onClick = { showHowToDialog = false },
+                            modifier = Modifier.align(Alignment.End).padding(top = 12.dp)
+                        ) {
+                            Text(stringResource(Res.string.editor_howto_close))
+                        }
                     }
                 }
-            )
+            }
         }
         }
     }
