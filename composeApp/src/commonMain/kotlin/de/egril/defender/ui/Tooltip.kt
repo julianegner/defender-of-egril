@@ -5,7 +5,6 @@ import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +35,7 @@ import androidx.compose.ui.zIndex
  * The tooltip appears **below** the element by default.
  * When there is not enough space below (i.e. the element is near the bottom of the window),
  * the tooltip is shown **above** instead.
+ * The tooltip is also clamped horizontally so it is never clipped by the left or right window edge.
  *
  * @param text Tooltip text to display, or null/empty to disable the tooltip
  * @param modifier Modifier for the wrapper Box
@@ -52,8 +52,9 @@ fun TooltipWrapper(
     val density = LocalDensity.current
     val windowInfo = LocalWindowInfo.current
 
-    // Track element size and position, updated after each layout pass
+    // Track element position and size in the window, updated after each layout pass
     var elementHeightPx by remember { mutableIntStateOf(0) }
+    var elementLeftPx by remember { mutableFloatStateOf(0f) }
     var elementBottomPx by remember { mutableFloatStateOf(0f) }
 
     LaunchedEffect(interactionSource) {
@@ -70,11 +71,14 @@ fun TooltipWrapper(
             .hoverable(interactionSource = interactionSource)
             .onGloballyPositioned { coordinates ->
                 elementHeightPx = coordinates.size.height
-                elementBottomPx = coordinates.positionInWindow().y + coordinates.size.height
+                val posInWindow = coordinates.positionInWindow()
+                elementLeftPx = posInWindow.x
+                elementBottomPx = posInWindow.y + coordinates.size.height
             }
     ) {
         if (isHovered && !text.isNullOrEmpty()) {
             val windowHeightPx = windowInfo.containerSize.height.toFloat()
+            val windowWidthPx = windowInfo.containerSize.width.toFloat()
             val spaceBelowPx = windowHeightPx - elementBottomPx
 
             // Show above when less than 60dp of space remains below the element
@@ -87,7 +91,12 @@ fun TooltipWrapper(
                 with(density) { elementHeightPx.toDp() } + 4.dp  // below with a small gap
             }
 
-            TooltipBox(text = text, offsetY = offsetY)
+            TooltipBox(
+                text = text,
+                offsetY = offsetY,
+                elementLeftPx = elementLeftPx,
+                windowWidthPx = windowWidthPx,
+            )
         }
         content()
     }
@@ -97,18 +106,36 @@ fun TooltipWrapper(
 private fun TooltipBox(
     text: String,
     offsetY: Dp = 0.dp,
+    elementLeftPx: Float = 0f,
+    windowWidthPx: Float = Float.MAX_VALUE,
 ) {
     Box(
         modifier = Modifier
             .zIndex(100f)
             .layout { measurable, constraints ->
                 val placeable = measurable.measure(constraints)
+                val yOffsetPx = offsetY.roundToPx()
+
+                // Compute a horizontal shift so the tooltip stays within the window bounds.
+                // By default the tooltip's left edge aligns with the element's left edge (xOffset = 0).
+                var xOffsetPx = 0
+                if (windowWidthPx > 0 && windowWidthPx < Float.MAX_VALUE) {
+                    val rightEdge = elementLeftPx + placeable.width
+                    if (rightEdge > windowWidthPx) {
+                        // Tooltip would overflow to the right — shift it left
+                        xOffsetPx = -(rightEdge - windowWidthPx).toInt()
+                    }
+                    // Ensure the left edge is never pushed off the left side of the window
+                    if (elementLeftPx + xOffsetPx < 0f) {
+                        xOffsetPx = -elementLeftPx.toInt()
+                    }
+                }
+
                 // Report zero size so the tooltip does not affect the layout of surrounding elements
                 layout(0, 0) {
-                    placeable.place(0, 0)
+                    placeable.place(xOffsetPx, yOffsetPx)
                 }
             }
-            .offset(x = 0.dp, y = offsetY)
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.inverseSurface)
             .padding(horizontal = 10.dp, vertical = 6.dp)
