@@ -1516,6 +1516,34 @@
     <string name="ewhad_retreats_text">Du hast Ewhad zum Rückzug gezwungen!</string>
     <string name="ewhad_defeated_title">Ewhad ist besiegt</string>
     <string name="ewhad_defeated_text">Du hast Ewhad besiegt! Beende jetzt die anderen Feinde und gewinne das Spiel!</string>
+    <!-- Story intro messages shown at the start of each level -->
+    <string name="story_the_first_wave">In einem abgelegenen ländlichen Gebiet greifen Goblins an. Das ist nicht ungewöhnlich, aber Gerüchten zufolge wandern diesmal mehr Rüpel als sonst in unser Reich.</string>
+    <string name="story_mixed_forces">Dasselbe Gebiet ist weiteren Angriffen ausgesetzt. Gerüchte sprechen sogar davon, dass Tote aus ihren Gräbern auferstehen und die Dorfbewohner angreifen.</string>
+    <string name="story_the_ork_invasion">Eine große Horde Goblins und Orks ist auf dem Weg! Ihr müsst das Gebiet verteidigen!</string>
+    <string name="story_dark_magic_rises">Nun kommt der böse Adel auf euch zu! Wir haben von Hexen und bösen Zauberern gehört. Seid vorsichtig: Hexen können Magie einsetzen, um Rüpel zu heilen und eure Türme zu deaktivieren, und die bösen Zauberer können Dämonen direkt aus der Hölle beschwören!</string>
+    <string name="story_prison_break">Wir haben eine Gruppe Goblins gefangen genommen, doch sie haben es geschafft, aus ihren Zellen auszubrechen, und versuchen nun, aus dem Gefängnis zu fliehen.</string>
+    <string name="story_defend_the_city">Eine große Gruppe Orks versucht, die Stadt zu überfallen! Ihr müsst die neuralgischen Punkte der Stadt verteidigen – das Rathaus, das Lagerhaus, den Marktplatz und das Gildenhaus. Wenn einer davon eingenommen wird, greifen die Monster die anderen Orte an, und wenn alle eingenommen werden, ist die Stadt verloren.</string>
+    <string name="story_the_plains">Wir befinden uns im Zentrum der Ebene mit nur wenigen Plätzen für Verteidigungstürme, und der Feind kann ungehindert auf uns zukommen.</string>
+    <string name="story_the_spiral_challenge">Wir haben eine gute Verteidigungsposition im Inneren der Spirale, die die Feinde durchqueren müssen. Doch wenn sie Magieanwender mitbringen, müssen wir sie frühzeitig besiegen.</string>
+    <string name="story_the_dance">Die feindlichen Einheiten tanzen um uns herum, und wir haben etwas Zeit, sie zu beschießen, bevor sie Schaden anrichten können.</string>
+    <string name="story_the_rush">Wir müssen ein kleines Dorf verteidigen. Eine Schar böser Kreaturen kommt aus dem Wald und stimmt ihre Angriffswellen so ab, dass mehr als eine Welle gleichzeitig bei uns eintrifft.</string>
+    <string name="story_the_woods_first_incursion">Dies sind die Wälder nahe dem Dorf, das wir zuvor verteidigt haben. Vorerst werden nur Goblins erwartet, aber viele davon. Nutzt die Bäume, um dort Verteidigungsanlagen zu errichten.</string>
+    <string name="story_the_woods_full_assault">Nun hat der Feind mächtige Einheiten versammelt. Wir wissen von Zauberern und haben gehört, dass sogar Oger auf uns zumarschieren.</string>
+    <string name="story_the_fast_and_furious">Ihr seid geschwächt. Jeder weitere Treffer würde die Niederlage bedeuten – seid hier besonders vorsichtig.</string>
+    <string name="story_the_cross">Die Feinde kommen aus allen Richtungen.</string>
+    <string name="story_the_winding_path">Der gewundene Pfad ist der letzte Abschnitt des Weges zur Festung. Wir müssen ihn um jeden Preis verteidigen, und wir haben viele gute Positionen für Türme.</string>
+    <string name="story_the_fortress_1_first_attacks">Der Feind steht vor den Toren unserer Festung! Es scheint, als würden sie mit leichteren Angriffen beginnen – hauptsächlich Goblins.</string>
+    <string name="story_the_fortress_2_orks_marching">Nun wurde eine größere Anzahl Orks gesichtet. Wir müssen uns verteidigen.</string>
+    <string name="story_the_fortress_3_necromancer">Ein Nekromant ist auf dem Weg – und mit ihm seine Armee auferweckter Skelette.</string>
+    <string name="story_the_fortress_4_magic_assault">Hexen und Zauberer werden uns angreifen. Bedenkt, dass die grüne Hexe feindliche Einheiten heilen kann, während die rote Hexe unsere Türme für eine Weile deaktivieren kann.</string>
+    <string name="story_the_fortress_5_mighty_forces">Eine große Armee feindlicher Kräfte, darunter alle Arten von Magieanwendern, steht kurz davor, unsere Festung anzugreifen.</string>
+    <string name="story_the_final_stand">Ewhad selbst steht vor den Toren unserer Festung. Wir müssen um jeden Preis verteidigen – jetzt geht es um Sieg oder Niederlage. Bedenkt, dass Ewhad mehrere Dämonen beschwören kann, die mit der Zeit mächtiger werden. Besiegt ihn schnell.</string>
+    <string name="story_the_creek">Dieser Platz an einem Bach lässt sich gut verteidigen, da der Feind um den Bach herumgehen muss, aber es gibt nicht viele Plätze für Türme. Baut Flöße für schwimmende Verteidigungen. Beachtet, dass die Flöße mit der Strömung des Baches treiben.</string>
+    <string name="story_the_island">Wir müssen diese kleine Insel jetzt verteidigen. Es werden nur wenige Feinde erwartet, was gut ist, da wir nur wenige Plätze für Türme haben. Wir sollten hier auch Flöße einsetzen.</string>
+    <string name="story_the_river">Nach dem Tal mit dem Bach haben wir hier ein Gebiet mit einem mächtigen Fluss. Teile des Flusses fließen schneller als die kleineren Bäche, die wir zuvor kannten. Wir haben einige Plätze für Türme, müssen uns aber hauptsächlich auf Flöße verlassen.</string>
+    <string name="story_creek_valley">Nachdem wir die Insel verteidigt haben, befinden wir uns nun in einem Tal, durch das ein Bach fließt. Es gibt keine Plätze für Türme, also können wir hier nur Flöße einsetzen. Beachtet, dass sie von der Strömung des Baches bewegt werden.</string>
+    <string name="story_maelstrom">Wir werden von Süden angegriffen! Zum Glück liegt ein Fluss zwischen uns und den Feinden. Sie können Brücken bauen, um den Fluss zu überqueren, und wir können Lastkähne bauen, um uns zu verteidigen. Aber Vorsicht: In der Mitte des Flusses befindet sich ein Strudel, der unsere Lastkähne zerstören wird.</string>
+    <string name="story_the_tower_of_the_hermit">Der Einsiedler lebt allein in seinem Turm. Nun tauchen böse Kräfte an diesem abgelegenen Ort auf, und der Einsiedler muss den Weg von seinem einzigen Turm aus verteidigen.</string>
     <!-- Final Credits screen -->
     <string name="credits_game_title">Defender of Egril</string>
     <string name="credits_title">Abspann</string>

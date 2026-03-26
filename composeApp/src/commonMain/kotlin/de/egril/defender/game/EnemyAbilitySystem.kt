@@ -26,23 +26,23 @@ class EnemyAbilitySystem(private val state: GameState) {
             }
             
             when (attacker.type) {
+                AttackerType.EVIL_WIZARD -> {
+                    handleSummon(
+                        attacker,
+                        state,
+                        blueDemons = attacker.level.value,
+                        redDemons = attacker.level.value / 2,
+                        fixedLevel = attacker.level.value, // demons spawn at same level as wizard for more consistent scaling
+                    )
+                }
                 AttackerType.EWHAD -> {
-                    // Only summon if cooldown is 0
-                    if (attacker.summonCooldown.value == 0) {
-                        // Ewhad spawns double the demons of a regular evil mage
-                        repeat(attacker.level.value * 2) {
-                            spawnDemonNear(attacker, AttackerType.BLUE_DEMON, state.turnNumber.value)
-                        }
-                        repeat(attacker.level.value) {
-                            spawnDemonNear(attacker, AttackerType.RED_DEMON, state.turnNumber.value)
-                        }
-                        // Additional 3 undead
-                        repeat(3) {
-                            spawnUndeadNear(attacker, 10 + state.turnNumber.value)
-                        }
-                        // Set cooldown to 3 turns (summons every 3 turns)
-                        attacker.summonCooldown.value = 3
-                    }
+                    handleSummon(
+                        attacker,
+                        state,
+                        blueDemons = attacker.level.value * 2,
+                        redDemons = attacker.level.value,
+                        undead = 3
+                    )
                 }
                 AttackerType.GREEN_WITCH -> {
                     // Heal adjacent units (5x level healing amount)
@@ -110,6 +110,28 @@ class EnemyAbilitySystem(private val state: GameState) {
                     }
                 }
             }
+        }
+    }
+
+    private fun handleSummon(
+        attacker: Attacker,
+        state: GameState,
+        blueDemons: Int,
+        redDemons: Int,
+        undead: Int = 0,
+        fixedLevel : Int? = null
+    ) {
+        if (attacker.summonCooldown.value == 0) {
+            repeat(blueDemons) {
+                spawnDemonNear(attacker, AttackerType.BLUE_DEMON, fixedLevel ?: state.turnNumber.value)
+            }
+            repeat(redDemons) {
+                spawnDemonNear(attacker, AttackerType.RED_DEMON, fixedLevel ?: state.turnNumber.value)
+            }
+            repeat(undead) {
+                spawnUndeadNear(attacker, 10 + (fixedLevel ?:  state.turnNumber.value))
+            }
+            attacker.summonCooldown.value = 3
         }
     }
     

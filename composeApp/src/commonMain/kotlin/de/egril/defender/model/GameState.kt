@@ -65,7 +65,8 @@ enum class GameMessageType {
     GATE_DESTROYED,    // A named gate barricade was destroyed
     EWHAD_ENTERS,      // Ewhad has entered the battlefield
     EWHAD_RETREATS,    // Ewhad has retreated (health reached 0, not final stand)
-    EWHAD_DEFEATED     // Ewhad is defeated (health reached 0, final stand level)
+    EWHAD_DEFEATED,    // Ewhad is defeated (health reached 0, final stand level)
+    STORY_INTRO        // Story narrative shown at the start of a level (name = editorLevelId)
 }
 
 /**

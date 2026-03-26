@@ -1517,6 +1517,34 @@
     <string name="ewhad_retreats_text">¡Has forzado a Ewhad a retirarse!</string>
     <string name="ewhad_defeated_title">Ewhad es derrotado</string>
     <string name="ewhad_defeated_text">¡Derrotaste a Ewhad! ¡Ahora acaba con los demás Enemigos y gana el juego!</string>
+    <!-- Story intro messages shown at the start of each level -->
+    <string name="story_the_first_wave">Hay Goblins atacando una remota zona rural. Esto no es inusual, pero los rumores nos dicen que esta vez más brutos de lo normal están entrando en nuestro reino.</string>
+    <string name="story_mixed_forces">La misma zona enfrenta más ataques. Los rumores incluso hablan de muertos que se levantan de las tumbas y atacan a los aldeanos.</string>
+    <string name="story_the_ork_invasion">¡Una gran horda de Goblins y Orks está en camino! ¡Debes defender la zona!</string>
+    <string name="story_dark_magic_rises">¡Ahora la nobleza malvada se dirige hacia ti! Hemos oído hablar de Brujas y Magos malvados que se acercan. Ten cuidado: las Brujas pueden usar la magia para curar a los brutos y desactivar tus Torres, ¡y los Magos malvados pueden invocar Demonios directamente desde el Infierno!</string>
+    <string name="story_prison_break">Capturamos a un grupo de Goblins, pero lograron escapar de sus celdas y ahora intentan huir de la prisión.</string>
+    <string name="story_defend_the_city">¡Un gran grupo de Orks intenta invadir la Ciudad! Debes defender los puntos neurálgicos de la Ciudad: el Ayuntamiento, el Almacén, el Mercado y la Casa del Gremio. Si alguno de ellos es capturado, los Monstruos atacarán los demás lugares, y si todos son capturados, la Ciudad estará perdida.</string>
+    <string name="story_the_plains">Estamos en el centro de las llanuras con solo algunos lugares donde podemos colocar Torres defensivas, y el enemigo puede avanzar hacia nosotros sin nada que lo detenga.</string>
+    <string name="story_the_spiral_challenge">Tenemos una buena posición defensiva dentro de la espiral que los enemigos deben seguir, pero si traen consigo portadores de magia, debemos tener cuidado de derrotarlos pronto.</string>
+    <string name="story_the_dance">Las unidades enemigas danzan a nuestro alrededor y tendremos algo de tiempo para dispararles antes de que puedan causar daños.</string>
+    <string name="story_the_rush">Debemos defender un pequeño pueblo. Un grupo de criaturas malvadas viene del bosque y sincroniza sus oleadas de ataque de modo que más de una oleada nos alcance al mismo tiempo.</string>
+    <string name="story_the_woods_first_incursion">Estos son los Bosques cerca del pueblo que defendimos antes. Por el momento, solo se esperan goblins, pero en gran número. Usa los Árboles para construir Defensas allí.</string>
+    <string name="story_the_woods_full_assault">Ahora el Enemigo ha reunido unidades poderosas. Sabemos de magos y hemos oído que incluso Ogros marchan hacia nosotros.</string>
+    <string name="story_the_fast_and_furious">Estás debilitado. Cualquier golpe adicional significaría la derrota, así que debes ser muy cuidadoso aquí.</string>
+    <string name="story_the_cross">Los Enemigos vienen de todas las direcciones.</string>
+    <string name="story_the_winding_path">El sinuoso Camino es la última parte del sendero hacia la Fortaleza. Debemos defenderlo a toda costa, y tenemos muchos buenos lugares para Torres.</string>
+    <string name="story_the_fortress_1_first_attacks">¡El Enemigo está a las puertas de nuestra Fortaleza! Parecen comenzar con ataques más ligeros, principalmente goblins.</string>
+    <string name="story_the_fortress_2_orks_marching">Ahora se ha avistado una mayor cantidad de Orks. Debemos defendernos.</string>
+    <string name="story_the_fortress_3_necromancer">Un Nigromante está en camino y con él su ejército de esqueletos resucitados.</string>
+    <string name="story_the_fortress_4_magic_assault">Brujas y Magos nos atacarán. Ten en cuenta que la Bruja verde puede curar unidades enemigas, mientras que la Bruja roja puede desactivar nuestras Torres por un tiempo.</string>
+    <string name="story_the_fortress_5_mighty_forces">Un gran Ejército de fuerzas enemigas, incluyendo todo tipo de usuarios de magia, está a punto de atacar nuestra Fortaleza.</string>
+    <string name="story_the_final_stand">¡El propio Ewhad está ante las Puertas de nuestra Fortaleza! Debemos defender a toda costa; ahora es victoria o derrota. Ten en cuenta que Ewhad puede invocar varios Demonios que se vuelven más poderosos con el tiempo, así que derrótalo rápido.</string>
+    <string name="story_the_creek">Este lugar junto a un arroyo es bueno para defender, ya que el enemigo tendrá que rodear el arroyo, pero no hay muchos lugares para Torres. Construye Balsas para tener defensas flotantes. Ten en cuenta que las balsas se mueven con la corriente del arroyo.</string>
+    <string name="story_the_island">Ahora debemos defender esta pequeña Isla. Se esperan pocos enemigos, lo cual es bueno ya que solo tenemos algunos lugares para construir Torres. También deberíamos usar Balsas aquí.</string>
+    <string name="story_the_river">Tras el Valle con el Arroyo, aquí tenemos una zona con un poderoso río. Partes del Río se mueven más rápido de lo que conocemos de los arroyos más pequeños que tuvimos antes. Tenemos algunos lugares para Torres, pero debemos depender principalmente de las Balsas para defendernos.</string>
+    <string name="story_creek_valley">Tras defender la Isla, ahora estamos en un Valle con un arroyo que fluye a través del valle. No hay lugares para construir Torres, así que solo podemos usar Balsas aquí. Ten en cuenta que son movidas por la corriente del arroyo.</string>
+    <string name="story_maelstrom">¡Nos atacan desde el sur! Tenemos suerte de que haya un río entre nosotros y los enemigos. Ellos pueden construir puentes para cruzar el río, y nosotros podemos construir barcazas para defendernos. Pero ten cuidado: en el centro del río hay un maelstrom que destruirá nuestras barcazas.</string>
+    <string name="story_the_tower_of_the_hermit">El ermitaño vive solo en su torre. Ahora fuerzas malvadas llegan a este lugar remoto y el ermitaño debe defender el camino desde su única torre.</string>
     <!-- Final Credits screen -->
     <string name="credits_game_title">Defender of Egril</string>
     <string name="credits_title">Créditos Finales</string>

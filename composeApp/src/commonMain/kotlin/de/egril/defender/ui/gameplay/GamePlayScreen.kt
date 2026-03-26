@@ -1544,6 +1544,51 @@ private fun GamePlayScreenContent(
                     text = stringResource(Res.string.ewhad_defeated_text),
                     onDismiss = { onDismissGameMessage?.invoke() }
                 )
+                GameMessageType.STORY_INTRO -> {
+                    val levelEditorId = msg.name
+                    if (levelEditorId != null) {
+                        val fortressTitle = stringResource(Res.string.level_the_fortress_title)
+                        // Map level editor ID to (NarrativeMessageType, title, storyText)
+                        val story: Triple<NarrativeMessageType, String, String>? = when (levelEditorId) {
+                            "the_first_wave" -> Triple(NarrativeMessageType.STORY, stringResource(Res.string.level_the_first_wave_title), stringResource(Res.string.story_the_first_wave))
+                            "mixed_forces" -> Triple(NarrativeMessageType.STORY, stringResource(Res.string.level_mixed_forces_title), stringResource(Res.string.story_mixed_forces))
+                            "the_ork_invasion" -> Triple(NarrativeMessageType.STORY, stringResource(Res.string.level_the_ork_invasion_title), stringResource(Res.string.story_the_ork_invasion))
+                            "dark_magic_rises" -> Triple(NarrativeMessageType.STORY, stringResource(Res.string.level_dark_magic_rises_title), stringResource(Res.string.story_dark_magic_rises))
+                            "prison_break" -> Triple(NarrativeMessageType.STORY, stringResource(Res.string.level_prison_break_title), stringResource(Res.string.story_prison_break))
+                            "defend_the_city" -> Triple(NarrativeMessageType.STORY, stringResource(Res.string.level_defend_the_city_title), stringResource(Res.string.story_defend_the_city))
+                            "the_plains" -> Triple(NarrativeMessageType.STORY, stringResource(Res.string.level_the_plains_title), stringResource(Res.string.story_the_plains))
+                            "the_spiral_challenge" -> Triple(NarrativeMessageType.STORY, stringResource(Res.string.level_the_spiral_challenge_title), stringResource(Res.string.story_the_spiral_challenge))
+                            "the_dance" -> Triple(NarrativeMessageType.STORY, stringResource(Res.string.level_the_dance_title), stringResource(Res.string.story_the_dance))
+                            "the_rush" -> Triple(NarrativeMessageType.STORY, stringResource(Res.string.level_the_rush_title), stringResource(Res.string.story_the_rush))
+                            "the_woods_first_incursion" -> Triple(NarrativeMessageType.STORY, stringResource(Res.string.level_the_woods_first_incursion_title), stringResource(Res.string.story_the_woods_first_incursion))
+                            "the_woods_full_assault" -> Triple(NarrativeMessageType.STORY, stringResource(Res.string.level_the_woods_full_assault_title), stringResource(Res.string.story_the_woods_full_assault))
+                            "the_fast_and_furious" -> Triple(NarrativeMessageType.STORY, stringResource(Res.string.level_the_fast_and_furious_title), stringResource(Res.string.story_the_fast_and_furious))
+                            "the_cross" -> Triple(NarrativeMessageType.STORY, stringResource(Res.string.level_the_cross_title), stringResource(Res.string.story_the_cross))
+                            "the_winding_path" -> Triple(NarrativeMessageType.STORY, stringResource(Res.string.level_the_winding_path_title), stringResource(Res.string.story_the_winding_path))
+                            "the_fortress_1_first_attacks" -> Triple(NarrativeMessageType.STORY, "$fortressTitle - ${stringResource(Res.string.level_the_fortress_1_first_attacks_subtitle)}", stringResource(Res.string.story_the_fortress_1_first_attacks))
+                            "the_fortress_2_orks_marching" -> Triple(NarrativeMessageType.STORY, "$fortressTitle - ${stringResource(Res.string.level_the_fortress_2_orks_marching_subtitle)}", stringResource(Res.string.story_the_fortress_2_orks_marching))
+                            "the_fortress_3_necromancer" -> Triple(NarrativeMessageType.STORY, "$fortressTitle - ${stringResource(Res.string.level_the_fortress_3_necromancer_subtitle)}", stringResource(Res.string.story_the_fortress_3_necromancer))
+                            "the_fortress_4_magic_assault" -> Triple(NarrativeMessageType.STORY, "$fortressTitle - ${stringResource(Res.string.level_the_fortress_4_magic_assault_subtitle)}", stringResource(Res.string.story_the_fortress_4_magic_assault))
+                            "the_fortress_5_mighty_forces" -> Triple(NarrativeMessageType.STORY, "$fortressTitle - ${stringResource(Res.string.level_the_fortress_5_mighty_forces_subtitle)}", stringResource(Res.string.story_the_fortress_5_mighty_forces))
+                            "the_final_stand" -> Triple(NarrativeMessageType.EWHAD, stringResource(Res.string.level_the_final_stand_title), stringResource(Res.string.story_the_final_stand))
+                            "the_creek" -> Triple(NarrativeMessageType.STORY, stringResource(Res.string.level_the_creek_title), stringResource(Res.string.story_the_creek))
+                            "the_island" -> Triple(NarrativeMessageType.STORY, stringResource(Res.string.level_the_island_title), stringResource(Res.string.story_the_island))
+                            "the_river" -> Triple(NarrativeMessageType.STORY, stringResource(Res.string.level_the_river_title), stringResource(Res.string.story_the_river))
+                            "creek_valley" -> Triple(NarrativeMessageType.STORY, stringResource(Res.string.level_creek_valley_title), stringResource(Res.string.story_creek_valley))
+                            "maelstrom" -> Triple(NarrativeMessageType.STORY, stringResource(Res.string.level_maelstrom_title), stringResource(Res.string.story_maelstrom))
+                            "the_tower_of_the_hermit" -> Triple(NarrativeMessageType.STORY, stringResource(Res.string.level_the_tower_of_the_hermit_title), stringResource(Res.string.story_the_tower_of_the_hermit))
+                            else -> null
+                        }
+                        story?.let { (narrativeType, storyTitle, storyText) ->
+                            NarrativeMessageDialog(
+                                type = narrativeType,
+                                title = storyTitle,
+                                text = storyText,
+                                onDismiss = { onDismissGameMessage?.invoke() }
+                            )
+                        }
+                    }
+                }
                 else -> GameEventMessageDialog(
                     message = msg,
                     onDismiss = { onDismissGameMessage?.invoke() }
