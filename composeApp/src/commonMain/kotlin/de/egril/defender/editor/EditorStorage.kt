@@ -377,7 +377,7 @@ object EditorStorage {
         
         val initData = levelWithSpawnPoints.getEffectiveInitialData()
         if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-        println("EditorStorage.saveLevel: Saving level ${levelWithSpawnPoints.id} with ${levelWithSpawnPoints.initialDefenders.size} defenders, ${levelWithSpawnPoints.initialAttackers.size} attackers, ${levelWithSpawnPoints.initialTraps.size} traps, ${levelWithSpawnPoints.initialBarricades.size} barricades")
+        println("EditorStorage.saveLevel: Saving level ${levelWithSpawnPoints.id} with ${initData.defenders.size} defenders, ${initData.attackers.size} attackers, ${initData.traps.size} traps, ${initData.barricades.size} barricades")
         }
 
         levelsCache[levelWithSpawnPoints.id] = levelWithSpawnPoints

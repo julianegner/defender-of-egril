@@ -52,7 +52,7 @@ fun LevelCardsView(
                 worldLevels.filter { worldLevel ->
                     val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(worldLevel.level.editorLevelId ?: "")
                         ?: de.egril.defender.editor.EditorStorage.getCommunityLevel(worldLevel.level.editorLevelId ?: "")
-                    editorLevel?.isOfficial == false && editorLevel?.isCommunity == false
+                    editorLevel?.isOfficial == false && editorLevel.isCommunity == false
                 }
             }
             showUserLevelsTab -> {
@@ -77,7 +77,7 @@ fun LevelCardsView(
                         worldLevels.filter { worldLevel ->
                             val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(worldLevel.level.editorLevelId ?: "")
                                 ?: de.egril.defender.editor.EditorStorage.getCommunityLevel(worldLevel.level.editorLevelId ?: "")
-                            editorLevel?.isOfficial == false && editorLevel?.isCommunity == false
+                            editorLevel?.isOfficial == false && editorLevel.isCommunity == false
                         }
                     }
                 }

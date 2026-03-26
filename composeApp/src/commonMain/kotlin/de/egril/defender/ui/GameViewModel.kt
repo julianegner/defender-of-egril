@@ -661,12 +661,10 @@ class GameViewModel {
         if (result) {
             if (isInstantDeploy) {
                 // isInstantDeploy=true implies gameState!=null (see initialization above)
-                gameState?.let { gs ->
-                    gs.currentMana.value = (gs.currentMana.value - SpellType.INSTANT_TOWER.manaCost).coerceAtLeast(0)
-                    gs.instantTowerSpellActive.value = false
-                    if (LogConfig.ENABLE_SPELL_LOGGING) {
-                        println("=== SPELL: Instant Tower spell consumed - tower placed instantly, mana deducted")
-                    }
+                gameState.currentMana.value = (gameState.currentMana.value - SpellType.INSTANT_TOWER.manaCost).coerceAtLeast(0)
+                gameState.instantTowerSpellActive.value = false
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("=== SPELL: Instant Tower spell consumed - tower placed instantly, mana deducted")
                 }
             }
             // Track achievement

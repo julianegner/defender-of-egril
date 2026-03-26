@@ -90,8 +90,8 @@ fun StickerScreen(
                     .padding(top = 70.dp)
                     .fillMaxSize()
             ) {
-                // Use ScrollableTabRow because there are many tabs
-                ScrollableTabRow(
+                // Use PrimaryScrollableTabRow because there are many tabs
+                PrimaryScrollableTabRow(
                     selectedTabIndex = selectedTab,
                     modifier = Modifier.fillMaxWidth()
                 ) {
