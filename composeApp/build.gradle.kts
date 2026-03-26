@@ -23,6 +23,21 @@ val withImpressum: Boolean = project.findProperty("withImpressum")?.toString()?.
 // Official editing flag - can be set via gradle.properties or command line: -Pofficial=true
 val official: Boolean = project.findProperty("official")?.toString()?.toBoolean() ?: false
 
+// App version - can be set via command line: -PappVersion=1.2.3
+// Used for Android versionName, desktop packageVersion, and AppBuildInfo.VERSION_NAME
+val appVersion: String = project.findProperty("appVersion")?.toString() ?: "1.0.0"
+
+// Derive Android versionCode from version string (major * 10000 + minor * 100 + patch).
+// Constraints: minor and patch must be 0–99; major must be 0–21474.
+// These limits are validated by the release.yml workflow before passing the version here.
+val appVersionCode: Int = run {
+    val parts = appVersion.split(".").map { it.toIntOrNull() ?: 0 }
+    val major = parts.getOrElse(0) { 0 }
+    val minor = parts.getOrElse(1) { 0 }
+    val patch = parts.getOrElse(2) { 0 }
+    major * 10000 + minor * 100 + patch
+}
+
 // Task to generate BuildConfig with current commit hash
 val generateBuildConfig by tasks.registering {
     val outputFile = buildConfigOutputDir.get().file("de/egril/defender/AppBuildInfo.kt")
@@ -80,7 +95,7 @@ val generateBuildConfig by tasks.registering {
             "unknown"
         }
         
-        val versionName = "1.0"
+        val versionName = appVersion
         
         val buildConfigContent = """
             |package de.egril.defender
@@ -351,8 +366,8 @@ android {
         applicationId = "de.egril.defender"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = appVersionCode
+        versionName = appVersion
         
         // Redirect scheme for OIDC (kotlin-multiplatform-oidc library)
         addManifestPlaceholders(mapOf("oidcRedirectScheme" to "egril"))
@@ -461,7 +476,7 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Exe, TargetFormat.Deb)
-            packageVersion = "1.0.0"
+            packageVersion = appVersion
             
             macOS {
                 bundleID = "de.egril.defender"

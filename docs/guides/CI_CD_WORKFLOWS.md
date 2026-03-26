@@ -28,11 +28,56 @@ WASM browser tests are not currently run in CI because the common test suite use
 - Gradle: Uses project wrapper (9.2.1)
 - Test command: `:composeApp:desktopTest` (JVM) or `:composeApp:testDebugUnitTest` (Android)
 
-### 2. Build and Release Workflow (`build_and_release.yml`)
+### 2. Release Workflow (`release.yml`)
+
+**Trigger:** Manual dispatch (`workflow_dispatch`) with a `version` input (format: `major.minor.patch`)
+
+**Purpose:** Create a versioned release with platform-specific installers/packages
+
+**Inputs:**
+- `version` (required): Release version string in `major.minor.patch` format (e.g. `1.2.3`)
+
+**Jobs:**
+- `prepare`: Validate version string and compute Android `versionCode`
+- `tag`: Create and push git tag `v<version>` on the current commit
+- `build_android`: Build Android APK and AAB (signed if secrets are configured, debug otherwise)
+- `build_linux_deb`: Build Linux DEB package
+- `build_macos`: Build macOS DMG
+- `build_ios`: Build iOS IPA (skipped when Apple signing secrets are absent)
+- `build_windows_exe`: Build Windows EXE installer
+- `build_windows_msi`: Build Windows MSI installer
+- `build_wasm`: Build WebAssembly bundle
+- `release`: Create GitHub Release with all artifacts attached
+
+**Build Artifacts (attached to the GitHub Release):**
+- Android APK: `de.egril.defender-productionRelease.apk` (or debug suffix without signing)
+- Android AAB: `de.egril.defender-productionRelease.aab` (or debug suffix without signing)
+- Linux: `defender-of-egril_<version>_amd64.deb`
+- macOS: DMG file from `composeApp/build/compose/binaries/main/dmg/`
+- iOS: `*.ipa` (when Apple signing secrets are configured)
+- Windows: `DefenderOfEgril-<version>.exe` and `DefenderOfEgril-<version>.msi`
+- WASM: `defender-of-egril_<version>_wasm.zip`
+
+**Configuration:**
+- JDK: 24 (Temurin distribution)
+- Gradle: Uses project wrapper
+- Version is passed to Gradle as `-PappVersion=<version>` and sets `versionName`, `versionCode`, `packageVersion`, and `AppBuildInfo.VERSION_NAME`
+
+**Required Secrets (optional – build degrades gracefully without them):**
+- `ANDROID_KEYSTORE_BASE64`: Base64-encoded Android release keystore
+- `ANDROID_KEY_ALIAS`: Key alias in the keystore
+- `ANDROID_KEY_PASSWORD`: Key password
+- `ANDROID_STORE_PASSWORD`: Keystore password
+- `APPLE_CERTIFICATE`: Base64-encoded Apple P12 signing certificate
+- `APPLE_CERTIFICATE_PASSWORD`: Password for the P12 certificate
+- `APPLE_PROVISIONING_PROFILE`: Base64-encoded `.mobileprovision` file
+- `APPLE_TEAM_ID`: 10-character Apple Developer team identifier
+
+### 3. Build and Release Workflow (`build_and_release.yml`) *(legacy)*
 
 **Trigger:** On version tags (`v*.*.*`), manual dispatch, or pushes to main branch
 
-**Purpose:** Build platform-specific artifacts and create releases
+**Purpose:** Legacy build workflow – superseded by `release.yml` for new releases
 
 **Jobs:**
 - `check_version_tag`: Verify version tag (only runs on tags)
@@ -55,7 +100,7 @@ WASM browser tests are not currently run in CI because the common test suite use
 - Gradle: Uses project wrapper (9.2.1)
 - Builds only run on version tags or manual dispatch
 
-### 3. Deploy WASM to GitHub Pages (`deploy_wasm_to_github_pages.yml`)
+### 4. Deploy WASM to GitHub Pages (`deploy_wasm_to_github_pages.yml`)
 
 **Trigger:** Manual dispatch only (commented out auto-deploy on main branch)
 
@@ -75,7 +120,7 @@ WASM browser tests are not currently run in CI because the common test suite use
 - `pages: write` - To deploy to GitHub Pages
 - `id-token: write` - Required by actions/configure-pages
 
-### 4. Build Windows EXE (`build-windows-exe.yml`)
+### 5. Build Windows EXE (`build-windows-exe.yml`)
 
 **Trigger:** On pushes to main branch, pull requests to main, or manual dispatch
 
@@ -102,7 +147,7 @@ This workflow provides an easy way to build and test Windows EXE installers with
 3. Click on a completed run
 4. Download the `windows-exe-installer` artifact
 
-### 5. Debug Android ProGuard (`debug-proguard.yml`)
+### 6. Debug Android ProGuard (`debug-proguard.yml`)
 
 **Trigger:** Manual dispatch only
 
@@ -130,20 +175,41 @@ Tests run automatically on every push and pull request. No action needed.
 
 ### Creating a Release
 
-1. Tag a commit with a version tag:
-   ```bash
-   git tag v1.0.0
-   git push origin v1.0.0
-   ```
+Use the **Release** workflow (`release.yml`) to create a new release:
 
-2. The `build_and_release.yml` workflow will automatically:
-   - Build artifacts for all platforms
-   - Create a GitHub release
-   - Upload all artifacts to the release
+1. Go to the **Actions** tab in the GitHub repository.
+2. Select the **"Release"** workflow in the left sidebar.
+3. Click **"Run workflow"**.
+4. Enter the version number in `major.minor.patch` format (e.g. `1.2.3`).
+5. Click **"Run workflow"** to start.
 
-### Manual Build Trigger
+The workflow will:
+- Validate the version string.
+- Create and push a git tag `v<version>` for the current commit.
+- Build all platform artifacts in parallel (Android, Linux, macOS, Windows, WASM; iOS when signing secrets are configured).
+- Create a GitHub Release tagged with the version and attach all artifacts for download.
 
-You can manually trigger builds via the GitHub Actions UI:
+#### Configuring Signing (optional)
+
+**Android signed release:** Add the following repository secrets:
+- `ANDROID_KEYSTORE_BASE64` – Base64-encoded Android release keystore (`base64 release.keystore`)
+- `ANDROID_KEY_ALIAS` – Key alias
+- `ANDROID_KEY_PASSWORD` – Key password
+- `ANDROID_STORE_PASSWORD` – Keystore password
+
+Without these secrets the workflow falls back to an unsigned debug build.
+
+**iOS IPA:** Add the following repository secrets:
+- `APPLE_CERTIFICATE` – Base64-encoded Apple P12 signing certificate
+- `APPLE_CERTIFICATE_PASSWORD` – Password for the P12
+- `APPLE_PROVISIONING_PROFILE` – Base64-encoded `.mobileprovision` file
+- `APPLE_TEAM_ID` – 10-character Apple Developer team identifier
+
+Without these secrets the iOS build job is automatically skipped.
+
+### Manual Build Trigger (legacy)
+
+You can still manually trigger the legacy build workflow via the GitHub Actions UI:
 1. Go to Actions tab
 2. Select "Build (and Release)" workflow
 3. Click "Run workflow"
@@ -232,9 +298,9 @@ Check for updates periodically and test before updating.
 ### Adding New Platforms
 
 To add support for new platforms:
-1. Add a new job in `build_and_release.yml`
+1. Add a new job in `release.yml`
 2. Configure the appropriate runner (e.g., `runs-on: ubuntu-latest`)
-3. Add build steps with appropriate Gradle tasks
-4. Upload artifacts
-5. Add artifact download in `release` job
+3. Add build steps with appropriate Gradle tasks, passing `-PappVersion="${APP_VERSION}"`
+4. Upload artifacts with `actions/upload-artifact@v4`
+5. Add the job to the `needs` list of the `release` job and download the artifact there
 6. Update this documentation
