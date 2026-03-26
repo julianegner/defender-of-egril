@@ -293,7 +293,7 @@ private fun PlayerLevelInfo(abilities: PlayerAbilities) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 LinearProgressIndicator(
-                    progress = progress,
+                    progress = { progress },
                     modifier = Modifier.fillMaxWidth().height(12.dp)
                 )
                 Spacer(modifier = Modifier.height(4.dp))

@@ -167,7 +167,7 @@ data class GameState(
             if (enemy.isDefeated.value) continue
             if (enemy.currentTarget?.value == takenPosition) {
                 val newTarget = remaining.minByOrNull { enemy.position.value.distanceTo(it) } ?: remaining.first()
-                enemy.currentTarget!!.value = newTarget
+                enemy.currentTarget.value = newTarget
                 println("Enemy ${enemy.id} (${enemy.type}) retargeted from $takenPosition to $newTarget")
             }
         }

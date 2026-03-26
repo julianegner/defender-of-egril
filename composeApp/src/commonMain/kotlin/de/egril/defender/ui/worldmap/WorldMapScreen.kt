@@ -151,7 +151,7 @@ fun WorldMapScreen(
     val hasUserLevels = remember(worldLevels) {
         worldLevels.any { worldLevel ->
             val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(worldLevel.level.editorLevelId ?: "")
-            editorLevel?.isOfficial == false && editorLevel?.isCommunity == false
+            editorLevel?.isOfficial == false && editorLevel.isCommunity == false
         }
     }
 

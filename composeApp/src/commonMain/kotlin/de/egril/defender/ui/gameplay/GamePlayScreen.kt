@@ -769,7 +769,7 @@ private fun GamePlayScreenContent(
                         if (showMagicPanel) {
                             onCloseMagicPanel?.invoke()
                         } else {
-                            onOpenMagicPanel?.invoke()
+                            onOpenMagicPanel.invoke()
                         }
                         return@GameGrid
                     }
