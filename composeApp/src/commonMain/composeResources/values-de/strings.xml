@@ -906,7 +906,7 @@
     <string name="level_the_cross_subtitle">Vier geteilte Pfade</string>
     <string name="level_the_winding_path_title">Der gewundene Pfad</string>
     <string name="level_the_winding_path_subtitle">Eine lange und verschlungene Straße</string>
-    <string name="level_the_fortress_title">Die Festung %s</string>
+    <string name="level_the_fortress_title">Die Festung</string>
     <string name="level_the_fortress_1_first_attacks_subtitle">Erste Angriffe</string>
     <string name="level_the_fortress_2_orks_marching_subtitle">Die Orks marschieren</string>
     <string name="level_the_fortress_3_necromancer_subtitle">Der Nekromant</string>

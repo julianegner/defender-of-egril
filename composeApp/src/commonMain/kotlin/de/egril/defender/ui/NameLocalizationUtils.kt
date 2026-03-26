@@ -41,8 +41,8 @@ fun EditorMap.getLocalizedName(locale: AppLocale = currentLanguage.value): Strin
  * Get the localized title for a level.
  * Falls back to the direct title if titleKey is null or not found in resources.
  * 
- * Supports parameterized keys in format "key:param" where param is substituted into the translated string.
- * Example: "level_the_fortress_title:1" -> looks up "level_the_fortress_title" and replaces %s with "1"
+ * Supports parameterized keys in format "key:param" where param is appended to the translated string.
+ * Example: "level_the_fortress_title:1" -> looks up "level_the_fortress_title" and appends " 1"
  */
 fun EditorLevel.getLocalizedTitle(locale: AppLocale = currentLanguage.value): String {
     return if (titleKey != null) {
@@ -52,9 +52,9 @@ fun EditorLevel.getLocalizedTitle(locale: AppLocale = currentLanguage.value): St
                 val parts = titleKey.split(':', limit = 2)
                 val baseKey = parts[0]
                 val param = parts[1]
-                val template = LocalizedStrings.get(baseKey, locale)
-                // Replace %s with the parameter value
-                template.replace("%s", param)
+                val base = LocalizedStrings.get(baseKey, locale)
+                // Append the parameter value after the translated base string
+                "$base $param"
             } else {
                 LocalizedStrings.get(titleKey, locale)
             }
@@ -102,8 +102,8 @@ fun WorldMapLocationData.getLocalizedName(locale: AppLocale = currentLanguage.va
  * Get the localized title for a Level (game model, not editor).
  * Falls back to the direct name if titleKey is null or not found in resources.
  * 
- * Supports parameterized keys in format "key:param" where param is substituted into the translated string.
- * Example: "level_the_fortress_title:1" -> looks up "level_the_fortress_title" and replaces %s with "1"
+ * Supports parameterized keys in format "key:param" where param is appended to the translated string.
+ * Example: "level_the_fortress_title:1" -> looks up "level_the_fortress_title" and appends " 1"
  */
 fun Level.getLocalizedTitle(locale: AppLocale = currentLanguage.value): String {
     return if (titleKey != null) {
@@ -113,9 +113,9 @@ fun Level.getLocalizedTitle(locale: AppLocale = currentLanguage.value): String {
                 val parts = titleKey.split(':', limit = 2)
                 val baseKey = parts[0]
                 val param = parts[1]
-                val template = LocalizedStrings.get(baseKey, locale)
-                // Replace %s with the parameter value
-                template.replace("%s", param)
+                val base = LocalizedStrings.get(baseKey, locale)
+                // Append the parameter value after the translated base string
+                "$base $param"
             } else {
                 LocalizedStrings.get(titleKey, locale)
             }
@@ -147,8 +147,8 @@ fun Level.getLocalizedSubtitle(locale: AppLocale = currentLanguage.value): Strin
  * Get the localized title for a LevelInfoEnemiesLevelData.
  * Falls back to the direct name if titleKey is null or not found in resources.
  * 
- * Supports parameterized keys in format "key:param" where param is substituted into the translated string.
- * Example: "level_the_fortress_title:1" -> looks up "level_the_fortress_title" and replaces %s with "1"
+ * Supports parameterized keys in format "key:param" where param is appended to the translated string.
+ * Example: "level_the_fortress_title:1" -> looks up "level_the_fortress_title" and appends " 1"
  */
 fun LevelInfoEnemiesLevelData.getLocalizedTitle(locale: AppLocale = currentLanguage.value): String {
     return if (titleKey != null) {
@@ -158,9 +158,9 @@ fun LevelInfoEnemiesLevelData.getLocalizedTitle(locale: AppLocale = currentLangu
                 val parts = titleKey.split(':', limit = 2)
                 val baseKey = parts[0]
                 val param = parts[1]
-                val template = LocalizedStrings.get(baseKey, locale)
-                // Replace %s with the parameter value
-                template.replace("%s", param)
+                val base = LocalizedStrings.get(baseKey, locale)
+                // Append the parameter value after the translated base string
+                "$base $param"
             } else {
                 LocalizedStrings.get(titleKey, locale)
             }
