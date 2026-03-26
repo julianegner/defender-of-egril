@@ -906,9 +906,27 @@
     <string name="level_the_cross_title">La Cruz</string>
     <string name="level_the_cross_subtitle">Cuatro Caminos Divididos</string>
     <string name="level_the_winding_path_title">El Camino Sinuoso</string>
-    <string name="level_the_winding_path_subtitle">Un Camino Largo y Tortuoso</string>        <string name="level_the_fortress_title">La Fortaleza %s</string>
-    <string name="level_the_fortress_1_first_attacks_subtitle">Primeros Ataques</string>    <string name="level_the_fortress_2_orks_marching_subtitle">Los Orks Están Marchando</string>    <string name="level_the_fortress_3_necromancer_subtitle">El Nigromante</string>    <string name="level_the_fortress_4_magic_assault_subtitle">Asalto Mágico</string>    <string name="level_the_fortress_5_mighty_forces_subtitle">Fuerzas Poderosas</string>
-    <string name="level_ewhads_challenge_title">Desafío de Ewhad</string>    <string name="level_the_creek_title">El Arroyo</string>    <string name="level_the_island_title">La Isla</string>    <string name="level_the_river_title">El Río</string>    <string name="level_creek_valley_title">Valle del Arroyo</string>    <string name="level_maelstrom_title">Vorágine</string>    <string name="level_defend_the_city_title">Defiende la Ciudad</string>    <string name="level_prison_break_title">Fuga de la Prisión</string>    <string name="level_prison_break_subtitle">Trasgos capturados intentan escapar</string>    <string name="level_the_barricades_title">Las Barricadas</string>    <string name="level_the_labyrinth_title">El Laberinto</string>    <string name="level_the_tower_of_the_hermit_title">La Torre del Ermitaño</string>    <string name="level_the_tower_of_the_hermit_subtitle">Una sola Torre para defender el Camino</string>    <string name="level_the_witches_title">Las Brujas</string>    
+    <string name="level_the_winding_path_subtitle">Un Camino Largo y Tortuoso</string>
+    <string name="level_the_fortress_title">La Fortaleza %s</string>
+    <string name="level_the_fortress_1_first_attacks_subtitle">Primeros Ataques</string>
+    <string name="level_the_fortress_2_orks_marching_subtitle">Los Orks Están Marchando</string>
+    <string name="level_the_fortress_3_necromancer_subtitle">El Nigromante</string>
+    <string name="level_the_fortress_4_magic_assault_subtitle">Asalto Mágico</string>
+    <string name="level_the_fortress_5_mighty_forces_subtitle">Fuerzas Poderosas</string>
+    <string name="level_ewhads_challenge_title">Desafío de Ewhad</string>
+    <string name="level_the_creek_title">El Arroyo</string>
+    <string name="level_the_island_title">La Isla</string>
+    <string name="level_the_river_title">El Río</string>
+    <string name="level_creek_valley_title">Valle del Arroyo</string>
+    <string name="level_maelstrom_title">Vorágine</string>
+    <string name="level_defend_the_city_title">Defiende la Ciudad</string>
+    <string name="level_prison_break_title">Fuga de la Prisión</string>
+    <string name="level_prison_break_subtitle">Trasgos capturados intentan escapar</string>
+    <string name="level_the_barricades_title">Las Barricadas</string>
+    <string name="level_the_labyrinth_title">El Laberinto</string>
+    <string name="level_the_tower_of_the_hermit_title">La Torre del Ermitaño</string>
+    <string name="level_the_tower_of_the_hermit_subtitle">Una sola Torre para defender el Camino</string>
+    <string name="level_the_witches_title">Las Brujas</string>
     <!-- Map Names -->
     <string name="map_tutorial_name">Mapa Tutorial</string>
     <string name="map_straight_name">Mapa Recto</string>
