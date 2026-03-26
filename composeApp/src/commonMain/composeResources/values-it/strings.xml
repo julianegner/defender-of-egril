@@ -1581,4 +1581,10 @@
     <string name="editor_howto_tips_title">Consigli</string>
     <string name="editor_howto_tips">Salva frequentemente per non perdere il lavoro - Testa i livelli giocandoli dopo ogni modifica - Copia mappe e livelli esistenti come modelli di partenza - Una mappa può essere riutilizzata per più livelli - I badge rossi sulle sotto-schede indicano una configurazione mancante o non valida - Il pulsante "Ripristina Dati di Gioco" nelle Impostazioni riporta tutti i contenuti ufficiali allo stato originale</string>
     <string name="editor_howto_close">Chiudi</string>
+    <string name="tooltip_enemy_list_and_legend">Lista unità nemiche e legenda</string>
+    <string name="tooltip_save_the_game">Salva la partita</string>
+    <string name="tooltip_log_out_from_remote">Disconnetti dal server remoto</string>
+    <string name="tooltip_info_installation">Info su installazione, licenza e privacy</string>
+    <string name="tooltip_enemies_on_map_and_planned">Nemici sulla mappa e pianificati</string>
+    <string name="tooltip_return_to_worldmap">Torna alla mappa del mondo</string>
 </resources>

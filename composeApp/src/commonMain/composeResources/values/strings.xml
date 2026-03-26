@@ -1585,4 +1585,10 @@
     <string name="editor_howto_tips_title">Tips</string>
     <string name="editor_howto_tips">Save frequently to avoid losing work - Test your levels by playing the game after each change - Copy existing maps and levels as starting templates to learn the format - A map can be reused across multiple levels - Red badges on sub-tabs indicate missing or invalid configuration - The "Restore Game Data" button in Settings resets all official content to its original state</string>
     <string name="editor_howto_close">Close</string>
+    <string name="tooltip_enemy_list_and_legend">Enemy unit list and legend</string>
+    <string name="tooltip_save_the_game">Save the game</string>
+    <string name="tooltip_log_out_from_remote">Log out from remote</string>
+    <string name="tooltip_info_installation">Info about installation, license and privacy</string>
+    <string name="tooltip_enemies_on_map_and_planned">Enemies on map and planned</string>
+    <string name="tooltip_return_to_worldmap">Return to the worldmap</string>
 </resources>

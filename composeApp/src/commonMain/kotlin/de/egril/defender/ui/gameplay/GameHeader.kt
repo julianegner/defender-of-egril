@@ -26,6 +26,7 @@ import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.DifficultyDisplay
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
+import de.egril.defender.ui.TooltipWrapper
 
 @Composable
 fun GameHeader(
@@ -222,42 +223,48 @@ fun GameHeader(
                 )
                 
                 if (onSaveGame != null) {
+                    TooltipWrapper(text = stringResource(Res.string.tooltip_save_the_game)) {
+                        Button(
+                            onClick = onSaveGame,
+                            modifier = Modifier.height(buttonHeight),
+                            contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp)
+                        ) {
+                            SaveIcon(
+                                size = buttonIconSize,
+                                modifier = Modifier.align(Alignment.CenterVertically)
+                            )
+                        }
+                    }
+                }
+
+                TooltipWrapper(text = stringResource(Res.string.tooltip_return_to_worldmap)) {
                     Button(
-                        onClick = onSaveGame,
+                        onClick = onBackToMap,
                         modifier = Modifier.height(buttonHeight),
                         contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp)
                     ) {
-                        SaveIcon(
-                            size = buttonIconSize,
+                        Text(
+                            stringResource(Res.string.map_label),
+                            fontSize = buttonTextSize,
                             modifier = Modifier.align(Alignment.CenterVertically)
                         )
                     }
                 }
 
-                Button(
-                    onClick = onBackToMap,
-                    modifier = Modifier.height(buttonHeight),
-                    contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp)
-                ) {
-                    Text(
-                        stringResource(Res.string.map_label),
-                        fontSize = buttonTextSize,
-                        modifier = Modifier.align(Alignment.CenterVertically)
-                    )
-                }
-
-                Button(
-                    onClick = { onShowOverlayChange(!showOverlay) },
-                    modifier = Modifier.height(buttonHeight),
-                    contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (showOverlay) GamePlayColors.Success else GamePlayColors.Info
-                    )
-                ) {
-                    if (showOverlay) {
-                        TriangleRightIcon(size = buttonIconSize)
-                    } else {
-                        TriangleLeftIcon(size = buttonIconSize)
+                TooltipWrapper(text = stringResource(Res.string.tooltip_enemy_list_and_legend)) {
+                    Button(
+                        onClick = { onShowOverlayChange(!showOverlay) },
+                        modifier = Modifier.height(buttonHeight),
+                        contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (showOverlay) GamePlayColors.Success else GamePlayColors.Info
+                        )
+                    ) {
+                        if (showOverlay) {
+                            TriangleRightIcon(size = buttonIconSize)
+                        } else {
+                            TriangleLeftIcon(size = buttonIconSize)
+                        }
                     }
                 }
             }
