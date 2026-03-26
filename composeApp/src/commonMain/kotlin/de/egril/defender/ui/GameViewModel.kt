@@ -555,6 +555,8 @@ class GameViewModel {
     }
 
     fun startLevel(levelId: Int) {
+        // Clear any pending message from a previous level
+        _pendingGameMessage.value = null
         val worldLevel = _worldLevels.value.find { it.level.id == levelId }
         if (worldLevel != null && worldLevel.status != LevelStatus.LOCKED) {
             val difficulty = AppSettings.difficulty.value
@@ -601,6 +603,16 @@ class GameViewModel {
             _gameState.value = newGameState
             gameEngine = GameEngine(newGameState)
             _currentScreen.value = Screen.GamePlay(levelId)
+
+            // Show story intro message if this level has one (all levels except the tutorial)
+            val editorLevelId = level.editorLevelId
+            if (editorLevelId != null && editorLevelId != "welcome_to_defender_of_egril") {
+                _pendingGameMessage.value = de.egril.defender.model.GameMessage(
+                    type = de.egril.defender.model.GameMessageType.STORY_INTRO,
+                    name = editorLevelId
+                )
+            }
+
             // Capture initial state snapshot
             initialGameStateSnapshot = createGameStateSnapshot(newGameState)
             lastSaveSnapshot = initialGameStateSnapshot

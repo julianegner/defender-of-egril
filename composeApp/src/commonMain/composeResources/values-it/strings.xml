@@ -1519,6 +1519,34 @@
     <string name="ewhad_retreats_text">Hai costretto Ewhad a ritirarsi!</string>
     <string name="ewhad_defeated_title">Ewhad è sconfitto</string>
     <string name="ewhad_defeated_text">Hai sconfitto Ewhad! Ora elimina gli altri Nemici e vinci il gioco!</string>
+    <!-- Story intro messages shown at the start of each level -->
+    <string name="story_the_first_wave">There are Goblins attacking a remote rural area. This is not uncommon, but rumors tell us that this time more brutes than usual are wandering into our realm.</string>
+    <string name="story_mixed_forces">The same area faces more attacks, Rumors even talk about dead rising from the graves and attacking the villagers.</string>
+    <string name="story_the_ork_invasion">A large pack of Goblins and Orks are on their Way! You have to defend the area!</string>
+    <string name="story_dark_magic_rises">Now the evil nobility is coming to you! We heard of Witches and evil Wizards coming. Be careful, Witches can use magic to heal brutes and disable your Towers, and the evil Wizards can summon Demons straight from Hell!</string>
+    <string name="story_prison_break">We captured a group of Goblins, but they managed to break from their cells and are now trying to escape from the prison.</string>
+    <string name="story_defend_the_city">A large group of Orks try to invade the City! You have to defend the neuralgic points of the City - The Townhall, the Storehouse, the Marketplace and the Guildhouse. If any of these are captured, the Monsters will attack the other locations and if they are all captured, the City is lost.</string>
+    <string name="story_the_plains">We are in the center of the plains with only a few places where we can place defensive Towers and the enemy can come towards us with nothing stopping them.</string>
+    <string name="story_the_spiral_challenge">We have a good defensive Position inside the spiral the enemies must follow, but if they bring magic wielders with them, we must be careful to defeat them early.</string>
+    <string name="story_the_dance">The enemy units dance around us and we will have some time to shoot them before they can cause damages.</string>
+    <string name="story_the_rush">We have to defend a small Village. A bunch of evil creatures are coming from the woods and time their attack waves in a way that more than one wave will reach us at the same time.</string>
+    <string name="story_the_woods_first_incursion">These are the Woods near the Village we defended before. For the moment, only goblins are expected, but many of them. Use the Trees to build Defenses there.</string>
+    <string name="story_the_woods_full_assault">Now the Enemy has gathered mighty units, we know of wizards and heard that even Ogres are marching towards us.</string>
+    <string name="story_the_fast_and_furious">You are weakened. Any single additional hit would mean defeat, so you have to be very careful here.</string>
+    <string name="story_the_cross">The Enemies come from all directions</string>
+    <string name="story_the_winding_path">The winding Path is the last part of the path to the Fortress. We must defend at all costs, and we have many good places for Towers to defend.</string>
+    <string name="story_the_fortress_1_first_attacks">The Enemy is at the gates of our Fortress! They seem to start with some lighter attacks, mostly goblins.</string>
+    <string name="story_the_fortress_2_orks_marching">Now a larger amount of Orks was sighted. We have to defend ourselves.</string>
+    <string name="story_the_fortress_3_necromancer">A Necromancer is on his way and with him his army of resurrected skeletons</string>
+    <string name="story_the_fortress_4_magic_assault">Witches and Wizards will attack us. Be aware that the green Witch can heal enemy units, while the red Witch can deactivate our Towers for a while</string>
+    <string name="story_the_fortress_5_mighty_forces">A large Army of enemy forces, including all kinds of magic users is about to attack our Fortress.</string>
+    <string name="story_the_final_stand">Ewhad himself is standing before the Gates of our Fortress. We have to defend at all costs, now it is either victory or defeat. Be aware that Ewhad can summon several Demons, which get mightier with time, so defeat him fast.</string>
+    <string name="story_the_creek">This place at a creek is good to defend, since the enemy will have to move around the creek, but there are not many places for Towers. Build Rafts to have floating defenses. Be aware that the rafts move with the flow of the creek.</string>
+    <string name="story_the_island">We have to defend this small Island now. There are only few enemies expected, which is good as we have only some places to build Towers. We should use Rafts here, too</string>
+    <string name="story_the_river">After the Valley with the Creek, we have an area with a mighty river here. Parts of the River move faster than we know it from the smaller creeks we had before. We have some places for Towers, but must depend mainly on Rafts to defend us.</string>
+    <string name="story_creek_valley">After defending the Island, we are now in a Valley with a creek flowing through the valley. There are no places to build Towers, so we only can use Rafts here. Be aware that they are moved by the flow of the creek.</string>
+    <string name="story_maelstrom">We are attacked from the south! We are lucky that there is a river between us and the enemies. They can build bridges to move over the river, and we can build barges to defend us. But be aware that in the middle of the river there is a maelstrom that will destroy our barges.</string>
+    <string name="story_the_tower_of_the_hermit">The hermit lives alone in his tower. Now evil forces arrive in this remote location and the hermit must defend the path from his single tower.</string>
     <!-- Final Credits screen -->
     <string name="credits_game_title">Defender of Egril</string>
     <string name="credits_title">Titoli di Coda</string>
