@@ -2697,6 +2697,11 @@ class GameViewModel {
             gameEngine?.processDefeatedAttackers()
             // Surface any messages queued by the kill (e.g. EWHAD_RETREATS/EWHAD_DEFEATED) immediately.
             surfaceNextPendingMessageIfIdle()
+            // Check if the spell killed the last enemy and the level is now won
+            val currentStateAfterSpell = _gameState.value
+            if (currentStateAfterSpell != null && currentStateAfterSpell.isLevelWon()) {
+                completeLevel(currentStateAfterSpell.level.id, won = true)
+            }
         }
 
         // Clear pending spell and targeting state
