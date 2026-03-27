@@ -22,9 +22,9 @@ parts:
     source: deb
     source-type: local
     override-build: |
-      DEB=$(ls *.deb 2>/dev/null | head -1)
+      DEB=$(ls "$CRAFT_PART_SRC"/*.deb 2>/dev/null | head -1)
       if [ -z "$DEB" ]; then
-        echo "No .deb file found in 'deb/' directory"
+        echo "No .deb file found in source directory ($CRAFT_PART_SRC)"
         exit 1
       fi
       dpkg-deb --extract "$DEB" "$CRAFT_PART_INSTALL"
