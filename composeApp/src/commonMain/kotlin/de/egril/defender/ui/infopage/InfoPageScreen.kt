@@ -31,14 +31,14 @@ fun InfoPageScreen(
 
     val visibleTabs = remember(isEditorAvailable()) {
         buildList {
+            if (isPlatformWasm && WithImpressum.withImpressum) add(InfoTab.DOWNLOAD)
             add(InfoTab.INSTALLATION)
             add(InfoTab.HOW_TO_PLAY)
+            add(InfoTab.KEYBOARD_SHORTCUTS)
             add(InfoTab.AUDIO_LICENSES)
             add(InfoTab.LICENSE)
-            add(InfoTab.KEYBOARD_SHORTCUTS)
             add(InfoTab.BACKEND)
             if (isEditorAvailable()) add(InfoTab.EDITOR_HOWTO)
-            if (isPlatformWasm && WithImpressum.withImpressum) add(InfoTab.DOWNLOAD)
         }
     }
 
