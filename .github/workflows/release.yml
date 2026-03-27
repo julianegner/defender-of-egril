@@ -9,11 +9,14 @@
 #        - Android APK (production release)
 #        - Android AAB (production release)
 #        - Linux DEB package
-#        - macOS DMG
+#        - Linux Snap package (built from DEB artifact)
+#        - Linux Flatpak bundle
+#        - macOS DMG  (optional – skipped on failure or when MAJOR=0 version is used)
 #        - Windows EXE installer
 #        - Windows MSI installer
 #        - WebAssembly / WASM bundle
 #   4. Creates a GitHub Release tagged with the version and attaches all artifacts.
+#   5. Outputs a summary with download URLs for every uploaded artifact.
 #
 # Notes:
 #   - iOS builds require Apple Developer signing certificates which must be
@@ -23,9 +26,10 @@
 #   - Android release builds require a signing keystore configured as repository
 #     secrets (ANDROID_KEYSTORE_BASE64, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD,
 #     ANDROID_STORE_PASSWORD). Without them the job falls back to a debug build.
-#   - Snap and Flatpak packaging are not included because they require external
-#     store accounts and are better published through their respective distribution
-#     channels (Snapcraft / Flathub) separately.
+#   - macOS DMG is optional: the release proceeds even when the DMG build fails.
+#     macOS DMG requires MAJOR >= 1; versions like "0.8.0" will have their macOS
+#     package version adjusted automatically in build.gradle.kts.
+#   - Linux Snap and Flatpak builds are optional and do not block the release.
 
 name: Release
 
@@ -246,13 +250,104 @@ jobs:
 
       - name: Build macOS DMG
         run: ./gradlew :composeApp:packageDmg -PappVersion="${APP_VERSION}"
+        continue-on-error: true
+        id: build_dmg
 
       - name: Upload macOS DMG artifact
+        if: steps.build_dmg.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: macos-build
           path: composeApp/build/compose/binaries/main/dmg/
           if-no-files-found: error
+
+  # ---------------------------------------------------------------------------
+  # Linux Snap package (built from the DEB artifact)
+  # Optional: failure does not block the release.
+  # ---------------------------------------------------------------------------
+  build_linux_snap:
+    name: Build Linux Snap
+    needs:
+      - prepare
+      - build_linux_deb
+    runs-on: ubuntu-latest
+    env:
+      APP_VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download DEB artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-deb-build
+          path: snap/deb
+
+      - name: Install snapcraft
+        run: sudo snap install snapcraft --classic
+
+      - name: Build snap (destructive mode)
+        working-directory: snap
+        run: snapcraft --destructive-mode --set-version "${APP_VERSION}"
+
+      - name: Upload Snap artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-snap-build
+          path: snap/*.snap
+          if-no-files-found: warn
+
+  # ---------------------------------------------------------------------------
+  # Linux Flatpak bundle
+  # Optional: failure does not block the release.
+  # ---------------------------------------------------------------------------
+  build_linux_flatpak:
+    name: Build Linux Flatpak
+    needs: prepare
+    runs-on: ubuntu-latest
+    env:
+      APP_VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 24
+        uses: actions/setup-java@v4
+        with:
+          java-version: '24'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Install flatpak-builder
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y flatpak flatpak-builder
+          sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          sudo flatpak install -y flathub org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08
+
+      - name: Install OpenJDK SDK extension
+        run: |
+          if ! flatpak list --runtime | grep -q 'org.freedesktop.Sdk.Extension.openjdk21'; then
+            sudo flatpak install -y flathub org.freedesktop.Sdk.Extension.openjdk21//23.08
+          fi
+
+      - name: Build Flatpak bundle
+        env:
+          APP_VERSION: ${{ env.APP_VERSION }}
+        run: |
+          flatpak-builder --force-clean --repo=flatpak-repo flatpak-build-dir \
+            flatpak/de.egril.defender.yml \
+            --state-dir=.flatpak-builder
+          flatpak build-bundle flatpak-repo \
+            "de.egril.defender-${APP_VERSION}.flatpak" \
+            de.egril.defender
+
+      - name: Upload Flatpak artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-flatpak-build
+          path: de.egril.defender-*.flatpak
+          if-no-files-found: warn
 
   # ---------------------------------------------------------------------------
   # iOS XCFramework
@@ -484,6 +579,8 @@ jobs:
       - tag
       - build_android
       - build_linux_deb
+      - build_linux_snap
+      - build_linux_flatpak
       - build_macos
       - build_ios
       - build_windows_exe
@@ -491,15 +588,15 @@ jobs:
       - build_wasm
     runs-on: ubuntu-latest
     # Always evaluate this job so the condition below can gate it properly.
-    # Mandatory builds (Android, Linux, macOS, Windows EXE, Windows MSI, WASM) must succeed.
-    # iOS is optional – the job may be skipped when signing secrets are absent.
+    # Mandatory builds (Android, Linux DEB, Windows EXE, Windows MSI, WASM) must succeed.
+    # Optional builds (macOS DMG, iOS, Linux Snap, Linux Flatpak) may fail or be skipped
+    # without blocking the release.
     if: |
       always() &&
       needs.prepare.result == 'success' &&
       needs.tag.result == 'success' &&
       needs.build_android.result == 'success' &&
       needs.build_linux_deb.result == 'success' &&
-      needs.build_macos.result == 'success' &&
       needs.build_windows_exe.result == 'success' &&
       needs.build_windows_msi.result == 'success' &&
       needs.build_wasm.result == 'success'
@@ -518,12 +615,29 @@ jobs:
           name: linux-deb-build
           path: release-assets/linux
 
+      - name: Download Linux Snap artifact
+        if: needs.build_linux_snap.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-snap-build
+          path: release-assets/linux
+        continue-on-error: true
+
+      - name: Download Linux Flatpak artifact
+        if: needs.build_linux_flatpak.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-flatpak-build
+          path: release-assets/linux
+        continue-on-error: true
+
       - name: Download macOS artifact
         if: needs.build_macos.result == 'success'
         uses: actions/download-artifact@v4
         with:
           name: macos-build
           path: release-assets/macos
+        continue-on-error: true
 
       - name: Download iOS artifact
         if: needs.build_ios.result == 'success'
@@ -558,6 +672,7 @@ jobs:
         run: find release-assets -type f | sort
 
       - name: Create GitHub Release
+        id: create_release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.prepare.outputs.version_tag }}
@@ -567,3 +682,40 @@ jobs:
           generate_release_notes: true
           files: |
             release-assets/**/*
+
+      - name: Write release summary
+        env:
+          REPO: ${{ github.repository }}
+          TAG: ${{ needs.prepare.outputs.version_tag }}
+          RELEASE_URL: ${{ steps.create_release.outputs.url }}
+        run: |
+          BASE="https://github.com/${REPO}/releases/download/${TAG}"
+
+          echo "## 🎉 Defender of Egril ${TAG} released" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**Release page:** ${RELEASE_URL}" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Download links" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Platform | File | Download |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|----------|------|----------|" >> "$GITHUB_STEP_SUMMARY"
+
+          # Enumerate every uploaded file and emit a table row.
+          find release-assets -type f | sort | while read -r f; do
+            FILENAME=$(basename "$f")
+            # Derive a human-readable platform label from the directory.
+            DIR=$(dirname "$f" | xargs basename)
+            case "$DIR" in
+              android) PLATFORM="Android" ;;
+              linux)   PLATFORM="Linux" ;;
+              macos)   PLATFORM="macOS" ;;
+              ios)     PLATFORM="iOS" ;;
+              windows) PLATFORM="Windows" ;;
+              wasm)    PLATFORM="Web / WASM" ;;
+              *)       PLATFORM="$DIR" ;;
+            esac
+            echo "| ${PLATFORM} | \`${FILENAME}\` | [⬇ Download](${BASE}/${FILENAME}) |" >> "$GITHUB_STEP_SUMMARY"
+          done
+
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "_Optional builds (macOS DMG, Linux Snap, Linux Flatpak, iOS) are shown only when they succeeded._" >> "$GITHUB_STEP_SUMMARY"

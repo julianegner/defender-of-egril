@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Defender of Egril
+Comment=Turn-based Tower Defense
+Exec=defender-of-egril
+Icon=de.egril.defender
+Terminal=false
+Type=Application
+Categories=Game;StrategyGame;
