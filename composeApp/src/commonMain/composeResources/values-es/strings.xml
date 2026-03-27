@@ -1636,4 +1636,16 @@
     <string name="tooltip_info_installation">Info sobre instalación, licencia y privacidad</string>
     <string name="tooltip_enemies_on_map_and_planned">Enemigos en el mapa y planificados</string>
     <string name="tooltip_return_to_worldmap">Volver al mapa del mundo</string>
+
+    <!-- Download Installables tab (WASM + Impressum only) -->
+    <string name="info_tab_download">Descargas</string>
+    <string name="download_info_title">Descargar Defender of Egril</string>
+    <string name="download_info_intro">Obtén la última versión desde GitHub. Selecciona el paquete para tu plataforma.</string>
+    <string name="download_info_all_releases_label">Todas las versiones:</string>
+    <string name="download_info_view_releases">Ver todas las versiones en GitHub</string>
+    <string name="download_info_direct_download">Descarga directa</string>
+    <string name="download_info_sideload_title">Cómo instalar el APK de Android (Sideloading)</string>
+    <string name="download_info_platform_note">El APK de Android puede descargarse directamente. Para Windows, Linux y macOS, visita la página de versiones de GitHub para encontrar el último instalador.</string>
+    <string name="download_info_loading">Cargando enlaces de descarga…</string>
+    <string name="download_info_error">No se pudieron cargar los enlaces de descarga desde GitHub. Visita la página de versiones para encontrar todas las descargas.</string>
 </resources>

@@ -120,11 +120,6 @@ fun InstallationInfo() {
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)
             )
-            
-            // Impressum section (WASM only, when flag is enabled)
-            if (de.egril.defender.utils.isPlatformWasm) {
-                ImpressumSection()
-            }
         }
     }
 }

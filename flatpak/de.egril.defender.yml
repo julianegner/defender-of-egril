@@ -37,6 +37,8 @@ modules:
         rm -rf "$TMP"
       # Install a thin wrapper script on PATH.
       - install -Dm755 flatpak/defender-of-egril.sh /app/bin/defender-of-egril
+      # App icon (required by appstreamcli compose).
+      - install -Dm644 composeApp/src/commonMain/composeResources/drawable/black-shield.png /app/share/icons/hicolor/256x256/apps/de.egril.defender.png
       # Desktop integration.
       - install -Dm644 flatpak/de.egril.defender.desktop /app/share/applications/de.egril.defender.desktop
       - install -Dm644 flatpak/de.egril.defender.metainfo.xml /app/share/metainfo/de.egril.defender.metainfo.xml

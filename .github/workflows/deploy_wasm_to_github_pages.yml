@@ -37,7 +37,7 @@ jobs:
 
       # 4. Build the WasmJS App
       - name: "🛠️ Build WasmJS App"
-        run: ./gradlew :composeApp:wasmJsBrowserDistribution
+        run: ./gradlew :composeApp:wasmJsBrowserDistribution -PwithImpressum=true
 
       # 5. Set up GitHub Pages
       - name: "📄 Configure GitHub Pages"
