@@ -1,0 +1,43 @@
+app-id: de.egril.defender
+runtime: org.freedesktop.Platform
+runtime-version: '23.08'
+sdk: org.freedesktop.Sdk
+# Include the OpenJDK extension so we have a JRE available at build time.
+# The Compose Desktop DEB bundles its own JRE so we only need the SDK
+# extension for the build step; the bundled runtime is used at run time.
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.openjdk21
+
+build-options:
+  append-path: /usr/lib/sdk/openjdk21/bin
+  env:
+    JAVA_HOME: /usr/lib/sdk/openjdk21/jvm/java-21-openjdk
+
+command: defender-of-egril
+finish-args:
+  - --share=network
+  - --share=ipc
+  - --socket=x11
+  - --socket=wayland
+  - --socket=pulseaudio
+  - --filesystem=home
+  - --device=dri
+
+modules:
+  - name: defender-of-egril
+    buildsystem: simple
+    build-commands:
+      # Build the DEB using the Gradle wrapper.  The Compose Desktop DEB
+      # bundles a JRE and all native dependencies so we just extract its
+      # contents into the Flatpak installation tree.
+      - ./gradlew :composeApp:packageDeb -PappVersion="$APP_VERSION" --no-daemon
+      - DEB=$(ls composeApp/build/compose/binaries/main/deb/*.deb | head -1)
+      - dpkg-deb --extract "$DEB" /app
+      # Install a thin wrapper script on PATH.
+      - install -Dm755 flatpak/defender-of-egril.sh /app/bin/defender-of-egril
+      # Desktop integration.
+      - install -Dm644 flatpak/de.egril.defender.desktop /app/share/applications/de.egril.defender.desktop
+      - install -Dm644 flatpak/de.egril.defender.metainfo.xml /app/share/metainfo/de.egril.defender.metainfo.xml
+    sources:
+      - type: dir
+        path: ..

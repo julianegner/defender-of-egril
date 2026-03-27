@@ -38,6 +38,19 @@ val appVersionCode: Int = run {
     major * 10000 + minor * 100 + patch
 }
 
+// macOS DMG requires MAJOR >= 1. When the app version has MAJOR=0 (e.g. "0.8.0"),
+// override the macOS-specific package version by bumping MAJOR to 1 so that only the
+// DMG format validation is satisfied without affecting other platform builds.
+val macOsPackageVersion: String = run {
+    val parts = appVersion.split(".").map { it.toIntOrNull() ?: 0 }
+    val major = parts.getOrElse(0) { 0 }
+    if (major == 0) {
+        "1.${parts.getOrElse(1) { 0 }}.${parts.getOrElse(2) { 0 }}"
+    } else {
+        appVersion
+    }
+}
+
 // Task to generate BuildConfig with current commit hash
 val generateBuildConfig by tasks.registering {
     val outputFile = buildConfigOutputDir.get().file("de/egril/defender/AppBuildInfo.kt")
@@ -481,6 +494,9 @@ compose.desktop {
             macOS {
                 bundleID = "de.egril.defender"
                 packageName = "defender-of-egril"
+                // DMG requires MAJOR >= 1; use the adjusted version that satisfies this
+                // constraint while keeping the real version on all other platforms.
+                packageVersion = macOsPackageVersion
             }
             
             windows {
