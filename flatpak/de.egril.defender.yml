@@ -20,13 +20,21 @@ modules:
       # The DEB is downloaded by the CI workflow into flatpak-deb/ before
       # running flatpak-builder. It already bundles a JRE and all native
       # dependencies, so we simply extract its contents into the Flatpak tree.
+      # dpkg-deb is not available inside the freedesktop SDK build sandbox, so
+      # we use ar + tar (both are standard POSIX tools present in the SDK).
       - |
         DEB=$(echo flatpak-deb/*.deb)
         if [ ! -f "$DEB" ]; then
           echo "No .deb file found in flatpak-deb/" >&2
           exit 1
         fi
-        dpkg-deb --extract "$DEB" /app
+        TMP=$(mktemp -d)
+        DEBABS="$(pwd)/$DEB"
+        (cd "$TMP" && ar x "$DEBABS")
+        for f in "$TMP"/data.tar.*; do
+          tar xaf "$f" -C /app
+        done
+        rm -rf "$TMP"
       # Install a thin wrapper script on PATH.
       - install -Dm755 flatpak/defender-of-egril.sh /app/bin/defender-of-egril
       # Desktop integration.
