@@ -776,7 +776,7 @@ fun GridCell(
     } ?: false
     // Tiles that are in range ONLY because of the double-reach spell (beyond normal range)
     val cellIsInDoubleReachOnlyRange = if (hasDoubleReachBuff) {
-        val sel = selectedDefenderForRange!!
+        val sel = selectedDefenderForRange
         if (sel.position.value == position) false
         else {
             val distance = sel.position.value.distanceTo(position)

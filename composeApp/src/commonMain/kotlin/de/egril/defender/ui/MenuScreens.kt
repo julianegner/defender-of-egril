@@ -82,15 +82,17 @@ fun MainMenuScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 // Info button (all platforms)
-                IconButton(
-                    onClick = onShowInstallationInfo,
-                    modifier = Modifier.size(48.dp)
-                ) {
-                    Image(
-                        painter = painterResource(Res.drawable.emoji_info),
-                        contentDescription = stringResource(Res.string.installation_info),
-                        modifier = Modifier.size(32.dp)
-                    )
+                TooltipWrapper(text = stringResource(Res.string.tooltip_info_installation)) {
+                    IconButton(
+                        onClick = onShowInstallationInfo,
+                        modifier = Modifier.size(48.dp)
+                    ) {
+                        Image(
+                            painter = painterResource(Res.drawable.emoji_info),
+                            contentDescription = stringResource(Res.string.installation_info),
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
                 }
                 
                 SettingsButton()
@@ -159,16 +161,18 @@ fun MainMenuScreen(
                     
                     // IAM login / logout button
                     if (iamState.isAuthenticated) {
-                        OutlinedButton(
-                            onClick = onIamLogout,
-                            modifier = Modifier.height(36.dp)
-                        ) {
-                            LockIcon(size = 14.dp)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = stringResource(Res.string.iam_logout),
-                                style = MaterialTheme.typography.bodySmall
-                            )
+                        TooltipWrapper(text = stringResource(Res.string.tooltip_log_out_from_remote)) {
+                            OutlinedButton(
+                                onClick = onIamLogout,
+                                modifier = Modifier.height(36.dp)
+                            ) {
+                                LockIcon(size = 14.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = stringResource(Res.string.iam_logout),
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
                         }
                     } else if (iamLoginInProgress) {
                         OutlinedButton(
@@ -201,23 +205,25 @@ fun MainMenuScreen(
 
                     // "?" info button about backend/account
                     val backendInfoDesc = stringResource(Res.string.backend_info_title)
-                    IconButton(
-                        onClick = onShowBackendInfo,
-                        modifier = Modifier
-                            .size(28.dp)
-                            .semantics { contentDescription = backendInfoDesc }
-                    ) {
-                        Box(
+                    TooltipWrapper(text = backendInfoDesc) {
+                        IconButton(
+                            onClick = onShowBackendInfo,
                             modifier = Modifier
-                                .size(24.dp)
-                                .background(Color(0xFFB3E5FC), CircleShape),
-                            contentAlignment = Alignment.Center
+                                .size(28.dp)
+                                .semantics { contentDescription = backendInfoDesc }
                         ) {
-                            Text(
-                                text = "?",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.primary
-                            )
+                            Box(
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .background(Color(0xFFB3E5FC), CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "?",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
                         }
                     }
                 }
@@ -329,16 +335,20 @@ fun MainMenuScreen(
             }
             
             // Version info at the bottom - clickable to show commit info
-            Text(
-                text = "v${AppBuildInfo.VERSION_NAME} (${AppBuildInfo.COMMIT_HASH})",
-                style = MaterialTheme.typography.bodySmall,
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            TooltipWrapper(
+                text = stringResource(Res.string.commit_info_title),
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .padding(bottom = 8.dp)
-                    .clickable { showCommitInfo = true }
-            )
+            ) {
+                Text(
+                    text = "v${AppBuildInfo.VERSION_NAME} (${AppBuildInfo.COMMIT_HASH})",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.clickable { showCommitInfo = true }
+                )
+            }
             
             // Impressum at bottom center (WASM only, when flag is enabled)
             if (isPlatformWasm) {

@@ -555,6 +555,8 @@ class GameViewModel {
     }
 
     fun startLevel(levelId: Int) {
+        // Clear any pending message from a previous level
+        _pendingGameMessage.value = null
         val worldLevel = _worldLevels.value.find { it.level.id == levelId }
         if (worldLevel != null && worldLevel.status != LevelStatus.LOCKED) {
             val difficulty = AppSettings.difficulty.value
@@ -601,6 +603,16 @@ class GameViewModel {
             _gameState.value = newGameState
             gameEngine = GameEngine(newGameState)
             _currentScreen.value = Screen.GamePlay(levelId)
+
+            // Show story intro message if this level has one (all levels except the tutorial)
+            val editorLevelId = level.editorLevelId
+            if (editorLevelId != null && editorLevelId != "welcome_to_defender_of_egril") {
+                _pendingGameMessage.value = de.egril.defender.model.GameMessage(
+                    type = de.egril.defender.model.GameMessageType.STORY_INTRO,
+                    name = editorLevelId
+                )
+            }
+
             // Capture initial state snapshot
             initialGameStateSnapshot = createGameStateSnapshot(newGameState)
             lastSaveSnapshot = initialGameStateSnapshot
@@ -661,12 +673,10 @@ class GameViewModel {
         if (result) {
             if (isInstantDeploy) {
                 // isInstantDeploy=true implies gameState!=null (see initialization above)
-                gameState?.let { gs ->
-                    gs.currentMana.value = (gs.currentMana.value - SpellType.INSTANT_TOWER.manaCost).coerceAtLeast(0)
-                    gs.instantTowerSpellActive.value = false
-                    if (LogConfig.ENABLE_SPELL_LOGGING) {
-                        println("=== SPELL: Instant Tower spell consumed - tower placed instantly, mana deducted")
-                    }
+                gameState.currentMana.value = (gameState.currentMana.value - SpellType.INSTANT_TOWER.manaCost).coerceAtLeast(0)
+                gameState.instantTowerSpellActive.value = false
+                if (LogConfig.ENABLE_SPELL_LOGGING) {
+                    println("=== SPELL: Instant Tower spell consumed - tower placed instantly, mana deducted")
                 }
             }
             // Track achievement
@@ -2699,6 +2709,11 @@ class GameViewModel {
             gameEngine?.processDefeatedAttackers()
             // Surface any messages queued by the kill (e.g. EWHAD_RETREATS/EWHAD_DEFEATED) immediately.
             surfaceNextPendingMessageIfIdle()
+            // Check if the spell killed the last enemy and the level is now won
+            val currentStateAfterSpell = _gameState.value
+            if (currentStateAfterSpell != null && currentStateAfterSpell.isLevelWon()) {
+                completeLevel(currentStateAfterSpell.level.id, won = true)
+            }
         }
 
         // Clear pending spell and targeting state

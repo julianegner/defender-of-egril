@@ -4,16 +4,18 @@ package de.egril.defender.ui.editor.level
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import de.egril.defender.ui.icon.LeftArrowIcon
 import de.egril.defender.ui.editor.EditorTab
-import de.egril.defender.ui.editor.EditorInfoPage
+import de.egril.defender.ui.editor.EditorHowToContent
 import de.egril.defender.ui.editor.map.MapEditorContent
 import de.egril.defender.ui.editor.worldmap.WorldMapPositionEditorContent
 import de.egril.defender.ui.settings.SettingsButton
@@ -28,6 +30,7 @@ fun LevelEditorScreen(
     onBack: () -> Unit
 ) {
     var currentTab by remember { mutableStateOf(EditorTab.LEVEL_EDITOR) }
+    var showHowToDialog by remember { mutableStateOf(false) }
     
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -49,7 +52,6 @@ fun LevelEditorScreen(
                 EditorTab.LEVEL_EDITOR -> LevelEditorContent()
                 EditorTab.LEVEL_SEQUENCE -> LevelSequenceContent()
                 EditorTab.WORLD_MAP_POSITIONS -> WorldMapPositionEditorContent()
-                EditorTab.INFO -> EditorInfoPage()
             }
         }
         
@@ -85,13 +87,7 @@ fun LevelEditorScreen(
                         SettingsButton()
                         
                         Button(
-                            onClick = { currentTab = EditorTab.INFO },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (currentTab == EditorTab.INFO)
-                                    MaterialTheme.colorScheme.primary 
-                                else 
-                                    MaterialTheme.colorScheme.secondary
-                            )
+                            onClick = { showHowToDialog = true }
                         ) {
                             Text(stringResource(Res.string.info))
                         }
@@ -114,8 +110,6 @@ fun LevelEditorScreen(
                     EditorTab.WORLD_MAP_POSITIONS to stringResource(Res.string.world_map_positions)
                 )
                 
-                // Find the selected tab index. INFO tab is not in the tab list (separate button),
-                // so when INFO is selected, default to LEVEL_EDITOR for visual consistency.
                 val selectedTabIndex = tabs.indexOfFirst { it.first == currentTab }.let { index ->
                     if (index == -1) tabs.indexOfFirst { it.first == EditorTab.LEVEL_EDITOR } else index
                 }
@@ -130,6 +124,35 @@ fun LevelEditorScreen(
                             onClick = { currentTab = tab },
                             text = { Text(label) }
                         )
+                    }
+                }
+            }
+        }
+
+        // How-To dialog shown when the Info button is clicked
+        if (showHowToDialog) {
+            Dialog(onDismissRequest = { showHowToDialog = false }) {
+                Card(
+                    modifier = Modifier
+                        .widthIn(min = 700.dp, max = 900.dp)
+                        .heightIn(max = 620.dp),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Column(modifier = Modifier.padding(24.dp)) {
+                        Text(
+                            text = stringResource(Res.string.editor_howto_title),
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.padding(bottom = 12.dp)
+                        )
+                        Box(modifier = Modifier.weight(1f)) {
+                            EditorHowToContent()
+                        }
+                        Button(
+                            onClick = { showHowToDialog = false },
+                            modifier = Modifier.align(Alignment.End).padding(top = 12.dp)
+                        ) {
+                            Text(stringResource(Res.string.editor_howto_close))
+                        }
                     }
                 }
             }

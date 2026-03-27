@@ -906,9 +906,27 @@
     <string name="level_the_cross_title">La Cruz</string>
     <string name="level_the_cross_subtitle">Cuatro Caminos Divididos</string>
     <string name="level_the_winding_path_title">El Camino Sinuoso</string>
-    <string name="level_the_winding_path_subtitle">Un Camino Largo y Tortuoso</string>        <string name="level_the_fortress_title">La Fortaleza %s</string>
-    <string name="level_the_fortress_1_first_attacks_subtitle">Primeros Ataques</string>    <string name="level_the_fortress_2_orks_marching_subtitle">Los Orks Están Marchando</string>    <string name="level_the_fortress_3_necromancer_subtitle">El Nigromante</string>    <string name="level_the_fortress_4_magic_assault_subtitle">Asalto Mágico</string>    <string name="level_the_fortress_5_mighty_forces_subtitle">Fuerzas Poderosas</string>
-    <string name="level_ewhads_challenge_title">Desafío de Ewhad</string>    <string name="level_the_creek_title">El Arroyo</string>    <string name="level_the_island_title">La Isla</string>    <string name="level_the_river_title">El Río</string>    <string name="level_creek_valley_title">Valle del Arroyo</string>    <string name="level_maelstrom_title">Vorágine</string>    <string name="level_defend_the_city_title">Defiende la Ciudad</string>    <string name="level_prison_break_title">Fuga de la Prisión</string>    <string name="level_prison_break_subtitle">Trasgos capturados intentan escapar</string>    <string name="level_the_barricades_title">Las Barricadas</string>    <string name="level_the_labyrinth_title">El Laberinto</string>    <string name="level_the_tower_of_the_hermit_title">La Torre del Ermitaño</string>    <string name="level_the_tower_of_the_hermit_subtitle">Una sola Torre para defender el Camino</string>    <string name="level_the_witches_title">Las Brujas</string>    
+    <string name="level_the_winding_path_subtitle">Un Camino Largo y Tortuoso</string>
+    <string name="level_the_fortress_title">La Fortaleza</string>
+    <string name="level_the_fortress_1_first_attacks_subtitle">Primeros Ataques</string>
+    <string name="level_the_fortress_2_orks_marching_subtitle">Los Orks Están Marchando</string>
+    <string name="level_the_fortress_3_necromancer_subtitle">El Nigromante</string>
+    <string name="level_the_fortress_4_magic_assault_subtitle">Asalto Mágico</string>
+    <string name="level_the_fortress_5_mighty_forces_subtitle">Fuerzas Poderosas</string>
+    <string name="level_ewhads_challenge_title">Desafío de Ewhad</string>
+    <string name="level_the_creek_title">El Arroyo</string>
+    <string name="level_the_island_title">La Isla</string>
+    <string name="level_the_river_title">El Río</string>
+    <string name="level_creek_valley_title">Valle del Arroyo</string>
+    <string name="level_maelstrom_title">Vorágine</string>
+    <string name="level_defend_the_city_title">Defiende la Ciudad</string>
+    <string name="level_prison_break_title">Fuga de la Prisión</string>
+    <string name="level_prison_break_subtitle">Trasgos capturados intentan escapar</string>
+    <string name="level_the_barricades_title">Las Barricadas</string>
+    <string name="level_the_labyrinth_title">El Laberinto</string>
+    <string name="level_the_tower_of_the_hermit_title">La Torre del Ermitaño</string>
+    <string name="level_the_tower_of_the_hermit_subtitle">Una sola Torre para defender el Camino</string>
+    <string name="level_the_witches_title">Las Brujas</string>
     <!-- Map Names -->
     <string name="map_tutorial_name">Mapa Tutorial</string>
     <string name="map_straight_name">Mapa Recto</string>
@@ -1499,6 +1517,34 @@
     <string name="ewhad_retreats_text">¡Has forzado a Ewhad a retirarse!</string>
     <string name="ewhad_defeated_title">Ewhad es derrotado</string>
     <string name="ewhad_defeated_text">¡Derrotaste a Ewhad! ¡Ahora acaba con los demás Enemigos y gana el juego!</string>
+    <!-- Story intro messages shown at the start of each level -->
+    <string name="story_the_first_wave">Hay Goblins atacando una remota zona rural. Esto no es inusual, pero los rumores nos dicen que esta vez más brutos de lo normal están entrando en nuestro reino.</string>
+    <string name="story_mixed_forces">La misma zona enfrenta más ataques. Los rumores incluso hablan de muertos que se levantan de las tumbas y atacan a los aldeanos.</string>
+    <string name="story_the_ork_invasion">¡Una gran horda de Goblins y Orks está en camino! ¡Debes defender la zona!</string>
+    <string name="story_dark_magic_rises">¡Ahora la nobleza malvada se dirige hacia ti! Hemos oído hablar de Brujas y Magos malvados que se acercan. Ten cuidado: las Brujas pueden usar la magia para curar a los brutos y desactivar tus Torres, ¡y los Magos malvados pueden invocar Demonios directamente desde el Infierno!</string>
+    <string name="story_prison_break">Capturamos a un grupo de Goblins, pero lograron escapar de sus celdas y ahora intentan huir de la prisión.</string>
+    <string name="story_defend_the_city">¡Un gran grupo de Orks intenta invadir la Ciudad! Debes defender los puntos neurálgicos de la Ciudad: el Ayuntamiento, el Almacén, el Mercado y la Casa del Gremio. Si alguno de ellos es capturado, los Monstruos atacarán los demás lugares, y si todos son capturados, la Ciudad estará perdida.</string>
+    <string name="story_the_plains">Estamos en el centro de las llanuras con solo algunos lugares donde podemos colocar Torres defensivas, y el enemigo puede avanzar hacia nosotros sin nada que lo detenga.</string>
+    <string name="story_the_spiral_challenge">Tenemos una buena posición defensiva dentro de la espiral que los enemigos deben seguir, pero si traen consigo portadores de magia, debemos tener cuidado de derrotarlos pronto.</string>
+    <string name="story_the_dance">Las unidades enemigas danzan a nuestro alrededor y tendremos algo de tiempo para dispararles antes de que puedan causar daños.</string>
+    <string name="story_the_rush">Debemos defender un pequeño pueblo. Un grupo de criaturas malvadas viene del bosque y sincroniza sus oleadas de ataque de modo que más de una oleada nos alcance al mismo tiempo.</string>
+    <string name="story_the_woods_first_incursion">Estos son los Bosques cerca del pueblo que defendimos antes. Por el momento, solo se esperan goblins, pero en gran número. Usa los Árboles para construir Defensas allí.</string>
+    <string name="story_the_woods_full_assault">Ahora el Enemigo ha reunido unidades poderosas. Sabemos de magos y hemos oído que incluso Ogros marchan hacia nosotros.</string>
+    <string name="story_the_fast_and_furious">Estás debilitado. Cualquier golpe adicional significaría la derrota, así que debes ser muy cuidadoso aquí.</string>
+    <string name="story_the_cross">Los Enemigos vienen de todas las direcciones.</string>
+    <string name="story_the_winding_path">El sinuoso Camino es la última parte del sendero hacia la Fortaleza. Debemos defenderlo a toda costa, y tenemos muchos buenos lugares para Torres.</string>
+    <string name="story_the_fortress_1_first_attacks">¡El Enemigo está a las puertas de nuestra Fortaleza! Parecen comenzar con ataques más ligeros, principalmente goblins.</string>
+    <string name="story_the_fortress_2_orks_marching">Ahora se ha avistado una mayor cantidad de Orks. Debemos defendernos.</string>
+    <string name="story_the_fortress_3_necromancer">Un Nigromante está en camino y con él su ejército de esqueletos resucitados.</string>
+    <string name="story_the_fortress_4_magic_assault">Brujas y Magos nos atacarán. Ten en cuenta que la Bruja verde puede curar unidades enemigas, mientras que la Bruja roja puede desactivar nuestras Torres por un tiempo.</string>
+    <string name="story_the_fortress_5_mighty_forces">Un gran Ejército de fuerzas enemigas, incluyendo todo tipo de usuarios de magia, está a punto de atacar nuestra Fortaleza.</string>
+    <string name="story_the_final_stand">¡El propio Ewhad está ante las Puertas de nuestra Fortaleza! Debemos defender a toda costa; ahora es victoria o derrota. Ten en cuenta que Ewhad puede invocar varios Demonios que se vuelven más poderosos con el tiempo, así que derrótalo rápido.</string>
+    <string name="story_the_creek">Este lugar junto a un arroyo es bueno para defender, ya que el enemigo tendrá que rodear el arroyo, pero no hay muchos lugares para Torres. Construye Balsas para tener defensas flotantes. Ten en cuenta que las balsas se mueven con la corriente del arroyo.</string>
+    <string name="story_the_island">Ahora debemos defender esta pequeña Isla. Se esperan pocos enemigos, lo cual es bueno ya que solo tenemos algunos lugares para construir Torres. También deberíamos usar Balsas aquí.</string>
+    <string name="story_the_river">Tras el Valle con el Arroyo, aquí tenemos una zona con un poderoso río. Partes del Río se mueven más rápido de lo que conocemos de los arroyos más pequeños que tuvimos antes. Tenemos algunos lugares para Torres, pero debemos depender principalmente de las Balsas para defendernos.</string>
+    <string name="story_creek_valley">Tras defender la Isla, ahora estamos en un Valle con un arroyo que fluye a través del valle. No hay lugares para construir Torres, así que solo podemos usar Balsas aquí. Ten en cuenta que son movidas por la corriente del arroyo.</string>
+    <string name="story_maelstrom">¡Nos atacan desde el sur! Tenemos suerte de que haya un río entre nosotros y los enemigos. Ellos pueden construir puentes para cruzar el río, y nosotros podemos construir barcazas para defendernos. Pero ten cuidado: en el centro del río hay un maelstrom que destruirá nuestras barcazas.</string>
+    <string name="story_the_tower_of_the_hermit">El ermitaño vive solo en su torre. Ahora fuerzas malvadas llegan a este lugar remoto y el ermitaño debe defender el camino desde su única torre.</string>
     <!-- Final Credits screen -->
     <string name="credits_game_title">Defender of Egril</string>
     <string name="credits_title">Créditos Finales</string>
@@ -1542,4 +1588,47 @@
     <string name="stop_demo_message">¿Deseas detener la demo y volver al mapa del mundo?</string>
     <string name="demo_mode">MODO DEMO</string>
     <string name="demo_click_to_stop">Haz clic en cualquier lugar para detener la demo</string>
+
+    <!-- Editor How-To Guide -->
+    <string name="info_tab_how_to_play">Cómo jugar</string>
+    <string name="info_tab_editor_howto">Guía del Editor</string>
+    <string name="editor_howto_title">Editor de Niveles – Guía de Uso</string>
+    <string name="editor_howto_intro">El Editor de Niveles te permite crear mapas, niveles y secuencias personalizadas para Defender of Egril. Tiene cuatro pestañas principales: Editor de Mapas, Editor de Niveles, Secuencia de Niveles y Posiciones del Mapa del Mundo. Esta guía explica cómo usar cada una.</string>
+    <string name="editor_howto_workflow_title">Flujo de Trabajo Recomendado</string>
+    <string name="editor_howto_workflow_steps">1. Crear o seleccionar un mapa en la pestaña Editor de Mapas - 2. Crear un nivel en la pestaña Editor de Niveles usando ese mapa - 3. Probar el nivel jugándolo en el juego - Nota: Los pasos 4 y 5 solo son necesarios para los niveles oficiales incluidos con el juego; los niveles creados por usuarios y de comunidad son jugables sin ellos - 4. (Solo niveles oficiales) Añadir el nivel a la secuencia en la pestaña Secuencia de Niveles - 5. (Solo niveles oficiales) Colocar y conectar el nivel en la pestaña Posiciones del Mapa del Mundo</string>
+    <string name="editor_howto_map_editor_title">Pestaña Editor de Mapas</string>
+    <string name="editor_howto_map_editor_intro">Diseña el mosaico hexagonal de tu nivel. Selecciona un mapa existente de la lista para editarlo, o haz clic en "Nuevo Mapa" para crear uno en blanco. Asigna un nombre, define el ancho y alto, y luego pinta los mosaicos para construir tu terreno.</string>
+    <string name="editor_howto_tile_types_title">Tipos de Mosaico</string>
+    <string name="editor_howto_tile_types">PATH: La ruta por la que caminan los enemigos - BUILD_AREA: Zonas junto a mosaicos PATH donde se pueden colocar torres (calculado automáticamente) - ISLAND: Área de construcción 2×2 en medio de los caminos - NO_PLAY: Zona de fondo no jugable (valor predeterminado) - SPAWN_POINT: Donde los enemigos entran al mapa - TARGET: El objetivo al que intentan llegar los enemigos - RIVER: Mosaico de agua con dirección y velocidad de flujo configurables</string>
+    <string name="editor_howto_map_controls_title">Controles del Editor de Mapas</string>
+    <string name="editor_howto_map_controls">Clic en un mosaico para pintarlo con el tipo seleccionado - Clic y arrastrar para pintar varios mosaicos a la vez - Ctrl+Rueda o botones de zoom para acercar y alejar - Botón ▲/▼ para contraer o expandir el encabezado y ganar espacio - "Cambiar todos NO_PLAY a PATH" convierte todos los mosaicos de fondo de una vez</string>
+    <string name="editor_howto_river_title">Mosaicos de Río</string>
+    <string name="editor_howto_river_text">Selecciona el tipo de mosaico RIVER y configura la dirección del flujo (p. ej. NORTH, EAST, SOUTH_WEST) y la velocidad mediante los controles que aparecen. Los mosaicos de río son solo visuales y no afectan el juego.</string>
+    <string name="editor_howto_level_editor_title">Pestaña Editor de Niveles</string>
+    <string name="editor_howto_level_editor_intro">Crea niveles de juego usando mapas existentes. Selecciona un nivel de la lista para editarlo, o haz clic en "Nuevo Nivel" para crear uno. Cada nivel tiene cinco sub-pestañas de configuración en la parte superior de la vista de edición.</string>
+    <string name="editor_howto_level_info_title">Sub-Pestaña: Info del Nivel</string>
+    <string name="editor_howto_level_info_fields">Título: El nombre del nivel en el mapa del mundo - Subtítulo: Descripción corta opcional - Autor: Tu nombre o alias - Mapa: Selecciona el mapa para este nivel - Monedas Iniciales: Las monedas con las que empieza el jugador - Puntos de Vida Iniciales: Las vidas iniciales del jugador - Nivel de Prueba: Oculta el nivel del juego normal (para pruebas) - Permitir Ataque Automático: Las torres atacan automáticamente sin input del jugador</string>
+    <string name="editor_howto_enemy_spawns_title">Sub-Pestaña: Aparición de Enemigos</string>
+    <string name="editor_howto_enemy_spawns_text">Define qué enemigos aparecen y cuándo. Haz clic en "Añadir Enemigo" para agregar una entrada. Para cada aparición: selecciona el tipo de enemigo, ajusta su nivel (escala la vida), elige el turno en que aparece, y opcionalmente selecciona el punto de aparición en el mapa. Un badge rojo indica información obligatoria faltante.</string>
+    <string name="editor_howto_towers_title">Sub-Pestaña: Torres</string>
+    <string name="editor_howto_towers_text">Elige qué tipos de torre están disponibles para el jugador en este nivel. Activa o desactiva cada tipo con las casillas de verificación. Al menos una torre debe estar habilitada: aparece un badge rojo si no hay ninguna seleccionada.</string>
+    <string name="editor_howto_waypoints_title">Sub-Pestaña: Puntos de Paso</string>
+    <string name="editor_howto_waypoints_text">Los puntos de paso definen puntos intermedios o bifurcaciones en las rutas enemigas entre los puntos de aparición y el objetivo. Haz clic en "Añadir Punto de Paso", define su posición en la cuadrícula y conéctalo a un punto de aparición u otro punto de paso para formar una cadena de ruta. El minimapa muestra las posiciones de los puntos de paso. Un badge rojo indica una configuración incompleta o inválida.</string>
+    <string name="editor_howto_initial_setup_title">Sub-Pestaña: Configuración Inicial</string>
+    <string name="editor_howto_initial_setup_text">Coloca torres en el mapa antes de que el jugador inicie el nivel. Selecciona un tipo de torre de la lista y haz clic en un mosaico del minimapa para colocarlo. Haz clic en una torre ya colocada para eliminarla. Útil para niveles tutorial o niveles con defensas preconstruidas.</string>
+    <string name="editor_howto_sequence_title">Pestaña Secuencia de Niveles (Solo Niveles Oficiales)</string>
+    <string name="editor_howto_sequence_text">La Secuencia de Niveles define el orden en que los niveles oficiales aparecen en el juego y sus dependencias. Esta pestaña no es necesaria para niveles creados por usuarios o de comunidad, que se gestionan por separado y siempre son accesibles desde el mapa del mundo.</string>
+    <string name="editor_howto_sequence_features">Usa los botones ↑ y ↓ para reordenar los niveles en la secuencia - Los niveles están vinculados por dependencias: un nivel se desbloquea cuando se completa el anterior - La secuencia se guarda en sequence.json - Solo los niveles en la secuencia aparecen en el juego</string>
+    <string name="editor_howto_worldmap_title">Pestaña Posiciones del Mapa del Mundo (Solo Niveles Oficiales)</string>
+    <string name="editor_howto_worldmap_text">Coloca los niveles oficiales en el mapa del mundo visual y define las conexiones entre ellos. Los niveles creados por usuarios y de comunidad no necesitan colocarse aquí – siempre son accesibles a través de los paneles dedicados en el mapa del mundo.</string>
+    <string name="editor_howto_worldmap_features">Cada entrada representa una ubicación de nivel en la imagen del mapa del mundo - Establece coordenadas X/Y en píxeles para posicionar la ubicación - Añade conexiones entre ubicaciones para enlazarlas visualmente - Elige el tipo de conexión: Carretera (camino terrestre) o Ruta Marítima (camino oceánico) - Añade puntos de control para curvar la línea de conexión entre dos ubicaciones - El minimapa muestra una vista previa de todas las ubicaciones y conexiones</string>
+    <string name="editor_howto_tips_title">Consejos</string>
+    <string name="editor_howto_tips">Guarda con frecuencia para no perder el trabajo - Prueba los niveles jugándolos después de cada cambio - Copia mapas y niveles existentes como plantillas de inicio - Un mapa puede reutilizarse en varios niveles - Los badges rojos en sub-pestañas indican configuración faltante o inválida - El botón "Restaurar Datos del Juego" en Ajustes restablece todo el contenido oficial a su estado original</string>
+    <string name="editor_howto_close">Cerrar</string>
+    <string name="tooltip_enemy_list_and_legend">Lista de unidades enemigas y leyenda</string>
+    <string name="tooltip_save_the_game">Guardar la partida</string>
+    <string name="tooltip_log_out_from_remote">Cerrar sesión remota</string>
+    <string name="tooltip_info_installation">Info sobre instalación, licencia y privacidad</string>
+    <string name="tooltip_enemies_on_map_and_planned">Enemigos en el mapa y planificados</string>
+    <string name="tooltip_return_to_worldmap">Volver al mapa del mundo</string>
 </resources>

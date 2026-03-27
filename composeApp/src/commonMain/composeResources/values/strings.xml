@@ -908,9 +908,27 @@
     <string name="level_the_cross_title">The Cross</string>
     <string name="level_the_cross_subtitle">Four Divided Paths</string>
     <string name="level_the_winding_path_title">The Winding Path</string>
-    <string name="level_the_winding_path_subtitle">A Long and Twisting Road</string>        <string name="level_the_fortress_title">The Fortress %s</string>
-    <string name="level_the_fortress_1_first_attacks_subtitle">First Attacks</string>    <string name="level_the_fortress_2_orks_marching_subtitle">The Orks are Marching</string>    <string name="level_the_fortress_3_necromancer_subtitle">The Necromancer</string>    <string name="level_the_fortress_4_magic_assault_subtitle">Magic Assault</string>    <string name="level_the_fortress_5_mighty_forces_subtitle">Mighty Forces</string>
-    <string name="level_ewhads_challenge_title">Ewhad\'s Challenge</string>    <string name="level_the_creek_title">The Creek</string>    <string name="level_the_island_title">The Island</string>    <string name="level_the_river_title">The River</string>    <string name="level_creek_valley_title">Creek Valley</string>    <string name="level_maelstrom_title">Maelstrom</string>    <string name="level_defend_the_city_title">Defend the City</string>    <string name="level_prison_break_title">Prison Break</string>    <string name="level_prison_break_subtitle">Captured Goblins try to escape</string>    <string name="level_the_barricades_title">The Barricades</string>    <string name="level_the_labyrinth_title">The Labyrinth</string>    <string name="level_the_tower_of_the_hermit_title">The Tower of the Hermit</string>    <string name="level_the_tower_of_the_hermit_subtitle">A single Tower to defend the Path</string>    <string name="level_the_witches_title">The Witches</string>    
+    <string name="level_the_winding_path_subtitle">A Long and Twisting Road</string>
+    <string name="level_the_fortress_title">The Fortress</string>
+    <string name="level_the_fortress_1_first_attacks_subtitle">First Attacks</string>
+    <string name="level_the_fortress_2_orks_marching_subtitle">The Orks are Marching</string>
+    <string name="level_the_fortress_3_necromancer_subtitle">The Necromancer</string>
+    <string name="level_the_fortress_4_magic_assault_subtitle">Magic Assault</string>
+    <string name="level_the_fortress_5_mighty_forces_subtitle">Mighty Forces</string>
+    <string name="level_ewhads_challenge_title">Ewhad\'s Challenge</string>
+    <string name="level_the_creek_title">The Creek</string>
+    <string name="level_the_island_title">The Island</string>
+    <string name="level_the_river_title">The River</string>
+    <string name="level_creek_valley_title">Creek Valley</string>
+    <string name="level_maelstrom_title">Maelstrom</string>
+    <string name="level_defend_the_city_title">Defend the City</string>
+    <string name="level_prison_break_title">Prison Break</string>
+    <string name="level_prison_break_subtitle">Captured Goblins try to escape</string>
+    <string name="level_the_barricades_title">The Barricades</string>
+    <string name="level_the_labyrinth_title">The Labyrinth</string>
+    <string name="level_the_tower_of_the_hermit_title">The Tower of the Hermit</string>
+    <string name="level_the_tower_of_the_hermit_subtitle">A single Tower to defend the Path</string>
+    <string name="level_the_witches_title">The Witches</string>
     <!-- Map Names -->
     <string name="map_tutorial_name">Tutorial Map</string>
     <string name="map_straight_name">Straight Map</string>
@@ -1504,6 +1522,34 @@
     <string name="ewhad_retreats_text">You have forced Ewhad to retreat!</string>
     <string name="ewhad_defeated_title">Ewhad is defeated</string>
     <string name="ewhad_defeated_text">You defeated Ewhad! Now finish off the other Enemies and Win the Game!</string>
+    <!-- Story intro messages shown at the start of each level -->
+    <string name="story_the_first_wave">There are Goblins attacking a remote rural area. This is not uncommon, but rumors tell us that this time more brutes than usual are wandering into our realm.</string>
+    <string name="story_mixed_forces">The same area faces more attacks, Rumors even talk about dead rising from the graves and attacking the villagers.</string>
+    <string name="story_the_ork_invasion">A large pack of Goblins and Orks are on their Way! You have to defend the area!</string>
+    <string name="story_dark_magic_rises">Now the evil nobility is coming to you! We heard of Witches and evil Wizards coming. Be careful, Witches can use magic to heal brutes and disable your Towers, and the evil Wizards can summon Demons straight from Hell!</string>
+    <string name="story_prison_break">We captured a group of Goblins, but they managed to break from their cells and are now trying to escape from the prison.</string>
+    <string name="story_defend_the_city">A large group of Orks try to invade the City! You have to defend the neuralgic points of the City - The Townhall, the Storehouse, the Marketplace and the Guildhouse. If any of these are captured, the Monsters will attack the other locations and if they are all captured, the City is lost.</string>
+    <string name="story_the_plains">We are in the center of the plains with only a few places where we can place defensive Towers and the enemy can come towards us with nothing stopping them.</string>
+    <string name="story_the_spiral_challenge">We have a good defensive Position inside the spiral the enemies must follow, but if they bring magic wielders with them, we must be careful to defeat them early.</string>
+    <string name="story_the_dance">The enemy units dance around us and we will have some time to shoot them before they can cause damages.</string>
+    <string name="story_the_rush">We have to defend a small Village. A bunch of evil creatures are coming from the woods and time their attack waves in a way that more than one wave will reach us at the same time.</string>
+    <string name="story_the_woods_first_incursion">These are the Woods near the Village we defended before. For the moment, only goblins are expected, but many of them. Use the Trees to build Defenses there.</string>
+    <string name="story_the_woods_full_assault">Now the Enemy has gathered mighty units, we know of wizards and heard that even Ogres are marching towards us.</string>
+    <string name="story_the_fast_and_furious">You are weakened. Any single additional hit would mean defeat, so you have to be very careful here.</string>
+    <string name="story_the_cross">The Enemies come from all directions</string>
+    <string name="story_the_winding_path">The winding Path is the last part of the path to the Fortress. We must defend at all costs, and we have many good places for Towers to defend.</string>
+    <string name="story_the_fortress_1_first_attacks">The Enemy is at the gates of our Fortress! They seem to start with some lighter attacks, mostly goblins.</string>
+    <string name="story_the_fortress_2_orks_marching">Now a larger amount of Orks was sighted. We have to defend ourselves.</string>
+    <string name="story_the_fortress_3_necromancer">A Necromancer is on his way and with him his army of resurrected skeletons</string>
+    <string name="story_the_fortress_4_magic_assault">Witches and Wizards will attack us. Be aware that the green Witch can heal enemy units, while the red Witch can deactivate our Towers for a while</string>
+    <string name="story_the_fortress_5_mighty_forces">A large Army of enemy forces, including all kinds of magic users is about to attack our Fortress.</string>
+    <string name="story_the_final_stand">Ewhad himself is standing before the Gates of our Fortress. We have to defend at all costs, now it is either victory or defeat. Be aware that Ewhad can summon several Demons, which get mightier with time, so take him out fast.</string>
+    <string name="story_the_creek">This place at a creek is good to defend, since the enemy will have to move around the creek, but there are not many places for Towers. Build Rafts to have floating defenses. Be aware that the rafts move with the flow of the creek.</string>
+    <string name="story_the_island">We have to defend this small Island now. There are only few enemies expected, which is good as we have only some places to build Towers. We should use Rafts here, too</string>
+    <string name="story_the_river">After the Valley with the Creek, we have an area with a mighty river here. Parts of the River move faster than we know it from the smaller creeks we had before. We have some places for Towers, but must depend mainly on Rafts to defend us.</string>
+    <string name="story_creek_valley">After defending the Island, we are now in a Valley with a creek flowing through the valley. There are no places to build Towers, so we only can use Rafts here. Be aware that they are moved by the flow of the creek.</string>
+    <string name="story_maelstrom">We are attacked from the south! We are lucky that there is a river between us and the enemies. They can build bridges to move over the river, and we can build barges to defend us. But be aware that in the middle of the river there is a maelstrom that will destroy our barges.</string>
+    <string name="story_the_tower_of_the_hermit">The hermit lives alone in his tower. Now evil forces arrive in this remote location and the hermit must defend the path from his single tower.</string>
     <!-- Final Credits screen -->
     <string name="credits_game_title">Defender of Egril</string>
     <string name="credits_title">Final Credits</string>
@@ -1548,4 +1594,47 @@
     <string name="stop_demo_message">Do you want to stop the demo and return to the world map?</string>
     <string name="demo_mode">DEMO MODE</string>
     <string name="demo_click_to_stop">Click anywhere to stop the demo</string>
+
+    <!-- Editor How-To Guide -->
+    <string name="info_tab_how_to_play">How to Play</string>
+    <string name="info_tab_editor_howto">Editor Guide</string>
+    <string name="editor_howto_title">Level Editor – How-To Guide</string>
+    <string name="editor_howto_intro">The Level Editor lets you create custom maps, levels, and sequences for Defender of Egril. It has four main tabs: Map Editor, Level Editor, Level Sequence, and World Map Positions. Use this guide to learn how to use each one.</string>
+    <string name="editor_howto_workflow_title">Recommended Workflow</string>
+    <string name="editor_howto_workflow_steps">1. Create or select a map in the Map Editor tab - 2. Create a level in the Level Editor tab that uses that map - 3. Test your level by playing it in the game - Note: Steps 4 and 5 are only required for official levels shipped with the game; user-created and community levels are playable without them - 4. (Official levels only) Add the level to the sequence in the Level Sequence tab - 5. (Official levels only) Place and connect the level on the World Map Positions tab</string>
+    <string name="editor_howto_map_editor_title">Map Editor Tab</string>
+    <string name="editor_howto_map_editor_intro">Design the hexagonal tile layout for your level. Select an existing map from the list to edit it, or click "New Map" to create a blank map. Give the map a name, set its width and height, then paint tiles to build your terrain.</string>
+    <string name="editor_howto_tile_types_title">Tile Types</string>
+    <string name="editor_howto_tile_types">PATH: The route enemies walk along - BUILD_AREA: Areas where towers can be placed (adjacent to PATH tiles, auto-calculated) - ISLAND: A 2×2 build area in the middle of paths - NO_PLAY: Non-playable background area (default for unset tiles) - SPAWN_POINT: Where enemies enter the map - TARGET: The goal enemies try to reach - RIVER: Water tile with a configurable flow direction and speed</string>
+    <string name="editor_howto_map_controls_title">Map Editor Controls</string>
+    <string name="editor_howto_map_controls">Click a tile to paint it with the selected tile type - Click and drag to paint multiple tiles at once - Ctrl+Scroll or the zoom buttons to zoom in and out - Click the ▲/▼ button to collapse or expand the header for more editing space - "Change All NO_PLAY to PATH" converts every background tile to PATH at once</string>
+    <string name="editor_howto_river_title">River Tiles</string>
+    <string name="editor_howto_river_text">Select the RIVER tile type, then configure the flow direction (e.g. NORTH, EAST, SOUTH_WEST) and flow speed using the controls that appear. River tiles are visual only and do not affect gameplay.</string>
+    <string name="editor_howto_level_editor_title">Level Editor Tab</string>
+    <string name="editor_howto_level_editor_intro">Create gameplay levels using existing maps. Select a level from the list to edit it, or click "New Level" to create one. Each level has five configuration sub-tabs shown at the top of the editing view.</string>
+    <string name="editor_howto_level_info_title">Sub-Tab: Level Info</string>
+    <string name="editor_howto_level_info_fields">Title: The level name displayed on the world map - Subtitle: Optional short description shown below the title - Author: Your name or handle - Map: Select which map this level uses - Start Coins: The coins the player begins with - Start Health Points: The lives the player starts with - Test Level: Hides the level from normal gameplay (useful for testing) - Allow Auto-Attack: Lets towers attack automatically without player input</string>
+    <string name="editor_howto_enemy_spawns_title">Sub-Tab: Enemy Spawns</string>
+    <string name="editor_howto_enemy_spawns_text">Define which enemies appear during the level and when. Click "Add Enemy" to add a new entry. For each spawn, select the enemy type, set its level (higher level scales health), choose the turn number when it appears, and optionally pick the spawn point on the map. A red badge on the tab means required information is missing.</string>
+    <string name="editor_howto_towers_title">Sub-Tab: Towers</string>
+    <string name="editor_howto_towers_text">Choose which tower types are available to the player in this level. Toggle each tower type on or off using the checkboxes. At least one tower must be enabled – a red badge appears on the tab if no towers are selected.</string>
+    <string name="editor_howto_waypoints_title">Sub-Tab: Waypoints</string>
+    <string name="editor_howto_waypoints_text">Waypoints define intermediate or branching points on enemy paths between spawn points and the target. Click "Add Waypoint" to add a new waypoint, set its grid position, and link it to a spawn point or another waypoint to form a path chain. The minimap shows all waypoint positions relative to the map. A red badge means the waypoint configuration is incomplete or invalid.</string>
+    <string name="editor_howto_initial_setup_title">Sub-Tab: Initial Setup</string>
+    <string name="editor_howto_initial_setup_text">Pre-place towers on the map before the player starts the level. Select a tower type from the list, then click a tile on the minimap to place it there. Click an already-placed tower to remove it. This is useful for tutorial levels or levels that begin with pre-built defenses.</string>
+    <string name="editor_howto_sequence_title">Level Sequence Tab (Official Levels Only)</string>
+    <string name="editor_howto_sequence_text">The Level Sequence defines the order in which official levels appear in the game and sets their dependencies. This tab is not needed for user-created or community levels, which are managed separately and always accessible from the world map.</string>
+    <string name="editor_howto_sequence_features">Use the ↑ and ↓ buttons to reorder levels in the sequence - Levels are linked by dependency: a level is unlocked when its predecessor is completed - The sequence is saved to sequence.json - Only levels in the sequence appear in the game</string>
+    <string name="editor_howto_worldmap_title">World Map Positions Tab (Official Levels Only)</string>
+    <string name="editor_howto_worldmap_text">Place official levels on the visual world map and define the connections between them. User-created and community levels do not need to be placed here – they are always accessible via the dedicated user/community level panels on the world map.</string>
+    <string name="editor_howto_worldmap_features">Each entry represents a level location on the world map image - Set X/Y pixel coordinates to position the location on the map - Add connections between locations to link them visually - Choose the connection type: Road (land path) or Sea Route (ocean path) - Add control points to curve a connection line between two locations - The minimap shows a preview of all locations and connections</string>
+    <string name="editor_howto_tips_title">Tips</string>
+    <string name="editor_howto_tips">Save frequently to avoid losing work - Test your levels by playing the game after each change - Copy existing maps and levels as starting templates to learn the format - A map can be reused across multiple levels - Red badges on sub-tabs indicate missing or invalid configuration - The "Restore Game Data" button in Settings resets all official content to its original state</string>
+    <string name="editor_howto_close">Close</string>
+    <string name="tooltip_enemy_list_and_legend">Enemy unit list and legend</string>
+    <string name="tooltip_save_the_game">Save the game</string>
+    <string name="tooltip_log_out_from_remote">Log out from remote</string>
+    <string name="tooltip_info_installation">Info about installation, license and privacy</string>
+    <string name="tooltip_enemies_on_map_and_planned">Enemies on map and planned</string>
+    <string name="tooltip_return_to_worldmap">Return to the worldmap</string>
 </resources>

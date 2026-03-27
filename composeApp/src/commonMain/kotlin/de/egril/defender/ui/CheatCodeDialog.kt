@@ -272,7 +272,7 @@ private fun CheatSection(
             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary
         )
-        Divider(modifier = Modifier.padding(vertical = 4.dp))
+        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
         Column(
             verticalArrangement = Arrangement.spacedBy(6.dp),
             content = content

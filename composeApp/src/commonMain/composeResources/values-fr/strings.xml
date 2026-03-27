@@ -906,9 +906,27 @@
     <string name="level_the_cross_title">La Croix</string>
     <string name="level_the_cross_subtitle">Quatre Chemins Divisés</string>
     <string name="level_the_winding_path_title">Le Chemin Sinueux</string>
-    <string name="level_the_winding_path_subtitle">Une Route Longue et Tortueuse</string>        <string name="level_the_fortress_title">La Forteresse %s</string>
-    <string name="level_the_fortress_1_first_attacks_subtitle">Premières Attaques</string>    <string name="level_the_fortress_2_orks_marching_subtitle">Les Orks Marchent</string>    <string name="level_the_fortress_3_necromancer_subtitle">Le Nécromancien</string>    <string name="level_the_fortress_4_magic_assault_subtitle">Assaut Magique</string>    <string name="level_the_fortress_5_mighty_forces_subtitle">Forces Puissantes</string>
-    <string name="level_ewhads_challenge_title">Défi d\'Ewhad</string>    <string name="level_the_creek_title">Le Ruisseau</string>    <string name="level_the_island_title">L\'Île</string>    <string name="level_the_river_title">La Rivière</string>    <string name="level_creek_valley_title">Vallée du Ruisseau</string>    <string name="level_maelstrom_title">Maelström</string>    <string name="level_defend_the_city_title">Défendre la Ville</string>    <string name="level_prison_break_title">Évasion de Prison</string>    <string name="level_prison_break_subtitle">Des Gobelins capturés tentent de s\'échapper</string>    <string name="level_the_barricades_title">Les Barricades</string>    <string name="level_the_labyrinth_title">Le Labyrinthe</string>    <string name="level_the_tower_of_the_hermit_title">La Tour de l\'Ermite</string>    <string name="level_the_tower_of_the_hermit_subtitle">Une seule Tour pour défendre le Chemin</string>    <string name="level_the_witches_title">Les Sorcières</string>    
+    <string name="level_the_winding_path_subtitle">Une Route Longue et Tortueuse</string>
+    <string name="level_the_fortress_title">La Forteresse</string>
+    <string name="level_the_fortress_1_first_attacks_subtitle">Premières Attaques</string>
+    <string name="level_the_fortress_2_orks_marching_subtitle">Les Orks Marchent</string>
+    <string name="level_the_fortress_3_necromancer_subtitle">Le Nécromancien</string>
+    <string name="level_the_fortress_4_magic_assault_subtitle">Assaut Magique</string>
+    <string name="level_the_fortress_5_mighty_forces_subtitle">Forces Puissantes</string>
+    <string name="level_ewhads_challenge_title">Défi d\'Ewhad</string>
+    <string name="level_the_creek_title">Le Ruisseau</string>
+    <string name="level_the_island_title">L\'Île</string>
+    <string name="level_the_river_title">La Rivière</string>
+    <string name="level_creek_valley_title">Vallée du Ruisseau</string>
+    <string name="level_maelstrom_title">Maelström</string>
+    <string name="level_defend_the_city_title">Défendre la Ville</string>
+    <string name="level_prison_break_title">Évasion de Prison</string>
+    <string name="level_prison_break_subtitle">Des Gobelins capturés tentent de s\'échapper</string>
+    <string name="level_the_barricades_title">Les Barricades</string>
+    <string name="level_the_labyrinth_title">Le Labyrinthe</string>
+    <string name="level_the_tower_of_the_hermit_title">La Tour de l\'Ermite</string>
+    <string name="level_the_tower_of_the_hermit_subtitle">Une seule Tour pour défendre le Chemin</string>
+    <string name="level_the_witches_title">Les Sorcières</string>
     <!-- Map Names -->
     <string name="map_tutorial_name">Carte Tutoriel</string>
     <string name="map_straight_name">Carte Droite</string>
@@ -1500,6 +1518,34 @@
     <string name="ewhad_retreats_text">Vous avez forcé Ewhad à se retirer !</string>
     <string name="ewhad_defeated_title">Ewhad est vaincu</string>
     <string name="ewhad_defeated_text">Vous avez vaincu Ewhad ! Terminez maintenant les autres Ennemis et gagnez le jeu !</string>
+    <!-- Story intro messages shown at the start of each level -->
+    <string name="story_the_first_wave">Des Gobelins attaquent une zone rurale isolée. Cela n\'est pas rare, mais les rumeurs nous disent que cette fois, plus de brutes que d\'habitude errent dans notre royaume.</string>
+    <string name="story_mixed_forces">La même zone subit davantage d\'attaques. Les rumeurs parlent même de morts se levant de leurs tombes pour attaquer les villageois.</string>
+    <string name="story_the_ork_invasion">Une grande horde de Gobelins et d\'Orques est en route ! Vous devez défendre la zone !</string>
+    <string name="story_dark_magic_rises">Maintenant la noblesse maléfique arrive vers vous ! Nous avons entendu parler de Sorcières et de Mages maléfiques qui approchent. Soyez prudents : les Sorcières peuvent utiliser la magie pour soigner les brutes et désactiver vos Tours, et les Mages maléfiques peuvent invoquer des Démons directement depuis l\'Enfer !</string>
+    <string name="story_prison_break">Nous avons capturé un groupe de Gobelins, mais ils ont réussi à s\'évader de leurs cellules et tentent maintenant de s\'échapper de la prison.</string>
+    <string name="story_defend_the_city">Un grand groupe d\'Orques tente d\'envahir la Cité ! Vous devez défendre les points névralgiques de la Cité : l\'Hôtel de Ville, l\'Entrepôt, le Marché et la Maison des Guildes. Si l\'un d\'eux est capturé, les Monstres attaqueront les autres lieux, et si tous sont capturés, la Cité est perdue.</string>
+    <string name="story_the_plains">Nous sommes au centre des plaines avec seulement quelques endroits où nous pouvons placer des Tours défensives, et l\'ennemi peut avancer vers nous sans rien pour l\'arrêter.</string>
+    <string name="story_the_spiral_challenge">Nous avons une bonne position défensive à l\'intérieur de la spirale que les ennemis doivent suivre, mais s\'ils amènent des utilisateurs de magie avec eux, nous devons prendre soin de les vaincre tôt.</string>
+    <string name="story_the_dance">Les unités ennemies dansent autour de nous et nous aurons un peu de temps pour leur tirer dessus avant qu\'elles ne causent des dégâts.</string>
+    <string name="story_the_rush">Nous devons défendre un petit Village. Un groupe de créatures maléfiques vient des bois et synchronise ses vagues d\'attaque de sorte que plus d\'une vague nous atteigne en même temps.</string>
+    <string name="story_the_woods_first_incursion">Voici les Bois près du Village que nous avons défendu auparavant. Pour l\'instant, seuls des gobelins sont attendus, mais en grand nombre. Utilisez les Arbres pour y construire des Défenses.</string>
+    <string name="story_the_woods_full_assault">L\'Ennemi a maintenant rassemblé de puissantes unités. Nous savons qu\'il y a des mages, et nous avons entendu dire que même des Ogres marchent vers nous.</string>
+    <string name="story_the_fast_and_furious">Vous êtes affaibli. Le moindre coup supplémentaire signifierait la défaite, alors soyez très prudent ici.</string>
+    <string name="story_the_cross">Les Ennemis viennent de toutes les directions.</string>
+    <string name="story_the_winding_path">Le Chemin sinueux est la dernière partie du chemin vers la Forteresse. Nous devons défendre à tout prix, et nous avons de nombreux bons emplacements pour des Tours.</string>
+    <string name="story_the_fortress_1_first_attacks">L\'Ennemi est aux portes de notre Forteresse ! Ils semblent commencer par des attaques plus légères, principalement des gobelins.</string>
+    <string name="story_the_fortress_2_orks_marching">Un plus grand nombre d\'Orques a maintenant été repéré. Nous devons nous défendre.</string>
+    <string name="story_the_fortress_3_necromancer">Un Nécromancien est en route avec son armée de squelettes ressuscités.</string>
+    <string name="story_the_fortress_4_magic_assault">Des Sorcières et des Mages vont nous attaquer. Sachez que la Sorcière verte peut soigner les unités ennemies, tandis que la Sorcière rouge peut désactiver nos Tours pendant un moment.</string>
+    <string name="story_the_fortress_5_mighty_forces">Une grande Armée de forces ennemies, comprenant toutes sortes d\'utilisateurs de magie, est sur le point d\'attaquer notre Forteresse.</string>
+    <string name="story_the_final_stand">Ewhad lui-même se tient devant les Portes de notre Forteresse. Nous devons défendre à tout prix – c\'est maintenant la victoire ou la défaite. Sachez qu\'Ewhad peut invoquer plusieurs Démons qui deviennent plus puissants avec le temps, alors vainquez-le vite.</string>
+    <string name="story_the_creek">Cet endroit près d\'un ruisseau est facile à défendre, car l\'ennemi devra contourner le ruisseau, mais il n\'y a pas beaucoup d\'endroits pour les Tours. Construisez des Radeaux pour avoir des défenses flottantes. Sachez que les radeaux se déplacent avec le courant du ruisseau.</string>
+    <string name="story_the_island">Nous devons défendre cette petite Île maintenant. Peu d\'ennemis sont attendus, ce qui est bien car nous n\'avons que quelques endroits pour construire des Tours. Nous devrions aussi utiliser des Radeaux ici.</string>
+    <string name="story_the_river">Après la Vallée avec le Ruisseau, nous avons ici une zone avec un puissant fleuve. Certaines parties du Fleuve se déplacent plus rapidement que ce que nous connaissons des petits ruisseaux que nous avions auparavant. Nous avons quelques endroits pour des Tours, mais devons compter principalement sur des Radeaux pour nous défendre.</string>
+    <string name="story_creek_valley">Après avoir défendu l\'Île, nous sommes maintenant dans une Vallée traversée par un ruisseau. Il n\'y a pas d\'endroits pour construire des Tours, nous ne pouvons donc utiliser que des Radeaux ici. Sachez qu\'ils sont déplacés par le courant du ruisseau.</string>
+    <string name="story_maelstrom">Nous sommes attaqués par le sud ! Nous avons la chance qu\'il y ait un fleuve entre nous et les ennemis. Ils peuvent construire des ponts pour traverser le fleuve, et nous pouvons construire des barges pour nous défendre. Mais sachez qu\'au milieu du fleuve se trouve un maëlstrom qui détruira nos barges.</string>
+    <string name="story_the_tower_of_the_hermit">L\'ermite vit seul dans sa tour. Des forces maléfiques arrivent maintenant en ce lieu isolé et l\'ermite doit défendre le chemin depuis sa seule tour.</string>
     <!-- Final Credits screen -->
     <string name="credits_game_title">Defender of Egril</string>
     <string name="credits_title">Générique de Fin</string>
@@ -1543,4 +1589,47 @@
     <string name="stop_demo_message">Voulez-vous arrêter la démo et retourner à la carte du monde ?</string>
     <string name="demo_mode">MODE DÉMO</string>
     <string name="demo_click_to_stop">Cliquez n\'importe où pour arrêter la démo</string>
+
+    <!-- Editor How-To Guide -->
+    <string name="info_tab_how_to_play">Comment jouer</string>
+    <string name="info_tab_editor_howto">Guide de l\'Éditeur</string>
+    <string name="editor_howto_title">Éditeur de Niveaux – Guide d\'Utilisation</string>
+    <string name="editor_howto_intro">L\'Éditeur de Niveaux vous permet de créer des cartes, des niveaux et des séquences personnalisés pour Defender of Egril. Il comporte quatre onglets principaux : Éditeur de Cartes, Éditeur de Niveaux, Séquence de Niveaux et Positions de la Carte du Monde. Ce guide explique comment utiliser chacun d\'eux.</string>
+    <string name="editor_howto_workflow_title">Flux de Travail Recommandé</string>
+    <string name="editor_howto_workflow_steps">1. Créer ou sélectionner une carte dans l\'onglet Éditeur de Cartes - 2. Créer un niveau dans l\'onglet Éditeur de Niveaux en utilisant cette carte - 3. Tester le niveau en le jouant dans le jeu - Remarque : Les étapes 4 et 5 sont uniquement nécessaires pour les niveaux officiels fournis avec le jeu ; les niveaux créés par les utilisateurs et les niveaux communautaires sont jouables sans elles - 4. (Niveaux officiels uniquement) Ajouter le niveau à la séquence dans l\'onglet Séquence de Niveaux - 5. (Niveaux officiels uniquement) Placer et connecter le niveau dans l\'onglet Positions de la Carte du Monde</string>
+    <string name="editor_howto_map_editor_title">Onglet Éditeur de Cartes</string>
+    <string name="editor_howto_map_editor_intro">Concevez la disposition hexagonale de tuiles de votre niveau. Sélectionnez une carte existante dans la liste pour la modifier, ou cliquez sur « Nouvelle Carte » pour en créer une vierge. Donnez un nom, définissez la largeur et la hauteur, puis peignez les tuiles pour construire votre terrain.</string>
+    <string name="editor_howto_tile_types_title">Types de Tuiles</string>
+    <string name="editor_howto_tile_types">PATH: L\'itinéraire emprunté par les ennemis - BUILD_AREA: Zones adjacentes aux tuiles PATH où les tours peuvent être placées (calculé automatiquement) - ISLAND: Zone de construction 2×2 au milieu des chemins - NO_PLAY: Zone d\'arrière-plan non jouable (valeur par défaut) - SPAWN_POINT: L\'endroit où les ennemis entrent sur la carte - TARGET: L\'objectif que les ennemis cherchent à atteindre - RIVER: Tuile d\'eau avec direction et vitesse de flux configurables</string>
+    <string name="editor_howto_map_controls_title">Contrôles de l\'Éditeur de Cartes</string>
+    <string name="editor_howto_map_controls">Cliquer sur une tuile pour la peindre avec le type sélectionné - Cliquer et faire glisser pour peindre plusieurs tuiles à la fois - Ctrl+Molette ou boutons de zoom pour zoomer et dézoomer - Bouton ▲/▼ pour réduire ou développer l\'en-tête et gagner de l\'espace - « Remplacer tous les NO_PLAY par PATH » convertit tous les tuiles d\'arrière-plan en une seule fois</string>
+    <string name="editor_howto_river_title">Tuiles de Rivière</string>
+    <string name="editor_howto_river_text">Sélectionnez le type de tuile RIVER, puis configurez la direction du flux (ex. NORTH, EAST, SOUTH_WEST) et la vitesse à l\'aide des contrôles qui apparaissent. Les tuiles de rivière sont purement visuelles et n\'affectent pas le jeu.</string>
+    <string name="editor_howto_level_editor_title">Onglet Éditeur de Niveaux</string>
+    <string name="editor_howto_level_editor_intro">Créez des niveaux de jeu en utilisant des cartes existantes. Sélectionnez un niveau dans la liste pour le modifier, ou cliquez sur « Nouveau Niveau » pour en créer un. Chaque niveau dispose de cinq sous-onglets de configuration en haut de la vue d\'édition.</string>
+    <string name="editor_howto_level_info_title">Sous-Onglet : Infos du Niveau</string>
+    <string name="editor_howto_level_info_fields">Titre : Le nom du niveau affiché sur la carte du monde - Sous-titre : Description courte optionnelle - Auteur : Votre nom ou pseudo - Carte : Sélectionnez la carte utilisée par ce niveau - Pièces de Départ : Les pièces dont dispose le joueur au début - Points de Vie Initiaux : Les vies du joueur au début - Niveau de Test : Masque le niveau du jeu normal (pour les tests) - Autoriser l\'Attaque Automatique : Les tours attaquent automatiquement sans intervention du joueur</string>
+    <string name="editor_howto_enemy_spawns_title">Sous-Onglet : Apparitions des Ennemis</string>
+    <string name="editor_howto_enemy_spawns_text">Définissez quels ennemis apparaissent et quand. Cliquez sur « Ajouter un Ennemi » pour ajouter une entrée. Pour chaque apparition : sélectionnez le type d\'ennemi, définissez son niveau (augmente les points de vie), choisissez le tour où il apparaît et sélectionnez éventuellement le point d\'apparition sur la carte. Un badge rouge indique des informations obligatoires manquantes.</string>
+    <string name="editor_howto_towers_title">Sous-Onglet : Tours</string>
+    <string name="editor_howto_towers_text">Choisissez quels types de tours sont disponibles pour le joueur dans ce niveau. Activez ou désactivez chaque type à l\'aide des cases à cocher. Au moins une tour doit être activée – un badge rouge apparaît si aucune n\'est sélectionnée.</string>
+    <string name="editor_howto_waypoints_title">Sous-Onglet : Points de Passage</string>
+    <string name="editor_howto_waypoints_text">Les points de passage définissent des points intermédiaires ou des bifurcations sur les chemins ennemis entre les points d\'apparition et la cible. Cliquez sur « Ajouter un Point de Passage », définissez sa position sur la grille et reliez-le à un point d\'apparition ou à un autre point de passage pour former une chaîne de chemin. La mini-carte affiche toutes les positions. Un badge rouge indique une configuration incomplète ou invalide.</string>
+    <string name="editor_howto_initial_setup_title">Sous-Onglet : Configuration Initiale</string>
+    <string name="editor_howto_initial_setup_text">Placez des tours sur la carte avant que le joueur commence le niveau. Sélectionnez un type de tour dans la liste, puis cliquez sur une tuile de la mini-carte pour le placer. Cliquez sur une tour déjà placée pour la supprimer. Utile pour les niveaux tutoriels ou les niveaux avec des défenses préconstruites.</string>
+    <string name="editor_howto_sequence_title">Onglet Séquence de Niveaux (Niveaux Officiels Uniquement)</string>
+    <string name="editor_howto_sequence_text">La Séquence de Niveaux définit l\'ordre dans lequel les niveaux officiels apparaissent dans le jeu et leurs dépendances. Cet onglet n\'est pas nécessaire pour les niveaux créés par les utilisateurs ou les niveaux communautaires, qui sont gérés séparément et toujours accessibles depuis la carte du monde.</string>
+    <string name="editor_howto_sequence_features">Utilisez les boutons ↑ et ↓ pour réorganiser les niveaux dans la séquence - Les niveaux sont liés par des dépendances : un niveau est débloqué quand son prédécesseur est terminé - La séquence est sauvegardée dans sequence.json - Seuls les niveaux dans la séquence apparaissent dans le jeu</string>
+    <string name="editor_howto_worldmap_title">Onglet Positions de la Carte du Monde (Niveaux Officiels Uniquement)</string>
+    <string name="editor_howto_worldmap_text">Placez les niveaux officiels sur la carte du monde visuelle et définissez les connexions entre eux. Les niveaux créés par les utilisateurs et les niveaux communautaires n\'ont pas besoin d\'être placés ici – ils sont toujours accessibles via les panneaux dédiés sur la carte du monde.</string>
+    <string name="editor_howto_worldmap_features">Chaque entrée représente un emplacement de niveau sur l\'image de la carte du monde - Définissez les coordonnées X/Y en pixels pour positionner l\'emplacement - Ajoutez des connexions entre les emplacements pour les relier visuellement - Choisissez le type de connexion : Route (chemin terrestre) ou Route Maritime (chemin océanique) - Ajoutez des points de contrôle pour courber la ligne de connexion entre deux emplacements - La mini-carte affiche un aperçu de tous les emplacements et connexions</string>
+    <string name="editor_howto_tips_title">Conseils</string>
+    <string name="editor_howto_tips">Sauvegardez fréquemment pour éviter de perdre votre travail - Testez vos niveaux en jouant après chaque modification - Copiez des cartes et niveaux existants comme modèles de départ - Une carte peut être réutilisée pour plusieurs niveaux - Les badges rouges sur les sous-onglets indiquent une configuration manquante ou invalide - Le bouton « Restaurer les Données du Jeu » dans les Paramètres remet tout le contenu officiel dans son état d\'origine</string>
+    <string name="editor_howto_close">Fermer</string>
+    <string name="tooltip_enemy_list_and_legend">Liste des unités ennemies et légende</string>
+    <string name="tooltip_save_the_game">Sauvegarder la partie</string>
+    <string name="tooltip_log_out_from_remote">Se déconnecter du serveur</string>
+    <string name="tooltip_info_installation">Info sur l\'installation, la licence et la confidentialité</string>
+    <string name="tooltip_enemies_on_map_and_planned">Ennemis sur la carte et planifiés</string>
+    <string name="tooltip_return_to_worldmap">Retour à la carte du monde</string>
 </resources>

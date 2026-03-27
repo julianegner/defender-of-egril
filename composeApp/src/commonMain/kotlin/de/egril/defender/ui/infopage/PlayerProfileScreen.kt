@@ -214,7 +214,7 @@ fun PlayerProfileScreen(
                     
                     // Tabs (only show if stats callback is provided)
                     if (onNavigateToStats != null) {
-                        TabRow(
+                        PrimaryTabRow(
                             selectedTabIndex = selectedTabIndex,
                             containerColor = MaterialTheme.colorScheme.surfaceVariant,
                             contentColor = MaterialTheme.colorScheme.onSurface
@@ -255,7 +255,7 @@ fun PlayerProfileScreen(
                                                 onUpgradeAbility = onUpgradeAbility,
                                                 onUnlockSpell = onUnlockSpell
                                             )
-                                        } else if (onNavigateToStats != null) {
+                                        } else {
                                             // Fallback to button if callbacks not provided
                                             Button(
                                                 onClick = onNavigateToStats,
@@ -521,7 +521,7 @@ private fun StatsAndAbilitiesContent(
                 
                 Column(modifier = Modifier.fillMaxWidth()) {
                     LinearProgressIndicator(
-                        progress = progress,
+                        progress = { progress },
                         modifier = Modifier.fillMaxWidth().height(12.dp)
                     )
                     Spacer(modifier = Modifier.height(4.dp))
