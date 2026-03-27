@@ -255,20 +255,21 @@ jobs:
           name: linux-deb-build
           path: snap/deb
 
-      - name: Install snapcraft
-        run: sudo snap install snapcraft --classic
-
-      - name: Build snap (destructive mode)
-        working-directory: snap
+      - name: Update snap version
         run: |
-          sed -i "s/^version:[[:space:]]*.*/version: '${APP_VERSION}'/" snapcraft.yaml
-          snapcraft pack --destructive-mode
+          sed -i "s/^version:[[:space:]]*.*/version: '${APP_VERSION}'/" snap/snapcraft.yaml
+
+      - name: Build snap
+        id: snapcraft
+        uses: snapcore/action-build@v1
+        with:
+          path: snap
 
       - name: Upload Snap artifact
         uses: actions/upload-artifact@v4
         with:
           name: linux-snap-build
-          path: snap/*.snap
+          path: ${{ steps.snapcraft.outputs.snap }}
           if-no-files-found: warn
 
   # ---------------------------------------------------------------------------
