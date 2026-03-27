@@ -891,7 +891,12 @@
     <!-- Level Names -->
     <string name="level_welcome_to_defender_of_egril_title">Welcome to Defender of Egril</string>
     <string name="level_welcome_to_defender_of_egril_subtitle">Tutorial</string>
-    <string name="level_the_first_wave_title">The First Wave</string>    <string name="level_mixed_forces_title">Mixed Forces</string>    <string name="level_the_ork_invasion_title">The Ork Invasion</string>    <string name="level_dark_magic_rises_title">Dark Magic Rises</string>    <string name="level_the_final_stand_title">The Final Stand</string>    <string name="level_the_plains_title">The Plains</string>
+    <string name="level_the_first_wave_title">The First Wave</string>
+    <string name="level_mixed_forces_title">Mixed Forces</string>
+    <string name="level_the_ork_invasion_title">The Ork Invasion</string>
+    <string name="level_dark_magic_rises_title">Dark Magic Rises</string>
+    <string name="level_the_final_stand_title">The Final Stand</string>
+    <string name="level_the_plains_title">The Plains</string>
     <string name="level_the_plains_subtitle">Open Field Battle</string>
     <string name="level_the_spiral_challenge_title">The Spiral Challenge</string>
     <string name="level_the_spiral_challenge_subtitle">Navigate the Spiral</string>

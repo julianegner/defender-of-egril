@@ -225,7 +225,7 @@ class TranslationCoverageTest {
         val stringPattern = Regex("""<string\s+name="([^"]+)"""")
         
         file.readLines().forEach { line ->
-            stringPattern.find(line)?.let { match ->
+            stringPattern.findAll(line).forEach { match ->
                 keys.add(match.groupValues[1])
             }
         }

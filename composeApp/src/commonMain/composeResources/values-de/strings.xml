@@ -888,7 +888,12 @@
     <!-- Level Names -->
     <string name="level_welcome_to_defender_of_egril_title">Willkommen bei Defender of Egril</string>
     <string name="level_welcome_to_defender_of_egril_subtitle">Tutorial</string>
-    <string name="level_the_first_wave_title">Die Erste Welle</string>    <string name="level_mixed_forces_title">Gemischte Streitkräfte</string>    <string name="level_the_ork_invasion_title">Die Ork-Invasion</string>    <string name="level_dark_magic_rises_title">Dunkle Magie Erhebt Sich</string>    <string name="level_the_final_stand_title">Der Letzte Widerstand</string>    <string name="level_the_plains_title">Die Ebenen</string>
+    <string name="level_the_first_wave_title">Die Erste Welle</string>
+    <string name="level_mixed_forces_title">Gemischte Streitkräfte</string>
+    <string name="level_the_ork_invasion_title">Die Ork-Invasion</string>
+    <string name="level_dark_magic_rises_title">Dunkle Magie Erhebt Sich</string>
+    <string name="level_the_final_stand_title">Der Letzte Widerstand</string>
+    <string name="level_the_plains_title">Die Ebenen</string>
     <string name="level_the_plains_subtitle">Schlacht auf offenem Feld</string>
     <string name="level_the_spiral_challenge_title">Die Spiral-Herausforderung</string>
     <string name="level_the_spiral_challenge_subtitle">Navigiere durch die Spirale</string>
