@@ -1635,4 +1635,14 @@
     <string name="tooltip_info_installation">Info über Installation, Lizenz und Datenschutz</string>
     <string name="tooltip_enemies_on_map_and_planned">Feinde auf der Karte und geplante</string>
     <string name="tooltip_return_to_worldmap">Zur Weltkarte zurückkehren</string>
+
+    <!-- Download Installables tab (WASM + Impressum only) -->
+    <string name="info_tab_download">Downloads</string>
+    <string name="download_info_title">Defender of Egril herunterladen</string>
+    <string name="download_info_intro">Lade die neueste Version von GitHub herunter. Wähle das Paket für deine Plattform.</string>
+    <string name="download_info_all_releases_label">Alle Versionen:</string>
+    <string name="download_info_view_releases">Alle Versionen auf GitHub ansehen</string>
+    <string name="download_info_direct_download">Direkter Download</string>
+    <string name="download_info_sideload_title">So wird die Android-APK installiert (Sideloading)</string>
+    <string name="download_info_platform_note">Die Android-APK kann direkt heruntergeladen werden. Für Windows, Linux und macOS besuche die GitHub-Releases-Seite, um den neuesten Installer zu finden.</string>
 </resources>
