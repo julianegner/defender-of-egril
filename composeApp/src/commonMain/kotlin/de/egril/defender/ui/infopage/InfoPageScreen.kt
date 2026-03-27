@@ -11,9 +11,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import de.egril.defender.WithImpressum
 import de.egril.defender.ui.editor.EditorHowToContent
 import de.egril.defender.ui.isEditorAvailable
 import de.egril.defender.ui.settings.SettingsButton
+import de.egril.defender.utils.isPlatformWasm
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -36,6 +38,7 @@ fun InfoPageScreen(
             add(InfoTab.KEYBOARD_SHORTCUTS)
             add(InfoTab.BACKEND)
             if (isEditorAvailable()) add(InfoTab.EDITOR_HOWTO)
+            if (isPlatformWasm && WithImpressum.withImpressum) add(InfoTab.DOWNLOAD)
         }
     }
 
@@ -86,6 +89,7 @@ fun InfoPageScreen(
                                         InfoTab.KEYBOARD_SHORTCUTS -> stringResource(Res.string.info_tab_keyboard_shortcuts)
                                         InfoTab.BACKEND -> stringResource(Res.string.info_tab_backend)
                                         InfoTab.EDITOR_HOWTO -> stringResource(Res.string.info_tab_editor_howto)
+                                        InfoTab.DOWNLOAD -> stringResource(Res.string.info_tab_download)
                                     }
                                 )
                             }
@@ -107,6 +111,7 @@ fun InfoPageScreen(
                         InfoTab.KEYBOARD_SHORTCUTS -> KeyboardShortcutsInfo()
                         InfoTab.BACKEND -> BackendInfo()
                         InfoTab.EDITOR_HOWTO -> EditorHowToContent()
+                        InfoTab.DOWNLOAD -> DownloadInfo()
                     }
                 }
                 
@@ -134,5 +139,6 @@ enum class InfoTab {
     LICENSE,
     KEYBOARD_SHORTCUTS,
     BACKEND,
-    EDITOR_HOWTO
+    EDITOR_HOWTO,
+    DOWNLOAD
 }
