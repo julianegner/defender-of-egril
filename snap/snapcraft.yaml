@@ -1,0 +1,50 @@
+name: defender-of-egril
+base: core22
+# version is injected by CI via --snap-option version=<ver>; keep a default for local builds
+version: '1.0.0'
+summary: Defender of Egril – Turn-based Tower Defense
+description: |
+  A turn-based tower defense game built with Kotlin Multiplatform and
+  Compose Multiplatform. Defend the realm of Egril against waves of
+  monsters by placing towers, casting spells, and managing resources.
+
+grade: stable
+confinement: strict
+compression: lzo
+
+# The DEB produced by Compose Desktop already bundles a JRE and native
+# libraries, so we simply extract it into the snap root.
+parts:
+  app:
+    plugin: dump
+    # The DEB is copied next to snapcraft.yaml by the CI workflow
+    # before running `snapcraft --destructive-mode`.
+    source: deb
+    source-type: local
+    override-build: |
+      DEB=$(ls *.deb 2>/dev/null | head -1)
+      if [ -z "$DEB" ]; then
+        echo "No .deb file found in 'deb/' directory"
+        exit 1
+      fi
+      dpkg-deb --extract "$DEB" "$CRAFT_PART_INSTALL"
+    stage-packages:
+      - libfreetype6
+      - libfontconfig1
+
+apps:
+  defender-of-egril:
+    command: opt/defender-of-egril/bin/defender-of-egril
+    environment:
+      HOME: $SNAP_USER_DATA
+      JAVA_HOME: $SNAP/opt/defender-of-egril/lib/runtime
+    plugs:
+      - home
+      - network
+      - x11
+      - wayland
+      - desktop
+      - desktop-legacy
+      - opengl
+      - audio-playback
+      - unity7

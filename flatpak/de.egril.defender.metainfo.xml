@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>de.egril.defender</id>
+  <name>Defender of Egril</name>
+  <summary>Turn-based Tower Defense</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>AGPL-3.0-or-later</project_license>
+  <description>
+    <p>
+      A turn-based tower defense game built with Kotlin Multiplatform and
+      Compose Multiplatform. Defend the realm of Egril against waves of
+      monsters by placing towers, casting spells, and managing resources.
+    </p>
+  </description>
+  <url type="homepage">https://github.com/qvest-digital/defender-of-egril-fork</url>
+  <categories>
+    <category>Game</category>
+    <category>StrategyGame</category>
+  </categories>
+  <releases>
+    <release version="0.1.0" date="2024-01-01"/>
+  </releases>
+</component>
