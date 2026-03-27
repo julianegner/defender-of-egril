@@ -1648,4 +1648,6 @@
     <string name="download_info_direct_download">Download diretto</string>
     <string name="download_info_sideload_title">Come installare l\'APK Android (Sideloading)</string>
     <string name="download_info_platform_note">L\'APK Android può essere scaricata direttamente. Per Windows, Linux e macOS, visita la pagina delle versioni su GitHub per trovare l\'ultimo programma di installazione.</string>
+    <string name="download_info_loading">Caricamento dei link di download…</string>
+    <string name="download_info_error">Impossibile caricare i link di download da GitHub. Visita la pagina delle versioni per trovare tutti i download.</string>
 </resources>
