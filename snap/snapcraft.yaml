@@ -34,6 +34,9 @@ parts:
       for f in "$TMP"/data.tar.*; do
         tar xaf "$f" -C "$CRAFT_PART_INSTALL"
       done
+      echo "Installed files:"
+      find "$CRAFT_PART_INSTALL" -maxdepth 4 -type f | sed "s|$CRAFT_PART_INSTALL/||" | sort | head -200
+      
       rm -rf "$TMP"
     stage-packages:
       - libfreetype6
