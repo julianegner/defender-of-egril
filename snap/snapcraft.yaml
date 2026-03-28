@@ -14,34 +14,44 @@ compression: lzo
 
 # The DEB produced by Compose Desktop already bundles a JRE and native
 # libraries, so we simply extract it into the snap root.
- parts:
-   app:
-     plugin: dump
-     source: deb
-     source-type: local
-+    build-packages:
-+      - zstd
-     override-build: |
-       DEB=$(ls "$CRAFT_PART_SRC"/*.deb 2>/dev/null | head -1)
-       if [ -z "$DEB" ]; then
-         echo "No .deb file found in source directory ($CRAFT_PART_SRC)"
-         exit 1
-       fi
-       echo "Extracting DEB: $DEB"
-       TMP=$(mktemp -d)
-       DEBABS=$(realpath "$DEB")
-       (cd "$TMP" && ar x "$DEBABS")
-       for f in "$TMP"/data.tar.*; do
-         tar xaf "$f" -C "$CRAFT_PART_INSTALL"
-       done
-       rm -rf "$TMP"
-     stage-packages:
-       - libfreetype6
-       - libfontconfig1
+parts:
+  app:
+    plugin: dump
+    source: deb
+    source-type: local
+    build-packages:
+      - zstd
+    override-build: |
+      DEB=$(ls "$CRAFT_PART_SRC"/*.deb 2>/dev/null | head -1)
+      if [ -z "$DEB" ]; then
+        echo "No .deb file found in source directory ($CRAFT_PART_SRC)"
+        exit 1
+      fi
+      echo "Extracting DEB: $DEB"
+      TMP=$(mktemp -d)
+      DEBABS=$(realpath "$DEB")
+      (cd "$TMP" && ar x "$DEBABS")
+      for f in "$TMP"/data.tar.*; do
+        tar xaf "$f" -C "$CRAFT_PART_INSTALL"
+      done
+      echo "Installed files:"
+      find "$CRAFT_PART_INSTALL" -maxdepth 4 -type f | sed "s|$CRAFT_PART_INSTALL/||" | sort | head -200
+
+      # Create usr/bin wrapper pointing to the actual launcher from the DEB payload.
+      mkdir -p "$CRAFT_PART_INSTALL/usr/bin"
+      printf '#!/bin/sh\nexec "$SNAP/opt/defender-of-egril/bin/DefenderOfEgril" "$@"\n' \
+        > "$CRAFT_PART_INSTALL/usr/bin/defender-of-egril"
+      chmod +x "$CRAFT_PART_INSTALL/usr/bin/defender-of-egril"
+
+      rm -rf "$TMP"
+    stage-packages:
+      - libfreetype6
+      - libfontconfig1
 
 apps:
   defender-of-egril:
-    command: opt/defender-of-egril/bin/defender-of-egril
+    command: usr/bin/defender-of-egril
+    
     environment:
       HOME: $SNAP_USER_DATA
       JAVA_HOME: $SNAP/opt/defender-of-egril/lib/runtime
