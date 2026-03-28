@@ -97,7 +97,7 @@ jobs:
           echo "VersionCode:  $VERSION_CODE"
 
   # ---------------------------------------------------------------------------
-  # Android APK + AAB
+  # Android APK + AAB (uploaded as separate artifacts)
   # ---------------------------------------------------------------------------
   build_android:
     name: Build Android (APK + AAB)
@@ -156,18 +156,25 @@ jobs:
             :composeApp:bundleProductionDebug \
             -PappVersion="${APP_VERSION}"
 
-      - name: Rename and collect APK
+      - name: Collect APK and AAB
         run: |
-          mkdir -p artifacts
-          find composeApp/build/outputs/apk -name "*.apk" -exec cp {} artifacts/ \;
-          find composeApp/build/outputs/bundle -name "*.aab" -exec cp {} artifacts/ \;
-          ls -lh artifacts/
+          mkdir -p artifacts/apk artifacts/aab
+          find composeApp/build/outputs/apk -name "*.apk" -exec cp {} artifacts/apk/ \;
+          find composeApp/build/outputs/bundle -name "*.aab" -exec cp {} artifacts/aab/ \;
+          ls -lh artifacts/apk/ artifacts/aab/
 
-      - name: Upload Android artifacts
+      - name: Upload Android APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: android-build
-          path: artifacts/
+          name: android-apk-build
+          path: artifacts/apk/
+          if-no-files-found: error
+
+      - name: Upload Android AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-aab-build
+          path: artifacts/aab/
           if-no-files-found: error
 
   # ---------------------------------------------------------------------------
@@ -624,11 +631,18 @@ jobs:
       needs.build_windows_msi.result == 'success' 
 
     steps:
-      - name: Download Android artifacts
+      - name: Download Android APK artifact
         if: needs.build_android.result == 'success'
         uses: actions/download-artifact@v4
         with:
-          name: android-build
+          name: android-apk-build
+          path: release-assets/android
+
+      - name: Download Android AAB artifact
+        if: needs.build_android.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: android-aab-build
           path: release-assets/android
 
       - name: Download Linux DEB artifact
