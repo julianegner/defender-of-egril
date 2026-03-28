@@ -42,6 +42,9 @@ WASM browser tests are not currently run in CI because the common test suite use
 - `tag`: Create and push git tag `v<version>` on the current commit
 - `build_android`: Build Android APK and AAB (signed if secrets are configured, debug otherwise)
 - `build_linux_deb`: Build Linux DEB package
+- `build_linux_snap`: Build Linux Snap package (optional, built from DEB artifact)
+- `build_linux_flatpak`: Build Linux Flatpak bundle (optional, built from DEB artifact)
+- `build_linux_arch`: Build Linux Arch Linux package (optional, built from DEB artifact)
 - `build_macos`: Build macOS DMG
 - `build_ios`: Build iOS IPA (skipped when Apple signing secrets are absent)
 - `build_windows_exe`: Build Windows EXE installer
@@ -52,7 +55,10 @@ WASM browser tests are not currently run in CI because the common test suite use
 **Build Artifacts (attached to the GitHub Release):**
 - Android APK: `de.egril.defender-productionRelease.apk` (or debug suffix without signing)
 - Android AAB: `de.egril.defender-productionRelease.aab` (or debug suffix without signing)
-- Linux: `defender-of-egril_<version>_amd64.deb`
+- Linux DEB: `defender-of-egril_<version>_amd64.deb`
+- Linux Snap: `defender-of-egril_<version>_amd64.snap` (optional)
+- Linux Flatpak: `de.egril.defender-<version>.flatpak` (optional)
+- Linux Arch: `defender-of-egril-<version>-1-x86_64.pkg.tar.zst` (optional)
 - macOS: DMG file from `composeApp/build/compose/binaries/main/dmg/`
 - iOS: `*.ipa` (when Apple signing secrets are configured)
 - Windows: `DefenderOfEgril-<version>.exe` and `DefenderOfEgril-<version>.msi`
