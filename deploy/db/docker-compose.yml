@@ -40,5 +40,24 @@ services:
       retries: 5
     restart: unless-stopped
 
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    container_name: node-exporter
+    # Expose on the private Hetzner network interface only so Prometheus on the
+    # backend server can scrape it without opening it to the public internet.
+    ports:
+      - "10.0.0.2:9100:9100"
+    pid: host
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    restart: unless-stopped
+
 volumes:
   postgres_data:

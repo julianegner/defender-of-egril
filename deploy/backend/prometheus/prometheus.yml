@@ -1,0 +1,26 @@
+# Prometheus configuration for the Defender of Egril backend server.
+#
+# Scrapes node_exporter on all three Hetzner servers via the private network:
+#   DB server       – 10.0.0.2:9100
+#   Keycloak server – 10.0.0.3:9100
+#   Backend server  – node-exporter:9100 (Docker service on same host)
+#
+# node_exporter must be running on all three servers (see each server's
+# docker-compose.yml in deploy/db/, deploy/keycloak/, and deploy/backend/).
+
+global:
+  scrape_interval: 30s
+  evaluation_interval: 30s
+
+scrape_configs:
+  - job_name: node
+    static_configs:
+      - targets: ["10.0.0.2:9100"]
+        labels:
+          instance: "db-server"
+      - targets: ["10.0.0.3:9100"]
+        labels:
+          instance: "keycloak-server"
+      - targets: ["node-exporter:9100"]
+        labels:
+          instance: "backend-server"

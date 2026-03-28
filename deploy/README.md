@@ -38,6 +38,7 @@ Add the following secrets to the repository
 | `PROD_SSH_KEY_PASSPHRASE` | Passphrase that protects `PROD_SSH_PRIVATE_KEY`. If you generated the key without a passphrase (using `-N ""`), create the secret with an empty value — the workflows treat an empty or undefined `PROD_SSH_KEY_PASSPHRASE` as "no passphrase". |
 | `PROD_DB_PASSWORD` | Password for the `defender` PostgreSQL user. Used by all three services. |
 | `PROD_KEYCLOAK_ADMIN_PASSWORD` | Password for the Keycloak `admin` account. |
+| `GRAFANA_ADMIN_PASSWORD` | Password for the Grafana `admin` account on the backend server. Choose a strong password — this is the only way to access the Grafana dashboard. |
 
 All server IPs and inter-service URLs are hardcoded in the workflows and are
 not required as secrets.
@@ -157,6 +158,59 @@ certbot certonly --standalone -d defender-backend.egril.de
   the host and mounted read-only into the nginx container.
 - The backend Docker image is published to the GitHub Container Registry
   (`ghcr.io`).  The image visibility follows the repository visibility.
+- Grafana is not exposed directly; nginx proxies `/grafana/` to the Grafana
+  container on the internal Docker network.  The Grafana admin password is set
+  via the `GRAFANA_ADMIN_PASSWORD` repository secret.  Public sign-up is
+  disabled.
+- node_exporter (port 9100) on the DB and Keycloak servers is bound to the
+  respective private IP (`10.0.0.2:9100` and `10.0.0.3:9100`) so it is only
+  reachable from within the Hetzner private network.  Ensure the Hetzner
+  firewall allows port 9100 only from `10.0.0.0/24`.
+
+## Grafana Dashboard
+
+### Access
+
+After deploying the backend, the Grafana dashboard is available at:
+
+```
+https://defender-backend.egril.de/grafana
+```
+
+Log in with:
+- **Username:** `admin`
+- **Password:** the value of the `GRAFANA_ADMIN_PASSWORD` repository secret
+
+### What is monitored
+
+The pre-provisioned **Defender of Egril – Overview** dashboard shows:
+
+| Panel | Description |
+|-------|-------------|
+| Total Events | All-time count of events recorded in the `events` table |
+| Events Today | Events recorded since midnight (UTC) |
+| Levels Started Today | `LEVEL_STARTED` events since midnight (UTC) |
+| Keycloak Users | Number of user accounts in Keycloak |
+| Events by Type | Bar chart of event counts grouped by `event_type` (all time) |
+| Events per Day | Time series of daily event volume for the past 90 days |
+| Recent Events | Table of the 100 most recent events with all fields |
+| CPU / Memory / Disk | Gauge panels for all three Hetzner servers with colour thresholds: green (0–70 %), yellow (70–85 %), red (85–100 %) |
+
+Event types recorded by the frontend: `APP_STARTED`, `LEVEL_STARTED`,
+`LEVEL_WON`, `LEVEL_LOST`, `GAME_LEFT`.
+
+### Architecture
+
+```
+nginx (TLS termination)
+  └── /grafana/  →  Grafana container (port 3000)
+                       ├── datasource: PostgreSQL (defenderofegril DB on 10.0.0.2)
+                       ├── datasource: PostgreSQL (keycloak DB on 10.0.0.2)
+                       └── datasource: Prometheus (http://prometheus:9090)
+                                          ├── scrapes node-exporter on backend server (node-exporter:9100)
+                                          ├── scrapes node-exporter on DB server (10.0.0.2:9100)
+                                          └── scrapes node-exporter on Keycloak server (10.0.0.3:9100)
+```
 
 ## Troubleshooting
 

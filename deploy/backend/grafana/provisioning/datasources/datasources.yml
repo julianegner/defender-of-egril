@@ -1,0 +1,53 @@
+# Grafana datasource provisioning for Defender of Egril.
+#
+# Three datasources are configured automatically on first start:
+#   1. PostgreSQL (App)      – application database (events, savefiles, …)
+#   2. PostgreSQL (Keycloak) – Keycloak database (user_entity, …)
+#   3. Prometheus            – node_exporter metrics for all three Hetzner servers
+#
+# The DB_PASSWORD environment variable must be set in the container (it is
+# written to the .env file by the deploy-backend GitHub Actions workflow).
+
+apiVersion: 1
+
+datasources:
+  - name: PostgreSQL (App)
+    type: postgres
+    uid: postgres-app
+    url: 10.0.0.2:5432
+    user: defender
+    secureJsonData:
+      password: ${DB_PASSWORD}
+    jsonData:
+      database: defenderofegril
+      sslmode: disable
+      maxOpenConns: 5
+      maxIdleConns: 2
+      connMaxLifetime: 14400
+      postgresVersion: 1600
+      timescaledb: false
+    editable: false
+
+  - name: PostgreSQL (Keycloak)
+    type: postgres
+    uid: postgres-keycloak
+    url: 10.0.0.2:5432
+    user: defender
+    secureJsonData:
+      password: ${DB_PASSWORD}
+    jsonData:
+      database: keycloak
+      sslmode: disable
+      maxOpenConns: 5
+      maxIdleConns: 2
+      connMaxLifetime: 14400
+      postgresVersion: 1600
+      timescaledb: false
+    editable: false
+
+  - name: Prometheus (Hetzner)
+    type: prometheus
+    uid: prometheus-hetzner
+    url: http://prometheus:9090
+    access: proxy
+    editable: false
