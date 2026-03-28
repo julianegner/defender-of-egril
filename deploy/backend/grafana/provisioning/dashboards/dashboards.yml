@@ -1,0 +1,14 @@
+# Grafana dashboard provisioning.
+# Loads all JSON dashboard files from this directory automatically.
+
+apiVersion: 1
+
+providers:
+  - name: Default
+    orgId: 1
+    folder: ""
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 60
+    options:
+      path: /etc/grafana/provisioning/dashboards

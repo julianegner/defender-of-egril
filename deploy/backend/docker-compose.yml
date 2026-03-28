@@ -8,21 +8,29 @@
 # on the internal Docker network.  The SSL certificate must be obtained
 # with certbot before the first deploy (see deploy/backend/nginx.conf).
 #
+# Grafana is accessible at https://defender-backend.egril.de/grafana
+# nginx proxies /grafana/ to the Grafana container on the internal network.
+#
+# Prometheus scrapes node_exporter on all three Hetzner servers via the
+# private network (10.0.0.2:9100, 10.0.0.3:9100) and on this host
+# (node-exporter container via Docker service name).
+#
 # The Docker image is built by GitHub Actions and pushed to the GitHub
 # Container Registry (ghcr.io).  The workflow updates the image tag in .env
 # before running 'docker compose pull && docker compose up -d'.
 #
 # Required environment variables (set in .env on the server or passed inline):
-#   IMAGE_TAG        – Docker image tag to deploy (e.g. sha-abc1234 or latest)
-#   DB_PASSWORD      – password for the 'defender' PostgreSQL user
-#   IAM_BASE_URL     – base URL of the Keycloak server as seen by the backend
-#                      (e.g. http://<keycloak-private-ip>:8080 or public URL)
+#   IMAGE_TAG              – Docker image tag to deploy (e.g. sha-abc1234 or latest)
+#   DB_PASSWORD            – password for the 'defender' PostgreSQL user
+#   IAM_BASE_URL           – base URL of the Keycloak server as seen by the backend
+#                            (e.g. http://<keycloak-private-ip>:8080 or public URL)
+#   GRAFANA_ADMIN_PASSWORD – password for the Grafana 'admin' account
 #
 # First-time setup on the server:
 #   mkdir -p /opt/defender-of-egril/backend
 #   apt-get install -y certbot
 #   certbot certonly --standalone -d defender-backend.egril.de
-#   # (workflow writes .env with correct IMAGE_TAG, DB_PASSWORD, IAM_BASE_URL)
+#   # (workflow writes .env with correct IMAGE_TAG, DB_PASSWORD, IAM_BASE_URL, GRAFANA_ADMIN_PASSWORD)
 #   docker compose pull
 #   docker compose up -d
 
@@ -40,6 +48,8 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       backend:
+        condition: service_healthy
+      grafana:
         condition: service_healthy
     restart: unless-stopped
 
@@ -63,3 +73,66 @@ services:
       retries: 5
       start_period: 30s
     restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.4.0
+    container_name: defender-of-egril-grafana
+    # Grafana is not exposed on the host; nginx proxies to it on the internal network.
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      # Serve Grafana under /grafana so nginx can proxy it at a sub-path.
+      GF_SERVER_ROOT_URL: https://defender-backend.egril.de/grafana
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+      # Disable public sign-up.
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      # Expose DB_PASSWORD to the datasource provisioning file.
+      DB_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      # Provisioning directory is uploaded by the deploy-backend workflow.
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health | grep -q 'ok'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v3.2.0
+    container_name: defender-of-egril-prometheus
+    # Prometheus is not exposed on the host.
+    volumes:
+      # prometheus.yml is uploaded by the deploy-backend workflow.
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      # Keep 30 days of metrics history.
+      - "--storage.tsdb.retention.time=30d"
+    restart: unless-stopped
+
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    container_name: defender-of-egril-node-exporter
+    # Access the host's process, sys, and root filesystems for accurate metrics.
+    pid: host
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    restart: unless-stopped
+
+volumes:
+  grafana_data:
+  prometheus_data:

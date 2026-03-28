@@ -87,6 +87,28 @@ jobs:
           target: /opt/defender-of-egril/backend
           strip_components: 2
 
+      - name: "📂 Upload Grafana provisioning config"
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: 178.104.84.83
+          username: root
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
+          source: "deploy/backend/grafana/"
+          target: /opt/defender-of-egril/backend
+          strip_components: 2
+
+      - name: "📂 Upload Prometheus config"
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: 178.104.84.83
+          username: root
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
+          source: "deploy/backend/prometheus/"
+          target: /opt/defender-of-egril/backend
+          strip_components: 2
+
       - name: "🚀 Pull new image and restart backend"
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -104,6 +126,7 @@ jobs:
             IMAGE_TAG=${{ needs.build-and-push.outputs.image_tag }}
             DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
             IAM_BASE_URL=https://sso.julianegner.de
+            GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}
             EOF
 
             # Ensure Docker Compose V2 plugin is available (docker.io on Ubuntu
@@ -119,7 +142,7 @@ jobs:
 
             # Recreate backend and nginx so the updated image and nginx config
             # take effect.  || true ignores "no such container" on first deploy.
-            docker compose down backend nginx || true
+            docker compose down backend nginx grafana prometheus || true
             docker compose pull backend
             docker compose up -d
             echo "✅ Backend deployed (image tag: ${{ needs.build-and-push.outputs.image_tag }})"
