@@ -14,30 +14,30 @@ compression: lzo
 
 # The DEB produced by Compose Desktop already bundles a JRE and native
 # libraries, so we simply extract it into the snap root.
- parts:
-   app:
-     plugin: dump
-     source: deb
-     source-type: local
-+    build-packages:
-+      - zstd
-     override-build: |
-       DEB=$(ls "$CRAFT_PART_SRC"/*.deb 2>/dev/null | head -1)
-       if [ -z "$DEB" ]; then
-         echo "No .deb file found in source directory ($CRAFT_PART_SRC)"
-         exit 1
-       fi
-       echo "Extracting DEB: $DEB"
-       TMP=$(mktemp -d)
-       DEBABS=$(realpath "$DEB")
-       (cd "$TMP" && ar x "$DEBABS")
-       for f in "$TMP"/data.tar.*; do
-         tar xaf "$f" -C "$CRAFT_PART_INSTALL"
-       done
-       rm -rf "$TMP"
-     stage-packages:
-       - libfreetype6
-       - libfontconfig1
+parts:
+  app:
+    plugin: dump
+    source: deb
+    source-type: local
+    build-packages:
+      - zstd
+    override-build: |
+      DEB=$(ls "$CRAFT_PART_SRC"/*.deb 2>/dev/null | head -1)
+      if [ -z "$DEB" ]; then
+        echo "No .deb file found in source directory ($CRAFT_PART_SRC)"
+        exit 1
+      fi
+      echo "Extracting DEB: $DEB"
+      TMP=$(mktemp -d)
+      DEBABS=$(realpath "$DEB")
+      (cd "$TMP" && ar x "$DEBABS")
+      for f in "$TMP"/data.tar.*; do
+        tar xaf "$f" -C "$CRAFT_PART_INSTALL"
+      done
+      rm -rf "$TMP"
+    stage-packages:
+      - libfreetype6
+      - libfontconfig1
 
 apps:
   defender-of-egril:
