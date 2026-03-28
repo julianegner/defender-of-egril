@@ -36,7 +36,15 @@ parts:
       done
       echo "Installed files:"
       find "$CRAFT_PART_INSTALL" -maxdepth 4 -type f | sed "s|$CRAFT_PART_INSTALL/||" | sort | head -200
-      
+
+      # Create usr/bin wrapper pointing to the actual launcher from the DEB payload.
+      mkdir -p "$CRAFT_PART_INSTALL/usr/bin"
+      cat > "$CRAFT_PART_INSTALL/usr/bin/defender-of-egril" <<'WRAPPER'
+#!/bin/sh
+exec "$SNAP/opt/defender-of-egril/bin/DefenderOfEgril" "$@"
+WRAPPER
+      chmod +x "$CRAFT_PART_INSTALL/usr/bin/defender-of-egril"
+
       rm -rf "$TMP"
     stage-packages:
       - libfreetype6
