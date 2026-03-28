@@ -27,7 +27,23 @@ parts:
         echo "No .deb file found in source directory ($CRAFT_PART_SRC)"
         exit 1
       fi
-      dpkg-deb --extract "$DEB" "$CRAFT_PART_INSTALL"
+      echo "Extracting DEB: $DEB"
+      TMP=$(mktemp -d)
+      DEBABS=$(realpath "$DEB")
+      (cd "$TMP" && ar x "$DEBABS")
+      for f in "$TMP"/data.tar.*; do
+        tar xaf "$f" -C "$CRAFT_PART_INSTALL"
+      done
+      rm -rf "$TMP"
+      # Show installed files for debugging and verify the expected binary is present
+      echo "Installed files (top-level preview):"
+      find "$CRAFT_PART_INSTALL" -maxdepth 5 -type f | head -30
+      EXPECTED_BINARY="$CRAFT_PART_INSTALL/opt/defender-of-egril/bin/defender-of-egril"
+      if [ ! -f "$EXPECTED_BINARY" ]; then
+        echo "ERROR: Expected binary not found at $EXPECTED_BINARY"
+        exit 1
+      fi
+      echo "Binary verified: $EXPECTED_BINARY"
     stage-packages:
       - libfreetype6
       - libfontconfig1
