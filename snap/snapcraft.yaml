@@ -41,7 +41,8 @@ parts:
 
 apps:
   defender-of-egril:
-    command: opt/defender-of-egril/bin/defender-of-egril
+    command: usr/bin/defender-of-egril
+    
     environment:
       HOME: $SNAP_USER_DATA
       JAVA_HOME: $SNAP/opt/defender-of-egril/lib/runtime
