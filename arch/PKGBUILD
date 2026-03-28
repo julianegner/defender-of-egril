@@ -1,0 +1,34 @@
+# Maintainer: Defender of Egril Team
+pkgname=defender-of-egril
+pkgver=PKGVER
+pkgrel=1
+pkgdesc="Turn-based Tower Defense game built with Kotlin Multiplatform"
+arch=('x86_64')
+url="https://github.com/qvest-digital/defender-of-egril-fork"
+license=('AGPL-3.0-only')
+depends=()
+# The DEB bundles a full JRE and all native libraries, so no Java dependency is needed.
+# The local DEB file is placed next to this PKGBUILD by the CI workflow before running makepkg.
+source=("${pkgname}_${pkgver}_amd64.deb"
+        "LICENSE")
+sha256sums=('SKIP'
+            'SKIP')
+
+package() {
+  # Extract the DEB package contents using ar and tar.
+  # dpkg-deb is not required – ar and tar are standard POSIX tools.
+  local tmp
+  tmp=$(mktemp -d)
+  (cd "$tmp" && ar x "${srcdir}/${pkgname}_${pkgver}_amd64.deb")
+  for f in "$tmp"/data.tar.*; do
+    tar xaf "$f" -C "${pkgdir}"
+  done
+  rm -rf "$tmp"
+
+  # Install the license file as required by Arch packaging guidelines.
+  install -Dm644 "${srcdir}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+
+  # Create a convenience symlink in /usr/bin so the app is on PATH.
+  install -dm755 "${pkgdir}/usr/bin"
+  ln -s "/opt/${pkgname}/bin/${pkgname}" "${pkgdir}/usr/bin/${pkgname}"
+}
