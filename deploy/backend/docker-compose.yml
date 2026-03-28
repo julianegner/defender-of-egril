@@ -82,7 +82,7 @@ services:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
       # Serve Grafana under /grafana so nginx can proxy it at a sub-path.
-      GF_SERVER_ROOT_URL: https://defender-backend.egril.de/grafana
+      GF_SERVER_ROOT_URL: https://defender-backend.egril.de/grafana/
       GF_SERVER_SERVE_FROM_SUB_PATH: "true"
       # Disable public sign-up.
       GF_USERS_ALLOW_SIGN_UP: "false"
@@ -95,7 +95,7 @@ services:
     depends_on:
       - prometheus
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/health | grep -q 'ok'"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/grafana/api/health | grep -q 'ok'"]
       interval: 30s
       timeout: 10s
       retries: 5
