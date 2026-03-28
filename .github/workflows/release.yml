@@ -10,6 +10,7 @@
 #        - Linux DEB package
 #        - Linux Snap package (built from DEB artifact)
 #        - Linux Flatpak bundle (built from DEB artifact)
+#        - Linux Arch Linux package (built from DEB artifact)
 #        - macOS DMG  (optional – skipped on failure or when MAJOR=0 version is used)
 #        - Windows EXE installer
 #        - Windows MSI installer
@@ -29,7 +30,7 @@
 #   - macOS DMG is optional: the release proceeds even when the DMG build fails.
 #     macOS DMG requires MAJOR >= 1; versions like "0.8.0" will have their macOS
 #     package version adjusted automatically in build.gradle.kts.
-#   - Linux Snap and Flatpak builds are optional and do not block the release.
+#   - Linux Snap, Flatpak and Arch Linux builds are optional and do not block the release.
 
 name: Release
 
@@ -319,6 +320,60 @@ jobs:
           if-no-files-found: warn
 
   # ---------------------------------------------------------------------------
+  # Linux Arch Linux package (built from the DEB artifact)
+  # Optional: failure does not block the release.
+  # ---------------------------------------------------------------------------
+  build_linux_arch:
+    name: Build Linux Arch Package
+    needs:
+      - prepare
+      - build_linux_deb
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    env:
+      APP_VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - name: Install system dependencies
+        run: pacman -Sy --noconfirm git base-devel binutils
+
+      - uses: actions/checkout@v4
+
+      - name: Download DEB artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-deb-build
+          path: arch-deb
+
+      - name: Prepare PKGBUILD workspace
+        run: |
+          mkdir -p /tmp/pkg
+          cp arch/PKGBUILD /tmp/pkg/PKGBUILD
+          cp arch-deb/*.deb "/tmp/pkg/defender-of-egril_${APP_VERSION}_amd64.deb"
+          # LICENSE is a source listed in the PKGBUILD; place it alongside the DEB.
+          cp LICENSE /tmp/pkg/LICENSE
+          sed -i "s/pkgver=PKGVER/pkgver=${APP_VERSION}/" /tmp/pkg/PKGBUILD
+          useradd -m builder
+          chown -R builder:builder /tmp/pkg
+
+      - name: Build Arch package
+        # --nodeps skips dependency checking because all runtime dependencies
+        # (JRE, native libraries) are already bundled inside the DEB package.
+        run: su builder -c "cd /tmp/pkg && makepkg -sf --nodeps"
+
+      - name: Collect package
+        run: |
+          mkdir -p arch-pkg
+          cp /tmp/pkg/*.pkg.tar.zst arch-pkg/
+
+      - name: Upload Arch Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-arch-build
+          path: arch-pkg/*.pkg.tar.zst
+          if-no-files-found: warn
+
+  # ---------------------------------------------------------------------------
   # iOS XCFramework
   # Requires Apple Developer secrets:
   #   APPLE_CERTIFICATE            – Base64-encoded P12 signing certificate
@@ -549,6 +604,7 @@ jobs:
       - build_linux_deb
       - build_linux_snap
       - build_linux_flatpak
+      - build_linux_arch
       - build_macos
       - build_ios
       - build_windows_exe
@@ -557,7 +613,7 @@ jobs:
     runs-on: ubuntu-latest
     # Always evaluate this job so the condition below can gate it properly.
     # Mandatory builds (Android, Linux DEB, Windows EXE, Windows MSI) must succeed.
-    # Optional builds (macOS DMG, iOS, Linux Snap, Linux Flatpak) may fail or be skipped
+    # Optional builds (macOS DMG, iOS, Linux Snap, Linux Flatpak, Linux Arch) may fail or be skipped
     # without blocking the release.
     if: |
       always() &&
@@ -595,6 +651,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: linux-flatpak-build
+          path: release-assets/linux
+        continue-on-error: true
+
+      - name: Download Linux Arch artifact
+        if: needs.build_linux_arch.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-arch-build
           path: release-assets/linux
         continue-on-error: true
 
@@ -685,7 +749,7 @@ jobs:
           done
 
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "_Optional builds (macOS DMG, Linux Snap, Linux Flatpak, iOS) are shown only when they succeeded._" >> "$GITHUB_STEP_SUMMARY"
+          echo "_Optional builds (macOS DMG, Linux Snap, Linux Flatpak, Linux Arch, iOS) are shown only when they succeeded._" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Checkout repository
         uses: actions/checkout@v4
