@@ -1637,6 +1637,7 @@
     <string name="tooltip_return_to_worldmap">Zur Weltkarte zurückkehren</string>
 
     <!-- Download Installables tab (WASM + Impressum only) -->
+    <string name="download_button">Herunterladen</string>
     <string name="info_tab_download">Downloads</string>
     <string name="download_info_title">Defender of Egril herunterladen</string>
     <string name="download_info_intro">Lade die neueste Version von GitHub herunter. Wähle das Paket für deine Plattform.</string>
@@ -1647,4 +1648,9 @@
     <string name="download_info_platform_note">Die Android-APK kann direkt heruntergeladen werden. Für Windows, Linux und macOS besuche die GitHub-Releases-Seite, um den neuesten Installer zu finden.</string>
     <string name="download_info_loading">Download-Links werden geladen…</string>
     <string name="download_info_error">Download-Links konnten nicht von GitHub geladen werden. Besuche die Releases-Seite, um alle Downloads zu finden.</string>
+    <string name="new_version_available_title">Neue Version verfügbar</string>
+    <string name="new_version_available_message">Version %1$s ist zum Download verfügbar.</string>
+    <string name="new_version_go_to_releases">Zum Download</string>
+    <string name="check_for_updates">Nach Updates suchen</string>
+    <string name="check_for_updates_description">Sucht beim Start nach einer neueren Version für dieselbe Plattform (nicht für Web, nicht für Android bei Installation aus dem Play Store).</string>
 </resources>

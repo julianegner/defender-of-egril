@@ -23,6 +23,8 @@ import de.egril.defender.config.LogConfig
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.editor.EditorJsonSerializer
+import de.egril.defender.ui.infopage.NewVersionInfo
+import de.egril.defender.ui.infopage.checkForNewerVersion
 
 sealed class Screen {
     object MainMenu : Screen()
@@ -169,8 +171,11 @@ class GameViewModel {
     val demoSelectedDefenderId: StateFlow<Int?> = _demoSelectedDefenderId.asStateFlow()
     private val _demoSelectedTargetPosition = MutableStateFlow<Position?>(null)
     val demoSelectedTargetPosition: StateFlow<Position?> = _demoSelectedTargetPosition.asStateFlow()
-    
-    
+
+    // New version availability check
+    private val _newVersionAvailable = MutableStateFlow<NewVersionInfo?>(null)
+    val newVersionAvailable: StateFlow<NewVersionInfo?> = _newVersionAvailable.asStateFlow()
+
     init {
         // Ensure EditorStorage is initialized with repository data
         de.egril.defender.editor.EditorStorage.ensureInitialized()
@@ -467,6 +472,10 @@ class GameViewModel {
 
     fun navigateToBackendInfo() {
         _currentScreen.value = Screen.InstallationInfoAtTab(de.egril.defender.ui.infopage.InfoTab.BACKEND)
+    }
+
+    fun navigateToDownloadInfo() {
+        _currentScreen.value = Screen.InstallationInfoAtTab(de.egril.defender.ui.infopage.InfoTab.DOWNLOAD)
     }
     
     fun navigateToLevelEditor() {
@@ -2324,10 +2333,28 @@ class GameViewModel {
     fun clearAchievementNotification() {
         _newAchievement.value = null
     }
-    
+
     /**
-     * Start tracking time for reminders when a game is started
+     * Checks GitHub releases in the background for a version newer than the running build.
+     * Updates [newVersionAvailable] when a newer version is found.
+     * Should be called once at app start-up; safe to call multiple times (only the first
+     * non-null result is stored).
      */
+    fun checkForUpdates() {
+        viewModelScope.launch {
+            val info = checkForNewerVersion()
+            if (info != null) {
+                _newVersionAvailable.value = info
+            }
+        }
+    }
+
+    /** Dismisses the new-version notification banner/dialog. */
+    fun dismissNewVersionNotification() {
+        _newVersionAvailable.value = null
+    }
+
+
     fun startTimeTracking() {
         val currentTime = de.egril.defender.utils.currentTimeMillis()
         gameSessionStartTime = currentTime
