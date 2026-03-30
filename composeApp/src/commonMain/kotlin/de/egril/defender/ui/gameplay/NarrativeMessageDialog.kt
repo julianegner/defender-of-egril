@@ -16,6 +16,7 @@ import androidx.compose.ui.window.Dialog
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
+import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 
@@ -47,10 +48,24 @@ fun NarrativeMessageDialog(
     onDismiss: () -> Unit
 ) {
     Dialog(onDismissRequest = onDismiss) {
+        val isMobile = isPlatformMobile
+        val dialogWidth = if (isMobile) 340.dp else 1000.dp
+        val dialogHeight = if (isMobile) 480.dp else 800.dp
+        val horizontalPadding = if (isMobile) 48.dp else 120.dp
+        val verticalPadding = if (isMobile) 70.dp else 100.dp
+        val contentWidth = if (isMobile) 220.dp else 200.dp
+        val titleFontSize = when {
+            isMobile && type == NarrativeMessageType.EWHAD -> 16.sp
+            isMobile -> 15.sp
+            type == NarrativeMessageType.EWHAD -> 22.sp
+            else -> 20.sp
+        }
+        val bodyFontSize = if (isMobile) 12.sp else MaterialTheme.typography.bodyMedium.fontSize
+        val iconSize = if (isMobile) 56.dp else 80.dp
         Box(
             modifier = Modifier
-                .width(1000.dp)
-                .height(800.dp),
+                .width(dialogWidth)
+                .height(dialogHeight),
             contentAlignment = Alignment.Center
         ) {
             // Background image
@@ -69,10 +84,10 @@ fun NarrativeMessageDialog(
             Column(
                 modifier = Modifier
                     .padding(
-                        horizontal = 120.dp,
-                        vertical = 100.dp
+                        horizontal = horizontalPadding,
+                        vertical = verticalPadding
                     )
-                    .width(200.dp)
+                    .width(contentWidth)
                 ,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -80,7 +95,7 @@ fun NarrativeMessageDialog(
                 // For Ewhad type: show Ewhad icon at top center
                 if (type == NarrativeMessageType.EWHAD) {
                     Box(
-                        modifier = Modifier.size(80.dp),
+                        modifier = Modifier.size(iconSize),
                         contentAlignment = Alignment.Center
                     ) {
                         EnemyTypeIcon(
@@ -97,7 +112,7 @@ fun NarrativeMessageDialog(
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF1A1A1A),
                     textAlign = TextAlign.Center,
-                    fontSize = if (type == NarrativeMessageType.EWHAD) 22.sp else 20.sp
+                    fontSize = titleFontSize
                 )
 
                 // Body text
@@ -105,7 +120,8 @@ fun NarrativeMessageDialog(
                     text = text,
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color(0xFF333333),
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    fontSize = bodyFontSize
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
