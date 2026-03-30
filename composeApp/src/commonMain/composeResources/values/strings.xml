@@ -1644,6 +1644,7 @@
     <string name="tooltip_return_to_worldmap">Return to the worldmap</string>
 
     <!-- Download Installables tab (WASM + Impressum only) -->
+    <string name="download_button">Download</string>
     <string name="info_tab_download">Downloads</string>
     <string name="download_info_title">Download Defender of Egril</string>
     <string name="download_info_intro">Get the latest release from GitHub. Select the package for your platform.</string>

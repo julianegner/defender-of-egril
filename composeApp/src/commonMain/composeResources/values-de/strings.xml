@@ -1637,6 +1637,7 @@
     <string name="tooltip_return_to_worldmap">Zur Weltkarte zurückkehren</string>
 
     <!-- Download Installables tab (WASM + Impressum only) -->
+    <string name="download_button">Herunterladen</string>
     <string name="info_tab_download">Downloads</string>
     <string name="download_info_title">Defender of Egril herunterladen</string>
     <string name="download_info_intro">Lade die neueste Version von GitHub herunter. Wähle das Paket für deine Plattform.</string>

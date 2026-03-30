@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.AppBuildInfo
+import de.egril.defender.WithImpressum
 import de.egril.defender.iam.IamState
 import de.egril.defender.ui.infopage.ImpressumWrapper
 import de.egril.defender.ui.icon.LockIcon
@@ -49,6 +50,7 @@ fun MainMenuScreen(
     hasAutosave: Boolean,
     onShowRules: () -> Unit,
     onShowInstallationInfo: () -> Unit,
+    onShowDownloadInfo: () -> Unit = {},
     onShowBackendInfo: () -> Unit = {},
     onEditPlayerName: () -> Unit,
     currentPlayerName: String?,
@@ -325,6 +327,21 @@ fun MainMenuScreen(
                         modifier = Modifier.width(200.dp).height(60.dp)
                     ) {
                         Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
+                    }
+                    
+                    // Download button (only for WASM with impressum)
+                    if (isPlatformWasm && WithImpressum.withImpressum) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        Button(
+                            onClick = onShowDownloadInfo,
+                            modifier = Modifier.width(200.dp).height(60.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.tertiary
+                            )
+                        ) {
+                            Text(stringResource(Res.string.download_button), style = MaterialTheme.typography.titleMedium)
+                        }
                     }
                 }
                 

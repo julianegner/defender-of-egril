@@ -289,6 +289,7 @@ fun App() {
                     hasAutosave = viewModel.hasAutosave(),
                     onShowRules = { viewModel.navigateToRules() },
                     onShowInstallationInfo = { viewModel.navigateToInstallationInfo() },
+                    onShowDownloadInfo = { viewModel.navigateToDownloadInfo() },
                     onShowBackendInfo = { viewModel.navigateToBackendInfo() },
                     onEditPlayerName = { viewModel.navigateToPlayerProfile() },
                     currentPlayerName = currentPlayer?.name,

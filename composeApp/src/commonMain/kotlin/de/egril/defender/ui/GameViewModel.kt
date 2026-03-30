@@ -473,6 +473,10 @@ class GameViewModel {
     fun navigateToBackendInfo() {
         _currentScreen.value = Screen.InstallationInfoAtTab(de.egril.defender.ui.infopage.InfoTab.BACKEND)
     }
+
+    fun navigateToDownloadInfo() {
+        _currentScreen.value = Screen.InstallationInfoAtTab(de.egril.defender.ui.infopage.InfoTab.DOWNLOAD)
+    }
     
     fun navigateToLevelEditor() {
         _currentScreen.value = Screen.LevelEditor
