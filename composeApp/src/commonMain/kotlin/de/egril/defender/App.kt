@@ -95,6 +95,15 @@ fun App() {
         val demoHoveredPosition by viewModel.demoHoveredPosition.collectAsState()
         val demoSelectedDefenderId by viewModel.demoSelectedDefenderId.collectAsState()
         val demoSelectedTargetPosition by viewModel.demoSelectedTargetPosition.collectAsState()
+        val newVersionAvailable by viewModel.newVersionAvailable.collectAsState()
+
+        // Check for a newer GitHub release once at app start (if the setting is enabled)
+        val checkForUpdates by AppSettings.checkForUpdates
+        LaunchedEffect(Unit) {
+            if (checkForUpdates) {
+                viewModel.checkForUpdates()
+            }
+        }
 
         // Observe IAM state for login/logout UI updates
         val iamState by de.egril.defender.iam.IamService.state
@@ -263,7 +272,15 @@ fun App() {
             achievement = newAchievement,
             onDismiss = { viewModel.clearAchievementNotification() }
         )
-        
+
+        // New version available dialog (shown once at start-up)
+        newVersionAvailable?.let { info ->
+            NewVersionDialog(
+                info = info,
+                onDismiss = { viewModel.dismissNewVersionNotification() }
+            )
+        }
+
         when (val screen = currentScreen) {
             is Screen.MainMenu -> {
                 MainMenuScreen(

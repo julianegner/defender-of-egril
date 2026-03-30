@@ -1654,4 +1654,9 @@
     <string name="download_info_platform_note">The Android APK can be downloaded directly. For Windows, Linux, and macOS, visit the GitHub releases page to find the latest installer.</string>
     <string name="download_info_loading">Loading download links…</string>
     <string name="download_info_error">Could not load download links from GitHub. Visit the releases page to find all downloads.</string>
+    <string name="new_version_available_title">New Version Available</string>
+    <string name="new_version_available_message">Version %1$s is available for download.</string>
+    <string name="new_version_go_to_releases">Go to Download</string>
+    <string name="check_for_updates">Check for updates</string>
+    <string name="check_for_updates_description">Checks for a newer version on the same platform on startup (not for web, not for Android if installed from the Play Store).</string>
 </resources>

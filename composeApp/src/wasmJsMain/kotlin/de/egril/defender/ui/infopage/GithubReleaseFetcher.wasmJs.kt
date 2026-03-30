@@ -66,3 +66,5 @@ actual suspend fun fetchLatestReleaseAssets(): List<GithubReleaseAsset>? =
             continuation.resume(null)
         }
     }
+
+actual suspend fun fetchGithubReleases(): List<GithubRelease>? = null

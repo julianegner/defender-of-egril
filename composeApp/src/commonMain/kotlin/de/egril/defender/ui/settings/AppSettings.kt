@@ -66,6 +66,7 @@ object AppSettings {
     private const val KEY_USE_LEVEL_MAP_IMAGE = "use_level_map_image"
     private const val KEY_SHOW_DEBUG_OPTIONS = "show_debug_options"
     private const val KEY_ENABLE_ANIMATIONS = "enable_animations"
+    private const val KEY_CHECK_FOR_UPDATES = "check_for_updates"
     
     private val settings: Settings = Settings()
 
@@ -216,6 +217,15 @@ object AppSettings {
      */
     val enableAnimations: MutableState<Boolean> = mutableStateOf(
         settings.getBoolean(KEY_ENABLE_ANIMATIONS, true)
+    )
+
+    /**
+     * Check for updates on startup - query GitHub releases API for a newer version.
+     * Skipped on WASM; also skipped on Android when installed via the Play Store.
+     * Default is true (update check ON)
+     */
+    val checkForUpdates: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_CHECK_FOR_UPDATES, true)
     )
 
     // Session-only debug states (not persisted)
@@ -498,6 +508,15 @@ object AppSettings {
     }
 
     /**
+     * Save check for updates preference
+     */
+    fun saveCheckForUpdates(enabled: Boolean) {
+        checkForUpdates.value = enabled
+        settings.putBoolean(KEY_CHECK_FOR_UPDATES, enabled)
+        onPersist?.invoke()
+    }
+
+    /**
      * Serialize all relevant (non-debug, non-hint) settings into a flat map for remote storage.
      * Keys match the internal KEY_* constants; values are String representations.
      */
@@ -523,6 +542,7 @@ object AppSettings {
         put(KEY_HEADER_TEXT_SIZE, headerTextSize.value.name)
         put(KEY_USE_LEVEL_MAP_IMAGE, useLevelMapImage.value.toString())
         put(KEY_ENABLE_ANIMATIONS, enableAnimations.value.toString())
+        put(KEY_CHECK_FOR_UPDATES, checkForUpdates.value.toString())
     }
 
     /**
@@ -561,6 +581,7 @@ object AppSettings {
             }
             map[KEY_USE_LEVEL_MAP_IMAGE]?.toBooleanStrictOrNull()?.let { saveUseLevelMapImage(it) }
             map[KEY_ENABLE_ANIMATIONS]?.toBooleanStrictOrNull()?.let { saveEnableAnimations(it) }
+            map[KEY_CHECK_FOR_UPDATES]?.toBooleanStrictOrNull()?.let { saveCheckForUpdates(it) }
         } finally {
             onPersist = savedCallback
         }
@@ -611,6 +632,9 @@ object AppSettings {
         
         // Reset animations to ON
         saveEnableAnimations(true)
+        
+        // Reset check for updates to ON
+        saveCheckForUpdates(true)
         
         // Note: Don't reset settings hint shown state when resetting settings
         // as user has already seen it once

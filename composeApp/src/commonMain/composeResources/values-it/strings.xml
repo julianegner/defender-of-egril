@@ -1650,4 +1650,9 @@
     <string name="download_info_platform_note">L\'APK Android può essere scaricata direttamente. Per Windows, Linux e macOS, visita la pagina delle versioni su GitHub per trovare l\'ultimo programma di installazione.</string>
     <string name="download_info_loading">Caricamento dei link di download…</string>
     <string name="download_info_error">Impossibile caricare i link di download da GitHub. Visita la pagina delle versioni per trovare tutti i download.</string>
+    <string name="new_version_available_title">Nuova versione disponibile</string>
+    <string name="new_version_available_message">La versione %1$s è disponibile per il download.</string>
+    <string name="new_version_go_to_releases">Vai al download</string>
+    <string name="check_for_updates">Verifica aggiornamenti</string>
+    <string name="check_for_updates_description">Verifica all\'avvio la presenza di una versione più recente per la stessa piattaforma (non per il web, né per Android se installato dal Play Store).</string>
 </resources>

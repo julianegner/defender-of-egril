@@ -202,7 +202,29 @@ fun SettingsDialog(
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
-                    
+
+                    // Check for updates switch
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    ) {
+                        GenericSwitch(
+                            state = AppSettings.checkForUpdates,
+                            checkedText = stringResource(Res.string.check_for_updates),
+                            uncheckedText = stringResource(Res.string.check_for_updates),
+                            onCheckedChange = { enabled ->
+                                AppSettings.saveCheckForUpdates(enabled)
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Text(
+                            text = stringResource(Res.string.check_for_updates_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                    }
+
                     // Level header text size slider
                     Row(
                         modifier = Modifier.fillMaxWidth(),
