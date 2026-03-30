@@ -4,13 +4,7 @@ import de.egril.defender.iam.IamService
 import java.net.HttpURLConnection
 import java.net.URL
 
-private val backendUrl: String
-    get() = System.getProperty("defender.backend.url")
-        ?: System.getenv("DEFENDER_BACKEND_URL")
-        // Fall back to the analytics backend URL for backward compatibility
-        ?: System.getProperty("analytics.backend.url")
-        ?: System.getenv("ANALYTICS_BACKEND_URL")
-        ?: "http://localhost:8080"
+private val backendUrl: String = "https://defender-backend.egril.de"
 
 /**
  * Fire-and-forget HTTP POST to the analytics backend.

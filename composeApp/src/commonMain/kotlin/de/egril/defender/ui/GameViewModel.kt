@@ -454,7 +454,7 @@ class GameViewModel {
     fun navigateToWorldMap() {
         if (_currentScreen.value is Screen.GamePlay) {
             val levelName = _gameState.value?.level?.name ?: "unknown"
-            de.egril.defender.analytics.reportEvent("GAME_LEFT", levelName)
+            de.egril.defender.analytics.reportEvent("LEVEL_LEFT", levelName)
         }
         stopTimeTracking()
         // Reload levels from disk to ensure latest changes are visible
