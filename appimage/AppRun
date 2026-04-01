@@ -1,0 +1,4 @@
+#!/bin/sh
+# Entry point for the Defender of Egril AppImage.
+# $APPDIR is set by the AppImage runtime to the root of the mounted AppDir.
+exec "$APPDIR/opt/defender-of-egril/bin/defender-of-egril" "$@"
