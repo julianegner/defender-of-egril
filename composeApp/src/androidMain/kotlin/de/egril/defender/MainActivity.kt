@@ -7,8 +7,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import de.egril.defender.audio.GlobalBackgroundMusicManager
 import de.egril.defender.audio.initializeAndroidAudio
 import de.egril.defender.audio.setAndroidContext
+import de.egril.defender.audio.setSoundEffectsAppInBackground
 import de.egril.defender.iam.AndroidIamFlowProvider
 import de.egril.defender.save.AndroidFileExportImport
 
@@ -52,5 +54,17 @@ class MainActivity : ComponentActivity() {
         setContent {
             App()
         }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        GlobalBackgroundMusicManager.pauseMusic()
+        setSoundEffectsAppInBackground(true)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setSoundEffectsAppInBackground(false)
+        GlobalBackgroundMusicManager.resumeMusic()
     }
 }
