@@ -20,13 +20,13 @@ jobs:
           distribution: 'temurin'
       - name: Download Keystore
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > composeApp/defender-of-egril-android-release.jks
+          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > frontend/composeApp/defender-of-egril-android-release.jks
 
       # Debug Keystore
       - name: Debug Keystore
         run: |
-          ls -l composeApp/defender-of-egril-android-release.jks
-          keytool -list -v -keystore composeApp/defender-of-egril-android-release.jks -storepass ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ls -l frontend/composeApp/defender-of-egril-android-release.jks
+          keytool -list -v -keystore frontend/composeApp/defender-of-egril-android-release.jks -storepass ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v3
         env:

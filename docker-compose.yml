@@ -11,7 +11,7 @@
 # IMPORTANT – always rebuild the backend after pulling new code:
 #   docker compose up -d --build backend
 #
-# IMPORTANT – after changes to keycloak/local/egril-realm.json (e.g. new users),
+# IMPORTANT – after changes to servers/keycloak/local/egril-realm.json (e.g. new users),
 # recreate the Keycloak container so the realm is re-imported:
 #   docker compose rm -sf keycloak && docker compose up -d keycloak
 #   (wait ~2 minutes for the realm to import, then restart backend)
@@ -33,7 +33,7 @@ services:
     image: node:20-alpine
     working_dir: /app
     volumes:
-      - ./keycloak/theme:/app
+      - ./servers/keycloak/theme:/app
     # Remove any host-built node_modules first so Alpine-native packages are
     # always used. Everything stays on the same bind-mount device, which lets
     # keycloakify rename the built JAR from node_modules/.cache into
@@ -51,7 +51,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./db-init:/docker-entrypoint-initdb.d:ro
+      - ./servers/db-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U defender -d defenderofegril"]
       interval: 10s
@@ -86,11 +86,11 @@ services:
     ports:
       - "8081:8080"
     volumes:
-      - ./keycloak/local/egril-realm.json:/opt/keycloak/data/import/egril-realm.json:ro
+      - ./servers/keycloak/local/egril-realm.json:/opt/keycloak/data/import/egril-realm.json:ro
       # Mount the built Keycloakify theme JAR so Keycloak picks it up automatically.
       # The JAR is built by the keycloak-theme-builder service above.
-      # The JAR is produced in keycloak/theme/dist_keycloak/
-      - ./keycloak/theme/dist_keycloak:/opt/keycloak/providers:ro
+      # The JAR is produced in servers/keycloak/theme/dist_keycloak/
+      - ./servers/keycloak/theme/dist_keycloak:/opt/keycloak/providers:ro
     command: start-dev --import-realm --health-enabled=true
     depends_on:
       keycloak-theme-builder:
@@ -114,7 +114,7 @@ services:
   backend:
     build:
       context: .
-      dockerfile: server/Dockerfile
+      dockerfile: servers/backend/Dockerfile
     container_name: defender-of-egril-backend
     ports:
       - "8080:8080"

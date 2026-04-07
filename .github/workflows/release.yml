@@ -160,8 +160,8 @@ jobs:
       - name: Collect APK and AAB
         run: |
           mkdir -p artifacts/apk artifacts/aab
-          find composeApp/build/outputs/apk -name "*.apk" -exec cp {} artifacts/apk/ \;
-          find composeApp/build/outputs/bundle -name "*.aab" -exec cp {} artifacts/aab/ \;
+          find frontend/composeApp/build/outputs/apk -name "*.apk" -exec cp {} artifacts/apk/ \;
+          find frontend/composeApp/build/outputs/bundle -name "*.aab" -exec cp {} artifacts/aab/ \;
           ls -lh artifacts/apk/ artifacts/aab/
 
       - name: Upload Android APK artifact
@@ -206,7 +206,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-deb-build
-          path: composeApp/build/compose/binaries/main/deb/defender-of-egril_*_amd64.deb
+          path: frontend/composeApp/build/compose/binaries/main/deb/defender-of-egril_*_amd64.deb
           if-no-files-found: error
 
   # ---------------------------------------------------------------------------
@@ -240,7 +240,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: macos-build
-          path: composeApp/build/compose/binaries/main/dmg/
+          path: frontend/composeApp/build/compose/binaries/main/dmg/
           if-no-files-found: error
 
   # ---------------------------------------------------------------------------
@@ -262,17 +262,17 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: linux-deb-build
-          path: snap/deb
+          path: frontend/snap/deb
 
       - name: Update snap version
         run: |
-          sed -i "s/^version:[[:space:]]*.*/version: '${APP_VERSION}'/" snap/snapcraft.yaml
+          sed -i "s/^version:[[:space:]]*.*/version: '${APP_VERSION}'/" frontend/snap/snapcraft.yaml
 
       - name: Build snap
         id: snapcraft
         uses: snapcore/action-build@v1
         with:
-          path: snap
+          path: frontend/snap
 
       - name: Upload Snap artifact
         uses: actions/upload-artifact@v4
@@ -314,7 +314,7 @@ jobs:
           APP_VERSION: ${{ env.APP_VERSION }}
         run: |
           flatpak-builder --force-clean --repo=flatpak-repo flatpak-build-dir \
-            flatpak/de.egril.defender.yml \
+            frontend/flatpak/de.egril.defender.yml \
             --state-dir=.flatpak-builder
           flatpak build-bundle flatpak-repo \
             "de.egril.defender-${APP_VERSION}.flatpak" \
@@ -356,7 +356,7 @@ jobs:
       - name: Prepare PKGBUILD workspace
         run: |
           mkdir -p /tmp/pkg
-          cp arch/PKGBUILD /tmp/pkg/PKGBUILD
+          cp frontend/arch/PKGBUILD /tmp/pkg/PKGBUILD
           cp arch-deb/*.deb "/tmp/pkg/defender-of-egril_${APP_VERSION}_amd64.deb"
           # LICENSE is a source listed in the PKGBUILD; place it alongside the DEB.
           cp LICENSE /tmp/pkg/LICENSE
@@ -409,11 +409,11 @@ jobs:
 
       - name: Set up AppDir structure
         run: |
-          install -Dm755 appimage/AppRun AppDir/AppRun
+          install -Dm755 frontend/appimage/AppRun AppDir/AppRun
           # Use a simple filename; appimagetool finds any .desktop file in the root.
           # The Icon= value inside the file (de.egril.defender) matches the icon filename below.
-          install -Dm644 flatpak/de.egril.defender.desktop AppDir/defender-of-egril.desktop
-          install -Dm644 composeApp/src/commonMain/composeResources/drawable/black-shield.png AppDir/de.egril.defender.png
+          install -Dm644 frontend/flatpak/de.egril.defender.desktop AppDir/defender-of-egril.desktop
+          install -Dm644 frontend/composeApp/src/commonMain/composeResources/drawable/black-shield.png AppDir/de.egril.defender.png
           ln -sf de.egril.defender.png AppDir/.DirIcon
 
       - name: Download appimagetool
@@ -518,7 +518,7 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           xcodebuild archive \
-            -project iosApp/iosApp.xcodeproj \
+            -project frontend/iosApp/iosApp.xcodeproj \
             -scheme iosApp \
             -configuration Release \
             -destination generic/platform=iOS \
@@ -586,7 +586,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-exe-build
-          path: composeApp\build\compose\binaries\main\exe\*.exe
+          path: frontend\composeApp\build\compose\binaries\main\exe\*.exe
           if-no-files-found: error
 
   # ---------------------------------------------------------------------------
@@ -618,7 +618,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-msi-build
-          path: composeApp\build\compose\binaries\main\msi\*.msi
+          path: frontend\composeApp\build\compose\binaries\main\msi\*.msi
           if-no-files-found: error
 
   # ---------------------------------------------------------------------------
@@ -647,14 +647,14 @@ jobs:
   #
   #    - name: Zip WASM output
   #      run: |
-  #        cd composeApp/build/dist/wasmJs
+  #        cd frontend/composeApp/build/dist/wasmJs
   #        zip -r "defender-of-egril-${APP_VERSION}-wasm.zip" productionExecutable
   #
   #    - name: Upload WASM artifact
   #      uses: actions/upload-artifact@v4
   #      with:
   #        name: wasm-build
-  #        path: composeApp/build/dist/wasmJs/defender-of-egril-*-wasm.zip
+  #        path: frontend/composeApp/build/dist/wasmJs/defender-of-egril-*-wasm.zip
   #        if-no-files-found: error
 
   # ---------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 # Deploy the backend server to ubuntu-8gb-nbg1-3.
 #
 # This workflow:
-#   1. Builds the backend Docker image using server/Dockerfile.
+#   1. Builds the backend Docker image using servers/backend/Dockerfile.
 #   2. Pushes it to the GitHub Container Registry (ghcr.io).
 #   3. SSHes into the backend server, uploads the compose file and nginx config,
 #      writes the .env file, pulls the new image, and restarts the containers.
@@ -59,7 +59,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: server/Dockerfile
+          file: servers/backend/Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
