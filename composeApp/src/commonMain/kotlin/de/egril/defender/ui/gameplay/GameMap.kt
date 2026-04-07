@@ -2016,7 +2016,7 @@ private fun BoxScope.GridCellContent(
             val dx = (arrowAttackEffect.targetPosition.x - arrowAttackEffect.sourcePosition.x).toFloat()
             val dy = (arrowAttackEffect.targetPosition.y - arrowAttackEffect.sourcePosition.y).toFloat()
             val angle = if (dx == 0f && dy == 0f) 0f
-                else (Math.toDegrees(atan2(dy.toDouble(), dx.toDouble()))).toFloat()
+                else (atan2(dy.toDouble(), dx.toDouble()) * (180.0 / kotlin.math.PI)).toFloat()
             ArrowAttackAnimation(
                 animate = AppSettings.enableAnimations.value,
                 directionAngle = angle,
