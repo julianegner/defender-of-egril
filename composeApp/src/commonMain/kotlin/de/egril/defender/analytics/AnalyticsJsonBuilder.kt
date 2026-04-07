@@ -1,19 +1,26 @@
 package de.egril.defender.analytics
 
 import de.egril.defender.AppBuildInfo
+import de.egril.defender.iam.IamService
 import de.egril.defender.utils.getPlatform
 
 /**
  * Builds the JSON payload for an analytics event.
  */
-internal fun buildEventJson(eventType: String, levelName: String?, platform: String): String = buildString {
-    val platformLong = getPlatform().name
+internal fun buildEventJson(eventType: GameEventType, levelName: String?, platform: String, turnNumber: Int? = null): String = buildString {
+    val currentPlatform = getPlatform()
+    val platformLong = currentPlatform.name
+    val platformExtended = currentPlatform.platformExtended
+    val iamState = IamService.state.value
+    val username = if (iamState.isAuthenticated) iamState.username else null
     append("{\"event\":\"")
-    append(escapeJson(eventType))
+    append(escapeJson(eventType.apiValue))
     append("\",\"platform\":\"")
     append(escapeJson(platform))
     append("\",\"platformLong\":\"")
     append(escapeJson(platformLong))
+    append("\",\"platformExtended\":\"")
+    append(escapeJson(platformExtended))
     append("\",\"versionName\":\"")
     append(escapeJson(AppBuildInfo.VERSION_NAME))
     append("\",\"commitHash\":\"")
@@ -23,6 +30,15 @@ internal fun buildEventJson(eventType: String, levelName: String?, platform: Str
         append(",\"levelName\":\"")
         append(escapeJson(levelName))
         append("\"")
+    }
+    if (username != null) {
+        append(",\"username\":\"")
+        append(escapeJson(username))
+        append("\"")
+    }
+    if (turnNumber != null) {
+        append(",\"turnNumber\":")
+        append(turnNumber)
     }
     append("}")
 }

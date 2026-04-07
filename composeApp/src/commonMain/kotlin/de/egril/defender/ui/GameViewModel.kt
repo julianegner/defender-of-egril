@@ -180,7 +180,7 @@ class GameViewModel {
         // Ensure EditorStorage is initialized with repository data
         de.egril.defender.editor.EditorStorage.ensureInitialized()
         
-        de.egril.defender.analytics.reportEvent("APP_STARTED", null)
+        de.egril.defender.analytics.reportEvent(de.egril.defender.analytics.GameEventType.APP_STARTED, null)
 
         initializePlayerProfile()
         initializeWorldMap()
@@ -454,7 +454,8 @@ class GameViewModel {
     fun navigateToWorldMap() {
         if (_currentScreen.value is Screen.GamePlay) {
             val levelName = _gameState.value?.level?.name ?: "unknown"
-            de.egril.defender.analytics.reportEvent("LEVEL_LEFT", levelName)
+            val turnNumber = _gameState.value?.turnNumber?.value
+            de.egril.defender.analytics.reportEvent(de.egril.defender.analytics.GameEventType.LEVEL_LEFT, levelName, turnNumber)
         }
         stopTimeTracking()
         // Reload levels from disk to ensure latest changes are visible
@@ -626,7 +627,7 @@ class GameViewModel {
             initialGameStateSnapshot = createGameStateSnapshot(newGameState)
             lastSaveSnapshot = initialGameStateSnapshot
 
-            de.egril.defender.analytics.reportEvent("LEVEL_STARTED", level.name)
+            de.egril.defender.analytics.reportEvent(de.egril.defender.analytics.GameEventType.LEVEL_STARTED, level.name)
             
             // Initialize achievement manager for this level
             val playerId = _currentPlayer.value?.id
@@ -1039,8 +1040,9 @@ class GameViewModel {
         val currentHP = _gameState.value?.healthPoints?.value ?: 0
         val xpEarned = _gameState.value?.xpEarnedThisLevel?.value ?: 0
         val levelName = _gameState.value?.level?.name ?: "unknown"
+        val turnNumber = _gameState.value?.turnNumber?.value
 
-        de.egril.defender.analytics.reportEvent(if (won) "LEVEL_WON" else "LEVEL_LOST", levelName)
+        de.egril.defender.analytics.reportEvent(if (won) de.egril.defender.analytics.GameEventType.LEVEL_WON else de.egril.defender.analytics.GameEventType.LEVEL_LOST, levelName, turnNumber)
 
         // Track achievement for level completion
         if (won) {

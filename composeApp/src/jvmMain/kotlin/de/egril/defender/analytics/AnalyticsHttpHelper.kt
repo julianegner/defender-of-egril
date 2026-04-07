@@ -12,8 +12,8 @@ private val backendUrl: String = "https://defender-backend.egril.de"
  * Errors are silently swallowed so analytics never disrupts gameplay.
  * If the user is authenticated via IAM, the Bearer token is attached as an optional header.
  */
-internal fun postEventJson(eventType: String, levelName: String?, platform: String) {
-    val json = buildEventJson(eventType, levelName, platform)
+internal fun postEventJson(eventType: GameEventType, levelName: String?, platform: String, turnNumber: Int? = null) {
+    val json = buildEventJson(eventType, levelName, platform, turnNumber)
     val targetUrl = "$backendUrl/api/events"
     val token = IamService.getToken()
     Thread {
