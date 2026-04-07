@@ -23,6 +23,7 @@ import de.egril.defender.ui.ReminderMessage
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.ui.editor.ConfirmationDialog
+import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -233,6 +234,18 @@ private fun GamePlayScreenContent(
     var currentDigOutcome by remember { mutableStateOf<DigOutcome?>(null) }
     var currentDragonName by remember { mutableStateOf<String?>(null) }  // Track dragon name for dig outcome
     var showDigOutcomeDialog by remember { mutableStateOf(false) }
+    // Pending dig outcome waiting for the mine-dig animation to finish (1.5 s when animations ON)
+    var pendingDigOutcome by remember { mutableStateOf<DigOutcome?>(null) }
+    var pendingDigKey by remember { mutableStateOf(0) }
+    LaunchedEffect(pendingDigKey) {
+        val outcome = pendingDigOutcome ?: return@LaunchedEffect
+        if (AppSettings.enableAnimations.value) {
+            kotlinx.coroutines.delay(1500L)
+        }
+        currentDigOutcome = outcome
+        showDigOutcomeDialog = true
+        pendingDigOutcome = null
+    }
     var showOverlay by remember { mutableStateOf(false) }  // MutableState for overlay visibility
     var showSaveDialog by remember { mutableStateOf(false) }  // Save dialog with comment
     var saveCommentInput by remember { mutableStateOf("") }  // Comment input for save
@@ -450,7 +463,6 @@ private fun GamePlayScreenContent(
             MineAction.DIG -> {
                 val outcome = onMineDig?.invoke(mineId)
                 if (outcome != null) {
-                    currentDigOutcome = outcome
                     // If a dragon was spawned, find the newly created lair and get the dragon's name
                     if (outcome == DigOutcome.DRAGON) {
                         val newLair = gameState.defenders.lastOrNull { it.type == DefenderType.DRAGONS_LAIR }
@@ -458,7 +470,9 @@ private fun GamePlayScreenContent(
                     } else {
                         currentDragonName = null
                     }
-                    showDigOutcomeDialog = true
+                    // Show dig result after the mine-dig animation plays (1.5 s when animations ON)
+                    pendingDigOutcome = outcome
+                    pendingDigKey++
                 }
             }
 

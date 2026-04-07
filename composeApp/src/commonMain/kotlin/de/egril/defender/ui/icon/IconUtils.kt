@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -1434,5 +1435,45 @@ fun SnowflakeIcon(
                 cap = StrokeCap.Round
             )
         }
+    }
+}
+
+/**
+ * Displays a single keyboard key shape using Canvas for cross-platform compatibility.
+ * Draws a rounded rectangle with a smaller raised key surface inside.
+ */
+@Composable
+fun KeyboardKeyIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 24.dp,
+    color: Color = Color.Unspecified
+) {
+    val resolvedColor = if (color == Color.Unspecified) MaterialTheme.colorScheme.onSurface else color
+    Canvas(modifier = modifier.size(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val strokeWidth = w * 0.08f
+        val cornerRadius = w * 0.18f
+
+        // Outer key border
+        val outerInset = strokeWidth / 2f
+        drawRoundRect(
+            color = resolvedColor,
+            topLeft = Offset(outerInset, outerInset),
+            size = Size(w - strokeWidth, h - strokeWidth),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(cornerRadius, cornerRadius),
+            style = Stroke(width = strokeWidth)
+        )
+
+        // Inner raised key surface (slightly inset)
+        val innerInset = w * 0.2f
+        val innerCorner = cornerRadius * 0.6f
+        drawRoundRect(
+            color = resolvedColor,
+            topLeft = Offset(innerInset, innerInset),
+            size = Size(w - innerInset * 2f, h * 0.55f),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(innerCorner, innerCorner),
+            style = Stroke(width = strokeWidth * 0.7f)
+        )
     }
 }

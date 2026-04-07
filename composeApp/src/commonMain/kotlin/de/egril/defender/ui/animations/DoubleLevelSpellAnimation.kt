@@ -1,4 +1,5 @@
 package de.egril.defender.ui.animations
+import io.github.alexzhirkevich.compottie.Compottie
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
@@ -35,7 +36,7 @@ private fun AnimatedDoubleLevelSpell(modifier: Modifier = Modifier) {
     LottieAnimation(
         animationType = AnimationType.DOUBLE_LEVEL_SPELL,
         modifier = modifier.fillMaxSize(),
-        iterations = Int.MAX_VALUE
+        iterations = Compottie.IterateForever
     )
 }
 

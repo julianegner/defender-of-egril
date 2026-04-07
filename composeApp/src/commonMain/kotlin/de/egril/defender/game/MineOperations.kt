@@ -43,6 +43,12 @@ class MineOperations(private val state: GameState) {
         mine.actionsRemaining.value--
         mine.hasBeenUsed.value = true
         
+        // Record mine dig visual effect — only when the mine survives (DRAGON outcome destroys the
+        // mine tile and spawns a dragon, so the dig animation would be pointless there).
+        if (outcome != DigOutcome.DRAGON && state.mineDigEffects.none { it.position == mine.position.value }) {
+            state.mineDigEffects.add(MineDigEffect(mine.position.value, state.turnNumber.value))
+        }
+        
         return outcome
     }
     
@@ -80,9 +86,15 @@ class MineOperations(private val state: GameState) {
         mine.actionsRemaining.value--
         mine.hasBeenUsed.value = true
         
+        // Record mine dig visual effect — only when the mine survives (DRAGON outcome destroys the
+        // mine tile and spawns a dragon, so the dig animation would be pointless there).
+        if (outcomeType != DigOutcome.DRAGON && state.mineDigEffects.none { it.position == mine.position.value }) {
+            state.mineDigEffects.add(MineDigEffect(mine.position.value, state.turnNumber.value))
+        }
+        
         return outcomeType
     }
-    
+
     /**
      * Build a trap at the specified position
      */
@@ -160,6 +172,7 @@ class MineOperations(private val state: GameState) {
         
         // Update dragon level based on initial health
         dragon.updateDragonLevel()
+        // No dragon level change effect here since this is a spawn (not a level change mid-game)
         
         // Replace mine with dragon's lair and link to dragon
         val lairDefender = Defender(
@@ -222,6 +235,14 @@ class MineOperations(private val state: GameState) {
             if (enemyAtPosition != null) {
                 // Play trap trigger sound
                 GlobalSoundManager.playSound(SoundEvent.TRAP_TRIGGERED)
+                
+                // Record trap trigger visual effect
+                state.trapTriggerEffects.add(
+                    TrapTriggerEffect(
+                        position = trap.position,
+                        turnNumber = state.turnNumber.value
+                    )
+                )
                 
                 when (trap.type) {
                     TrapType.DWARVEN -> {
@@ -364,6 +385,15 @@ class MineOperations(private val state: GameState) {
         if (trapAtPosition != null) {
             // Play trap trigger sound
             GlobalSoundManager.playSound(SoundEvent.TRAP_TRIGGERED)
+
+            // Record trap trigger visual effect so the animation is shown during movement
+            // and persists through the following player turn.
+            state.trapTriggerEffects.add(
+                TrapTriggerEffect(
+                    position = trapAtPosition.position,
+                    turnNumber = state.turnNumber.value
+                )
+            )
             
             when (trapAtPosition.type) {
                 TrapType.DWARVEN -> {

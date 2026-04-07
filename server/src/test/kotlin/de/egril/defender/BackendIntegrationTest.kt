@@ -572,6 +572,40 @@ class BackendIntegrationTest {
     }
 
     @Test
+    fun `POST events with username and turnNumber persists when authenticated`() = withRealDatabase {
+        val token = fakeToken("user-event-auth", "player_one")
+        client.post("/api/events") {
+            contentType(ContentType.Application.Json)
+            header(HttpHeaders.Authorization, "Bearer $token")
+            setBody("""{"event":"LEVEL_WON","levelName":"Tutorial","platform":"WEB","username":"player_one","turnNumber":42}""")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+    }
+
+    @Test
+    fun `POST events with turnNumber and no username succeeds`() = withRealDatabase {
+        client.post("/api/events") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"event":"LEVEL_LOST","levelName":"Hard Level","platform":"DESKTOP","turnNumber":15}""")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+    }
+
+    @Test
+    fun `POST events with authenticated username and no turnNumber succeeds`() = withRealDatabase {
+        val token = fakeToken("user-event-auth-noturn", "player_two")
+        client.post("/api/events") {
+            contentType(ContentType.Application.Json)
+            header(HttpHeaders.Authorization, "Bearer $token")
+            setBody("""{"event":"LEVEL_STARTED","levelName":"Tutorial","platform":"WEB","username":"player_two"}""")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+    }
+
+    @Test
     fun `POST savefiles with versionName and commitHash stores successfully`() = withRealDatabase {
         val token = fakeToken("user-savefile-version")
         client.post("/api/savefiles") {

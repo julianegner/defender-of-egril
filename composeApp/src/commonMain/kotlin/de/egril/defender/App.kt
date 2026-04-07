@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import de.egril.defender.ui.*
+import de.egril.defender.ui.animations.AnimationTestScreen
 import de.egril.defender.ui.editor.level.LevelEditorScreen
 import de.egril.defender.ui.gameplay.GamePlayScreen
 import de.egril.defender.ui.gameplay.LevelLoadingScreen
@@ -504,6 +505,12 @@ fun App() {
                     viewModel.navigateToWorldMap()
                 }
                 LevelLoadingScreen(modifier = Modifier.fillMaxSize())
+            }
+
+            is Screen.AnimationTest -> {
+                AnimationTestScreen(
+                    onBack = { viewModel.navigateToWorldMap() }
+                )
             }
         }
     }

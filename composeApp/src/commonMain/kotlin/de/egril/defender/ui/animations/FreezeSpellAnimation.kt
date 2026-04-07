@@ -1,4 +1,5 @@
 package de.egril.defender.ui.animations
+import io.github.alexzhirkevich.compottie.Compottie
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
@@ -36,7 +37,7 @@ private fun AnimatedFreezeSpell(modifier: Modifier = Modifier, animationKey: Any
     LottieAnimation(
         animationType = AnimationType.FREEZE_SPELL,
         modifier = modifier.fillMaxSize(),
-        iterations = Int.MAX_VALUE
+        iterations = Compottie.IterateForever
     )
     // Delayed copy: starts after 3 s so that when one animation resets to frame 0
     // the other is mid-fall — no visible gap at the loop boundary.
@@ -49,7 +50,7 @@ private fun AnimatedFreezeSpell(modifier: Modifier = Modifier, animationKey: Any
         LottieAnimation(
             animationType = AnimationType.FREEZE_SPELL,
             modifier = modifier.fillMaxSize(),
-            iterations = Int.MAX_VALUE
+            iterations = Compottie.IterateForever
         )
     }
 }

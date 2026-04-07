@@ -14,13 +14,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
+import de.egril.defender.ui.icon.KeyboardKeyIcon
 import de.egril.defender.ui.icon.SaveIcon
 import de.egril.defender.ui.icon.ToolsIcon
 import de.egril.defender.ui.icon.TriangleLeftIcon
 import de.egril.defender.ui.icon.TriangleRightIcon
+import de.egril.defender.ui.infopage.KeyboardShortcutsInfo
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.DifficultyDisplay
@@ -44,6 +47,7 @@ fun GameHeader(
     val headerTextSize = de.egril.defender.ui.settings.AppSettings.headerTextSize.value
     var showDebugMenu by remember { mutableStateOf(false) }
     val showDebugOptions = AppSettings.showDebugOptions.value
+    var showShortcutsDialog by remember { mutableStateOf(false) }
     
     Box(
         modifier = Modifier
@@ -217,6 +221,16 @@ fun GameHeader(
                     }
                 }
 
+                // Shortcuts button
+                TooltipWrapper(text = stringResource(Res.string.tooltip_shortcuts)) {
+                    IconButton(
+                        onClick = { showShortcutsDialog = true },
+                        modifier = Modifier.size(buttonHeight)
+                    ) {
+                        KeyboardKeyIcon(size = buttonIconSize)
+                    }
+                }
+
                 // Settings button (icon only to save space)
                 SettingsButton(
                     modifier = Modifier.size(buttonHeight)
@@ -265,6 +279,37 @@ fun GameHeader(
                         } else {
                             TriangleLeftIcon(size = buttonIconSize)
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    if (showShortcutsDialog) {
+        Dialog(
+            onDismissRequest = { showShortcutsDialog = false }
+        ) {
+            Card(
+                modifier = Modifier
+                    .width(600.dp)
+                    .heightIn(max = 600.dp)
+                    .padding(8.dp),
+                shape = RoundedCornerShape(12.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth()
+                ) {
+                    Box(modifier = Modifier.weight(1f)) {
+                        KeyboardShortcutsInfo()
+                    }
+                    Button(
+                        onClick = { showShortcutsDialog = false },
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                    ) {
+                        Text(stringResource(Res.string.got_it))
                     }
                 }
             }

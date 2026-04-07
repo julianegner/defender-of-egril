@@ -558,6 +558,7 @@
     <string name="dragon_very_greedy_message">The dragon is very greedy (greed > 5)! It will now hunt down and destroy dwarven mines, absorbing all the health a new dragon would have (500 HP per mine). Mines will become destroyed rubble. Defend them or rebuild quickly!</string>
     <string name="mine_warning_title">Mine Under Threat!</string>
     <string name="mine_warning_message">The dragon approaches! The dwarves prepare to defend their mine, but it may not be enough...</string>
+    <string name="mine_targeted_by_dragon">This mine is targeted by the dragon</string>
     <string name="one_hp_warning_title">Critical Warning!</string>
     <string name="one_hp_warning_message">You have only 1 health point! Not a single enemy can reach the target, or you will lose. Defend with extreme caution!</string>
     
@@ -1071,11 +1072,18 @@
     <string name="installation_ios_step1">1. Install from App Store (when available)</string>
     <string name="installation_ios_step2">2. Or build from source using Xcode</string>
     <string name="installation_linux_title">Linux</string>
-    <string name="installation_linux_step1">Run from terminal with JDK 11+:</string>
-    <string name="installation_linux_command">./gradlew :composeApp:run</string>
+    <string name="installation_linux_step1">1. Download the package from GitHub Releases:</string>
+    <string name="installation_linux_step1a">• .deb for Debian/Ubuntu</string>
+    <string name="installation_linux_step1b">• .rpm for Fedora/Red Hat</string>
+    <string name="installation_linux_step2">2. Install the package from terminal:</string>
+    <string name="installation_linux_step2a">• Debian/Ubuntu: sudo dpkg -i defender-of-egril.deb</string>
+    <string name="installation_linux_step2b">• Fedora/Red Hat: sudo rpm -i defender-of-egril.rpm</string>
+    <string name="installation_linux_step3">3. Launch from the application menu</string>
     <string name="installation_macos_title">macOS</string>
-    <string name="installation_macos_step1">Run from terminal with JDK 11+:</string>
-    <string name="installation_macos_command">./gradlew :composeApp:run</string>
+    <string name="installation_macos_step1">1. Download the .dmg file from GitHub Releases</string>
+    <string name="installation_macos_step2">2. Open the .dmg file and drag Defender of Egril to the Applications folder</string>
+    <string name="installation_macos_step3">3. Launch the game from the Applications folder</string>
+    <string name="installation_macos_note">If macOS Gatekeeper prevents the app from launching, open System Settings → Privacy &amp; Security and click "Open Anyway"</string>
     <string name="installation_web_title">Web/Browser</string>
     <string name="installation_web_step1">No installation needed!</string>
     <string name="installation_web_step2">Just visit the game URL in any modern browser (Chrome, Firefox, Safari, Edge)</string>
@@ -1217,7 +1225,7 @@
     <!-- Backend Info -->
     <string name="backend_info_title">Account &amp; Privacy</string>
     <string name="backend_info_logging_heading">What is logged?</string>
-    <string name="backend_info_logging_body">When you open the game, start a level, or finish a level (by winning, losing, or leaving), an event is sent to the game\'s own server.\nEach event records the server date and time, the game version, and the platform you are using (desktop, mobile, or web).\nAll events are fully anonymous — no username, user ID, or IP address is ever logged.\n\nThis data is used to understand how many people play the game and to identify levels that may be too difficult.\nNo data is shared with third parties.\nIf you play offline, the logging calls fail silently — the game works completely without internet access.</string>
+    <string name="backend_info_logging_body">When you open the game, start a level, or finish a level (by winning, losing, or leaving), an event is sent to the game\'s own server.\nEach event records the server date and time, the game version, and the platform you are using (desktop, mobile, or web).\nIf you are logged in, your username is also saved together with the event.\nOtherwise, events are fully anonymous — no username, user ID, or IP address is logged.\nWhen a level ends (won, lost, or left), the current turn number is also recorded.\n\nThis data is used to understand how many people play the game and to identify levels that may be too difficult.\nNo data is shared with third parties.\nIf you play offline, the logging calls fail silently — the game works completely without internet access.</string>
     <string name="backend_info_account_heading">Optional User Account</string>
     <string name="backend_info_account_body">An account is entirely optional — you can play the full game without registering. With a free account you can:\n\n• Save your game progress on the server and continue on any device\n• Switch between desktop, mobile, and web — and resume exactly where you left off\n• Upload your own custom maps and levels as community content for others to discover and play\n• Download and play levels created by other players</string>
     <string name="backend_info_account_how_heading">How to get an account?</string>
@@ -1242,6 +1250,7 @@
     <string name="keyboard_shortcut_pan_left">Pan map left</string>
     <string name="keyboard_shortcut_pan_right">Pan map right</string>
     <string name="keyboard_shortcuts_note">Note: Keyboard shortcuts are available on desktop only.</string>
+    <string name="keyboard_modifier_ctrl">Ctrl</string>
 
     <!-- License Info -->
     <string name="license_info_title">License Information</string>
@@ -1642,6 +1651,7 @@
     <string name="tooltip_info_installation">Info about installation, license and privacy</string>
     <string name="tooltip_enemies_on_map_and_planned">Enemies on map and planned</string>
     <string name="tooltip_return_to_worldmap">Return to the worldmap</string>
+    <string name="tooltip_shortcuts">Shortcuts</string>
 
     <!-- Download Installables tab (WASM + Impressum only) -->
     <string name="download_button">Download</string>
@@ -1655,9 +1665,15 @@
     <string name="download_info_platform_note">The Android APK can be downloaded directly. For Windows, Linux, and macOS, visit the GitHub releases page to find the latest installer.</string>
     <string name="download_info_loading">Loading download links…</string>
     <string name="download_info_error">Could not load download links from GitHub. Visit the releases page to find all downloads.</string>
+    <string name="download_info_goto_installation">View Installation Instructions</string>
     <string name="new_version_available_title">New Version Available</string>
     <string name="new_version_available_message">Version %1$s is available for download.</string>
     <string name="new_version_go_to_releases">Go to Download</string>
     <string name="check_for_updates">Check for updates</string>
     <string name="check_for_updates_description">Checks for a newer version on the same platform on startup (not for web, not for Android if installed from the Play Store).</string>
+
+    <string name="animation_test_title">Animation Test</string>
+    <string name="animation_test_animation_label">Animation</string>
+    <string name="animation_test_background_label">Background</string>
+    <string name="animation_test_replay">↺ Replay</string>
 </resources>

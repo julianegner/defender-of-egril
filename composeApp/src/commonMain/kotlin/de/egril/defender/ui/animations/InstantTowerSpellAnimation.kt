@@ -1,4 +1,5 @@
 package de.egril.defender.ui.animations
+import io.github.alexzhirkevich.compottie.Compottie
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
@@ -49,7 +50,7 @@ private fun AnimatedInstantTowerSpell(modifier: Modifier = Modifier) {
     LottieAnimation(
         animationType = AnimationType.INSTANT_TOWER_SPELL,
         modifier = modifier.fillMaxSize().clip(RoundedCornerShape(percent = 50)),
-        iterations = Int.MAX_VALUE,
+        iterations = Compottie.IterateForever,
         contentScale = ContentScale.FillBounds
     )
 }

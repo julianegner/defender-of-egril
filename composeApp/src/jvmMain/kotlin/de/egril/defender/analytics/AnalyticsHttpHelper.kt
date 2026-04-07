@@ -4,13 +4,7 @@ import de.egril.defender.iam.IamService
 import java.net.HttpURLConnection
 import java.net.URL
 
-private val backendUrl: String
-    get() = System.getProperty("defender.backend.url")
-        ?: System.getenv("DEFENDER_BACKEND_URL")
-        // Fall back to the analytics backend URL for backward compatibility
-        ?: System.getProperty("analytics.backend.url")
-        ?: System.getenv("ANALYTICS_BACKEND_URL")
-        ?: "http://localhost:8080"
+private val backendUrl: String = "https://defender-backend.egril.de"
 
 /**
  * Fire-and-forget HTTP POST to the analytics backend.
@@ -18,8 +12,8 @@ private val backendUrl: String
  * Errors are silently swallowed so analytics never disrupts gameplay.
  * If the user is authenticated via IAM, the Bearer token is attached as an optional header.
  */
-internal fun postEventJson(eventType: String, levelName: String?, platform: String) {
-    val json = buildEventJson(eventType, levelName, platform)
+internal fun postEventJson(eventType: GameEventType, levelName: String?, platform: String, turnNumber: Int? = null) {
+    val json = buildEventJson(eventType, levelName, platform, turnNumber)
     val targetUrl = "$backendUrl/api/events"
     val token = IamService.getToken()
     Thread {

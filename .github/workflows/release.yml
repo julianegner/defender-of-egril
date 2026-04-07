@@ -11,6 +11,7 @@
 #        - Linux Snap package (built from DEB artifact)
 #        - Linux Flatpak bundle (built from DEB artifact)
 #        - Linux Arch Linux package (built from DEB artifact)
+#        - Linux AppImage (built from DEB artifact)
 #        - macOS DMG  (optional – skipped on failure or when MAJOR=0 version is used)
 #        - Windows EXE installer
 #        - Windows MSI installer
@@ -30,7 +31,7 @@
 #   - macOS DMG is optional: the release proceeds even when the DMG build fails.
 #     macOS DMG requires MAJOR >= 1; versions like "0.8.0" will have their macOS
 #     package version adjusted automatically in build.gradle.kts.
-#   - Linux Snap, Flatpak and Arch Linux builds are optional and do not block the release.
+#   - Linux Snap, Flatpak, Arch Linux and AppImage builds are optional and do not block the release.
 
 name: Release
 
@@ -381,6 +382,62 @@ jobs:
           if-no-files-found: warn
 
   # ---------------------------------------------------------------------------
+  # Linux AppImage (built from the DEB artifact)
+  # Optional: failure does not block the release.
+  # ---------------------------------------------------------------------------
+  build_linux_appimage:
+    name: Build Linux AppImage
+    needs:
+      - prepare
+      - build_linux_deb
+    runs-on: ubuntu-latest
+    env:
+      APP_VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download DEB artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-deb-build
+          path: appimage-deb
+
+      - name: Extract DEB into AppDir
+        run: |
+          mkdir -p AppDir
+          dpkg-deb -x appimage-deb/*.deb AppDir
+
+      - name: Set up AppDir structure
+        run: |
+          install -Dm755 appimage/AppRun AppDir/AppRun
+          # Use a simple filename; appimagetool finds any .desktop file in the root.
+          # The Icon= value inside the file (de.egril.defender) matches the icon filename below.
+          install -Dm644 flatpak/de.egril.defender.desktop AppDir/defender-of-egril.desktop
+          install -Dm644 composeApp/src/commonMain/composeResources/drawable/black-shield.png AppDir/de.egril.defender.png
+          ln -sf de.egril.defender.png AppDir/.DirIcon
+
+      - name: Download appimagetool
+        run: |
+          wget -qO /usr/local/bin/appimagetool \
+            https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+          wget -qO /tmp/appimagetool.sha256 \
+            https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage.sha256
+          echo "$(cat /tmp/appimagetool.sha256)  /usr/local/bin/appimagetool" | sha256sum --check
+          chmod +x /usr/local/bin/appimagetool
+
+      - name: Build AppImage
+        run: |
+          APPIMAGE_EXTRACT_AND_RUN=1 ARCH=x86_64 appimagetool \
+            AppDir "defender-of-egril-${APP_VERSION}-x86_64.AppImage"
+
+      - name: Upload AppImage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-appimage-build
+          path: defender-of-egril-*-x86_64.AppImage
+          if-no-files-found: warn
+
+  # ---------------------------------------------------------------------------
   # iOS XCFramework
   # Requires Apple Developer secrets:
   #   APPLE_CERTIFICATE            – Base64-encoded P12 signing certificate
@@ -612,6 +669,7 @@ jobs:
       - build_linux_snap
       - build_linux_flatpak
       - build_linux_arch
+      - build_linux_appimage
       - build_macos
       - build_ios
       - build_windows_exe
@@ -620,7 +678,7 @@ jobs:
     runs-on: ubuntu-latest
     # Always evaluate this job so the condition below can gate it properly.
     # Mandatory builds (Android, Linux DEB, Windows EXE, Windows MSI) must succeed.
-    # Optional builds (macOS DMG, iOS, Linux Snap, Linux Flatpak, Linux Arch) may fail or be skipped
+    # Optional builds (macOS DMG, iOS, Linux Snap, Linux Flatpak, Linux Arch, Linux AppImage) may fail or be skipped
     # without blocking the release.
     if: |
       always() &&
@@ -673,6 +731,14 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: linux-arch-build
+          path: release-assets/linux
+        continue-on-error: true
+
+      - name: Download Linux AppImage artifact
+        if: needs.build_linux_appimage.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-appimage-build
           path: release-assets/linux
         continue-on-error: true
 
@@ -763,7 +829,7 @@ jobs:
           done
 
           echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "_Optional builds (macOS DMG, Linux Snap, Linux Flatpak, Linux Arch, iOS) are shown only when they succeeded._" >> "$GITHUB_STEP_SUMMARY"
+          echo "_Optional builds (macOS DMG, Linux Snap, Linux Flatpak, Linux Arch, Linux AppImage, iOS) are shown only when they succeeded._" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Checkout repository
         uses: actions/checkout@v4

@@ -84,7 +84,12 @@ fun InstallationInfo() {
                 title = stringResource(Res.string.installation_linux_title),
                 content = {
                     InstallationStep(stringResource(Res.string.installation_linux_step1))
-                    CommandText(stringResource(Res.string.installation_linux_command))
+                    InstallationSubStep(stringResource(Res.string.installation_linux_step1a))
+                    InstallationSubStep(stringResource(Res.string.installation_linux_step1b))
+                    InstallationStep(stringResource(Res.string.installation_linux_step2))
+                    InstallationSubStep(stringResource(Res.string.installation_linux_step2a))
+                    InstallationSubStep(stringResource(Res.string.installation_linux_step2b))
+                    InstallationStep(stringResource(Res.string.installation_linux_step3))
                 }
             )
             
@@ -95,7 +100,9 @@ fun InstallationInfo() {
                 title = stringResource(Res.string.installation_macos_title),
                 content = {
                     InstallationStep(stringResource(Res.string.installation_macos_step1))
-                    CommandText(stringResource(Res.string.installation_macos_command))
+                    InstallationStep(stringResource(Res.string.installation_macos_step2))
+                    InstallationStep(stringResource(Res.string.installation_macos_step3))
+                    InstallationNote(stringResource(Res.string.installation_macos_note))
                 }
             )
             

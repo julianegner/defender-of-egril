@@ -365,7 +365,26 @@ class GameEngine(private val state: GameState) {
         
         // Update dragon level after eating
         if (unitsToEat.isNotEmpty()) {
+            val oldLevel = dragon.level.value
             dragon.updateDragonLevel()
+            recordDragonLevelChange(dragon, oldLevel)
+        }
+    }
+
+    /**
+     * Records a DragonLevelChangeEffect when a dragon's level changes.
+     * Called after updateDragonLevel() at every call site.
+     */
+    private fun recordDragonLevelChange(dragon: Attacker, oldLevel: Int) {
+        val newLevel = dragon.level.value
+        if (newLevel != oldLevel) {
+            state.dragonLevelChangeEffects.add(
+                DragonLevelChangeEffect(
+                    position = dragon.position.value,
+                    isLevelUp = newLevel > oldLevel,
+                    turnNumber = state.turnNumber.value
+                )
+            )
         }
     }
     
@@ -504,7 +523,9 @@ class GameEngine(private val state: GameState) {
             // Add health (same as new dragon base health: 500)
             val healthGain = AttackerType.DRAGON.health
             dragon.currentHealth.value += healthGain
+            val oldLevelMine = dragon.level.value
             dragon.updateDragonLevel()
+            recordDragonLevelChange(dragon, oldLevelMine)
             
             // Mark position as destroyed
             state.destroyedMinePositions.add(targetMine.position.value)
@@ -1150,8 +1171,15 @@ class GameEngine(private val state: GameState) {
                 println("Dragon ${attacker.id} eating ${unitAtPosition.type} at $newPosition, gaining ${unitAtPosition.currentHealth.value} HP")
                 }
                 attacker.currentHealth.value += unitAtPosition.currentHealth.value
+                val oldLevelEating = attacker.level.value
                 attacker.updateDragonLevel()  // Update level based on new health
+                recordDragonLevelChange(attacker, oldLevelEating)
                 unitAtPosition.isDefeated.value = true
+                // Record movement trail on the vacated tile
+                val oldPosDragon = attacker.position.value
+                if (state.enemyMoveEffects.none { it.position == oldPosDragon }) {
+                    state.enemyMoveEffects.add(EnemyMoveEffect(oldPosDragon, state.turnNumber.value))
+                }
                 attacker.position.value = newPosition
                 
                 // Check for traps at the new position
@@ -1185,6 +1213,11 @@ class GameEngine(private val state: GameState) {
                 
                 if (alternatePos != null) {
                     println("Dragon ${attacker.id} can't land on Ewhad, moving to alternate position $alternatePos")
+                    // Record movement trail on the vacated tile
+                    val oldPosAlt = attacker.position.value
+                    if (state.enemyMoveEffects.none { it.position == oldPosAlt }) {
+                        state.enemyMoveEffects.add(EnemyMoveEffect(oldPosAlt, state.turnNumber.value))
+                    }
                     attacker.position.value = alternatePos
                     
                     // Check for traps at the alternate position
@@ -1212,6 +1245,11 @@ class GameEngine(private val state: GameState) {
                 }
             } else {
                 // No unit at target position, move normally
+                // Record movement trail on the vacated tile
+                val oldPosNormal = attacker.position.value
+                if (state.enemyMoveEffects.none { it.position == oldPosNormal }) {
+                    state.enemyMoveEffects.add(EnemyMoveEffect(oldPosNormal, state.turnNumber.value))
+                }
                 attacker.position.value = newPosition
                 
                 // Check for traps at the new position
@@ -1372,6 +1410,10 @@ class GameEngine(private val state: GameState) {
         if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("GameEngine.startEnemyTurn: Changed phase to ENEMY_TURN, turn=${state.turnNumber.value}")
         }
+
+        // Ensure trap trigger effects are clean at the start of enemy turn (belt-and-suspenders;
+        // they are also cleared at the end of completeEnemyTurn before transitioning to PLAYER_TURN).
+        state.trapTriggerEffects.clear()
 
         // Process raft movements on rivers at the start of enemy turn
         // This happens immediately when player presses "Next Turn"
@@ -1681,6 +1723,20 @@ class GameEngine(private val state: GameState) {
     fun completeEnemyTurn() {
         if (state.phase.value != GamePhase.ENEMY_TURN) return
         
+        // Clear all visual effects from the previous turn before adding new ones for this turn.
+        // This ensures effects added during this call (traps, construction, spawns, deaths, coins)
+        // persist through the following player turn and are cleaned up on the next enemy turn.
+        state.bombExplosionEffects.clear()
+        state.defeatedEnemyEffects.clear()
+        state.coinGainEffects.clear()
+        state.towerAttackEffects.clear()
+        state.constructionCompleteEffects.clear()
+        state.enemySpawnEffects.clear()
+        state.enemyMoveEffects.clear()
+        state.dragonLevelChangeEffects.clear()
+        state.mineDigEffects.clear()
+        state.arrowAttackEffects.clear()
+
         // Check and activate traps after all movements
         checkAndActivateTraps()
         
@@ -1692,9 +1748,6 @@ class GameEngine(private val state: GameState) {
 
         // Update spell buff effects (decrement turns remaining, remove expired)
         updateSpellBuffs()
-
-        // Clear bomb explosion visual effects from previous turn
-        state.bombExplosionEffects.clear()
 
         // Process special enemy abilities
         enemyAbilities.processEnemyAbilities()
@@ -1714,6 +1767,11 @@ class GameEngine(private val state: GameState) {
         advanceBuildTimers()
         enemyAbilities.updateTowerDisableStatus()
         
+        // Clear trap trigger effects so they don't persist into the player's turn.
+        // They were visible during the enemy turn when the traps fired; clearing here
+        // prevents the lingering overlay from showing during the player's turn.
+        state.trapTriggerEffects.clear()
+
         state.phase.value = GamePhase.PLAYER_TURN
         resetDefenderActions()
     }
@@ -1728,6 +1786,13 @@ class GameEngine(private val state: GameState) {
                 defender.buildTimeRemaining.value--
                 if (defender.buildTimeRemaining.value == 0) {
                     defender.resetActions()
+                    // Record construction complete visual effect
+                    state.constructionCompleteEffects.add(
+                        TowerConstructionEffect(
+                            position = defender.position.value,
+                            turnNumber = state.turnNumber.value
+                        )
+                    )
                 }
             }
             // Decrement wizard trap cooldown
@@ -1811,7 +1876,9 @@ class GameEngine(private val state: GameState) {
                     }
                     // Update dragon level if it's a dragon
                     if (attacker.type.isDragon) {
+                        val oldLevelBomb = attacker.level.value
                         attacker.updateDragonLevel()
+                        recordDragonLevelChange(attacker, oldLevelBomb)
                     }
                 }
             }

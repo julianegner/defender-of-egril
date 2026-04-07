@@ -111,7 +111,7 @@ fun InfoPageScreen(
                         InfoTab.KEYBOARD_SHORTCUTS -> KeyboardShortcutsInfo()
                         InfoTab.BACKEND -> BackendInfo()
                         InfoTab.EDITOR_HOWTO -> EditorHowToContent()
-                        InfoTab.DOWNLOAD -> DownloadInfo()
+                        InfoTab.DOWNLOAD -> DownloadInfo(onNavigateToInstallation = { selectedTab = InfoTab.INSTALLATION })
                     }
                 }
                 

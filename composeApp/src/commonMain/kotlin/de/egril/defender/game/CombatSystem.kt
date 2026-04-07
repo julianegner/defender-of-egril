@@ -92,6 +92,29 @@ class CombatSystem(
             AttackType.NONE -> return false  // Mines and special structures can't attack
         }
 
+        // Record attack impact visual effect at the target position (deduplicated per tile per turn)
+        if (state.towerAttackEffects.none { it.targetPosition == target.position.value }) {
+            state.towerAttackEffects.add(
+                TowerAttackEffect(
+                    targetPosition = target.position.value,
+                    turnNumber = state.turnNumber.value
+                )
+            )
+        }
+
+        // Record arrow/bolt visual on the tower tile for ranged attacks (Bow, Spear, Ballista)
+        if (defender.type.attackType == AttackType.RANGED) {
+            if (state.arrowAttackEffects.none { it.sourcePosition == defender.position.value }) {
+                state.arrowAttackEffects.add(
+                    ArrowAttackEffect(
+                        sourcePosition = defender.position.value,
+                        targetPosition = target.position.value,
+                        turnNumber = state.turnNumber.value
+                    )
+                )
+            }
+        }
+
         defender.actionsRemaining.value--
 
         // Process defeated attackers immediately to give coins
@@ -169,7 +192,30 @@ class CombatSystem(
             AttackType.LASTING -> lastingAttack(defender, targetPosition)
             AttackType.NONE -> return false  // Mines and special structures can't attack
         }
-        
+
+        // Record attack impact visual effect at the target position (deduplicated per tile per turn)
+        if (state.towerAttackEffects.none { it.targetPosition == targetPosition }) {
+            state.towerAttackEffects.add(
+                TowerAttackEffect(
+                    targetPosition = targetPosition,
+                    turnNumber = state.turnNumber.value
+                )
+            )
+        }
+
+        // Record arrow/bolt visual on the tower tile for ranged attacks (Bow, Spear, Ballista)
+        if (defender.type.attackType == AttackType.RANGED) {
+            if (state.arrowAttackEffects.none { it.sourcePosition == defender.position.value }) {
+                state.arrowAttackEffects.add(
+                    ArrowAttackEffect(
+                        sourcePosition = defender.position.value,
+                        targetPosition = targetPosition,
+                        turnNumber = state.turnNumber.value
+                    )
+                )
+            }
+        }
+
         defender.actionsRemaining.value--
         
         // Process defeated attackers immediately to give coins
@@ -417,6 +463,27 @@ class CombatSystem(
             val baseCoins = attacker.type.reward * attacker.level.value
             val modifiedCoins = (baseCoins * state.incomeMultiplier).toInt()
             state.coins.value += modifiedCoins
+            
+            // Record enemy death visual effect for animation
+            state.defeatedEnemyEffects.add(
+                EnemyDeathEffect(
+                    position = attacker.position.value,
+                    turnNumber = state.turnNumber.value,
+                    attackerType = attacker.type,
+                    attackerLevel = attacker.level.value
+                )
+            )
+            
+            // Record coin gain visual effect for animation (only when coins are actually awarded)
+            if (modifiedCoins > 0) {
+                state.coinGainEffects.add(
+                    CoinGainEffect(
+                        position = attacker.position.value,
+                        amount = modifiedCoins,
+                        turnNumber = state.turnNumber.value
+                    )
+                )
+            }
             
             // Award XP (multiplied by level for non-dragons)
             val xpEarned = attacker.type.xp * attacker.level.value

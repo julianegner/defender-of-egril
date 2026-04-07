@@ -115,4 +115,22 @@ object GamePlayConstants {
         /** Icon size for static damage effect overlay (shown when animations are disabled) */
         val DamageEffect = 24.dp
     }
+
+    /**
+     * Timing constants (milliseconds) used to sequence overlapping animations.
+     * These values match the durations encoded in the corresponding Lottie JSON files.
+     */
+    object AnimationTimings {
+        /** Duration of the tower attack impact flash animation (~670 ms / 20 frames @ 30 fps). */
+        const val ATTACK_IMPACT_DURATION_MS = 670L
+
+        /** Delay before the arrow/bolt hit animation so the projectile visibly arrives first. */
+        const val ARROW_FLIGHT_DELAY_MS = 900L
+
+        /** Duration of the enemy death Lottie animation (30 frames @ 30 fps = 1 000 ms). */
+        const val ENEMY_DEATH_ANIMATION_DURATION_MS = 1000L
+
+        /** Pause between the death animation finishing and the coin-gain animation starting. */
+        const val COIN_GAIN_DELAY_AFTER_DEATH_MS = 400L
+    }
 }

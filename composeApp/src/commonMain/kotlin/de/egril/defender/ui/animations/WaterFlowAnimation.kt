@@ -1,4 +1,5 @@
 package de.egril.defender.ui.animations
+import io.github.alexzhirkevich.compottie.Compottie
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -37,7 +38,7 @@ fun WaterFlowAnimation(flowDirection: RiverFlow, flowSpeed: Int = 1, modifier: M
     LottieAnimation(
         animationType = AnimationType.WATER_FLOW,
         modifier = modifier.graphicsLayer { rotationZ = rotationDeg },
-        iterations = Int.MAX_VALUE,
+        iterations = Compottie.IterateForever,
         speed = if (flowSpeed >= 2) 2f else 1f
     )
 }

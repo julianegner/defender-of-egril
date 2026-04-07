@@ -3,6 +3,14 @@ package de.egril.defender.utils
 interface Platform {
     val name: String
     val isAndroidTV: Boolean
+    /**
+     * Extended platform detail string.
+     * Desktop: OS name and version (e.g. "Windows 11 10.0").
+     * Android: friendly OS release (e.g. "Android 13").
+     * iOS: system name and version (e.g. "iOS 17.0").
+     * Web: browser name and version (e.g. "Chrome/120.0.6099.130").
+     */
+    val platformExtended: String
 }
 
 expect fun getPlatform(): Platform

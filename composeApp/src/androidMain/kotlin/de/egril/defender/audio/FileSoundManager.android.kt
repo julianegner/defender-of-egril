@@ -17,9 +17,18 @@ import java.io.FileOutputStream
 private var soundPool: SoundPool? = null
 private val soundIds = mutableMapOf<String, Int>()
 private var appContext: Context? = null
+private var isAppInBackground = false
 
 actual fun initializeAudioSystem() {
     // SoundPool will be initialized when context is available
+}
+
+/**
+ * Notify the audio system that the app has moved to the background or foreground.
+ * When in background, sound effects are suppressed.
+ */
+fun setSoundEffectsAppInBackground(inBackground: Boolean) {
+    isAppInBackground = inBackground
 }
 
 /**
@@ -41,6 +50,7 @@ fun initializeAndroidAudio(context: Context) {
 }
 
 actual fun playSoundFile(fileName: String, volume: Float) {
+    if (isAppInBackground) return
     val pool = soundPool ?: return
     val context = appContext ?: return
     

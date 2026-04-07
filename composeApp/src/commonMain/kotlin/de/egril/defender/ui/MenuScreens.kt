@@ -232,7 +232,9 @@ fun MainMenuScreen(
             }
             
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .then(if (isPlatformMobile) Modifier.padding(top = 90.dp) else Modifier),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = if (isPlatformMobile) Arrangement.Top else Arrangement.Center
             ) {
@@ -242,57 +244,52 @@ fun MainMenuScreen(
                 }
                 
                 // Application banner with logo and styled text
-                ApplicationBanner(scale = if (isPlatformMobile) 0.7f else 1f)
+                ApplicationBanner(scale = if (isPlatformMobile) 0.6f else 1f)
                 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 
                 Text(
                     text = stringResource(Res.string.app_subtitle),
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = if (isPlatformMobile) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 
-                Spacer(modifier = Modifier.height(48.dp))
+                Spacer(modifier = Modifier.height(24.dp))
                 
-                // On mobile, buttons are in a column; on desktop, in a column as well
+                // On mobile, buttons are in a single row; on desktop, in a row/column layout
                 if (isPlatformMobile) {
-                    BoxWithConstraints(
-                        modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        val buttonWidth = maxWidth * 0.5f
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                            modifier = Modifier.width(buttonWidth)
+                        Button(
+                            onClick = onStartGame,
+                            modifier = Modifier.weight(1f).height(40.dp)
                         ) {
+                            Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.bodySmall, maxLines = 1)
+                        }
+                        
+                        // Continue Game button (only visible if autosave exists)
+                        if (hasAutosave) {
                             Button(
-                                onClick = onStartGame,
-                                modifier = Modifier.fillMaxWidth().height(40.dp)
+                                onClick = onContinueGame,
+                                modifier = Modifier.weight(1f).height(40.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondary
+                                )
                             ) {
-                                Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.bodyMedium)
+                                Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.bodySmall, maxLines = 1)
                             }
-                            
-                            // Continue Game button (only visible if autosave exists)
-                            if (hasAutosave) {
-                                Button(
-                                    onClick = onContinueGame,
-                                    modifier = Modifier.fillMaxWidth().height(40.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = MaterialTheme.colorScheme.secondary
-                                    )
-                                ) {
-                                    Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.bodyMedium)
-                                }
-                            }
-                            
-                            Button(
-                                onClick = onShowRules,
-                                modifier = Modifier.fillMaxWidth().height(40.dp)
-                            ) {
-                                Text(stringResource(Res.string.rules), style = MaterialTheme.typography.bodyMedium)
-                            }
+                        }
+                        
+                        Button(
+                            onClick = onShowRules,
+                            modifier = Modifier.weight(1f).height(40.dp)
+                        ) {
+                            Text(stringResource(Res.string.rules), style = MaterialTheme.typography.bodySmall, maxLines = 1)
                         }
                     }
                 } else {

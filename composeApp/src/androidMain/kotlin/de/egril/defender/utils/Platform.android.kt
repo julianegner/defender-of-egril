@@ -8,6 +8,7 @@ import java.util.Locale
 class AndroidPlatform : Platform {
     override val name: String = buildPlatformName()
     override val isAndroidTV: Boolean = checkIsAndroidTV()
+    override val platformExtended: String = buildPlatformExtended()
     
     private fun checkIsAndroidTV(): Boolean {
         return try {
@@ -31,6 +32,15 @@ class AndroidPlatform : Platform {
         } catch (e: Exception) {
             // If context is not available, return base info
             baseInfo
+        }
+    }
+
+    private fun buildPlatformExtended(): String {
+        val version = "Android ${Build.VERSION.RELEASE}"
+        return try {
+            if (checkIsAndroidTV()) "$version (Android TV)" else version
+        } catch (e: Exception) {
+            version
         }
     }
 }

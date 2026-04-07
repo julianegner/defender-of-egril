@@ -42,6 +42,20 @@ import de.egril.defender.ui.animations.FearSpellAnimation
 import de.egril.defender.ui.animations.FreezeSpellAnimation
 import de.egril.defender.ui.animations.GreenWitchHealingAnimation
 import de.egril.defender.ui.animations.WaterFlowAnimation
+import de.egril.defender.ui.animations.EnemyDeathAnimation
+import de.egril.defender.ui.animations.TowerReadyPulseAnimation
+import de.egril.defender.ui.animations.CoinGainAnimation
+import de.egril.defender.ui.animations.TowerAttackImpactAnimation
+import de.egril.defender.ui.animations.TowerConstructionCompleteAnimation
+import de.egril.defender.ui.animations.EnemySpawnAnimation
+import de.egril.defender.ui.animations.TrapTriggerAnimation
+import de.egril.defender.ui.animations.EnemyMoveAnimation
+import de.egril.defender.ui.animations.DragonLevelChangeAnimation
+import de.egril.defender.ui.animations.WizardIdleAnimation
+import de.egril.defender.ui.animations.AlchemyIdleAnimation
+import de.egril.defender.ui.animations.MineDigAnimation
+import de.egril.defender.ui.animations.ArrowAttackAnimation
+import de.egril.defender.ui.animations.DragonTargetAnimation
 import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.icon.BombIcon
 import de.egril.defender.ui.icon.ExplosionIcon
@@ -57,6 +71,7 @@ import de.egril.defender.ui.editor.map.MapControls
 import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.ui.icon.TestTubeIcon
 import de.egril.defender.ui.icon.enemy.EnemyIcon
+import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import de.egril.defender.ui.editor.RiverFlowIndicator
 import de.egril.defender.ui.hexagon.BaseGridCell
 import de.egril.defender.ui.hexagon.HexagonMinimap
@@ -68,8 +83,10 @@ import de.egril.defender.ui.hexagon.MinimapConfig
 import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.rememberMapImageState
+import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
+import kotlin.math.atan2
 import de.egril.defender.config.LogConfig
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -680,6 +697,48 @@ fun GridCell(
     // Check for damage effects at this position
     val damageEffect = gameState.damageEffects.find { it.position == position }
     
+    // Check for enemy death animation effect at this position
+    val deathEffect = gameState.defeatedEnemyEffects.find { it.position == position }
+    
+    // Check for coin gain animation effect at this position
+    val coinGainEffect = gameState.coinGainEffects.find { it.position == position }
+    
+    // Check for tower attack impact animation effect at this position
+    val towerAttackEffect = gameState.towerAttackEffects.find { it.targetPosition == position }
+    
+    // Check for arrow attack effect on this tile: source tile, any intermediate tile on the straight
+    // path, or the target tile itself (arrow is visible the whole way to the target).
+    val arrowAttackEffect = gameState.arrowAttackEffects.let { effects ->
+        effects.find { it.sourcePosition == position }
+            ?: effects.find { it.targetPosition == position }
+            ?: effects.find { isOnArrowLinePath(it.sourcePosition, it.targetPosition, position) }
+    }
+    // True when this tile is the endpoint of an arrow attack (hit animation should be delayed)
+    val isArrowTargetTile = gameState.arrowAttackEffects.any { it.targetPosition == position }
+    
+    // Check if a dragon is targeting the mine at this position
+    val dragonIsTargetingMine = defender != null &&
+        defender.type == DefenderType.DWARVEN_MINE &&
+        gameState.attackers.any { it.targetMineId.value == defender.id && !it.isDefeated.value }
+    
+    // Check for tower construction complete animation effect at this position
+    val constructionCompleteEffect = gameState.constructionCompleteEffects.find { it.position == position }
+    
+    // Check for enemy spawn animation effect at this position
+    val enemySpawnEffect = gameState.enemySpawnEffects.find { it.position == position }
+    
+    // Check for trap trigger animation effect at this position
+    val trapTriggerEffect = gameState.trapTriggerEffects.find { it.position == position }
+    
+    // Check for enemy movement trail animation at this position
+    val enemyMoveEffect = gameState.enemyMoveEffects.find { it.position == position }
+    
+    // Check for dragon level change animation at this position
+    val dragonLevelChangeEffect = gameState.dragonLevelChangeEffects.find { it.position == position }
+    
+    // Check for mine dig animation at this position
+    val mineDigEffect = gameState.mineDigEffects.find { it.position == position }
+    
     // Determine the tile type for background image loading
     val riverTile = gameState.level.getRiverTile(position)
     val isMaelstrom = riverTile?.flowDirection == RiverFlow.MAELSTROM
@@ -1182,7 +1241,19 @@ fun GridCell(
                 coolingAreaTurnsRemaining = coolingAreaTurnsRemaining,
                 isCoolingSpellPreview = isCoolingSpellPreview,
                 bombEffect = bombEffect,
-                bombExplosion = bombExplosion
+                bombExplosion = bombExplosion,
+                deathEffect = deathEffect,
+                coinGainEffect = coinGainEffect,
+                towerAttackEffect = towerAttackEffect,
+                constructionCompleteEffect = constructionCompleteEffect,
+                enemySpawnEffect = enemySpawnEffect,
+                trapTriggerEffect = trapTriggerEffect,
+                enemyMoveEffect = enemyMoveEffect,
+                dragonLevelChangeEffect = dragonLevelChangeEffect,
+                mineDigEffect = mineDigEffect,
+                arrowAttackEffect = arrowAttackEffect,
+                isArrowTargetTile = isArrowTargetTile,
+                dragonIsTargetingMine = dragonIsTargetingMine
             )
         }
     } else {
@@ -1226,7 +1297,19 @@ fun GridCell(
                 coolingAreaTurnsRemaining = coolingAreaTurnsRemaining,
                 isCoolingSpellPreview = isCoolingSpellPreview,
                 bombEffect = bombEffect,
-                bombExplosion = bombExplosion
+                bombExplosion = bombExplosion,
+                deathEffect = deathEffect,
+                coinGainEffect = coinGainEffect,
+                towerAttackEffect = towerAttackEffect,
+                constructionCompleteEffect = constructionCompleteEffect,
+                enemySpawnEffect = enemySpawnEffect,
+                trapTriggerEffect = trapTriggerEffect,
+                enemyMoveEffect = enemyMoveEffect,
+                dragonLevelChangeEffect = dragonLevelChangeEffect,
+                mineDigEffect = mineDigEffect,
+                arrowAttackEffect = arrowAttackEffect,
+                isArrowTargetTile = isArrowTargetTile,
+                dragonIsTargetingMine = dragonIsTargetingMine
             )
         }
     }
@@ -1267,7 +1350,19 @@ private fun BoxScope.GridCellContent(
     coolingAreaTurnsRemaining: Int? = null,
     isCoolingSpellPreview: Boolean = false,
     bombEffect: ActiveSpellEffect? = null,
-    bombExplosion: BombExplosionEffect? = null
+    bombExplosion: BombExplosionEffect? = null,
+    deathEffect: EnemyDeathEffect? = null,
+    coinGainEffect: CoinGainEffect? = null,
+    towerAttackEffect: TowerAttackEffect? = null,
+    constructionCompleteEffect: TowerConstructionEffect? = null,
+    enemySpawnEffect: EnemySpawnEffect? = null,
+    trapTriggerEffect: TrapTriggerEffect? = null,
+    enemyMoveEffect: EnemyMoveEffect? = null,
+    dragonLevelChangeEffect: DragonLevelChangeEffect? = null,
+    mineDigEffect: MineDigEffect? = null,
+    arrowAttackEffect: ArrowAttackEffect? = null,
+    isArrowTargetTile: Boolean = false,
+    dragonIsTargetingMine: Boolean = false
 ) {
         when {
             attacker != null -> {
@@ -1380,6 +1475,44 @@ private fun BoxScope.GridCellContent(
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         TowerIcon(defender = defender, gameState = gameState)
+                        // Show pulsing blue glow when tower is ready to act
+                        if (defender.isReady && defender.actionsRemaining.value > 0) {
+                            TowerReadyPulseAnimation(
+                                animate = AppSettings.enableAnimations.value,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                        // Show construction complete sparkle when tower just finished building
+                        if (constructionCompleteEffect != null) {
+                            TowerConstructionCompleteAnimation(
+                                animate = AppSettings.enableAnimations.value,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                        // Show idle ambient animation for wizard and alchemy towers (when built)
+                        if (defender.buildTimeRemaining.value == 0) {
+                            when (defender.type) {
+                                // Wizard idle glows only while the tower still has actions this turn
+                                DefenderType.WIZARD_TOWER -> if (defender.actionsRemaining.value > 0) WizardIdleAnimation(
+                                    animate = AppSettings.enableAnimations.value,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                                DefenderType.ALCHEMY_TOWER -> AlchemyIdleAnimation(
+                                    animate = AppSettings.enableAnimations.value,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                                DefenderType.DWARVEN_MINE -> {
+                                    // Show dig animation on mine tile when it was just dug
+                                    if (mineDigEffect != null) {
+                                        MineDigAnimation(
+                                            animate = AppSettings.enableAnimations.value,
+                                            modifier = Modifier.fillMaxSize()
+                                        )
+                                    }
+                                }
+                                else -> Unit
+                            }
+                        }
                         // Show Double Tower Level spell animation overlay (same animation as instant tower)
                         if (doubleLevelActive) {
                             InstantTowerSpellAnimation(
@@ -1716,6 +1849,187 @@ private fun BoxScope.GridCellContent(
             BombExplosionAnimation(
                 animate = AppSettings.enableAnimations.value,
                 modifier = Modifier.fillMaxSize().zIndex(20f)
+            )
+        }
+
+        // Show enemy death animation overlay when an enemy was just defeated here.
+        // The `attacker == null` guard avoids overlapping the death animation with a live enemy
+        // that may have moved to this tile in the same turn.
+        // When a tower attack was also recorded for this tile, delay the death animation until
+        // after the impact animation plays (~670ms, plus ~900ms arrow flight for ranged attacks),
+        // so the sequence is: attack → impact → death.
+        //
+        // Ghost rendering: while the death effect is present (and before the death animation
+        // finishes), show the enemy unit icon without a health bar so the player can see which
+        // unit was killed.  The ghost disappears once the death animation has completed so that
+        // the coin-gain animation plays on a clean tile.  The tile background stays at the
+        // path/base colour (not red) because the attacker has already been removed from
+        // state.attackers — the red background therefore disappears at the exact moment the
+        // attack resolves.
+        var showGhost by remember(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
+            mutableStateOf(deathEffect != null && attacker == null)
+        }
+        LaunchedEffect(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
+            if (deathEffect != null && attacker == null) {
+                showGhost = true
+                val arrowDelay = if (towerAttackEffect != null && isArrowTargetTile) GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS else 0L
+                val impactDelay = if (towerAttackEffect != null) GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS else 0L
+                kotlinx.coroutines.delay(arrowDelay + impactDelay + GamePlayConstants.AnimationTimings.ENEMY_DEATH_ANIMATION_DURATION_MS)
+                showGhost = false
+            } else {
+                showGhost = false
+            }
+        }
+        if (showGhost && deathEffect != null && attacker == null) {
+            EnemyTypeIcon(
+                attackerType = deathEffect.attackerType,
+                modifier = Modifier.fillMaxSize().zIndex(15f)
+            )
+            // Show level badge on top of the ghost icon when level > 1
+            if (deathEffect.attackerLevel > 1) {
+                Box(
+                    modifier = Modifier.fillMaxSize().zIndex(15f),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    Text(
+                        text = "${deathEffect.attackerLevel}",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 12.sp,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+            }
+        }
+
+        var showDeathAnimation by remember(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
+            mutableStateOf(false)
+        }
+        LaunchedEffect(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
+            if (deathEffect != null && attacker == null) {
+                if (towerAttackEffect != null) {
+                    // For arrow/bolt attacks, the hit animation is itself delayed by 900ms; wait
+                    // for both the arrow flight and the impact flash (~670ms) to finish first.
+                    val arrowDelay = if (isArrowTargetTile) GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS else 0L
+                    kotlinx.coroutines.delay(arrowDelay + GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS)
+                }
+                showDeathAnimation = true
+            } else {
+                showDeathAnimation = false
+            }
+        }
+        if (showDeathAnimation && deathEffect != null && attacker == null) {
+            EnemyDeathAnimation(
+                animate = AppSettings.enableAnimations.value,
+                modifier = Modifier.fillMaxSize().zIndex(18f)
+            )
+        }
+
+        // Show coin gain animation overlay after the full death-animation sequence has finished:
+        // arrowDelay + impactDelay + deathDuration + post-death pause.
+        var showCoinAnimation by remember(coinGainEffect?.turnNumber, coinGainEffect?.position) {
+            mutableStateOf(false)
+        }
+        LaunchedEffect(coinGainEffect?.turnNumber, coinGainEffect?.position, towerAttackEffect?.turnNumber) {
+            if (coinGainEffect != null) {
+                val arrowDelay = if (towerAttackEffect != null && isArrowTargetTile) GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS else 0L
+                val impactDelay = if (towerAttackEffect != null) GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS else 0L
+                kotlinx.coroutines.delay(
+                    arrowDelay + impactDelay +
+                    GamePlayConstants.AnimationTimings.ENEMY_DEATH_ANIMATION_DURATION_MS +
+                    GamePlayConstants.AnimationTimings.COIN_GAIN_DELAY_AFTER_DEATH_MS
+                )
+                showCoinAnimation = true
+            } else {
+                showCoinAnimation = false
+            }
+        }
+        if (showCoinAnimation && coinGainEffect != null) {
+            CoinGainAnimation(
+                amount = coinGainEffect.amount,
+                animate = AppSettings.enableAnimations.value,
+                modifier = Modifier.fillMaxSize().zIndex(19f)
+            )
+        }
+
+        // Show tower attack impact overlay when this tile was attacked.
+        // When an arrow is targeting this tile the hit animation is delayed by ~900 ms so
+        // the arrow animation visibly arrives before the impact flash.
+        var showHitAnimation by remember(towerAttackEffect?.turnNumber, towerAttackEffect?.targetPosition) {
+            mutableStateOf(towerAttackEffect != null && !isArrowTargetTile)
+        }
+        LaunchedEffect(towerAttackEffect?.turnNumber, towerAttackEffect?.targetPosition, isArrowTargetTile) {
+            if (towerAttackEffect != null && isArrowTargetTile) {
+                kotlinx.coroutines.delay(900L)
+                showHitAnimation = true
+            } else if (towerAttackEffect != null) {
+                showHitAnimation = true
+            } else {
+                showHitAnimation = false
+            }
+        }
+        if (showHitAnimation && towerAttackEffect != null) {
+            TowerAttackImpactAnimation(
+                animate = AppSettings.enableAnimations.value,
+                modifier = Modifier.fillMaxSize().zIndex(17f)
+            )
+        }
+
+        // Show enemy spawn portal overlay when an enemy just appeared at this position
+        if (enemySpawnEffect != null) {
+            EnemySpawnAnimation(
+                animate = AppSettings.enableAnimations.value,
+                modifier = Modifier.fillMaxSize().zIndex(16f)
+            )
+        }
+
+        // Show trap trigger overlay when a trap was triggered at this position.
+        // Uses a high z-index (21) to be visible even when the death animation is also showing
+        // (which happens when the trap kills the enemy in the same turn).
+        if (trapTriggerEffect != null) {
+            TrapTriggerAnimation(
+                animate = AppSettings.enableAnimations.value,
+                modifier = Modifier.fillMaxSize().zIndex(21f)
+            )
+        }
+
+        // Show enemy movement trail when an enemy just left this tile during the enemy turn
+        if (enemyMoveEffect != null && attacker == null) {
+            EnemyMoveAnimation(
+                animate = AppSettings.enableAnimations.value,
+                modifier = Modifier.fillMaxSize().zIndex(13f)
+            )
+        }
+
+        // Show dragon level change flash on the dragon's tile when its level changed
+        if (dragonLevelChangeEffect != null) {
+            DragonLevelChangeAnimation(
+                animate = AppSettings.enableAnimations.value,
+                isLevelUp = dragonLevelChangeEffect.isLevelUp,
+                modifier = Modifier.fillMaxSize().zIndex(14f)
+            )
+        }
+
+        // Show arrow/bolt projectile on the source tower tile for ranged attacks
+        if (arrowAttackEffect != null) {
+            val dx = (arrowAttackEffect.targetPosition.x - arrowAttackEffect.sourcePosition.x).toFloat()
+            val dy = (arrowAttackEffect.targetPosition.y - arrowAttackEffect.sourcePosition.y).toFloat()
+            val angle = if (dx == 0f && dy == 0f) 0f
+                else (Math.toDegrees(atan2(dy.toDouble(), dx.toDouble()))).toFloat()
+            ArrowAttackAnimation(
+                animate = AppSettings.enableAnimations.value,
+                directionAngle = angle,
+                isTargetTile = isArrowTargetTile,
+                modifier = Modifier.fillMaxSize().zIndex(18f)
+            )
+        }
+
+        // Show dragon-targeting warning animation on mines that a dragon is approaching
+        if (dragonIsTargetingMine) {
+            DragonTargetAnimation(
+                animate = AppSettings.enableAnimations.value,
+                modifier = Modifier.fillMaxSize().zIndex(12f)
             )
         }
 
@@ -2058,4 +2372,23 @@ fun BridgeVisualization(bridge: Bridge) {
             Spacer(modifier = Modifier.height(10.dp))
         }
     }
+}
+
+/**
+ * Returns true if [pos] lies on the straight-line path between [source] and [target]
+ * (excluding the source and target tiles themselves).
+ * Uses linear interpolation over grid coordinates to determine intermediate tiles.
+ */
+private fun isOnArrowLinePath(source: Position, target: Position, pos: Position): Boolean {
+    val dx = target.x - source.x
+    val dy = target.y - source.y
+    val steps = maxOf(abs(dx), abs(dy))
+    if (steps <= 1) return false
+    for (step in 1 until steps) {
+        val t = step.toFloat() / steps
+        val ix = (source.x + dx * t).roundToInt()
+        val iy = (source.y + dy * t).roundToInt()
+        if (ix == pos.x && iy == pos.y) return true
+    }
+    return false
 }

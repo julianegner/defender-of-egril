@@ -558,6 +558,7 @@
     <string name="dragon_very_greedy_message">Le dragon est très avide (avidité > 5) ! Il va maintenant traquer et détruire les mines naines, absorbant toute la santé qu'aurait un nouveau dragon (500 PV par mine). Les mines deviendront des décombres détruits. Défendez-les ou reconstruisez rapidement !</string>
     <string name="mine_warning_title">Mine Menacée !</string>
     <string name="mine_warning_message">Le dragon approche ! Les nains se préparent à défendre leur mine, mais cela pourrait ne pas suffire...</string>
+    <string name="mine_targeted_by_dragon">Cette mine est ciblée par le dragon</string>
     <string name="one_hp_warning_title">Avertissement Critique !</string>
     <string name="one_hp_warning_message">Vous n\'avez qu'1 point de vie ! Pas un seul ennemi ne peut atteindre la cible, sinon vous perdrez. Défendez avec une extrême prudence !</string>
     
@@ -1070,11 +1071,18 @@
     <string name="installation_ios_step1">1. Installez depuis l\'App Store (quand disponible)</string>
     <string name="installation_ios_step2">2. Ou compilez depuis le code source en utilisant Xcode</string>
     <string name="installation_linux_title">Linux</string>
-    <string name="installation_linux_step1">Exécutez depuis le terminal avec JDK 11+ :</string>
-    <string name="installation_linux_command">./gradlew :composeApp:run</string>
+    <string name="installation_linux_step1">1. Téléchargez le paquet depuis GitHub Releases :</string>
+    <string name="installation_linux_step1a">• .deb pour Debian/Ubuntu</string>
+    <string name="installation_linux_step1b">• .rpm pour Fedora/Red Hat</string>
+    <string name="installation_linux_step2">2. Installez le paquet depuis le terminal :</string>
+    <string name="installation_linux_step2a">• Debian/Ubuntu : sudo dpkg -i defender-of-egril.deb</string>
+    <string name="installation_linux_step2b">• Fedora/Red Hat : sudo rpm -i defender-of-egril.rpm</string>
+    <string name="installation_linux_step3">3. Lancez depuis le menu des applications</string>
     <string name="installation_macos_title">macOS</string>
-    <string name="installation_macos_step1">Exécutez depuis le terminal avec JDK 11+ :</string>
-    <string name="installation_macos_command">./gradlew :composeApp:run</string>
+    <string name="installation_macos_step1">1. Téléchargez le fichier .dmg depuis GitHub Releases</string>
+    <string name="installation_macos_step2">2. Ouvrez le fichier .dmg et faites glisser Defender of Egril dans le dossier Applications</string>
+    <string name="installation_macos_step3">3. Lancez le jeu depuis le dossier Applications</string>
+    <string name="installation_macos_note">Si macOS Gatekeeper empêche l\'application de se lancer, ouvrez Préférences Système → Confidentialité &amp; Sécurité et cliquez sur "Ouvrir quand même"</string>
     <string name="installation_web_title">Web/Navigateur</string>
     <string name="installation_web_step1">Aucune installation nécessaire !</string>
     <string name="installation_web_step2">Visitez simplement l\'URL du jeu dans n\'importe quel navigateur moderne (Chrome, Firefox, Safari, Edge)</string>
@@ -1215,7 +1223,7 @@
     <!-- Backend Info -->
     <string name="backend_info_title">Compte et Confidentialité</string>
     <string name="backend_info_logging_heading">Qu\'est-ce qui est enregistré ?</string>
-    <string name="backend_info_logging_body">Lorsque vous ouvrez le jeu, démarrez un niveau ou le terminez (en gagnant, perdant ou quittant), un événement est envoyé au serveur du jeu.\nChaque événement enregistre la date et l\'heure du serveur, la version du jeu et la plateforme utilisée (bureau, mobile ou web).\nTous les événements sont entièrement anonymes — aucun nom d\'utilisateur, identifiant ou adresse IP n\'est jamais enregistré.\n\nCes données servent à comprendre le nombre de joueurs et à identifier les niveaux trop difficiles.\nAucune donnée n\'est partagée avec des tiers.\nEn mode hors ligne, les appels de journalisation échouent silencieusement — le jeu fonctionne entièrement sans internet.</string>
+    <string name="backend_info_logging_body">Lorsque vous ouvrez le jeu, démarrez un niveau ou le terminez (en gagnant, perdant ou quittant), un événement est envoyé au serveur du jeu.\nChaque événement enregistre la date et l\'heure du serveur, la version du jeu et la plateforme utilisée (bureau, mobile ou web).\nSi vous êtes connecté, votre nom d\'utilisateur est également enregistré avec l\'événement.\nDans le cas contraire, les événements sont entièrement anonymes — aucun nom d\'utilisateur, identifiant ou adresse IP n\'est jamais enregistré.\nLorsqu\'un niveau se termine (gagné, perdu ou quitté), le numéro du tour en cours est également consigné.\n\nCes données servent à comprendre le nombre de joueurs et à identifier les niveaux trop difficiles.\nAucune donnée n\'est partagée avec des tiers.\nEn mode hors ligne, les appels de journalisation échouent silencieusement — le jeu fonctionne entièrement sans internet.</string>
     <string name="backend_info_account_heading">Compte utilisateur optionnel</string>
     <string name="backend_info_account_body">Un compte est entièrement facultatif — vous pouvez jouer sans vous inscrire. Avec un compte gratuit vous pouvez :\n\n• Sauvegarder votre progression sur le serveur et continuer sur n\'importe quel appareil\n• Passer entre bureau, mobile et web — et reprendre exactement où vous en étiez\n• Téléverser vos propres cartes et niveaux comme contenu communautaire pour que d\'autres les découvrent et y jouent\n• Télécharger et jouer les niveaux créés par d\'autres joueurs</string>
     <string name="backend_info_account_how_heading">Comment obtenir un compte ?</string>
@@ -1240,6 +1248,7 @@
     <string name="keyboard_shortcut_pan_left">Déplacer la carte vers la gauche</string>
     <string name="keyboard_shortcut_pan_right">Déplacer la carte vers la droite</string>
     <string name="keyboard_shortcuts_note">Remarque : Les raccourcis clavier ne sont disponibles que sur bureau.</string>
+    <string name="keyboard_modifier_ctrl">Ctrl</string>
 
     <!-- License Info -->
     <string name="license_info_title">Informations sur la Licence</string>
@@ -1637,6 +1646,7 @@
     <string name="tooltip_info_installation">Info sur l\'installation, la licence et la confidentialité</string>
     <string name="tooltip_enemies_on_map_and_planned">Ennemis sur la carte et planifiés</string>
     <string name="tooltip_return_to_worldmap">Retour à la carte du monde</string>
+    <string name="tooltip_shortcuts">Raccourcis</string>
 
     <!-- Download Installables tab (WASM + Impressum only) -->
     <string name="download_button">Télécharger</string>
@@ -1650,9 +1660,15 @@
     <string name="download_info_platform_note">L\'APK Android peut être téléchargée directement. Pour Windows, Linux et macOS, visitez la page des versions GitHub pour trouver le dernier installateur.</string>
     <string name="download_info_loading">Chargement des liens de téléchargement…</string>
     <string name="download_info_error">Impossible de charger les liens de téléchargement depuis GitHub. Visitez la page des versions pour trouver tous les téléchargements.</string>
+    <string name="download_info_goto_installation">Voir les instructions d\'installation</string>
     <string name="new_version_available_title">Nouvelle version disponible</string>
     <string name="new_version_available_message">La version %1$s est disponible en téléchargement.</string>
     <string name="new_version_go_to_releases">Aller au téléchargement</string>
     <string name="check_for_updates">Rechercher des mises à jour</string>
     <string name="check_for_updates_description">Vérifie au démarrage s\'il existe une version plus récente pour la même plateforme (pas pour le web, ni pour Android si installé depuis le Play Store).</string>
+
+    <string name="animation_test_title">Test d\'animation</string>
+    <string name="animation_test_animation_label">Animation</string>
+    <string name="animation_test_background_label">Arrière-plan</string>
+    <string name="animation_test_replay">↺ Rejouer</string>
 </resources>
