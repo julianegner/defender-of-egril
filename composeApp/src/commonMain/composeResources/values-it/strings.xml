@@ -1247,6 +1247,7 @@
     <string name="keyboard_shortcut_pan_left">Sposta la mappa a sinistra</string>
     <string name="keyboard_shortcut_pan_right">Sposta la mappa a destra</string>
     <string name="keyboard_shortcuts_note">Nota: Le scorciatoie da tastiera sono disponibili solo su desktop.</string>
+    <string name="keyboard_modifier_ctrl">Ctrl</string>
 
     <!-- License Info -->
     <string name="license_info_title">Informazioni sulla Licenza</string>
@@ -1645,6 +1646,7 @@
     <string name="tooltip_info_installation">Info su installazione, licenza e privacy</string>
     <string name="tooltip_enemies_on_map_and_planned">Nemici sulla mappa e pianificati</string>
     <string name="tooltip_return_to_worldmap">Torna alla mappa del mondo</string>
+    <string name="tooltip_shortcuts">Scorciatoie</string>
 
     <!-- Download Installables tab (WASM + Impressum only) -->
     <string name="download_button">Scarica</string>

@@ -1244,6 +1244,7 @@
     <string name="keyboard_shortcut_pan_left">Karte nach links schwenken</string>
     <string name="keyboard_shortcut_pan_right">Karte nach rechts schwenken</string>
     <string name="keyboard_shortcuts_note">Hinweis: Tastenkürzel sind nur auf dem Desktop verfügbar.</string>
+    <string name="keyboard_modifier_ctrl">Strg</string>
 
     <!-- License Info -->
     <string name="license_info_title">Lizenzinformationen</string>
@@ -1642,6 +1643,7 @@
     <string name="tooltip_info_installation">Info über Installation, Lizenz und Datenschutz</string>
     <string name="tooltip_enemies_on_map_and_planned">Feinde auf der Karte und geplante</string>
     <string name="tooltip_return_to_worldmap">Zur Weltkarte zurückkehren</string>
+    <string name="tooltip_shortcuts">Tastenkürzel</string>
 
     <!-- Download Installables tab (WASM + Impressum only) -->
     <string name="download_button">Herunterladen</string>

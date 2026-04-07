@@ -1247,6 +1247,7 @@
     <string name="keyboard_shortcut_pan_left">Desplazar mapa hacia la izquierda</string>
     <string name="keyboard_shortcut_pan_right">Desplazar mapa hacia la derecha</string>
     <string name="keyboard_shortcuts_note">Nota: Los atajos de teclado solo están disponibles en escritorio.</string>
+    <string name="keyboard_modifier_ctrl">Ctrl</string>
 
     <!-- License Info -->
     <string name="license_info_title">Información de Licencia</string>
@@ -1643,6 +1644,7 @@
     <string name="tooltip_info_installation">Info sobre instalación, licencia y privacidad</string>
     <string name="tooltip_enemies_on_map_and_planned">Enemigos en el mapa y planificados</string>
     <string name="tooltip_return_to_worldmap">Volver al mapa del mundo</string>
+    <string name="tooltip_shortcuts">Atajos de teclado</string>
 
     <!-- Download Installables tab (WASM + Impressum only) -->
     <string name="download_button">Descargar</string>

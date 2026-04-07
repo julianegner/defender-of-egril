@@ -1249,6 +1249,7 @@
     <string name="keyboard_shortcut_pan_left">Pan map left</string>
     <string name="keyboard_shortcut_pan_right">Pan map right</string>
     <string name="keyboard_shortcuts_note">Note: Keyboard shortcuts are available on desktop only.</string>
+    <string name="keyboard_modifier_ctrl">Ctrl</string>
 
     <!-- License Info -->
     <string name="license_info_title">License Information</string>
@@ -1649,6 +1650,7 @@
     <string name="tooltip_info_installation">Info about installation, license and privacy</string>
     <string name="tooltip_enemies_on_map_and_planned">Enemies on map and planned</string>
     <string name="tooltip_return_to_worldmap">Return to the worldmap</string>
+    <string name="tooltip_shortcuts">Shortcuts</string>
 
     <!-- Download Installables tab (WASM + Impressum only) -->
     <string name="download_button">Download</string>

@@ -20,6 +20,7 @@ import defender_of_egril.composeapp.generated.resources.*
  */
 @Composable
 fun KeyboardShortcutsInfo() {
+    val ctrl = stringResource(Res.string.keyboard_modifier_ctrl)
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -46,11 +47,11 @@ fun KeyboardShortcutsInfo() {
             // Gameplay shortcuts
             ShortcutSection(title = stringResource(Res.string.keyboard_shortcuts_gameplay_section)) {
                 ShortcutRow(key = "F", description = stringResource(Res.string.keyboard_shortcut_attack))
-                ShortcutRow(key = "Ctrl+A", description = stringResource(Res.string.keyboard_shortcut_auto_attack))
+                ShortcutRow(key = "$ctrl+A", description = stringResource(Res.string.keyboard_shortcut_auto_attack))
                 ShortcutRow(key = "C", description = stringResource(Res.string.keyboard_shortcut_cheat))
                 ShortcutRow(key = "E", description = stringResource(Res.string.keyboard_shortcut_enemy_list))
                 ShortcutRow(key = "Enter", description = stringResource(Res.string.keyboard_shortcut_end_turn))
-                ShortcutRow(key = "Ctrl+S", description = stringResource(Res.string.keyboard_shortcut_save))
+                ShortcutRow(key = "$ctrl+S", description = stringResource(Res.string.keyboard_shortcut_save))
                 ShortcutRow(key = "W / ↑", description = stringResource(Res.string.keyboard_shortcut_pan_up))
                 ShortcutRow(key = "S / ↓", description = stringResource(Res.string.keyboard_shortcut_pan_down))
                 ShortcutRow(key = "A / ←", description = stringResource(Res.string.keyboard_shortcut_pan_left))

@@ -1247,6 +1247,7 @@
     <string name="keyboard_shortcut_pan_left">Déplacer la carte vers la gauche</string>
     <string name="keyboard_shortcut_pan_right">Déplacer la carte vers la droite</string>
     <string name="keyboard_shortcuts_note">Remarque : Les raccourcis clavier ne sont disponibles que sur bureau.</string>
+    <string name="keyboard_modifier_ctrl">Ctrl</string>
 
     <!-- License Info -->
     <string name="license_info_title">Informations sur la Licence</string>
@@ -1644,6 +1645,7 @@
     <string name="tooltip_info_installation">Info sur l\'installation, la licence et la confidentialité</string>
     <string name="tooltip_enemies_on_map_and_planned">Ennemis sur la carte et planifiés</string>
     <string name="tooltip_return_to_worldmap">Retour à la carte du monde</string>
+    <string name="tooltip_shortcuts">Raccourcis</string>
 
     <!-- Download Installables tab (WASM + Impressum only) -->
     <string name="download_button">Télécharger</string>
