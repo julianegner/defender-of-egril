@@ -23,9 +23,14 @@ val withImpressum: Boolean = project.findProperty("withImpressum")?.toString()?.
 // Official editing flag - can be set via gradle.properties or command line: -Pofficial=true
 val official: Boolean = project.findProperty("official")?.toString()?.toBoolean() ?: false
 
-// App version - can be set via command line: -PappVersion=1.2.3
+// App version - resolved in this order:
+//   1. Gradle property:  -PappVersion=1.2.3
+//   2. VERSION file at the project root (written by the release GitHub Action)
+//   3. Hard-coded default "0.0.0"
 // Used for Android versionName, desktop packageVersion, and AppBuildInfo.VERSION_NAME
-val appVersion: String = project.findProperty("appVersion")?.toString() ?: "1.0.0"
+val appVersion: String = project.findProperty("appVersion")?.toString()
+    ?: rootProject.file("VERSION").takeIf { it.exists() }?.readText()?.trim()?.ifBlank { null }
+    ?: "0.0.0"
 
 // Derive Android versionCode from version string (major * 10000 + minor * 100 + patch).
 // Constraints: minor and patch must be 0–99; major must be 0–21474.

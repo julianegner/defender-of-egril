@@ -841,6 +841,18 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: Write VERSION file
+        run: |
+          VERSION="${{ needs.prepare.outputs.version }}"
+          printf '%s' "$VERSION" > VERSION
+          git add VERSION
+          if git diff --cached --quiet; then
+            echo "VERSION file is already up to date."
+          else
+            git commit -m "chore: set version to $VERSION [skip ci]"
+            git push origin HEAD:"$GITHUB_REF_NAME"
+          fi
+
       - name: Create and push tag
         run: |
           TAG="${{ needs.prepare.outputs.version_tag }}"
