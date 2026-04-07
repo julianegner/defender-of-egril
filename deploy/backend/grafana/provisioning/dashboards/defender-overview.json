@@ -231,6 +231,18 @@
           {
             "matcher": { "id": "byName", "options": "platform" },
             "properties": [{ "id": "custom.width", "value": 100 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "user_name" },
+            "properties": [{ "id": "custom.width", "value": 150 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "turn_number" },
+            "properties": [{ "id": "custom.width", "value": 100 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "platform_extended" },
+            "properties": [{ "id": "custom.width", "value": 250 }]
           }
         ]
       },
@@ -247,7 +259,7 @@
         {
           "datasource": { "type": "postgres", "uid": "postgres-app" },
           "format": "table",
-          "rawSql": "SELECT id, event_type, platform, level_name, version_name, created_at FROM events ORDER BY created_at DESC LIMIT 100",
+          "rawSql": "SELECT id, event_type, platform, level_name, version_name, user_name, turn_number, platform_extended, created_at FROM events ORDER BY created_at DESC LIMIT 100",
           "refId": "A"
         }
       ]
