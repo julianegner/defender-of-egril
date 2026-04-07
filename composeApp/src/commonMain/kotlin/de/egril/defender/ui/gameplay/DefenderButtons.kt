@@ -177,7 +177,7 @@ fun DefenderButton(
                 Spacer(modifier = Modifier.width(2.dp))
 
                 // Stats on the right
-                Row {
+                Row(modifier = Modifier.fillMaxWidth()) {
                     Column(
                         modifier = Modifier.fillMaxHeight(),
                         verticalArrangement = Arrangement.Center,
@@ -218,12 +218,13 @@ fun DefenderButton(
                     ) {
                         TowerStats(type.minRange, type.baseDamage, type.baseRange, type.actionsPerTurn)
                     }
+                    Spacer(modifier = Modifier.weight(1f))
                     Column(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .padding(start = 8.dp),
+                            .padding(end = 4.dp),
                         verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.Start
+                        horizontalAlignment = Alignment.End
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             MoneyIcon(size = 14.dp)
