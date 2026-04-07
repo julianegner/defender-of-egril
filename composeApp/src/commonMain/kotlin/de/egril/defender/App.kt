@@ -153,8 +153,8 @@ fun App() {
                     // First time - show language chooser first
                     showInitialLanguageChooser = true
                 } else {
-                    // Language already chosen - proceed to player creation
-                    showCreatePlayer = true
+                    // Language already chosen - auto-create a default player
+                    viewModel.createDefaultPlayer()
                 }
             }
         }
@@ -188,7 +188,7 @@ fun App() {
             de.egril.defender.ui.settings.InitialLanguageChooserDialog(
                 onLanguageSelected = {
                     showInitialLanguageChooser = false
-                    showCreatePlayer = true
+                    viewModel.createDefaultPlayer()
                 }
             )
         }

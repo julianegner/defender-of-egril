@@ -1997,6 +1997,11 @@ class GameViewModel {
             if (username != null && player != null && player.remoteUsername == null) {
                 de.egril.defender.save.PlayerProfileStorage.linkRemoteUser(player.id, username)
                 _currentPlayer.value = player.copy(remoteUsername = username)
+                // On first SSO login, use the account's first name as the local player name
+                val firstName = iamState.firstName
+                if (!firstName.isNullOrBlank() && firstName.length <= 50) {
+                    renameCurrentPlayer(firstName)
+                }
             }
             // Download and merge remote user data (abilities, level progress) on login
             downloadAndMergeUserData()
@@ -2271,7 +2276,21 @@ class GameViewModel {
     }
     
     // Player Profile Management
-    
+
+    /**
+     * Create a default player profile without requiring the user to enter a name.
+     * Uses "Player" as the base name, appending a counter if that name is already taken.
+     * Called automatically on first launch so the player can start playing immediately.
+     */
+    fun createDefaultPlayer() {
+        if (createPlayer("Player")) return
+        var counter = 2
+        while (!createPlayer("Player $counter")) {
+            counter++
+            if (counter > MAX_PLAYER_NAME_COUNTER) break
+        }
+    }
+
     /**
      * Create a new player profile
      * @return true if successful, false if name is invalid or already exists
@@ -3126,5 +3145,10 @@ class GameViewModel {
 
         // Show confirmation dialog with target details (or warning for immune enemies)
         onSpellTargetSelected(target)
+    }
+
+    companion object {
+        /** Maximum counter suffix tried when generating a unique default player name. */
+        private const val MAX_PLAYER_NAME_COUNTER = 999
     }
 }
