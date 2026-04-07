@@ -5,7 +5,13 @@ plugins {
 }
 
 group = "de.egril.defender"
-version = "1.0.0"
+// App version - resolved in this order:
+//   1. Gradle property:  -PappVersion=1.2.3
+//   2. VERSION file at the project root (written by the release GitHub Action)
+//   3. Hard-coded default "0.0.0"
+version = project.findProperty("appVersion")?.toString()
+    ?: rootProject.file("VERSION").takeIf { it.exists() }?.readText()?.trim()?.ifBlank { null }
+    ?: "0.0.0"
 
 application {
     mainClass.set("de.egril.defender.ApplicationKt")
