@@ -556,6 +556,7 @@
     <string name="dragon_very_greedy_message">Der Drache ist sehr gierig (Gier > 5)! Er wird nun Zwergenminen angreifen und zerstören und dabei all die Gesundheit aufnehmen, die ein neuer Drache hätte (500 LP pro Mine + die geschürften Münzen als LP). Minen werden zu zerstörten Trümmern. Verteidige sie oder baue schnell wieder auf!</string>
     <string name="mine_warning_title">Mine bedroht!</string>
     <string name="mine_warning_message">Der Drache nähert sich! Die Zwerge bereiten sich vor, ihre Mine zu verteidigen, aber es könnte nicht genug sein...</string>
+    <string name="mine_targeted_by_dragon">Diese Mine wird vom Drachen anvisiert</string>
     <string name="one_hp_warning_title">Kritische Warnung!</string>
     <string name="one_hp_warning_message">Du hast nur 1 Lebenspunkt! Kein einziger Feind darf das Ziel erreichen, sonst verlierst du. Verteidige mit äußerster Vorsicht!</string>
     
@@ -1663,4 +1664,9 @@
     <string name="new_version_go_to_releases">Zum Download</string>
     <string name="check_for_updates">Nach Updates suchen</string>
     <string name="check_for_updates_description">Sucht beim Start nach einer neueren Version für dieselbe Plattform (nicht für Web, nicht für Android bei Installation aus dem Play Store).</string>
+
+    <string name="animation_test_title">Animationstest</string>
+    <string name="animation_test_animation_label">Animation</string>
+    <string name="animation_test_background_label">Hintergrund</string>
+    <string name="animation_test_replay">↺ Wiederholen</string>
 </resources>

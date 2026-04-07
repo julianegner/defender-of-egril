@@ -558,6 +558,7 @@
     <string name="dragon_very_greedy_message">Il drago è molto avido (avidità > 5)! Ora caccerà e distruggerà miniere naniche, assorbendo tutta la salute che avrebbe un nuovo drago (500 PS per miniera). Le miniere diventeranno macerie distrutte. Difendile o ricostruisci rapidamente!</string>
     <string name="mine_warning_title">Miniera Minacciata!</string>
     <string name="mine_warning_message">Il drago si avvicina! I nani si preparano a difendere la loro miniera, ma potrebbe non essere sufficiente...</string>
+    <string name="mine_targeted_by_dragon">Questa miniera è presa di mira dal drago</string>
     <string name="one_hp_warning_title">Avviso Critico!</string>
     <string name="one_hp_warning_message">Hai solo 1 punto vita! Nemmeno un nemico può raggiungere l'obiettivo, o perderai. Difendi con estrema cautela!</string>
     
@@ -1666,4 +1667,9 @@
     <string name="new_version_go_to_releases">Vai al download</string>
     <string name="check_for_updates">Verifica aggiornamenti</string>
     <string name="check_for_updates_description">Verifica all\'avvio la presenza di una versione più recente per la stessa piattaforma (non per il web, né per Android se installato dal Play Store).</string>
+
+    <string name="animation_test_title">Test animazione</string>
+    <string name="animation_test_animation_label">Animazione</string>
+    <string name="animation_test_background_label">Sfondo</string>
+    <string name="animation_test_replay">↺ Riproduci</string>
 </resources>

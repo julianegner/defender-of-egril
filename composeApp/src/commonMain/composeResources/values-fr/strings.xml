@@ -558,6 +558,7 @@
     <string name="dragon_very_greedy_message">Le dragon est très avide (avidité > 5) ! Il va maintenant traquer et détruire les mines naines, absorbant toute la santé qu'aurait un nouveau dragon (500 PV par mine). Les mines deviendront des décombres détruits. Défendez-les ou reconstruisez rapidement !</string>
     <string name="mine_warning_title">Mine Menacée !</string>
     <string name="mine_warning_message">Le dragon approche ! Les nains se préparent à défendre leur mine, mais cela pourrait ne pas suffire...</string>
+    <string name="mine_targeted_by_dragon">Cette mine est ciblée par le dragon</string>
     <string name="one_hp_warning_title">Avertissement Critique !</string>
     <string name="one_hp_warning_message">Vous n\'avez qu'1 point de vie ! Pas un seul ennemi ne peut atteindre la cible, sinon vous perdrez. Défendez avec une extrême prudence !</string>
     
@@ -1665,4 +1666,9 @@
     <string name="new_version_go_to_releases">Aller au téléchargement</string>
     <string name="check_for_updates">Rechercher des mises à jour</string>
     <string name="check_for_updates_description">Vérifie au démarrage s\'il existe une version plus récente pour la même plateforme (pas pour le web, ni pour Android si installé depuis le Play Store).</string>
+
+    <string name="animation_test_title">Test d\'animation</string>
+    <string name="animation_test_animation_label">Animation</string>
+    <string name="animation_test_background_label">Arrière-plan</string>
+    <string name="animation_test_replay">↺ Rejouer</string>
 </resources>

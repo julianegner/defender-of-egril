@@ -57,6 +57,61 @@ data class BombExplosionEffect(
     val turnNumber: Int          // Turn when this explosion occurred
 )
 
+data class EnemyDeathEffect(
+    val position: Position,           // Position where the enemy was defeated
+    val turnNumber: Int,              // Turn when this defeat occurred
+    val attackerType: AttackerType,   // Type of the defeated enemy (for ghost rendering during animation)
+    val attackerLevel: Int            // Level of the defeated enemy (for level badge during animation)
+)
+
+data class CoinGainEffect(
+    val position: Position,      // Position of the defeated enemy that awarded coins
+    val amount: Int,             // Amount of coins gained
+    val turnNumber: Int          // Turn when this coin gain occurred
+)
+
+data class TowerAttackEffect(
+    val targetPosition: Position,  // Position of the attacked tile
+    val turnNumber: Int            // Turn when this attack occurred
+)
+
+data class TowerConstructionEffect(
+    val position: Position,        // Position of the tower that finished building
+    val turnNumber: Int            // Turn when construction completed
+)
+
+data class EnemySpawnEffect(
+    val position: Position,        // Spawn position of the newly appeared enemy
+    val turnNumber: Int            // Turn when this spawn occurred
+)
+
+data class TrapTriggerEffect(
+    val position: Position,        // Position of the trap that was triggered
+    val turnNumber: Int            // Turn when this trap triggered
+)
+
+data class EnemyMoveEffect(
+    val position: Position,        // Tile that the enemy just vacated (movement trail)
+    val turnNumber: Int            // Turn when this movement occurred
+)
+
+data class DragonLevelChangeEffect(
+    val position: Position,        // Dragon's position when its level changed
+    val isLevelUp: Boolean,        // true = dragon gained levels (ate units), false = lost levels (took damage)
+    val turnNumber: Int            // Turn when this change occurred
+)
+
+data class MineDigEffect(
+    val position: Position,        // Position of the mine that was dug
+    val turnNumber: Int            // Turn when digging occurred
+)
+
+data class ArrowAttackEffect(
+    val sourcePosition: Position,  // Tower's tile (source of the arrow)
+    val targetPosition: Position,  // Target tile
+    val turnNumber: Int            // Turn when this attack occurred
+)
+
 /**
  * Types of in-game event messages that are shown to the player.
  */
@@ -104,6 +159,16 @@ data class GameState(
     val bridges: SnapshotStateList<Bridge> = mutableStateListOf(),  // Track active bridges
     val rafts: SnapshotStateList<Raft> = mutableStateListOf(),  // Track active rafts (towers on rivers)
     val bombExplosionEffects: SnapshotStateList<BombExplosionEffect> = mutableStateListOf(),  // Track bomb explosion visual effects
+    val defeatedEnemyEffects: SnapshotStateList<EnemyDeathEffect> = mutableStateListOf(),  // Track enemy death visual effects
+    val coinGainEffects: SnapshotStateList<CoinGainEffect> = mutableStateListOf(),  // Track coin gain visual effects
+    val towerAttackEffects: SnapshotStateList<TowerAttackEffect> = mutableStateListOf(),  // Track tower attack impact visual effects
+    val constructionCompleteEffects: SnapshotStateList<TowerConstructionEffect> = mutableStateListOf(),  // Track tower construction complete visual effects
+    val enemySpawnEffects: SnapshotStateList<EnemySpawnEffect> = mutableStateListOf(),  // Track enemy spawn portal visual effects
+    val trapTriggerEffects: SnapshotStateList<TrapTriggerEffect> = mutableStateListOf(),  // Track trap trigger visual effects
+    val enemyMoveEffects: SnapshotStateList<EnemyMoveEffect> = mutableStateListOf(),  // Track enemy movement trail visual effects
+    val dragonLevelChangeEffects: SnapshotStateList<DragonLevelChangeEffect> = mutableStateListOf(),  // Track dragon level change visual effects
+    val mineDigEffects: SnapshotStateList<MineDigEffect> = mutableStateListOf(),  // Track dwarven mine digging visual effects
+    val arrowAttackEffects: SnapshotStateList<ArrowAttackEffect> = mutableStateListOf(),  // Track arrow/bolt projectile effects for ranged towers
     val difficulty: DifficultyLevel = DifficultyLevel.MEDIUM,  // Track difficulty for this game session
     val tutorialState: MutableState<TutorialState> = mutableStateOf(
         // Enable tutorial only for the tutorial level (id=1, title contains "Welcome")

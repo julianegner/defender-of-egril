@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import io.github.alexzhirkevich.compottie.Compottie
 import io.github.alexzhirkevich.compottie.LottieCompositionSpec
 import io.github.alexzhirkevich.compottie.animateLottieCompositionAsState
 import io.github.alexzhirkevich.compottie.rememberLottieComposition
@@ -28,7 +29,22 @@ enum class AnimationType {
     INSTANT_TOWER_SPELL,
     FEAR_SPELL,
     BOMB_EXPLOSION,
-    WATER_FLOW
+    WATER_FLOW,
+    ENEMY_DEATH,
+    TOWER_READY_PULSE,
+    COIN_GAIN,
+    TOWER_ATTACK_IMPACT,
+    TOWER_CONSTRUCTION_COMPLETE,
+    ENEMY_SPAWN,
+    TRAP_TRIGGER,
+    ENEMY_MOVE,
+    DRAGON_LEVEL_UP,
+    DRAGON_LEVEL_DOWN,
+    WIZARD_IDLE,
+    ALCHEMY_IDLE,
+    MINE_DIG,
+    ARROW_ATTACK,
+    DRAGON_TARGET
 }
 
 /**
@@ -40,7 +56,7 @@ fun LottieAnimation(
     animationType: AnimationType,
     modifier: Modifier = Modifier,
     size: Dp = 40.dp,
-    iterations: Int = 1, // Number of times to play the animation (use Int.MAX_VALUE for infinite loop)
+    iterations: Int = 1, // Number of times to play the animation (use Compottie.IterateForever for infinite loop)
     speed: Float = 1f,   // Playback speed multiplier (1f = normal, 2f = double speed)
     contentScale: ContentScale = ContentScale.Fit
 ) {
@@ -54,6 +70,21 @@ fun LottieAnimation(
         AnimationType.FEAR_SPELL -> "files/animations/fear_spell.json"
         AnimationType.BOMB_EXPLOSION -> "files/animations/bomb_explosion.json"
         AnimationType.WATER_FLOW -> "files/animations/water_flow.json"
+        AnimationType.ENEMY_DEATH -> "files/animations/enemy_death.json"
+        AnimationType.TOWER_READY_PULSE -> "files/animations/tower_ready_pulse.json"
+        AnimationType.COIN_GAIN -> "files/animations/coin_gain.json"
+        AnimationType.TOWER_ATTACK_IMPACT -> "files/animations/tower_attack_impact.json"
+        AnimationType.TOWER_CONSTRUCTION_COMPLETE -> "files/animations/tower_construction_complete.json"
+        AnimationType.ENEMY_SPAWN -> "files/animations/enemy_spawn.json"
+        AnimationType.TRAP_TRIGGER -> "files/animations/trap_trigger.json"
+        AnimationType.ENEMY_MOVE -> "files/animations/enemy_move.json"
+        AnimationType.DRAGON_LEVEL_UP -> "files/animations/dragon_level_up.json"
+        AnimationType.DRAGON_LEVEL_DOWN -> "files/animations/dragon_level_down.json"
+        AnimationType.WIZARD_IDLE -> "files/animations/wizard_idle.json"
+        AnimationType.ALCHEMY_IDLE -> "files/animations/alchemy_idle.json"
+        AnimationType.MINE_DIG -> "files/animations/mine_dig.json"
+        AnimationType.ARROW_ATTACK -> "files/animations/arrow_attack.json"
+        AnimationType.DRAGON_TARGET -> "files/animations/dragon_target.json"
     }
     
     // Load the animation JSON asynchronously
@@ -107,6 +138,21 @@ fun LottieAnimation(
                     AnimationType.FEAR_SPELL -> "Fear spell dark cloud animation"
                     AnimationType.BOMB_EXPLOSION -> "Bomb explosion animation"
                     AnimationType.WATER_FLOW -> "Water flow animation"
+                    AnimationType.ENEMY_DEATH -> "Enemy death animation"
+                    AnimationType.TOWER_READY_PULSE -> "Tower ready pulse animation"
+                    AnimationType.COIN_GAIN -> "Coin gain animation"
+                    AnimationType.TOWER_ATTACK_IMPACT -> "Tower attack impact animation"
+                    AnimationType.TOWER_CONSTRUCTION_COMPLETE -> "Tower construction complete animation"
+                    AnimationType.ENEMY_SPAWN -> "Enemy spawn portal animation"
+                    AnimationType.TRAP_TRIGGER -> "Trap trigger animation"
+                    AnimationType.ENEMY_MOVE -> "Enemy movement trail animation"
+                    AnimationType.DRAGON_LEVEL_UP -> "Dragon level up animation"
+                    AnimationType.DRAGON_LEVEL_DOWN -> "Dragon level down animation"
+                    AnimationType.WIZARD_IDLE -> "Wizard tower idle sparkle animation"
+                    AnimationType.ALCHEMY_IDLE -> "Alchemy tower idle bubble animation"
+                    AnimationType.MINE_DIG -> "Dwarven mine digging animation"
+                    AnimationType.ARROW_ATTACK -> "Arrow attack projectile animation"
+                    AnimationType.DRAGON_TARGET -> "Dragon targeting mine animation"
                 },
                 contentScale = contentScale,
                 modifier = Modifier.fillMaxSize()

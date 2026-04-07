@@ -28,6 +28,7 @@ import de.egril.defender.ui.icon.SwordIcon
 import de.egril.defender.ui.icon.TimerIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
+import de.egril.defender.ui.icon.WarningIcon
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
@@ -200,6 +201,29 @@ fun DefenderInfo(
                             DefenderActionsInfo(defender)
                             dwarvenMineInfoButtonArea(defender)
                             TowerInfoButtonArea(defender, gameState)
+                        }
+                        // Warn when a dragon is targeting this mine
+                        if (defender.type == DefenderType.DWARVEN_MINE) {
+                            val targetingDragon = gameState.attackers.find {
+                                it.type == AttackerType.DRAGON &&
+                                    it.targetMineId.value == defender.id &&
+                                    !it.isDefeated.value
+                            }
+                            if (targetingDragon != null) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    modifier = Modifier.padding(top = 2.dp)
+                                ) {
+                                    WarningIcon(size = 12.dp)
+                                    Text(
+                                        "${stringResource(Res.string.mine_targeted_by_dragon)}: ${targetingDragon.dragonName ?: stringResource(Res.string.dragon_name)}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = Color.Red,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
                         }
                     }
                 

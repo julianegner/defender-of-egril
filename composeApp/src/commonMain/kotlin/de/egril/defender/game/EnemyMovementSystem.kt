@@ -107,6 +107,17 @@ class EnemyMovementSystem(
             )
             state.attackers.add(attacker)
             
+            // Record enemy spawn visual effect for animation.
+            // Always use the designated spawn point tile (preferredSpawnPoint), not the actual
+            // spawn position (spawnPos), which may be an adjacent path tile when the spawn point
+            // is congested. The portal animation should appear at the fixed spawn marker.
+            state.enemySpawnEffects.add(
+                EnemySpawnEffect(
+                    position = preferredSpawnPoint,
+                    turnNumber = state.turnNumber.value
+                )
+            )
+            
             // Queue Ewhad enters message when Ewhad spawns
             if (plannedSpawn.attackerType == AttackerType.EWHAD) {
                 state.pendingMessages.add(
@@ -468,6 +479,11 @@ class EnemyMovementSystem(
                         if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
                         println("Goblin ${attacker.id} destroyed barricade at $newPos")
                         }
+                        // Record movement trail on the vacated tile (deduplicated per position per turn)
+                        val oldPos = attacker.position.value
+                        if (state.enemyMoveEffects.none { it.position == oldPos }) {
+                            state.enemyMoveEffects.add(EnemyMoveEffect(oldPos, state.turnNumber.value))
+                        }
                         attacker.position.value = newPos
                         
                         // Check if reached a waypoint
@@ -502,6 +518,11 @@ class EnemyMovementSystem(
                     }
                 } else {
                     // No barricade, move normally
+                    // Record movement trail on the vacated tile (deduplicated per position per turn)
+                    val oldPos = attacker.position.value
+                    if (state.enemyMoveEffects.none { it.position == oldPos }) {
+                        state.enemyMoveEffects.add(EnemyMoveEffect(oldPos, state.turnNumber.value))
+                    }
                     attacker.position.value = newPos
                     
                     // Check if reached a waypoint and update target BEFORE next move

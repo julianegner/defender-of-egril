@@ -1,4 +1,5 @@
 package de.egril.defender.ui.animations
+import io.github.alexzhirkevich.compottie.Compottie
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,7 +32,7 @@ private fun AnimatedBarricadeDamage(modifier: Modifier = Modifier) {
     LottieAnimation(
         animationType = AnimationType.BARRICADE_DAMAGE,
         modifier = modifier.fillMaxSize(),
-        iterations = Int.MAX_VALUE
+        iterations = Compottie.IterateForever
     )
 }
 

@@ -39,6 +39,7 @@ sealed class Screen {
     object LoadingSpinnerDemo : Screen()
     object StatsUpgrade : Screen()  // New screen for stats/spells upgrade
     object FinalCredits : Screen()
+    object AnimationTest : Screen()  // Developer cheat: animation test/preview screen
     data class GamePlay(val levelId: Int) : Screen()
     data class LevelComplete(
         val levelId: Int,
@@ -148,6 +149,14 @@ class GameViewModel {
     private val BREAK_REMINDER_INTERVAL_MS = 2 * 60 * 60 * 1000L  // 2 hours
     private val SLEEP_REMINDER_INTERVAL_MS = 60 * 60 * 1000L       // 1 hour
     private val SLEEP_START_HOUR = 23  // 23:00 (11 PM)
+
+    // Extra pause added after a movement step that triggers a trap, so the trap animation (~830ms)
+    // completes before the enemy continues moving.
+    private val TRAP_ANIMATION_EXTRA_DELAY_MS = 800L
+
+    // Pause after a trap kill's death animation starts, so the enemy death animation (~1000ms)
+    // finishes before the next movement step begins.
+    private val ENEMY_DEATH_ANIMATION_DELAY_MS = 1000L
 
     // Track initial game state to detect unsaved changes
     private var initialGameStateSnapshot: String? = null
@@ -501,6 +510,10 @@ class GameViewModel {
 
     fun navigateToFinalCredits() {
         _currentScreen.value = Screen.FinalCredits
+    }
+
+    fun navigateToAnimationTest() {
+        _currentScreen.value = Screen.AnimationTest
     }
 
     fun upgradeAbility(statType: de.egril.defender.model.AbilityType) {
@@ -936,12 +949,22 @@ class GameViewModel {
             
             // Apply each movement step with a delay between steps
             for (stepMovements in movementSteps) {
+                val trapCountBefore = _gameState.value?.trapTriggerEffects?.size ?: 0
                 // Apply all movements in this step simultaneously
                 for ((attackerId, newPosition) in stepMovements) {
                     engine.applyMovement(attackerId, newPosition)
                 }
                 // Delay between movement steps so user can see the animation (reduced from 400ms to 200ms)
                 delay(200)
+                // If a trap was triggered in this step, pause long enough for the trap animation to
+                // complete (~830ms) before the enemy continues moving.
+                val trapCountAfter = _gameState.value?.trapTriggerEffects?.size ?: 0
+                if (trapCountAfter > trapCountBefore) {
+                    delay(TRAP_ANIMATION_EXTRA_DELAY_MS)
+                    // Process any enemies killed by this trap now so their death animation plays
+                    // directly after the trap animation, before the next movement step begins.
+                    processAndDelayForTrapDeaths()
+                }
             }
 
             attackersStoppedByBarricade.forEach { it ->
@@ -970,11 +993,20 @@ class GameViewModel {
             // Move newly spawned units away from spawn points
             val newSpawnMovements = engine.calculateNewlySpawnedMovements()
             for (stepMovements in newSpawnMovements) {
+                val trapCountBefore = _gameState.value?.trapTriggerEffects?.size ?: 0
                 for ((attackerId, newPosition) in stepMovements) {
                     engine.applyMovement(attackerId, newPosition)
                 }
                 // Delay between movement steps (reduced from 400ms to 200ms)
                 delay(200)
+                // Pause extra if a trap fired during this step
+                val trapCountAfter = _gameState.value?.trapTriggerEffects?.size ?: 0
+                if (trapCountAfter > trapCountBefore) {
+                    delay(TRAP_ANIMATION_EXTRA_DELAY_MS)
+                    // Process any enemies killed by this trap now so their death animation plays
+                    // directly after the trap animation, before the next movement step begins.
+                    processAndDelayForTrapDeaths()
+                }
             }
             
             // Add a small delay after newly spawned units have moved (reduced from 300ms to 150ms)
@@ -1538,6 +1570,12 @@ class GameViewModel {
         // Check for "credits" cheat code (shows the final credits screen)
         if (code.lowercase().trim() == "credits") {
             navigateToFinalCredits()
+            return true
+        }
+
+        // Check for "animation" cheat code (shows the animation test/preview screen)
+        if (code.lowercase().trim() == "animation") {
+            navigateToAnimationTest()
             return true
         }
 
@@ -2440,6 +2478,20 @@ class GameViewModel {
             _pendingGameMessage.value = next
         } else {
             _pendingGameMessage.value = null
+        }
+    }
+
+    /**
+     * After a trap fires and its animation completes, process any newly-defeated attackers so
+     * their death animation plays immediately after the trap animation (rather than being deferred
+     * to completeEnemyTurn). Adds a further delay equal to [ENEMY_DEATH_ANIMATION_DELAY_MS] so
+     * the death animation finishes before the next movement step begins.
+     */
+    private suspend fun processAndDelayForTrapDeaths() {
+        val deathCountBefore = _gameState.value?.defeatedEnemyEffects?.size ?: 0
+        gameEngine?.processDefeatedAttackers()
+        if ((_gameState.value?.defeatedEnemyEffects?.size ?: 0) > deathCountBefore) {
+            delay(ENEMY_DEATH_ANIMATION_DELAY_MS)
         }
     }
 

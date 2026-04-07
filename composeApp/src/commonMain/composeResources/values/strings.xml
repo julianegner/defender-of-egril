@@ -558,6 +558,7 @@
     <string name="dragon_very_greedy_message">The dragon is very greedy (greed > 5)! It will now hunt down and destroy dwarven mines, absorbing all the health a new dragon would have (500 HP per mine). Mines will become destroyed rubble. Defend them or rebuild quickly!</string>
     <string name="mine_warning_title">Mine Under Threat!</string>
     <string name="mine_warning_message">The dragon approaches! The dwarves prepare to defend their mine, but it may not be enough...</string>
+    <string name="mine_targeted_by_dragon">This mine is targeted by the dragon</string>
     <string name="one_hp_warning_title">Critical Warning!</string>
     <string name="one_hp_warning_message">You have only 1 health point! Not a single enemy can reach the target, or you will lose. Defend with extreme caution!</string>
     
@@ -1670,4 +1671,9 @@
     <string name="new_version_go_to_releases">Go to Download</string>
     <string name="check_for_updates">Check for updates</string>
     <string name="check_for_updates_description">Checks for a newer version on the same platform on startup (not for web, not for Android if installed from the Play Store).</string>
+
+    <string name="animation_test_title">Animation Test</string>
+    <string name="animation_test_animation_label">Animation</string>
+    <string name="animation_test_background_label">Background</string>
+    <string name="animation_test_replay">↺ Replay</string>
 </resources>

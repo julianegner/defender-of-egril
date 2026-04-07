@@ -556,6 +556,7 @@
     <string name="dragon_very_greedy_message">¡El dragón es muy codicioso (avaricia > 5)! Ahora cazará y destruirá minas enanas, absorbiendo toda la salud que tendría un nuevo dragón (500 PS por mina). ¡Las minas se convertirán en escombros destruidos. Defiéndelas o reconstruye rápidamente!</string>
     <string name="mine_warning_title">¡Mina Amenazada!</string>
     <string name="mine_warning_message">¡El dragón se acerca! Los enanos se preparan para defender su mina, pero puede que no sea suficiente...</string>
+    <string name="mine_targeted_by_dragon">Esta mina es el objetivo del dragón</string>
     <string name="one_hp_warning_title">¡Advertencia Crítica!</string>
     <string name="one_hp_warning_message">¡Solo tienes 1 punto de salud! Ni un solo enemigo puede alcanzar el objetivo, o perderás. ¡Defiende con extrema precaución!</string>
     
@@ -1664,4 +1665,9 @@
     <string name="new_version_go_to_releases">Ir a la descarga</string>
     <string name="check_for_updates">Buscar actualizaciones</string>
     <string name="check_for_updates_description">Comprueba si hay una versión más reciente para la misma plataforma al iniciar (no para web, ni para Android si se instaló desde Play Store).</string>
+
+    <string name="animation_test_title">Prueba de animación</string>
+    <string name="animation_test_animation_label">Animación</string>
+    <string name="animation_test_background_label">Fondo</string>
+    <string name="animation_test_replay">↺ Repetir</string>
 </resources>
