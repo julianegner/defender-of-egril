@@ -114,20 +114,35 @@ For more detailed information about APK sideloading, see: [Android APK Installat
 
 ## Linux
 
-### Running from Terminal
+### Installing from GitHub Releases
 
-1. Ensure you have JDK 11 or higher installed
-2. Clone or download the repository
-3. Open a terminal in the project directory
-4. Run the game:
+1. Go to the [GitHub Releases page](https://github.com/qvest-digital/defender-of-egril-fork/releases)
+2. Download the appropriate package for your distribution:
+   - `.deb` for Debian/Ubuntu
+   - `.rpm` for Fedora/Red Hat
+3. Install the package from terminal:
+
+   **Debian/Ubuntu:**
+   ```bash
+   sudo dpkg -i defender-of-egril.deb
+   ```
+
+   **Fedora/Red Hat:**
+   ```bash
+   sudo rpm -i defender-of-egril.rpm
+   ```
+
+4. Launch the game from the application menu
+
+### Building from Source
+
+Alternatively, you can run the game directly from source:
 
 ```bash
 ./gradlew :composeApp:run
 ```
 
-### Building a Package
-
-You can build a distributable package:
+Or build a distributable package:
 
 ```bash
 ./gradlew :composeApp:packageDeb  # For Debian/Ubuntu
@@ -138,20 +153,24 @@ You can build a distributable package:
 
 ## macOS
 
-### Running from Terminal
+### Installing from GitHub Releases
 
-1. Ensure you have JDK 11 or higher installed
-2. Clone or download the repository
-3. Open Terminal in the project directory
-4. Run the game:
+1. Go to the [GitHub Releases page](https://github.com/qvest-digital/defender-of-egril-fork/releases)
+2. Download the `.dmg` file
+3. Open the `.dmg` file and drag **Defender of Egril** to the Applications folder
+4. Launch the game from the Applications folder
+
+> **Note:** If macOS Gatekeeper prevents the app from launching, open **System Settings → Privacy & Security** and click **"Open Anyway"**. This warning appears because the app is not signed with an Apple Developer certificate.
+
+### Building from Source
+
+Alternatively, you can run the game directly from source:
 
 ```bash
 ./gradlew :composeApp:run
 ```
 
-### Building an Application Bundle
-
-You can build a native macOS application:
+Or build a native macOS application:
 
 ```bash
 ./gradlew :composeApp:packageDmg

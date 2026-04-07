@@ -27,7 +27,7 @@ private const val GITHUB_RELEASES_PAGE =
  * Only shown on WASM platform when the withImpressum build flag is enabled.
  */
 @Composable
-fun DownloadInfo() {
+fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}) {
     var assets by remember { mutableStateOf<List<GithubReleaseAsset>?>(null) }
     var loadError by remember { mutableStateOf(false) }
 
@@ -186,6 +186,15 @@ fun DownloadInfo() {
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.padding(12.dp)
                 )
+            }
+
+            // Link to installation instructions
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = onNavigateToInstallation,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                Text(stringResource(Res.string.download_info_goto_installation))
             }
 
             // Impressum section
