@@ -178,19 +178,39 @@ fun DefenderButton(
 
                 // Stats on the right
                 Row(modifier = Modifier.fillMaxWidth()) {
+                    // Left column: name with price, attack type, build time.
+                    // Uses weight(1f) so it fills available space and the price is never clipped.
                     Column(
-                        modifier = Modifier.fillMaxHeight(),
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .weight(1f),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.Start
                     ) {
                         val locale = com.hyperether.resources.currentLanguage.value
-                        Text(
-                            type.getLocalizedShortName(locale),
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp,
-                            maxLines = 1
-                        )
+                        // Name row: tower name on left, price on right – both always visible
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                type.getLocalizedShortName(locale),
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp,
+                                maxLines = 1,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            MoneyIcon(size = 14.dp)
+                            Spacer(modifier = Modifier.width(2.dp))
+                            Text(
+                                "${type.baseCost}",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
+                            )
+                        }
 
                         Text(
                             type.attackType.getLocalizedName(locale),
@@ -217,24 +237,6 @@ fun DefenderButton(
                         horizontalAlignment = Alignment.Start
                     ) {
                         TowerStats(type.minRange, type.baseDamage, type.baseRange, type.actionsPerTurn)
-                    }
-                    Spacer(modifier = Modifier.weight(1f))
-                    Column(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .padding(end = 4.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.End
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            MoneyIcon(size = 14.dp)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                "${type.baseCost}",
-                                style = MaterialTheme.typography.labelSmall,
-                                fontSize = 16.sp
-                            )
-                        }
                     }
                 }
             }

@@ -43,6 +43,11 @@ import defender_of_egril.composeapp.generated.resources.emoji_crown
 import defender_of_egril.composeapp.generated.resources.emoji_skull
 import org.jetbrains.compose.resources.painterResource
 
+/** Top padding for the main content column on mobile when a player area is visible. */
+private val MobileTopPaddingWithPlayer = 150.dp
+/** Top padding for the main content column on mobile when no player area is shown (only exit button). */
+private val MobileTopPaddingWithoutPlayer = 60.dp
+
 @Composable
 fun MainMenuScreen(
     onStartGame: () -> Unit,
@@ -231,10 +236,13 @@ fun MainMenuScreen(
                 }
             }
             
+            // On mobile, add enough top padding to clear the player area and exit button.
+            // If a player name is shown (incl. IAM login/logout button), use a larger offset.
+            val mobileTopPadding = if (currentPlayerName != null) MobileTopPaddingWithPlayer else MobileTopPaddingWithoutPlayer
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .then(if (isPlatformMobile) Modifier.padding(top = 90.dp) else Modifier),
+                    .then(if (isPlatformMobile) Modifier.padding(top = mobileTopPadding) else Modifier),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = if (isPlatformMobile) Arrangement.Top else Arrangement.Center
             ) {
@@ -244,7 +252,7 @@ fun MainMenuScreen(
                 }
                 
                 // Application banner with logo and styled text
-                ApplicationBanner(scale = if (isPlatformMobile) 0.6f else 1f)
+                ApplicationBanner(scale = if (isPlatformMobile) 0.8f else 1f)
                 
                 Spacer(modifier = Modifier.height(8.dp))
                 
