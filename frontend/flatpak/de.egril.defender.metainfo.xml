@@ -13,6 +13,9 @@
     </p>
   </description>
   <url type="homepage">https://github.com/qvest-digital/defender-of-egril-fork</url>
+  <developer id="de.egril">
+    <name>qvest digital AG</name>
+  </developer>
   <launchable type="desktop-id">de.egril.defender.desktop</launchable>
   <categories>
     <category>Game</category>
