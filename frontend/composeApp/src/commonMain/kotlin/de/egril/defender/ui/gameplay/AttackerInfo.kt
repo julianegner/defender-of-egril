@@ -20,6 +20,7 @@ import de.egril.defender.ui.icon.LockIcon
 import de.egril.defender.ui.icon.SnowflakeIcon
 import de.egril.defender.ui.icon.ShieldIcon
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -94,13 +95,13 @@ fun AttackerInfo(
                         } else {
                             attacker.type.getLocalizedName(locale)
                         }
-                        Text(
+                        SelectableText(
                             displayName,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
                         if (attacker.level.value > 1) {
-                            Text(
+                            SelectableText(
                                 "Lvl ${attacker.level.value}",
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
@@ -113,7 +114,7 @@ fun AttackerInfo(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         if (attacker.type != AttackerType.EWHAD) {
-                            Text(
+                            SelectableText(
                                 "${stringResource(Res.string.hp_short)}: ${attacker.currentHealth.value}/${attacker.maxHealth}",
                                 style = MaterialTheme.typography.bodySmall
                             )
@@ -124,7 +125,7 @@ fun AttackerInfo(
                             horizontalArrangement = Arrangement.spacedBy(4.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
+                            SelectableText(
                                 "${stringResource(Res.string.speed_label)}: ${attacker.type.speed}",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.Gray
@@ -132,7 +133,7 @@ fun AttackerInfo(
                             
                             // If affected by barbs, show current speed in red
                             if (attacker.movementPenalty.value > 0) {
-                                Text(
+                                SelectableText(
                                     "→ $barbsSpeed",
                                     style = MaterialTheme.typography.bodySmall,
                                     fontWeight = FontWeight.Bold,
@@ -142,7 +143,7 @@ fun AttackerInfo(
 
                             // If in cooling area, show cooled speed in turquoise
                             if (cooledSpeed != null) {
-                                Text(
+                                SelectableText(
                                     "→ $cooledSpeed",
                                     style = MaterialTheme.typography.bodySmall,
                                     fontWeight = FontWeight.Bold,
@@ -152,7 +153,7 @@ fun AttackerInfo(
 
                             // If frozen, show speed → 0 in turquoise
                             if (freezeEffect != null && cooledSpeed == null) {
-                                Text(
+                                SelectableText(
                                     "→ 0",
                                     style = MaterialTheme.typography.bodySmall,
                                     fontWeight = FontWeight.Bold,
@@ -161,7 +162,7 @@ fun AttackerInfo(
                             }
                         }
                         
-                        Text(
+                        SelectableText(
                             "${stringResource(Res.string.position_label)}: (${attacker.position.value.x},${attacker.position.value.y})",
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.Gray
@@ -176,7 +177,7 @@ fun AttackerInfo(
                             modifier = Modifier.padding(top = 4.dp)
                         ) {
                             de.egril.defender.ui.icon.DownArrowIcon(size = 14.dp)
-                            Text(
+                            SelectableText(
                                 stringResource(Res.string.slowed_by_barbs),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.Red,
@@ -193,7 +194,7 @@ fun AttackerInfo(
                             modifier = Modifier.padding(top = 4.dp)
                         ) {
                             SnowflakeIcon(size = 14.dp, tint = Color.Cyan)
-                            Text(
+                            SelectableText(
                                 if (freezeEffect.turnsRemaining > 0) {
                                     stringResource(Res.string.frozen_turns_remaining, freezeEffect.turnsRemaining)
                                 } else {
@@ -214,7 +215,7 @@ fun AttackerInfo(
                             modifier = Modifier.padding(top = 4.dp)
                         ) {
                             SnowflakeIcon(size = 14.dp, tint = Color.Cyan)
-                            Text(
+                            SelectableText(
                                 if (coolingEffect.turnsRemaining > 0) {
                                     stringResource(Res.string.cooled_turns_remaining, coolingEffect.turnsRemaining)
                                 } else {
@@ -224,7 +225,7 @@ fun AttackerInfo(
                                 color = Color.Cyan,
                                 fontWeight = FontWeight.Bold
                             )
-                            Text(
+                            SelectableText(
                                 "→ $cooledSpeed",
                                 style = MaterialTheme.typography.bodySmall,
                                 fontWeight = FontWeight.Bold,
@@ -246,7 +247,7 @@ fun AttackerInfo(
                             modifier = Modifier.padding(top = 4.dp)
                         ) {
                             WarningIcon(size = 14.dp)
-                            Text(
+                            SelectableText(
                                 if (fearEffect.turnsRemaining > 0) {
                                     stringResource(Res.string.feared_turns_remaining, fearEffect.turnsRemaining)
                                 } else {
@@ -281,13 +282,13 @@ fun AttackerInfo(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
-                                    Text(
+                                    SelectableText(
                                         "${stringResource(Res.string.greed_level_label)}: ${attacker.greed} -",
                                         style = MaterialTheme.typography.bodySmall,
                                         fontWeight = FontWeight.Bold,
                                         color = GamePlayColors.ErrorDark
                                     )
-                                    Text(
+                                    SelectableText(
                                         greedLabel,
                                         style = MaterialTheme.typography.bodySmall,
                                         fontWeight = FontWeight.Bold,
@@ -295,7 +296,7 @@ fun AttackerInfo(
                                         color = GamePlayColors.ErrorDark
                                     )
                                 }
-                                Text(
+                                SelectableText(
                                     greedDesc,
                                     style = MaterialTheme.typography.bodySmall,
                                     color = GamePlayColors.Warning
@@ -309,7 +310,7 @@ fun AttackerInfo(
                             modifier = Modifier.padding(top = 4.dp)
                         ) {
                             InfoIcon(size = 16.dp)
-                            Text(
+                            SelectableText(
                                 stringResource(Res.string.dragon_info_button),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.primary
@@ -324,7 +325,7 @@ fun AttackerInfo(
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             LightningIcon(size = 14.dp)
-                            Text(
+                            SelectableText(
                                 stringResource(Res.string.can_summon),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = GamePlayColors.Warning
@@ -337,7 +338,7 @@ fun AttackerInfo(
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             HeartIcon(size = 14.dp)
-                            Text(
+                            SelectableText(
                                 stringResource(Res.string.can_heal),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = GamePlayColors.Success
@@ -350,7 +351,7 @@ fun AttackerInfo(
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             LockIcon(size = 14.dp)
-                            Text(
+                            SelectableText(
                                 stringResource(Res.string.can_disable_towers),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = GamePlayColors.ErrorDark
@@ -363,7 +364,7 @@ fun AttackerInfo(
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             ShieldIcon(size = 14.dp)
-                            Text(
+                            SelectableText(
                                 stringResource(Res.string.immune_to_acid),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = GamePlayColors.InfoDark
@@ -376,7 +377,7 @@ fun AttackerInfo(
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             ShieldIcon(size = 14.dp)
-                            Text(
+                            SelectableText(
                                 stringResource(Res.string.immune_to_fireball),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = GamePlayColors.InfoDark
@@ -402,7 +403,7 @@ fun AttackerInfo(
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             WarningIcon(size = 14.dp)
-                            Text(
+                            SelectableText(
                                 stringResource(Res.string.mighty_unit_warning, damage),
                                 style = MaterialTheme.typography.bodySmall,
                                 fontWeight = FontWeight.Bold,
@@ -418,7 +419,7 @@ fun AttackerInfo(
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             WarningIcon(size = 14.dp)
-                            Text(
+                            SelectableText(
                                 stringResource(Res.string.ewhad_target_warning),
                                 style = MaterialTheme.typography.bodySmall,
                                 fontWeight = FontWeight.Bold,

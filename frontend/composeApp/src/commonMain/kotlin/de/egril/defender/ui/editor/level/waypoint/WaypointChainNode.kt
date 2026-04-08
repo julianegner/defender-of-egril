@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.Position
+import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.icon.RedCircleIcon
 import de.egril.defender.ui.icon.RightArrowIcon
 import de.egril.defender.ui.icon.TrashIcon
@@ -114,7 +115,7 @@ private fun PositionAndTypeRow(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.Companion.CenterVertically
     ) {
-        Text(
+        SelectableText(
             text = stringResource(Res.string.waypoint_position_format, position.x, position.y),
             style = MaterialTheme.typography.bodyMedium
         )
@@ -136,7 +137,7 @@ private fun ConnectButton(onConnect: (() -> Unit)?) {
             modifier = Modifier.Companion.height(32.dp),
             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
         ) {
-            Text(
+            SelectableText(
                 text = stringResource(Res.string.connect),
                 style = MaterialTheme.typography.labelSmall
             )
@@ -154,7 +155,7 @@ fun WarningRow(
         verticalAlignment = Alignment.Companion.CenterVertically
     ) {
         WarningIcon(size = 12.dp)
-        Text(
+        SelectableText(
             text = message,
             style = MaterialTheme.typography.labelSmall,
             color = color
@@ -165,19 +166,19 @@ fun WarningRow(
 @Composable
 private fun WaypointTypeLabel(isSpawn: Boolean, isTarget: Boolean) {
     if (isSpawn) {
-        Text(
+        SelectableText(
             text = stringResource(Res.string.spawn_point_text),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.primary
         )
     } else if (isTarget) {
-        Text(
+        SelectableText(
             text = stringResource(Res.string.target_text),
             style = MaterialTheme.typography.labelSmall,
             color = Color.Companion.Green
         )
     } else {
-        Text(
+        SelectableText(
             text = stringResource(Res.string.waypoint),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.secondary

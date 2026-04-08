@@ -7,6 +7,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import de.egril.defender.ui.icon.ToolsIcon
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.*
 
 @Composable
@@ -32,7 +33,7 @@ fun EditorButtonCard(
             // Distinctive symbol - wrench/hammer icon
             ToolsIcon(size = 20.dp)
             
-            Text(
+            SelectableText(
                 text = stringResource(Res.string.level_editor),
                 style = MaterialTheme.typography.bodyMedium
             )

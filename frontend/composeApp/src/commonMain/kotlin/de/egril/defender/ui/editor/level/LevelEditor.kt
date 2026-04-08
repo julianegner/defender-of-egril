@@ -46,6 +46,7 @@ import kotlin.random.Random
 import de.egril.defender.ui.editor.getDefaultAuthorName
 import de.egril.defender.config.LogConfig
 import androidx.compose.runtime.rememberCoroutineScope
+import de.egril.defender.ui.common.SelectableText
 import kotlinx.coroutines.launch
 
 /**
@@ -82,7 +83,7 @@ fun LevelEditorContent() {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
+                SelectableText(
                     text = stringResource(Res.string.levels),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(bottom = 8.dp)
@@ -93,7 +94,7 @@ fun LevelEditorContent() {
                 }
             }
             
-            Text(
+            SelectableText(
                 text = stringResource(Res.string.select_level_to_edit),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -234,7 +235,7 @@ private fun LevelCard(
                         .padding(12.dp)
                         .padding(top = 24.dp)  // Add top padding for the badges
                 ) {
-                    Text(
+                    SelectableText(
                         text = level.title,
                         style = MaterialTheme.typography.titleSmall
                     )
@@ -248,25 +249,25 @@ private fun LevelCard(
                         }
                     }
                 if (level.subtitle.isNotEmpty()) {
-                    Text(
+                    SelectableText(
                         text = level.subtitle,
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
-                Text(
+                SelectableText(
                     text = "${stringResource(Res.string.file)}: ${level.id}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Text(
+                SelectableText(
                     text = "${stringResource(Res.string.map_label)}: ${level.mapId} | ${stringResource(Res.string.coins)}: ${level.startCoins} | ${stringResource(Res.string.hp_short)}: ${level.startHealthPoints}",
                     style = MaterialTheme.typography.bodySmall
                 )
-                Text(
+                SelectableText(
                     text = "${stringResource(Res.string.enemies)}: ${level.enemySpawns.size}",
                     style = MaterialTheme.typography.bodySmall
                 )
-                Text(
+                SelectableText(
                     text = if (EditorStorage.isLevelReadyToPlay(level)) stringResource(Res.string.ready_to_use) else stringResource(Res.string.not_ready),
                     style = MaterialTheme.typography.bodySmall,
                     color = if (EditorStorage.isLevelReadyToPlay(level)) Color.Green else Color.Red
@@ -287,7 +288,7 @@ private fun LevelCard(
                 ) {
                     // Test Level badge
                     if (level.testingOnly) {
-                        Text(
+                        SelectableText(
                             text = stringResource(Res.string.test_level),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.error
@@ -308,7 +309,7 @@ private fun LevelCard(
                 }
                 // Official/User badge below the check
                 if (level.isOfficial) {
-                    Text(
+                    SelectableText(
                         text = stringResource(Res.string.official_level),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary
@@ -324,7 +325,7 @@ private fun LevelCard(
                     onClick = onCopy,
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(stringResource(Res.string.copy_level))
+                    SelectableText(stringResource(Res.string.copy_level))
                 }
                 Button(
                     onClick = onDelete,
@@ -334,7 +335,7 @@ private fun LevelCard(
                     ),
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(stringResource(Res.string.delete))
+                    SelectableText(stringResource(Res.string.delete))
                 }
             }
         }
@@ -436,7 +437,7 @@ fun LevelEditorView(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     InfoIcon(size = 20.dp)
-                    Text(
+                    SelectableText(
                         text = stringResource(Res.string.official_level_info),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -451,7 +452,7 @@ fun LevelEditorView(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(bottom = 8.dp)
         ) {
-            Text(
+            SelectableText(
                 text = "${stringResource(Res.string.level_title)}: ${level.title}",
                 style = MaterialTheme.typography.titleMedium
             )
@@ -645,14 +646,14 @@ fun LevelEditorView(
                     enabled = !level.isOfficial || de.egril.defender.OfficialEditMode.enabled,
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(stringResource(Res.string.save_level))
+                    SelectableText(stringResource(Res.string.save_level))
                 }
                 
                 Button(
                     onClick = { showSaveAsDialog = true },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(stringResource(Res.string.save_as_new))
+                    SelectableText(stringResource(Res.string.save_as_new))
                 }
             }
             
@@ -660,7 +661,7 @@ fun LevelEditorView(
                 onClick = onCancel,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(stringResource(Res.string.cancel))
+                SelectableText(stringResource(Res.string.cancel))
             }
 
             // Community upload button - only shown for non-official levels when user is authenticated
@@ -705,7 +706,7 @@ fun LevelEditorView(
                         enabled = !isUploadingToCommunity,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(
+                        SelectableText(
                             if (isUploadingToCommunity) stringResource(Res.string.community_uploading)
                             else stringResource(Res.string.upload_as_community_level)
                         )
@@ -737,14 +738,14 @@ fun LevelEditorView(
                         enabled = !isUploadingToCommunity,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(
+                        SelectableText(
                             if (isUploadingToCommunity) stringResource(Res.string.community_uploading)
                             else stringResource(Res.string.update_community_level)
                         )
                     }
                 }
                 communityUploadStatus?.let { status ->
-                    Text(
+                    SelectableText(
                         text = if (status == "success") stringResource(Res.string.community_upload_success)
                                else stringResource(Res.string.community_upload_failed),
                         color = if (status == "success") androidx.compose.ui.graphics.Color(0xFF2E7D32)
@@ -827,7 +828,7 @@ fun LevelEditorView(
                 showOfficialLevelSavedWarning = false
                 pendingLevelToSave = null
             },
-            title = { Text(stringResource(Res.string.official_level_saved_warning_title)) },
+            title = { SelectableText(stringResource(Res.string.official_level_saved_warning_title)) },
             text = { Text(stringResource(Res.string.official_level_saved_warning_message)) },
             confirmButton = {
                 Button(onClick = { 
@@ -836,7 +837,7 @@ fun LevelEditorView(
                     pendingLevelToSave?.let { onSave(it) }
                     pendingLevelToSave = null
                 }) {
-                    Text(stringResource(Res.string.ok))
+                    SelectableText(stringResource(Res.string.ok))
                 }
             }
         )

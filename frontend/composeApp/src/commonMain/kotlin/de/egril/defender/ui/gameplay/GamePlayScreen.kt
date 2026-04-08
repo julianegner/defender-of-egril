@@ -25,6 +25,7 @@ import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.*
 
 @Composable
@@ -1120,12 +1121,12 @@ private fun GamePlayScreenContent(
                     SpellTargetIcon(spell = targeting.activeSpell, size = 32.dp)
 
                     Column(modifier = Modifier.weight(1f)) {
-                        Text(
+                        SelectableText(
                             text = targeting.activeSpell.displayName,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
-                        Text(
+                        SelectableText(
                             text = when (targeting.activeSpell.targetType) {
                                 de.egril.defender.model.SpellTargetType.POSITION ->
                                     stringResource(Res.string.spell_targeting_position)
@@ -1614,14 +1615,14 @@ private fun GamePlayScreenContent(
         if (showStopDemoDialog && onStopDemoMode != null) {
             AlertDialog(
                 onDismissRequest = { showStopDemoDialog = false },
-                title = { Text(stringResource(Res.string.stop_demo_title)) },
+                title = { SelectableText(stringResource(Res.string.stop_demo_title)) },
                 text = { Text(stringResource(Res.string.stop_demo_message)) },
                 confirmButton = {
                     Button(onClick = {
                         showStopDemoDialog = false
                         onStopDemoMode.invoke()
                     }) {
-                        Text(stringResource(Res.string.yes))
+                        SelectableText(stringResource(Res.string.yes))
                     }
                 },
                 dismissButton = {

@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorMap
+import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.editor.map.MapSelectionCard
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.allow_auto_attack
@@ -135,7 +136,7 @@ fun LevelInfoTab(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(
+                        SelectableText(
                             text = stringResource(Res.string.test_level),
                             style = MaterialTheme.typography.bodyMedium
                         )
@@ -150,7 +151,7 @@ fun LevelInfoTab(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(
+                        SelectableText(
                             text = stringResource(Res.string.allow_auto_attack),
                             style = MaterialTheme.typography.bodyMedium
                         )
@@ -174,7 +175,7 @@ fun LevelInfoTab(
         // Shows 8 columns and 2 visible rows, with scrolling to load more
         item {
             Column {
-                Text(
+                SelectableText(
                     text = "${stringResource(Res.string.map_label)}:",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
@@ -236,7 +237,7 @@ fun LevelInfoTab(
     if (showAutoAttackInfo) {
         AlertDialog(
             onDismissRequest = { showAutoAttackInfo = false },
-            title = { Text(stringResource(Res.string.auto_attack_info_title)) },
+            title = { SelectableText(stringResource(Res.string.auto_attack_info_title)) },
             text = { Text(stringResource(Res.string.auto_attack_info_message)) },
             confirmButton = {
                 Button(onClick = { showAutoAttackInfo = false }) {
@@ -250,7 +251,7 @@ fun LevelInfoTab(
     if (showUserMapNotAllowedDialog) {
         AlertDialog(
             onDismissRequest = { showUserMapNotAllowedDialog = false },
-            title = { Text(stringResource(Res.string.user_map_not_allowed_title)) },
+            title = { SelectableText(stringResource(Res.string.user_map_not_allowed_title)) },
             text = { Text(stringResource(Res.string.user_map_not_allowed_message)) },
             confirmButton = {
                 Button(onClick = { showUserMapNotAllowedDialog = false }) {

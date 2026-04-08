@@ -211,6 +211,13 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
   3. Add it as `emoji_*.png` in `composeResources/drawable/`
   4. Create an Icon component in `ui/icon/IconUtils.kt`
 
+### Text Selection
+
+- **Info pages and full content screens**: Wrap the top-level content `Column` in `SelectionContainer { }` so the user can select and copy large spans of text. Use plain `Text()` inside. Import: `import androidx.compose.foundation.text.selection.SelectionContainer`
+- **Message dialogs and info dialogs**: Wrap the `text = { ... }` slot content in `SelectionContainer { }`. Use plain `Text()` inside. Dialog titles should also use plain `Text()`.
+- **Gameplay/settings/editor panels** with a mix of interactive controls and descriptive text: Use `SelectableText()` from `de.egril.defender.ui.common.SelectableText` for individual descriptive text elements.
+- **Buttons, menus, tabs, navigation labels, TextField placeholders/labels**: Always use plain `Text()`. Never use `SelectableText` or `SelectionContainer` here.
+
 ### Tower Info Messages
 - **Display Pattern**: Tower info messages are NEVER shown automatically during gameplay
 - **Info Icon**: Each tower has a clickable info icon in DefenderInfo.kt (same position for all towers)

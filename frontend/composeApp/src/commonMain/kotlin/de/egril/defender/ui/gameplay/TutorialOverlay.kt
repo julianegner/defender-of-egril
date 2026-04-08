@@ -22,6 +22,7 @@ import de.egril.defender.ui.icon.WoodIcon
 import de.egril.defender.utils.isPlatformMobile
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
  * Tutorial card that shows step-by-step instructions in the upper right corner
@@ -58,6 +59,7 @@ fun TutorialOverlay(
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
+        SelectionContainer {
         Column(
             modifier = Modifier
                 .padding(16.dp)
@@ -116,6 +118,7 @@ fun TutorialOverlay(
                     )
                 }
             }
+        }
         }
     }
 }

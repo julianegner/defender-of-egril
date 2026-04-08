@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.text.font.FontStyle
 import de.egril.defender.config.LogConfig
 import de.egril.defender.iam.IamState
+import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.icon.UnlockIcon
 
 // Button sizing constants for world map bottom bar
@@ -56,7 +57,7 @@ private fun PlayerNameWithIam(
         Column(
             modifier = Modifier.clickable { onEditPlayerName() }
         ) {
-            Text(
+            SelectableText(
                 text = currentPlayerName,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary,
@@ -68,7 +69,7 @@ private fun PlayerNameWithIam(
                     horizontalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
                     UnlockIcon(size = 12.dp)
-                    Text(
+                    SelectableText(
                         text = iamState.username,
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.secondary
@@ -81,7 +82,7 @@ private fun PlayerNameWithIam(
             onClick = onSwitchPlayer,
             modifier = Modifier.height(28.dp)
         ) {
-            Text(
+            SelectableText(
                 text = stringResource(Res.string.switch_player),
                 style = MaterialTheme.typography.labelSmall
             )
@@ -337,12 +338,12 @@ fun WorldMapScreen(
                                 }
                             )
                         ) {
-                            Text(
+                            SelectableText(
                                 text = stringResource(Res.string.world_map_title),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.onBackground
                             )
-                            Text(
+                            SelectableText(
                                 text = stringResource(Res.string.world_map_subtitle),
                                 style = MaterialTheme.typography.titleMedium.copy(
                                     fontStyle = FontStyle.Italic
@@ -373,12 +374,12 @@ fun WorldMapScreen(
                                 }
                             )
                         ) {
-                            Text(
+                            SelectableText(
                                 text = stringResource(Res.string.world_map_title),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.onBackground
                             )
-                            Text(
+                            SelectableText(
                                 text = stringResource(Res.string.world_map_subtitle),
                                 style = MaterialTheme.typography.titleMedium.copy(
                                     fontStyle = FontStyle.Italic
@@ -452,21 +453,21 @@ fun WorldMapScreen(
                                 onClick = onLoadGame,
                                 modifier = Modifier.widthIn(min = buttonMinWidth)
                             ) {
-                                Text(stringResource(Res.string.load_game))
+                                SelectableText(stringResource(Res.string.load_game))
                             }
                             
                             Button(
                                 onClick = onShowRules,
                                 modifier = Modifier.widthIn(min = buttonMinWidth)
                             ) {
-                                Text(stringResource(Res.string.rules))
+                                SelectableText(stringResource(Res.string.rules))
                             }
                             
                             Button(
                                 onClick = onBackToMenu,
                                 modifier = Modifier.widthIn(min = buttonMinWidth)
                             ) {
-                                Text(stringResource(Res.string.back))
+                                SelectableText(stringResource(Res.string.back))
                             }
                         }
                     }

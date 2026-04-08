@@ -13,15 +13,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
  * Composable displaying information about the backend server, user accounts, and logging.
  */
 @Composable
 fun BackendInfo() {
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    SelectionContainer {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
         Text(
             text = stringResource(Res.string.backend_info_title),
             style = MaterialTheme.typography.displayMedium,
@@ -55,6 +57,7 @@ fun BackendInfo() {
             )
 
             Spacer(modifier = Modifier.height(8.dp))
+        }
         }
     }
 }

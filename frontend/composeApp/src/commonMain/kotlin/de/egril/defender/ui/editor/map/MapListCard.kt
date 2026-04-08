@@ -16,6 +16,7 @@ import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.hexagon.HexagonMinimapFromEditorMap
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -49,20 +50,20 @@ fun MapListCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(4f)) {
-                    Text(
+                    SelectableText(
                         text = map.name.ifEmpty { "Map ${map.id}" },
                         style = MaterialTheme.typography.titleSmall
                     )
-                    Text(
+                    SelectableText(
                         text = "File: ${map.id}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Text(
+                    SelectableText(
                         text = "Size: ${map.width}x${map.height}",
                         style = MaterialTheme.typography.bodySmall
                     )
-                    Text(
+                    SelectableText(
                         text = if (map.readyToUse) stringResource(Res.string.ready_to_use) else stringResource(Res.string.not_ready),
                         style = MaterialTheme.typography.bodySmall,
                         color = if (map.readyToUse) Color.Green else Color.Red
@@ -110,7 +111,7 @@ fun MapListCard(
                             containerColor = MaterialTheme.colorScheme.error
                         )
                     ) {
-                        Text(stringResource(Res.string.delete))
+                        SelectableText(stringResource(Res.string.delete))
                     }
                     
                     Button(
@@ -143,7 +144,7 @@ fun MapListCard(
                 }
                 // Official badge below the check
                 if (map.isOfficial) {
-                    Text(
+                    SelectableText(
                         text = stringResource(Res.string.official),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary

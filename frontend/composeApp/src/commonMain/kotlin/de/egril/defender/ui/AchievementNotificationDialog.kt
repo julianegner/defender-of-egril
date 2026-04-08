@@ -23,6 +23,7 @@ import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.achievement_unlocked
 import defender_of_egril.composeapp.generated.resources.close
 import kotlinx.coroutines.delay
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
  * Dialog that shows when a new achievement is earned
@@ -46,6 +47,7 @@ fun AchievementNotificationDialog(
             ),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
+            SelectionContainer {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -89,6 +91,7 @@ fun AchievementNotificationDialog(
                 ) {
                     Text(stringResource(Res.string.close))
                 }
+            }
             }
         }
     }

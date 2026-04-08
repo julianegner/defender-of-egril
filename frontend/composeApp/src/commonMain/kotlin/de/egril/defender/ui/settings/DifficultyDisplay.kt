@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -23,7 +24,7 @@ fun DifficultyDisplay(
     var showDropdown by remember { mutableStateOf(false) }
     
     Box(modifier = modifier) {
-        Text(
+        SelectableText(
             text = getDifficultyDisplayName(currentDifficulty),
             style = MaterialTheme.typography.bodyMedium,
             fontStyle = FontStyle.Italic,

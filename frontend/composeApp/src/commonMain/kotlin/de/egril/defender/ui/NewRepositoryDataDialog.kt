@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.editor.RepositoryManager
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
  * Dialog shown when new map/level data is detected in the repository
@@ -26,6 +27,7 @@ fun NewRepositoryDataDialog(
             Text(text = stringResource(Res.string.new_repository_data_title))
         },
         text = {
+            SelectionContainer {
             Column(
                 modifier = Modifier
                     .verticalScroll(rememberScrollState())
@@ -97,6 +99,7 @@ fun NewRepositoryDataDialog(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error
                 )
+            }
             }
         },
         confirmButton = {

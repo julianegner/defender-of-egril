@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import de.egril.defender.ui.MapImageProvider
 import de.egril.defender.iam.IamService
+import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.editor.getDefaultAuthorName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -103,7 +104,7 @@ fun MapEditorContent() {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
+                SelectableText(
                     text = stringResource(Res.string.maps),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(bottom = 8.dp)
@@ -114,7 +115,7 @@ fun MapEditorContent() {
                 }
             }
             
-            Text(
+            SelectableText(
                 text = stringResource(Res.string.select_map_to_edit),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -206,7 +207,7 @@ fun MapEditorContent() {
                 }
             },
             title = {
-                Text(stringResource(Res.string.map_image_generation_title, generatorMapName))
+                SelectableText(stringResource(Res.string.map_image_generation_title, generatorMapName))
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -257,7 +258,7 @@ fun MapEditorContent() {
                         onClick = { showPreview = true },
                         enabled = canShowImage
                     ) {
-                        Text(stringResource(Res.string.map_image_generation_show_image))
+                        SelectableText(stringResource(Res.string.map_image_generation_show_image))
                     }
                     TextButton(onClick = { showGenerationDialog = false }) {
                         Text(stringResource(Res.string.map_image_generation_close))

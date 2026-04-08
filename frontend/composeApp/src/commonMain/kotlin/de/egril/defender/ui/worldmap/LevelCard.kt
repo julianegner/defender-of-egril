@@ -19,6 +19,7 @@ import de.egril.defender.ui.icon.SwordIcon
 import de.egril.defender.editor.EditorStorage
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.common.LevelInfoEnemiesColumn
+import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.hexagon.HexagonMinimap
 import de.egril.defender.ui.hexagon.MinimapConfig
 import de.egril.defender.ui.loadgame.SavefileLocationChip
@@ -127,7 +128,7 @@ fun LevelCard(
                         ),
                         modifier = Modifier.fillMaxSize()
                     )
-                    Text(
+                    SelectableText(
                         text = mapName,
                         style = MaterialTheme.typography.bodySmall,
                         color = textColor,
@@ -147,7 +148,7 @@ fun LevelCard(
                             stringResource(Res.string.requires_all)
                         }
                         
-                        Text(
+                        SelectableText(
                             text = prereqText,
                             style = MaterialTheme.typography.labelSmall,
                             color = textColor.copy(alpha = 0.7f),
@@ -160,7 +161,7 @@ fun LevelCard(
                             val prereqLevel = EditorStorage.getLevel(prereqId)
                             val prereqName = prereqLevel?.getLocalizedTitle(locale) ?: prereqId
                             
-                            Text(
+                            SelectableText(
                                 text = "• $prereqName",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = textColor.copy(alpha = 0.7f),
@@ -169,7 +170,7 @@ fun LevelCard(
                             )
                         }
                         if (prerequisites.size > 3) {
-                            Text(
+                            SelectableText(
                                 text = "• ...",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = textColor.copy(alpha = 0.7f),
@@ -192,7 +193,7 @@ fun LevelCard(
                         LevelStatus.WON -> CheckmarkIcon(size = 13.dp, tint = textColor)
                     }
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(
+                    SelectableText(
                         text = statusText,
                         style = MaterialTheme.typography.bodySmall,
                         color = textColor,

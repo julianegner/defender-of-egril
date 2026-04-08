@@ -24,6 +24,7 @@ import defender_of_egril.composeapp.generated.resources.start_battle
 import defender_of_egril.composeapp.generated.resources.turn
 import defender_of_egril.composeapp.generated.resources.your_turn_message
 import de.egril.defender.config.LogConfig
+import de.egril.defender.ui.common.SelectableText
 
 @Composable
 fun ColumnScope.TurnButton(
@@ -99,7 +100,7 @@ fun GameControlsPanel(
     Column(modifier = Modifier.fillMaxWidth()) {
         // Title - hide when tower is selected
         if (!compactBuyPanel) {
-            Text(title, style = MaterialTheme.typography.titleMedium)
+            SelectableText(title, style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
         }
 
@@ -311,7 +312,7 @@ fun EnemyTurnInfo() {
                 modifier = Modifier.padding(24.dp).fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
+                SelectableText(
                     stringResource(Res.string.enemy_turn_title),
                     style = MaterialTheme.typography.titleLarge,
                     color = Color.Red,

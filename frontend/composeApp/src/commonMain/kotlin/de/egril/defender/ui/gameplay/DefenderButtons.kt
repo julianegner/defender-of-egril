@@ -23,6 +23,7 @@ import de.egril.defender.ui.icon.TargetIcon
 import de.egril.defender.ui.icon.TimerIcon
 import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.*
 
 @Composable

@@ -17,6 +17,7 @@ import de.egril.defender.save.SaveFileStorage
 import de.egril.defender.editor.getFileStorage
 import de.egril.defender.ui.settings.SettingsButton
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
@@ -245,7 +246,7 @@ private fun LoadGameScreenDesktop(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
+                SelectableText(
                     text = stringResource(Res.string.load_game),
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(bottom = 16.dp),
@@ -269,12 +270,12 @@ private fun LoadGameScreenDesktop(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text(
+                                SelectableText(
                                     text = stringResource(Res.string.game_data_transfer),
                                     style = MaterialTheme.typography.titleSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                                Text(
+                                SelectableText(
                                     text = stringResource(Res.string.game_data_transfer_description),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
@@ -344,7 +345,7 @@ private fun LoadGameScreenDesktop(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Text(
+                            SelectableText(
                                 text = stringResource(Res.string.no_saved_games),
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -375,7 +376,7 @@ private fun LoadGameScreenDesktop(
                                         modifier = Modifier.size(16.dp),
                                         strokeWidth = 2.dp
                                     )
-                                    Text(
+                                    SelectableText(
                                         text = stringResource(Res.string.loading_remote_savefiles),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -405,7 +406,7 @@ private fun LoadGameScreenDesktop(
                 // Display savegame folder path at the bottom
                 val savegamePath = rememberSavegamePath()
             
-                Text(
+                SelectableText(
                     text = "${stringResource(Res.string.savegame_folder)} $savegamePath",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -461,7 +462,7 @@ private fun LoadGameScreenMobile(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 // Title (smaller on mobile)
-                Text(
+                SelectableText(
                     text = stringResource(Res.string.load_game),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onBackground
@@ -477,7 +478,7 @@ private fun LoadGameScreenMobile(
                     Column(
                         modifier = Modifier.fillMaxWidth().padding(8.dp)
                     ) {
-                        Text(
+                        SelectableText(
                             text = stringResource(Res.string.game_data_transfer),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -505,7 +506,7 @@ private fun LoadGameScreenMobile(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     de.egril.defender.ui.icon.DownloadIcon(size = 14.dp)
-                                    Text(
+                                    SelectableText(
                                         text = stringResource(Res.string.export_game_progress),
                                         style = MaterialTheme.typography.bodySmall,
                                         fontSize = 10.sp
@@ -530,7 +531,7 @@ private fun LoadGameScreenMobile(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             de.egril.defender.ui.icon.DownloadIcon(size = 14.dp)
-                            Text(
+                            SelectableText(
                                 text = stringResource(Res.string.download_all_savefiles),
                                 style = MaterialTheme.typography.bodySmall,
                                 fontSize = 10.sp
@@ -552,7 +553,7 @@ private fun LoadGameScreenMobile(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         de.egril.defender.ui.icon.UploadIcon(size = 14.dp)
-                        Text(
+                        SelectableText(
                             text = stringResource(Res.string.upload_savefiles),
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 10.sp
@@ -568,7 +569,7 @@ private fun LoadGameScreenMobile(
                     modifier = Modifier.fillMaxWidth(),
                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
                 ) {
-                    Text(
+                    SelectableText(
                         text = stringResource(Res.string.back),
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -577,7 +578,7 @@ private fun LoadGameScreenMobile(
                 // Display savegame folder path at the bottom
                 val savegamePath = rememberSavegamePath()
                 
-                Text(
+                SelectableText(
                     text = "${stringResource(Res.string.savegame_folder)}\n$savegamePath",
                     style = MaterialTheme.typography.bodySmall,
                     fontSize = 8.sp,
@@ -607,7 +608,7 @@ private fun LoadGameScreenMobile(
                         modifier = Modifier.weight(1f).fillMaxWidth(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
+                        SelectableText(
                             text = stringResource(Res.string.no_saved_games),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -631,7 +632,7 @@ private fun LoadGameScreenMobile(
                                         modifier = Modifier.size(16.dp),
                                         strokeWidth = 2.dp
                                     )
-                                    Text(
+                                    SelectableText(
                                         text = stringResource(Res.string.loading_remote_savefiles),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant

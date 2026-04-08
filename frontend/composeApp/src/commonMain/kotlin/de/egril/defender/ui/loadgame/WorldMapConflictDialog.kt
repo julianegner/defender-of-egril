@@ -13,6 +13,7 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.model.LevelStatus
 import de.egril.defender.ui.WorldMapConflict
 import defender_of_egril.composeapp.generated.resources.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 @Composable
 fun WorldMapConflictDialog(
@@ -27,6 +28,7 @@ fun WorldMapConflictDialog(
             Text(stringResource(Res.string.world_map_conflict_title)) 
         },
         text = {
+            SelectionContainer {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -98,6 +100,7 @@ fun WorldMapConflictDialog(
                         }
                     }
                 }
+            }
             }
         },
         confirmButton = {

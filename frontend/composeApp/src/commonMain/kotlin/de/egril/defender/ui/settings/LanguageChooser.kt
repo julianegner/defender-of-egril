@@ -16,6 +16,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.currentLanguage
+import de.egril.defender.ui.common.SelectableText
 import dev.carlsen.flagkit.FlagKit
 
 /**
@@ -45,7 +46,7 @@ fun LanguageChooser(
         }
         
         // Dropdown arrow icon
-        Text(
+        SelectableText(
             text = if (expanded) "▲" else "▼",
             modifier = Modifier
                 .align(Alignment.CenterEnd)
@@ -99,7 +100,7 @@ private fun LanguageFlagAndName(appLocale: AppLocale) {
             )
         }
         
-        Text(
+        SelectableText(
             text = "${appLocale.nativeName} (${appLocale.code})",
             style = MaterialTheme.typography.bodyLarge
         )

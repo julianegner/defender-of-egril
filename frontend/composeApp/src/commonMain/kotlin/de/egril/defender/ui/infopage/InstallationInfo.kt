@@ -13,15 +13,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
  * Composable displaying installation instructions for all platforms
  */
 @Composable
 fun InstallationInfo() {
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    SelectionContainer {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
         // Header
         Text(
             text = stringResource(Res.string.installation_info_title),
@@ -127,6 +129,7 @@ fun InstallationInfo() {
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)
             )
+        }
         }
     }
 }

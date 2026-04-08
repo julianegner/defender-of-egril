@@ -30,6 +30,7 @@ import de.egril.defender.ui.settings.DifficultyDisplay
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.ui.TooltipWrapper
+import de.egril.defender.ui.common.SelectableText
 
 @Composable
 fun GameHeader(
@@ -94,18 +95,18 @@ fun GameHeader(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
+                    SelectableText(
                         text = "*** DEMO MODE ***",
                         fontSize = titleFontSize,
                         fontWeight = FontWeight.Bold,
                         color = Color.Red
                     )
-                    Text(
+                    SelectableText(
                         text = "  ${gameState.level.getLocalizedTitle(locale)}  ",
                         fontSize = titleFontSize,
                         fontWeight = FontWeight.Bold
                     )
-                    Text(
+                    SelectableText(
                         text = "*** DEMO MODE ***",
                         fontSize = titleFontSize,
                         fontWeight = FontWeight.Bold,
@@ -113,7 +114,7 @@ fun GameHeader(
                     )
                 }
             } else {
-                Text(
+                SelectableText(
                     text = gameState.level.getLocalizedTitle(locale),
                     fontSize = titleFontSize,
                     fontWeight = FontWeight.Bold,
@@ -257,7 +258,7 @@ fun GameHeader(
                         modifier = Modifier.height(buttonHeight),
                         contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp)
                     ) {
-                        Text(
+                        SelectableText(
                             stringResource(Res.string.map_label),
                             fontSize = buttonTextSize,
                             modifier = Modifier.align(Alignment.CenterVertically)
@@ -309,7 +310,7 @@ fun GameHeader(
                         onClick = { showShortcutsDialog = false },
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
                     ) {
-                        Text(stringResource(Res.string.got_it))
+                        SelectableText(stringResource(Res.string.got_it))
                     }
                 }
             }
@@ -425,7 +426,7 @@ internal fun LevelSpecialTowersInfoDialog(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
-            Text(
+            SelectableText(
                 text = stringResource(Res.string.special_towers_info_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
@@ -448,7 +449,7 @@ internal fun LevelSpecialTowersInfoDialog(
                 lineColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
             
-            Text(
+            SelectableText(
                 text = stringResource(Res.string.special_towers_info_reopen),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -482,7 +483,7 @@ internal fun LevelSpecialTowersInfoDialog(
                     )
                 }
                 
-                Text(
+                SelectableText(
                     text = towerType.getLocalizedName(),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
@@ -490,7 +491,7 @@ internal fun LevelSpecialTowersInfoDialog(
                 )
                 
                 // Expand/collapse indicator
-                Text(
+                SelectableText(
                     text = if (isExpanded) "▼" else "▶",
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -510,7 +511,7 @@ internal fun LevelSpecialTowersInfoDialog(
                         else -> ""
                     }
                     
-                    Text(
+                    SelectableText(
                         text = infoMessage,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface

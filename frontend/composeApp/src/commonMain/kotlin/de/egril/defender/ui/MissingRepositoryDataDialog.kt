@@ -13,6 +13,7 @@ import de.egril.defender.ui.icon.WarningIcon
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
  * Dialog shown when critical repository data files are missing
@@ -43,6 +44,7 @@ fun MissingRepositoryDataDialog(
             }
         },
         text = {
+            SelectionContainer {
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
@@ -80,6 +82,7 @@ fun MissingRepositoryDataDialog(
                     textAlign = TextAlign.Start,
                     modifier = Modifier.padding(top = 8.dp)
                 )
+            }
             }
         }
     )

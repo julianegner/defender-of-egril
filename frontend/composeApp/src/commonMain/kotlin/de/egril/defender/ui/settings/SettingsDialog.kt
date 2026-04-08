@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.icon.SpeakerHighIcon
 import de.egril.defender.ui.icon.SpeakerLowIcon
 import defender_of_egril.composeapp.generated.resources.*
@@ -43,7 +44,7 @@ fun SettingsDialog(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 // Title
-                Text(
+                SelectableText(
                     text = stringResource(Res.string.settings),
                     style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.onSurface
@@ -55,7 +56,7 @@ fun SettingsDialog(
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
+                    SelectableText(
                         text = stringResource(Res.string.language),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface
@@ -75,7 +76,7 @@ fun SettingsDialog(
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
+                    SelectableText(
                         text = stringResource(Res.string.difficulty),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface
@@ -89,7 +90,7 @@ fun SettingsDialog(
                     )
                     
                     // Info text about difficulty not affecting current level
-                    Text(
+                    SelectableText(
                         text = stringResource(Res.string.difficulty_info_current_level),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -103,7 +104,7 @@ fun SettingsDialog(
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
+                    SelectableText(
                         text = stringResource(Res.string.appearance),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface
@@ -217,7 +218,7 @@ fun SettingsDialog(
                             },
                             modifier = Modifier.fillMaxWidth()
                         )
-                        Text(
+                        SelectableText(
                             text = stringResource(Res.string.check_for_updates_description),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -231,7 +232,7 @@ fun SettingsDialog(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
+                        SelectableText(
                             text = stringResource(Res.string.header_text_size),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurface
@@ -245,7 +246,7 @@ fun SettingsDialog(
                                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
+                                SelectableText(
                                     text = stringResource(Res.string.header_text_size_small),
                                     style = MaterialTheme.typography.bodySmall,
                                     modifier = Modifier.width(40.dp)
@@ -264,13 +265,13 @@ fun SettingsDialog(
                                     valueRange = 0f..2f,
                                     steps = 1
                                 )
-                                Text(
+                                SelectableText(
                                     text = stringResource(Res.string.header_text_size_large),
                                     style = MaterialTheme.typography.bodySmall,
                                     modifier = Modifier.width(40.dp)
                                 )
                             }
-                            Text(
+                            SelectableText(
                                 text = stringResource(Res.string.header_text_size_medium),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -286,7 +287,7 @@ fun SettingsDialog(
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
+                    SelectableText(
                         text = stringResource(Res.string.controls),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface
@@ -312,7 +313,7 @@ fun SettingsDialog(
                 Column(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
+                    SelectableText(
                         text = stringResource(Res.string.sound),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface
@@ -349,7 +350,7 @@ fun SettingsDialog(
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            Text(
+                            SelectableText(
                                 text = stringResource(Res.string.sound_volume),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -377,7 +378,7 @@ fun SettingsDialog(
                             onClick = { showDetailedSoundSettings = !showDetailedSoundSettings },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text(
+                            SelectableText(
                                 text = if (showDetailedSoundSettings) {
                                     stringResource(Res.string.hide_detailed_sound_settings)
                                 } else {
@@ -395,7 +396,7 @@ fun SettingsDialog(
                                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                                 
                                 // Effect sounds sub-section
-                                Text(
+                                SelectableText(
                                     text = stringResource(Res.string.effect_sounds),
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurface
@@ -417,7 +418,7 @@ fun SettingsDialog(
                                         modifier = Modifier.fillMaxWidth(),
                                         verticalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
-                                        Text(
+                                        SelectableText(
                                             text = stringResource(Res.string.effects_volume),
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.onSurface
@@ -445,7 +446,7 @@ fun SettingsDialog(
                                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                                 
                                 // Background music sub-section
-                                Text(
+                                SelectableText(
                                     text = stringResource(Res.string.background_music),
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurface
@@ -477,7 +478,7 @@ fun SettingsDialog(
                                         modifier = Modifier.fillMaxWidth().padding(start = 16.dp),
                                         verticalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
-                                        Text(
+                                        SelectableText(
                                             text = stringResource(Res.string.worldmap_music),
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.onSurface
@@ -506,7 +507,7 @@ fun SettingsDialog(
                                         )
                                         
                                         if (AppSettings.isWorldMapMusicEnabled.value) {
-                                            Text(
+                                            SelectableText(
                                                 text = stringResource(Res.string.worldmap_music_volume),
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onSurface
@@ -545,7 +546,7 @@ fun SettingsDialog(
                                         modifier = Modifier.fillMaxWidth().padding(start = 16.dp),
                                         verticalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
-                                        Text(
+                                        SelectableText(
                                             text = stringResource(Res.string.gameplay_music),
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.onSurface
@@ -575,7 +576,7 @@ fun SettingsDialog(
                                         )
                                         
                                         if (AppSettings.isGameplayMusicEnabled.value) {
-                                            Text(
+                                            SelectableText(
                                                 text = stringResource(Res.string.gameplay_music_volume),
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onSurface

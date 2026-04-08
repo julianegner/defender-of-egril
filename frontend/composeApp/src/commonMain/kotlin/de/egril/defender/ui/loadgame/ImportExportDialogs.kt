@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
  * Dialog displayed when trying to import a save file that already exists
@@ -28,9 +29,11 @@ fun FileOverrideDialog(
                 Text(text = stringResource(Res.string.file_override_title))
             },
             text = {
+                SelectionContainer {
                 Text(
                     text = stringResource(Res.string.file_override_message, filename)
                 )
+                }
             },
             confirmButton = {
                 Row(
@@ -71,9 +74,11 @@ fun ImportSuccessDialog(
                 Text(text = stringResource(Res.string.files_imported))
             },
             text = {
+                SelectionContainer {
                 Text(
                     text = stringResource(Res.string.files_imported_message, filesImported)
                 )
+                }
             },
             confirmButton = {
                 TextButton(onClick = onDismiss) {
@@ -99,7 +104,9 @@ fun ImportErrorDialog(
                 Text(text = stringResource(Res.string.import_error))
             },
             text = {
+                SelectionContainer {
                 Text(text = stringResource(Res.string.import_error_message))
+                }
             },
             confirmButton = {
                 TextButton(onClick = onDismiss) {
