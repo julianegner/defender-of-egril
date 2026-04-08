@@ -28,6 +28,8 @@ fortress.png
 trap.png
 gate.png
 
+and all images starting with "dig_outcome_"
+
 Stable Diffusion / Flux2.dev on huggingface
 -> https://huggingface.co/black-forest-labs/FLUX.2-dev
 and https://www.pixelcut.ai/ai-image-editor?tool=removeBackground
@@ -35,6 +37,8 @@ are used for the following images:
 bomb.png
 story_message_background.png
 ewhad_message_background.png
+
+and all images starting with "location_"
 
 
 
