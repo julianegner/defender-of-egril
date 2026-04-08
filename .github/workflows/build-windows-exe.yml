@@ -34,13 +34,13 @@ jobs:
       - name: List build output
         run: |
           echo "Build completed. Listing generated files:"
-          dir composeApp\build\compose\binaries\main\exe\
+          dir frontend\composeApp\build\compose\binaries\main\exe\
         shell: cmd
       
       - name: Upload Windows EXE Installer
         uses: actions/upload-artifact@v4
         with:
           name: windows-exe-installer
-          path: composeApp\build\compose\binaries\main\exe\*.exe
+          path: frontend\composeApp\build\compose\binaries\main\exe\*.exe
           if-no-files-found: error
           retention-days: 30

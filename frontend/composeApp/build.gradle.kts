@@ -206,24 +206,24 @@ val generateOfficialEditModeConstant by tasks.registering {
 /**
  * Loads properties from a named profile file.
  *
- * Profile files live in the `profiles/` directory at the repository root.
+ * Profile files live in the `frontend/profiles/` directory at the repository root.
  * Each non-comment line follows the `key=value` format.
  *
  * Available profiles:
  *   - `local`      – local Docker Compose stack (localhost:8081 / localhost:8080)
- *   - `production` – production server (configure URLs in profiles/production.properties)
+ *   - `production` – production server (configure URLs in frontend/profiles/production.properties)
  *   - `remote`     – alias for production (backward compatibility)
  *
  * @param profileName the name of the profile (e.g. "local" or "production")
  * @return the loaded [Properties], or an empty [Properties] if the file is missing
  */
 fun loadProfileProperties(profileName: String): Properties {
-    val profileFile = rootProject.file("profiles/$profileName.properties")
+    val profileFile = rootProject.file("frontend/profiles/$profileName.properties")
     if (!profileFile.exists()) {
         logger.warn(
-            "Profile file not found: profiles/$profileName.properties. " +
+            "Profile file not found: frontend/profiles/$profileName.properties. " +
                 "Available profiles: local, production. " +
-                "To create a custom profile, add a properties file in the profiles/ directory."
+                "To create a custom profile, add a properties file in the frontend/profiles/ directory."
         )
         return Properties()
     }
@@ -408,7 +408,7 @@ android {
     // time, since Android apps cannot read JVM system properties at runtime.
     //
     //   local      – points at the local Docker Compose stack (localhost URLs)
-    //   production – points at the production server (configure profiles/production.properties)
+    //   production – points at the production server (configure frontend/profiles/production.properties)
     //
     // Generated tasks (install on connected device):
     //   installLocalDebug        → ./gradlew :composeApp:installLocal

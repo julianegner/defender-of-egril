@@ -52,7 +52,7 @@ jobs:
           java-version: "17"
 
       - name: "🛠️ Build theme JAR"
-        working-directory: keycloak/theme
+        working-directory: servers/keycloak/theme
         run: |
           npm install
           npm run build
@@ -62,7 +62,7 @@ jobs:
         with:
           name: keycloak-theme-jar
           # Keycloakify places the built JAR in dist_keycloak/
-          path: keycloak/theme/dist_keycloak/*.jar
+          path: servers/keycloak/theme/dist_keycloak/*.jar
           retention-days: 1
 
   deploy-keycloak:
@@ -89,7 +89,7 @@ jobs:
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
-          source: "deploy/keycloak/docker-compose.yml,keycloak/production/egril-realm.json,keycloak/production/nginx.conf"
+          source: "deploy/keycloak/docker-compose.yml,servers/keycloak/production/egril-realm.json,servers/keycloak/production/nginx.conf"
           target: /opt/keycloak
           strip_components: 2
 

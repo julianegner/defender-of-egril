@@ -19,4 +19,7 @@ dependencyResolutionManagement {
 }
 
 include(":composeApp")
+project(":composeApp").projectDir = File("frontend/composeApp")
+
 include(":server")
+project(":server").projectDir = File("servers/backend")

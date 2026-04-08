@@ -76,7 +76,7 @@ jobs:
       - name: "🎭 Run Playwright tests"
         run: |
           echo "Running Playwright tests..."
-          npx playwright test --reporter=list,html
+          npx playwright test --config frontend/playwright/playwright.config.ts --reporter=list,html
         continue-on-error: true  # Continue even if tests fail to upload artifacts
 
       # 10. Stop the server
@@ -105,7 +105,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-screenshots
-          path: test-screenshots/playwright/
+          path: frontend/test-screenshots/playwright/
           retention-days: 30
 
       # 13. Upload Playwright videos (if any)
@@ -130,8 +130,8 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           
           # Count screenshots
-          if [ -d "test-screenshots/playwright" ]; then
-            SCREENSHOT_COUNT=$(find test-screenshots/playwright -name "*.png" | wc -l)
+          if [ -d "frontend/test-screenshots/playwright" ]; then
+            SCREENSHOT_COUNT=$(find frontend/test-screenshots/playwright -name "*.png" | wc -l)
             echo "📸 **Screenshots captured**: $SCREENSHOT_COUNT" >> $GITHUB_STEP_SUMMARY
           fi
           

@@ -4,7 +4,7 @@ import { defineConfig, devices } from '@playwright/test';
  * Playwright configuration for Defender of Egril UI tests
  */
 export default defineConfig({
-  testDir: './tests',
+  testDir: '../tests',
   
   // Maximum time one test can run for
   timeout: 300 * 1000, // 5 minutes for the full game playthrough

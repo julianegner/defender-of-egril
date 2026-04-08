@@ -63,7 +63,7 @@ gradlew.bat :composeApp:run
 ```
 
 **iOS (requires macOS with Xcode):**
-Open `iosApp/iosApp.xcodeproj` in Xcode and click Run
+Open `frontend/iosApp/iosApp.xcodeproj` in Xcode and click Run
 
 **Web/Browser:**
 ```bash
@@ -135,11 +135,11 @@ Then open http://localhost:8080 in your browser
 
 ### Running Android
 
-Install the APK from `composeApp/build/outputs/apk/debug/de.egril.defender-debug.apk` on an Android device or emulator.
+Install the APK from `frontend/composeApp/build/outputs/apk/debug/de.egril.defender-debug.apk` on an Android device or emulator.
 
 ### Running iOS
 
-1. Open `iosApp/iosApp.xcodeproj` in Xcode (macOS required)
+1. Open `frontend/iosApp/iosApp.xcodeproj` in Xcode (macOS required)
 2. Select a simulator or device
 3. Click Run
 
@@ -174,7 +174,7 @@ The web version uses browser localStorage for save games and supports:
 ./gradlew :composeApp:installLocal       # local flavor (localhost URLs)
 
 # Custom profiles are supported
-./gradlew :composeApp:run -Pprofile=staging   # reads profiles/staging.properties
+./gradlew :composeApp:run -Pprofile=staging   # reads frontend/profiles/staging.properties
 
 ### run Tests
 

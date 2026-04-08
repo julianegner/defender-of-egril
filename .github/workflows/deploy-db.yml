@@ -79,9 +79,9 @@ jobs:
           username: root
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
-          source: "db-init/"
+          source: "servers/db-init/"
           target: /opt/postgres/db-init
-          strip_components: 1
+          strip_components: 2
 
       - name: "🚀 Start / update PostgreSQL"
         uses: appleboy/ssh-action@v1.0.3

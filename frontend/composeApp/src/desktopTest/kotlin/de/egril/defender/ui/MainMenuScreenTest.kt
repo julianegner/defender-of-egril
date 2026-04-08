@@ -245,8 +245,8 @@ class MainMenuScreenTest {
         
         composeTestRule.waitForIdle()
         
-        // Find and click the version text (contains "v1.0" and commit hash)
-        composeTestRule.onNodeWithText("v1.0", substring = true)
+        // Find and click the version text (contains "v0.0" and commit hash)
+        composeTestRule.onNodeWithText("v0.0", substring = true)
             .performClick()
         
         composeTestRule.waitForIdle()
@@ -277,7 +277,7 @@ class MainMenuScreenTest {
         composeTestRule.waitForIdle()
         
         // Click version text to show dialog
-        composeTestRule.onNodeWithText("v1.0", substring = true)
+        composeTestRule.onNodeWithText("v0.0", substring = true)
             .performClick()
         
         composeTestRule.waitForIdle()

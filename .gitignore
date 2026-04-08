@@ -41,22 +41,22 @@ build/
 
 # Android
 local.properties
-!profiles/local.properties
+!frontend/profiles/local.properties
 .DS_Store
 
 # Node
 node_modules/
-composeApp/build/compileSync/
-composeApp/build/generated/
+frontend/composeApp/build/compileSync/
+frontend/composeApp/build/generated/
 
 # Kotlin/JS and Kotlin/Wasm
 kotlin-js-store/
 yarn.lock
 
 # UI Test Screenshots (regenerated during test runs)
-test-screenshots/*.png
-test-screenshots/*.jpg
-test-screenshots/playwright/
+frontend/test-screenshots/*.png
+frontend/test-screenshots/*.jpg
+frontend/test-screenshots/playwright/
 
 # Playwright
 playwright-report/
@@ -69,6 +69,6 @@ scripts/package-lock.json
 scripts/.scraper_temp.js
 scripts/package.json
 # Keycloak theme - node_modules and build artifacts
-keycloak/keycloak-theme/node_modules/
-keycloak/keycloak-theme/dist/
-keycloak/keycloak-theme/dist_keycloak/
+servers/keycloak/theme/node_modules/
+servers/keycloak/theme/dist/
+servers/keycloak/theme/dist_keycloak/

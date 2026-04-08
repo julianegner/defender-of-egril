@@ -41,12 +41,12 @@ jobs:
         uses: montudor/action-zip@v1
       - name: Zip wasm folder
         run: zip -qq -r defender-of-egril_wasm.zip productionExecutable
-        working-directory: composeApp/build/dist/wasmJs
+        working-directory: frontend/composeApp/build/dist/wasmJs
       - name: Upload wasm Build
         uses: actions/upload-artifact@v4
         with:
           name: wasm-build
-          path: composeApp/build/dist/wasmJs/defender-of-egril_wasm.zip
+          path: frontend/composeApp/build/dist/wasmJs/defender-of-egril_wasm.zip
 
   build_jvm:
     if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
@@ -66,7 +66,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: jvm-build
-          path: composeApp/build/compose/jars/defender-of-egril-linux-x64-*.jar
+          path: frontend/composeApp/build/compose/jars/defender-of-egril-linux-x64-*.jar
 
   build_macos:
     if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
@@ -88,7 +88,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: macos-build
-          path: composeApp/build/compose/binaries/main/app
+          path: frontend/composeApp/build/compose/binaries/main/app
 
   build_linux_deb:
     if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
@@ -108,7 +108,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: linux-build
-          path: composeApp/build/compose/binaries/main/deb/defender-of-egril_*_amd64.deb
+          path: frontend/composeApp/build/compose/binaries/main/deb/defender-of-egril_*_amd64.deb
 
   build_windows:
     if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
@@ -128,7 +128,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
-          path: composeApp\build\compose\binaries\main\exe\defender-of-egril-*.exe
+          path: frontend\composeApp\build\compose\binaries\main\exe\defender-of-egril-*.exe
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
