@@ -32,7 +32,8 @@
       "name": "The Spiral",
       "nameKey": "location_the_spiral_name",
       "position": {"x": 344, "y": 484},
-      "levelIds": ["the_spiral_challenge"]
+      "levelIds": ["the_spiral_challenge"],
+      "iconResourceName": "spiral"
     },
     {
       "id": "the_dance",
@@ -55,7 +56,8 @@
       "name": "The Woods",
       "nameKey": "location_the_woods_name",
       "position": {"x": 352, "y": 410},
-      "levelIds": ["the_woods_first_incursion", "the_woods_full_assault"]
+      "levelIds": ["the_woods_first_incursion", "the_woods_full_assault"],
+      "iconResourceName": "woods"
     },
     {
       "id": "the_fast",
@@ -99,7 +101,8 @@
       "name": "The Creek",
       "nameKey": "location_the_creek_name",
       "position": {"x": 438, "y": 820},
-      "levelIds": ["the_creek"]
+      "levelIds": ["the_creek"],
+      "iconResourceName": "creek"
     },
     {
       "id": "the_island",
@@ -113,21 +116,24 @@
       "name": "The River",
       "nameKey": "location_the_river_name",
       "position": {"x": 320, "y": 547},
-      "levelIds": ["the_river"]
+      "levelIds": ["the_river"],
+      "iconResourceName": "river"
     },
     {
       "id": "creek_valley",
       "name": "Creek Valley",
       "nameKey": "location_creek_valley_name",
       "position": {"x": 422, "y": 530},
-      "levelIds": ["creek_valley"]
+      "levelIds": ["creek_valley"],
+      "iconResourceName": "creek_valley"
     },
     {
       "id": "the_maelstrom",
       "name": "The Maelstrom",
       "nameKey": "location_the_maelstrom_name",
       "position": {"x": 500, "y": 500},
-      "levelIds": ["maelstrom"]
+      "levelIds": ["maelstrom"],
+      "iconResourceName": "maelstrom"
     },
     {
       "id": "the_prison",
