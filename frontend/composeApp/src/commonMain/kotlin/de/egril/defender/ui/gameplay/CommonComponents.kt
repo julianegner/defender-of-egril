@@ -205,7 +205,7 @@ fun GameStatsDisplay(
         ) {
             EnemyTypeIcon(AttackerType.GOBLIN, modifier = Modifier.size(iconSize + 4.dp))
             Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
-            SelectableText("$activeEnemyCount | $remainingEnemyCount", style = textStyle)
+            Text("$activeEnemyCount | $remainingEnemyCount", style = textStyle)
         }
     }
 }
