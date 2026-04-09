@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 private const val GITHUB_RELEASES_PAGE =
     "https://github.com/julianegner/defender-of-egril/releases/latest"
@@ -40,7 +41,8 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}) {
         }
     }
 
-    Column(modifier = Modifier.fillMaxWidth()) {
+    SelectionContainer {
+        Column(modifier = Modifier.fillMaxWidth()) {
         // Header
         Text(
             text = stringResource(Res.string.download_info_title),
@@ -199,6 +201,7 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}) {
 
             // Impressum section
             ImpressumSection()
+        }
         }
     }
 }

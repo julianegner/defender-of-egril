@@ -800,6 +800,8 @@
     <string name="mine_on_river_warning_title">Impossibile posizionare la miniera sul fiume</string>
     <string name="mine_on_river_warning_message">Le miniere naniche non possono essere posizionate sulle caselle del fiume. Le miniere richiedono terreno solido e non possono essere costruite sulle zattere. Si prega di selezionare un\'area di costruzione sulla terraferma.</string>
 
+    <!-- Barge on Still River Warning -->
+
     <!-- Green Witch Info -->
     <string name="green_witch_info_title">Allarme Strega Verde!</string>
     <string name="green_witch_info_healing">La Strega Verde può curare altri nemici! Alla fine di ogni turno nemico, cura tutti i nemici adiacenti di 5 volte il suo livello (es: strega livello 2 cura 10 PS per turno).</string>
@@ -1594,6 +1596,11 @@
     <string name="community_uploading">Pubblicazione in corso...</string>
     <string name="community_upload_success">Pubblicato con successo!</string>
     <string name="community_upload_failed">Pubblicazione fallita. Riprova.</string>
+    <string name="upload_community_confirm_title">Pubblicare come contenuto della comunità?</string>
+    <string name="upload_community_level_confirm_message">Questo livello sarà visibile pubblicamente a tutti i giocatori. Sei sicuro di volerlo caricare?</string>
+    <string name="upload_community_map_confirm_message">Questa mappa sarà visibile pubblicamente a tutti i giocatori. Sei sicuro di volerla caricare?</string>
+    <string name="upload_community_also_uploads_map">La mappa usata da questo livello verrà caricata anche come contenuto della comunità.</string>
+    <string name="community_badge">Comunità</string>
 
     <!-- Sticker screen tabs -->
     <string name="sticker_tab_original">Adesivo</string>

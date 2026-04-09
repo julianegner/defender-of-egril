@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
  * Comprehensive how-to guide for the Level Editor.
@@ -21,13 +22,14 @@ import defender_of_egril.composeapp.generated.resources.*
 fun EditorHowToContent() {
     val scrollState = rememberScrollState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .verticalScroll(scrollState)
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
+    SelectionContainer {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(scrollState)
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
         // Introduction
         HowToSection(
             title = null,
@@ -109,6 +111,7 @@ fun EditorHowToContent() {
         HowToItemsList(stringResource(Res.string.editor_howto_tips))
 
         Spacer(modifier = Modifier.height(8.dp))
+        }
     }
 }
 

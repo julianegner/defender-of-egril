@@ -46,6 +46,7 @@ import kotlin.random.Random
 import de.egril.defender.ui.editor.getDefaultAuthorName
 import de.egril.defender.config.LogConfig
 import androidx.compose.runtime.rememberCoroutineScope
+import de.egril.defender.ui.common.SelectableText
 import kotlinx.coroutines.launch
 
 /**
@@ -82,7 +83,7 @@ fun LevelEditorContent() {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
+                SelectableText(
                     text = stringResource(Res.string.levels),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(bottom = 8.dp)
@@ -93,7 +94,7 @@ fun LevelEditorContent() {
                 }
             }
             
-            Text(
+            SelectableText(
                 text = stringResource(Res.string.select_level_to_edit),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -234,7 +235,7 @@ private fun LevelCard(
                         .padding(12.dp)
                         .padding(top = 24.dp)  // Add top padding for the badges
                 ) {
-                    Text(
+                    SelectableText(
                         text = level.title,
                         style = MaterialTheme.typography.titleSmall
                     )
@@ -248,25 +249,25 @@ private fun LevelCard(
                         }
                     }
                 if (level.subtitle.isNotEmpty()) {
-                    Text(
+                    SelectableText(
                         text = level.subtitle,
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
-                Text(
+                SelectableText(
                     text = "${stringResource(Res.string.file)}: ${level.id}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Text(
+                SelectableText(
                     text = "${stringResource(Res.string.map_label)}: ${level.mapId} | ${stringResource(Res.string.coins)}: ${level.startCoins} | ${stringResource(Res.string.hp_short)}: ${level.startHealthPoints}",
                     style = MaterialTheme.typography.bodySmall
                 )
-                Text(
+                SelectableText(
                     text = "${stringResource(Res.string.enemies)}: ${level.enemySpawns.size}",
                     style = MaterialTheme.typography.bodySmall
                 )
-                Text(
+                SelectableText(
                     text = if (EditorStorage.isLevelReadyToPlay(level)) stringResource(Res.string.ready_to_use) else stringResource(Res.string.not_ready),
                     style = MaterialTheme.typography.bodySmall,
                     color = if (EditorStorage.isLevelReadyToPlay(level)) Color.Green else Color.Red
@@ -287,7 +288,7 @@ private fun LevelCard(
                 ) {
                     // Test Level badge
                     if (level.testingOnly) {
-                        Text(
+                        SelectableText(
                             text = stringResource(Res.string.test_level),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.error
@@ -308,7 +309,7 @@ private fun LevelCard(
                 }
                 // Official/User badge below the check
                 if (level.isOfficial) {
-                    Text(
+                    SelectableText(
                         text = stringResource(Res.string.official_level),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary
@@ -334,7 +335,7 @@ private fun LevelCard(
                     ),
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(stringResource(Res.string.delete))
+                    SelectableText(stringResource(Res.string.delete))
                 }
             }
         }
@@ -386,6 +387,7 @@ fun LevelEditorView(
     var selectedTabIndex by remember { mutableStateOf(0) }
     var communityUploadStatus by remember { mutableStateOf<String?>(null) }
     var isUploadingToCommunity by remember { mutableStateOf(false) }
+    var showCommunityUploadConfirm by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     var showRemoveAllTurnsDialog by remember { mutableStateOf(false) }
     // Track the maximum turn number explicitly to support empty turns
@@ -436,7 +438,7 @@ fun LevelEditorView(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     InfoIcon(size = 20.dp)
-                    Text(
+                    SelectableText(
                         text = stringResource(Res.string.official_level_info),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -451,7 +453,7 @@ fun LevelEditorView(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.padding(bottom = 8.dp)
         ) {
-            Text(
+            SelectableText(
                 text = "${stringResource(Res.string.level_title)}: ${level.title}",
                 style = MaterialTheme.typography.titleMedium
             )
@@ -645,7 +647,7 @@ fun LevelEditorView(
                     enabled = !level.isOfficial || de.egril.defender.OfficialEditMode.enabled,
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(stringResource(Res.string.save_level))
+                    SelectableText(stringResource(Res.string.save_level))
                 }
                 
                 Button(
@@ -678,34 +680,57 @@ fun LevelEditorView(
                 val isMyUpload = storedCommunityLevel?.communityAuthorUsername == iamState.username
                 val isChanged = storedCommunityJson != null && storedCommunityJson != currentLevelJson
 
+                // Check if the map is a user map that needs auto-uploading
+                val levelMap = remember(level.mapId) {
+                    de.egril.defender.editor.EditorStorage.getMap(level.mapId)
+                }
+                val mapAlsoUploaded = levelMap != null && !levelMap.isOfficial && !levelMap.isCommunity &&
+                    de.egril.defender.editor.EditorStorage.getCommunityMap(level.mapId) == null
+
+                fun doUpload(token: String) {
+                    isUploadingToCommunity = true
+                    communityUploadStatus = null
+                    coroutineScope.launch {
+                        val success = de.egril.defender.save.BackendCommunityService
+                            .uploadCommunityFile("LEVEL", level.id, currentLevelJson, token)
+                        if (success) {
+                            de.egril.defender.editor.EditorStorage.saveCommunityLevel(
+                                level.copy(
+                                    isCommunity = true,
+                                    communityAuthorUsername = iamState.username ?: ""
+                                )
+                            )
+                            // Auto-upload the map if it hasn't been uploaded yet
+                            if (mapAlsoUploaded) {
+                                val map = de.egril.defender.editor.EditorStorage.getMap(level.mapId)
+                                if (map != null) {
+                                    val mapJson = de.egril.defender.editor.EditorJsonSerializer.serializeMap(map)
+                                    val mapSuccess = de.egril.defender.save.BackendCommunityService
+                                        .uploadCommunityFile("MAP", level.mapId, mapJson, token)
+                                    if (mapSuccess) {
+                                        de.egril.defender.editor.EditorStorage.saveCommunityMap(
+                                            map,
+                                            iamState.username ?: ""
+                                        )
+                                    }
+                                }
+                            }
+                            communityUploadStatus = "success"
+                        } else {
+                            communityUploadStatus = "error"
+                        }
+                        isUploadingToCommunity = false
+                    }
+                }
+
                 if (storedCommunityJson == null) {
                     // Level not yet in community - show upload button
                     Button(
-                        onClick = {
-                            val token = de.egril.defender.iam.IamService.getToken() ?: return@Button
-                            isUploadingToCommunity = true
-                            communityUploadStatus = null
-                            coroutineScope.launch {
-                                val success = de.egril.defender.save.BackendCommunityService
-                                    .uploadCommunityFile("LEVEL", level.id, currentLevelJson, token)
-                                if (success) {
-                                    de.egril.defender.editor.EditorStorage.saveCommunityLevel(
-                                        level.copy(
-                                            isCommunity = true,
-                                            communityAuthorUsername = iamState.username ?: ""
-                                        )
-                                    )
-                                    communityUploadStatus = "success"
-                                } else {
-                                    communityUploadStatus = "error"
-                                }
-                                isUploadingToCommunity = false
-                            }
-                        },
+                        onClick = { showCommunityUploadConfirm = true },
                         enabled = !isUploadingToCommunity,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(
+                        SelectableText(
                             if (isUploadingToCommunity) stringResource(Res.string.community_uploading)
                             else stringResource(Res.string.upload_as_community_level)
                         )
@@ -715,41 +740,44 @@ fun LevelEditorView(
                     Button(
                         onClick = {
                             val token = de.egril.defender.iam.IamService.getToken() ?: return@Button
-                            isUploadingToCommunity = true
-                            communityUploadStatus = null
-                            coroutineScope.launch {
-                                val success = de.egril.defender.save.BackendCommunityService
-                                    .uploadCommunityFile("LEVEL", level.id, currentLevelJson, token)
-                                if (success) {
-                                    de.egril.defender.editor.EditorStorage.saveCommunityLevel(
-                                        level.copy(
-                                            isCommunity = true,
-                                            communityAuthorUsername = iamState.username ?: ""
-                                        )
-                                    )
-                                    communityUploadStatus = "success"
-                                } else {
-                                    communityUploadStatus = "error"
-                                }
-                                isUploadingToCommunity = false
-                            }
+                            doUpload(token)
                         },
                         enabled = !isUploadingToCommunity,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(
+                        SelectableText(
                             if (isUploadingToCommunity) stringResource(Res.string.community_uploading)
                             else stringResource(Res.string.update_community_level)
                         )
                     }
                 }
                 communityUploadStatus?.let { status ->
-                    Text(
+                    SelectableText(
                         text = if (status == "success") stringResource(Res.string.community_upload_success)
                                else stringResource(Res.string.community_upload_failed),
                         color = if (status == "success") androidx.compose.ui.graphics.Color(0xFF2E7D32)
                                 else MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall
+                    )
+                }
+
+                // Confirmation dialog before first community upload
+                if (showCommunityUploadConfirm) {
+                    val confirmMessage = if (mapAlsoUploaded) {
+                        stringResource(Res.string.upload_community_level_confirm_message) +
+                            "\n\n" + stringResource(Res.string.upload_community_also_uploads_map)
+                    } else {
+                        stringResource(Res.string.upload_community_level_confirm_message)
+                    }
+                    de.egril.defender.ui.editor.ConfirmationDialog(
+                        title = stringResource(Res.string.upload_community_confirm_title),
+                        message = confirmMessage,
+                        onDismiss = { showCommunityUploadConfirm = false },
+                        onConfirm = {
+                            showCommunityUploadConfirm = false
+                            val token = de.egril.defender.iam.IamService.getToken() ?: return@ConfirmationDialog
+                            doUpload(token)
+                        }
                     )
                 }
             }
@@ -827,7 +855,7 @@ fun LevelEditorView(
                 showOfficialLevelSavedWarning = false
                 pendingLevelToSave = null
             },
-            title = { Text(stringResource(Res.string.official_level_saved_warning_title)) },
+            title = { SelectableText(stringResource(Res.string.official_level_saved_warning_title)) },
             text = { Text(stringResource(Res.string.official_level_saved_warning_message)) },
             confirmButton = {
                 Button(onClick = { 

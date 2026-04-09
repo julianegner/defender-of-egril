@@ -2,6 +2,8 @@ package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,6 +21,7 @@ import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
  * The type of narrative message popup.
@@ -51,9 +54,11 @@ fun NarrativeMessageDialog(
         val isMobile = isPlatformMobile
         val dialogWidth = if (isMobile) 340.dp else 1000.dp
         val dialogHeight = if (isMobile) 480.dp else 800.dp
-        val horizontalPadding = if (isMobile) 48.dp else 120.dp
-        val verticalPadding = if (isMobile) 70.dp else 100.dp
-        val contentWidth = if (isMobile) 220.dp else 200.dp
+        // Horizontal padding must cover the wooden/gargoyle frame border so text stays inside.
+        // The story background image is 500×500 px; the frame border is ~70 px per side ≈ 20% of
+        // the image width.  At 340 dp dialog width that is ~68 dp per side.  We use 72 dp to be safe.
+        val horizontalPadding = if (isMobile) 72.dp else 120.dp
+        val verticalPadding = if (isMobile) 72.dp else 100.dp
         val titleFontSize = when {
             isMobile && type == NarrativeMessageType.EWHAD -> 16.sp
             isMobile -> 15.sp
@@ -80,14 +85,16 @@ fun NarrativeMessageDialog(
                 contentScale = ContentScale.FillBounds
             )
 
-            // Content overlaid on background
+            // Content overlaid on background – scrollable so long texts never overflow the frame
+            SelectionContainer {
             Column(
                 modifier = Modifier
                     .padding(
                         horizontal = horizontalPadding,
                         vertical = verticalPadding
                     )
-                    .width(contentWidth)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
                 ,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -142,6 +149,7 @@ fun NarrativeMessageDialog(
                         color = Color.White
                     )
                 }
+            }
             }
         }
     }

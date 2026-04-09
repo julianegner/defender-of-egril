@@ -242,6 +242,19 @@ object EditorStorage {
             println("Failed to generate map image for ${map.id}: ${e.message}")
         }
     }
+
+    private fun generateAndSaveCommunityMapImage(map: EditorMap) {
+        try {
+            val (pixels, width, height) = de.egril.defender.mapgen.MapImageGenerator.generatePixels(map)
+            val pngBytes = de.egril.defender.mapgen.MapImageEncoder.encodeToPng(pixels, width, height)
+            if (pngBytes != null) {
+                fileStorage.writeBinaryFile("$COMMUNITY_MAPS_DIR/${map.id}.png", pngBytes)
+                println("Generated community map image: ${map.id}.png")
+            }
+        } catch (e: Exception) {
+            println("Failed to generate community map image for ${map.id}: ${e.message}")
+        }
+    }
     
     fun reloadMap(id: String): EditorMap? {
         // Force reload from file, bypassing cache
@@ -511,6 +524,8 @@ object EditorStorage {
         val json = EditorJsonSerializer.serializeMap(communityMap)
         fileStorage.writeFile("$COMMUNITY_MAPS_DIR/${map.id}.json", json)
         communityMapsCache[map.id] = communityMap
+        // Generate PNG image so it is available during gameplay
+        generateAndSaveCommunityMapImage(communityMap)
     }
 
     /**

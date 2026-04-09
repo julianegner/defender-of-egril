@@ -12,6 +12,7 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.editor.*
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.hexagon.TowerIconOnHexagon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
@@ -74,7 +75,7 @@ fun InitialSetupSidebar(
         ) {
             // Header
             item {
-                Text(
+                SelectableText(
                     text = stringResource(Res.string.initial_setup_configuration),
                     style = MaterialTheme.typography.titleMedium
                 )
@@ -93,7 +94,7 @@ fun InitialSetupSidebar(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         de.egril.defender.ui.icon.InfoIcon(size = 16.dp)
-                        Text(
+                        SelectableText(
                             text = stringResource(Res.string.initial_setup_info),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -104,7 +105,7 @@ fun InitialSetupSidebar(
             
             // Element type buttons
             item {
-                Text(
+                SelectableText(
                     text = stringResource(Res.string.element_type),
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -271,7 +272,7 @@ fun InitialSetupSidebar(
                                     containerColor = MaterialTheme.colorScheme.surfaceVariant
                                 )
                             ) {
-                                Text(
+                                SelectableText(
                                     text = stringResource(Res.string.selection_mode_info),
                                     style = MaterialTheme.typography.bodySmall,
                                     modifier = Modifier.padding(12.dp)
@@ -288,7 +289,7 @@ fun InitialSetupSidebar(
             
             // Placed elements summary
             item {
-                Text(
+                SelectableText(
                     text = stringResource(Res.string.placed_elements),
                     style = MaterialTheme.typography.titleSmall
                 )
@@ -325,7 +326,7 @@ fun DefenderConfigPanel(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
+        SelectableText(
             text = stringResource(Res.string.tower_configuration),
             style = MaterialTheme.typography.bodyMedium
         )
@@ -336,7 +337,7 @@ fun DefenderConfigPanel(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(
+            SelectableText(
                 text = stringResource(Res.string.show_all_towers),
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.bodySmall
@@ -430,7 +431,7 @@ fun AttackerConfigPanel(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
+        SelectableText(
             text = stringResource(Res.string.enemy_configuration),
             style = MaterialTheme.typography.bodyMedium
         )
@@ -528,7 +529,7 @@ fun TrapConfigPanel(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
+        SelectableText(
             text = stringResource(Res.string.trap_configuration),
             style = MaterialTheme.typography.bodyMedium
         )
@@ -544,7 +545,7 @@ fun TrapConfigPanel(
                 onClick = { onTypeChange("DWARVEN") }
             )
             TrapIcon(size = 24.dp)
-            Text(stringResource(Res.string.dwarven_trap))
+            SelectableText(stringResource(Res.string.dwarven_trap))
         }
         
         Row(
@@ -557,7 +558,7 @@ fun TrapConfigPanel(
                 onClick = { onTypeChange("MAGICAL") }
             )
             PentagramIcon(size = 24.dp)
-            Text(stringResource(Res.string.magical_trap))
+            SelectableText(stringResource(Res.string.magical_trap))
         }
         
         // Damage input - only show for Dwarven traps (magical traps do no damage)
@@ -590,7 +591,7 @@ fun BarricadeConfigPanel(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
+        SelectableText(
             text = stringResource(Res.string.barricade_configuration),
             style = MaterialTheme.typography.bodyMedium
         )
@@ -623,7 +624,7 @@ fun BarricadeConfigPanel(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
+            SelectableText(
                 text = stringResource(Res.string.is_gate_label),
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -637,7 +638,7 @@ fun BarricadeConfigPanel(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer
                 )
             ) {
-                Text(
+                SelectableText(
                     text = stringResource(Res.string.barricade_tower_base_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -663,7 +664,7 @@ fun SelectedElementPanel(
             modifier = Modifier.fillMaxWidth().padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(
+            SelectableText(
                 text = stringResource(Res.string.selected_element),
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -676,15 +677,15 @@ fun SelectedElementPanel(
                     ) {
                         TowerIconOnHexagon(selectedElement.defender.type, size = 32.dp)
                         Column {
-                            Text(
+                            SelectableText(
                                 text = selectedElement.defender.type.getLocalizedName(),
                                 style = MaterialTheme.typography.bodyLarge
                             )
-                            Text(
+                            SelectableText(
                                 text = "${stringResource(Res.string.level_label)}: ${selectedElement.defender.level}",
                                 style = MaterialTheme.typography.bodySmall
                             )
-                            Text(
+                            SelectableText(
                                 text = "${stringResource(Res.string.position_label)}: (${selectedElement.defender.position.x}, ${selectedElement.defender.position.y})",
                                 style = MaterialTheme.typography.bodySmall
                             )
@@ -700,15 +701,15 @@ fun SelectedElementPanel(
                             EnemyTypeIcon(selectedElement.attacker.type, modifier = Modifier.fillMaxSize())
                         }
                         Column {
-                            Text(
+                            SelectableText(
                                 text = selectedElement.attacker.type.getLocalizedName(),
                                 style = MaterialTheme.typography.bodyLarge
                             )
-                            Text(
+                            SelectableText(
                                 text = "${stringResource(Res.string.level_label)}: ${selectedElement.attacker.level}",
                                 style = MaterialTheme.typography.bodySmall
                             )
-                            Text(
+                            SelectableText(
                                 text = "${stringResource(Res.string.position_label)}: (${selectedElement.attacker.position.x}, ${selectedElement.attacker.position.y})",
                                 style = MaterialTheme.typography.bodySmall
                             )
@@ -726,18 +727,18 @@ fun SelectedElementPanel(
                             TrapIcon(size = 32.dp)
                         }
                         Column {
-                            Text(
+                            SelectableText(
                                 text = if (selectedElement.trap.type == "MAGICAL") stringResource(Res.string.magical_trap) else stringResource(Res.string.dwarven_trap),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                             // Only show damage for Dwarven traps (magical traps do no damage)
                             if (selectedElement.trap.type == "DWARVEN") {
-                                Text(
+                                SelectableText(
                                     text = "${stringResource(Res.string.damage_label)}: ${selectedElement.trap.damage}",
                                     style = MaterialTheme.typography.bodySmall
                                 )
                             }
-                            Text(
+                            SelectableText(
                                 text = "${stringResource(Res.string.position_label)}: (${selectedElement.trap.position.x}, ${selectedElement.trap.position.y})",
                                 style = MaterialTheme.typography.bodySmall
                             )
@@ -751,15 +752,15 @@ fun SelectedElementPanel(
                     ) {
                         WoodIcon(size = 32.dp)
                         Column {
-                            Text(
+                            SelectableText(
                                 text = stringResource(Res.string.barricade),
                                 style = MaterialTheme.typography.bodyLarge
                             )
-                            Text(
+                            SelectableText(
                                 text = "${stringResource(Res.string.health_points)}: ${selectedElement.barricade.healthPoints}",
                                 style = MaterialTheme.typography.bodySmall
                             )
-                            Text(
+                            SelectableText(
                                 text = "${stringResource(Res.string.position_label)}: (${selectedElement.barricade.position.x}, ${selectedElement.barricade.position.y})",
                                 style = MaterialTheme.typography.bodySmall
                             )
@@ -802,19 +803,19 @@ fun PlacedElementsSummary(
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        Text(
+        SelectableText(
             text = "${stringResource(Res.string.towers)}: ${defenders.size}",
             style = MaterialTheme.typography.bodySmall
         )
-        Text(
+        SelectableText(
             text = "${stringResource(Res.string.enemies)}: ${attackers.size}",
             style = MaterialTheme.typography.bodySmall
         )
-        Text(
+        SelectableText(
             text = "${stringResource(Res.string.traps)}: ${traps.size}",
             style = MaterialTheme.typography.bodySmall
         )
-        Text(
+        SelectableText(
             text = "${stringResource(Res.string.barricades)}: ${barricades.size}",
             style = MaterialTheme.typography.bodySmall
         )

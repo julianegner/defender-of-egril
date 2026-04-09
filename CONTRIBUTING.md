@@ -17,7 +17,7 @@ Thank you for your interest in contributing to Defender of Egril! This document 
 
 ## How to Report Issues
 
-If you find a bug or experience unexpected behavior, please [open a GitHub Issue](https://github.com/qvest-digital/defender-of-egril-fork/issues).
+If you find a bug or experience unexpected behavior, please [open a GitHub Issue](https://github.com/julianegner/defender-of-egril/issues).
 
 When reporting a bug, please include:
 - A clear, descriptive title
@@ -32,7 +32,7 @@ When reporting a bug, please include:
 
 ## How to Request Features
 
-Have an idea for a new feature or improvement? [Open a GitHub Issue](https://github.com/qvest-digital/defender-of-egril-fork/issues) with the label `enhancement`.
+Have an idea for a new feature or improvement? [Open a GitHub Issue](https://github.com/julianegner/defender-of-egril/issues) with the label `enhancement`.
 
 Please describe:
 - What the feature would do

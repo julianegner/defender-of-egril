@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
  * Composable displaying license information and GitHub project link
@@ -24,9 +25,10 @@ import defender_of_egril.composeapp.generated.resources.*
 fun LicenseInfo() {
     val uriHandler = LocalUriHandler.current
     
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    SelectionContainer {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
         Text(
             text = stringResource(Res.string.license_info_title),
             style = MaterialTheme.typography.displayMedium,
@@ -174,6 +176,7 @@ fun LicenseInfo() {
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)
             )
+        }
         }
     }
 }

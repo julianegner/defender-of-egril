@@ -22,6 +22,7 @@ import de.egril.defender.ui.editor.TileTypeButton
 import de.egril.defender.ui.editor.getTileColor
 import de.egril.defender.ui.editor.RiverFlowIndicator
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -143,7 +144,7 @@ private fun ExpandedMapEditorHeader(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         de.egril.defender.ui.icon.InfoIcon(size = 20.dp)
-                        Text(
+                        SelectableText(
                             text = stringResource(Res.string.official_map_info),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -162,7 +163,7 @@ private fun ExpandedMapEditorHeader(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
+                    SelectableText(
                         text = stringResource(Res.string.editing_map, map.name.ifEmpty { map.id }),
                         style = MaterialTheme.typography.titleMedium
                     )
@@ -194,7 +195,7 @@ private fun ExpandedMapEditorHeader(
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         de.egril.defender.ui.icon.TriangleUpIcon(size = 12.dp)
-                        Text(stringResource(Res.string.collapse), fontSize = 12.sp)
+                        SelectableText(stringResource(Res.string.collapse), fontSize = 12.sp)
                     }
                 }
             }
@@ -218,7 +219,7 @@ private fun ExpandedMapEditorHeader(
             )
             
             // Tile type selector
-            Text(
+            SelectableText(
                 text = stringResource(Res.string.select_tile_type),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 4.dp)
@@ -246,14 +247,14 @@ private fun ExpandedMapEditorHeader(
                     )
                 ) {
                     Column(modifier = Modifier.padding(8.dp)) {
-                        Text(
+                        SelectableText(
                             text = "River Properties",
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.padding(bottom = 4.dp)
                         )
                         
                         // Flow direction selector
-                        Text(
+                        SelectableText(
                             text = "Flow Direction:",
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.padding(bottom = 2.dp)
@@ -273,13 +274,13 @@ private fun ExpandedMapEditorHeader(
                                     ),
                                     modifier = Modifier.height(32.dp)
                                 ) {
-                                    Text(flow.name.replace("_", " "), fontSize = 10.sp)
+                                    SelectableText(flow.name.replace("_", " "), fontSize = 10.sp)
                                 }
                             }
                         }
                         
                         // Flow speed selector
-                        Text(
+                        SelectableText(
                             text = "Flow Speed:",
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.padding(bottom = 2.dp)
@@ -297,7 +298,7 @@ private fun ExpandedMapEditorHeader(
                                 ),
                                 modifier = Modifier.height(32.dp)
                             ) {
-                                Text(stringResource(Res.string.speed_slow), fontSize = 10.sp)
+                                SelectableText(stringResource(Res.string.speed_slow), fontSize = 10.sp)
                             }
                             Button(
                                 onClick = { onRiverSpeedChange(2) },
@@ -309,7 +310,7 @@ private fun ExpandedMapEditorHeader(
                                 ),
                                 modifier = Modifier.height(32.dp)
                             ) {
-                                Text(stringResource(Res.string.speed_fast), fontSize = 10.sp)
+                                SelectableText(stringResource(Res.string.speed_fast), fontSize = 10.sp)
                             }
                         }
                     }
@@ -325,7 +326,7 @@ private fun ExpandedMapEditorHeader(
                     )
                 ) {
                     Column(modifier = Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text(
+                        SelectableText(
                             text = stringResource(Res.string.target_name_label),
                             style = MaterialTheme.typography.bodySmall
                         )
@@ -336,7 +337,7 @@ private fun ExpandedMapEditorHeader(
                             singleLine = true,
                             textStyle = MaterialTheme.typography.bodySmall
                         )
-                        Text(
+                        SelectableText(
                             text = stringResource(Res.string.target_type_label),
                             style = MaterialTheme.typography.bodySmall
                         )
@@ -356,7 +357,7 @@ private fun ExpandedMapEditorHeader(
                                     ),
                                     modifier = Modifier.height(32.dp)
                                 ) {
-                                    Text(label, fontSize = 10.sp)
+                                    SelectableText(label, fontSize = 10.sp)
                                 }
                             }
                         }
@@ -443,7 +444,7 @@ private fun CollapsedMapEditorHeader(
                                     .background(getTileColor(selectedTileType), shape = MaterialTheme.shapes.small)
                             )
                             // Tile type name
-                            Text(
+                            SelectableText(
                                 text = selectedTileType.name,
                                 fontSize = 11.sp,
                                 modifier = Modifier.weight(1f, fill = false)
@@ -462,7 +463,7 @@ private fun CollapsedMapEditorHeader(
                                     de.egril.defender.model.TargetType.STANDARD -> stringResource(Res.string.target_type_standard)
                                     de.egril.defender.model.TargetType.SINGLE_HIT -> stringResource(Res.string.target_type_single_hit)
                                 }
-                                Text(
+                                SelectableText(
                                     text = typeLabel,
                                     fontSize = 9.sp,
                                     color = MaterialTheme.colorScheme.primary
@@ -535,7 +536,7 @@ private fun CollapsedMapEditorHeader(
     if (showRiverPropertiesDialog) {
         AlertDialog(
             onDismissRequest = { showRiverPropertiesDialog = false },
-            title = { Text(stringResource(Res.string.river_properties)) },
+            title = { SelectableText(stringResource(Res.string.river_properties)) },
             text = {
                 Column {
                     Text(stringResource(Res.string.flow_direction), style = MaterialTheme.typography.bodyMedium)
@@ -638,7 +639,7 @@ private fun CollapsedMapEditorHeader(
         var localName by remember(showTargetPropertiesDialog) { mutableStateOf(selectedTargetName) }
         AlertDialog(
             onDismissRequest = { showTargetPropertiesDialog = false },
-            title = { Text(stringResource(Res.string.target_name_label)) },
+            title = { SelectableText(stringResource(Res.string.target_name_label)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(
@@ -701,7 +702,7 @@ fun ZoomControls(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
+        SelectableText(
             text = "${stringResource(Res.string.click_hexagons_to_paint)} (${map.width}x${map.height})",
             style = MaterialTheme.typography.bodySmall
         )
@@ -718,10 +719,10 @@ fun ZoomControls(
                     horizontalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
                     MagnifyingGlassIcon(size = 14.dp, tint = Color.White)
-                    Text("-", fontSize = 12.sp)
+                    SelectableText("-", fontSize = 12.sp)
                 }
             }
-            Text(
+            SelectableText(
                 text = "${(zoomLevel * 100).toInt()}%",
                 fontSize = 12.sp,
                 modifier = Modifier.padding(horizontal = 4.dp)
@@ -735,7 +736,7 @@ fun ZoomControls(
                     horizontalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
                     MagnifyingGlassIcon(size = 14.dp, tint = Color.White)
-                    Text("+", fontSize = 12.sp)
+                    SelectableText("+", fontSize = 12.sp)
                 }
             }
         }

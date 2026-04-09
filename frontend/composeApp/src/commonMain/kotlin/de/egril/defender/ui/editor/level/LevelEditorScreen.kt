@@ -20,6 +20,7 @@ import de.egril.defender.ui.editor.map.MapEditorContent
 import de.egril.defender.ui.editor.worldmap.WorldMapPositionEditorContent
 import de.egril.defender.ui.settings.SettingsButton
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -75,7 +76,7 @@ fun LevelEditorScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
+                    SelectableText(
                         text = stringResource(Res.string.level_editor),
                         style = MaterialTheme.typography.titleLarge
                     )
@@ -139,7 +140,7 @@ fun LevelEditorScreen(
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Column(modifier = Modifier.padding(24.dp)) {
-                        Text(
+                        SelectableText(
                             text = stringResource(Res.string.editor_howto_title),
                             style = MaterialTheme.typography.titleLarge,
                             modifier = Modifier.padding(bottom = 12.dp)
@@ -151,7 +152,7 @@ fun LevelEditorScreen(
                             onClick = { showHowToDialog = false },
                             modifier = Modifier.align(Alignment.End).padding(top = 12.dp)
                         ) {
-                            Text(stringResource(Res.string.editor_howto_close))
+                            SelectableText(stringResource(Res.string.editor_howto_close))
                         }
                     }
                 }

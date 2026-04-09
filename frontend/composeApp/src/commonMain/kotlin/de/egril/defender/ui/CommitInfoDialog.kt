@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.AppBuildInfo
 import defender_of_egril.composeapp.generated.resources.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
  * Dialog that displays commit information including hash, date, and message.
@@ -23,6 +24,7 @@ fun CommitInfoDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(Res.string.commit_info_title)) },
         text = {
+            SelectionContainer {
             Column(
                 modifier = Modifier.verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -65,6 +67,7 @@ fun CommitInfoDialog(
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
+            }
             }
         },
         confirmButton = {

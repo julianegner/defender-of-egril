@@ -19,17 +19,29 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import de.egril.defender.ui.MapImageProvider
 import de.egril.defender.iam.IamService
+import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.editor.getDefaultAuthorName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
+ * Returns all maps visible in the map editor: user/official maps plus community maps.
+ * Community maps appear last, sorted by name.
+ */
+private fun allMapsForEditor(): List<EditorMap> {
+    val userAndOfficialMaps = EditorStorage.getAllMaps()
+    val communityMaps = EditorStorage.getAllCommunityMaps()
+        .filter { cm -> userAndOfficialMaps.none { it.id == cm.id } }  // skip maps already present locally
+    return userAndOfficialMaps + communityMaps
+}
+
+/**
  * Main content for the Map Editor tab
  */
 @Composable
 fun MapEditorContent() {
-    val maps = remember { mutableStateOf(EditorStorage.getAllMaps()) }
+    val maps = remember { mutableStateOf(allMapsForEditor()) }
     var selectedMapId by remember { mutableStateOf<String?>(null) }
     var editingMap by remember { mutableStateOf<EditorMap?>(null) }
     var showCreateDialog by remember { mutableStateOf(false) }
@@ -72,7 +84,7 @@ fun MapEditorContent() {
                 }
                 imageWasRegenerated = regenerated
                 generationSuccess = true
-                maps.value = EditorStorage.getAllMaps()
+                maps.value = allMapsForEditor()
                 editingMap = null
                 val bytes = MapImageProvider.loadMapImageBytes(mapToSave.id)
                 val bitmap = bytes?.let { MapImageProvider.decodeImageBitmap(it) }
@@ -103,7 +115,7 @@ fun MapEditorContent() {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
+                SelectableText(
                     text = stringResource(Res.string.maps),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(bottom = 8.dp)
@@ -114,7 +126,7 @@ fun MapEditorContent() {
                 }
             }
             
-            Text(
+            SelectableText(
                 text = stringResource(Res.string.select_map_to_edit),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -136,7 +148,7 @@ fun MapEditorContent() {
                         },
                         onDelete = {
                             EditorStorage.deleteMap(map.id)
-                            maps.value = EditorStorage.getAllMaps()
+                            maps.value = allMapsForEditor()
                         },
                         onCopy = {
                             // Create a copy with a new ID
@@ -156,7 +168,7 @@ fun MapEditorContent() {
                             )
                             // Copy the existing PNG image instead of regenerating it
                             EditorStorage.copyMap(map, copiedMap)
-                            maps.value = EditorStorage.getAllMaps()
+                            maps.value = allMapsForEditor()
                             selectedMapId = copyId
                             editingMap = copiedMap
                         }
@@ -191,7 +203,7 @@ fun MapEditorContent() {
                     author = author
                 )
                 EditorStorage.saveMap(newMap)
-                maps.value = EditorStorage.getAllMaps()
+                maps.value = allMapsForEditor()
                 showCreateDialog = false
                 editingMap = newMap
             }
@@ -206,7 +218,7 @@ fun MapEditorContent() {
                 }
             },
             title = {
-                Text(stringResource(Res.string.map_image_generation_title, generatorMapName))
+                SelectableText(stringResource(Res.string.map_image_generation_title, generatorMapName))
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {

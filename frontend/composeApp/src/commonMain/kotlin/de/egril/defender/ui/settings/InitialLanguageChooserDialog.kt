@@ -9,6 +9,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -34,7 +35,7 @@ fun InitialLanguageChooserDialog(
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
+                SelectableText(
                     text = stringResource(Res.string.initial_language_title),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold
@@ -42,7 +43,7 @@ fun InitialLanguageChooserDialog(
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                Text(
+                SelectableText(
                     text = stringResource(Res.string.initial_language_prompt),
                     style = MaterialTheme.typography.bodyMedium
                 )

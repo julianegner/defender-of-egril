@@ -4,7 +4,7 @@ pkgver=PKGVER
 pkgrel=1
 pkgdesc="Turn-based Tower Defense game built with Kotlin Multiplatform"
 arch=('x86_64')
-url="https://github.com/qvest-digital/defender-of-egril-fork"
+url="https://github.com/julianegner/defender-of-egril"
 license=('AGPL-3.0-only')
 depends=()
 # The DEB bundles a full JRE and all native libraries, so no Java dependency is needed.

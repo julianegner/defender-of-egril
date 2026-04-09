@@ -93,4 +93,9 @@ actual object BackendCommunityService {
             continuation.resume(if (json != null) parseCommunityFileDataJson(json) else null)
         }.resume()
     }
+
+    actual suspend fun fetchCommunityMapImage(mapId: String): ByteArray? {
+        // Image generation falls back to local generation on iOS
+        return null
+    }
 }

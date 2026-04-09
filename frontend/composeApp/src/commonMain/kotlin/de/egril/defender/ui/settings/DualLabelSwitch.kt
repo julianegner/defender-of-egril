@@ -12,6 +12,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import de.egril.defender.ui.common.SelectableText
 
 /**
  * Dual label switch component for Material 3
@@ -31,7 +32,7 @@ fun DualLabelSwitch(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
-        Text(
+        SelectableText(
             text = leftText,
             style = MaterialTheme.typography.bodyLarge,
             color = if (!state.value) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
@@ -52,7 +53,7 @@ fun DualLabelSwitch(
                 uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
             )
         )
-        Text(
+        SelectableText(
             text = rightText,
             style = MaterialTheme.typography.bodyLarge,
             color = if (state.value) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,

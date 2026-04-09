@@ -50,6 +50,7 @@ import de.egril.defender.ui.icon.WarningIcon
 import de.egril.defender.ui.icon.PencilIcon
 import org.jetbrains.compose.resources.painterResource
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -106,7 +107,7 @@ fun WorldMapPositionEditorContent() {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
+            SelectableText(
                 text = stringResource(Res.string.world_map_positions),
                 style = MaterialTheme.typography.titleMedium
             )
@@ -141,7 +142,7 @@ fun WorldMapPositionEditorContent() {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
+                    SelectableText(
                         text = stringResource(Res.string.worldmap_saved_success),
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -157,7 +158,7 @@ fun WorldMapPositionEditorContent() {
             modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
         ) {
-            Text(
+            SelectableText(
                 text = stringResource(Res.string.world_map_position_instructions),
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(8.dp)
@@ -292,7 +293,7 @@ fun WorldMapPositionEditorContent() {
                                 containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.9f)
                             )
                         ) {
-                            Text(
+                            SelectableText(
                                 text = "Position: ${hoveredPosition!!.x}, ${hoveredPosition!!.y}",
                                 style = MaterialTheme.typography.bodySmall,
                                 modifier = Modifier.padding(8.dp)
@@ -311,25 +312,25 @@ fun WorldMapPositionEditorContent() {
                             )
                         ) {
                             Column(modifier = Modifier.padding(8.dp)) {
-                                Text(
+                                SelectableText(
                                     text = "Connection Mode Active",
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSecondary
                                 )
                                 if (connectionFromLocation != null) {
                                     val fromLoc = worldMapData.locations.find { it.id == connectionFromLocation }
-                                    Text(
+                                    SelectableText(
                                         text = "From: ${fromLoc?.name ?: connectionFromLocation}",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSecondary
                                     )
-                                    Text(
+                                    SelectableText(
                                         text = "Click destination location",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSecondary
                                     )
                                 } else {
-                                    Text(
+                                    SelectableText(
                                         text = "Click source location",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSecondary
@@ -443,7 +444,7 @@ fun WorldMapPositionEditorContent() {
                         Text(stringResource(Res.string.auto_connect_by_dependencies))
                     }
 
-                    Text(
+                    SelectableText(
                         text = stringResource(Res.string.locations),
                         style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier.padding(bottom = 8.dp)
@@ -487,7 +488,7 @@ fun WorldMapPositionEditorContent() {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
+                        SelectableText(
                             text = "Connections (${worldMapData.paths.size})",
                             style = MaterialTheme.typography.titleSmall
                         )
@@ -1109,12 +1110,12 @@ private fun LocationListItem(
                             size = 16.dp
                         )
                     }
-                    Text(
+                    SelectableText(
                         text = location.name,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
-                Text(
+                SelectableText(
                     text = "Position: ${location.position.x}, ${location.position.y} | ${location.levelIds.size} levels",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1197,7 +1198,7 @@ private fun PathListItem(
                             size = 16.dp
                         )
                     }
-                    Text(
+                    SelectableText(
                         text = "$fromName → $toName",
                         style = MaterialTheme.typography.bodyMedium
                     )
@@ -1206,7 +1207,7 @@ private fun PathListItem(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
+                    SelectableText(
                         text = "${path.controlPoints.size} waypoints",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1215,7 +1216,7 @@ private fun PathListItem(
                         shape = RoundedCornerShape(4.dp),
                         color = connectionTypeColor.copy(alpha = 0.2f)
                     ) {
-                        Text(
+                        SelectableText(
                             text = connectionTypeText,
                             style = MaterialTheme.typography.labelSmall,
                             color = connectionTypeColor,

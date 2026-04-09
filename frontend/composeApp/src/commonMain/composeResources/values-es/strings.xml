@@ -800,6 +800,8 @@
     <string name="mine_on_river_warning_title">No se puede colocar mina en el río</string>
     <string name="mine_on_river_warning_message">Las minas enanas no se pueden colocar en casillas de río. Las minas requieren tierra firme y no se pueden construir en balsas. Por favor selecciona un área de construcción en tierra.</string>
 
+    <!-- Barge on Still River Warning -->
+
     <!-- Green Witch Info -->
     <string name="green_witch_info_title">¡Alerta de Bruja Verde!</string>
     <string name="green_witch_info_healing">¡La Bruja Verde puede curar a otros enemigos! Al final de cada turno enemigo, cura a todos los enemigos adyacentes por 5 veces su nivel (ej: bruja nivel 2 cura 10 PS por turno).</string>
@@ -1592,6 +1594,11 @@
     <string name="community_uploading">Subiendo...</string>
     <string name="community_upload_success">¡Subido con éxito!</string>
     <string name="community_upload_failed">Error al subir. Por favor, inténtalo de nuevo.</string>
+    <string name="upload_community_confirm_title">¿Publicar como contenido de comunidad?</string>
+    <string name="upload_community_level_confirm_message">Este nivel será visible públicamente para todos los jugadores. ¿Estás seguro de que quieres subirlo?</string>
+    <string name="upload_community_map_confirm_message">Este mapa será visible públicamente para todos los jugadores. ¿Estás seguro de que quieres subirlo?</string>
+    <string name="upload_community_also_uploads_map">El mapa usado por este nivel también se subirá como contenido de comunidad.</string>
+    <string name="community_badge">Comunidad</string>
 
     <!-- Sticker screen tabs -->
     <string name="sticker_tab_original">Pegatina</string>

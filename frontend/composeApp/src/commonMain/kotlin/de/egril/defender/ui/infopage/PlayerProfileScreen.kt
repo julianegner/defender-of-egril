@@ -26,6 +26,7 @@ import de.egril.defender.ui.icon.UnlockIcon
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.utils.formatTimestamp
 import defender_of_egril.composeapp.generated.resources.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
  * Screen displaying player profile information and achievements
@@ -60,6 +61,7 @@ fun PlayerProfileScreen(
                     .padding(8.dp)
             )
             
+            SelectionContainer {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -304,6 +306,7 @@ fun PlayerProfileScreen(
                 }
             }
         }
+            }
     }
 }
 

@@ -25,6 +25,7 @@ import de.egril.defender.ui.hexagon.EnemyIconOnHexagon
 import de.egril.defender.ui.hexagon.TowerIconOnHexagon
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
  * Composable displaying the "How to Play" content.
@@ -32,11 +33,12 @@ import defender_of_egril.composeapp.generated.resources.Res
  */
 @Composable
 fun HowToPlayContent() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-    ) {
+    SelectionContainer {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+        ) {
         // Game Overview
         HowToPlaySectionTitle(stringResource(Res.string.game_overview))
         HowToPlaySectionText(stringResource(Res.string.game_overview_text))
@@ -134,6 +136,7 @@ fun HowToPlayContent() {
         HowToPlayBulletPoint(stringResource(Res.string.upgrade_vs_build))
 
         Spacer(modifier = Modifier.height(24.dp))
+        }
     }
 }
 

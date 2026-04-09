@@ -15,6 +15,7 @@ import de.egril.defender.utils.formatTimestamp
 import de.egril.defender.ui.icon.TrashIcon
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
  * Dialog for creating or editing a player profile
@@ -40,6 +41,7 @@ fun PlayerNameDialog(
             shape = MaterialTheme.shapes.medium,
             color = MaterialTheme.colorScheme.surface
         ) {
+            SelectionContainer {
             Column(
                 modifier = Modifier.padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -121,6 +123,7 @@ fun PlayerNameDialog(
                         })
                     }
                 }
+            }
             }
         }
     }

@@ -16,6 +16,8 @@ import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.hexagon.HexagonMinimapFromEditorMap
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.common.SelectableText
+import de.egril.defender.ui.loadgame.SavefileLocationChip
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -49,24 +51,31 @@ fun MapListCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(4f)) {
-                    Text(
+                    SelectableText(
                         text = map.name.ifEmpty { "Map ${map.id}" },
                         style = MaterialTheme.typography.titleSmall
                     )
-                    Text(
+                    SelectableText(
                         text = "File: ${map.id}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Text(
+                    SelectableText(
                         text = "Size: ${map.width}x${map.height}",
                         style = MaterialTheme.typography.bodySmall
                     )
-                    Text(
+                    SelectableText(
                         text = if (map.readyToUse) stringResource(Res.string.ready_to_use) else stringResource(Res.string.not_ready),
                         style = MaterialTheme.typography.bodySmall,
                         color = if (map.readyToUse) Color.Green else Color.Red
                     )
+                    if (map.isCommunity && map.communityAuthorUsername.isNotEmpty()) {
+                        SelectableText(
+                            text = map.communityAuthorUsername,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
                 
                 // Minimap preview - 4x width
@@ -110,7 +119,7 @@ fun MapListCard(
                             containerColor = MaterialTheme.colorScheme.error
                         )
                     ) {
-                        Text(stringResource(Res.string.delete))
+                        SelectableText(stringResource(Res.string.delete))
                     }
                     
                     Button(
@@ -143,11 +152,32 @@ fun MapListCard(
                 }
                 // Official badge below the check
                 if (map.isOfficial) {
-                    Text(
+                    SelectableText(
                         text = stringResource(Res.string.official),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary
                     )
+                }
+                // Community badges: Local and/or Online
+                if (map.isCommunity) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Community maps stored locally always also have an online counterpart
+                        SavefileLocationChip(
+                            label = stringResource(Res.string.savefile_chip_local),
+                            color = MaterialTheme.colorScheme.tertiary,
+                            onColor = MaterialTheme.colorScheme.onTertiary,
+                            isMobile = false
+                        )
+                        SavefileLocationChip(
+                            label = stringResource(Res.string.savefile_chip_remote),
+                            color = MaterialTheme.colorScheme.primary,
+                            onColor = MaterialTheme.colorScheme.onPrimary,
+                            isMobile = false
+                        )
+                    }
                 }
             }
         }

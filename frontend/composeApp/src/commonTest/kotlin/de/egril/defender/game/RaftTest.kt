@@ -192,7 +192,7 @@ class RaftTest {
     fun testRaftDestroyedInMaelstrom() {
         val tiles = mutableMapOf<String, TileType>()
         tiles["0,0"] = TileType.SPAWN_POINT
-        tiles["1,0"] = TileType.RIVER
+        tiles["1,0"] = TileType.RIVER  // Start here - flowing east
         tiles["2,0"] = TileType.RIVER  // Maelstrom
         tiles["3,0"] = TileType.PATH
         tiles["4,0"] = TileType.TARGET
@@ -225,8 +225,8 @@ class RaftTest {
         val state = GameState(level = level)
         val engine = GameEngine(state)
         
-        // Place tower on maelstrom tile - it should be destroyed immediately when moved
-        engine.placeDefender(DefenderType.BOW_TOWER, Position(2, 0))
+        // Place tower on flowing river tile - it will flow into the maelstrom on movement
+        engine.placeDefender(DefenderType.BOW_TOWER, Position(1, 0))
         
         assertEquals(1, state.defenders.size)
         assertEquals(1, state.rafts.size)
@@ -415,5 +415,89 @@ class RaftTest {
         // Raft2 should move first (it's downstream), then raft1 can move into its old position
         assertEquals(Position(2, 0), raft1.currentPosition.value, "Raft1 should move to raft2's old position")
         assertEquals(Position(3, 0), raft2.currentPosition.value, "Raft2 should move downstream")
+    }
+
+    /**
+     * Test that placing a tower on a NONE flow river tile is not allowed
+     */
+    @Test
+    fun testCannotPlaceTowerOnNoneFlowRiverTile() {
+        val tiles = mutableMapOf<String, TileType>()
+        tiles["0,0"] = TileType.SPAWN_POINT
+        tiles["1,0"] = TileType.PATH
+        tiles["2,0"] = TileType.RIVER
+        tiles["3,0"] = TileType.PATH
+        tiles["4,0"] = TileType.TARGET
+
+        val riverTilesMap = mapOf(
+            Position(2, 0) to RiverTile(
+                position = Position(2, 0),
+                flowDirection = RiverFlow.NONE,
+                flowSpeed = 1
+            )
+        )
+
+        val level = Level(
+            id = 1,
+            name = "Test Still River Level",
+            pathCells = setOf(Position(1, 0), Position(3, 0)),
+            buildAreas = setOf(Position(1, 0), Position(2, 0), Position(3, 0)),
+            attackerWaves = emptyList(),
+            initialCoins = 100,
+            startPositions = listOf(Position(0, 0)),
+            targetPositions = listOf(Position(4, 0)),
+            riverTiles = riverTilesMap
+        )
+
+        val state = GameState(level = level)
+        val engine = GameEngine(state)
+
+        val success = engine.placeDefender(DefenderType.BOW_TOWER, Position(2, 0))
+
+        assertFalse(success, "Should not be able to place tower on NONE flow river tile")
+        assertEquals(0, state.defenders.size, "Should have no defenders")
+        assertEquals(0, state.rafts.size, "Should have no rafts")
+    }
+
+    /**
+     * Test that placing a tower on a MAELSTROM river tile is not allowed
+     */
+    @Test
+    fun testCannotPlaceTowerOnMaelstromRiverTile() {
+        val tiles = mutableMapOf<String, TileType>()
+        tiles["0,0"] = TileType.SPAWN_POINT
+        tiles["1,0"] = TileType.PATH
+        tiles["2,0"] = TileType.RIVER
+        tiles["3,0"] = TileType.PATH
+        tiles["4,0"] = TileType.TARGET
+
+        val riverTilesMap = mapOf(
+            Position(2, 0) to RiverTile(
+                position = Position(2, 0),
+                flowDirection = RiverFlow.MAELSTROM,
+                flowSpeed = 1
+            )
+        )
+
+        val level = Level(
+            id = 1,
+            name = "Test Maelstrom River Level",
+            pathCells = setOf(Position(1, 0), Position(3, 0)),
+            buildAreas = setOf(Position(1, 0), Position(2, 0), Position(3, 0)),
+            attackerWaves = emptyList(),
+            initialCoins = 100,
+            startPositions = listOf(Position(0, 0)),
+            targetPositions = listOf(Position(4, 0)),
+            riverTiles = riverTilesMap
+        )
+
+        val state = GameState(level = level)
+        val engine = GameEngine(state)
+
+        val success = engine.placeDefender(DefenderType.BOW_TOWER, Position(2, 0))
+
+        assertFalse(success, "Should not be able to place tower on MAELSTROM river tile")
+        assertEquals(0, state.defenders.size, "Should have no defenders")
+        assertEquals(0, state.rafts.size, "Should have no rafts")
     }
 }

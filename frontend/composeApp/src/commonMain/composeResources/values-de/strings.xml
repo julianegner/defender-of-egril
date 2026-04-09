@@ -800,6 +800,8 @@
     <string name="mine_on_river_warning_title">Kann Mine nicht auf Fluss platzieren</string>
     <string name="mine_on_river_warning_message">Zwergenminen können nicht auf Flussfeldern platziert werden. Minen benötigen festen Boden und können nicht auf Flößen gebaut werden. Bitte wählen Sie stattdessen einen Baubereich auf festem Land.</string>
 
+    <!-- Barge on Still River Warning -->
+
     <!-- Green Witch Info -->
     <string name="green_witch_info_title">Grüne Hexe Alarm!</string>
     <string name="green_witch_info_healing">Die Grüne Hexe kann andere Feinde heilen! Am Ende jeder Feindphase heilt sie alle angrenzenden Feinde um das 5-fache ihrer Stufe (z.B. Stufe 2 Hexe heilt 10 HP pro Runde).</string>
@@ -1591,6 +1593,11 @@
     <string name="community_uploading">Wird hochgeladen...</string>
     <string name="community_upload_success">Erfolgreich hochgeladen!</string>
     <string name="community_upload_failed">Upload fehlgeschlagen. Bitte erneut versuchen.</string>
+    <string name="upload_community_confirm_title">Als Community-Inhalt hochladen?</string>
+    <string name="upload_community_level_confirm_message">Dieses Level wird öffentlich für alle Spieler sichtbar. Möchten Sie es wirklich hochladen?</string>
+    <string name="upload_community_map_confirm_message">Diese Karte wird öffentlich für alle Spieler sichtbar. Möchten Sie sie wirklich hochladen?</string>
+    <string name="upload_community_also_uploads_map">Die von diesem Level verwendete Karte wird ebenfalls als Community-Inhalt hochgeladen.</string>
+    <string name="community_badge">Community</string>
 
     <!-- Sticker screen tabs -->
     <string name="sticker_tab_original">Aufkleber</string>

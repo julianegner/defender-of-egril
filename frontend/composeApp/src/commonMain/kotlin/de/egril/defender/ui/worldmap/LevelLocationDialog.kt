@@ -19,6 +19,7 @@ import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.getLocalizedName
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
  * Dialog that shows all levels at a specific map location.
@@ -46,6 +47,7 @@ fun LevelLocationDialog(
                 containerColor = if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFFF5F5F5)
             )
         ) {
+            SelectionContainer {
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {
@@ -99,6 +101,7 @@ fun LevelLocationDialog(
                         Text(stringResource(Res.string.close))
                     }
                 }
+            }
             }
         }
     }

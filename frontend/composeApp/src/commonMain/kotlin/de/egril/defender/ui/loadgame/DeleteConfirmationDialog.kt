@@ -4,6 +4,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 @Composable
 fun DeleteConfirmationDialog(
@@ -15,7 +16,7 @@ fun DeleteConfirmationDialog(
         AlertDialog(
             onDismissRequest = onDismiss,
             title = { Text(stringResource(Res.string.delete_save_game)) },
-            text = { Text(stringResource(Res.string.delete_save_game_confirm)) },
+            text = { SelectionContainer { Text(stringResource(Res.string.delete_save_game_confirm)) } },
             confirmButton = {
                 Button(
                     onClick = { onConfirmDelete(saveId) },

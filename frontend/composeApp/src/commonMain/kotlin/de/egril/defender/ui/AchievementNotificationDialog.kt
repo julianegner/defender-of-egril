@@ -23,6 +23,7 @@ import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.achievement_unlocked
 import defender_of_egril.composeapp.generated.resources.close
 import kotlinx.coroutines.delay
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
  * Dialog that shows when a new achievement is earned
@@ -46,23 +47,24 @@ fun AchievementNotificationDialog(
             ),
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
+            SelectionContainer {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(if (isPlatformMobile) 16.dp else 24.dp),
+                    .padding(if (isPlatformMobile) 12.dp else 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(if (isPlatformMobile) 8.dp else 16.dp)
+                verticalArrangement = Arrangement.spacedBy(if (isPlatformMobile) 4.dp else 16.dp)
             ) {
                 // Large trophy icon
                 TrophyIcon(
-                    size = if (isPlatformMobile) 40.dp else 64.dp,
+                    size = if (isPlatformMobile) 28.dp else 64.dp,
                     tint = MaterialTheme.colorScheme.tertiary
                 )
                 
                 // Achievement unlocked text
                 Text(
                     text = stringResource(Res.string.achievement_unlocked),
-                    style = if (isPlatformMobile) MaterialTheme.typography.titleMedium else MaterialTheme.typography.headlineSmall,
+                    style = if (isPlatformMobile) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
@@ -70,7 +72,7 @@ fun AchievementNotificationDialog(
                 // Achievement name
                 Text(
                     text = achievement.id.getLocalizedName(),
-                    style = if (isPlatformMobile) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleLarge,
+                    style = if (isPlatformMobile) MaterialTheme.typography.bodySmall else MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
@@ -78,7 +80,7 @@ fun AchievementNotificationDialog(
                 // Achievement description
                 Text(
                     text = achievement.id.getLocalizedDescription(),
-                    style = if (isPlatformMobile) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
+                    style = if (isPlatformMobile) MaterialTheme.typography.labelMedium else MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
                 
@@ -89,6 +91,7 @@ fun AchievementNotificationDialog(
                 ) {
                     Text(stringResource(Res.string.close))
                 }
+            }
             }
         }
     }

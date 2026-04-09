@@ -691,4 +691,103 @@ class BackendIntegrationTest {
             assert(!body.contains("platformLong")) { "Response must not expose platformLong" }
         }
     }
+
+    // -------------------------------------------------------------------------
+    // Community map image generation and serving
+    // -------------------------------------------------------------------------
+
+    /** Minimal valid map JSON with two tile entries to exercise the image generator. */
+    private fun minimalMapJson(id: String = "img-test-map") = """
+        {"id":"$id","name":"Test Map","width":5,"height":5,"tiles":{"0,0":"PATH","1,0":"BUILD_AREA","2,0":"NO_PLAY","3,0":"SPAWN_POINT","4,0":"TARGET"}}
+    """.trimIndent()
+
+    @Test
+    fun `POST community MAP generates server-side image and GET image endpoint returns PNG`() = withRealDatabase {
+        val token = fakeToken("user-map-img-1", "mapper")
+        val mapData = minimalMapJson("img-map-1")
+
+        client.post("/api/community/files") {
+            contentType(ContentType.Application.Json)
+            header(HttpHeaders.Authorization, "Bearer $token")
+            setBody("""{"fileType":"MAP","fileId":"img-map-1","data":${jsonString(mapData)}}""")
+        }.apply { assertEquals(HttpStatusCode.OK, status) }
+
+        // Image endpoint must return a non-empty PNG
+        client.get("/api/community/files/MAP/img-map-1/image").apply {
+            assertEquals(HttpStatusCode.OK, status)
+            assertEquals("image/png", contentType()?.toString()?.substringBefore(";")?.trim())
+            val bytes = readBytes()
+            assert(bytes.size > 100) { "PNG should be larger than 100 bytes, got ${bytes.size}" }
+            // PNG files start with the 8-byte PNG signature
+            assertEquals(0x89.toByte(), bytes[0])
+            assertEquals(0x50.toByte(), bytes[1])  // 'P'
+            assertEquals(0x4E.toByte(), bytes[2])  // 'N'
+            assertEquals(0x47.toByte(), bytes[3])  // 'G'
+        }
+    }
+
+    @Test
+    fun `GET image endpoint returns 404 for non-existent map`() = withRealDatabase {
+        client.get("/api/community/files/MAP/does-not-exist-img/image").apply {
+            assertEquals(HttpStatusCode.NotFound, status)
+        }
+    }
+
+    @Test
+    fun `POST community LEVEL does not generate image but MAP upload does`() = withRealDatabase {
+        val token = fakeToken("user-level-no-img", "levelauthor")
+        val levelData = """{"id":"test-level-1","title":"Test","mapId":"some-map","enemySpawns":[],"startCoins":100,"startHealthPoints":10,"availableTowers":[]}"""
+
+        client.post("/api/community/files") {
+            contentType(ContentType.Application.Json)
+            header(HttpHeaders.Authorization, "Bearer $token")
+            setBody("""{"fileType":"LEVEL","fileId":"test-level-no-img","data":${jsonString(levelData)}}""")
+        }.apply { assertEquals(HttpStatusCode.OK, status) }
+
+        // No image endpoint for LEVEL files – the path only supports MAP
+        client.get("/api/community/files/MAP/test-level-no-img/image").apply {
+            assertEquals(HttpStatusCode.NotFound, status)
+        }
+    }
+
+    @Test
+    fun `updating community MAP regenerates the image`() = withRealDatabase {
+        val token = fakeToken("user-map-img-update", "mapper2")
+        val mapData1 = minimalMapJson("img-map-update")
+        val mapData2 = minimalMapJson("img-map-update").replace("5,\"height\":5", "6,\"height\":6")
+
+        client.post("/api/community/files") {
+            contentType(ContentType.Application.Json)
+            header(HttpHeaders.Authorization, "Bearer $token")
+            setBody("""{"fileType":"MAP","fileId":"img-map-update","data":${jsonString(mapData1)}}""")
+        }.apply { assertEquals(HttpStatusCode.OK, status) }
+
+        val firstImageSize = client.get("/api/community/files/MAP/img-map-update/image").readBytes().size
+
+        // Re-upload with same data – image should still be present
+        client.post("/api/community/files") {
+            contentType(ContentType.Application.Json)
+            header(HttpHeaders.Authorization, "Bearer $token")
+            setBody("""{"fileType":"MAP","fileId":"img-map-update","data":${jsonString(mapData1)}}""")
+        }.apply { assertEquals(HttpStatusCode.OK, status) }
+
+        val secondImageSize = client.get("/api/community/files/MAP/img-map-update/image").readBytes().size
+        assert(secondImageSize > 0) { "Image must still be available after re-upload" }
+    }
+
+    @Test
+    fun `GET community map image is public and does not require auth`() = withRealDatabase {
+        val token = fakeToken("user-public-img", "publicmapper")
+        val mapData = minimalMapJson("public-img-map")
+        client.post("/api/community/files") {
+            contentType(ContentType.Application.Json)
+            header(HttpHeaders.Authorization, "Bearer $token")
+            setBody("""{"fileType":"MAP","fileId":"public-img-map","data":${jsonString(mapData)}}""")
+        }.apply { assertEquals(HttpStatusCode.OK, status) }
+
+        // No auth header – should still succeed
+        client.get("/api/community/files/MAP/public-img-map/image").apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+    }
 }

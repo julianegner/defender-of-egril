@@ -57,7 +57,7 @@ fun RowScope.LevelInfoEnemiesColumn(
         Row {
             // Header: level number and name
             Column {
-                Text(
+                SelectableText(
                     text = "Level ${level.id}",
                     style = MaterialTheme.typography.titleMedium,
                     color = textColor,
@@ -65,7 +65,7 @@ fun RowScope.LevelInfoEnemiesColumn(
                 )
 
                 val locale = com.hyperether.resources.currentLanguage.value
-                Text(
+                SelectableText(
                     text = level.getLocalizedTitle(locale),
                     style = MaterialTheme.typography.bodyMedium,
                     color = textColor,
@@ -77,7 +77,7 @@ fun RowScope.LevelInfoEnemiesColumn(
                 // Show subtitle if it's not empty
                 val localizedSubtitle = level.getLocalizedSubtitle(locale)
                 if (localizedSubtitle.isNotEmpty()) {
-                    Text(
+                    SelectableText(
                         text = localizedSubtitle,
                         style = MaterialTheme.typography.bodySmall,
                         color = textColor.copy(alpha = 0.85f),
@@ -97,7 +97,7 @@ fun RowScope.LevelInfoEnemiesColumn(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         MoneyIcon(size = 12.dp)
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(
+                        SelectableText(
                             text = "${level.initialCoins}",
                             style = MaterialTheme.typography.bodySmall,
                             color = textColor,
@@ -107,7 +107,7 @@ fun RowScope.LevelInfoEnemiesColumn(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         HeartIcon(size = 12.dp)
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(
+                        SelectableText(
                             text = "${level.healthPoints}",
                             style = MaterialTheme.typography.bodySmall,
                             color = textColor,
@@ -162,7 +162,7 @@ private fun EnemyUnitEntry(attackerType: AttackerType, count: Int, textColor: Co
 
         Spacer(modifier = Modifier.width(4.dp))
 
-        Text(
+        SelectableText(
             text = "${attackerType.getLocalizedName(locale)}: ${count}",
             style = MaterialTheme.typography.bodySmall,
             color = textColor,

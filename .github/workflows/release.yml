@@ -300,7 +300,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: linux-deb-build
-          path: flatpak-deb
+          path: frontend/flatpak-deb
 
       - name: Install flatpak-builder
         run: |
@@ -308,6 +308,12 @@ jobs:
           sudo apt-get install -y flatpak flatpak-builder
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
           sudo flatpak install -y flathub org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08
+
+      - name: Update Flatpak metainfo version
+        run: |
+          RELEASE_DATE=$(date -u +%Y-%m-%d)
+          sed -i "s|<release version=\"[^\"]*\" date=\"[^\"]*\"/>|<release version=\"${APP_VERSION}\" date=\"${RELEASE_DATE}\"/>|" \
+            frontend/flatpak/de.egril.defender.metainfo.xml
 
       - name: Build Flatpak bundle
         env:

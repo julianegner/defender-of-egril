@@ -32,6 +32,7 @@ import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.icon.SnowflakeIcon
 import de.egril.defender.ui.icon.TowerIcon
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.getLocalizedName
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -73,7 +74,7 @@ fun MagicPanel(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
+                SelectableText(
                     text = stringResource(Res.string.magic_panel_title),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
@@ -85,7 +86,7 @@ fun MagicPanel(
                 ) {
                     // Mana display
                     PentagramIcon(size = 16.dp, color = MaterialTheme.colorScheme.primary)
-                    Text(
+                    SelectableText(
                         text = "$currentMana/$maxMana",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary
@@ -111,7 +112,7 @@ fun MagicPanel(
                         .padding(vertical = 16.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
+                    SelectableText(
                         text = stringResource(Res.string.no_spells_unlocked),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -189,7 +190,7 @@ private fun CompactSpellCard(
             SpellTargetIcon(spell = spell, size = 20.dp, alpha = contentAlpha)
 
             // Spell name
-            Text(
+            SelectableText(
                 text = spell.getLocalizedName(),
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
@@ -208,7 +209,7 @@ private fun CompactSpellCard(
                     size = 10.dp,
                     color = MaterialTheme.colorScheme.primary.copy(alpha = contentAlpha)
                 )
-                Text(
+                SelectableText(
                     text = "${spell.manaCost}",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary.copy(alpha = contentAlpha)
@@ -256,7 +257,7 @@ fun SpellTargetConfirmationDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text(stringResource(Res.string.confirm_spell_cast))
+            SelectableText(stringResource(Res.string.confirm_spell_cast))
         },
         text = {
             Column(
@@ -389,7 +390,7 @@ fun FreezeImmuneWarningDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text(stringResource(Res.string.freeze_immune_warning_title))
+            SelectableText(stringResource(Res.string.freeze_immune_warning_title))
         },
         text = {
             Text(

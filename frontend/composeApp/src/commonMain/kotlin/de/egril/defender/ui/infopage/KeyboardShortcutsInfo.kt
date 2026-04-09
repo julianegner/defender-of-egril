@@ -14,6 +14,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
  * Composable displaying keyboard shortcuts documentation
@@ -21,9 +22,10 @@ import defender_of_egril.composeapp.generated.resources.*
 @Composable
 fun KeyboardShortcutsInfo() {
     val ctrl = stringResource(Res.string.keyboard_modifier_ctrl)
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    SelectionContainer {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
         Text(
             text = stringResource(Res.string.keyboard_shortcuts_title),
             style = MaterialTheme.typography.displayMedium,
@@ -73,6 +75,7 @@ fun KeyboardShortcutsInfo() {
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+        }
         }
     }
 }

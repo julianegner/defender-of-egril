@@ -1,7 +1,6 @@
 package de.egril.defender
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -40,7 +39,6 @@ fun App() {
     }
     
     MaterialTheme(colorScheme = colorScheme) {
-        SelectionContainer {
         // Track repository data error
         var repositoryDataError by remember { mutableStateOf<de.egril.defender.editor.MissingRepositoryDataException?>(null) }
         
@@ -63,12 +61,12 @@ fun App() {
                     // User needs to reinstall or restore data
                 }
             )
-            return@SelectionContainer
+            return@MaterialTheme
         }
         
         // Null check for viewModel (should not happen if no exception was thrown)
         if (viewModel == null) {
-            return@SelectionContainer
+            return@MaterialTheme
         }
         
         val currentScreen by viewModel.currentScreen.collectAsState()
@@ -515,6 +513,5 @@ fun App() {
                 )
             }
         }
-        } // SelectionContainer
     }
 }

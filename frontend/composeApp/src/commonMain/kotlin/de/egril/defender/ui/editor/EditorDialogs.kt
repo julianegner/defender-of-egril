@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.iam.IamState
+
 import de.egril.defender.utils.getCurrentUsername
 import defender_of_egril.composeapp.generated.resources.*
 

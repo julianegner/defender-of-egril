@@ -20,6 +20,7 @@ import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.hexagon.HexagonMinimapFromEditorMap
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.official
 import defender_of_egril.composeapp.generated.resources.user_map
@@ -56,12 +57,12 @@ fun MapSelectionCard(
             modifier = Modifier.padding(8.dp).let { if (!isEnabled) it.alpha(0.5f) else it },
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
+            SelectableText(
                 text = map.name.ifEmpty { map.id },
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold
             )
-            Text(
+            SelectableText(
                 text = "${map.width}x${map.height}",
                 style = MaterialTheme.typography.labelSmall,
                 fontSize = 10.sp
@@ -127,7 +128,7 @@ fun MapSelectionCard(
                 } else {
                     CrossIcon(size = 12.dp, tint = Color.Red)
                 }
-                Text(
+                SelectableText(
                     text = if (map.readyToUse) "Ready" else "Not ready",
                     fontSize = 10.sp,
                     color = if (map.readyToUse) Color.Green else Color.Red

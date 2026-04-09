@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -38,14 +39,14 @@ fun DifficultyChooser(
             modifier = Modifier.padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
+            SelectableText(
                 text = getDifficultyDisplayName(currentDifficulty),
                 style = MaterialTheme.typography.bodyLarge
             )
         }
         
         // Dropdown arrow icon
-        Text(
+        SelectableText(
             text = if (expanded) "▲" else "▼",
             modifier = Modifier
                 .align(Alignment.CenterEnd)

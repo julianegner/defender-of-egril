@@ -803,6 +803,8 @@
     <string name="mine_on_river_warning_title">Cannot Place Mine on River</string>
     <string name="mine_on_river_warning_message">Dwarven mines cannot be placed on river tiles. Mines require solid ground and cannot be built on rafts. Please select a build area on land instead.</string>
 
+    <!-- Barge on Still River Warning -->
+
     <!-- Green Witch Info -->
     <string name="green_witch_info_title">Green Witch Alert!</string>
     <string name="green_witch_info_healing">The Green Witch can heal other enemies! At the end of each enemy turn, she heals all adjacent enemies by 5 times her level (e.g., level 2 witch heals 10 HP per turn).</string>
@@ -1598,6 +1600,11 @@
     <string name="community_uploading">Uploading...</string>
     <string name="community_upload_success">Uploaded successfully!</string>
     <string name="community_upload_failed">Upload failed. Please try again.</string>
+    <string name="upload_community_confirm_title">Upload as Community Content?</string>
+    <string name="upload_community_level_confirm_message">This level will be publicly visible to all players. Are you sure you want to upload it?</string>
+    <string name="upload_community_map_confirm_message">This map will be publicly visible to all players. Are you sure you want to upload it?</string>
+    <string name="upload_community_also_uploads_map">The map used by this level will also be uploaded as community content.</string>
+    <string name="community_badge">Community</string>
 
     <!-- Sticker screen tabs -->
     <string name="sticker_tab_original">Sticker</string>

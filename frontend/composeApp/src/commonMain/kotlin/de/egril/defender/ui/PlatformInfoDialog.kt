@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
  * Dialog that displays platform information.
@@ -22,12 +23,14 @@ fun PlatformInfoDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(Res.string.platform_information_title)) },
         text = {
+            SelectionContainer {
             Column {
                 Text(stringResource(Res.string.platform_information_label))
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(platformInfo, style = MaterialTheme.typography.bodyLarge)
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(windowSize, style = MaterialTheme.typography.bodyLarge)
+            }
             }
         },
         confirmButton = {

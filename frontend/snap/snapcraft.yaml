@@ -39,7 +39,7 @@ parts:
 
       # Create usr/bin wrapper pointing to the actual launcher from the DEB payload.
       mkdir -p "$CRAFT_PART_INSTALL/usr/bin"
-      printf '#!/bin/sh\nexec "$SNAP/opt/defender-of-egril/bin/DefenderOfEgril" "$@"\n' \
+      printf '#!/bin/sh\nexec "$SNAP/opt/defender-of-egril/bin/defender-of-egril" "$@"\n' \
         > "$CRAFT_PART_INSTALL/usr/bin/defender-of-egril"
       chmod +x "$CRAFT_PART_INSTALL/usr/bin/defender-of-egril"
 

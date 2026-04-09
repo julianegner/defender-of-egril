@@ -23,7 +23,8 @@ object MapImageProvider {
 
     /**
      * Try to load map image bytes for the given map ID.
-     * First tries the official maps dir, then user maps dir, then bundled resources.
+     * First tries the official maps dir, then user maps dir, then community maps dir,
+     * then bundled resources.
      */
     suspend fun loadMapImageBytes(mapId: String): ByteArray? {
         val storage = try { getFileStorage() } catch (e: Exception) { null }
@@ -34,6 +35,9 @@ object MapImageProvider {
 
             val userBytes = storage.readBinaryFile("gamedata/user/maps/$mapId.png")
             if (userBytes != null) return userBytes
+
+            val communityBytes = storage.readBinaryFile("gamedata/community/maps/$mapId.png")
+            if (communityBytes != null) return communityBytes
         }
 
         return try {

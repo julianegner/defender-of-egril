@@ -15,6 +15,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import de.egril.defender.ui.ImpressumConstants
 import de.egril.defender.WithImpressum
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
  * Clickable text that looks like a link
@@ -41,11 +42,12 @@ private fun TextLink(
  */
 @Composable
 private fun ImpressumContent() {
-    Column(
-        modifier = Modifier
-            .padding(12.dp)
-            .fillMaxWidth()
-    ) {
+    SelectionContainer {
+        Column(
+            modifier = Modifier
+                .padding(12.dp)
+                .fillMaxWidth()
+        ) {
         Text(
             text = ImpressumConstants.IMPRESSUM_TITLE,
             style = MaterialTheme.typography.titleMedium,
@@ -80,6 +82,7 @@ private fun ImpressumContent() {
                 url = "mailto:${ImpressumConstants.IMPRESSUM_EMAIL}",
                 text = ImpressumConstants.IMPRESSUM_EMAIL
             )
+        }
         }
     }
 }

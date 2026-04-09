@@ -6,6 +6,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.infopage.NewVersionInfo
 import defender_of_egril.composeapp.generated.resources.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
  * Dialog shown at start-up when a newer version of the app is available on GitHub.
@@ -24,7 +25,9 @@ fun NewVersionDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(Res.string.new_version_available_title)) },
         text = {
-            Text(stringResource(Res.string.new_version_available_message, info.version))
+            SelectionContainer {
+                Text(stringResource(Res.string.new_version_available_message, info.version))
+            }
         },
         confirmButton = {
             Button(onClick = {

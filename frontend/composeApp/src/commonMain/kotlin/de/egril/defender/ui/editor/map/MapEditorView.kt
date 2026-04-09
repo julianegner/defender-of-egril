@@ -36,6 +36,7 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.ui.icon.InfoIcon
 import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.editor.EditorJsonSerializer
+import de.egril.defender.ui.common.SelectableText
 import kotlinx.coroutines.launch
 
 /**
@@ -74,6 +75,7 @@ fun MapEditorView(
     var showRiverPropertiesDialog by remember { mutableStateOf(false) }
     var communityUploadStatus by remember { mutableStateOf<String?>(null) }
     var isUploadingToCommunity by remember { mutableStateOf(false) }
+    var showCommunityUploadConfirm by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     var zoomLevel by remember { mutableStateOf(1.0f) }
     var offsetX by remember { mutableStateOf(0f) }
@@ -249,7 +251,7 @@ fun MapEditorView(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
-                            Text(
+                            SelectableText(
                                 text = "${position.x},${position.y}",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = Color.White
@@ -258,7 +260,7 @@ fun MapEditorView(
                             // Show target name if this is a target tile
                             val targetInfo = targetInfoMap[key]
                             if (tileType == TileType.TARGET && targetInfo != null && targetInfo.name.isNotBlank()) {
-                                Text(
+                                SelectableText(
                                     text = targetInfo.name,
                                     style = MaterialTheme.typography.labelSmall,
                                     color = Color.Yellow
@@ -407,7 +409,7 @@ fun MapEditorView(
                     enabled = !map.isOfficial || de.egril.defender.OfficialEditMode.enabled,
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text(stringResource(Res.string.save_map))
+                    SelectableText(stringResource(Res.string.save_map))
                 }
                 
                 Button(
@@ -445,36 +447,37 @@ fun MapEditorView(
                 val isMyUpload = storedCommunityMap?.communityAuthorUsername == iamState.username
                 val isChanged = storedCommunityJson != null && storedCommunityJson != currentMapJson
 
+                fun doMapUpload(token: String) {
+                    isUploadingToCommunity = true
+                    communityUploadStatus = null
+                    coroutineScope.launch {
+                        val success = de.egril.defender.save.BackendCommunityService
+                            .uploadCommunityFile("MAP", map.id, currentMapJson, token)
+                        if (success) {
+                            val updatedMap = map.copy(tiles = tiles.toMap(), riverTiles = riverTiles.toMap(), targetInfoMap = targetInfoMap.toMap())
+                            de.egril.defender.editor.EditorStorage.saveCommunityMap(
+                                updatedMap,
+                                iamState.username ?: ""
+                            )
+                            communityUploadStatus = "success"
+                        } else {
+                            communityUploadStatus = "error"
+                        }
+                        isUploadingToCommunity = false
+                    }
+                }
+
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     if (storedCommunityJson == null) {
                         Button(
-                            onClick = {
-                                val token = de.egril.defender.iam.IamService.getToken() ?: return@Button
-                                isUploadingToCommunity = true
-                                communityUploadStatus = null
-                                coroutineScope.launch {
-                                    val success = de.egril.defender.save.BackendCommunityService
-                                        .uploadCommunityFile("MAP", map.id, currentMapJson, token)
-                                    if (success) {
-                                        val updatedMap = map.copy(tiles = tiles.toMap(), riverTiles = riverTiles.toMap(), targetInfoMap = targetInfoMap.toMap())
-                                        de.egril.defender.editor.EditorStorage.saveCommunityMap(
-                                            updatedMap,
-                                            iamState.username ?: ""
-                                        )
-                                        communityUploadStatus = "success"
-                                    } else {
-                                        communityUploadStatus = "error"
-                                    }
-                                    isUploadingToCommunity = false
-                                }
-                            },
+                            onClick = { showCommunityUploadConfirm = true },
                             enabled = !isUploadingToCommunity,
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text(
+                            SelectableText(
                                 if (isUploadingToCommunity) stringResource(Res.string.community_uploading)
                                 else stringResource(Res.string.upload_as_community_map)
                             )
@@ -483,28 +486,12 @@ fun MapEditorView(
                         Button(
                             onClick = {
                                 val token = de.egril.defender.iam.IamService.getToken() ?: return@Button
-                                isUploadingToCommunity = true
-                                communityUploadStatus = null
-                                coroutineScope.launch {
-                                    val success = de.egril.defender.save.BackendCommunityService
-                                        .uploadCommunityFile("MAP", map.id, currentMapJson, token)
-                                    if (success) {
-                                        val updatedMap = map.copy(tiles = tiles.toMap(), riverTiles = riverTiles.toMap(), targetInfoMap = targetInfoMap.toMap())
-                                        de.egril.defender.editor.EditorStorage.saveCommunityMap(
-                                            updatedMap,
-                                            iamState.username ?: ""
-                                        )
-                                        communityUploadStatus = "success"
-                                    } else {
-                                        communityUploadStatus = "error"
-                                    }
-                                    isUploadingToCommunity = false
-                                }
+                                doMapUpload(token)
                             },
                             enabled = !isUploadingToCommunity,
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text(
+                            SelectableText(
                                 if (isUploadingToCommunity) stringResource(Res.string.community_uploading)
                                 else stringResource(Res.string.update_community_map)
                             )
@@ -512,13 +499,27 @@ fun MapEditorView(
                     }
                 }
                 communityUploadStatus?.let { status ->
-                    Text(
+                    SelectableText(
                         text = if (status == "success") stringResource(Res.string.community_upload_success)
                                else stringResource(Res.string.community_upload_failed),
                         color = if (status == "success") Color(0xFF2E7D32)
                                 else MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(horizontal = 8.dp)
+                    )
+                }
+
+                // Confirmation dialog before first community map upload
+                if (showCommunityUploadConfirm) {
+                    de.egril.defender.ui.editor.ConfirmationDialog(
+                        title = stringResource(Res.string.upload_community_confirm_title),
+                        message = stringResource(Res.string.upload_community_map_confirm_message),
+                        onDismiss = { showCommunityUploadConfirm = false },
+                        onConfirm = {
+                            showCommunityUploadConfirm = false
+                            val token = de.egril.defender.iam.IamService.getToken() ?: return@ConfirmationDialog
+                            doMapUpload(token)
+                        }
                     )
                 }
             }
@@ -608,7 +609,7 @@ fun MapEditorView(
         var editType by remember(editKey) { mutableStateOf(existingInfo?.type ?: TargetType.STANDARD) }
         AlertDialog(
             onDismissRequest = { editTargetKey = null },
-            title = { Text(stringResource(Res.string.target_name_label)) },
+            title = { SelectableText(stringResource(Res.string.target_name_label)) },
             text = {
                 Column(verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(

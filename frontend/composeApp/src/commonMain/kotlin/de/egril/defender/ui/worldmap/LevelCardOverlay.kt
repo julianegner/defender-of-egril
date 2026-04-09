@@ -19,6 +19,7 @@ import de.egril.defender.ui.icon.LockIcon
 import de.egril.defender.ui.icon.SwordIcon
 import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -65,14 +66,14 @@ fun LevelCardOverlay(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Level name and subtitle
-                Text(
+                SelectableText(
                     text = levelInfo.name,
                     style = MaterialTheme.typography.headlineSmall,
                     color = textColor
                 )
                 
                 if (levelInfo.subtitle.isNotBlank()) {
-                    Text(
+                    SelectableText(
                         text = levelInfo.subtitle,
                         style = MaterialTheme.typography.bodyMedium,
                         color = textColor.copy(alpha = 0.8f)
@@ -89,7 +90,7 @@ fun LevelCardOverlay(
                     when (levelInfo.status) {
                         LevelStatus.LOCKED -> {
                             LockIcon(size = 16.dp)
-                            Text(
+                            SelectableText(
                                 text = stringResource(Res.string.locked),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = textColor
@@ -97,7 +98,7 @@ fun LevelCardOverlay(
                         }
                         LevelStatus.UNLOCKED -> {
                             SwordIcon(size = 16.dp)
-                            Text(
+                            SelectableText(
                                 text = stringResource(Res.string.available),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = textColor
@@ -105,7 +106,7 @@ fun LevelCardOverlay(
                         }
                         LevelStatus.WON -> {
                             CheckmarkIcon(size = 16.dp, tint = textColor)
-                            Text(
+                            SelectableText(
                                 text = stringResource(Res.string.completed),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = textColor
@@ -153,7 +154,7 @@ fun LevelCardOverlay(
 
                 // Prerequisites info (if any and level is locked)
                 if (levelInfo.status == LevelStatus.LOCKED && levelInfo.prerequisites.isNotEmpty()) {
-                    Text(
+                    SelectableText(
                         text = stringResource(Res.string.requires_completing),
                         style = MaterialTheme.typography.bodySmall,
                         color = textColor.copy(alpha = 0.7f)
@@ -163,7 +164,7 @@ fun LevelCardOverlay(
                         worldLevels.find { it.level.editorLevelId == prereqId }?.level?.name
                     }
                     
-                    Text(
+                    SelectableText(
                         text = prereqNames.joinToString(", "),
                         style = MaterialTheme.typography.bodySmall,
                         color = textColor.copy(alpha = 0.7f)

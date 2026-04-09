@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
  * Dialog to warn user about modifications to official game data.
@@ -24,6 +25,7 @@ fun OfficialDataChangedDialog(
             Text(stringResource(Res.string.official_data_changed_title))
         },
         text = {
+            SelectionContainer {
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -43,6 +45,7 @@ fun OfficialDataChangedDialog(
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
+            }
             }
         },
         confirmButton = {

@@ -91,7 +91,7 @@ This document describes the visual appearance of the impressum feature when enab
 │  • Works in modern browsers with WebAssembly support            │
 │                                                                  │
 │  For detailed documentation, visit:                             │
-│  github.com/qvest-digital/defender-of-egril-fork               │
+│  github.com/julianegner/defender-of-egril               │
 │                                                                  │
 │  ─────────────────────────────────────────────────────────────  │
 │  Impressum                                                       │

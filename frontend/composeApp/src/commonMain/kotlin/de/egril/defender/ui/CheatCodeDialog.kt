@@ -10,6 +10,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.cheat_codes_title
@@ -49,6 +50,7 @@ import defender_of_egril.composeapp.generated.resources.cheat_unlock_desc
 import defender_of_egril.composeapp.generated.resources.cheat_lockall_desc
 import defender_of_egril.composeapp.generated.resources.cheat_lock_desc
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
  * Unified cheat code dialog used in both WorldMapScreen and GamePlayScreen.
@@ -109,6 +111,7 @@ fun CheatCodeDialog(
         },
         title = { Text("Cheat Code") },
         text = {
+            SelectionContainer {
             Column {
                 Text("Enter cheat code:")
                 Spacer(modifier = Modifier.height(8.dp))
@@ -146,6 +149,7 @@ fun CheatCodeDialog(
                     Text("• dragon - Spawn dragon from mine", style = MaterialTheme.typography.bodySmall)
                 }
             }
+            }
         },
         confirmButton = {
             Button(
@@ -181,7 +185,7 @@ fun CheatCodeHelpScreen(
 ) {
     de.egril.defender.ui.gameplay.ScrollableInfoCard(
         title = {
-            Text(
+            SelectableText(
                 text = stringResource(Res.string.cheat_codes_title),
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
@@ -216,7 +220,7 @@ fun CheatCodeHelpScreen(
                 
                 CheatSection(stringResource(Res.string.cheat_section_enemies)) {
                     CheatCodeItem("spawn <type> <level>", stringResource(Res.string.cheat_spawn_desc))
-                    Text(stringResource(Res.string.cheat_spawn_types), 
+                    SelectableText(stringResource(Res.string.cheat_spawn_types), 
                          style = MaterialTheme.typography.bodySmall,
                          modifier = Modifier.padding(start = 16.dp))
                 }
@@ -236,7 +240,7 @@ fun CheatCodeHelpScreen(
                     CheatCodeItem("addability <stat> <amount>", stringResource(Res.string.cheat_addability_desc))
                     CheatCodeItem("removestat <stat> <amount>", stringResource(Res.string.cheat_removestat_desc))
                     CheatCodeItem("removeability <stat> <amount>", stringResource(Res.string.cheat_removeability_desc))
-                    Text(stringResource(Res.string.cheat_stat_types), 
+                    SelectableText(stringResource(Res.string.cheat_stat_types), 
                          style = MaterialTheme.typography.bodySmall,
                          modifier = Modifier.padding(start = 16.dp))
                 }
@@ -244,7 +248,7 @@ fun CheatCodeHelpScreen(
                 CheatSection(stringResource(Res.string.cheat_section_spells)) {
                     CheatCodeItem("unlockspell <spell>", stringResource(Res.string.cheat_unlockspell_desc))
                     CheatCodeItem("lockspell <spell>", stringResource(Res.string.cheat_lockspell_desc))
-                    Text(stringResource(Res.string.cheat_spell_types), 
+                    SelectableText(stringResource(Res.string.cheat_spell_types), 
                          style = MaterialTheme.typography.bodySmall,
                          modifier = Modifier.padding(start = 16.dp))
                 }
@@ -266,7 +270,7 @@ private fun CheatSection(
     content: @Composable ColumnScope.() -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(
+        SelectableText(
             text = title,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
@@ -289,14 +293,14 @@ private fun CheatCodeItem(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(
+        SelectableText(
             text = code,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
             color = MaterialTheme.colorScheme.secondary,
             modifier = Modifier.weight(0.5f)
         )
-        Text(
+        SelectableText(
             text = description,
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.weight(0.5f)
