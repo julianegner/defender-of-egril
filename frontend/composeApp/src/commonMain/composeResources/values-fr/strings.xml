@@ -1595,6 +1595,11 @@
     <string name="community_uploading">Publication en cours...</string>
     <string name="community_upload_success">Publié avec succès !</string>
     <string name="community_upload_failed">Échec de la publication. Veuillez réessayer.</string>
+    <string name="upload_community_confirm_title">Publier comme contenu communautaire ?</string>
+    <string name="upload_community_level_confirm_message">Ce niveau sera visible publiquement par tous les joueurs. Êtes-vous sûr de vouloir le publier ?</string>
+    <string name="upload_community_map_confirm_message">Cette carte sera visible publiquement par tous les joueurs. Êtes-vous sûr de vouloir la publier ?</string>
+    <string name="upload_community_also_uploads_map">La carte utilisée par ce niveau sera également publiée comme contenu communautaire.</string>
+    <string name="community_badge">Communauté</string>
 
     <!-- Sticker screen tabs -->
     <string name="sticker_tab_original">Autocollant</string>

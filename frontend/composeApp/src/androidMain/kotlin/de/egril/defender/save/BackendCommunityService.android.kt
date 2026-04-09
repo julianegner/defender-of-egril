@@ -36,4 +36,9 @@ actual object BackendCommunityService {
                 ?: return@withContext null
             parseCommunityFileDataJson(json)
         }
+
+    actual suspend fun fetchCommunityMapImage(mapId: String): ByteArray? =
+        withContext(Dispatchers.IO) {
+            jvmHttpGetBytes("/api/community/files/MAP/$mapId/image", token = null)
+        }
 }

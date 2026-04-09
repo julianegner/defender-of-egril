@@ -26,11 +26,22 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /**
+ * Returns all maps visible in the map editor: user/official maps plus community maps.
+ * Community maps appear last, sorted by name.
+ */
+private fun allMapsForEditor(): List<EditorMap> {
+    val userAndOfficialMaps = EditorStorage.getAllMaps()
+    val communityMaps = EditorStorage.getAllCommunityMaps()
+        .filter { cm -> userAndOfficialMaps.none { it.id == cm.id } }  // skip maps already present locally
+    return userAndOfficialMaps + communityMaps
+}
+
+/**
  * Main content for the Map Editor tab
  */
 @Composable
 fun MapEditorContent() {
-    val maps = remember { mutableStateOf(EditorStorage.getAllMaps()) }
+    val maps = remember { mutableStateOf(allMapsForEditor()) }
     var selectedMapId by remember { mutableStateOf<String?>(null) }
     var editingMap by remember { mutableStateOf<EditorMap?>(null) }
     var showCreateDialog by remember { mutableStateOf(false) }
@@ -73,7 +84,7 @@ fun MapEditorContent() {
                 }
                 imageWasRegenerated = regenerated
                 generationSuccess = true
-                maps.value = EditorStorage.getAllMaps()
+                maps.value = allMapsForEditor()
                 editingMap = null
                 val bytes = MapImageProvider.loadMapImageBytes(mapToSave.id)
                 val bitmap = bytes?.let { MapImageProvider.decodeImageBitmap(it) }
@@ -137,7 +148,7 @@ fun MapEditorContent() {
                         },
                         onDelete = {
                             EditorStorage.deleteMap(map.id)
-                            maps.value = EditorStorage.getAllMaps()
+                            maps.value = allMapsForEditor()
                         },
                         onCopy = {
                             // Create a copy with a new ID
@@ -157,7 +168,7 @@ fun MapEditorContent() {
                             )
                             // Copy the existing PNG image instead of regenerating it
                             EditorStorage.copyMap(map, copiedMap)
-                            maps.value = EditorStorage.getAllMaps()
+                            maps.value = allMapsForEditor()
                             selectedMapId = copyId
                             editingMap = copiedMap
                         }
@@ -192,7 +203,7 @@ fun MapEditorContent() {
                     author = author
                 )
                 EditorStorage.saveMap(newMap)
-                maps.value = EditorStorage.getAllMaps()
+                maps.value = allMapsForEditor()
                 showCreateDialog = false
                 editingMap = newMap
             }

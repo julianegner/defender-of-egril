@@ -17,6 +17,7 @@ import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.hexagon.HexagonMinimapFromEditorMap
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.common.SelectableText
+import de.egril.defender.ui.loadgame.SavefileLocationChip
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -68,6 +69,13 @@ fun MapListCard(
                         style = MaterialTheme.typography.bodySmall,
                         color = if (map.readyToUse) Color.Green else Color.Red
                     )
+                    if (map.isCommunity && map.communityAuthorUsername.isNotEmpty()) {
+                        SelectableText(
+                            text = map.communityAuthorUsername,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
                 
                 // Minimap preview - 4x width
@@ -149,6 +157,27 @@ fun MapListCard(
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary
                     )
+                }
+                // Community badges: Local and/or Online
+                if (map.isCommunity) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Community maps stored locally always also have an online counterpart
+                        SavefileLocationChip(
+                            label = stringResource(Res.string.savefile_chip_local),
+                            color = MaterialTheme.colorScheme.tertiary,
+                            onColor = MaterialTheme.colorScheme.onTertiary,
+                            isMobile = false
+                        )
+                        SavefileLocationChip(
+                            label = stringResource(Res.string.savefile_chip_remote),
+                            color = MaterialTheme.colorScheme.primary,
+                            onColor = MaterialTheme.colorScheme.onPrimary,
+                            isMobile = false
+                        )
+                    }
                 }
             }
         }

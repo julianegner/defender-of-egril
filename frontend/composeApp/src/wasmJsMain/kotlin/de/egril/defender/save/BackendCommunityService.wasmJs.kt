@@ -79,4 +79,10 @@ actual object BackendCommunityService {
             continuation.resume(null)
         }
     }
+
+    actual suspend fun fetchCommunityMapImage(mapId: String): ByteArray? {
+        // Binary arraybuffer downloads are not supported in Kotlin/Wasm interop.
+        // The caller falls back to locally-generated map images, so returning null is safe.
+        return null
+    }
 }

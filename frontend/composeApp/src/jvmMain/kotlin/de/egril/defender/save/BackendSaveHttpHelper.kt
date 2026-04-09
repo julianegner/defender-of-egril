@@ -56,3 +56,27 @@ internal fun jvmHttpGet(path: String, token: String?): String? {
         null
     }
 }
+
+/**
+ * Synchronously GETs [path] from the backend and returns the raw response bytes,
+ * or null on error / non-2xx. Used for downloading binary content (e.g. PNG images).
+ */
+internal fun jvmHttpGetBytes(path: String, token: String?): ByteArray? {
+    return try {
+        val connection = URL("$backendBaseUrl$path").openConnection() as HttpURLConnection
+        connection.requestMethod = "GET"
+        if (token != null) connection.setRequestProperty("Authorization", "Bearer $token")
+        connection.connectTimeout = 10_000
+        connection.readTimeout = 30_000
+        val status = connection.responseCode
+        if (status !in 200..299) {
+            connection.disconnect()
+            return null
+        }
+        val bytes = connection.inputStream.readBytes()
+        connection.disconnect()
+        bytes
+    } catch (_: Exception) {
+        null
+    }
+}

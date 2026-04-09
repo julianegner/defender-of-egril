@@ -54,6 +54,13 @@ expect object BackendCommunityService {
      * @return CommunityFileData or null if not found or on error
      */
     suspend fun fetchCommunityFile(fileType: String, fileId: String): CommunityFileData?
+
+    /**
+     * Download the server-generated PNG image for a community map.
+     * @param mapId The unique ID of the map
+     * @return PNG bytes or null if not found or on error
+     */
+    suspend fun fetchCommunityMapImage(mapId: String): ByteArray?
 }
 
 // ---------------------------------------------------------------------------
