@@ -846,8 +846,12 @@ fun GridCell(
     
     // Calculate hover preview for tower placement
     val isHoveringForPreview = hoveredPosition == position && selectedDefenderType != null
-    // Include river tiles as buildable (for rafts)
-    val isBuildableTile = (isBuildArea || isRiverTile) && defender == null && attacker == null
+    // Include only flowing river tiles as buildable (for rafts) - exclude NONE and MAELSTROM
+    val isFlowingRiverTile = isRiverTile && run {
+        val rt = gameState.level.getRiverTile(position)
+        rt != null && rt.flowDirection != RiverFlow.NONE && rt.flowDirection != RiverFlow.MAELSTROM
+    }
+    val isBuildableTile = (isBuildArea || isFlowingRiverTile) && defender == null && attacker == null
     val showPlacementPreview = isHoveringForPreview && isBuildableTile
     
     // Calculate hover preview for trap placement
@@ -871,13 +875,17 @@ fun GridCell(
     val showTrapPreview = isValidTrapPlacement
     
     // Check if hovered position is buildable (needed for range preview calculation)
-    // Include river tiles as buildable (for rafts)
+    // Include only flowing river tiles as buildable (for rafts) - exclude NONE and MAELSTROM
     val hoveredPositionIsBuildable = if (hoveredPosition != null && selectedDefenderType != null) {
         val hoveredIsBuildArea = gameState.level.isBuildArea(hoveredPosition)
         val hoveredIsRiver = gameState.level.isRiverTile(hoveredPosition)
+        val hoveredIsFlowingRiver = hoveredIsRiver && run {
+            val rt = gameState.level.getRiverTile(hoveredPosition)
+            rt != null && rt.flowDirection != RiverFlow.NONE && rt.flowDirection != RiverFlow.MAELSTROM
+        }
         val hoveredHasDefender = gameState.defenders.any { it.position.value == hoveredPosition }
         val hoveredHasAttacker = gameState.attackers.any { it.position.value == hoveredPosition && !it.isDefeated.value }
-        (hoveredIsBuildArea || hoveredIsRiver) && !hoveredHasDefender && !hoveredHasAttacker
+        (hoveredIsBuildArea || hoveredIsFlowingRiver) && !hoveredHasDefender && !hoveredHasAttacker
     } else {
         false
     }
@@ -1757,6 +1765,9 @@ private fun BoxScope.GridCellContent(
                         // (the tile_river_maelstrom.png image already shows the maelstrom visually)
                         val useTileImages = AppSettings.useTileImages.value
                         val isMaelstromWithTileImage = riverTile.flowDirection == RiverFlow.MAELSTROM && useTileImages
+                        // Don't show dot symbol on NONE (still water) tiles when the level map image is enabled
+                        val useLevelMapImage = AppSettings.useLevelMapImage.value
+                        val isNoneWithMapImage = riverTile.flowDirection == RiverFlow.NONE && useLevelMapImage
 
                         // Show water flow animation when animations are enabled (not for NONE/MAELSTROM)
                         val enableAnimations = AppSettings.enableAnimations.value
@@ -1771,7 +1782,7 @@ private fun BoxScope.GridCellContent(
                             )
                         }
 
-                        if (!isMaelstromWithTileImage) {
+                        if (!isMaelstromWithTileImage && !isNoneWithMapImage) {
                             RiverFlowIndicator(
                                 flowDirection = riverTile.flowDirection,
                                 flowSpeed = riverTile.flowSpeed,

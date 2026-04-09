@@ -40,6 +40,14 @@ class TowerManager(private val state: GameState) {
             return false
         }
         
+        // Cannot place barges on still water (NONE or MAELSTROM) river tiles — silently ignore like NO_PLAY
+        if (isRiverPlacement) {
+            val riverTile = state.level.getRiverTile(position)
+            if (riverTile != null && (riverTile.flowDirection == RiverFlow.NONE || riverTile.flowDirection == RiverFlow.MAELSTROM)) {
+                return false
+            }
+        }
+        
         // Can place in build areas OR on river tiles (for rafts, except mines) OR on tower bases
         if (!state.level.isBuildArea(position) && !isRiverPlacement && !isOnTowerBase) return false
         

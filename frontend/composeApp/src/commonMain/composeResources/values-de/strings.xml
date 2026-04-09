@@ -800,6 +800,8 @@
     <string name="mine_on_river_warning_title">Kann Mine nicht auf Fluss platzieren</string>
     <string name="mine_on_river_warning_message">Zwergenminen können nicht auf Flussfeldern platziert werden. Minen benötigen festen Boden und können nicht auf Flößen gebaut werden. Bitte wählen Sie stattdessen einen Baubereich auf festem Land.</string>
 
+    <!-- Barge on Still River Warning -->
+
     <!-- Green Witch Info -->
     <string name="green_witch_info_title">Grüne Hexe Alarm!</string>
     <string name="green_witch_info_healing">Die Grüne Hexe kann andere Feinde heilen! Am Ende jeder Feindphase heilt sie alle angrenzenden Feinde um das 5-fache ihrer Stufe (z.B. Stufe 2 Hexe heilt 10 HP pro Runde).</string>
