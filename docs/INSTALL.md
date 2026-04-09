@@ -17,7 +17,7 @@ This guide provides detailed installation instructions for all supported platfor
 
 ### Downloading the Game
 
-1. Download the latest Windows installer (`.exe` or `.msi`) from the [GitHub Releases page](https://github.com/qvest-digital/defender-of-egril-fork/releases)
+1. Download the latest Windows installer (`.exe` or `.msi`) from the [GitHub Releases page](https://github.com/julianegner/defender-of-egril/releases)
 2. Save the installer to your preferred location
 
 ### Installing the Game
@@ -71,7 +71,7 @@ Before you can install APK files, you need to allow your Android device to insta
 #### Step 2: Download the APK
 
 1. On your Android device, open a web browser
-2. Navigate to the [GitHub Releases page](https://github.com/qvest-digital/defender-of-egril-fork/releases)
+2. Navigate to the [GitHub Releases page](https://github.com/julianegner/defender-of-egril/releases)
 3. Download the latest `de.egril.defender-release.apk` (or `de.egril.defender-debug.apk`) file
 4. Your browser may warn you about the file type - tap **OK** or **Download anyway**
 
@@ -116,7 +116,7 @@ For more detailed information about APK sideloading, see: [Android APK Installat
 
 ### Installing from GitHub Releases
 
-1. Go to the [GitHub Releases page](https://github.com/qvest-digital/defender-of-egril-fork/releases)
+1. Go to the [GitHub Releases page](https://github.com/julianegner/defender-of-egril/releases)
 2. Download the appropriate package for your distribution:
    - `.deb` for Debian/Ubuntu
    - `.rpm` for Fedora/Red Hat
@@ -155,7 +155,7 @@ Or build a distributable package:
 
 ### Installing from GitHub Releases
 
-1. Go to the [GitHub Releases page](https://github.com/qvest-digital/defender-of-egril-fork/releases)
+1. Go to the [GitHub Releases page](https://github.com/julianegner/defender-of-egril/releases)
 2. Download the `.dmg` file
 3. Open the `.dmg` file and drag **Defender of Egril** to the Applications folder
 4. Launch the game from the Applications folder
@@ -203,7 +203,7 @@ The easiest way to play Defender of Egril!
 
 ### Playing Online
 
-Simply visit the web version at: [https://qvest-digital.github.io/defender-of-egril-fork/](https://qvest-digital.github.io/defender-of-egril-fork/)
+Simply visit the web version at: [https://julianegner.github.io/defender-of-egril/](https://julianegner.github.io/defender-of-egril/)
 
 No installation required - just open the link in a modern web browser:
 - Chrome
@@ -245,7 +245,7 @@ Then open http://localhost:8080 in your browser.
 
 If you encounter any issues during installation:
 
-1. Check the [GitHub Issues](https://github.com/qvest-digital/defender-of-egril-fork/issues) page
+1. Check the [GitHub Issues](https://github.com/julianegner/defender-of-egril/issues) page
 2. Open a new issue with details about your problem
 3. Include your platform, OS version, and any error messages
 

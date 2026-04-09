@@ -7,7 +7,7 @@ The easiest way to run the Playwright UI tests is through GitHub Actions:
 ### Steps:
 
 1. **Navigate to Actions Tab**
-   - Go to the GitHub repository: https://github.com/qvest-digital/defender-of-egril-fork
+   - Go to the GitHub repository: https://github.com/julianegner/defender-of-egril
    - Click on the "Actions" tab at the top
 
 2. **Select Workflow**

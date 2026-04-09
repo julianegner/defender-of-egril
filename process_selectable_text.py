@@ -274,7 +274,7 @@ files = [
     "frontend/composeApp/src/commonMain/kotlin/de/egril/defender/ui/animations/AnimationTestScreen.kt",
 ]
 
-base_dir = Path("/home/runner/work/defender-of-egril-fork/defender-of-egril-fork")
+base_dir = Path("/home/runner/work/defender-of-egril/defender-of-egril")
 
 total_changes = 0
 for rel_path in files:

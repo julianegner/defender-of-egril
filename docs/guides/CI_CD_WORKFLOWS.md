@@ -241,7 +241,7 @@ For debugging Android ProGuard issues:
 The workflows have been adapted from the coshanu project with the following changes:
 
 1. **JDK Version**: Using JDK 24 (same as reference, project requires JDK 11 or higher)
-2. **Project Names**: Updated from "coshanu" to "defender-of-egril-fork" / "defenderOfEgril"
+2. **Project Names**: Updated from "coshanu" to "defender-of-egril" / "defenderOfEgril"
 3. **Paths**: Updated to match project structure
 4. **Gradle Version**: Uses wrapper (9.2.1) instead of hardcoded version
 5. **Build Conditions**: Fixed to properly work with tags and manual dispatch

@@ -54,7 +54,7 @@ services:
     restart: unless-stopped
 
   backend:
-    image: ghcr.io/${GITHUB_REPOSITORY:-qvest-digital/defender-of-egril-fork}/backend:${IMAGE_TAG:-latest}
+    image: ghcr.io/${GITHUB_REPOSITORY:-julianegner/defender-of-egril}/backend:${IMAGE_TAG:-latest}
     container_name: defender-of-egril-backend
     # Backend is not exposed on the host; nginx proxies to it on the internal network.
     environment:
