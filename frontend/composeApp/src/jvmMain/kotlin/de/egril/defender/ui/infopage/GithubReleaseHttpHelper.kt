@@ -1,7 +1,7 @@
 package de.egril.defender.ui.infopage
 
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 
 /**
  * Fetches the list of recent GitHub releases via the GitHub REST API.
@@ -11,7 +11,7 @@ import java.net.URL
 internal fun jvmFetchGithubReleases(): List<GithubRelease>? {
     return try {
         val url = "$GITHUB_RELEASES_API_URL?per_page=10"
-        val connection = URL(url).openConnection() as HttpURLConnection
+        val connection = URI.create(url).toURL().openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
         connection.setRequestProperty("Accept", "application/vnd.github.v3+json")
         connection.connectTimeout = 10_000
