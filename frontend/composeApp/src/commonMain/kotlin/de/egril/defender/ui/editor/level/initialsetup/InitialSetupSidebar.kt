@@ -126,7 +126,7 @@ fun InitialSetupSidebar(
                                 MaterialTheme.colorScheme.secondary
                         )
                     ) {
-                        SelectableText(stringResource(Res.string.towers))
+                        Text(stringResource(Res.string.towers))
                     }
                     Button(
                         onClick = { onPlacementModeChange(PlacementMode.ATTACKER) },
@@ -138,7 +138,7 @@ fun InitialSetupSidebar(
                                 MaterialTheme.colorScheme.secondary
                         )
                     ) {
-                        SelectableText(stringResource(Res.string.enemies))
+                        Text(stringResource(Res.string.enemies))
                     }
                 }
             }
@@ -158,7 +158,7 @@ fun InitialSetupSidebar(
                                 MaterialTheme.colorScheme.secondary
                         )
                     ) {
-                        SelectableText(stringResource(Res.string.traps))
+                        Text(stringResource(Res.string.traps))
                     }
                     Button(
                         onClick = { onPlacementModeChange(PlacementMode.BARRICADE) },
@@ -170,7 +170,7 @@ fun InitialSetupSidebar(
                                 MaterialTheme.colorScheme.secondary
                         )
                     ) {
-                        SelectableText(stringResource(Res.string.barricades))
+                        Text(stringResource(Res.string.barricades))
                     }
                 }
             }
@@ -187,7 +187,7 @@ fun InitialSetupSidebar(
                             MaterialTheme.colorScheme.surfaceVariant
                     )
                 ) {
-                    SelectableText(stringResource(Res.string.selection_mode))
+                    Text(stringResource(Res.string.selection_mode))
                 }
             }
             
@@ -780,13 +780,13 @@ fun SelectedElementPanel(
                         containerColor = MaterialTheme.colorScheme.error
                     )
                 ) {
-                    SelectableText(stringResource(Res.string.remove))
+                    Text(stringResource(Res.string.remove))
                 }
                 Button(
                     onClick = onDeselect,
                     modifier = Modifier.weight(1f)
                 ) {
-                    SelectableText(stringResource(Res.string.deselect))
+                    Text(stringResource(Res.string.deselect))
                 }
             }
         }

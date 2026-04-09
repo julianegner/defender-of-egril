@@ -370,7 +370,7 @@ private fun ExpandedMapEditorHeader(
                 onClick = onChangeAllNoPlayToPath,
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
             ) {
-                SelectableText(stringResource(Res.string.change_all_no_play_to_path))
+                Text(stringResource(Res.string.change_all_no_play_to_path))
             }
 
             ZoomControls(
@@ -677,7 +677,7 @@ private fun CollapsedMapEditorHeader(
                     onTargetNameChange(localName)
                     showTargetPropertiesDialog = false
                 }) {
-                    SelectableText(stringResource(Res.string.ok))
+                    Text(stringResource(Res.string.ok))
                 }
             },
             dismissButton = {

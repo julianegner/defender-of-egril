@@ -147,7 +147,7 @@ fun LevelSequenceContent() {
                         sequenceSavedSuccess = true
                     }
                 ) {
-                    SelectableText(stringResource(Res.string.save_sequence))
+                    Text(stringResource(Res.string.save_sequence))
                 }
             }
         }

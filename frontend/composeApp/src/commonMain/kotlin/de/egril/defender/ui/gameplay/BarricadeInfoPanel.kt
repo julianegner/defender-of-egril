@@ -108,7 +108,7 @@ fun BarricadeInfoPanel(
                 ),
                 modifier = Modifier.padding(end = 8.dp)
             ) {
-                SelectableText(stringResource(Res.string.remove_barricade))
+                Text(stringResource(Res.string.remove_barricade))
             }
         }
     }

@@ -185,7 +185,7 @@ fun LevelCardOverlay(
                             contentColor = textColor
                         )
                     ) {
-                        SelectableText(stringResource(Res.string.close))
+                        Text(stringResource(Res.string.close))
                     }
                     
                     // Play Level button (only active if level is unlocked)
@@ -207,7 +207,7 @@ fun LevelCardOverlay(
                             disabledContentColor = Color.White.copy(alpha = 0.5f)
                         )
                     ) {
-                        SelectableText(stringResource(Res.string.play_level))
+                        Text(stringResource(Res.string.play_level))
                     }
                 }
             }

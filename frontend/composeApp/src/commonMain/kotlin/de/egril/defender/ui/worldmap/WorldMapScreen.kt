@@ -82,7 +82,7 @@ private fun PlayerNameWithIam(
             onClick = onSwitchPlayer,
             modifier = Modifier.height(28.dp)
         ) {
-            SelectableText(
+            Text(
                 text = stringResource(Res.string.switch_player),
                 style = MaterialTheme.typography.labelSmall
             )
@@ -453,21 +453,21 @@ fun WorldMapScreen(
                                 onClick = onLoadGame,
                                 modifier = Modifier.widthIn(min = buttonMinWidth)
                             ) {
-                                SelectableText(stringResource(Res.string.load_game))
+                                Text(stringResource(Res.string.load_game))
                             }
                             
                             Button(
                                 onClick = onShowRules,
                                 modifier = Modifier.widthIn(min = buttonMinWidth)
                             ) {
-                                SelectableText(stringResource(Res.string.rules))
+                                Text(stringResource(Res.string.rules))
                             }
                             
                             Button(
                                 onClick = onBackToMenu,
                                 modifier = Modifier.widthIn(min = buttonMinWidth)
                             ) {
-                                SelectableText(stringResource(Res.string.back))
+                                Text(stringResource(Res.string.back))
                             }
                         }
                     }

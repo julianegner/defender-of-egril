@@ -325,7 +325,7 @@ private fun LevelCard(
                     onClick = onCopy,
                     modifier = Modifier.weight(1f)
                 ) {
-                    SelectableText(stringResource(Res.string.copy_level))
+                    Text(stringResource(Res.string.copy_level))
                 }
                 Button(
                     onClick = onDelete,
@@ -653,7 +653,7 @@ fun LevelEditorView(
                     onClick = { showSaveAsDialog = true },
                     modifier = Modifier.weight(1f)
                 ) {
-                    SelectableText(stringResource(Res.string.save_as_new))
+                    Text(stringResource(Res.string.save_as_new))
                 }
             }
             
@@ -661,7 +661,7 @@ fun LevelEditorView(
                 onClick = onCancel,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                SelectableText(stringResource(Res.string.cancel))
+                Text(stringResource(Res.string.cancel))
             }
 
             // Community upload button - only shown for non-official levels when user is authenticated
@@ -837,7 +837,7 @@ fun LevelEditorView(
                     pendingLevelToSave?.let { onSave(it) }
                     pendingLevelToSave = null
                 }) {
-                    SelectableText(stringResource(Res.string.ok))
+                    Text(stringResource(Res.string.ok))
                 }
             }
         )

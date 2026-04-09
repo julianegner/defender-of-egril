@@ -293,7 +293,7 @@ fun SpawnPointSelectionDialog(
                 },
                 enabled = selectedSpawnPoint != null
             ) {
-                SelectableText(confirmButtonText)
+                Text(confirmButtonText)
             }
         },
         dismissButton = {
@@ -477,7 +477,7 @@ fun ChangeTurnLevelDialog(
                         showMixedLevelsConfirmation = false
                     }
                 ) {
-                    SelectableText(stringResource(Res.string.apply))
+                    Text(stringResource(Res.string.apply))
                 }
             },
             dismissButton = {
@@ -637,7 +637,7 @@ fun SpawnTurnSection(
                             modifier = Modifier.height(32.dp),
                             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
                         ) {
-                            SelectableText(
+                            Text(
                                 text = stringResource(Res.string.level),
                                 fontSize = 12.sp
                             )
@@ -648,7 +648,7 @@ fun SpawnTurnSection(
                         modifier = Modifier.height(32.dp),
                         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
                     ) {
-                        SelectableText(
+                        Text(
                             text = "Copy Turn", 
                             fontSize = 12.sp,
                             modifier = Modifier.align(Alignment.CenterVertically)
@@ -679,7 +679,7 @@ fun SpawnTurnSection(
                             modifier = Modifier.height(32.dp).width(80.dp),
                             contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
                         ) {
-                            SelectableText(
+                            Text(
                                 text = stringResource(Res.string.clear_turn),
                                 fontSize = 10.sp
                             )
@@ -699,7 +699,7 @@ fun SpawnTurnSection(
                         onClick = onAddEnemy,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        SelectableText(stringResource(Res.string.add_enemy_button, turn))
+                        Text(stringResource(Res.string.add_enemy_button, turn))
                     }
                     
                     if (spawns.isEmpty()) {
@@ -794,7 +794,7 @@ private fun EnemySpawnRow(
                 modifier = Modifier.height(28.dp),
                 contentPadding = PaddingValues(horizontal = 6.dp, vertical = 0.dp)
             ) {
-                SelectableText(stringResource(Res.string.level), fontSize = 10.sp)
+                Text(stringResource(Res.string.level), fontSize = 10.sp)
             }
         }
         
@@ -980,7 +980,7 @@ fun ChangeAllSpawnPointsDialog(
                 },
                 enabled = mapSpawnPoints.isNotEmpty()
             ) {
-                SelectableText(stringResource(Res.string.apply_changes))
+                Text(stringResource(Res.string.apply_changes))
             }
         },
         dismissButton = {

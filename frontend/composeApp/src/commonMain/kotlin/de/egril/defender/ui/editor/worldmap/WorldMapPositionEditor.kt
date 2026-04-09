@@ -116,7 +116,7 @@ fun WorldMapPositionEditorContent() {
                     OutlinedButton(
                         onClick = { showResetConfirmDialog = true }
                     ) {
-                        SelectableText(stringResource(Res.string.reset_worldmap))
+                        Text(stringResource(Res.string.reset_worldmap))
                     }
                 }
                 Button(
@@ -126,7 +126,7 @@ fun WorldMapPositionEditorContent() {
                         worldmapSavedSuccess = true
                     }
                 ) {
-                    SelectableText(stringResource(Res.string.save_worldmap))
+                    Text(stringResource(Res.string.save_worldmap))
                 }
             }
         }
@@ -356,7 +356,7 @@ fun WorldMapPositionEditorContent() {
                         onClick = { showAddLocationDialog = true },
                         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                     ) {
-                        SelectableText(stringResource(Res.string.add_location))
+                        Text(stringResource(Res.string.add_location))
                     }
                     
                     // Connection creation mode button
@@ -375,7 +375,7 @@ fun WorldMapPositionEditorContent() {
                         ),
                         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                     ) {
-                        SelectableText(if (connectionCreationMode) "Cancel Connection Mode" else "Create Connection (Click Mode)")
+                        Text(if (connectionCreationMode) "Cancel Connection Mode" else "Create Connection (Click Mode)")
                     }
 
                     // Waypoint edit mode toggle button
@@ -396,7 +396,7 @@ fun WorldMapPositionEditorContent() {
                         ),
                         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                     ) {
-                        SelectableText(if (waypointEditMode) "Waypoint Edit Mode: ON" else "Waypoint Edit Mode: OFF")
+                        Text(if (waypointEditMode) "Waypoint Edit Mode: ON" else "Waypoint Edit Mode: OFF")
                     }
 
                     // Auto-connect based on dependencies button
@@ -441,7 +441,7 @@ fun WorldMapPositionEditorContent() {
                         },
                         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                     ) {
-                        SelectableText(stringResource(Res.string.auto_connect_by_dependencies))
+                        Text(stringResource(Res.string.auto_connect_by_dependencies))
                     }
 
                     SelectableText(
@@ -496,7 +496,7 @@ fun WorldMapPositionEditorContent() {
                             onClick = { showAddConnectionDialog = true },
                             modifier = Modifier.padding(start = 8.dp)
                         ) {
-                            SelectableText("+")
+                            Text("+")
                         }
                     }
                     
@@ -529,7 +529,7 @@ fun WorldMapPositionEditorContent() {
     if (showResetConfirmDialog && previousWorldMapData != null) {
         AlertDialog(
             onDismissRequest = { showResetConfirmDialog = false },
-            title = { SelectableText(stringResource(Res.string.reset_worldmap_confirm_title)) },
+            title = { Text(stringResource(Res.string.reset_worldmap_confirm_title)) },
             text = { Text(stringResource(Res.string.reset_worldmap_confirm_message)) },
             confirmButton = {
                 Button(
@@ -542,7 +542,7 @@ fun WorldMapPositionEditorContent() {
                         worldmapSavedSuccess = false
                     }
                 ) {
-                    SelectableText(stringResource(Res.string.yes))
+                    Text(stringResource(Res.string.yes))
                 }
             },
             dismissButton = {
@@ -1138,7 +1138,7 @@ private fun LocationListItem(
                     onClick = onDelete,
                     contentPadding = PaddingValues(4.dp)
                 ) {
-                    SelectableText(
+                    Text(
                         text = "X",
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Red
@@ -1231,7 +1231,7 @@ private fun PathListItem(
                 onClick = onDelete,
                 contentPadding = PaddingValues(4.dp)
             ) {
-                SelectableText(
+                Text(
                     text = "X",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Red
@@ -1261,7 +1261,7 @@ private fun AddLocationDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { SelectableText(stringResource(Res.string.add_location_dialog_title)) },
+        title = { Text(stringResource(Res.string.add_location_dialog_title)) },
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 OutlinedTextField(
@@ -1428,7 +1428,7 @@ private fun AddLocationDialog(
                 },
                 enabled = name.isNotBlank() && selectedLevelIds.isNotEmpty()
             ) {
-                SelectableText(stringResource(Res.string.add))
+                Text(stringResource(Res.string.add))
             }
         },
         dismissButton = {
@@ -1463,7 +1463,7 @@ private fun EditLocationDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { SelectableText(stringResource(Res.string.edit_location)) },
+        title = { Text(stringResource(Res.string.edit_location)) },
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 OutlinedTextField(
@@ -1633,7 +1633,7 @@ private fun EditLocationDialog(
                 },
                 enabled = name.isNotBlank() && selectedLevelIds.isNotEmpty()
             ) {
-                SelectableText(stringResource(Res.string.save))
+                Text(stringResource(Res.string.save))
             }
         },
         dismissButton = {
@@ -1680,7 +1680,7 @@ private fun EditPathDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { SelectableText(stringResource(Res.string.edit_connection)) },
+        title = { Text(stringResource(Res.string.edit_connection)) },
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Text(
@@ -1865,7 +1865,7 @@ private fun EditPathDialog(
                     ))
                 }
             ) {
-                SelectableText(stringResource(Res.string.save))
+                Text(stringResource(Res.string.save))
             }
         },
         dismissButton = {
@@ -1891,7 +1891,7 @@ private fun AddConnectionDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { SelectableText(stringResource(Res.string.add_connection)) },
+        title = { Text(stringResource(Res.string.add_connection)) },
         text = {
             Column {
                 Text(stringResource(Res.string.select_two_locations), style = MaterialTheme.typography.bodyMedium)
@@ -2003,7 +2003,7 @@ private fun AddConnectionDialog(
                 },
                 enabled = fromLocationId != null && toLocationId != null && fromLocationId != toLocationId
             ) {
-                SelectableText(stringResource(Res.string.add))
+                Text(stringResource(Res.string.add))
             }
         },
         dismissButton = {

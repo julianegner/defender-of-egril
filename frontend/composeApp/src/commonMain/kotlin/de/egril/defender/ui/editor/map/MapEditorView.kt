@@ -415,14 +415,14 @@ fun MapEditorView(
                     onClick = { showSaveAsDialog = true },
                     modifier = Modifier.weight(1f)
                 ) {
-                    SelectableText(stringResource(Res.string.save_as_new))
+                    Text(stringResource(Res.string.save_as_new))
                 }
                 
                 Button(
                     onClick = onCancel,
                     modifier = Modifier.weight(1f)
                 ) {
-                    SelectableText(stringResource(Res.string.cancel))
+                    Text(stringResource(Res.string.cancel))
                 }
             }
 
@@ -649,7 +649,7 @@ fun MapEditorView(
                     }
                     editTargetKey = null
                 }) {
-                    SelectableText(stringResource(Res.string.ok))
+                    Text(stringResource(Res.string.ok))
                 }
             },
             dismissButton = {

@@ -32,7 +32,7 @@ fun TileTypeButton(
             containerColor = if (selected) getTileColor(tileType).copy(alpha = 0.8f) else getTileColor(tileType).copy(alpha = 0.4f)
         )
     ) {
-        SelectableText(tileType.name, color = textColor)
+        Text(tileType.name, color = textColor)
     }
 }
 

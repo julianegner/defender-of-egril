@@ -258,7 +258,7 @@ fun MapEditorContent() {
                         onClick = { showPreview = true },
                         enabled = canShowImage
                     ) {
-                        SelectableText(stringResource(Res.string.map_image_generation_show_image))
+                        Text(stringResource(Res.string.map_image_generation_show_image))
                     }
                     TextButton(onClick = { showGenerationDialog = false }) {
                         Text(stringResource(Res.string.map_image_generation_close))

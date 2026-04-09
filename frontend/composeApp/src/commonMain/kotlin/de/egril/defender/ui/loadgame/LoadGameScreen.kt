@@ -506,7 +506,7 @@ private fun LoadGameScreenMobile(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     de.egril.defender.ui.icon.DownloadIcon(size = 14.dp)
-                                    SelectableText(
+                                    Text(
                                         text = stringResource(Res.string.export_game_progress),
                                         style = MaterialTheme.typography.bodySmall,
                                         fontSize = 10.sp
@@ -531,7 +531,7 @@ private fun LoadGameScreenMobile(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             de.egril.defender.ui.icon.DownloadIcon(size = 14.dp)
-                            SelectableText(
+                            Text(
                                 text = stringResource(Res.string.download_all_savefiles),
                                 style = MaterialTheme.typography.bodySmall,
                                 fontSize = 10.sp
@@ -553,7 +553,7 @@ private fun LoadGameScreenMobile(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         de.egril.defender.ui.icon.UploadIcon(size = 14.dp)
-                        SelectableText(
+                        Text(
                             text = stringResource(Res.string.upload_savefiles),
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 10.sp
@@ -569,7 +569,7 @@ private fun LoadGameScreenMobile(
                     modifier = Modifier.fillMaxWidth(),
                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
                 ) {
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.back),
                         style = MaterialTheme.typography.bodySmall
                     )
