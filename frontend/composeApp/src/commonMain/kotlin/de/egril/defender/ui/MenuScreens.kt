@@ -35,7 +35,6 @@ import de.egril.defender.ui.settings.SettingsHintBox
 import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.utils.isPlatformWasm
 import com.hyperether.resources.stringResource
-import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.utils.isPlatformIos
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
@@ -120,7 +119,7 @@ fun MainMenuScreen(
                         containerColor = MaterialTheme.colorScheme.error
                     )
                 ) {
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.exit_game),
                         style = MaterialTheme.typography.bodySmall,
                         fontSize = 12.sp
@@ -140,12 +139,12 @@ fun MainMenuScreen(
                     Column(
                         modifier = Modifier.clickable { onEditPlayerName() }
                     ) {
-                        SelectableText(
+                        Text(
                             text = stringResource(Res.string.player_name),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        SelectableText(
+                        Text(
                             text = currentPlayerName,
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
@@ -158,7 +157,7 @@ fun MainMenuScreen(
                                 horizontalArrangement = Arrangement.spacedBy(2.dp)
                             ) {
                                 UnlockIcon(size = 12.dp)
-                                SelectableText(
+                                Text(
                                     text = iamState.username,
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.secondary
@@ -176,7 +175,7 @@ fun MainMenuScreen(
                             ) {
                                 LockIcon(size = 14.dp)
                                 Spacer(modifier = Modifier.width(4.dp))
-                                SelectableText(
+                                Text(
                                     text = stringResource(Res.string.iam_logout),
                                     style = MaterialTheme.typography.bodySmall
                                 )
@@ -192,7 +191,7 @@ fun MainMenuScreen(
                                 strokeWidth = 2.dp
                             )
                             Spacer(modifier = Modifier.width(4.dp))
-                            SelectableText(
+                            Text(
                                 text = stringResource(Res.string.iam_login_waiting),
                                 style = MaterialTheme.typography.bodySmall
                             )
@@ -204,7 +203,7 @@ fun MainMenuScreen(
                         ) {
                             UnlockIcon(size = 14.dp)
                             Spacer(modifier = Modifier.width(4.dp))
-                            SelectableText(
+                            Text(
                                 text = stringResource(Res.string.iam_login),
                                 style = MaterialTheme.typography.bodySmall
                             )
@@ -226,7 +225,7 @@ fun MainMenuScreen(
                                     .background(Color(0xFFB3E5FC), CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
-                                SelectableText(
+                                Text(
                                     text = "?",
                                     style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.primary
@@ -257,7 +256,7 @@ fun MainMenuScreen(
                 
                 Spacer(modifier = Modifier.height(8.dp))
                 
-                SelectableText(
+                Text(
                     text = stringResource(Res.string.app_subtitle),
                     style = if (isPlatformMobile) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
@@ -278,7 +277,7 @@ fun MainMenuScreen(
                             onClick = onStartGame,
                             modifier = Modifier.weight(1f).height(40.dp)
                         ) {
-                            SelectableText(stringResource(Res.string.start_game), style = MaterialTheme.typography.bodySmall, maxLines = 1)
+                            Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.bodySmall, maxLines = 1)
                         }
                         
                         // Continue Game button (only visible if autosave exists)
@@ -290,7 +289,7 @@ fun MainMenuScreen(
                                     containerColor = MaterialTheme.colorScheme.secondary
                                 )
                             ) {
-                                SelectableText(stringResource(Res.string.continue_game), style = MaterialTheme.typography.bodySmall, maxLines = 1)
+                                Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.bodySmall, maxLines = 1)
                             }
                         }
                         
@@ -298,7 +297,7 @@ fun MainMenuScreen(
                             onClick = onShowRules,
                             modifier = Modifier.weight(1f).height(40.dp)
                         ) {
-                            SelectableText(stringResource(Res.string.rules), style = MaterialTheme.typography.bodySmall, maxLines = 1)
+                            Text(stringResource(Res.string.rules), style = MaterialTheme.typography.bodySmall, maxLines = 1)
                         }
                     }
                 } else {
@@ -309,7 +308,7 @@ fun MainMenuScreen(
                             onClick = onStartGame,
                             modifier = Modifier.width(200.dp).height(60.dp)
                         ) {
-                            SelectableText(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
+                            Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
                         }
                         
                         // Continue Game button (only visible if autosave exists)
@@ -321,7 +320,7 @@ fun MainMenuScreen(
                                     containerColor = MaterialTheme.colorScheme.secondary
                                 )
                             ) {
-                                SelectableText(stringResource(Res.string.continue_game), style = MaterialTheme.typography.titleMedium)
+                                Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.titleMedium)
                             }
                         }
                     }
@@ -332,7 +331,7 @@ fun MainMenuScreen(
                         onClick = onShowRules,
                         modifier = Modifier.width(200.dp).height(60.dp)
                     ) {
-                        SelectableText(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
                     }
                     
                     // Download button (only for WASM with impressum)
@@ -346,7 +345,7 @@ fun MainMenuScreen(
                                 containerColor = MaterialTheme.colorScheme.tertiary
                             )
                         ) {
-                            SelectableText(stringResource(Res.string.download_button), style = MaterialTheme.typography.titleMedium)
+                            Text(stringResource(Res.string.download_button), style = MaterialTheme.typography.titleMedium)
                         }
                     }
                 }
@@ -364,7 +363,7 @@ fun MainMenuScreen(
                     .align(Alignment.BottomStart)
                     .padding(bottom = 8.dp)
             ) {
-                SelectableText(
+                Text(
                     text = "v${AppBuildInfo.VERSION_NAME} (${AppBuildInfo.COMMIT_HASH})",
                     style = MaterialTheme.typography.bodySmall,
                     fontSize = 12.sp,
@@ -401,7 +400,7 @@ fun MainMenuScreen(
         if (showExitConfirmation) {
             AlertDialog(
                 onDismissRequest = { showExitConfirmation = false },
-                title = { SelectableText(stringResource(Res.string.exit_game_confirm_title)) },
+                title = { Text(stringResource(Res.string.exit_game_confirm_title)) },
                 text = { Text(stringResource(Res.string.exit_game_confirm_message)) },
                 confirmButton = {
                     Button(
@@ -413,7 +412,7 @@ fun MainMenuScreen(
                             containerColor = MaterialTheme.colorScheme.error
                         )
                     ) {
-                        SelectableText(stringResource(Res.string.exit))
+                        Text(stringResource(Res.string.exit))
                     }
                 },
                 dismissButton = {
@@ -514,7 +513,7 @@ fun LevelCompleteScreen(
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                SelectableText(
+                Text(
                     text = title,
                     style = MaterialTheme.typography.displayLarge,
                     textAlign = TextAlign.Center,
@@ -523,7 +522,7 @@ fun LevelCompleteScreen(
                 
                 Spacer(modifier = Modifier.height(16.dp))
                 
-                SelectableText(
+                Text(
                     text = message,
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
@@ -534,7 +533,7 @@ fun LevelCompleteScreen(
                 if (won && xpEarned > 0) {
                     Spacer(modifier = Modifier.height(24.dp))
                     
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.xp_earned, xpEarned),
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
@@ -544,7 +543,7 @@ fun LevelCompleteScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     
                     // Brief info about XP system
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.xp_info_brief),
                         style = MaterialTheme.typography.bodySmall,
                         textAlign = TextAlign.Center,
@@ -557,7 +556,7 @@ fun LevelCompleteScreen(
                 if (won && isDarkMagicRisesLevel) {
                     Spacer(modifier = Modifier.height(16.dp))
                     
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.xp_system_unlocked),
                         style = MaterialTheme.typography.titleMedium,
                         textAlign = TextAlign.Center,
@@ -567,7 +566,7 @@ fun LevelCompleteScreen(
                     
                     Spacer(modifier = Modifier.height(8.dp))
                     
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.xp_system_unlock_message),
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
@@ -579,7 +578,7 @@ fun LevelCompleteScreen(
                 
                 if (isDemoMode) {
                     // In demo mode, show a hint that the user can click to stop
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.demo_click_to_stop),
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center,
@@ -593,14 +592,14 @@ fun LevelCompleteScreen(
                         onClick = onRestart,
                         modifier = Modifier.width(150.dp).height(50.dp)
                     ) {
-                        SelectableText(stringResource(Res.string.retry))
+                        Text(stringResource(Res.string.retry))
                     }
                     
                     Button(
                         onClick = onBackToMap,
                         modifier = Modifier.width(150.dp).height(50.dp)
                     ) {
-                        SelectableText(stringResource(Res.string.world_map))
+                        Text(stringResource(Res.string.world_map))
                     }
                 }
                 }

@@ -11,7 +11,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.egril.defender.editor.TileType
 import de.egril.defender.model.RiverFlow
-import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.icon.*
 
 /**
@@ -74,7 +73,7 @@ fun RiverFlowIndicator(
         when (flowDirection) {
             RiverFlow.NONE -> {
                 // No flow - display a simple circle or dot
-                SelectableText("•", style = MaterialTheme.typography.bodyLarge, color = Color.White)
+                Text("•", style = MaterialTheme.typography.bodyLarge, color = Color.White)
             }
             RiverFlow.MAELSTROM -> {
                 // Maelstrom - display whirlpool symbol (using hole icon as approximation)

@@ -27,7 +27,6 @@ import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.ui.DrawRaft
 import de.egril.defender.ui.TowerTypeIcon
-import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.hexagon.HexagonShape
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import defender_of_egril.composeapp.generated.resources.Res
@@ -57,7 +56,7 @@ fun LevelLoadingScreen(modifier: Modifier = Modifier) {
         ) {
             LoadingCircleWithIcons()
             Spacer(modifier = Modifier.height(20.dp))
-            SelectableText(
+            Text(
                 text = stringResource(Res.string.loading_level),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,

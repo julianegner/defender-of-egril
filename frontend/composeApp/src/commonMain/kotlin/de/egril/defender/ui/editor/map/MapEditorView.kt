@@ -36,7 +36,6 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.ui.icon.InfoIcon
 import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.editor.EditorJsonSerializer
-import de.egril.defender.ui.common.SelectableText
 import kotlinx.coroutines.launch
 
 /**
@@ -251,7 +250,7 @@ fun MapEditorView(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
-                            SelectableText(
+                            Text(
                                 text = "${position.x},${position.y}",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = Color.White
@@ -260,7 +259,7 @@ fun MapEditorView(
                             // Show target name if this is a target tile
                             val targetInfo = targetInfoMap[key]
                             if (tileType == TileType.TARGET && targetInfo != null && targetInfo.name.isNotBlank()) {
-                                SelectableText(
+                                Text(
                                     text = targetInfo.name,
                                     style = MaterialTheme.typography.labelSmall,
                                     color = Color.Yellow
@@ -409,7 +408,7 @@ fun MapEditorView(
                     enabled = !map.isOfficial || de.egril.defender.OfficialEditMode.enabled,
                     modifier = Modifier.weight(1f)
                 ) {
-                    SelectableText(stringResource(Res.string.save_map))
+                    Text(stringResource(Res.string.save_map))
                 }
                 
                 Button(
@@ -477,7 +476,7 @@ fun MapEditorView(
                             enabled = !isUploadingToCommunity,
                             modifier = Modifier.weight(1f)
                         ) {
-                            SelectableText(
+                            Text(
                                 if (isUploadingToCommunity) stringResource(Res.string.community_uploading)
                                 else stringResource(Res.string.upload_as_community_map)
                             )
@@ -491,7 +490,7 @@ fun MapEditorView(
                             enabled = !isUploadingToCommunity,
                             modifier = Modifier.weight(1f)
                         ) {
-                            SelectableText(
+                            Text(
                                 if (isUploadingToCommunity) stringResource(Res.string.community_uploading)
                                 else stringResource(Res.string.update_community_map)
                             )
@@ -499,7 +498,7 @@ fun MapEditorView(
                     }
                 }
                 communityUploadStatus?.let { status ->
-                    SelectableText(
+                    Text(
                         text = if (status == "success") stringResource(Res.string.community_upload_success)
                                else stringResource(Res.string.community_upload_failed),
                         color = if (status == "success") Color(0xFF2E7D32)
@@ -609,7 +608,7 @@ fun MapEditorView(
         var editType by remember(editKey) { mutableStateOf(existingInfo?.type ?: TargetType.STANDARD) }
         AlertDialog(
             onDismissRequest = { editTargetKey = null },
-            title = { SelectableText(stringResource(Res.string.target_name_label)) },
+            title = { Text(stringResource(Res.string.target_name_label)) },
             text = {
                 Column(verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(

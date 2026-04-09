@@ -32,7 +32,6 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.text.font.FontStyle
 import de.egril.defender.config.LogConfig
 import de.egril.defender.iam.IamState
-import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.icon.UnlockIcon
 
 // Button sizing constants for world map bottom bar
@@ -57,7 +56,7 @@ private fun PlayerNameWithIam(
         Column(
             modifier = Modifier.clickable { onEditPlayerName() }
         ) {
-            SelectableText(
+            Text(
                 text = currentPlayerName,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary,
@@ -69,7 +68,7 @@ private fun PlayerNameWithIam(
                     horizontalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
                     UnlockIcon(size = 12.dp)
-                    SelectableText(
+                    Text(
                         text = iamState.username,
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.secondary
@@ -338,12 +337,12 @@ fun WorldMapScreen(
                                 }
                             )
                         ) {
-                            SelectableText(
+                            Text(
                                 text = stringResource(Res.string.world_map_title),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.onBackground
                             )
-                            SelectableText(
+                            Text(
                                 text = stringResource(Res.string.world_map_subtitle),
                                 style = MaterialTheme.typography.titleMedium.copy(
                                     fontStyle = FontStyle.Italic
@@ -374,12 +373,12 @@ fun WorldMapScreen(
                                 }
                             )
                         ) {
-                            SelectableText(
+                            Text(
                                 text = stringResource(Res.string.world_map_title),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.onBackground
                             )
-                            SelectableText(
+                            Text(
                                 text = stringResource(Res.string.world_map_subtitle),
                                 style = MaterialTheme.typography.titleMedium.copy(
                                     fontStyle = FontStyle.Italic

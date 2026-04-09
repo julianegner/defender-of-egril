@@ -15,7 +15,6 @@ import de.egril.defender.ui.icon.GateIcon
 import de.egril.defender.ui.icon.WoodIcon
 import com.hyperether.resources.stringResource
 import com.hyperether.resources.currentLanguage
-import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -73,13 +72,13 @@ fun BarricadeInfoPanel(
                 } else {
                     stringResource(Res.string.barricade_info_panel_title)
                 }
-                SelectableText(
+                Text(
                     panelTitle,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 // HP row — use string template instead of format()
-                SelectableText(
+                Text(
                     text = "${stringResource(Res.string.health_points)}: ${barricade.healthPoints.value}",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color(0xFFA1887F)  // Light brown for readability
@@ -91,7 +90,7 @@ fun BarricadeInfoPanel(
                 } else {
                     stringResource(Res.string.barricade_info_description)
                 }
-                SelectableText(
+                Text(
                     text = description,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant

@@ -34,7 +34,6 @@ import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.icon.WarningIcon
 import de.egril.defender.ui.LevelSequenceScrollbar
 import com.hyperether.resources.stringResource
-import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -108,7 +107,7 @@ fun LevelSequenceContent() {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            SelectableText(
+            Text(
                 text = stringResource(Res.string.level_dependencies),
                 style = MaterialTheme.typography.titleMedium
             )
@@ -125,14 +124,14 @@ fun LevelSequenceContent() {
                     ) {
                         if (result.isValid) {
                             CheckmarkIcon(size = 20.dp, tint = Color.Green)
-                            SelectableText(
+                            Text(
                                 text = stringResource(Res.string.validation_passed),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.Green
                             )
                         } else {
                             WarningIcon(size = 20.dp)
-                            SelectableText(
+                            Text(
                                 text = stringResource(Res.string.validation_failed),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.Red
@@ -163,7 +162,7 @@ fun LevelSequenceContent() {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.sequence_saved_success),
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -183,28 +182,28 @@ fun LevelSequenceContent() {
                 ) {
                     Column(modifier = Modifier.padding(8.dp)) {
                         if (result.missingLevelIds.isNotEmpty()) {
-                            SelectableText(
+                            Text(
                                 text = "${stringResource(Res.string.missing_prerequisites)}: ${result.missingLevelIds.joinToString(", ")}",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onErrorContainer
                             )
                         }
                         if (result.circularDependencies.isNotEmpty()) {
-                            SelectableText(
+                            Text(
                                 text = "${stringResource(Res.string.circular_dependencies)}: ${result.circularDependencies.joinToString(", ")}",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onErrorContainer
                             )
                         }
                         if (result.disconnectedFromFinal) {
-                            SelectableText(
+                            Text(
                                 text = stringResource(Res.string.final_stand_disconnected),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onErrorContainer
                             )
                         }
                         if (result.unreachableLevels.isNotEmpty()) {
-                            SelectableText(
+                            Text(
                                 text = "${stringResource(Res.string.unreachable_levels)}: ${result.unreachableLevels.joinToString(", ")}",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onErrorContainer
@@ -540,7 +539,7 @@ fun LevelTreeCard(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    SelectableText(
+                    Text(
                         text = level.title,
                         style = MaterialTheme.typography.titleSmall,
                         maxLines = 1,
@@ -549,13 +548,13 @@ fun LevelTreeCard(
                     if (isReady) {
                         CheckmarkIcon(size = 14.dp, tint = Color.Green)
                     } else {
-                        SelectableText("X", color = Color.Red, style = MaterialTheme.typography.bodySmall)
+                        Text("X", color = Color.Red, style = MaterialTheme.typography.bodySmall)
                     }
                 }
                 
                 // Subtitle
                 if (level.subtitle.isNotBlank()) {
-                    SelectableText(
+                    Text(
                         text = level.subtitle,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -564,11 +563,11 @@ fun LevelTreeCard(
                 }
                 
                 // Stats
-                SelectableText(
+                Text(
                     text = "${stringResource(Res.string.enemies)}: ${level.enemySpawns.size}",
                     style = MaterialTheme.typography.bodySmall
                 )
-                SelectableText(
+                Text(
                     text = "${level.startCoins} coins | ${level.startHealthPoints} HP",
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -581,13 +580,13 @@ fun LevelTreeCard(
                     } else {
                         "${stringResource(Res.string.requires)} ${level.prerequisites.size}"
                     }
-                    SelectableText(
+                    Text(
                         text = prereqText,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )
                 } else {
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.entry_point),
                         style = MaterialTheme.typography.bodySmall,
                         color = Color(0xFF4CAF50)
@@ -597,7 +596,7 @@ fun LevelTreeCard(
             
             // Test Level badge in lower right corner
             if (level.testingOnly) {
-                SelectableText(
+                Text(
                     text = stringResource(Res.string.test_level),
                     style = MaterialTheme.typography.labelSmall,
                     color = Color.Red,
@@ -631,7 +630,7 @@ fun PrerequisiteEditorDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            SelectableText(text = "${stringResource(Res.string.edit_prerequisites)}: ${level.title}")
+            Text(text = "${stringResource(Res.string.edit_prerequisites)}: ${level.title}")
         },
         text = {
             Column(
@@ -721,7 +720,7 @@ fun PrerequisiteEditorDialog(
                     onSave(updatedLevel)
                 }
             ) {
-                SelectableText(stringResource(Res.string.save))
+                Text(stringResource(Res.string.save))
             }
         },
         dismissButton = {

@@ -378,7 +378,7 @@ fun SettingsDialog(
                             onClick = { showDetailedSoundSettings = !showDetailedSoundSettings },
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            SelectableText(
+                            Text(
                                 text = if (showDetailedSoundSettings) {
                                     stringResource(Res.string.hide_detailed_sound_settings)
                                 } else {
@@ -396,7 +396,7 @@ fun SettingsDialog(
                                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                                 
                                 // Effect sounds sub-section
-                                SelectableText(
+                                Text(
                                     text = stringResource(Res.string.effect_sounds),
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurface
@@ -418,7 +418,7 @@ fun SettingsDialog(
                                         modifier = Modifier.fillMaxWidth(),
                                         verticalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
-                                        SelectableText(
+                                        Text(
                                             text = stringResource(Res.string.effects_volume),
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.onSurface
@@ -446,7 +446,7 @@ fun SettingsDialog(
                                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                                 
                                 // Background music sub-section
-                                SelectableText(
+                                Text(
                                     text = stringResource(Res.string.background_music),
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurface
@@ -478,7 +478,7 @@ fun SettingsDialog(
                                         modifier = Modifier.fillMaxWidth().padding(start = 16.dp),
                                         verticalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
-                                        SelectableText(
+                                        Text(
                                             text = stringResource(Res.string.worldmap_music),
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.onSurface
@@ -507,7 +507,7 @@ fun SettingsDialog(
                                         )
                                         
                                         if (AppSettings.isWorldMapMusicEnabled.value) {
-                                            SelectableText(
+                                            Text(
                                                 text = stringResource(Res.string.worldmap_music_volume),
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onSurface
@@ -546,7 +546,7 @@ fun SettingsDialog(
                                         modifier = Modifier.fillMaxWidth().padding(start = 16.dp),
                                         verticalArrangement = Arrangement.spacedBy(4.dp)
                                     ) {
-                                        SelectableText(
+                                        Text(
                                             text = stringResource(Res.string.gameplay_music),
                                             style = MaterialTheme.typography.bodyMedium,
                                             color = MaterialTheme.colorScheme.onSurface
@@ -576,7 +576,7 @@ fun SettingsDialog(
                                         )
                                         
                                         if (AppSettings.isGameplayMusicEnabled.value) {
-                                            SelectableText(
+                                            Text(
                                                 text = stringResource(Res.string.gameplay_music_volume),
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onSurface

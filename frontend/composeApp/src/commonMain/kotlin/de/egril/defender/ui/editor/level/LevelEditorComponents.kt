@@ -28,7 +28,6 @@ import de.egril.defender.ui.icon.UpArrowIcon
 import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.icon.PushpinIcon
 import com.hyperether.resources.stringResource
-import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.hexagon.EnemyIconOnHexagon
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -59,7 +58,7 @@ fun AddEnemyDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { SelectableText(stringResource(Res.string.add_enemy_to_turn, turn)) },
+        title = { Text(stringResource(Res.string.add_enemy_to_turn, turn)) },
         text = {
             Column {
                 Text(stringResource(Res.string.enemy_type), modifier = Modifier.padding(bottom = 4.dp))
@@ -141,7 +140,7 @@ fun AddEnemyDialog(
                 },
                 enabled = canAddEwhad
             ) {
-                SelectableText(stringResource(Res.string.add))
+                Text(stringResource(Res.string.add))
             }
         },
         dismissButton = {
@@ -190,7 +189,7 @@ fun SpawnPointSelectionDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            SelectableText(title)
+            Text(title)
         },
         text = {
             Column(
@@ -364,7 +363,7 @@ fun ChangeLevelDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { SelectableText(stringResource(Res.string.change_enemy_level)) },
+        title = { Text(stringResource(Res.string.change_enemy_level)) },
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -423,7 +422,7 @@ fun ChangeLevelDialog(
                 },
                 enabled = newLevel.toIntOrNull()?.let { it > 0 } == true
             ) {
-                SelectableText(stringResource(Res.string.change))
+                Text(stringResource(Res.string.change))
             }
         },
         dismissButton = {
@@ -466,7 +465,7 @@ fun ChangeTurnLevelDialog(
         
         AlertDialog(
             onDismissRequest = { showMixedLevelsConfirmation = false },
-            title = { SelectableText(stringResource(Res.string.change_turn_level)) },
+            title = { Text(stringResource(Res.string.change_turn_level)) },
             text = {
                 Text(stringResource(Res.string.mixed_levels_warning, levelsList, targetLevel))
             },
@@ -489,7 +488,7 @@ fun ChangeTurnLevelDialog(
     } else {
         AlertDialog(
             onDismissRequest = onDismiss,
-            title = { SelectableText(stringResource(Res.string.change_all_levels_in_turn, turn)) },
+            title = { Text(stringResource(Res.string.change_all_levels_in_turn, turn)) },
             text = {
                 Column(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -540,7 +539,7 @@ fun ChangeTurnLevelDialog(
                     },
                     enabled = newLevel.toIntOrNull()?.let { it > 0 } == true
                 ) {
-                    SelectableText(stringResource(Res.string.apply))
+                    Text(stringResource(Res.string.apply))
                 }
             },
             dismissButton = {
@@ -601,12 +600,12 @@ fun SpawnTurnSection(
                         TriangleRightIcon(size = 16.dp)
                     }
                     ReloadIcon(size = 14.dp)
-                    SelectableText(
+                    Text(
                         text = "Turn $turn",
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold
                     )
-                    SelectableText(
+                    Text(
                         text = "(${spawns.size} enemies)",
                         fontSize = 12.sp,
                         color = Color.Gray
@@ -704,7 +703,7 @@ fun SpawnTurnSection(
                     
                     if (spawns.isEmpty()) {
                         // Show message for empty turn
-                        SelectableText(
+                        Text(
                             text = stringResource(Res.string.no_enemies_in_turn),
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.Gray,
@@ -758,11 +757,11 @@ private fun EnemySpawnRow(
             }
             
             // Enemy info in horizontal layout
-            SelectableText(
+            Text(
                 text = "${spawn.attackerType.displayName} Lv${spawn.level}",
                 fontSize = 14.sp
             )
-            SelectableText(
+            Text(
                 text = "${stringResource(Res.string.hp_short)}: ${spawn.healthPoints}",
                 fontSize = 11.sp,
                 color = Color.Gray
@@ -772,7 +771,7 @@ private fun EnemySpawnRow(
             val spawnPointText = spawn.spawnPoint?.let { spawnPoint ->
                 "${stringResource(Res.string.spawn_point)}: (${spawnPoint.x}, ${spawnPoint.y})"
             } ?: stringResource(Res.string.no_spawn_point_set)
-            SelectableText(
+            Text(
                 text = spawnPointText,
                 fontSize = 10.sp,
                 color = if (spawn.spawnPoint != null) MaterialTheme.colorScheme.primary else Color.Gray,
@@ -809,7 +808,7 @@ private fun EnemySpawnRow(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 TrashIcon(size = 12.dp)
-                SelectableText(stringResource(Res.string.remove), fontSize = 11.sp)
+                Text(stringResource(Res.string.remove), fontSize = 11.sp)
             }
         }
     }
@@ -845,7 +844,7 @@ fun ChangeAllSpawnPointsDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { SelectableText(stringResource(Res.string.change_all_spawn_points_title)) },
+        title = { Text(stringResource(Res.string.change_all_spawn_points_title)) },
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),

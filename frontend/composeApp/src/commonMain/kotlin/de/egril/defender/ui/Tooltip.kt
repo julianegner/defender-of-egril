@@ -27,7 +27,6 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import de.egril.defender.ui.common.SelectableText
 
 /**
  * Wraps content with hover-based tooltip support.
@@ -144,7 +143,7 @@ private fun TooltipBox(
             .background(MaterialTheme.colorScheme.inverseSurface)
             .padding(horizontal = 10.dp, vertical = 6.dp)
     ) {
-        SelectableText(
+        Text(
             text = text,
             color = MaterialTheme.colorScheme.inverseOnSurface,
             style = MaterialTheme.typography.bodySmall

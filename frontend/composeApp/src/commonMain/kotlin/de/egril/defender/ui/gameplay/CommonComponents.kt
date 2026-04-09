@@ -14,7 +14,6 @@ import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
 import de.egril.defender.ui.*
-import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.icon.HeartIcon
 import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.ReloadIcon
@@ -62,7 +61,7 @@ fun ExpandableCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                SelectableText(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 if (isExpanded) {
                     TriangleDownIcon(size = GamePlayConstants.IconSizes.Large, tint = if (isDarkMode) androidx.compose.ui.graphics.Color.White else androidx.compose.ui.graphics.Color.Black)
                 } else {
@@ -72,7 +71,7 @@ fun ExpandableCard(
             
             // Optional subtitle (always visible)
             if (subtitle != null) {
-                SelectableText(
+                Text(
                     subtitle,
                     style = MaterialTheme.typography.bodySmall
                 )
@@ -112,7 +111,7 @@ fun IconTextRow(
     ) {
         icon(iconSize)
         Spacer(modifier = Modifier.width(spacerWidth))
-        SelectableText(text, style = textStyle)
+        Text(text, style = textStyle)
     }
 }
 
@@ -155,14 +154,14 @@ fun GameStatsDisplay(
     ) {
         MoneyIcon(size = iconSize)
         Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
-        SelectableText("$coins", style = textStyle)
+        Text("$coins", style = textStyle)
     }
         
     // Health
     Row(verticalAlignment = Alignment.CenterVertically) {
         HeartIcon(size = iconSize)
         Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
-        SelectableText("$health", style = textStyle)
+        Text("$health", style = textStyle)
     }
     
     // Mana (only show if mana values are provided)
@@ -181,7 +180,7 @@ fun GameStatsDisplay(
                     color = Color(0xFF9C27B0)  // Purple for mana
                 )
                 Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
-                SelectableText("$currentMana/$maxMana", style = textStyle)
+                Text("$currentMana/$maxMana", style = textStyle)
             }
         }
     }
@@ -190,7 +189,7 @@ fun GameStatsDisplay(
     Row(verticalAlignment = Alignment.CenterVertically) {
         ReloadIcon(size = iconSize - 2.dp) // Slightly smaller reload icon
         Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
-        SelectableText("$turn", style = textStyle)
+        Text("$turn", style = textStyle)
     }
 
     // Enemy count (clickable if callback provided)

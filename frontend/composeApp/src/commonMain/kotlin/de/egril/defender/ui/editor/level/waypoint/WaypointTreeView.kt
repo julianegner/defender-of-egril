@@ -15,7 +15,6 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.WaypointValidationResult
 import de.egril.defender.model.Position
-import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.no_waypoints_configured
 import defender_of_egril.composeapp.generated.resources.waypoint_chains_title
@@ -34,7 +33,7 @@ fun WaypointTreeView(
     val targets = remember(map) { map?.getTargets() ?: emptyList() }
 
     if (validationResult.waypointChains.isEmpty()) {
-        SelectableText(
+        Text(
             text = stringResource(Res.string.no_waypoints_configured),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -47,7 +46,7 @@ fun WaypointTreeView(
         modifier = Modifier.Companion.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        SelectableText(
+        Text(
             text = stringResource(Res.string.waypoint_chains_title),
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Companion.Bold

@@ -217,6 +217,7 @@ Defender of Egril is a turn-based tower defense game built with Kotlin Multiplat
 - **Message dialogs and info dialogs**: Wrap the `text = { ... }` slot content in `SelectionContainer { }`. Use plain `Text()` inside. Dialog titles should also use plain `Text()`.
 - **Gameplay/settings/editor panels** with a mix of interactive controls and descriptive text: Use `SelectableText()` from `de.egril.defender.ui.common.SelectableText` for individual descriptive text elements.
 - **Buttons, menus, tabs, navigation labels, TextField placeholders/labels**: Always use plain `Text()`. Never use `SelectableText` or `SelectionContainer` here.
+- **STRICT RULE — SelectableText must NEVER be used inside Button composables** (including `Button`, `TextButton`, `OutlinedButton`, `ElevatedButton`, `FilledTonalButton`, `IconButton`). `SelectableText` wraps content in a `SelectionContainer` which conflicts with button click handling. Always use plain `Text()` inside any button composable. This rule is enforced by `SelectableTextInButtonValidationTest`.
 
 ### Tower Info Messages
 - **Display Pattern**: Tower info messages are NEVER shown automatically during gameplay

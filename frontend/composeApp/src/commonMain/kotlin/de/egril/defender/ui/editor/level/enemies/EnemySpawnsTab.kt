@@ -30,7 +30,6 @@ import de.egril.defender.editor.EditorEnemySpawn
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.SpawnPointUtils
 import de.egril.defender.model.Position
-import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.editor.level.ChangeAllSpawnPointsDialog
 import de.egril.defender.ui.editor.level.ChangeLevelDialog
 import de.egril.defender.ui.editor.level.ChangeSpawnPointDialog
@@ -94,7 +93,7 @@ fun EnemySpawnsTab(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                SelectableText(
+                Text(
                     text = "${stringResource(Res.string.enemies)} (${enemySpawns.size}):",
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -109,7 +108,7 @@ fun EnemySpawnsTab(
                     }) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             PlusIcon(size = 16.dp)
-                            SelectableText(stringResource(Res.string.add_turn))
+                            Text(stringResource(Res.string.add_turn))
                         }
                     }
 
@@ -123,7 +122,7 @@ fun EnemySpawnsTab(
                                 MaterialTheme.colorScheme.surfaceVariant
                         )
                     ) {
-                        SelectableText(stringResource(Res.string.remove_all_turns))
+                        Text(stringResource(Res.string.remove_all_turns))
                     }
                 }
             }
@@ -147,7 +146,7 @@ fun EnemySpawnsTab(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             WarningIcon(size = 20.dp)
-                            SelectableText(
+                            Text(
                                 text = stringResource(Res.string.spawn_point_warning),
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
@@ -161,7 +160,7 @@ fun EnemySpawnsTab(
                                 containerColor = MaterialTheme.colorScheme.error
                             )
                         ) {
-                            SelectableText(stringResource(Res.string.change_all_spawn_points))
+                            Text(stringResource(Res.string.change_all_spawn_points))
                         }
                     }
                 }

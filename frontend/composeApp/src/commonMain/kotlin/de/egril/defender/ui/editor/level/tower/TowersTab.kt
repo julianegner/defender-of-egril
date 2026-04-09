@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.DefenderType
-import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.hexagon.TowerIconOnHexagon
 import de.egril.defender.ui.getLocalizedName
 import defender_of_egril.composeapp.generated.resources.Res
@@ -58,7 +57,7 @@ fun TowersTab(
                     enabled = hasUnselectedTowers,
                     modifier = Modifier.weight(1f)
                 ) {
-                    SelectableText(stringResource(Res.string.add_all_towers))
+                    Text(stringResource(Res.string.add_all_towers))
                 }
                 Button(
                     onClick = {
@@ -67,13 +66,13 @@ fun TowersTab(
                     enabled = hasSelectedTowers,
                     modifier = Modifier.weight(1f)
                 ) {
-                    SelectableText(stringResource(Res.string.remove_all_towers))
+                    Text(stringResource(Res.string.remove_all_towers))
                 }
             }
         }
 
         item {
-            SelectableText(
+            Text(
                 text = stringResource(Res.string.available_towers),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
@@ -98,7 +97,7 @@ fun TowersTab(
                     }
                 )
                 TowerIconOnHexagon(defenderType = tower)
-                SelectableText("${tower.getLocalizedName()} (${stringResource(Res.string.cost_label)}: ${tower.baseCost}, ${stringResource(Res.string.damage_label)}: ${tower.baseDamage})")
+                Text("${tower.getLocalizedName()} (${stringResource(Res.string.cost_label)}: ${tower.baseCost}, ${stringResource(Res.string.damage_label)}: ${tower.baseDamage})")
             }
         }
     }

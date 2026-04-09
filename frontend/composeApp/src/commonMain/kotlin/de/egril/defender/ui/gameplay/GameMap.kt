@@ -88,7 +88,6 @@ import kotlin.math.roundToInt
 import kotlin.math.sqrt
 import kotlin.math.atan2
 import de.egril.defender.config.LogConfig
-import de.egril.defender.ui.common.SelectableText
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -602,7 +601,7 @@ fun GameGrid(
                         color = MaterialTheme.colorScheme.surfaceVariant,
                         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                     ) {
-                        SelectableText(
+                        Text(
                             text = stringResource(
                                 Res.string.debug_map_size_overlay,
                                 realWidthDp.value.roundToInt(),
@@ -1531,7 +1530,7 @@ private fun BoxScope.GridCellContent(
                         }
                         // Show red "XT" overlay if tower is disabled by Red Witch
                         if (defender.isDisabled.value && defender.disabledTurnsRemaining.value > 0) {
-                            SelectableText(
+                            Text(
                                 "${defender.disabledTurnsRemaining.value}T",
                                 style = MaterialTheme.typography.headlineMedium,
                                 color = Color.Red,
@@ -1557,13 +1556,13 @@ private fun BoxScope.GridCellContent(
                             verticalArrangement = Arrangement.Center
                         ) {
                             TestTubeIcon(size = 20.dp)
-                            SelectableText(
+                            Text(
                                 "-${fieldEffect.damage}",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold
                             )
-                            SelectableText(
+                            Text(
                                 "${fieldEffect.turnsRemaining}T",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = GamePlayColors.Yellow
@@ -1588,7 +1587,7 @@ private fun BoxScope.GridCellContent(
                         TrapType.DWARVEN -> {
                             // Dwarven trap - show trap icon with damage
                             TrapIcon(size = GamePlayConstants.TileIconSizes.Trap)
-                            SelectableText(
+                            Text(
                                 "-${trap.damage}",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = Color.White,
@@ -1623,7 +1622,7 @@ private fun BoxScope.GridCellContent(
                             ?.takeIf { it.isNotBlank() }
                             ?.let { localizeEntityName(it, barricadeLocale) }
                         if (!barricadeDisplayName.isNullOrBlank()) {
-                            SelectableText(
+                            Text(
                                 text = buildAnnotatedString{
                                     withStyle(SpanStyle(color = Color.White)) {
                                         appendLine(barricadeDisplayName)
@@ -1642,7 +1641,7 @@ private fun BoxScope.GridCellContent(
                                     .offset(y = (-32).dp)
                             )
                         } else {
-                            SelectableText(
+                            Text(
                                 "${barricade.healthPoints.value} HP",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = Color.White,
@@ -1671,7 +1670,7 @@ private fun BoxScope.GridCellContent(
                     // Show wood/barricade symbol with brown color
                     WoodIcon(size = GamePlayConstants.TileIconSizes.Barricade)
                     // Show "NEW" text for new barricade preview
-                    SelectableText(
+                    Text(
                         stringResource(Res.string.barricade),
                         style = MaterialTheme.typography.labelSmall,
                         color = Color(0xFF795548),  // Brown color
@@ -1696,7 +1695,7 @@ private fun BoxScope.GridCellContent(
                             .padding(horizontal = 4.dp, vertical = 1.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        SelectableText(
+                        Text(
                             "${bombEffect.turnsRemaining}",
                             style = MaterialTheme.typography.labelMedium,
                             color = Color.White,
@@ -1709,7 +1708,7 @@ private fun BoxScope.GridCellContent(
 
             isSpawnPoint -> {
                 // Show spawn indicator when cell is empty
-                SelectableText(
+                Text(
                     stringResource(Res.string.spawn),
                     style = MaterialTheme.typography.labelSmall,
                     color = GamePlayColors.Warning
@@ -1731,7 +1730,7 @@ private fun BoxScope.GridCellContent(
                 if (isTaken) {
                     // Show dimmed name with a red X cross on top
                     Box(contentAlignment = Alignment.Center) {
-                        SelectableText(
+                        Text(
                             text = targetName,
                             style = MaterialTheme.typography.labelSmall,
                             color = GamePlayColors.Success.copy(alpha = 0.3f),
@@ -1741,7 +1740,7 @@ private fun BoxScope.GridCellContent(
                         CrossIcon(size = 20.dp, tint = Color.Red)
                     }
                 } else {
-                    SelectableText(
+                    Text(
                         text = targetName,
                         style = MaterialTheme.typography.labelSmall,
                         color = GamePlayColors.Success,
@@ -1809,7 +1808,7 @@ private fun BoxScope.GridCellContent(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.BottomCenter
             ) {
-                SelectableText(
+                Text(
                     "${coolingTurns}T",
                     style = MaterialTheme.typography.labelSmall,
                     color = TargetCircleConstants.COOLING_SPELL_COLOR,
@@ -1903,7 +1902,7 @@ private fun BoxScope.GridCellContent(
                     modifier = Modifier.fillMaxSize().zIndex(15f),
                     contentAlignment = Alignment.TopCenter
                 ) {
-                    SelectableText(
+                    Text(
                         text = "${deathEffect.attackerLevel}",
                         style = MaterialTheme.typography.labelSmall,
                         fontSize = 12.sp,
@@ -2061,7 +2060,7 @@ private fun BoxScope.GridCellContent(
                         .padding(horizontal = 3.dp, vertical = 1.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    SelectableText(
+                    Text(
                         "${bombEffect.turnsRemaining}",
                         fontSize = 10.sp,
                         color = Color.White,
@@ -2286,7 +2285,7 @@ private fun BoxScope.GridCellContent(
                     .padding(1.dp),
                 contentAlignment = Alignment.Center
             ) {
-                SelectableText(
+                Text(
                     text = "${position.x},${position.y}",
                     fontSize = 8.sp,
                     color = Color.Black,
@@ -2362,7 +2361,7 @@ fun BridgeVisualization(bridge: Bridge) {
             when (bridge.type) {
                 BridgeType.WOODEN, BridgeType.STONE -> {
                     // Show remaining health
-                    SelectableText(
+                    Text(
                         text = "${bridge.currentHealth.value}",
                         style = MaterialTheme.typography.labelSmall,
                         fontSize = 13.sp,
@@ -2372,7 +2371,7 @@ fun BridgeVisualization(bridge: Bridge) {
                 }
                 BridgeType.MAGICAL -> {
                     // Show remaining turns
-                    SelectableText(
+                    Text(
                         text = "${bridge.turnsRemaining.value}T",
                         style = MaterialTheme.typography.labelSmall,
                         fontSize = 13.sp,
