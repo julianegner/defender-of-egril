@@ -64,7 +64,8 @@
       "name": "The Fast",
       "nameKey": "location_the_fast_name",
       "position": {"x": 476, "y": 457},
-      "levelIds": ["the_fast_and_furious"]
+      "levelIds": ["the_fast_and_furious"],
+      "iconResourceName": "fast_and_furious"
     },
     {
       "id": "the_cross",
