@@ -90,6 +90,26 @@ class BackendIntegrationTest {
             return "$header.$payload."
         }
 
+        /**
+         * Creates a fake JWT that additionally carries [role] as a client role on
+         * [clientId] in the `resource_access` claim, mimicking a Keycloak-issued token
+         * for a user who has been granted that role.
+         */
+        private fun fakeTokenWithClientRole(
+            userId: String,
+            username: String = userId,
+            clientId: String = "defender-of-egril",
+            role: String
+        ): String {
+            val header = java.util.Base64.getUrlEncoder().withoutPadding()
+                .encodeToString("""{"alg":"none"}""".toByteArray())
+            val payload = java.util.Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(
+                    """{"sub":"$userId","preferred_username":"$username","resource_access":{"$clientId":{"roles":["$role"]}}}""".toByteArray()
+                )
+            return "$header.$payload."
+        }
+
         /** JSON-encodes [value] as a string literal, suitable for embedding in a JSON body. */
         private fun jsonString(value: String): String = Json.encodeToString(JsonPrimitive(value))
 
@@ -787,6 +807,123 @@ class BackendIntegrationTest {
 
         // No auth header – should still succeed
         client.get("/api/community/files/MAP/public-img-map/image").apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // DELETE /api/community/files/{fileType}/{fileId} – admin delete endpoint
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun `DELETE community file requires authentication`() = withRealDatabase {
+        client.delete("/api/community/files/MAP/any-map-id").apply {
+            assertEquals(HttpStatusCode.Unauthorized, status)
+        }
+    }
+
+    @Test
+    fun `DELETE community file requires community_admin role`() = withRealDatabase {
+        // Token without any roles
+        val token = fakeToken("user-no-admin-role", "normaluser")
+        client.delete("/api/community/files/MAP/any-map-id") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }.apply {
+            assertEquals(HttpStatusCode.Forbidden, status)
+        }
+    }
+
+    @Test
+    fun `DELETE community file returns 404 for non-existent file`() = withRealDatabase {
+        val token = fakeTokenWithClientRole("admin-user-404", role = "community_admin")
+        client.delete("/api/community/files/MAP/does-not-exist-delete") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }.apply {
+            assertEquals(HttpStatusCode.NotFound, status)
+        }
+    }
+
+    @Test
+    fun `DELETE community file with invalid fileType returns 400`() = withRealDatabase {
+        val token = fakeTokenWithClientRole("admin-user-400", role = "community_admin")
+        client.delete("/api/community/files/INVALID/some-id") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }.apply {
+            assertEquals(HttpStatusCode.BadRequest, status)
+        }
+    }
+
+    @Test
+    fun `DELETE community file removes it from the database`() = withRealDatabase {
+        val uploaderToken = fakeToken("user-upload-del", "uploader")
+        val adminToken = fakeTokenWithClientRole("admin-delete-1", role = "community_admin")
+        val mapData = minimalMapJson("delete-map-1")
+
+        // Upload the file first
+        client.post("/api/community/files") {
+            contentType(ContentType.Application.Json)
+            header(HttpHeaders.Authorization, "Bearer $uploaderToken")
+            setBody("""{"fileType":"MAP","fileId":"delete-map-1","data":${jsonString(mapData)}}""")
+        }.apply { assertEquals(HttpStatusCode.OK, status) }
+
+        // Verify it's listed
+        client.get("/api/community/files?fileType=MAP").apply {
+            assertEquals(HttpStatusCode.OK, status)
+            assertContains(bodyAsText(), "delete-map-1")
+        }
+
+        // Admin deletes it
+        client.delete("/api/community/files/MAP/delete-map-1") {
+            header(HttpHeaders.Authorization, "Bearer $adminToken")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+
+        // Should now return 404
+        client.get("/api/community/files/MAP/delete-map-1").apply {
+            assertEquals(HttpStatusCode.NotFound, status)
+        }
+    }
+
+    @Test
+    fun `DELETE community LEVEL file works for admin`() = withRealDatabase {
+        val uploaderToken = fakeToken("user-upload-level-del", "leveluploader")
+        val adminToken = fakeTokenWithClientRole("admin-delete-level", role = "community_admin")
+        val levelData = """{"id":"del-level-1","title":"Delete Me","mapId":"some-map","enemySpawns":[],"startCoins":100,"startHealthPoints":10,"availableTowers":[]}"""
+
+        client.post("/api/community/files") {
+            contentType(ContentType.Application.Json)
+            header(HttpHeaders.Authorization, "Bearer $uploaderToken")
+            setBody("""{"fileType":"LEVEL","fileId":"del-level-1","data":${jsonString(levelData)}}""")
+        }.apply { assertEquals(HttpStatusCode.OK, status) }
+
+        client.delete("/api/community/files/LEVEL/del-level-1") {
+            header(HttpHeaders.Authorization, "Bearer $adminToken")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+
+        client.get("/api/community/files/LEVEL/del-level-1").apply {
+            assertEquals(HttpStatusCode.NotFound, status)
+        }
+    }
+
+    @Test
+    fun `DELETE community file can be deleted by admin even if uploaded by another user`() = withRealDatabase {
+        val uploaderToken = fakeToken("user-owner-del", "fileowner")
+        val adminToken = fakeTokenWithClientRole("admin-override-del", role = "community_admin")
+        val mapData = minimalMapJson("admin-override-map")
+
+        client.post("/api/community/files") {
+            contentType(ContentType.Application.Json)
+            header(HttpHeaders.Authorization, "Bearer $uploaderToken")
+            setBody("""{"fileType":"MAP","fileId":"admin-override-map","data":${jsonString(mapData)}}""")
+        }.apply { assertEquals(HttpStatusCode.OK, status) }
+
+        // Admin (different user) can delete it
+        client.delete("/api/community/files/MAP/admin-override-map") {
+            header(HttpHeaders.Authorization, "Bearer $adminToken")
+        }.apply {
             assertEquals(HttpStatusCode.OK, status)
         }
     }

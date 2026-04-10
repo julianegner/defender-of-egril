@@ -87,3 +87,12 @@ resource "keycloak_openid_client" "defender_of_egril_cli" {
   standard_flow_enabled        = false
   direct_access_grants_enabled = true
 }
+
+# Client role that grants access to the community file admin endpoints (list all + delete any).
+# Assign this role to trusted users via the Keycloak admin console.
+resource "keycloak_role" "community_admin" {
+  realm_id  = keycloak_realm.egril.id
+  client_id = keycloak_openid_client.defender_of_egril.id
+  name        = "community_admin"
+  description = "Allows listing and deleting community maps and levels via the admin API"
+}

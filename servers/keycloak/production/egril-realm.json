@@ -62,5 +62,15 @@
       "protocol": "openid-connect",
       "attributes": {}
     }
-  ]
+  ],
+  "roles": {
+    "client": {
+      "defender-of-egril": [
+        {
+          "name": "community_admin",
+          "description": "Allows listing and deleting community maps and levels via the admin API"
+        }
+      ]
+    }
+  }
 }

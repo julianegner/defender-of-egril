@@ -15,7 +15,13 @@
   "ssoSessionMaxLifespan": 36000,
   "sslRequired": "none",
   "internationalizationEnabled": true,
-  "supportedLocales": ["en", "de", "es", "fr", "it"],
+  "supportedLocales": [
+    "en",
+    "de",
+    "es",
+    "fr",
+    "it"
+  ],
   "defaultLocale": "en",
   "clients": [
     {
@@ -75,5 +81,15 @@
         }
       ]
     }
-  ]
+  ],
+  "roles": {
+    "client": {
+      "defender-of-egril": [
+        {
+          "name": "community_admin",
+          "description": "Allows listing and deleting community maps and levels via the admin API"
+        }
+      ]
+    }
+  }
 }
