@@ -161,4 +161,49 @@ class ApplicationTest {
             assertEquals(HttpStatusCode.BadRequest, status)
         }
     }
+
+    // ---------------------------------------------------------------------------
+    // Backchannel logout endpoint tests
+    // ---------------------------------------------------------------------------
+
+    @Test
+    fun testBackchannelLogoutWithValidToken() = testApplication {
+        application { module() }
+        // Simulate Keycloak sending a backchannel logout POST with a logout_token.
+        // The token uses algorithm "none" for test simplicity – the same pattern used
+        // throughout this test class for fake Bearer tokens. Real Keycloak tokens are
+        // RS256-signed; full JWKS validation is intentionally omitted because the
+        // backend holds no server-side sessions (stateless JWT) so a spoofed request
+        // is a harmless no-op.
+        client.post("/api/backchannel-logout") {
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody("logout_token=eyJhbGciOiJub25lIn0.eyJzdWIiOiJ1c2VyLTEyMyIsInNpZCI6InNlc3Npb24tMTIzIn0.")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+    }
+
+    @Test
+    fun testBackchannelLogoutMissingToken() = testApplication {
+        application { module() }
+        // Missing logout_token parameter should return 400
+        client.post("/api/backchannel-logout") {
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody("other_param=value")
+        }.apply {
+            assertEquals(HttpStatusCode.BadRequest, status)
+        }
+    }
+
+    @Test
+    fun testBackchannelLogoutMalformedToken() = testApplication {
+        application { module() }
+        // A value that is not a three-part JWT should return 400
+        client.post("/api/backchannel-logout") {
+            contentType(ContentType.Application.FormUrlEncoded)
+            setBody("logout_token=not-a-jwt")
+        }.apply {
+            assertEquals(HttpStatusCode.BadRequest, status)
+        }
+    }
 }

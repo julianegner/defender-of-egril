@@ -14,6 +14,7 @@ private val savefileLogger = LoggerFactory.getLogger("Savefiles")
 private val communityLogger = LoggerFactory.getLogger("Community")
 private val userDataLogger = LoggerFactory.getLogger("UserData")
 private val settingsLogger = LoggerFactory.getLogger("Settings")
+private val iamLogger = LoggerFactory.getLogger("IAM")
 
 fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
     routing {
@@ -64,6 +65,53 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                     HttpStatusCode.ServiceUnavailable
                 )
             }
+        }
+
+        /**
+         * Keycloak Back-Channel Logout endpoint (OpenID Connect Back-Channel Logout spec).
+         *
+         * Called by Keycloak when a user's SSO session is terminated (e.g. the user logs out
+         * from any client connected to the same realm). Keycloak sends an HTTP POST with
+         * Content-Type: application/x-www-form-urlencoded containing a signed `logout_token` JWT.
+         *
+         * This endpoint must be registered as `backchannel.logout.url` in the Keycloak client
+         * configuration (egril-realm.json).
+         *
+         * Since the backend uses stateless JWT authentication there are no server-side sessions
+         * to invalidate. The endpoint acknowledges the notification with 200 OK so that Keycloak
+         * considers the backchannel logout successful and completes the user's own SSO logout.
+         * Without this endpoint Keycloak may fail the logout flow and the user remains logged in.
+         *
+         * Note on JWT signature verification: the OIDC spec recommends validating the logout_token
+         * signature against Keycloak's JWKS. Since the backend holds no server-side sessions the
+         * worst-case impact of a spoofed request is a no-op 200 OK with a log entry. Full JWKS
+         * verification can be added in the future if the backend starts maintaining sessions.
+         */
+        post("/api/backchannel-logout") {
+            val params = try {
+                call.receiveParameters()
+            } catch (e: Exception) {
+                iamLogger.warn("Backchannel logout: failed to parse form parameters: ${e.message}")
+                call.respond(HttpStatusCode.BadRequest, "Invalid request parameters")
+                return@post
+            }
+            val logoutToken = params["logout_token"]
+            if (logoutToken == null) {
+                iamLogger.warn("Backchannel logout: missing logout_token parameter")
+                call.respond(HttpStatusCode.BadRequest, "Missing logout_token parameter")
+                return@post
+            }
+            // Verify the token has three dot-separated parts (header.payload.signature).
+            // This rejects obviously malformed values without a full JWKS round-trip.
+            if (logoutToken.split(".").size != 3) {
+                iamLogger.warn("Backchannel logout: malformed logout_token (expected 3 JWT parts)")
+                call.respond(HttpStatusCode.BadRequest, "Malformed logout_token")
+                return@post
+            }
+            // The backend uses stateless JWT; there are no server-side sessions to invalidate.
+            // Acknowledge the notification so Keycloak completes the logout successfully.
+            iamLogger.info("Backchannel logout received")
+            call.respond(HttpStatusCode.OK)
         }
 
         post("/api/events") {
