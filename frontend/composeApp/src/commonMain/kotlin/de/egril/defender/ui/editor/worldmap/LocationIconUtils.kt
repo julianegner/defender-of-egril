@@ -37,7 +37,8 @@ object LocationIconUtils {
         "spiral",
         "square_tower",
         "village",
-        "woods"
+        "woods",
+        "fast_and_furious"
     )
     
     /**
@@ -86,6 +87,7 @@ object LocationIconUtils {
             "square_tower" -> Res.drawable.location_square_tower
             "village"-> Res.drawable.location_village
             "woods" -> Res.drawable.location_woods
+            "fast_and_furious" -> Res.drawable.location_fast_and_furious
             else -> null // Icon doesn't exist or not in allowed list
         }
     }
