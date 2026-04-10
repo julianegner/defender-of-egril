@@ -55,7 +55,7 @@ fun MapListCard(
                         style = MaterialTheme.typography.titleSmall
                     )
                     Text(
-                        text = "File: ${map.id}",
+                        text = stringResource(Res.string.map_file_id, map.id),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -157,8 +157,13 @@ fun MapListCard(
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
-                // Community badges: Local and/or Online
+                // Community badge text + location chips
                 if (map.isCommunity) {
+                    Text(
+                        text = stringResource(Res.string.community_badge),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalAlignment = Alignment.CenterVertically

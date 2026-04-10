@@ -1596,10 +1596,15 @@
     <string name="community_upload_success">Publié avec succès !</string>
     <string name="community_upload_failed">Échec de la publication. Veuillez réessayer.</string>
     <string name="upload_community_confirm_title">Publier comme contenu communautaire ?</string>
-    <string name="upload_community_level_confirm_message">Ce niveau sera visible publiquement par tous les joueurs. Êtes-vous sûr de vouloir le publier ?</string>
-    <string name="upload_community_map_confirm_message">Cette carte sera visible publiquement par tous les joueurs. Êtes-vous sûr de vouloir la publier ?</string>
+    <string name="upload_community_level_confirm_message">Ce niveau sera visible publiquement par tous les joueurs. Votre nom d\'utilisateur Keycloak sera affiché aux autres utilisateurs. Êtes-vous sûr de vouloir le publier ?</string>
+    <string name="upload_community_map_confirm_message">Cette carte sera visible publiquement par tous les joueurs. Votre nom d\'utilisateur Keycloak sera affiché aux autres utilisateurs. Êtes-vous sûr de vouloir la publier ?</string>
     <string name="upload_community_also_uploads_map">La carte utilisée par ce niveau sera également publiée comme contenu communautaire.</string>
     <string name="community_badge">Communauté</string>
+    <string name="community_downloading_level">Téléchargement du niveau…</string>
+    <string name="community_author">par %1$s</string>
+    <string name="community_tap_to_download">Appuyer pour télécharger et jouer</string>
+    <string name="map_file_id">Fichier : %1$s</string>
+    <string name="community_description_optional">Description (optionnel)</string>
 
     <!-- Sticker screen tabs -->
     <string name="sticker_tab_original">Autocollant</string>

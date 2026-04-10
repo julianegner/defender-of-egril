@@ -1,7 +1,6 @@
 package de.egril.defender.editor
 
 import de.egril.defender.config.LogConfig
-import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.AttackerWave
 import de.egril.defender.model.Level
@@ -277,20 +276,22 @@ object EditorStorage {
             return communityMapsCache[id]
         }
         
-        // Try to load from official directory first, then user, then community, then legacy
+        // Try to load from official directory first, then community, then user, then legacy.
+        // Community comes before user so that maps downloaded alongside community levels are found
+        // even if no identically-named map exists in the user maps directory.
         var json = fileStorage.readFile("$OFFICIAL_MAPS_DIR/$id.json")
         var isOfficial = true
         var isCommunity = false
-        
-        if (json == null) {
-            json = fileStorage.readFile("$USER_MAPS_DIR/$id.json")
-            isOfficial = false
-        }
 
         if (json == null) {
             json = fileStorage.readFile("$COMMUNITY_MAPS_DIR/$id.json")
             isOfficial = false
             isCommunity = json != null
+        }
+
+        if (json == null) {
+            json = fileStorage.readFile("$USER_MAPS_DIR/$id.json")
+            isOfficial = false
         }
         
         if (json == null) {
@@ -969,15 +970,12 @@ object EditorStorage {
             return false
         }
         
-        // Check if level has enemies that can build bridges (ORK, EVIL_WIZARD, or EWHAD)
-        val hasBridgeBuildingEnemies = level.enemySpawns.any { spawn ->
-            spawn.attackerType == AttackerType.ORK || 
-            spawn.attackerType == AttackerType.EVIL_WIZARD || 
-            spawn.attackerType == AttackerType.EWHAD
-        }
-        
-        // Validate map with river consideration based on enemy types
-        if (!map.validateReadyToUse(includeRiversAsWalkable = hasBridgeBuildingEnemies)) {
+        // Validate that the map has a structurally valid path.
+        // Always include rivers as walkable here (matching the editor's default), so that
+        // community maps whose path crosses river tiles are not incorrectly rejected.
+        // Whether enemies can actually cross rivers during gameplay is determined by the
+        // pathfinding system at runtime, not at level-load time.
+        if (!map.validateReadyToUse(includeRiversAsWalkable = true)) {
             return false
         }
         

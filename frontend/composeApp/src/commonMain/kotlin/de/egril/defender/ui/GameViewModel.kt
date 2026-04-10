@@ -185,6 +185,14 @@ class GameViewModel {
     private val _newVersionAvailable = MutableStateFlow<NewVersionInfo?>(null)
     val newVersionAvailable: StateFlow<NewVersionInfo?> = _newVersionAvailable.asStateFlow()
 
+    // Remote community level metadata (levels available on the server, may or may not be downloaded locally)
+    private val _remoteCommunityLevelsMeta = MutableStateFlow<List<de.egril.defender.save.CommunityFileInfo>>(emptyList())
+    val remoteCommunityLevelsMeta: StateFlow<List<de.egril.defender.save.CommunityFileInfo>> = _remoteCommunityLevelsMeta.asStateFlow()
+
+    // Remote community map metadata (maps available on the server, may or may not be downloaded locally)
+    private val _remoteCommunityMapsMeta = MutableStateFlow<List<de.egril.defender.save.CommunityFileInfo>>(emptyList())
+    val remoteCommunityMapsMeta: StateFlow<List<de.egril.defender.save.CommunityFileInfo>> = _remoteCommunityMapsMeta.asStateFlow()
+
     init {
         // Ensure EditorStorage is initialized with repository data
         de.egril.defender.editor.EditorStorage.ensureInitialized()
@@ -362,53 +370,87 @@ class GameViewModel {
     }
 
     /**
-     * Downloads community levels and maps from the backend and stores them locally.
-     * After download, reloads the world map to include community levels.
+     * Fetches the list of community levels and maps available on the server and stores their metadata.
+     * Does NOT download the actual level or map files – those are downloaded on demand.
+     * Locally-already-downloaded community content is reloaded from disk so the world map reflects it immediately.
      */
     fun downloadCommunityContent() {
         viewModelScope.launch {
             try {
-                // Download community level list
                 val communityLevelMeta = de.egril.defender.save.BackendCommunityService
                     .fetchCommunityFileList("LEVEL")
                 if (communityLevelMeta != null) {
-                    for (meta in communityLevelMeta) {
-                        val fileData = de.egril.defender.save.BackendCommunityService
-                            .fetchCommunityFile("LEVEL", meta.fileId)
-                        if (fileData != null) {
-                            val level = de.egril.defender.editor.EditorJsonSerializer
-                                .deserializeLevel(fileData.data)
-                            if (level != null) {
-                                de.egril.defender.editor.EditorStorage.saveCommunityLevel(
-                                    level.copy(
-                                        isCommunity = true,
-                                        communityAuthorUsername = meta.authorUsername
-                                    )
-                                )
-                                // Also download the map used by this level if not already present
-                                if (de.egril.defender.editor.EditorStorage.getMap(level.mapId) == null) {
-                                    downloadCommunityMap(level.mapId)
-                                }
-                            }
-                        }
-                    }
-                    de.egril.defender.editor.EditorStorage.clearCommunityCache()
-                    initializeWorldMap()
+                    _remoteCommunityLevelsMeta.value = communityLevelMeta
                 }
-
-                // Also download community maps independently (to show in editor)
                 val communityMapMeta = de.egril.defender.save.BackendCommunityService
                     .fetchCommunityFileList("MAP")
                 if (communityMapMeta != null) {
-                    for (meta in communityMapMeta) {
-                        if (de.egril.defender.editor.EditorStorage.getCommunityMap(meta.fileId) == null) {
-                            downloadCommunityMap(meta.fileId)
-                        }
-                    }
+                    _remoteCommunityMapsMeta.value = communityMapMeta
                 }
             } catch (e: Exception) {
                 if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-                    println("Failed to download community content: ${e.message}")
+                    println("Failed to fetch community content metadata: ${e.message}")
+                }
+            } finally {
+                // Always reload locally-downloaded community levels so they appear in the world map,
+                // even when the network is unavailable or the metadata fetch fails.
+                de.egril.defender.editor.EditorStorage.clearCommunityCache()
+                initializeWorldMap()
+            }
+        }
+    }
+
+    /**
+     * Downloads a single community level (and its map if needed) on demand and then
+     * reloads the world map via [initializeWorldMap] so the level becomes playable immediately.
+     *
+     * @param fileInfo Metadata of the community level to download
+     * @param onComplete Called when the operation finishes; receives true on success, false on failure.
+     *   Note: on success, [initializeWorldMap] has already been called and [worldLevels] will be
+     *   updated before [onComplete] is invoked.
+     */
+    fun downloadCommunityLevelOnDemand(
+        fileInfo: de.egril.defender.save.CommunityFileInfo,
+        onComplete: (Boolean) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val fileData = de.egril.defender.save.BackendCommunityService
+                    .fetchCommunityFile("LEVEL", fileInfo.fileId)
+                if (fileData == null) {
+                    onComplete(false)
+                    return@launch
+                }
+                val level = de.egril.defender.editor.EditorJsonSerializer.deserializeLevel(fileData.data)
+                if (level == null) {
+                    onComplete(false)
+                    return@launch
+                }
+                de.egril.defender.editor.EditorStorage.saveCommunityLevel(
+                    level.copy(isCommunity = true, communityAuthorUsername = fileInfo.authorUsername)
+                )
+                // Also download the map used by this level if not already present locally.
+                // NOTE: do NOT clear the community cache before initializeWorldMap – the caches
+                // are already correct after saveCommunityLevel/saveCommunityMap and clearing them
+                // would force a disk re-read that could race with the just-written data.
+                if (de.egril.defender.editor.EditorStorage.getMap(level.mapId) == null) {
+                    downloadCommunityMap(level.mapId)
+                }
+                initializeWorldMap()
+                onComplete(true)
+            } catch (e: Exception) {
+                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Failed to download community level ${fileInfo.fileId}: ${e.message}")
+                }
+                // If the download failed but the level (and its map) are already stored locally,
+                // still reload the world map so the level is surfaced as playable rather than
+                // staying in the "remote" card state.
+                val alreadyLocal = de.egril.defender.editor.EditorStorage.getCommunityLevel(fileInfo.fileId) != null
+                if (alreadyLocal) {
+                    initializeWorldMap()
+                    onComplete(true)
+                } else {
+                    onComplete(false)
                 }
             }
         }
@@ -446,6 +488,31 @@ class GameViewModel {
     }
 
     /**
+     * Downloads a single community map (JSON + server-generated image) on demand from the map editor.
+     * Clears the community cache after saving so the editor list refreshes.
+     *
+     * @param fileInfo Metadata of the community map to download
+     * @param onComplete Called when the operation finishes; receives true on success, false on failure
+     */
+    fun downloadCommunityMapOnDemand(
+        fileInfo: de.egril.defender.save.CommunityFileInfo,
+        onComplete: (Boolean) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                downloadCommunityMap(fileInfo.fileId)
+                de.egril.defender.editor.EditorStorage.clearCommunityCache()
+                onComplete(true)
+            } catch (e: Exception) {
+                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Failed to download community map on demand ${fileInfo.fileId}: ${e.message}")
+                }
+                onComplete(false)
+            }
+        }
+    }
+
+    /**
      * Uploads a user level to the community backend.
      * If the level's map is a user map that has not yet been uploaded to the community,
      * the map is uploaded first so that other players can download it together with the level.
@@ -476,7 +543,7 @@ class GameViewModel {
 
         val json = de.egril.defender.editor.EditorJsonSerializer.serializeLevel(level)
         val success = de.egril.defender.save.BackendCommunityService
-            .uploadCommunityFile("LEVEL", levelId, json, token)
+            .uploadCommunityFile("LEVEL", levelId, json, token, level.communityDescription)
         if (success) {
             // Store the uploaded version locally in the community directory so we can detect changes
             de.egril.defender.editor.EditorStorage.saveCommunityLevel(

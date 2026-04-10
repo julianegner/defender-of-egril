@@ -462,10 +462,10 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
 
                     conn.prepareStatement(
                         """
-                        INSERT INTO community_files (user_id, username, file_type, file_id, data, updated_at)
-                        VALUES (?, ?, ?, ?, ?, NOW())
+                        INSERT INTO community_files (user_id, username, file_type, file_id, data, description, updated_at)
+                        VALUES (?, ?, ?, ?, ?, ?, NOW())
                         ON CONFLICT (file_type, file_id)
-                        DO UPDATE SET data = EXCLUDED.data, username = EXCLUDED.username, updated_at = NOW()
+                        DO UPDATE SET data = EXCLUDED.data, username = EXCLUDED.username, description = EXCLUDED.description, updated_at = NOW()
                         """.trimIndent()
                     ).use { stmt ->
                         stmt.setString(1, userId)
@@ -473,6 +473,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                         stmt.setString(3, request.fileType)
                         stmt.setString(4, request.fileId)
                         stmt.setString(5, request.data)
+                        stmt.setString(6, request.description)
                         stmt.executeUpdate()
                     }
 
@@ -525,9 +526,9 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                 try {
                     val files = mutableListOf<CommunityFileMetadata>()
                     val query = if (fileType != null) {
-                        "SELECT file_type, file_id, user_id, username, updated_at, created_at FROM community_files WHERE file_type = ? ORDER BY updated_at DESC"
+                        "SELECT file_type, file_id, user_id, username, description, updated_at, created_at FROM community_files WHERE file_type = ? ORDER BY updated_at DESC"
                     } else {
-                        "SELECT file_type, file_id, user_id, username, updated_at, created_at FROM community_files ORDER BY updated_at DESC"
+                        "SELECT file_type, file_id, user_id, username, description, updated_at, created_at FROM community_files ORDER BY updated_at DESC"
                     }
                     conn.prepareStatement(query).use { stmt ->
                         if (fileType != null) stmt.setString(1, fileType)
@@ -540,7 +541,8 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                                         authorUsername = rs.getString("username"),
                                         authorId = rs.getString("user_id"),
                                         updatedAt = rs.getTimestamp("updated_at").toInstant().toString(),
-                                        uploadedAt = rs.getTimestamp("created_at").toInstant().toString()
+                                        uploadedAt = rs.getTimestamp("created_at").toInstant().toString(),
+                                        description = rs.getString("description") ?: ""
                                     )
                                 )
                             }
@@ -579,7 +581,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                 try {
                     var result: CommunityFileData? = null
                     conn.prepareStatement(
-                        "SELECT file_type, file_id, user_id, username, data, updated_at, created_at FROM community_files WHERE file_type = ? AND file_id = ?"
+                        "SELECT file_type, file_id, user_id, username, data, description, updated_at, created_at FROM community_files WHERE file_type = ? AND file_id = ?"
                     ).use { stmt ->
                         stmt.setString(1, fileType)
                         stmt.setString(2, fileId)
@@ -592,7 +594,8 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                                     authorId = rs.getString("user_id"),
                                     data = rs.getString("data"),
                                     updatedAt = rs.getTimestamp("updated_at").toInstant().toString(),
-                                    uploadedAt = rs.getTimestamp("created_at").toInstant().toString()
+                                    uploadedAt = rs.getTimestamp("created_at").toInstant().toString(),
+                                    description = rs.getString("description") ?: ""
                                 )
                             }
                         }

@@ -309,6 +309,7 @@ data class EditorLevel(
     val author: String = "",  // Optional author name
     val isCommunity: Boolean = false,  // True if level is a community-shared level from the backend
     val communityAuthorUsername: String = "",  // Username of the community author (only set if isCommunity == true)
+    val communityDescription: String = "",  // Short description shown on the community card
     // Initial placements (optional) - new nested structure
     val initialData: InitialData? = null,
     // Legacy fields for backward compatibility (deprecated - use initialData instead)

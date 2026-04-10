@@ -27,7 +27,10 @@ import defender_of_egril.composeapp.generated.resources.*
  */
 @Composable
 fun LevelEditorScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    remoteCommunityMaps: List<de.egril.defender.save.CommunityFileInfo> = emptyList(),
+    downloadingMapId: String? = null,
+    onDownloadRemoteMap: ((de.egril.defender.save.CommunityFileInfo) -> Unit)? = null
 ) {
     var currentTab by remember { mutableStateOf(EditorTab.LEVEL_EDITOR) }
     var showHowToDialog by remember { mutableStateOf(false) }
@@ -48,7 +51,11 @@ fun LevelEditorScreen(
             
             // Content based on selected tab
             when (currentTab) {
-                EditorTab.MAP_EDITOR -> MapEditorContent()
+                EditorTab.MAP_EDITOR -> MapEditorContent(
+                    remoteCommunityMaps = remoteCommunityMaps,
+                    downloadingMapId = downloadingMapId,
+                    onDownloadRemoteMap = onDownloadRemoteMap
+                )
                 EditorTab.LEVEL_EDITOR -> LevelEditorContent()
                 EditorTab.LEVEL_SEQUENCE -> LevelSequenceContent()
                 EditorTab.WORLD_MAP_POSITIONS -> WorldMapPositionEditorContent()

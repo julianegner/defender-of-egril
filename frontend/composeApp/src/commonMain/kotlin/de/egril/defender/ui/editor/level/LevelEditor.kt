@@ -46,6 +46,7 @@ import kotlin.random.Random
 import de.egril.defender.ui.editor.getDefaultAuthorName
 import de.egril.defender.config.LogConfig
 import androidx.compose.runtime.rememberCoroutineScope
+import de.egril.defender.ui.loadgame.SavefileLocationChip
 import kotlinx.coroutines.launch
 
 /**
@@ -314,6 +315,26 @@ private fun LevelCard(
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
+                // Community badge: shown for levels downloaded from the community backend
+                if (level.isCommunity) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        SavefileLocationChip(
+                            label = stringResource(Res.string.savefile_chip_local),
+                            color = MaterialTheme.colorScheme.tertiary,
+                            onColor = MaterialTheme.colorScheme.onTertiary,
+                            isMobile = false
+                        )
+                        SavefileLocationChip(
+                            label = stringResource(Res.string.savefile_chip_remote),
+                            color = MaterialTheme.colorScheme.primary,
+                            onColor = MaterialTheme.colorScheme.onPrimary,
+                            isMobile = false
+                        )
+                    }
+                }
             }
         }
             Row(
@@ -353,6 +374,7 @@ fun LevelEditorView(
     var title by remember { mutableStateOf(level.title) }
     var subtitle by remember { mutableStateOf(level.subtitle) }
     var author by remember { mutableStateOf(level.author) }
+    var communityDescription by remember { mutableStateOf(level.communityDescription) }
     var startCoins by remember { mutableStateOf(level.startCoins.toString()) }
     var startHP by remember { mutableStateOf(level.startHealthPoints.toString()) }
     var selectedMapId by remember { mutableStateOf(level.mapId) }
@@ -563,6 +585,8 @@ fun LevelEditorView(
                     onSubtitleChange = { subtitle = it },
                     author = author,
                     onAuthorChange = { author = it },
+                    communityDescription = communityDescription,
+                    onCommunityDescriptionChange = { communityDescription = it },
                     selectedMapId = selectedMapId,
                     onMapChange = { selectedMapId = it },
                     maps = maps,
@@ -623,6 +647,7 @@ fun LevelEditorView(
                             title = title,
                             subtitle = subtitle,
                             author = author,
+                            communityDescription = communityDescription,
                             mapId = selectedMapId,
                             startCoins = startCoins.toIntOrNull() ?: 100,
                             startHealthPoints = startHP.toIntOrNull() ?: 10,

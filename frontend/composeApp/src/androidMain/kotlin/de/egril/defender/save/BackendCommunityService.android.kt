@@ -9,11 +9,12 @@ actual object BackendCommunityService {
         fileType: String,
         fileId: String,
         jsonData: String,
-        token: String
+        token: String,
+        description: String
     ): Boolean = withContext(Dispatchers.IO) {
         val status = jvmHttpPost(
             "/api/community/files",
-            buildCommunityUploadJson(fileType, fileId, jsonData),
+            buildCommunityUploadJson(fileType, fileId, jsonData, description),
             token
         )
         status in 200..299

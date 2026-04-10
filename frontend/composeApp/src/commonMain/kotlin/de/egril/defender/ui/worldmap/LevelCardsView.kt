@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.LevelStatus
 import de.egril.defender.model.WorldLevel
+import de.egril.defender.save.CommunityFileInfo
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -24,6 +25,9 @@ import defender_of_egril.composeapp.generated.resources.*
  * @param showUserLevelsTab If true, shows tabs to filter between Official, Community, and User Levels
  * @param filterToUserLevelsOnly If true, only shows user levels (ignores showUserLevelsTab)
  * @param filterToCommunityOnly If true, only shows community levels (ignores showUserLevelsTab)
+ * @param remoteCommunityLevels List of community level metadata available on the server
+ * @param downloadingLevelId The fileId of a community level currently being downloaded, or null
+ * @param onDownloadRemoteLevel Callback when a remote-only level card is clicked to trigger download
  * @param modifier Modifier for the layout
  */
 @Composable
@@ -33,10 +37,28 @@ fun LevelCardsView(
     showUserLevelsTab: Boolean = false,
     filterToUserLevelsOnly: Boolean = false,
     filterToCommunityOnly: Boolean = false,
+    remoteCommunityLevels: List<CommunityFileInfo> = emptyList(),
+    downloadingLevelId: String? = null,
+    onDownloadRemoteLevel: ((CommunityFileInfo) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     var selectedTabIndex by remember { mutableStateOf(0) }
     
+    // IDs of locally-downloaded community levels so we can exclude them from the remote-only list
+    val localCommunityLevelIds = remember(worldLevels) {
+        worldLevels
+            .mapNotNull { it.level.editorLevelId }
+            .filter { id ->
+                de.egril.defender.editor.EditorStorage.getCommunityLevel(id)?.isCommunity == true
+            }
+            .toSet()
+    }
+
+    // Remote-only levels: server has them but they are not yet downloaded locally
+    val remoteOnlyLevels = remember(remoteCommunityLevels, localCommunityLevelIds) {
+        remoteCommunityLevels.filter { it.fileId !in localCommunityLevelIds }
+    }
+
     // Filter levels based on tab selection or direct filter
     val filteredLevels = remember(worldLevels, selectedTabIndex, showUserLevelsTab, filterToUserLevelsOnly, filterToCommunityOnly) {
         when {
@@ -66,7 +88,7 @@ fun LevelCardsView(
                         }
                     }
                     1 -> {
-                        // Community tab
+                        // Community tab – locally-downloaded community levels
                         worldLevels.filter { worldLevel ->
                             val editorLevel = de.egril.defender.editor.EditorStorage.getCommunityLevel(worldLevel.level.editorLevelId ?: "")
                             editorLevel?.isCommunity == true
@@ -88,6 +110,10 @@ fun LevelCardsView(
             }
         }
     }
+
+    // Which remote-only levels to show (only in community tab)
+    val showRemoteOnly = filterToCommunityOnly ||
+        (showUserLevelsTab && selectedTabIndex == 1)
     
     Column(modifier = modifier) {
         // Show tabs if requested
@@ -119,6 +145,7 @@ fun LevelCardsView(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier.fillMaxSize()
         ) {
+            // Locally-downloaded levels
             items(filteredLevels) { worldLevel ->
                 LevelCard(
                     worldLevel = worldLevel,
@@ -128,6 +155,16 @@ fun LevelCardsView(
                         }
                     }
                 )
+            }
+            // Remote-only community levels (shown in community tab only)
+            if (showRemoteOnly) {
+                items(remoteOnlyLevels) { fileInfo ->
+                    RemoteCommunityLevelCard(
+                        fileInfo = fileInfo,
+                        isDownloading = fileInfo.fileId == downloadingLevelId,
+                        onClick = { onDownloadRemoteLevel?.invoke(fileInfo) }
+                    )
+                }
             }
         }
     }

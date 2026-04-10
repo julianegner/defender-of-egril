@@ -35,6 +35,7 @@ import defender_of_egril.composeapp.generated.resources.allow_auto_attack
 import defender_of_egril.composeapp.generated.resources.auto_attack_info_message
 import defender_of_egril.composeapp.generated.resources.auto_attack_info_title
 import defender_of_egril.composeapp.generated.resources.author_optional
+import defender_of_egril.composeapp.generated.resources.community_description_optional
 import defender_of_egril.composeapp.generated.resources.level_title
 import defender_of_egril.composeapp.generated.resources.map_label
 import defender_of_egril.composeapp.generated.resources.ok
@@ -59,6 +60,8 @@ fun LevelInfoTab(
     onSubtitleChange: (String) -> Unit,
     author: String,
     onAuthorChange: (String) -> Unit,
+    communityDescription: String,
+    onCommunityDescriptionChange: (String) -> Unit,
     selectedMapId: String,
     onMapChange: (String) -> Unit,
     maps: List<EditorMap>,
@@ -114,6 +117,15 @@ fun LevelInfoTab(
                         label = { Text(stringResource(Res.string.author_optional)) },
                         enabled = !isOfficial || de.egril.defender.OfficialEditMode.enabled,
                         modifier = Modifier.fillMaxWidth()
+                    )
+
+                    OutlinedTextField(
+                        value = communityDescription,
+                        onValueChange = onCommunityDescriptionChange,
+                        label = { Text(stringResource(Res.string.community_description_optional)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        minLines = 2,
+                        maxLines = 4
                     )
                 }
                 

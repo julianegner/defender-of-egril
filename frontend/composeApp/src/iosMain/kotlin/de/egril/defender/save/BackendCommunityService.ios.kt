@@ -23,7 +23,8 @@ actual object BackendCommunityService {
         fileType: String,
         fileId: String,
         jsonData: String,
-        token: String
+        token: String,
+        description: String
     ): Boolean = suspendCancellableCoroutine { continuation ->
         val url = NSURL.URLWithString("$backendUrl/api/community/files")
         if (url == null) {
@@ -34,7 +35,7 @@ actual object BackendCommunityService {
         request.HTTPMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField = "Content-Type")
         request.setValue("Bearer $token", forHTTPHeaderField = "Authorization")
-        val body = buildCommunityUploadJson(fileType, fileId, jsonData)
+        val body = buildCommunityUploadJson(fileType, fileId, jsonData, description)
         request.HTTPBody = NSString.create(string = body).dataUsingEncoding(NSUTF8StringEncoding)
 
         NSURLSession.sharedSession.dataTaskWithRequest(request) { _, response, _ ->

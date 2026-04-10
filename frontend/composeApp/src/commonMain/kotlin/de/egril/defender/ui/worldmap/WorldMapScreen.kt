@@ -99,7 +99,9 @@ fun WorldMapScreen(
     onLoadGame: () -> Unit,
     onCheatCode: ((String) -> Boolean)? = null,  // Callback for processing cheat codes, returns true if code was valid
     onReloadWorldMap: (() -> Unit)? = null,  // Callback to reload world map after syncing repository files
-    onDownloadCommunityContent: (() -> Unit)? = null,  // Callback to fetch community levels/maps from backend
+    onDownloadCommunityContent: (() -> Unit)? = null,  // Callback to fetch community level metadata from backend
+    remoteCommunityLevels: List<de.egril.defender.save.CommunityFileInfo> = emptyList(),  // Levels available on the server
+    onDownloadCommunityLevel: ((de.egril.defender.save.CommunityFileInfo, (Boolean) -> Unit) -> Unit)? = null,  // On-demand level download
     checkForNewRepositoryData: Boolean = true,  // Set to false in tests to avoid repository checks
     onSwitchPlayer: (() -> Unit)? = null,  // Callback to switch player
     onEditPlayerName: (() -> Unit)? = null,  // Callback to edit player name
@@ -113,6 +115,18 @@ fun WorldMapScreen(
     var showCheatDialog by remember { mutableStateOf(false) }
     var selectedLocation by remember { mutableStateOf<Pair<WorldMapLocation, List<WorldLevel>>?>(null) }
     val focusRequester = remember { FocusRequester() }
+
+    // ID of the community level currently being downloaded on-demand (null if none)
+    var downloadingLevelId by remember { mutableStateOf<String?>(null) }
+
+    // Callback that starts on-demand download for a remote community level and clears
+    // downloadingLevelId once the download finishes (success or failure).
+    val handleDownloadRemoteLevel: (de.egril.defender.save.CommunityFileInfo) -> Unit = { fileInfo ->
+        downloadingLevelId = fileInfo.fileId
+        onDownloadCommunityLevel?.invoke(fileInfo) { _ ->
+            downloadingLevelId = null
+        }
+    }
 
     // Request focus on launch so keyboard events are dispatched to this screen
     LaunchedEffect(Unit) {
@@ -155,8 +169,9 @@ fun WorldMapScreen(
         }
     }
 
-    // Check if there are any community levels
-    val hasCommunityLevels = remember(worldLevels) {
+    // Check if there are any community levels (local or remote)
+    val hasCommunityLevels = remember(worldLevels, remoteCommunityLevels) {
+        remoteCommunityLevels.isNotEmpty() ||
         worldLevels.any { worldLevel ->
             val editorLevel = de.egril.defender.editor.EditorStorage.getCommunityLevel(worldLevel.level.editorLevelId ?: "")
             editorLevel?.isCommunity == true
@@ -247,6 +262,9 @@ fun WorldMapScreen(
                     worldLevels = visibleWorldLevels,
                     onLevelSelected = onLevelSelected,
                     showUserLevelsTab = isEditorAvailable(),  // Show tabs on desktop/wasm
+                    remoteCommunityLevels = remoteCommunityLevels,
+                    downloadingLevelId = downloadingLevelId,
+                    onDownloadRemoteLevel = handleDownloadRemoteLevel,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(top = 80.dp, bottom = 80.dp)  // Leave space for top/bottom bars
@@ -287,6 +305,9 @@ fun WorldMapScreen(
                                 worldLevels = visibleWorldLevels,
                                 onLevelSelected = onLevelSelected,
                                 filterToCommunityOnly = true,
+                                remoteCommunityLevels = remoteCommunityLevels,
+                                downloadingLevelId = downloadingLevelId,
+                                onDownloadRemoteLevel = handleDownloadRemoteLevel,
                                 modifier = Modifier.fillMaxSize()
                             )
                             2 -> LevelCardsView(
