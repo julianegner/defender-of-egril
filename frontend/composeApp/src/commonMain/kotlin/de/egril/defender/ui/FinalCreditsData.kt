@@ -161,6 +161,7 @@ object FinalCreditsData {
         "location_river",
         "location_spiral",
         "location_woods",
+        "location_fast_and_furious",
         "gate",
         "barricade",
         "trap",
