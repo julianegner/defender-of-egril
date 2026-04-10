@@ -17,7 +17,6 @@ import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorWaypoint
 import de.egril.defender.model.Position
-import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.icon.RedCircleIcon
 import de.egril.defender.ui.icon.RightArrowIcon
 import de.egril.defender.ui.icon.TrashIcon
@@ -75,13 +74,13 @@ fun WaypointConnectionCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (spawnPoints.contains(waypoint.position)) {
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.spawn_point_text),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
                 } else if (validWaypointPositions.contains(waypoint.position)) {
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.waypoint),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.secondary
@@ -115,7 +114,7 @@ fun WaypointConnectionCard(
                     horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.waypoint_position_format,
                             waypoint.nextTargetPosition.x,
                             waypoint.nextTargetPosition.y
@@ -133,13 +132,13 @@ fun WaypointConnectionCard(
                 }
 
                 if (targets.contains(waypoint.nextTargetPosition)) {
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.target_text),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.tertiary
                     )
                 } else if (validWaypointPositions.contains(waypoint.nextTargetPosition)) {
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.waypoint),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.secondary
@@ -158,7 +157,7 @@ fun WaypointConnectionCard(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             WarningIcon(size = 12.dp)
-                            SelectableText(
+                            Text(
                                 text = stringResource(Res.string.circular_dependency_warning),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.error
@@ -171,7 +170,7 @@ fun WaypointConnectionCard(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             WarningIcon(size = 12.dp)
-                            SelectableText(
+                            Text(
                                 text = stringResource(Res.string.unconnected_waypoint_warning),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.error
@@ -189,7 +188,7 @@ fun WaypointConnectionCard(
  */
 @Composable
 private fun PositionText(position: Position, style: androidx.compose.ui.text.TextStyle) {
-    SelectableText(
+    Text(
         text = stringResource(Res.string.waypoint_position_format, position.x, position.y),
         style = style
     )

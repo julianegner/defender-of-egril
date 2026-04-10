@@ -11,7 +11,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import de.egril.defender.ui.common.SelectableText
 
 /**
  * Generic switch component adapted for Material 3
@@ -43,7 +42,7 @@ fun GenericSwitch(
                 uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
             )
         )
-        SelectableText(
+        Text(
             text = if (state.value) checkedText else uncheckedText,
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,

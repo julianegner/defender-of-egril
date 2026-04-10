@@ -11,7 +11,6 @@ import de.egril.defender.editor.*
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.Position
-import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -30,7 +29,7 @@ fun InitialSetupTab(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            SelectableText(
+            Text(
                 text = stringResource(Res.string.no_map_selected),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.error
@@ -75,13 +74,13 @@ fun InitialSetupTab(
                 modifier = Modifier.fillMaxSize().padding(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                SelectableText(
+                Text(
                     text = stringResource(Res.string.initial_setup_map),
                     style = MaterialTheme.typography.titleMedium
                 )
                 
                 if (placementMode != null) {
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.initial_setup_click_to_place),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
@@ -240,7 +239,7 @@ fun InitialSetupTab(
             var editIsGate by remember(editIdx) { mutableStateOf(barricade.isGate) }
             AlertDialog(
                 onDismissRequest = { editBarricadeIndex = null },
-                title = { SelectableText(stringResource(Res.string.barricade_configuration)) },
+                title = { Text(stringResource(Res.string.barricade_configuration)) },
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedTextField(
@@ -298,7 +297,7 @@ fun InitialSetupTab(
                         onInitialDataChange(initialData.copy(barricades = newList))
                         editBarricadeIndex = null
                     }) {
-                        SelectableText(stringResource(Res.string.ok))
+                        Text(stringResource(Res.string.ok))
                     }
                 },
                 dismissButton = {

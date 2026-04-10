@@ -20,7 +20,6 @@ import de.egril.defender.ui.editor.map.MapEditorContent
 import de.egril.defender.ui.editor.worldmap.WorldMapPositionEditorContent
 import de.egril.defender.ui.settings.SettingsButton
 import com.hyperether.resources.stringResource
-import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -28,7 +27,10 @@ import defender_of_egril.composeapp.generated.resources.*
  */
 @Composable
 fun LevelEditorScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    remoteCommunityMaps: List<de.egril.defender.save.CommunityFileInfo> = emptyList(),
+    downloadingMapId: String? = null,
+    onDownloadRemoteMap: ((de.egril.defender.save.CommunityFileInfo) -> Unit)? = null
 ) {
     var currentTab by remember { mutableStateOf(EditorTab.LEVEL_EDITOR) }
     var showHowToDialog by remember { mutableStateOf(false) }
@@ -49,7 +51,11 @@ fun LevelEditorScreen(
             
             // Content based on selected tab
             when (currentTab) {
-                EditorTab.MAP_EDITOR -> MapEditorContent()
+                EditorTab.MAP_EDITOR -> MapEditorContent(
+                    remoteCommunityMaps = remoteCommunityMaps,
+                    downloadingMapId = downloadingMapId,
+                    onDownloadRemoteMap = onDownloadRemoteMap
+                )
                 EditorTab.LEVEL_EDITOR -> LevelEditorContent()
                 EditorTab.LEVEL_SEQUENCE -> LevelSequenceContent()
                 EditorTab.WORLD_MAP_POSITIONS -> WorldMapPositionEditorContent()
@@ -76,7 +82,7 @@ fun LevelEditorScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.level_editor),
                         style = MaterialTheme.typography.titleLarge
                     )
@@ -140,7 +146,7 @@ fun LevelEditorScreen(
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Column(modifier = Modifier.padding(24.dp)) {
-                        SelectableText(
+                        Text(
                             text = stringResource(Res.string.editor_howto_title),
                             style = MaterialTheme.typography.titleLarge,
                             modifier = Modifier.padding(bottom = 12.dp)
@@ -152,7 +158,7 @@ fun LevelEditorScreen(
                             onClick = { showHowToDialog = false },
                             modifier = Modifier.align(Alignment.End).padding(top = 12.dp)
                         ) {
-                            SelectableText(stringResource(Res.string.editor_howto_close))
+                            Text(stringResource(Res.string.editor_howto_close))
                         }
                     }
                 }

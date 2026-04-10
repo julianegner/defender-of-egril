@@ -292,6 +292,18 @@ object EditorJsonSerializer {
         } else {
             ""
         }
+
+        val communityDescriptionJson = if (level.communityDescription.isNotEmpty()) {
+            val escaped = level.communityDescription
+                .replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r")
+                .replace("\t", "\\t")
+            ",\n  \"communityDescription\": \"$escaped\""
+        } else {
+            ""
+        }
         
         // Serialize initial data in new nested format (optional)
         val initialData = level.getEffectiveInitialData()
@@ -377,7 +389,7 @@ object EditorJsonSerializer {
   "waypoints": [
     $waypointsJson
   ],
-  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$isOfficialJson$authorJson$initialDataJson
+  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$isOfficialJson$authorJson$communityDescriptionJson$initialDataJson
 }"""
         return """{
   "metadata": {
@@ -588,6 +600,13 @@ object EditorJsonSerializer {
             // Parse author (optional, defaults to empty)
             val author = try {
                 JsonUtils.extractValue(dataJson, "author")
+            } catch (e: Exception) {
+                ""  // Optional field
+            }
+
+            // Parse communityDescription (optional, defaults to empty)
+            val communityDescription = try {
+                JsonUtils.extractValue(dataJson, "communityDescription")
             } catch (e: Exception) {
                 ""  // Optional field
             }
@@ -1040,6 +1059,7 @@ object EditorJsonSerializer {
                 prerequisites, requiredPrerequisiteCount, testingOnly, 
                 allowAutoAttack, isOfficial,
                 author = author,
+                communityDescription = communityDescription,
                 initialData = initialData
             )
         } catch (e: Exception) {

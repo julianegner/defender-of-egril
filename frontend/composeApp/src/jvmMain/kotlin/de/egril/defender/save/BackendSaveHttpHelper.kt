@@ -1,7 +1,7 @@
 package de.egril.defender.save
 
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 
 internal val backendBaseUrl: String
     get() = System.getProperty("defender.backend.url")
@@ -17,7 +17,7 @@ internal val backendBaseUrl: String
  */
 internal fun jvmHttpPost(path: String, body: String, token: String): Int {
     return try {
-        val connection = URL("$backendBaseUrl$path").openConnection() as HttpURLConnection
+        val connection = URI.create("$backendBaseUrl$path").toURL().openConnection() as HttpURLConnection
         connection.requestMethod = "POST"
         connection.doOutput = true
         connection.setRequestProperty("Content-Type", "application/json")
@@ -39,7 +39,7 @@ internal fun jvmHttpPost(path: String, body: String, token: String): Int {
  */
 internal fun jvmHttpGet(path: String, token: String?): String? {
     return try {
-        val connection = URL("$backendBaseUrl$path").openConnection() as HttpURLConnection
+        val connection = URI.create("$backendBaseUrl$path").toURL().openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
         if (token != null) connection.setRequestProperty("Authorization", "Bearer $token")
         connection.connectTimeout = 10_000
@@ -63,7 +63,7 @@ internal fun jvmHttpGet(path: String, token: String?): String? {
  */
 internal fun jvmHttpGetBytes(path: String, token: String?): ByteArray? {
     return try {
-        val connection = URL("$backendBaseUrl$path").openConnection() as HttpURLConnection
+        val connection = URI.create("$backendBaseUrl$path").toURL().openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
         if (token != null) connection.setRequestProperty("Authorization", "Bearer $token")
         connection.connectTimeout = 10_000

@@ -19,6 +19,7 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import de.egril.defender.utils.isPlatformMobile
+import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -86,7 +87,7 @@ fun NarrativeMessageDialog(
             )
 
             // Content overlaid on background – scrollable so long texts never overflow the frame
-            SelectionContainer {
+
             Column(
                 modifier = Modifier
                     .padding(
@@ -111,9 +112,8 @@ fun NarrativeMessageDialog(
                         )
                     }
                 }
-
                 // Title
-                Text(
+                SelectableText(
                     text = title,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
@@ -123,7 +123,7 @@ fun NarrativeMessageDialog(
                 )
 
                 // Body text
-                Text(
+                SelectableText(
                     text = text,
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color(0xFF333333),
@@ -149,7 +149,6 @@ fun NarrativeMessageDialog(
                         color = Color.White
                     )
                 }
-            }
             }
         }
     }

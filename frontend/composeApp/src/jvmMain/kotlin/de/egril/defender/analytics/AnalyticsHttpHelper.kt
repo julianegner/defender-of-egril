@@ -2,7 +2,7 @@ package de.egril.defender.analytics
 
 import de.egril.defender.iam.IamService
 import java.net.HttpURLConnection
-import java.net.URL
+import java.net.URI
 
 private val backendUrl: String = "https://defender-backend.egril.de"
 
@@ -18,7 +18,7 @@ internal fun postEventJson(eventType: GameEventType, levelName: String?, platfor
     val token = IamService.getToken()
     Thread {
         try {
-            val connection = URL(targetUrl).openConnection() as HttpURLConnection
+            val connection = URI.create(targetUrl).toURL().openConnection() as HttpURLConnection
             connection.requestMethod = "POST"
             connection.doOutput = true
             connection.setRequestProperty("Content-Type", "application/json")

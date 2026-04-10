@@ -29,13 +29,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorMap
-import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.editor.map.MapSelectionCard
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.allow_auto_attack
 import defender_of_egril.composeapp.generated.resources.auto_attack_info_message
 import defender_of_egril.composeapp.generated.resources.auto_attack_info_title
 import defender_of_egril.composeapp.generated.resources.author_optional
+import defender_of_egril.composeapp.generated.resources.community_description_optional
 import defender_of_egril.composeapp.generated.resources.level_title
 import defender_of_egril.composeapp.generated.resources.map_label
 import defender_of_egril.composeapp.generated.resources.ok
@@ -60,6 +60,8 @@ fun LevelInfoTab(
     onSubtitleChange: (String) -> Unit,
     author: String,
     onAuthorChange: (String) -> Unit,
+    communityDescription: String,
+    onCommunityDescriptionChange: (String) -> Unit,
     selectedMapId: String,
     onMapChange: (String) -> Unit,
     maps: List<EditorMap>,
@@ -116,6 +118,15 @@ fun LevelInfoTab(
                         enabled = !isOfficial || de.egril.defender.OfficialEditMode.enabled,
                         modifier = Modifier.fillMaxWidth()
                     )
+
+                    OutlinedTextField(
+                        value = communityDescription,
+                        onValueChange = onCommunityDescriptionChange,
+                        label = { Text(stringResource(Res.string.community_description_optional)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        minLines = 2,
+                        maxLines = 4
+                    )
                 }
                 
                 // Right side: Level Toggles Container
@@ -136,7 +147,7 @@ fun LevelInfoTab(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        SelectableText(
+                        Text(
                             text = stringResource(Res.string.test_level),
                             style = MaterialTheme.typography.bodyMedium
                         )
@@ -151,7 +162,7 @@ fun LevelInfoTab(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        SelectableText(
+                        Text(
                             text = stringResource(Res.string.allow_auto_attack),
                             style = MaterialTheme.typography.bodyMedium
                         )
@@ -175,7 +186,7 @@ fun LevelInfoTab(
         // Shows 8 columns and 2 visible rows, with scrolling to load more
         item {
             Column {
-                SelectableText(
+                Text(
                     text = "${stringResource(Res.string.map_label)}:",
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
@@ -237,7 +248,7 @@ fun LevelInfoTab(
     if (showAutoAttackInfo) {
         AlertDialog(
             onDismissRequest = { showAutoAttackInfo = false },
-            title = { SelectableText(stringResource(Res.string.auto_attack_info_title)) },
+            title = { Text(stringResource(Res.string.auto_attack_info_title)) },
             text = { Text(stringResource(Res.string.auto_attack_info_message)) },
             confirmButton = {
                 Button(onClick = { showAutoAttackInfo = false }) {
@@ -251,7 +262,7 @@ fun LevelInfoTab(
     if (showUserMapNotAllowedDialog) {
         AlertDialog(
             onDismissRequest = { showUserMapNotAllowedDialog = false },
-            title = { SelectableText(stringResource(Res.string.user_map_not_allowed_title)) },
+            title = { Text(stringResource(Res.string.user_map_not_allowed_title)) },
             text = { Text(stringResource(Res.string.user_map_not_allowed_message)) },
             confirmButton = {
                 Button(onClick = { showUserMapNotAllowedDialog = false }) {

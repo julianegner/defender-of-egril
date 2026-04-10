@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.*
 import de.egril.defender.ui.animations.SpellDoubleLevelColor
-import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.gameplay.GamePlayColors
 import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.TimerIcon
@@ -176,7 +175,7 @@ fun TowerIcon(
                             size = 16.dp
                         )
                     } else {
-                        SelectableText(
+                        Text(
                             text = defender.actionsRemaining.value.toString(),
                             style = MaterialTheme.typography.labelSmall,
                             fontSize = 16.sp,
@@ -191,7 +190,7 @@ fun TowerIcon(
         // Tower base HP indicator at bottom center (if on tower base)
         // Position higher up so it's visible above the brown wood platform
         if (towerBase != null) {
-            SelectableText(
+            Text(
                 text = "${towerBase.healthPoints.value} HP",
                 style = MaterialTheme.typography.labelSmall,
                 fontSize = 10.sp,
@@ -203,7 +202,7 @@ fun TowerIcon(
             )
         } else {
             // Level indicator at bottom center - 10dp from bottom edge (only if not on tower base)
-            SelectableText(
+            Text(
                 text = if (doubleLevelActive) "L${defender.level.value * 2}" else "L${defender.level.value}",
                 style = MaterialTheme.typography.labelSmall,
                 fontSize = 11.sp,
@@ -226,7 +225,7 @@ fun TowerIcon(
                 TimerIcon(
                     size = 10.dp
                 )
-                SelectableText(
+                Text(
                     text = defender.buildTimeRemaining.value.toString(),
                     style = MaterialTheme.typography.labelSmall,
                     fontSize = 10.sp,

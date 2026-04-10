@@ -51,7 +51,6 @@ import defender_of_egril.composeapp.generated.resources.waypoint_validation_erro
 import defender_of_egril.composeapp.generated.resources.waypoint_validation_success
 import defender_of_egril.composeapp.generated.resources.waypoints_description
 import de.egril.defender.config.LogConfig
-import de.egril.defender.ui.common.SelectableText
 
 /**
  * Tab 4: Waypoints Configuration
@@ -122,7 +121,7 @@ fun WaypointsTab(
     ) {
         // Description
         item {
-            SelectableText(
+            Text(
                 text = stringResource(Res.string.waypoints_description),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -221,7 +220,7 @@ fun WaypointsTab(
                         verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         // Legend title
-                        SelectableText(
+                        Text(
                             text = "Legend",
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold
@@ -246,7 +245,7 @@ fun WaypointsTab(
                             Column(
                                 verticalArrangement = Arrangement.spacedBy(2.dp)
                             ) {
-                                SelectableText(
+                                Text(
                                     text = "Hover:",
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold
@@ -262,16 +261,16 @@ fun WaypointsTab(
                                         tileType == TileType.PATH -> "Path"
                                         else -> "Unknown"
                                     }
-                                    SelectableText(
+                                    Text(
                                         text = typeLabel,
                                         style = MaterialTheme.typography.bodySmall
                                     )
-                                    SelectableText(
+                                    Text(
                                         text = "(${pos.x}, ${pos.y})",
                                         style = MaterialTheme.typography.bodySmall
                                     )
                                 } else {
-                                    SelectableText(
+                                    Text(
                                         text = "—",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -283,7 +282,7 @@ fun WaypointsTab(
                         Spacer(modifier = Modifier.height(8.dp))
                         
                         // Instructions
-                        SelectableText(
+                        Text(
                             text = "Click a spawn/waypoint, then click on the map to connect",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -303,13 +302,13 @@ fun WaypointsTab(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     if (validationResult.isValid) {
-                        SelectableText(
+                        Text(
                             text = stringResource(Res.string.waypoint_validation_success),
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.Green
                         )
                     } else {
-                        SelectableText(
+                        Text(
                             text = stringResource(Res.string.waypoint_validation_error),
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.Red
@@ -319,7 +318,7 @@ fun WaypointsTab(
 
                 // Show specific validation issues
                 if (validationResult.circularDependencies.isNotEmpty()) {
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.circular_dependency_detected),
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.Red,
@@ -334,7 +333,7 @@ fun WaypointsTab(
                         modifier = Modifier.padding(top = 4.dp)
                     ) {
                         WarningIcon(size = 14.dp)
-                        SelectableText(
+                        Text(
                             text = "${stringResource(Res.string.unconnected_waypoint_warning)}: ${validationResult.unconnectedWaypoints.size} waypoint(s)",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error
@@ -361,7 +360,7 @@ fun WaypointsTab(
                     ),
                     modifier = Modifier.weight(1f)
                 ) {
-                    SelectableText(stringResource(Res.string.remove_all_waypoints))
+                    Text(stringResource(Res.string.remove_all_waypoints))
                 }
             }
         }
@@ -373,7 +372,7 @@ fun WaypointsTab(
                     onClick = { showTreeView = !showTreeView },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    SelectableText(
+                    Text(
                         if (showTreeView)
                             stringResource(Res.string.waypoint_list_view)
                         else
@@ -409,17 +408,17 @@ fun WaypointsTab(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    SelectableText(
+                    Text(
                         text = "Source",
                         style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier.weight(1f)
                     )
-                    SelectableText(
+                    Text(
                         text = "→",
                         style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier.padding(horizontal = 8.dp)
                     )
-                    SelectableText(
+                    Text(
                         text = "Target",
                         style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier.weight(1f)
@@ -435,24 +434,24 @@ fun WaypointsTab(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    SelectableText(
+                    Text(
                         text = "Spawn (${spawnPoint.x}, ${spawnPoint.y})",
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.weight(1f)
                     )
-                    SelectableText(
+                    Text(
                         text = "→",
                         modifier = Modifier.padding(horizontal = 8.dp)
                     )
                     val waypointFromSpawn = localWaypoints.firstOrNull { it.position == spawnPoint }
                     if (waypointFromSpawn != null) {
-                        SelectableText(
+                        Text(
                             text = "(${waypointFromSpawn.nextTargetPosition.x}, ${waypointFromSpawn.nextTargetPosition.y})",
                             style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.weight(1f)
                         )
                     } else {
-                        SelectableText(
+                        Text(
                             text = "—",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -488,7 +487,7 @@ fun WaypointsTab(
             // Show message if no waypoints at all
             if (localWaypoints.isEmpty()) {
                 item {
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.no_waypoints_configured),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -531,7 +530,7 @@ private fun LegendItem(label: String, color: Color) {
                 .background(color)
                 .border(1.dp, Color.White)
         )
-        SelectableText(
+        Text(
             text = label,
             style = MaterialTheme.typography.bodySmall,
             fontSize = MaterialTheme.typography.bodySmall.fontSize * 0.9

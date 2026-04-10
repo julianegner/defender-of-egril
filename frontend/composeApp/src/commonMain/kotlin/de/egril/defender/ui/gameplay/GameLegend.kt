@@ -21,7 +21,6 @@ import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.enemy.EnemyIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import com.hyperether.resources.stringResource
-import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.hexagon.HexagonShape
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -42,7 +41,7 @@ fun GameLegend(modifier: Modifier = Modifier, forceExpanded: Boolean = false) {
         ) {
             item {
                 Spacer(modifier = Modifier.height(4.dp))
-                SelectableText(
+                Text(
                     "${stringResource(Res.string.areas_label)}:",
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold
@@ -88,7 +87,7 @@ fun GameLegend(modifier: Modifier = Modifier, forceExpanded: Boolean = false) {
 
                     item {
                         Spacer(modifier = Modifier.height(4.dp))
-                        SelectableText(
+                        Text(
                             "${stringResource(Res.string.special_label)}:",
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold
@@ -116,7 +115,7 @@ fun GameLegend(modifier: Modifier = Modifier, forceExpanded: Boolean = false) {
 
                     item {
                         Spacer(modifier = Modifier.height(4.dp))
-                        SelectableText(
+                        Text(
                             "${stringResource(Res.string.units_label)}:",
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold
@@ -162,7 +161,7 @@ fun GameLegend(modifier: Modifier = Modifier, forceExpanded: Boolean = false) {
 
                     item {
                         Spacer(modifier = Modifier.height(4.dp))
-                        SelectableText(
+                        Text(
                             "${stringResource(Res.string.info_label)}:",
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Bold
@@ -170,23 +169,23 @@ fun GameLegend(modifier: Modifier = Modifier, forceExpanded: Boolean = false) {
                     }
 
                     item {
-                        SelectableText(
+                        Text(
                             "• ${stringResource(Res.string.legend_info_ballista)}",
                             style = MaterialTheme.typography.bodySmall,
                             color = GamePlayColors.WarningDark
                         )
                     }
                     item {
-                        SelectableText("• ${stringResource(Res.string.legend_info_tower_icons)}", style = MaterialTheme.typography.bodySmall)
+                        Text("• ${stringResource(Res.string.legend_info_tower_icons)}", style = MaterialTheme.typography.bodySmall)
                     }
                     item {
-                        SelectableText(
+                        Text(
                             "• ${stringResource(Res.string.legend_info_tower_actions)}",
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
                     item {
-                        SelectableText("• ${stringResource(Res.string.legend_info_enemy_health)}", style = MaterialTheme.typography.bodySmall)
+                        Text("• ${stringResource(Res.string.legend_info_enemy_health)}", style = MaterialTheme.typography.bodySmall)
                     }
                 }
     }
@@ -222,7 +221,7 @@ fun LegendItemHex(
                     contentScale = androidx.compose.ui.layout.ContentScale.Crop
                 )
             } ?: run {
-                SelectableText(
+                Text(
                     label,
                     style = MaterialTheme.typography.labelMedium,
                     fontSize = 5.sp,
@@ -231,7 +230,7 @@ fun LegendItemHex(
             }
         }
         Spacer(modifier = Modifier.width(8.dp))
-        SelectableText(description, style = MaterialTheme.typography.bodySmall)
+        Text(description, style = MaterialTheme.typography.bodySmall)
     }
 }
 
@@ -274,7 +273,7 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier, forceExp
         defaultExpanded = true,
         forceExpanded = forceExpanded
     ) {
-        SelectableText(
+        Text(
             "${stringResource(Res.string.active_label)}: ${activeEnemies.size} | ${stringResource(Res.string.planned_label)}: ${plannedSpawns.size}",
             style = MaterialTheme.typography.bodySmall
         )
@@ -285,7 +284,7 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier, forceExp
             // Active enemies on the map
             if (activeEnemies.isNotEmpty()) {
                 item(key = "header-active") {
-                    SelectableText(
+                    Text(
                         "${stringResource(Res.string.on_map)}:",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
@@ -316,7 +315,7 @@ fun EnemyListPanel(gameState: GameState, modifier: Modifier = Modifier, forceExp
                     if (activeEnemies.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(8.dp))
                     }
-                    SelectableText(
+                    Text(
                         "${stringResource(Res.string.planned_spawns)}:",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold,
@@ -367,13 +366,13 @@ fun EnemyItemDetailed(attacker: Attacker, showPosition: Boolean) {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    SelectableText(
+                    Text(
                         attacker.type.getLocalizedName(locale),
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.Bold
                     )
                     if (attacker.level.value > 1) {
-                        SelectableText(
+                        Text(
                             "Lvl ${attacker.level.value}",
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 10.sp,
@@ -386,14 +385,14 @@ fun EnemyItemDetailed(attacker: Attacker, showPosition: Boolean) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     if (attacker.type != AttackerType.EWHAD) {
-                        SelectableText(
+                        Text(
                             "${stringResource(Res.string.hp_short)}: ${attacker.currentHealth.value}/${attacker.maxHealth}",
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 10.sp
                         )
                     }
                     if (showPosition) {
-                        SelectableText(
+                        Text(
                             "Pos: (${attacker.position.value.x},${attacker.position.value.y})",
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 10.sp,
@@ -436,13 +435,13 @@ fun PlannedEnemyItem(plannedSpawn: PlannedEnemySpawn, currentTurn: Int) {
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    SelectableText(
+                    Text(
                         plannedSpawn.attackerType.getLocalizedName(locale),
                         style = MaterialTheme.typography.bodySmall,
                         fontWeight = FontWeight.Bold
                     )
                     if (plannedSpawn.level > 1) {
-                        SelectableText(
+                        Text(
                             "Lvl ${plannedSpawn.level}",
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 10.sp,
@@ -451,7 +450,7 @@ fun PlannedEnemyItem(plannedSpawn: PlannedEnemySpawn, currentTurn: Int) {
                         )
                     }
                 }
-                SelectableText(
+                Text(
                     "${stringResource(Res.string.hp_short)}: ${plannedSpawn.healthPoints}",
                     style = MaterialTheme.typography.bodySmall,
                     fontSize = 10.sp
@@ -460,7 +459,7 @@ fun PlannedEnemyItem(plannedSpawn: PlannedEnemySpawn, currentTurn: Int) {
 
             // Spawn turn
             Column(horizontalAlignment = Alignment.End) {
-                SelectableText(
+                Text(
                     "${stringResource(Res.string.turn)} ${plannedSpawn.spawnTurn}",
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Bold,
@@ -468,7 +467,7 @@ fun PlannedEnemyItem(plannedSpawn: PlannedEnemySpawn, currentTurn: Int) {
                     color = if (plannedSpawn.spawnTurn == currentTurn + 1) GamePlayColors.WarningDeep else GamePlayColors.Warning
                 )
                 if (plannedSpawn.spawnTurn > currentTurn) {
-                    SelectableText(
+                    Text(
                         stringResource(Res.string.in_x_turns, (plannedSpawn.spawnTurn - currentTurn).toString()),
                         style = MaterialTheme.typography.bodySmall,
                         fontSize = 9.sp,
@@ -492,29 +491,29 @@ fun EnemyItem(attacker: Attacker) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                SelectableText(
+                Text(
                     attacker.type.getLocalizedName(locale),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
                 )
-                SelectableText(
+                Text(
                     "ID: ${attacker.id}",
                     style = MaterialTheme.typography.bodySmall
                 )
             }
 
-            SelectableText(
+            Text(
                 "${stringResource(Res.string.hp_short)}: ${attacker.currentHealth.value}/${attacker.maxHealth}",
                 style = MaterialTheme.typography.bodySmall
             )
 
-            SelectableText(
+            Text(
                 "${stringResource(Res.string.reward)}: ${attacker.type.reward} coins",
                 style = MaterialTheme.typography.bodySmall,
                 color = GamePlayColors.Warning
             )
 
-            SelectableText(
+            Text(
                 "${stringResource(Res.string.position_label)}: (${attacker.position.value.x}, ${attacker.position.value.y})",
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray

@@ -31,7 +31,6 @@ import de.egril.defender.ui.icon.WoodIcon
 import de.egril.defender.ui.icon.WarningIcon
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.stringResource
-import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.*
 
 @Composable
@@ -127,7 +126,7 @@ fun DefenderInfo(
                             // Regular tower - use localized name
                             defender.type.getLocalizedName(locale)
                         }
-                        SelectableText(
+                        Text(
                             displayName,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
@@ -140,14 +139,14 @@ fun DefenderInfo(
                         ) {
                             if (doubleLevelEffect != null) {
                                 val effectiveLevel = defender.level.value * 2
-                                SelectableText(
+                                Text(
                                     "Level $effectiveLevel (×2)",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = SpellDoubleLevelColor,
                                     fontWeight = FontWeight.Bold
                                 )
                             } else {
-                                SelectableText(
+                                Text(
                                     "Level ${defender.level.value}",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = GamePlayColors.Success
@@ -158,7 +157,7 @@ fun DefenderInfo(
                             ) {
                                 SwordIcon(size = 12.dp)
                                 Spacer(modifier = Modifier.width(4.dp))
-                                SelectableText(
+                                Text(
                                     defender.type.attackType.getLocalizedName(locale),
                                     style = MaterialTheme.typography.bodySmall,
                                     maxLines = 1,
@@ -174,7 +173,7 @@ fun DefenderInfo(
                                 modifier = Modifier.padding(top = 2.dp)
                             ) {
                                 LightningIcon(size = 12.dp)
-                                SelectableText(
+                                Text(
                                     stringResource(Res.string.double_level_active),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = SpellDoubleLevelColor,
@@ -191,7 +190,7 @@ fun DefenderInfo(
                                 modifier = Modifier.padding(top = 4.dp)
                             ) {
                                 WoodIcon(size = 12.dp)
-                                SelectableText(
+                                Text(
                                     stringResource(Res.string.tower_base_hp_label, towerBase.healthPoints.value),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = if (towerBase.healthPoints.value < 100) GamePlayColors.Warning else GamePlayColors.Success
@@ -217,7 +216,7 @@ fun DefenderInfo(
                                     modifier = Modifier.padding(top = 2.dp)
                                 ) {
                                     WarningIcon(size = 12.dp)
-                                    SelectableText(
+                                    Text(
                                         "${stringResource(Res.string.mine_targeted_by_dragon)}: ${targetingDragon.dragonName ?: stringResource(Res.string.dragon_name)}",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = Color.Red,
@@ -257,7 +256,7 @@ fun DefenderInfo(
                         } ?: false
                         
                         if (dragonAlive && defender.dragonName != null) {
-                            SelectableText(
+                            Text(
                                 "${stringResource(Res.string.lair_of_the_dragon)} ${defender.dragonName}",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = GamePlayColors.ErrorDark,
@@ -265,7 +264,7 @@ fun DefenderInfo(
                             )
                         }
                         
-                        SelectableText(
+                        Text(
                             stringResource(Res.string.dragons_lair_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.Gray,
@@ -306,7 +305,7 @@ fun DefenderInfo(
 
                         // Current stats column
                             Column(modifier = Modifier.weight(0.5f)) {
-                                SelectableText(
+                                Text(
                                     if (doubleLevelEffect != null) "Lvl $effectiveLevel (×2)" else "Lvl $currentLevel",
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold,
@@ -323,7 +322,7 @@ fun DefenderInfo(
 
                             // After upgrade stats column
                             Column(modifier = Modifier.weight(0.5f)) {
-                                SelectableText(
+                                Text(
                                     "Lvl $nextLevel",
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold,
@@ -569,17 +568,17 @@ fun MiningOutcomeGrid() {
     Column {
         // Header row
         Row {
-            SelectableText(stringResource(Res.string.dig_outcome_name), Modifier.weight(1f), fontWeight = FontWeight.Bold)
-            SelectableText(stringResource(Res.string.dig_outcome_chance), Modifier.weight(1f), fontWeight = FontWeight.Bold)
-            SelectableText(stringResource(Res.string.dig_outcome_reward), Modifier.weight(1f), fontWeight = FontWeight.Bold)
+            Text(stringResource(Res.string.dig_outcome_name), Modifier.weight(1f), fontWeight = FontWeight.Bold)
+            Text(stringResource(Res.string.dig_outcome_chance), Modifier.weight(1f), fontWeight = FontWeight.Bold)
+            Text(stringResource(Res.string.dig_outcome_reward), Modifier.weight(1f), fontWeight = FontWeight.Bold)
         }
         Spacer(Modifier.height(4.dp))
         // Data rows
         DigOutcome.values().forEach { outcome ->
             Row {
-                SelectableText(outcome.displayName, Modifier.weight(1f))
-                SelectableText("${outcome.probability}", Modifier.weight(1f))
-                SelectableText("${outcome.coins}", Modifier.weight(1f))
+                Text(outcome.displayName, Modifier.weight(1f))
+                Text("${outcome.probability}", Modifier.weight(1f))
+                Text("${outcome.coins}", Modifier.weight(1f))
             }
         }
     }
@@ -593,7 +592,7 @@ fun DefenderActionsInfo(defender: Defender) {
         ) {
             TimerIcon(size = 16.dp)
             Spacer(modifier = Modifier.width(4.dp))
-            SelectableText(
+            Text(
                 "Building: ${defender.buildTimeRemaining.value}T",
                 style = MaterialTheme.typography.titleMedium,
                 color = GamePlayColors.Warning
@@ -606,7 +605,7 @@ fun DefenderActionsInfo(defender: Defender) {
         ) {
             de.egril.defender.ui.icon.LockIcon(size = 16.dp)
             Spacer(modifier = Modifier.width(4.dp))
-            SelectableText(
+            Text(
                 "${stringResource(Res.string.disabled)}: ${defender.disabledTurnsRemaining.value}T",
                 style = MaterialTheme.typography.titleMedium,
                 color = GamePlayColors.ErrorDark,
@@ -619,7 +618,7 @@ fun DefenderActionsInfo(defender: Defender) {
         ) {
             LightningIcon(size = 16.dp)
             Spacer(modifier = Modifier.width(4.dp))
-            SelectableText(
+            Text(
                 "${defender.actionsRemaining.value}/${defender.actionsPerTurnCalculated}",
                 style = MaterialTheme.typography.titleMedium,
             )
@@ -667,7 +666,7 @@ fun GenerateManaButton(
                     horizontalAlignment = Alignment.Start
                 ) {
                     // Upper row: "Generate Mana"
-                    SelectableText(
+                    Text(
                         stringResource(Res.string.generate_mana),
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
@@ -675,7 +674,7 @@ fun GenerateManaButton(
                         overflow = TextOverflow.Clip
                     )
                     // Lower row: "+X Mana"
-                    SelectableText(
+                    Text(
                         "+$manaAmount ${stringResource(Res.string.mana_label)}",
                         fontSize = 13.sp,
                         maxLines = 1,
@@ -725,7 +724,7 @@ fun MagicalTrapButton(
                 de.egril.defender.ui.icon.PentagramIcon(size = 24.dp)
                 Spacer(modifier = Modifier.width(8.dp))
                 Column(modifier = Modifier.weight(3f)) {
-                    SelectableText(
+                    Text(
                         stringResource(Res.string.magical_trap),
                         fontSize = if (isOnCooldown) 14.sp else 16.sp,
                         fontWeight = FontWeight.Bold
@@ -734,7 +733,7 @@ fun MagicalTrapButton(
                 if (isOnCooldown) {
                     Column(modifier = Modifier.weight(1f)) {
                         Spacer(modifier = Modifier.width(2.dp))
-                        SelectableText(
+                        Text(
                             defender.trapCooldownRemaining.value.toString(),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
@@ -797,7 +796,7 @@ fun BarricadeButton(
                     horizontalAlignment = Alignment.Start
                 ) {
                     // Upper row: "Barricade"
-                    SelectableText(
+                    Text(
                         stringResource(Res.string.barricade),
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
@@ -805,7 +804,7 @@ fun BarricadeButton(
                         overflow = TextOverflow.Clip
                     )
                     // Lower row: "X HP"
-                    SelectableText(
+                    Text(
                         "$hpAmount ${stringResource(Res.string.hp_label)}",
                         fontSize = 13.sp,
                         maxLines = 1,
@@ -987,7 +986,7 @@ private fun getTowerInfoMessages(defender: Defender, gameState: GameState): List
                     extraContent = {
                         // Add mining probabilities section
                         Spacer(modifier = Modifier.height(16.dp))
-                        SelectableText(
+                        Text(
                             text = stringResource(Res.string.mining_probabilities),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
@@ -1108,7 +1107,7 @@ internal fun TowerInfoDialog(
     
     ScrollableInfoCard(
         title = {
-            SelectableText(
+            Text(
                 text = stringResource(Res.string.tower_info_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
@@ -1135,7 +1134,7 @@ internal fun TowerInfoDialog(
                 Box(modifier = Modifier.size(64.dp)) {  // Doubled from 32.dp
                     info.icon()
                 }
-                SelectableText(
+                Text(
                     text = info.title,
                     style = MaterialTheme.typography.titleMedium,
                     color = info.color,
@@ -1144,7 +1143,7 @@ internal fun TowerInfoDialog(
             }
             
             // Message content
-            SelectableText(
+            Text(
                 text = info.message,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface

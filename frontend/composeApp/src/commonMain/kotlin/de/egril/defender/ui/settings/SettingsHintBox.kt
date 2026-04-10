@@ -11,7 +11,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
-import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -43,14 +42,14 @@ fun SettingsHintBox(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // Title
-            SelectableText(
+            Text(
                 text = stringResource(Res.string.settings_hint_title),
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )
             
             // Message
-            SelectableText(
+            Text(
                 text = stringResource(Res.string.settings_hint_message),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -76,7 +75,7 @@ fun SettingsHintBox(
                     containerColor = MaterialTheme.colorScheme.primary
                 )
             ) {
-                SelectableText(
+                Text(
                     text = stringResource(Res.string.settings_hint_dismiss),
                     style = MaterialTheme.typography.labelSmall
                 )
@@ -101,7 +100,7 @@ private fun SettingsHintItem(text: String) {
                 .clip(RoundedCornerShape(3.dp))
                 .background(MaterialTheme.colorScheme.onPrimaryContainer)
         )
-        SelectableText(
+        Text(
             text = text,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onPrimaryContainer

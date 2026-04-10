@@ -9,7 +9,8 @@ data class CommunityFileInfo(
     val authorUsername: String,
     val authorId: String,
     val updatedAt: String,
-    val uploadedAt: String
+    val uploadedAt: String,
+    val description: String = ""  // Optional description (only for LEVEL files)
 )
 
 /**
@@ -22,7 +23,8 @@ data class CommunityFileData(
     val authorId: String,
     val data: String,
     val updatedAt: String,
-    val uploadedAt: String
+    val uploadedAt: String,
+    val description: String = ""  // Optional description (only for LEVEL files)
 )
 
 /**
@@ -36,9 +38,10 @@ expect object BackendCommunityService {
      * @param fileId The unique ID of the map or level
      * @param jsonData The full JSON data to upload
      * @param token Bearer token for authentication
+     * @param description Optional short description (used for LEVEL files only)
      * @return true on success, false on failure
      */
-    suspend fun uploadCommunityFile(fileType: String, fileId: String, jsonData: String, token: String): Boolean
+    suspend fun uploadCommunityFile(fileType: String, fileId: String, jsonData: String, token: String, description: String = ""): Boolean
 
     /**
      * Fetch the list of community files metadata (without data).
@@ -67,11 +70,12 @@ expect object BackendCommunityService {
 // Shared helper functions
 // ---------------------------------------------------------------------------
 
-fun buildCommunityUploadJson(fileType: String, fileId: String, data: String): String {
+fun buildCommunityUploadJson(fileType: String, fileId: String, data: String, description: String = ""): String {
     val escapedData = escapeJsonString(data)
     val escapedFileType = escapeJsonString(fileType)
     val escapedFileId = escapeJsonString(fileId)
-    return """{"fileType":"$escapedFileType","fileId":"$escapedFileId","data":"$escapedData"}"""
+    val escapedDescription = escapeJsonString(description)
+    return """{"fileType":"$escapedFileType","fileId":"$escapedFileId","data":"$escapedData","description":"$escapedDescription"}"""
 }
 
 fun parseCommunityFileListJson(json: String): List<CommunityFileInfo> {
@@ -96,7 +100,8 @@ fun parseCommunityFileListJson(json: String): List<CommunityFileInfo> {
         val uploadedAt = extractJsonStringField(obj, "uploadedAt") ?: ""
 
         if (fileType.isNotEmpty() && fileId.isNotEmpty()) {
-            result.add(CommunityFileInfo(fileType, fileId, authorUsername, authorId, updatedAt, uploadedAt))
+            val description = extractJsonStringField(obj, "description") ?: ""
+            result.add(CommunityFileInfo(fileType, fileId, authorUsername, authorId, updatedAt, uploadedAt, description))
         }
         pos = objEnd + 1
     }
@@ -114,8 +119,9 @@ fun parseCommunityFileDataJson(json: String): CommunityFileData? {
     val updatedAt = extractJsonStringField(trimmed, "updatedAt") ?: ""
     val uploadedAt = extractJsonStringField(trimmed, "uploadedAt") ?: ""
     val data = extractJsonStringField(trimmed, "data") ?: return null
+    val description = extractJsonStringField(trimmed, "description") ?: ""
 
-    return CommunityFileData(fileType, fileId, authorUsername, authorId, data, updatedAt, uploadedAt)
+    return CommunityFileData(fileType, fileId, authorUsername, authorId, data, updatedAt, uploadedAt, description)
 }
 
 private fun extractJsonStringField(json: String, key: String): String? {

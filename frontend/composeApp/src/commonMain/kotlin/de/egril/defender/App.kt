@@ -98,7 +98,9 @@ fun App() {
         val demoSelectedTargetPosition by viewModel.demoSelectedTargetPosition.collectAsState()
         val newVersionAvailable by viewModel.newVersionAvailable.collectAsState()
 
-        // Check for a newer GitHub release once at app start (if the setting is enabled)
+        val remoteCommunityLevelsMeta by viewModel.remoteCommunityLevelsMeta.collectAsState()
+        val remoteCommunityMapsMeta by viewModel.remoteCommunityMapsMeta.collectAsState()
+        var downloadingMapId by remember { mutableStateOf<String?>(null) }
         val checkForUpdates by AppSettings.checkForUpdates
         LaunchedEffect(Unit) {
             if (checkForUpdates) {
@@ -313,6 +315,10 @@ fun App() {
                     onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) },
                     onReloadWorldMap = { viewModel.reloadWorldMap() },
                     onDownloadCommunityContent = { viewModel.downloadCommunityContent() },
+                    remoteCommunityLevels = remoteCommunityLevelsMeta,
+                    onDownloadCommunityLevel = { fileInfo, onComplete ->
+                        viewModel.downloadCommunityLevelOnDemand(fileInfo, onComplete)
+                    },
                     onSwitchPlayer = { showPlayerSelection = true },
                     onEditPlayerName = { viewModel.navigateToPlayerProfile() },
                     currentPlayerName = currentPlayer?.name,
@@ -377,7 +383,15 @@ fun App() {
             
             is Screen.LevelEditor -> {
                 LevelEditorScreen(
-                    onBack = { viewModel.navigateToWorldMap() }
+                    onBack = { viewModel.navigateToWorldMap() },
+                    remoteCommunityMaps = remoteCommunityMapsMeta,
+                    downloadingMapId = downloadingMapId,
+                    onDownloadRemoteMap = { fileInfo ->
+                        downloadingMapId = fileInfo.fileId
+                        viewModel.downloadCommunityMapOnDemand(fileInfo) { _ ->
+                            downloadingMapId = null
+                        }
+                    }
                 )
             }
             

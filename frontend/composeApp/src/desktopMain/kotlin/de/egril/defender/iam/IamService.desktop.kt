@@ -5,7 +5,6 @@ import com.hyperether.resources.currentLanguage
 import java.net.HttpURLConnection
 import java.net.ServerSocket
 import java.net.URI
-import java.net.URL
 import java.net.URLEncoder
 import java.security.MessageDigest
 import java.util.Base64
@@ -247,7 +246,7 @@ internal actual fun performPlatformLogoutBackchannel() {
                     append("client_id=${URLEncoder.encode(IamConfig.CLIENT_ID, "UTF-8")}")
                     append("&refresh_token=${URLEncoder.encode(refreshToken, "UTF-8")}")
                 }
-                val conn = URL(IamConfig.logoutUrl).openConnection() as HttpURLConnection
+                val conn = URI.create(IamConfig.logoutUrl).toURL().openConnection() as HttpURLConnection
                 conn.requestMethod = "POST"
                 conn.doOutput = true
                 conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
@@ -330,7 +329,7 @@ private fun refreshAccessToken(refreshToken: String): TokenData? {
             append("&client_id=${IamConfig.CLIENT_ID}")
             append("&refresh_token=${URLEncoder.encode(refreshToken, "UTF-8")}")
         }
-        val conn = URL(IamConfig.tokenUrl).openConnection() as HttpURLConnection
+        val conn = URI.create(IamConfig.tokenUrl).toURL().openConnection() as HttpURLConnection
         conn.requestMethod = "POST"
         conn.doOutput = true
         conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
@@ -474,7 +473,7 @@ private fun exchangeCodeForToken(code: String, codeVerifier: String, redirectUri
             append("&code_verifier=${URLEncoder.encode(codeVerifier, "UTF-8")}")
         }
 
-        val conn = URL(IamConfig.tokenUrl).openConnection() as HttpURLConnection
+        val conn = URI.create(IamConfig.tokenUrl).toURL().openConnection() as HttpURLConnection
         conn.requestMethod = "POST"
         conn.doOutput = true
         conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")

@@ -16,7 +16,6 @@ import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.hexagon.HexagonMinimapFromEditorMap
 import com.hyperether.resources.stringResource
-import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.loadgame.SavefileLocationChip
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -51,26 +50,26 @@ fun MapListCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(4f)) {
-                    SelectableText(
+                    Text(
                         text = map.name.ifEmpty { "Map ${map.id}" },
                         style = MaterialTheme.typography.titleSmall
                     )
-                    SelectableText(
-                        text = "File: ${map.id}",
+                    Text(
+                        text = stringResource(Res.string.map_file_id, map.id),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    SelectableText(
+                    Text(
                         text = "Size: ${map.width}x${map.height}",
                         style = MaterialTheme.typography.bodySmall
                     )
-                    SelectableText(
+                    Text(
                         text = if (map.readyToUse) stringResource(Res.string.ready_to_use) else stringResource(Res.string.not_ready),
                         style = MaterialTheme.typography.bodySmall,
                         color = if (map.readyToUse) Color.Green else Color.Red
                     )
                     if (map.isCommunity && map.communityAuthorUsername.isNotEmpty()) {
-                        SelectableText(
+                        Text(
                             text = map.communityAuthorUsername,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -119,7 +118,7 @@ fun MapListCard(
                             containerColor = MaterialTheme.colorScheme.error
                         )
                     ) {
-                        SelectableText(stringResource(Res.string.delete))
+                        Text(stringResource(Res.string.delete))
                     }
                     
                     Button(
@@ -152,14 +151,19 @@ fun MapListCard(
                 }
                 // Official badge below the check
                 if (map.isOfficial) {
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.official),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
-                // Community badges: Local and/or Online
+                // Community badge text + location chips
                 if (map.isCommunity) {
+                    Text(
+                        text = stringResource(Res.string.community_badge),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalAlignment = Alignment.CenterVertically

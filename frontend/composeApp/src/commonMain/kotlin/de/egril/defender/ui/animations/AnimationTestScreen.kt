@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
-import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.animation_test_animation_label
 import defender_of_egril.composeapp.generated.resources.animation_test_background_label
@@ -82,7 +81,7 @@ fun AnimationTestScreen(onBack: () -> Unit) {
                     Text(stringResource(Res.string.back))
                 }
 
-                SelectableText(
+                Text(
                     text = stringResource(Res.string.animation_test_title),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
@@ -101,7 +100,7 @@ fun AnimationTestScreen(onBack: () -> Unit) {
         ) {
             // Animation picker
             Column(modifier = Modifier.weight(1f)) {
-                SelectableText(
+                Text(
                     text = stringResource(Res.string.animation_test_animation_label),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -121,7 +120,7 @@ fun AnimationTestScreen(onBack: () -> Unit) {
 
             // Background picker
             Column(modifier = Modifier.weight(1f)) {
-                SelectableText(
+                Text(
                     text = stringResource(Res.string.animation_test_background_label),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -197,12 +196,12 @@ private fun AnimationDropdown(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            SelectableText(
+            Text(
                 text = selected.displayName(),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f)
             )
-            SelectableText(
+            Text(
                 text = if (expanded) "▲" else "▼",
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -250,12 +249,12 @@ private fun BackgroundDropdown(
                     .background(selected.color, RoundedCornerShape(4.dp))
                     .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(4.dp))
             )
-            SelectableText(
+            Text(
                 text = selected.label,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f)
             )
-            SelectableText(
+            Text(
                 text = if (expanded) "▲" else "▼",
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

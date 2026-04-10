@@ -12,7 +12,8 @@ actual object BackendCommunityService {
         fileType: String,
         fileId: String,
         jsonData: String,
-        token: String
+        token: String,
+        description: String
     ): Boolean = suspendCancellableCoroutine { continuation ->
         try {
             val xhr = XMLHttpRequest()
@@ -25,7 +26,7 @@ actual object BackendCommunityService {
             xhr.onerror = {
                 continuation.resume(false)
             }
-            xhr.send(buildCommunityUploadJson(fileType, fileId, jsonData))
+            xhr.send(buildCommunityUploadJson(fileType, fileId, jsonData, description))
         } catch (_: Exception) {
             continuation.resume(false)
         }

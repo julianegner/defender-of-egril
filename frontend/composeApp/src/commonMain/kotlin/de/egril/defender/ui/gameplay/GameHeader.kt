@@ -95,18 +95,18 @@ fun GameHeader(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    SelectableText(
+                    Text(
                         text = "*** DEMO MODE ***",
                         fontSize = titleFontSize,
                         fontWeight = FontWeight.Bold,
                         color = Color.Red
                     )
-                    SelectableText(
+                    Text(
                         text = "  ${gameState.level.getLocalizedTitle(locale)}  ",
                         fontSize = titleFontSize,
                         fontWeight = FontWeight.Bold
                     )
-                    SelectableText(
+                    Text(
                         text = "*** DEMO MODE ***",
                         fontSize = titleFontSize,
                         fontWeight = FontWeight.Bold,
@@ -258,7 +258,7 @@ fun GameHeader(
                         modifier = Modifier.height(buttonHeight),
                         contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp)
                     ) {
-                        SelectableText(
+                        Text(
                             stringResource(Res.string.map_label),
                             fontSize = buttonTextSize,
                             modifier = Modifier.align(Alignment.CenterVertically)
@@ -310,7 +310,7 @@ fun GameHeader(
                         onClick = { showShortcutsDialog = false },
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
                     ) {
-                        SelectableText(stringResource(Res.string.got_it))
+                        Text(stringResource(Res.string.got_it))
                     }
                 }
             }
@@ -426,7 +426,7 @@ internal fun LevelSpecialTowersInfoDialog(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
         ) {
-            SelectableText(
+            Text(
                 text = stringResource(Res.string.special_towers_info_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
@@ -449,7 +449,7 @@ internal fun LevelSpecialTowersInfoDialog(
                 lineColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
             
-            SelectableText(
+            Text(
                 text = stringResource(Res.string.special_towers_info_reopen),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -483,7 +483,7 @@ internal fun LevelSpecialTowersInfoDialog(
                     )
                 }
                 
-                SelectableText(
+                Text(
                     text = towerType.getLocalizedName(),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
@@ -491,7 +491,7 @@ internal fun LevelSpecialTowersInfoDialog(
                 )
                 
                 // Expand/collapse indicator
-                SelectableText(
+                Text(
                     text = if (isExpanded) "▼" else "▶",
                     style = MaterialTheme.typography.bodyMedium
                 )

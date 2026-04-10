@@ -24,7 +24,6 @@ import de.egril.defender.ui.icon.TrashIcon
 import de.egril.defender.ui.icon.SpeechBubbleIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import com.hyperether.resources.stringResource
-import de.egril.defender.ui.common.SelectableText
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 
@@ -43,7 +42,7 @@ fun SavedGameCardHeader(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
-        SelectableText(
+        Text(
             text = levelName,
             style = if (isMobile) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium,
             modifier = Modifier.weight(1f, fill = false)
@@ -69,7 +68,7 @@ fun SavedGameCardHeader(
 
     Spacer(modifier = Modifier.height(if (isMobile) 2.dp else 4.dp))
     
-    SelectableText(
+    Text(
         text = dateStr,
         style = MaterialTheme.typography.bodySmall,
         fontSize = if (isMobile) 10.sp else 12.sp,
@@ -90,7 +89,7 @@ internal fun SavefileLocationChip(
             .background(color)
             .padding(horizontal = if (isMobile) 4.dp else 6.dp, vertical = if (isMobile) 1.dp else 2.dp)
     ) {
-        SelectableText(
+        Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
             fontSize = if (isMobile) 9.sp else 10.sp,
@@ -121,7 +120,7 @@ fun SavedGameCardStats(
         ) {
             TimerIcon(size = iconSize)
             Spacer(modifier = Modifier.width(if (isMobile) 2.dp else 4.dp))
-            SelectableText(
+            Text(
                 text = "${stringResource(Res.string.turn)} $turnNumber",
                 style = MaterialTheme.typography.bodyMedium,
                 fontSize = fontSize
@@ -136,7 +135,7 @@ fun SavedGameCardStats(
         ) {
             MoneyIcon(size = iconSize)
             Spacer(modifier = Modifier.width(if (isMobile) 2.dp else 4.dp))
-            SelectableText(
+            Text(
                 text = "$coins",
                 style = MaterialTheme.typography.bodyMedium,
                 fontSize = fontSize
@@ -151,7 +150,7 @@ fun SavedGameCardStats(
         ) {
             de.egril.defender.ui.icon.HeartIcon(size = iconSize)
             Spacer(modifier = Modifier.width(if (isMobile) 2.dp else 4.dp))
-            SelectableText(
+            Text(
                 text = "$healthPoints",
                 style = MaterialTheme.typography.bodyMedium,
                 fontSize = fontSize
@@ -173,7 +172,7 @@ fun SavedGameCardComment(
             size = if (isMobile) 12.dp else 16.dp
         )
         Spacer(modifier = Modifier.width(if (isMobile) 2.dp else 4.dp))
-        SelectableText(
+        Text(
             text = comment,
             style = MaterialTheme.typography.bodyMedium,
             fontSize = if (isMobile) 10.sp else 14.sp,
@@ -287,7 +286,7 @@ fun TowersList(
     isMobile: Boolean = false
 ) {
     if (defenderCounts.isNotEmpty()) {
-        SelectableText(
+        Text(
             text = stringResource(Res.string.built_towers),
             style = MaterialTheme.typography.bodySmall,
             fontSize = if (isMobile) 9.sp else 12.sp,
@@ -326,7 +325,7 @@ fun EnemiesList(
         ) {
             // Current enemies
             if (attackerCounts.isNotEmpty()) {
-                SelectableText(
+                Text(
                     text = stringResource(Res.string.enemies_on_map),
                     style = MaterialTheme.typography.bodySmall,
                     fontSize = 9.sp,
@@ -344,7 +343,7 @@ fun EnemiesList(
                         )
                     }
                     if (attackerCounts.size > MOBILE_MAX_ENEMIES_DISPLAYED) {
-                        SelectableText(
+                        Text(
                             text = "...",
                             style = MaterialTheme.typography.bodySmall,
                             fontSize = 9.sp
@@ -364,7 +363,7 @@ fun EnemiesList(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.Top
                 ) {
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.enemies_on_map),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -389,7 +388,7 @@ fun EnemiesList(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.Top
                 ) {
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.enemies_to_come),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -415,7 +414,7 @@ fun EnemiesList(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.Top
                 ) {
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.defensive_items),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -504,7 +503,7 @@ fun MinimapAndDeleteButton(
                         gameState = minimapGameState,
                         modifier = Modifier.fillMaxSize()
                     )
-                    SelectableText(
+                    Text(
                         text = mapName,
                         style = MaterialTheme.typography.bodySmall,
                         fontSize = 8.sp,
@@ -556,7 +555,7 @@ fun MinimapAndDeleteButton(
                         gameState = minimapGameState,
                         modifier = Modifier.fillMaxSize()
                     )
-                    SelectableText(
+                    Text(
                         text = mapName,
                         style = MaterialTheme.typography.bodySmall,
                         fontSize = 12.sp,
@@ -579,7 +578,7 @@ fun MinimapAndDeleteButton(
                     horizontalArrangement = Arrangement.End,
                     modifier = Modifier.clickable { onDownload() }
                 ) {
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.download_savefile),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
@@ -594,7 +593,7 @@ fun MinimapAndDeleteButton(
                     horizontalArrangement = Arrangement.End,
                     modifier = Modifier.clickable { onDelete() }
                 ) {
-                    SelectableText(
+                    Text(
                         text = stringResource(Res.string.delete_savegame),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.error
@@ -626,7 +625,7 @@ private fun UnitEntry(
             icon()
         }
         Spacer(modifier = Modifier.width(spacing))
-        SelectableText(
+        Text(
             text = "$name: $count",
             style = MaterialTheme.typography.bodySmall,
             fontSize = fontSize

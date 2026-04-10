@@ -14,6 +14,7 @@ private val savefileLogger = LoggerFactory.getLogger("Savefiles")
 private val communityLogger = LoggerFactory.getLogger("Community")
 private val userDataLogger = LoggerFactory.getLogger("UserData")
 private val settingsLogger = LoggerFactory.getLogger("Settings")
+private val iamLogger = LoggerFactory.getLogger("IAM")
 
 fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
     routing {
@@ -64,6 +65,53 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                     HttpStatusCode.ServiceUnavailable
                 )
             }
+        }
+
+        /**
+         * Keycloak Back-Channel Logout endpoint (OpenID Connect Back-Channel Logout spec).
+         *
+         * Called by Keycloak when a user's SSO session is terminated (e.g. the user logs out
+         * from any client connected to the same realm). Keycloak sends an HTTP POST with
+         * Content-Type: application/x-www-form-urlencoded containing a signed `logout_token` JWT.
+         *
+         * This endpoint must be registered as `backchannel.logout.url` in the Keycloak client
+         * configuration (egril-realm.json).
+         *
+         * Since the backend uses stateless JWT authentication there are no server-side sessions
+         * to invalidate. The endpoint acknowledges the notification with 200 OK so that Keycloak
+         * considers the backchannel logout successful and completes the user's own SSO logout.
+         * Without this endpoint Keycloak may fail the logout flow and the user remains logged in.
+         *
+         * Note on JWT signature verification: the OIDC spec recommends validating the logout_token
+         * signature against Keycloak's JWKS. Since the backend holds no server-side sessions the
+         * worst-case impact of a spoofed request is a no-op 200 OK with a log entry. Full JWKS
+         * verification can be added in the future if the backend starts maintaining sessions.
+         */
+        post("/api/backchannel-logout") {
+            val params = try {
+                call.receiveParameters()
+            } catch (e: Exception) {
+                iamLogger.warn("Backchannel logout: failed to parse form parameters: ${e.message}")
+                call.respond(HttpStatusCode.BadRequest, "Invalid request parameters")
+                return@post
+            }
+            val logoutToken = params["logout_token"]
+            if (logoutToken == null) {
+                iamLogger.warn("Backchannel logout: missing logout_token parameter")
+                call.respond(HttpStatusCode.BadRequest, "Missing logout_token parameter")
+                return@post
+            }
+            // Verify the token has three dot-separated parts (header.payload.signature).
+            // This rejects obviously malformed values without a full JWKS round-trip.
+            if (logoutToken.split(".").size != 3) {
+                iamLogger.warn("Backchannel logout: malformed logout_token (expected 3 JWT parts)")
+                call.respond(HttpStatusCode.BadRequest, "Malformed logout_token")
+                return@post
+            }
+            // The backend uses stateless JWT; there are no server-side sessions to invalidate.
+            // Acknowledge the notification so Keycloak completes the logout successfully.
+            iamLogger.info("Backchannel logout received")
+            call.respond(HttpStatusCode.OK)
         }
 
         post("/api/events") {
@@ -462,10 +510,10 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
 
                     conn.prepareStatement(
                         """
-                        INSERT INTO community_files (user_id, username, file_type, file_id, data, updated_at)
-                        VALUES (?, ?, ?, ?, ?, NOW())
+                        INSERT INTO community_files (user_id, username, file_type, file_id, data, description, updated_at)
+                        VALUES (?, ?, ?, ?, ?, ?, NOW())
                         ON CONFLICT (file_type, file_id)
-                        DO UPDATE SET data = EXCLUDED.data, username = EXCLUDED.username, updated_at = NOW()
+                        DO UPDATE SET data = EXCLUDED.data, username = EXCLUDED.username, description = EXCLUDED.description, updated_at = NOW()
                         """.trimIndent()
                     ).use { stmt ->
                         stmt.setString(1, userId)
@@ -473,6 +521,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                         stmt.setString(3, request.fileType)
                         stmt.setString(4, request.fileId)
                         stmt.setString(5, request.data)
+                        stmt.setString(6, request.description)
                         stmt.executeUpdate()
                     }
 
@@ -525,9 +574,9 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                 try {
                     val files = mutableListOf<CommunityFileMetadata>()
                     val query = if (fileType != null) {
-                        "SELECT file_type, file_id, user_id, username, updated_at, created_at FROM community_files WHERE file_type = ? ORDER BY updated_at DESC"
+                        "SELECT file_type, file_id, user_id, username, description, updated_at, created_at FROM community_files WHERE file_type = ? ORDER BY updated_at DESC"
                     } else {
-                        "SELECT file_type, file_id, user_id, username, updated_at, created_at FROM community_files ORDER BY updated_at DESC"
+                        "SELECT file_type, file_id, user_id, username, description, updated_at, created_at FROM community_files ORDER BY updated_at DESC"
                     }
                     conn.prepareStatement(query).use { stmt ->
                         if (fileType != null) stmt.setString(1, fileType)
@@ -540,7 +589,8 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                                         authorUsername = rs.getString("username"),
                                         authorId = rs.getString("user_id"),
                                         updatedAt = rs.getTimestamp("updated_at").toInstant().toString(),
-                                        uploadedAt = rs.getTimestamp("created_at").toInstant().toString()
+                                        uploadedAt = rs.getTimestamp("created_at").toInstant().toString(),
+                                        description = rs.getString("description") ?: ""
                                     )
                                 )
                             }
@@ -579,7 +629,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                 try {
                     var result: CommunityFileData? = null
                     conn.prepareStatement(
-                        "SELECT file_type, file_id, user_id, username, data, updated_at, created_at FROM community_files WHERE file_type = ? AND file_id = ?"
+                        "SELECT file_type, file_id, user_id, username, data, description, updated_at, created_at FROM community_files WHERE file_type = ? AND file_id = ?"
                     ).use { stmt ->
                         stmt.setString(1, fileType)
                         stmt.setString(2, fileId)
@@ -592,7 +642,8 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                                     authorId = rs.getString("user_id"),
                                     data = rs.getString("data"),
                                     updatedAt = rs.getTimestamp("updated_at").toInstant().toString(),
-                                    uploadedAt = rs.getTimestamp("created_at").toInstant().toString()
+                                    uploadedAt = rs.getTimestamp("created_at").toInstant().toString(),
+                                    description = rs.getString("description") ?: ""
                                 )
                             }
                         }
@@ -605,6 +656,63 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                 } catch (e: Exception) {
                     communityLogger.error("Failed to retrieve community file: ${e.message}", e)
                     call.respond(HttpStatusCode.InternalServerError, "Failed to retrieve community file")
+                }
+            }
+        }
+
+        /**
+         * Delete a community map or level.
+         * Requires a valid Bearer token with the `community_admin` role on the
+         * `defender-of-egril` Keycloak client.
+         * Returns 401 if unauthenticated, 403 if the caller lacks the required role,
+         * 400 for an invalid fileType, 404 if the file does not exist, 200 on success.
+         */
+        delete("/api/community/files/{fileType}/{fileId}") {
+            val authHeader = call.request.header(HttpHeaders.Authorization)
+            val userId = extractUserIdFromBearerToken(authHeader)
+            if (userId == null) {
+                call.respond(HttpStatusCode.Unauthorized, "Authentication required")
+                return@delete
+            }
+            if (!hasClientRole(authHeader, "defender-of-egril", "community_admin")) {
+                call.respond(HttpStatusCode.Forbidden, "community_admin role required")
+                return@delete
+            }
+
+            val fileType = call.parameters["fileType"]
+            val fileId = call.parameters["fileId"]
+
+            if (fileType == null || fileId == null) {
+                call.respond(HttpStatusCode.BadRequest, "Missing fileType or fileId")
+                return@delete
+            }
+            if (fileType != "MAP" && fileType != "LEVEL") {
+                call.respond(HttpStatusCode.BadRequest, "fileType must be MAP or LEVEL")
+                return@delete
+            }
+
+            val ds = dataSourceRef.get() ?: run {
+                call.respond(HttpStatusCode.ServiceUnavailable, "Database not available")
+                return@delete
+            }
+            ds.connection.use { conn ->
+                try {
+                    val deletedRows = conn.prepareStatement(
+                        "DELETE FROM community_files WHERE file_type = ? AND file_id = ?"
+                    ).use { stmt ->
+                        stmt.setString(1, fileType)
+                        stmt.setString(2, fileId)
+                        stmt.executeUpdate()
+                    }
+                    if (deletedRows == 0) {
+                        call.respond(HttpStatusCode.NotFound, "Community file not found")
+                    } else {
+                        communityLogger.info("Community file deleted by admin $userId: fileType=$fileType fileId=$fileId")
+                        call.respond(HttpStatusCode.OK)
+                    }
+                } catch (e: Exception) {
+                    communityLogger.error("Failed to delete community file: ${e.message}", e)
+                    call.respond(HttpStatusCode.InternalServerError, "Failed to delete community file")
                 }
             }
         }
@@ -687,6 +795,34 @@ private fun extractUserIdFromBearerToken(authHeader: String?): String? {
             ?: extractJsonStringValue(decoded, "preferred_username")
     } catch (_: Exception) {
         null
+    }
+}
+
+/**
+ * Returns true if the JWT Bearer token contains [role] in
+ * `resource_access.[clientId].roles`.
+ * No signature verification is performed – authentication is delegated to the Keycloak proxy.
+ *
+ * Keycloak embeds client roles in the token payload as:
+ * ```
+ * "resource_access": { "<clientId>": { "roles": ["<role>", ...] } }
+ * ```
+ * The regex matches that structure. `[^}]*` is safe here because the `roles` array
+ * only contains plain strings (no nested JSON objects), so `}` cannot appear before
+ * the closing brace of the client object.
+ */
+internal fun hasClientRole(authHeader: String?, clientId: String, role: String): Boolean {
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) return false
+    return try {
+        val token = authHeader.removePrefix("Bearer ")
+        val payload = token.split(".").getOrNull(1) ?: return false
+        val padded = payload + "=".repeat((4 - payload.length % 4) % 4)
+        val decoded = java.util.Base64.getUrlDecoder().decode(padded).toString(Charsets.UTF_8)
+        Regex(""""${Regex.escape(clientId)}"\s*:\s*\{[^}]*"roles"\s*:\s*\[[^\]]*"${Regex.escape(role)}"[^\]]*\]""")
+            .containsMatchIn(decoded)
+    } catch (_: Exception) {
+        // Malformed token – deny access
+        false
     }
 }
 
