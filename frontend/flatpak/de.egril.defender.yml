@@ -40,7 +40,7 @@ modules:
           esac
         done
         rm -rf "$TMP"
-        if [ ! -f /app/opt/defender-of-egril/bin/defender-of-egril ]; then
+        if [ ! -f /app/opt/defender-of-egril/bin/DefenderOfEgril ]; then
           echo "ERROR: Binary was not extracted from DEB" >&2
           exit 1
         fi
