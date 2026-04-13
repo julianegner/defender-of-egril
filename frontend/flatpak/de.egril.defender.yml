@@ -21,7 +21,9 @@ modules:
       # running flatpak-builder. It already bundles a JRE and all native
       # dependencies, so we simply extract its contents into the Flatpak tree.
       # dpkg-deb is not available inside the freedesktop SDK build sandbox, so
-      # we use ar + tar (both are standard POSIX tools present in the SDK).
+      # we use ar + tar. DEBs built on Ubuntu 22.04+ use data.tar.zst (zstd
+      # compression); we handle that explicitly via the zstd binary rather
+      # than relying on tar having built-in zstd support.
       - |
         DEB=$(echo flatpak-deb/*.deb)
         if [ ! -f "$DEB" ]; then
@@ -32,9 +34,16 @@ modules:
         DEBABS="$(pwd)/$DEB"
         (cd "$TMP" && ar x "$DEBABS")
         for f in "$TMP"/data.tar.*; do
-          tar xaf "$f" -C /app
+          case "$f" in
+            *.zst) zstd -d --stdout "$f" | tar x -C /app ;;
+            *) tar xaf "$f" -C /app ;;
+          esac
         done
         rm -rf "$TMP"
+        if [ ! -f /app/opt/defender-of-egril/bin/defender-of-egril ]; then
+          echo "ERROR: Binary was not extracted from DEB" >&2
+          exit 1
+        fi
       # Install a thin wrapper script on PATH.
       - install -Dm755 flatpak/defender-of-egril.sh /app/bin/defender-of-egril
       # App icon (required by appstreamcli compose).
