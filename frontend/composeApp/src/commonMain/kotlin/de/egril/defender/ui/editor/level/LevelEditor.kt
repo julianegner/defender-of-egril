@@ -787,11 +787,12 @@ fun LevelEditorView(
 
                 // Confirmation dialog before first community upload
                 if (showCommunityUploadConfirm) {
+                    val username = iamState.username ?: ""
                     val confirmMessage = if (mapAlsoUploaded) {
-                        stringResource(Res.string.upload_community_level_confirm_message) +
+                        stringResource(Res.string.upload_community_level_confirm_message, username) +
                             "\n\n" + stringResource(Res.string.upload_community_also_uploads_map)
                     } else {
-                        stringResource(Res.string.upload_community_level_confirm_message)
+                        stringResource(Res.string.upload_community_level_confirm_message, username)
                     }
                     de.egril.defender.ui.editor.ConfirmationDialog(
                         title = stringResource(Res.string.upload_community_confirm_title),

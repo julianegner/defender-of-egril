@@ -1597,8 +1597,8 @@
     <string name="community_upload_success">Pubblicato con successo!</string>
     <string name="community_upload_failed">Pubblicazione fallita. Riprova.</string>
     <string name="upload_community_confirm_title">Pubblicare come contenuto della comunità?</string>
-    <string name="upload_community_level_confirm_message">Questo livello sarà visibile pubblicamente a tutti i giocatori. Il tuo nome utente Keycloak sarà mostrato agli altri utenti. Sei sicuro di volerlo caricare?</string>
-    <string name="upload_community_map_confirm_message">Questa mappa sarà visibile pubblicamente a tutti i giocatori. Il tuo nome utente Keycloak sarà mostrato agli altri utenti. Sei sicuro di volerla caricare?</string>
+    <string name="upload_community_level_confirm_message">Questo livello sarà visibile pubblicamente a tutti i giocatori. Il tuo nome utente Keycloak (%s) sarà mostrato agli altri utenti. Sei sicuro di volerlo caricare?</string>
+    <string name="upload_community_map_confirm_message">Questa mappa sarà visibile pubblicamente a tutti i giocatori. Il tuo nome utente Keycloak (%s) sarà mostrato agli altri utenti. Sei sicuro di volerla caricare?</string>
     <string name="upload_community_also_uploads_map">La mappa usata da questo livello verrà caricata anche come contenuto della comunità.</string>
     <string name="community_badge">Comunità</string>
     <string name="community_downloading_level">Scaricamento livello…</string>

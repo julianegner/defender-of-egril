@@ -1595,8 +1595,8 @@
     <string name="community_upload_success">¡Subido con éxito!</string>
     <string name="community_upload_failed">Error al subir. Por favor, inténtalo de nuevo.</string>
     <string name="upload_community_confirm_title">¿Publicar como contenido de comunidad?</string>
-    <string name="upload_community_level_confirm_message">Este nivel será visible públicamente para todos los jugadores. Tu nombre de usuario de Keycloak será visible para otros usuarios. ¿Estás seguro de que quieres subirlo?</string>
-    <string name="upload_community_map_confirm_message">Este mapa será visible públicamente para todos los jugadores. Tu nombre de usuario de Keycloak será visible para otros usuarios. ¿Estás seguro de que quieres subirlo?</string>
+    <string name="upload_community_level_confirm_message">Este nivel será visible públicamente para todos los jugadores. Tu nombre de usuario de Keycloak (%s) será visible para otros usuarios. ¿Estás seguro de que quieres subirlo?</string>
+    <string name="upload_community_map_confirm_message">Este mapa será visible públicamente para todos los jugadores. Tu nombre de usuario de Keycloak (%s) será visible para otros usuarios. ¿Estás seguro de que quieres subirlo?</string>
     <string name="upload_community_also_uploads_map">El mapa usado por este nivel también se subirá como contenido de comunidad.</string>
     <string name="community_badge">Comunidad</string>
     <string name="community_downloading_level">Descargando nivel…</string>
