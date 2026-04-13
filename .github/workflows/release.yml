@@ -39,8 +39,8 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Release version (major.minor.patch, e.g. 1.2.3). Leave blank to use the version from the VERSION file."
-        required: false
+        description: "Release version (major.minor.patch, e.g. 1.2.3)"
+        required: true
         type: string
 
 permissions:
@@ -65,12 +65,6 @@ jobs:
         id: parse
         run: |
           VERSION="${{ github.event.inputs.version }}"
-
-          # If no version was provided, fall back to the VERSION file
-          if [ -z "$VERSION" ]; then
-            VERSION=$(cat VERSION)
-            echo "No version input provided; using version from VERSION file: $VERSION"
-          fi
 
           # Validate format: digits.digits.digits
           if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
