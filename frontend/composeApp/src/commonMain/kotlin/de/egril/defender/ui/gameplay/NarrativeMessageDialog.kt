@@ -53,13 +53,6 @@ fun NarrativeMessageDialog(
 ) {
     Dialog(onDismissRequest = onDismiss) {
         val isMobile = isPlatformMobile
-        val dialogWidth = if (isMobile) 340.dp else 1000.dp
-        val dialogHeight = if (isMobile) 480.dp else 800.dp
-        // Horizontal padding must cover the wooden/gargoyle frame border so text stays inside.
-        // The story background image is 500×500 px; the frame border is ~70 px per side ≈ 20% of
-        // the image width.  At 340 dp dialog width that is ~68 dp per side.  We use 72 dp to be safe.
-        val horizontalPadding = if (isMobile) 72.dp else 120.dp
-        val verticalPadding = if (isMobile) 72.dp else 100.dp
         val titleFontSize = when {
             isMobile && type == NarrativeMessageType.EWHAD -> 16.sp
             isMobile -> 15.sp
@@ -68,86 +61,102 @@ fun NarrativeMessageDialog(
         }
         val bodyFontSize = if (isMobile) 12.sp else MaterialTheme.typography.bodyMedium.fontSize
         val iconSize = if (isMobile) 56.dp else 80.dp
-        Box(
-            modifier = Modifier
-                .width(dialogWidth)
-                .height(dialogHeight),
+
+        val backgroundPainter = when (type) {
+            NarrativeMessageType.STORY -> painterResource(Res.drawable.story_message_background)
+            NarrativeMessageType.EWHAD -> painterResource(Res.drawable.ewhad_message_background)
+        }
+        val buttonColor = if (type == NarrativeMessageType.EWHAD) Color(0xFF4A2060) else Color(0xFF5C3A1E)
+
+        // Both background images are square (500×500 and 1024×1024).
+        // Padding keeps text inside the frame border, computed as a fixed fraction of
+        // the dialog dimensions:
+        //   story_message_background.png: inner parchment starts at px ≈ 165/500 per side (h)
+        //                                 and px ≈ 135/500 per side (v).
+        //   ewhad_message_background.png: inner area at ≈ 280/1024 per side — smaller, so the
+        //                                 story fractions cover both.
+        // On mobile, BoxWithConstraints fills the available popup width so the dialog scales to
+        // the actual device screen size rather than using a fixed narrow value.
+        BoxWithConstraints(
+            modifier = if (isMobile) Modifier.fillMaxWidth() else Modifier.width(700.dp),
             contentAlignment = Alignment.Center
         ) {
-            // Background image
-            val backgroundPainter = when (type) {
-                NarrativeMessageType.STORY -> painterResource(Res.drawable.story_message_background)
-                NarrativeMessageType.EWHAD -> painterResource(Res.drawable.ewhad_message_background)
-            }
-            Image(
-                painter = backgroundPainter,
-                contentDescription = null,
-                modifier = Modifier.matchParentSize(),
-                contentScale = ContentScale.FillBounds
-            )
+            // dialogWidth equals the actual rendered width on all platforms.
+            // Keep the dialog square to match the square source images.
+            val dialogWidth = maxWidth
+            val dialogHeight = dialogWidth
+            val horizontalPadding = dialogWidth * (165f / 500f)
+            val verticalPadding = dialogHeight * (135f / 500f)
 
-            // Content overlaid on background – scrollable so long texts never overflow the frame
-
-            Column(
+            Box(
                 modifier = Modifier
-                    .padding(
-                        horizontal = horizontalPadding,
-                        vertical = verticalPadding
-                    )
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-                ,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .width(dialogWidth)
+                    .height(dialogHeight),
+                contentAlignment = Alignment.Center
             ) {
-                // For Ewhad type: show Ewhad icon at top center
-                if (type == NarrativeMessageType.EWHAD) {
-                    Box(
-                        modifier = Modifier.size(iconSize),
-                        contentAlignment = Alignment.Center
+                // Background image
+                Image(
+                    painter = backgroundPainter,
+                    contentDescription = null,
+                    modifier = Modifier.matchParentSize(),
+                    contentScale = ContentScale.FillBounds
+                )
+
+                // Content overlaid on background – scrollable so long texts never overflow the frame
+                Column(
+                    modifier = Modifier
+                        .padding(
+                            horizontal = horizontalPadding,
+                            vertical = verticalPadding
+                        )
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // For Ewhad type: show Ewhad icon at top center
+                    if (type == NarrativeMessageType.EWHAD) {
+                        Box(
+                            modifier = Modifier.size(iconSize),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            EnemyTypeIcon(
+                                attackerType = AttackerType.EWHAD,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+                    }
+                    // Title
+                    SelectableText(
+                        text = title,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF1A1A1A),
+                        textAlign = TextAlign.Center,
+                        fontSize = titleFontSize
+                    )
+
+                    // Body text
+                    SelectableText(
+                        text = text,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color(0xFF333333),
+                        textAlign = TextAlign.Center,
+                        fontSize = bodyFontSize
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    // Dismiss button
+                    Button(
+                        onClick = onDismiss,
+                        colors = ButtonDefaults.buttonColors(containerColor = buttonColor)
                     ) {
-                        EnemyTypeIcon(
-                            attackerType = AttackerType.EWHAD,
-                            modifier = Modifier.fillMaxSize()
+                        Text(
+                            text = stringResource(Res.string.ok),
+                            color = Color.White
                         )
                     }
-                }
-                // Title
-                SelectableText(
-                    text = title,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1A1A1A),
-                    textAlign = TextAlign.Center,
-                    fontSize = titleFontSize
-                )
-
-                // Body text
-                SelectableText(
-                    text = text,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color(0xFF333333),
-                    textAlign = TextAlign.Center,
-                    fontSize = bodyFontSize
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                // Dismiss button
-                Button(
-                    onClick = onDismiss,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (type == NarrativeMessageType.EWHAD) {
-                            Color(0xFF4A2060)
-                        } else {
-                            Color(0xFF5C3A1E)
-                        }
-                    )
-                ) {
-                    Text(
-                        text = stringResource(Res.string.ok),
-                        color = Color.White
-                    )
                 }
             }
         }

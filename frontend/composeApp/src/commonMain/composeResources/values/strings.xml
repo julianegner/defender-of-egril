@@ -1607,7 +1607,8 @@
     <string name="community_badge">Community</string>
     <string name="community_downloading_level">Downloading level…</string>
     <string name="community_author">by %1$s</string>
-    <string name="community_tap_to_download">Tap to download &amp; play</string>
+    <string name="community_tap_to_download">Tap to download</string>
+    <string name="community_click_to_download">Click to download</string>
     <string name="map_file_id">File: %1$s</string>
     <string name="community_description_optional">Description (optional)</string>
 

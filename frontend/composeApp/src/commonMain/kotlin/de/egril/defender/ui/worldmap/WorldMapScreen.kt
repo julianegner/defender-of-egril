@@ -153,9 +153,14 @@ fun WorldMapScreen(
         if (showTestingLevels) {
             worldLevels
         } else {
-            // Filter out levels marked as testing only
+            // Filter out levels marked as testing only.
+            // getLevel() covers official and user levels; getCommunityLevel() covers community levels
+            // (getLevel does not search the community directory, so community levels must be checked
+            // separately to correctly hide community levels that have testingOnly = true).
             worldLevels.filter { worldLevel ->
-                val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(worldLevel.level.editorLevelId ?: "")
+                val editorLevelId = worldLevel.level.editorLevelId ?: ""
+                val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(editorLevelId)
+                    ?: de.egril.defender.editor.EditorStorage.getCommunityLevel(editorLevelId)
                 editorLevel?.testingOnly != true
             }
         }

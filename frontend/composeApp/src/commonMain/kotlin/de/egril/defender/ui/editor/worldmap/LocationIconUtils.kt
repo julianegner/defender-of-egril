@@ -38,7 +38,9 @@ object LocationIconUtils {
         "square_tower",
         "village",
         "woods",
-        "fast_and_furious"
+        "fast_and_furious",
+        "island",
+        "plains"
     )
     
     /**
@@ -70,6 +72,8 @@ object LocationIconUtils {
             "location_square_tower" -> Res.drawable.location_square_tower
             "location_village"-> Res.drawable.location_village
             "location_woods" -> Res.drawable.location_woods
+            "location_island" -> Res.drawable.location_island
+            "location_plains" -> Res.drawable.location_plains
             "fortress" -> Res.drawable.location_fortress
             "city" -> Res.drawable.location_city
             "creek" -> Res.drawable.location_creek
@@ -88,6 +92,8 @@ object LocationIconUtils {
             "village"-> Res.drawable.location_village
             "woods" -> Res.drawable.location_woods
             "fast_and_furious" -> Res.drawable.location_fast_and_furious
+            "island" -> Res.drawable.location_island
+            "plains" -> Res.drawable.location_plains
             else -> null // Icon doesn't exist or not in allowed list
         }
     }

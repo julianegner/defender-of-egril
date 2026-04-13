@@ -65,8 +65,7 @@ fun LevelCardsView(
             filterToCommunityOnly -> {
                 // Direct filter: only community levels
                 worldLevels.filter { worldLevel ->
-                    val editorLevel = de.egril.defender.editor.EditorStorage.getCommunityLevel(worldLevel.level.editorLevelId ?: "")
-                    editorLevel?.isCommunity == true
+                    worldLevel.level.isCommunity
                 }
             }
             filterToUserLevelsOnly -> {
@@ -90,8 +89,7 @@ fun LevelCardsView(
                     1 -> {
                         // Community tab – locally-downloaded community levels
                         worldLevels.filter { worldLevel ->
-                            val editorLevel = de.egril.defender.editor.EditorStorage.getCommunityLevel(worldLevel.level.editorLevelId ?: "")
-                            editorLevel?.isCommunity == true
+                            worldLevel.level.isCommunity
                         }
                     }
                     else -> {

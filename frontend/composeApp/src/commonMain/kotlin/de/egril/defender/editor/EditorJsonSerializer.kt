@@ -126,8 +126,12 @@ object EditorJsonSerializer {
 
                 val pos = parts[0].trim().removeSurrounding("\"")
                 val typeStr = parts[1].trim().removeSurrounding("\"")
-                // Backward compatibility: ISLAND tiles are treated as BUILD_AREA
-                tiles[pos] = if (typeStr == "ISLAND") TileType.BUILD_AREA else TileType.valueOf(typeStr)
+                // Backward compatibility: map legacy/unknown tile type names to current types
+                val tileType = when (typeStr) {
+                    "ISLAND" -> TileType.BUILD_AREA
+                    else -> try { TileType.valueOf(typeStr) } catch (e: IllegalArgumentException) { null }
+                }
+                if (tileType != null) tiles[pos] = tileType
             }
             
             // Parse optional river tiles
@@ -427,7 +431,13 @@ object EditorJsonSerializer {
             
             for (entry in spawnEntries) {
                 if (!entry.contains("attackerType")) continue
-                val attackerType = AttackerType.valueOf(JsonUtils.extractValue(entry, "attackerType"))
+                val attackerTypeStr = JsonUtils.extractValue(entry, "attackerType")
+                val attackerType = try {
+                    AttackerType.valueOf(attackerTypeStr)
+                } catch (e: IllegalArgumentException) {
+                    println("Warning: skipping enemy spawn with unknown attackerType '$attackerTypeStr' — this type may have been removed from the game.")
+                    continue
+                }
                 val level = JsonUtils.extractValue(entry, "level").toInt()
                 val spawnTurn = JsonUtils.extractValue(entry, "spawnTurn").toInt()
                 
@@ -455,7 +465,11 @@ object EditorJsonSerializer {
             
             for (entry in towerEntries) {
                 if (entry.isNotBlank()) {
-                    towers.add(DefenderType.valueOf(entry))
+                    try {
+                        towers.add(DefenderType.valueOf(entry))
+                    } catch (e: IllegalArgumentException) {
+                        println("Warning: skipping unknown tower type '$entry' in availableTowers — this type may have been removed from the game.")
+                    }
                 }
             }
             
@@ -618,7 +632,7 @@ object EditorJsonSerializer {
             var initialBarricades = mutableListOf<InitialBarricade>()
 
 
-            if (id == "t3") {
+            if (LogConfig.ENABLE_INITIAL_DATA_PARSING_LOGGING && id == "t3") {
                 println("")
                 if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                 println("---------------------------------- DEBUG DESERIALIZE LEVEL ----------------------------------")
@@ -664,7 +678,9 @@ object EditorJsonSerializer {
                     // Find the first { after the key (skipping the colon and any whitespace)
                     val openBraceIndex = afterKey.indexOf('{')
                     val initialDataSection = if (openBraceIndex == -1) {
+                        if (LogConfig.ENABLE_INITIAL_DATA_PARSING_LOGGING) {
                         println("EditorJsonSerializer: ERROR - No opening brace found after initialData")
+                        }
                         ""
                     } else {
                         if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
@@ -707,13 +723,17 @@ object EditorJsonSerializer {
 
                     // Parse defenders from new format
                     if (initialDataSection.contains("\"defenders\"")) {
+                        if (LogConfig.ENABLE_INITIAL_DATA_PARSING_LOGGING) {
                         println("EditorJsonSerializer: Found defenders in initialDataSection")
+                        }
                         val afterKey = initialDataSection.substringAfter("\"defenders\"")
 
                         // Find the opening [ bracket (skip colon and whitespace)
                         val openBracketIndex = afterKey.indexOf('[')
                         if (openBracketIndex == -1) {
+                            if (LogConfig.ENABLE_INITIAL_DATA_PARSING_LOGGING) {
                             println("EditorJsonSerializer: ERROR - No opening bracket found after defenders")
+                            }
                         }
                         val afterBracket = afterKey.substring(openBracketIndex + 1)
                         val defendersSection = if (afterBracket.contains("],")) {
@@ -762,12 +782,16 @@ object EditorJsonSerializer {
                     
                     // Parse attackers from new format
                     if (initialDataSection.contains("\"attackers\"")) {
+                        if (LogConfig.ENABLE_INITIAL_DATA_PARSING_LOGGING) {
                         println("EditorJsonSerializer: Found attackers in initialDataSection")
+                        }
                         val afterKey = initialDataSection.substringAfter("\"attackers\"")
                         // Find the opening [ bracket (skip colon and whitespace)
                         val openBracketIndex = afterKey.indexOf('[')
                         if (openBracketIndex == -1) {
+                            if (LogConfig.ENABLE_INITIAL_DATA_PARSING_LOGGING) {
                             println("EditorJsonSerializer: ERROR - No opening bracket found after attackers")
+                            }
                         }
                         val afterBracket = afterKey.substring(openBracketIndex + 1)
                         val attackersSection = if (afterBracket.contains("],")) {
@@ -808,12 +832,16 @@ object EditorJsonSerializer {
                     
                     // Parse traps from new format
                     if (initialDataSection.contains("\"traps\"")) {
+                        if (LogConfig.ENABLE_INITIAL_DATA_PARSING_LOGGING) {
                         println("EditorJsonSerializer: Found traps in initialDataSection")
+                        }
                         val afterKey = initialDataSection.substringAfter("\"traps\"")
                         // Find the opening [ bracket (skip colon and whitespace)
                         val openBracketIndex = afterKey.indexOf('[')
                         if (openBracketIndex == -1) {
+                            if (LogConfig.ENABLE_INITIAL_DATA_PARSING_LOGGING) {
                             println("EditorJsonSerializer: ERROR - No opening bracket found after traps")
+                            }
                         }
                         val afterBracket = afterKey.substring(openBracketIndex + 1)
                         val trapsSection = if (afterBracket.contains("],")) {
@@ -848,12 +876,16 @@ object EditorJsonSerializer {
                     
                     // Parse barricades from new format
                     if (initialDataSection.contains("\"barricades\"")) {
+                        if (LogConfig.ENABLE_INITIAL_DATA_PARSING_LOGGING) {
                         println("EditorJsonSerializer: Found barricades in initialDataSection")
+                        }
                         val afterKey = initialDataSection.substringAfter("\"barricades\"")
                         // Find the opening [ bracket (skip colon and whitespace)
                         val openBracketIndex = afterKey.indexOf('[')
                         if (openBracketIndex == -1) {
+                            if (LogConfig.ENABLE_INITIAL_DATA_PARSING_LOGGING) {
                             println("EditorJsonSerializer: ERROR - No opening bracket found after barricades")
+                            }
                         }
                         val afterBracket = afterKey.substring(openBracketIndex + 1)
                         val barricadesSection = if (afterBracket.contains("],")) {

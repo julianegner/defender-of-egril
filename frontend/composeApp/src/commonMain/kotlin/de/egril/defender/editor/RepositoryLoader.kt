@@ -192,7 +192,9 @@ object RepositoryLoader {
                     try {
                         val pngBytes = Res.readBytes("files/repository/maps/$mapId.png")
                         storage.writeBinaryFile("gamedata/official/maps/$mapId.png", pngBytes)
+                        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                         println("Loaded and saved official map image: $mapId.png")
+                        }
                     } catch (e: Exception) {
                         // PNG might not exist, that's OK
                     }

@@ -62,10 +62,22 @@ object JsonUtils {
         if (openBrace == -1) return json
         var depth = 1
         var endIndex = openBrace + 1
+        var inString = false
         while (endIndex < json.length && depth > 0) {
-            when (json[endIndex]) {
-                '{' -> depth++
-                '}' -> depth--
+            val c = json[endIndex]
+            if (inString) {
+                if (c == '\\') {
+                    endIndex += 2  // skip escape sequence (e.g. \" or \\)
+                    continue
+                } else if (c == '"') {
+                    inString = false
+                }
+            } else {
+                when (c) {
+                    '"' -> inString = true
+                    '{' -> depth++
+                    '}' -> depth--
+                }
             }
             endIndex++
         }

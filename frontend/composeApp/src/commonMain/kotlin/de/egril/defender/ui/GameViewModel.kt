@@ -296,10 +296,35 @@ class GameViewModel {
 
         // Load community levels from community directory (skip any already present as user levels)
         val userLevelIds = userSequence.sequence.toSet()
+        // Pre-populate community maps cache from disk before processing community levels.
+        // This ensures isLevelReadyToPlay → getMap() finds community maps in the cache rather than
+        // relying on a lazy per-map disk read that can be disrupted by a concurrent clearCommunityCache()
+        // call from downloadCommunityContent running on Dispatchers.Default's thread pool.
+        val communityMaps = de.egril.defender.editor.EditorStorage.getAllCommunityMaps()
         val communityEditorLevels = de.egril.defender.editor.EditorStorage.getAllCommunityLevels()
-            .filter { it.id !in userLevelIds }  // Avoid duplicating levels the user also has locally
+            // .filter { it.id !in userLevelIds }  // Avoid duplicating levels the user also has locally
+        if (LogConfig.isEnabled { LogConfig.ENABLE_COMMUNITY_DEBUG_LOGGING }) {
+            println("COMMUNITY-DEBUG: Found ${communityMaps.size} community maps on disk: ${communityMaps.map { it.id }}")
+            println("COMMUNITY-DEBUG: Found ${communityEditorLevels.size} community levels on disk: ${communityEditorLevels.map { "${it.id} (mapId=${it.mapId})" }}")
+        }
         val communityLevels = communityEditorLevels.mapIndexedNotNull { index, editorLevel ->
-            if (de.egril.defender.editor.EditorStorage.isLevelReadyToPlay(editorLevel)) {
+            val map = de.egril.defender.editor.EditorStorage.getMap(editorLevel.mapId)
+            val levelReady = editorLevel.isReadyToPlay()
+            val mapReady = map?.validateReadyToUse(includeRiversAsWalkable = true) ?: false
+            val targets = map?.getTargets() ?: emptyList()
+            val spawnPoints = map?.getSpawnPoints() ?: emptyList()
+            val waypointResult = if (targets.isNotEmpty()) {
+                editorLevel.validateWaypointsDetailed(targetPositions = targets, spawnPoints = spawnPoints)
+            } else null
+            val waypointsValid = waypointResult?.isValid ?: false
+            val isReady = de.egril.defender.editor.EditorStorage.isLevelReadyToPlay(editorLevel)
+            if (LogConfig.isEnabled { LogConfig.ENABLE_COMMUNITY_DEBUG_LOGGING }) {
+                println("COMMUNITY-DEBUG: Level '${editorLevel.id}': mapId=${editorLevel.mapId}, mapFound=${map != null}, " +
+                    "tiles=${map?.tiles?.size ?: 0}, levelReady=$levelReady, mapReady=$mapReady, " +
+                    "targets=${targets.size}, spawns=${spawnPoints.size}, waypointsValid=$waypointsValid, " +
+                    "isReadyToPlay=$isReady")
+            }
+            if (isReady) {
                 de.egril.defender.editor.EditorStorage.convertToGameLevel(
                     editorLevel,
                     officialLevels.size + userLevels.size + index + 1
@@ -308,8 +333,8 @@ class GameViewModel {
                 null
             }
         }
-        if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
-        println("DEBUG: Total community levels loaded: ${communityLevels.size}")
+        if (LogConfig.isEnabled { LogConfig.ENABLE_COMMUNITY_DEBUG_LOGGING }) {
+            println("COMMUNITY-DEBUG: Total community levels loaded into worldLevels: ${communityLevels.size}")
         }
 
         // Combine official, user, and community levels
@@ -430,11 +455,20 @@ class GameViewModel {
                     level.copy(isCommunity = true, communityAuthorUsername = fileInfo.authorUsername)
                 )
                 // Also download the map used by this level if not already present locally.
-                // NOTE: do NOT clear the community cache before initializeWorldMap – the caches
-                // are already correct after saveCommunityLevel/saveCommunityMap and clearing them
-                // would force a disk re-read that could race with the just-written data.
-                if (de.egril.defender.editor.EditorStorage.getMap(level.mapId) == null) {
+                val mapNeededDownload = de.egril.defender.editor.EditorStorage.getMap(level.mapId) == null
+                if (mapNeededDownload) {
                     downloadCommunityMap(level.mapId)
+                }
+                // Remove this level from the remote-only list now that it has been downloaded
+                // locally, so that the level cards view immediately shows it as a local level
+                // instead of keeping it in the "download" state.
+                _remoteCommunityLevelsMeta.value = _remoteCommunityLevelsMeta.value
+                    .filter { it.fileId != fileInfo.fileId }
+                // If the community map was also freshly downloaded, remove it from the remote
+                // maps list so the map editor list also reflects the local copy.
+                if (mapNeededDownload) {
+                    _remoteCommunityMapsMeta.value = _remoteCommunityMapsMeta.value
+                        .filter { it.fileId != level.mapId }
                 }
                 initializeWorldMap()
                 onComplete(true)
@@ -447,6 +481,8 @@ class GameViewModel {
                 // staying in the "remote" card state.
                 val alreadyLocal = de.egril.defender.editor.EditorStorage.getCommunityLevel(fileInfo.fileId) != null
                 if (alreadyLocal) {
+                    _remoteCommunityLevelsMeta.value = _remoteCommunityLevelsMeta.value
+                        .filter { it.fileId != fileInfo.fileId }
                     initializeWorldMap()
                     onComplete(true)
                 } else {
@@ -465,9 +501,17 @@ class GameViewModel {
                 val map = de.egril.defender.editor.EditorJsonSerializer
                     .deserializeMap(mapData.data)
                 if (map != null) {
+                    // Pass the requested mapId so saveCommunityMap can also store the map under
+                    // that ID when the map's internal JSON id differs (edge case guard).
+                    if (map.id != mapId) {
+                        if (LogConfig.isEnabled { LogConfig.ENABLE_COMMUNITY_DEBUG_LOGGING }) {
+                            println("COMMUNITY-DEBUG: Map id mismatch for download: requested='$mapId', json id='${map.id}'. Saving under both IDs.")
+                        }
+                    }
                     de.egril.defender.editor.EditorStorage.saveCommunityMap(
                         map,
-                        mapData.authorUsername
+                        mapData.authorUsername,
+                        requestedId = mapId
                     )
                     // Try to fetch the server-generated image and overwrite the locally-generated one
                     val imageBytes = de.egril.defender.save.BackendCommunityService
