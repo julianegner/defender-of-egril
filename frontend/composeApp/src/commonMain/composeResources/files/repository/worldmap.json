@@ -25,7 +25,8 @@
       "name": "The Plains",
       "nameKey": "location_the_plains_name",
       "position": {"x": 258, "y": 572},
-      "levelIds": ["the_plains"]
+      "levelIds": ["the_plains"],
+      "iconResourceName": "plains"
     },
     {
       "id": "the_spiral",
@@ -110,7 +111,8 @@
       "name": "The Island",
       "nameKey": "location_the_island_name",
       "position": {"x": 721, "y": 884},
-      "levelIds": ["the_island"]
+      "levelIds": ["the_island"],
+      "iconResourceName": "island"
     },
     {
       "id": "the_river",
