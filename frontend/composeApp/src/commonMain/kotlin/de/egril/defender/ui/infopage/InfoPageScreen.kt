@@ -70,8 +70,8 @@ fun InfoPageScreen(
                 // Top spacer to make room for settings button
                 Spacer(modifier = Modifier.height(48.dp))
                 
-                // Tab selector
-                PrimaryTabRow(
+                // Tab selector - horizontally scrollable so tabs don't get compressed on mobile
+                ScrollableTabRow(
                     selectedTabIndex = selectedTabIndex,
                     modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
                 ) {
