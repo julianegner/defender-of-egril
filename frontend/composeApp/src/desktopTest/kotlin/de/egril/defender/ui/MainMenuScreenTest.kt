@@ -2,6 +2,7 @@ package de.egril.defender.ui
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import de.egril.defender.AppBuildInfo
 import de.egril.defender.ui.ScreenshotTestUtils
 import org.junit.Rule
 import org.junit.Test
@@ -245,8 +246,8 @@ class MainMenuScreenTest {
         
         composeTestRule.waitForIdle()
         
-        // Find and click the version text (contains "v0.0" and commit hash)
-        composeTestRule.onNodeWithText("v0.0", substring = true)
+        // Find and click the version text (contains version number and commit hash)
+        composeTestRule.onNodeWithText("v${AppBuildInfo.VERSION_NAME}", substring = true)
             .performClick()
         
         composeTestRule.waitForIdle()
@@ -277,7 +278,7 @@ class MainMenuScreenTest {
         composeTestRule.waitForIdle()
         
         // Click version text to show dialog
-        composeTestRule.onNodeWithText("v0.0", substring = true)
+        composeTestRule.onNodeWithText("v${AppBuildInfo.VERSION_NAME}", substring = true)
             .performClick()
         
         composeTestRule.waitForIdle()
