@@ -59,6 +59,8 @@ jobs:
       version_tag: ${{ steps.parse.outputs.version_tag }}
       version_code: ${{ steps.parse.outputs.version_code }}
     steps:
+      - uses: actions/checkout@v4
+
       - name: Parse and validate version
         id: parse
         run: |
@@ -312,7 +314,11 @@ jobs:
       - name: Update Flatpak metainfo version
         run: |
           RELEASE_DATE=$(date -u +%Y-%m-%d)
-          sed -i "s|<release version=\"[^\"]*\" date=\"[^\"]*\"/>|<release version=\"${APP_VERSION}\" date=\"${RELEASE_DATE}\"/>|" \
+          # Remove any existing entry for this version (prevents duplicates on re-runs)
+          sed -i "/<release version=\"${APP_VERSION}\"[^/]*\/>/d" \
+            frontend/flatpak/de.egril.defender.metainfo.xml
+          # Prepend the new release entry so the full history is preserved in the artifact
+          sed -i "s|<releases>|<releases>\n    <release version=\"${APP_VERSION}\" date=\"${RELEASE_DATE}\"/>|" \
             frontend/flatpak/de.egril.defender.metainfo.xml
 
       - name: Build Flatpak bundle
@@ -868,6 +874,24 @@ jobs:
             echo "VERSION file is already up to date."
           else
             git commit -m "chore: set version to $VERSION [skip ci]"
+            git push origin HEAD:"$GITHUB_REF_NAME"
+          fi
+
+      - name: Update Flatpak metainfo release history
+        run: |
+          VERSION="${{ needs.prepare.outputs.version }}"
+          RELEASE_DATE=$(date -u +%Y-%m-%d)
+          # Remove any existing entry for this version (prevents duplicates)
+          sed -i "/<release version=\"${VERSION}\"[^/]*\/>/d" \
+            frontend/flatpak/de.egril.defender.metainfo.xml
+          # Prepend the new release entry at the top of <releases>
+          sed -i "s|<releases>|<releases>\n    <release version=\"${VERSION}\" date=\"${RELEASE_DATE}\"/>|" \
+            frontend/flatpak/de.egril.defender.metainfo.xml
+          git add frontend/flatpak/de.egril.defender.metainfo.xml
+          if git diff --cached --quiet; then
+            echo "Flatpak metainfo is already up to date."
+          else
+            git commit -m "chore: add release ${VERSION} to flatpak metainfo [skip ci]"
             git push origin HEAD:"$GITHUB_REF_NAME"
           fi
 

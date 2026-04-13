@@ -14,7 +14,7 @@
   </description>
   <url type="homepage">https://github.com/julianegner/defender-of-egril</url>
   <developer id="de.egril">
-    <name>qvest digital AG</name>
+    <name>Julian Egner</name>
   </developer>
   <launchable type="desktop-id">de.egril.defender.desktop</launchable>
   <categories>
@@ -25,6 +25,6 @@
     <content_attribute id="violence-fantasy">mild</content_attribute>
   </content_rating>
   <releases>
-    <release version="0.1.0" date="2024-01-01"/>
+    <release version="0.9.1" date="2026-04-13"/>
   </releases>
 </component>
