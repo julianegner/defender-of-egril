@@ -512,7 +512,7 @@ fun MapEditorView(
                 if (showCommunityUploadConfirm) {
                     de.egril.defender.ui.editor.ConfirmationDialog(
                         title = stringResource(Res.string.upload_community_confirm_title),
-                        message = stringResource(Res.string.upload_community_map_confirm_message),
+                        message = stringResource(Res.string.upload_community_map_confirm_message, iamState.username ?: ""),
                         onDismiss = { showCommunityUploadConfirm = false },
                         onConfirm = {
                             showCommunityUploadConfirm = false

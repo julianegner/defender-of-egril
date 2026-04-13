@@ -1594,8 +1594,8 @@
     <string name="community_upload_success">Erfolgreich hochgeladen!</string>
     <string name="community_upload_failed">Upload fehlgeschlagen. Bitte erneut versuchen.</string>
     <string name="upload_community_confirm_title">Als Community-Inhalt hochladen?</string>
-    <string name="upload_community_level_confirm_message">Dieses Level wird öffentlich für alle Spieler sichtbar. Ihr Keycloak-Benutzername wird anderen Spielern angezeigt. Möchten Sie es wirklich hochladen?</string>
-    <string name="upload_community_map_confirm_message">Diese Karte wird öffentlich für alle Spieler sichtbar. Ihr Keycloak-Benutzername wird anderen Spielern angezeigt. Möchten Sie sie wirklich hochladen?</string>
+    <string name="upload_community_level_confirm_message">Dieses Level wird öffentlich für alle Spieler sichtbar. Ihr Keycloak-Benutzername (%s) wird anderen Spielern angezeigt. Möchten Sie es wirklich hochladen?</string>
+    <string name="upload_community_map_confirm_message">Diese Karte wird öffentlich für alle Spieler sichtbar. Ihr Keycloak-Benutzername (%s) wird anderen Spielern angezeigt. Möchten Sie sie wirklich hochladen?</string>
     <string name="upload_community_also_uploads_map">Die von diesem Level verwendete Karte wird ebenfalls als Community-Inhalt hochgeladen.</string>
     <string name="community_badge">Community</string>
     <string name="community_downloading_level">Level wird heruntergeladen…</string>

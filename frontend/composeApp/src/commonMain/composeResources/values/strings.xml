@@ -1601,8 +1601,8 @@
     <string name="community_upload_success">Uploaded successfully!</string>
     <string name="community_upload_failed">Upload failed. Please try again.</string>
     <string name="upload_community_confirm_title">Upload as Community Content?</string>
-    <string name="upload_community_level_confirm_message">This level will be publicly visible to all players. Your Keycloak username will be shown to other users. Are you sure you want to upload it?</string>
-    <string name="upload_community_map_confirm_message">This map will be publicly visible to all players. Your Keycloak username will be shown to other users. Are you sure you want to upload it?</string>
+    <string name="upload_community_level_confirm_message">This level will be publicly visible to all players. Your Keycloak username (%s) will be shown to other users. Are you sure you want to upload it?</string>
+    <string name="upload_community_map_confirm_message">This map will be publicly visible to all players. Your Keycloak username (%s) will be shown to other users. Are you sure you want to upload it?</string>
     <string name="upload_community_also_uploads_map">The map used by this level will also be uploaded as community content.</string>
     <string name="community_badge">Community</string>
     <string name="community_downloading_level">Downloading level…</string>
