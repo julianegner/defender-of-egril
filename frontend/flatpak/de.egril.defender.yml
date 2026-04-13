@@ -35,7 +35,7 @@ modules:
         (cd "$TMP" && ar x "$DEBABS")
         for f in "$TMP"/data.tar.*; do
           case "$f" in
-            *.zst) zstd -d --stdout "$f" | tar x -C /app ;;
+            *.zst) zstd -d --stdout "$f" | tar x -f - -C /app ;;
             *) tar xaf "$f" -C /app ;;
           esac
         done
