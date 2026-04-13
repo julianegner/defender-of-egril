@@ -54,6 +54,7 @@ data class Level(
     val waypoints: List<Waypoint> = emptyList(),  // Waypoints for complex pathing
     val editorLevelId: String? = null,  // ID of the editor level this was created from
     val mapId: String? = null,  // ID of the map this level uses
+    val isCommunity: Boolean = false,  // True if this level was loaded from the community directory
     val riverTiles: Map<Position, RiverTile> = emptyMap(),  // River tiles with flow direction and speed (not walkable in gameplay, but treated as walkable during map validation for levels with ORK, EVIL_WIZARD, or EWHAD enemies)
     val allowAutoAttack: Boolean = false,  // If true, shows auto-attack button in end turn confirmation dialog
     val targetInfoMap: Map<Position, TargetInfo> = emptyMap(),  // Optional metadata (name, type) per target position

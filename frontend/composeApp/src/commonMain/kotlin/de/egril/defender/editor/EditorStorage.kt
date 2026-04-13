@@ -518,13 +518,23 @@ object EditorStorage {
      * Store a community map downloaded from the backend.
      * @param map The map to store (will have isCommunity = true)
      * @param authorUsername The username of the map author
+     * @param requestedId When provided (and different from [map.id]), the map is also stored
+     *   under this ID so that [getMap] calls using the level's `mapId` reference can find it
+     *   even if the map's internal JSON id differs from the fileId used to download it.
      */
-    fun saveCommunityMap(map: EditorMap, authorUsername: String) {
+    fun saveCommunityMap(map: EditorMap, authorUsername: String, requestedId: String? = null) {
         fileStorage.createDirectory(COMMUNITY_MAPS_DIR)
         val communityMap = map.copy(isCommunity = true, communityAuthorUsername = authorUsername)
         val json = EditorJsonSerializer.serializeMap(communityMap)
         fileStorage.writeFile("$COMMUNITY_MAPS_DIR/${map.id}.json", json)
         communityMapsCache[map.id] = communityMap
+        // If the caller knows the map was requested under a different ID (e.g. the level's mapId
+        // differs from the map's internal id field), persist it under that alias too so that
+        // getMap(level.mapId) can always find the map.
+        if (requestedId != null && requestedId != map.id) {
+            fileStorage.writeFile("$COMMUNITY_MAPS_DIR/$requestedId.json", json)
+            communityMapsCache[requestedId] = communityMap
+        }
         // Generate PNG image so it is available during gameplay
         generateAndSaveCommunityMapImage(communityMap)
     }
@@ -561,34 +571,44 @@ object EditorStorage {
 
     /**
      * Get all locally stored community levels.
+     *
+     * Returns a snapshot list built from disk reads rather than the live cache reference.
+     * This prevents a race condition on JVM where a concurrent [clearCommunityCache] call
+     * (from another Dispatchers.Default coroutine) could empty the cache between the loading
+     * loop and the return statement, resulting in an empty list.
      */
     fun getAllCommunityLevels(): List<EditorLevel> {
         fileStorage.createDirectory(COMMUNITY_LEVELS_DIR)
         val files = fileStorage.listFiles(COMMUNITY_LEVELS_DIR)
+        val result = mutableListOf<EditorLevel>()
         for (filename in files) {
             if (!filename.endsWith(".json")) continue
             val id = filename.removeSuffix(".json")
-            if (!communityLevelsCache.containsKey(id)) {
-                getCommunityLevel(id)
-            }
+            val level = communityLevelsCache[id] ?: getCommunityLevel(id)
+            if (level != null) result.add(level)
         }
-        return communityLevelsCache.values.toList()
+        return result
     }
 
     /**
      * Get all locally stored community maps.
+     *
+     * Returns a snapshot list built from disk reads rather than the live cache reference.
+     * This prevents a race condition on JVM where a concurrent [clearCommunityCache] call
+     * (from another Dispatchers.Default coroutine) could empty the cache between the loading
+     * loop and the return statement, resulting in an empty list.
      */
     fun getAllCommunityMaps(): List<EditorMap> {
         fileStorage.createDirectory(COMMUNITY_MAPS_DIR)
         val files = fileStorage.listFiles(COMMUNITY_MAPS_DIR)
+        val result = mutableListOf<EditorMap>()
         for (filename in files) {
             if (!filename.endsWith(".json")) continue
             val id = filename.removeSuffix(".json")
-            if (!communityMapsCache.containsKey(id)) {
-                getCommunityMap(id)
-            }
+            val map = communityMapsCache[id] ?: getCommunityMap(id)
+            if (map != null) result.add(map)
         }
-        return communityMapsCache.values.toList()
+        return result
     }
 
     /**
@@ -1316,6 +1336,7 @@ object EditorStorage {
             waypoints = gameWaypoints,
             editorLevelId = editorLevel.id,  // Store editor level ID for minimap lookup
             mapId = editorLevel.mapId,  // Store map ID for save/load verification
+            isCommunity = editorLevel.isCommunity,  // Propagate community flag so UI can filter correctly
             riverTiles = map.getRiverTilesMap(),  // Add river tiles with flow direction and speed
             allowAutoAttack = editorLevel.allowAutoAttack,  // Allow auto-attack option
             targetInfoMap = gameTargetInfoMap,  // Named / SINGLE_HIT target metadata

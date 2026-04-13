@@ -78,7 +78,7 @@ fun HexagonMinimap(
     }
     
     val editorLevel = remember(editorLevelId) { 
-        editorLevelId?.let { EditorStorage.getLevel(it) }
+        editorLevelId?.let { EditorStorage.getLevel(it) ?: EditorStorage.getCommunityLevel(it) }
     }
     val map = remember(editorLevel?.mapId) { 
         editorLevel?.let { EditorStorage.getMap(it.mapId) }

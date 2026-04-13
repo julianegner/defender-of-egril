@@ -1602,7 +1602,8 @@
     <string name="community_badge">Communauté</string>
     <string name="community_downloading_level">Téléchargement du niveau…</string>
     <string name="community_author">par %1$s</string>
-    <string name="community_tap_to_download">Appuyer pour télécharger et jouer</string>
+    <string name="community_tap_to_download">Appuyer pour télécharger</string>
+    <string name="community_click_to_download">Cliquer pour télécharger</string>
     <string name="map_file_id">Fichier : %1$s</string>
     <string name="community_description_optional">Description (optionnel)</string>
 

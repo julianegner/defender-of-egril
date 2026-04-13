@@ -67,6 +67,19 @@ object LogConfig {
     var ENABLE_PERFORMANCE_LOGGING = false
 
     /**
+     * Enable EditorJsonSerializer initial-data parsing debug logs.
+     * Shows step-by-step parsing of initialData sections (defenders, attackers, traps, barricades)
+     * and intermediate values during level deserialization.
+     */
+    var ENABLE_INITIAL_DATA_PARSING_LOGGING = false
+
+    /**
+     * Enable community level/map debug logs.
+     * Shows community content discovery, download, ID mismatches, and readiness checks.
+     */
+    var ENABLE_COMMUNITY_DEBUG_LOGGING = false
+
+    /**
      * Enable all debug logging (useful for comprehensive debugging).
      * This overrides individual flags when set to true.
      */

@@ -12,6 +12,7 @@ import de.egril.defender.save.CommunityFileInfo
 import de.egril.defender.ui.TooltipWrapper
 import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.loadgame.SavefileLocationChip
+import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 
@@ -119,8 +120,13 @@ fun RemoteCommunityLevelCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (!isDownloading) {
+                    val downloadHint = if (isPlatformMobile) {
+                        stringResource(Res.string.community_tap_to_download)
+                    } else {
+                        stringResource(Res.string.community_click_to_download)
+                    }
                     SelectableText(
-                        text = stringResource(Res.string.community_tap_to_download),
+                        text = downloadHint,
                         style = MaterialTheme.typography.labelSmall,
                         color = textColor.copy(alpha = 0.7f)
                     )
