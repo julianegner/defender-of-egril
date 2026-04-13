@@ -8,15 +8,15 @@ on:
   workflow_dispatch:  # Allow manual triggering
 
 permissions:
-  contents: read  # Required to fetch the repository content
-  pages: write    # Allow deployment to GitHub Pages
-  id-token: write # Required by actions/configure-pages
+  contents: read        # Required to fetch the repository content
+  pages: write          # Allow deployment to GitHub Pages
+  id-token: write       # Required by actions/configure-pages
 
 jobs:
   build-and-deploy:
     environment:
       name: github-pages
-  
+
     runs-on: ubuntu-latest
 
     steps:
@@ -33,7 +33,7 @@ jobs:
 
       # 3. Set up Gradle
       - name: "⚙️ Setup Gradle"
-        uses: gradle/gradle-build-action@v3
+        uses: gradle/actions/setup-gradle@v3
 
       # 4. Build the WasmJS App
       - name: "🛠️ Build WasmJS App"
@@ -42,6 +42,8 @@ jobs:
       # 5. Set up GitHub Pages
       - name: "📄 Configure GitHub Pages"
         uses: actions/configure-pages@v5
+        with:
+          enablement: true  # Automatically enable Pages if not already enabled
 
       # 6. Upload the built artifact to Pages
       - name: "📤 Upload GitHub Pages artifact"
