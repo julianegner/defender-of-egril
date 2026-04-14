@@ -8,15 +8,15 @@ permissions:
 
 jobs:
   build_apk_release:
-    name: Build signed production APK
+    name: Build signed minimal APK with ADI registration
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 24
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '24'
+          java-version: '17'
           distribution: 'temurin'
 
       - name: Setup Gradle
@@ -30,17 +30,18 @@ jobs:
             echo "::error::Secret ANDROID_ADI_REGISTRATION_SNIPPET is not set or empty."
             exit 1
           fi
-          mkdir -p frontend/composeApp/src/androidMain/assets
-          printf '%s' "$ANDROID_ADI_REGISTRATION_SNIPPET" > frontend/composeApp/src/androidMain/assets/adi-registration.properties
+          mkdir -p adi-registration-apk/app/src/main/assets
+          printf '%s' "$ANDROID_ADI_REGISTRATION_SNIPPET" > adi-registration-apk/app/src/main/assets/adi-registration.properties
 
       - name: Decode Android keystore
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > "$RUNNER_TEMP/release.keystore"
 
-      - name: Build signed production release APK
+      - name: Build signed minimal release APK
         run: |
           ./gradlew \
-            :composeApp:assembleProductionRelease \
+            --project-dir adi-registration-apk \
+            :app:assembleRelease \
             -Pandroid.injected.signing.store.file="$RUNNER_TEMP/release.keystore" \
             -Pandroid.injected.signing.store.password="${{ secrets.ANDROID_STORE_PASSWORD }}" \
             -Pandroid.injected.signing.key.alias="${{ secrets.ANDROID_KEY_ALIAS }}" \
@@ -49,7 +50,7 @@ jobs:
       - name: Collect APK
         run: |
           mkdir -p artifacts/apk
-          find frontend/composeApp/build/outputs/apk -name "*.apk" -exec cp {} artifacts/apk/ \;
+          find adi-registration-apk/app/build/outputs/apk -name "*.apk" -exec cp {} artifacts/apk/ \;
           ls -lh artifacts/apk/
 
       - name: Upload APK artifact
