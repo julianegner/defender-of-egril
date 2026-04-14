@@ -131,7 +131,11 @@ jobs:
           echo "KEYSTORE_PATH=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
 
       # Signed release build (when secrets are available)
-      - name: Build signed APK and AAB
+      # NOTE: APK and AAB must be built in SEPARATE Gradle invocations.
+      # When both assemble* and bundle* tasks run in the same invocation the
+      # shared merge*Assets task sees a bundle task in the graph and deletes
+      # composeResources from the merged-assets directory, which breaks the APK.
+      - name: Build signed APK
         if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -141,6 +145,21 @@ jobs:
         run: |
           ./gradlew \
             :composeApp:assembleProductionRelease \
+            -PappVersion="${APP_VERSION}" \
+            -Pandroid.injected.signing.store.file="$KEYSTORE_PATH" \
+            -Pandroid.injected.signing.store.password="${ANDROID_STORE_PASSWORD}" \
+            -Pandroid.injected.signing.key.alias="${ANDROID_KEY_ALIAS}" \
+            -Pandroid.injected.signing.key.password="${ANDROID_KEY_PASSWORD}"
+
+      - name: Build signed AAB
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+        run: |
+          ./gradlew \
             :composeApp:bundleProductionRelease \
             -PappVersion="${APP_VERSION}" \
             -Pandroid.injected.signing.store.file="$KEYSTORE_PATH" \
@@ -149,13 +168,22 @@ jobs:
             -Pandroid.injected.signing.key.password="${ANDROID_KEY_PASSWORD}"
 
       # Unsigned debug build fallback (when no signing secrets are configured)
-      - name: Build unsigned APK and AAB (fallback)
+      # NOTE: APK and AAB must be built in SEPARATE Gradle invocations (see above).
+      - name: Build unsigned APK (fallback)
         if: ${{ env.ANDROID_KEYSTORE_BASE64 == '' }}
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
           ./gradlew \
             :composeApp:assembleProductionDebug \
+            -PappVersion="${APP_VERSION}"
+
+      - name: Build unsigned AAB (fallback)
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 == '' }}
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          ./gradlew \
             :composeApp:bundleProductionDebug \
             -PappVersion="${APP_VERSION}"
 
