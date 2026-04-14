@@ -1,0 +1,47 @@
+# Build Android APK and AAB to catch packaging issues early.
+# This workflow runs on PRs and pushes to main so that asset-pack
+# and base-module conflicts are detected before a release attempt.
+name: Build Android
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch: # Allow manual triggering
+
+permissions:
+  contents: read
+
+jobs:
+  build_apk:
+    name: Build APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 24
+        uses: actions/setup-java@v4
+        with:
+          java-version: '24'
+          distribution: 'temurin'
+      - name: Build production debug APK
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          arguments: :composeApp:assembleProductionDebug
+
+  build_aab:
+    name: Build AAB
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 24
+        uses: actions/setup-java@v4
+        with:
+          java-version: '24'
+          distribution: 'temurin'
+      - name: Build production debug AAB
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          arguments: :composeApp:bundleProductionDebug

@@ -512,16 +512,18 @@ tasks.matching { it.name.startsWith("copyNonXmlValueResourcesFor") }.configureEa
 //     directory is populated before AGP packages the asset pack.  These tasks are
 //     chosen over the broader `bundle*` pattern to avoid adding the 220 MB file-sync
 //     as a dependency of Kotlin class-bundling tasks (e.g. `bundleXxxClassesToCompileJar`).
-//  2. A `doFirst` action on every `package*Bundle` task removes the `composeResources/`
-//     tree from the base-module merged-assets directory immediately before the bundle
-//     is packaged.  Using doFirst on the packaging task (rather than doLast on the
+//  2. A `doFirst` action on every `build*PreBundle` task removes the `composeResources/`
+//     tree from the base-module merged-assets directory before the base module is
+//     assembled.  The `build<Variant>PreBundle` task reads the merged-assets output
+//     and packages it into the base module proto; deleting here ensures the assets
+//     are gone before that packaging step.  Using doFirst (rather than doLast on the
 //     merge task) guarantees the deletion always runs even when merge*Assets is
 //     UP-TO-DATE – which happens when a prior APK build already executed the merge
 //     task in the same Gradle user-home cache.
 //     This keeps the base module under Google Play's 200 MB limit.
 //
 // For plain APK builds (`assemble*`) the deletion step is never triggered because
-// the `package*Bundle` task is not part of the task graph, so the APK remains
+// the `build*PreBundle` task is not part of the task graph, so the APK remains
 // self-contained and suitable for sideloading or local testing.
 // ---------------------------------------------------------------------------
 afterEvaluate {
@@ -533,14 +535,20 @@ afterEvaluate {
     }
 
     // 2. Remove composeResources from the base module's merged-assets output
-    //    immediately before the AAB is packaged.  doFirst on package*Bundle runs
-    //    even when the upstream merge*Assets task was UP-TO-DATE, which is the
-    //    common case when an APK build has already executed merge*Assets in the
-    //    same Gradle cache (e.g. in CI where APK and AAB are built back-to-back).
+    //    immediately before the base module is assembled.  doFirst on
+    //    build*PreBundle runs even when the upstream merge*Assets task was
+    //    UP-TO-DATE, which is the common case when an APK build has already
+    //    executed merge*Assets in the same Gradle cache (e.g. in CI where APK
+    //    and AAB are built back-to-back).
+    //
+    //    NOTE: Earlier versions hooked into package*Bundle, but that task runs
+    //    AFTER build*PreBundle has already packaged the assets into the base
+    //    module – making the deletion too late and causing the "Both modules
+    //    contain asset entry" error from bundletool.
     android.applicationVariants.all {
         val variantNameCapped = name.replaceFirstChar { it.uppercase() }
         val mergeAssetsTask = tasks.named("merge${variantNameCapped}Assets")
-        tasks.matching { it.name == "package${variantNameCapped}Bundle" }.configureEach {
+        tasks.matching { it.name == "build${variantNameCapped}PreBundle" }.configureEach {
             doFirst {
                 mergeAssetsTask.get().outputs.files.files.forEach { mergeOutputDir ->
                     val composeResDir = File(mergeOutputDir, "composeResources")
