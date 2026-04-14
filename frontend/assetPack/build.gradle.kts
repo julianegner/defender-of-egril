@@ -52,10 +52,11 @@ val syncComposeResources by tasks.registering(Sync::class) {
     into(layout.projectDirectory.dir("src/main/assets/composeResources/$cmpPackage"))
 }
 
-// Every task in this module (manifest generation, packaging, etc.) must run
-// after the sync so that the assets are in place when the pack is assembled.
-tasks.configureEach {
-    if (name != syncComposeResources.name) {
-        dependsOn(syncComposeResources)
-    }
+// Only make tasks that actually generate or package the asset pack depend on the sync.
+// Using targeted matching avoids unnecessary dependencies for help, clean, and other
+// unrelated tasks that would otherwise trigger a 220 MB file copy on every invocation.
+tasks.matching {
+    it.name.startsWith("generate") || it.name.startsWith("package")
+}.configureEach {
+    dependsOn(syncComposeResources)
 }
