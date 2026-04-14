@@ -21,5 +21,8 @@ dependencyResolutionManagement {
 include(":composeApp")
 project(":composeApp").projectDir = File("frontend/composeApp")
 
+include(":assetPack")
+project(":assetPack").projectDir = File("frontend/assetPack")
+
 include(":server")
 project(":server").projectDir = File("servers/backend")

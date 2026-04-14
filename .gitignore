@@ -44,6 +44,9 @@ local.properties
 !frontend/profiles/local.properties
 .DS_Store
 
+# Asset pack – the composeResources content is auto-generated during bundle builds
+frontend/assetPack/src/main/assets/composeResources/
+
 # Node
 node_modules/
 frontend/composeApp/build/compileSync/

@@ -399,6 +399,21 @@ android {
         }
     }
 
+    // ---------------------------------------------------------------------------
+    // Android App Bundle (AAB) asset-pack configuration
+    //
+    // The `:assetPack` module is an install-time asset pack that holds the
+    // Compose Multiplatform resources (~220 MB).  Including it in the bundle
+    // moves those assets out of the base module, which would otherwise exceed
+    // Google Play's 200 MB base-module limit.
+    //
+    // NOTE: This only affects `bundle*` (AAB) builds.  Plain `assemble*` APK
+    //       builds remain self-contained so sideloading still works.
+    // ---------------------------------------------------------------------------
+    bundle {
+        assetPacks += listOf(":assetPack")
+    }
+
     // Enable BuildConfig generation so flavors can inject URLs
     buildFeatures {
         buildConfig = true
@@ -486,6 +501,51 @@ tasks.register<JavaExec>("generateMapImages") {
 // as untracked forces them to always run (still fast) and avoids the spurious failure.
 tasks.matching { it.name.startsWith("copyNonXmlValueResourcesFor") }.configureEach {
     doNotTrackState("Gradle 9.x output-property validation workaround for Compose resource tasks")
+}
+
+// ---------------------------------------------------------------------------
+// Asset-pack integration for AAB builds
+//
+// For Android App Bundle (`bundle*`) builds only:
+//  1. All `bundle*` tasks are made to depend on `:assetPack:syncComposeResources`
+//     so the asset pack directory is populated before the bundle tool runs.
+//  2. A `doLast` action on every `merge*Assets` task removes the
+//     `composeResources/` tree from the base-module merged-assets directory
+//     when the current Gradle invocation includes a `bundle*` task.
+//     This keeps the base module under Google Play's 200 MB limit.
+//
+// For plain APK builds (`assemble*`) the deletion step is skipped, so the APK
+// remains self-contained and suitable for sideloading or local testing.
+// ---------------------------------------------------------------------------
+afterEvaluate {
+    // 1. Make every bundle* task wait for the asset-pack sync to finish first.
+    tasks.matching { it.name.startsWith("bundle") }.configureEach {
+        dependsOn(":assetPack:syncComposeResources")
+    }
+
+    // 2. Remove composeResources from the base module's merged-assets output
+    //    only when we are building an AAB (bundle task is in the task graph).
+    android.applicationVariants.all {
+        val variantNameCapped = name.replaceFirstChar { it.uppercase() }
+        tasks.matching { it.name == "merge${variantNameCapped}Assets" }.configureEach {
+            doLast {
+                val isBundleBuild = project.gradle.taskGraph.allTasks.any { task ->
+                    task.project == project && task.name.startsWith("bundle")
+                }
+                if (isBundleBuild) {
+                    val mergeOutputDir = outputs.files.singleFile
+                    val composeResDir = File(mergeOutputDir, "composeResources")
+                    if (composeResDir.exists()) {
+                        composeResDir.deleteRecursively()
+                        logger.lifecycle(
+                            "Asset-pack split: removed composeResources from base AAB " +
+                                "module (resources are served from the install-time asset pack)"
+                        )
+                    }
+                }
+            }
+        }
+    }
 }
 
 compose.desktop {
