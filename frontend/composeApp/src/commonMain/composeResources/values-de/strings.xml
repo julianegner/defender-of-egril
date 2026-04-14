@@ -1235,7 +1235,7 @@
     <string name="backend_info_account_heading">Optionales Benutzerkonto</string>
     <string name="backend_info_account_body">Ein Konto ist vollständig optional – Sie können das gesamte Spiel ohne Registrierung spielen. Mit einem kostenlosen Konto können Sie:\n\n• Spielfortschritt auf dem Server speichern und auf jedem Gerät weiterspielen\n• Zwischen Desktop, Mobil und Web wechseln und genau dort weitermachen, wo Sie aufgehört haben\n• Eigene Karten und Level als Community-Inhalt hochladen\n• Level anderer Spieler herunterladen und spielen</string>
     <string name="backend_info_account_how_heading">Wie bekomme ich ein Konto?</string>
-    <string name="backend_info_account_how_body">Klicken Sie auf der Startseite auf den Login-Button. Sie werden zu einer Registrierungsseite weitergeleitet. Es wird nur eine E-Mail-Adresse benötigt.</string>
+    <string name="backend_info_account_how_body">Klicke auf der Startseite auf den Login-Button. Ein Login-Code und eine URL werden angezeigt — öffne die URL in einem Browser (auf deinem Handy oder einem anderen Gerät) und gib den Code ein, um dich anzumelden oder ein kostenloses Konto zu erstellen. Es wird nur eine E-Mail-Adresse benötigt.</string>
 
     <!-- Keyboard Shortcuts Info -->
     <string name="keyboard_shortcuts_title">Tastenkürzel</string>
@@ -1583,7 +1583,12 @@
     <!-- IAM / Keycloak -->
     <string name="iam_login">Login</string>
     <string name="iam_logout">Abmelden</string>
-    <string name="iam_login_waiting">Warte auf Browser...</string>
+    <string name="iam_login_waiting">Warte auf Anmeldung...</string>
+    <string name="iam_device_login_title">Bei deinem Konto anmelden</string>
+    <string name="iam_device_login_instruction">Öffne diese URL in einem Browser auf deinem Handy oder einem anderen Gerät und gib den unten angezeigten Code ein, um dich anzumelden:</string>
+    <string name="iam_device_login_code_label">Dein Anmeldecode:</string>
+    <string name="iam_device_login_open_browser">Im Browser öffnen</string>
+    <string name="iam_device_login_cancel">Abbrechen</string>
     <string name="keycloak_account">Keycloak-Konto</string>
     <string name="user_account">Benutzerkonto</string>
     <string name="iam_login_successful_heading">Anmeldung erfolgreich!</string>

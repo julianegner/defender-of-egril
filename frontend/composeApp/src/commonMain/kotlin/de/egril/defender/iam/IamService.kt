@@ -4,6 +4,22 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 
 /**
+ * State exposed while the Device Authorization Grant (RFC 8628) login is in progress.
+ * The UI renders a dialog so the user can visit [verificationUri] on a phone or second
+ * device and enter [userCode] to complete authentication – no browser is required on the
+ * machine running the game (e.g. Steam Deck gaming mode).
+ *
+ * @param userCode              Short human-readable code the user types on the browser device.
+ * @param verificationUri       Base verification URL (always present).
+ * @param verificationUriComplete  Pre-filled URL that skips manual code entry (may be null).
+ */
+data class DeviceAuthState(
+    val userCode: String,
+    val verificationUri: String,
+    val verificationUriComplete: String? = null
+)
+
+/**
  * Singleton service for IAM (Keycloak) authentication.
  *
  * Login is entirely optional. The game can be played without being logged in.
@@ -16,10 +32,19 @@ object IamService {
     val state: MutableState<IamState> = mutableStateOf(IamState())
 
     /**
-     * Set to `true` while the PKCE browser redirect is in progress (desktop) so that
-     * the UI can display a "Waiting for browser login…" indicator.
+     * Set to `true` while the login flow is in progress (desktop) so that
+     * the UI can display a "Waiting for login…" indicator.
      */
     val loginInProgress: MutableState<Boolean> = mutableStateOf(false)
+
+    /**
+     * Non-null while the Device Authorization Grant (RFC 8628) polling loop is running.
+     * The UI shows a dialog with [DeviceAuthState.userCode] and [DeviceAuthState.verificationUri]
+     * so the user can complete login on a phone or second device.
+     *
+     * Set to `null` once login succeeds, times out, or is cancelled.
+     */
+    val deviceAuthState: MutableState<DeviceAuthState?> = mutableStateOf(null)
 
     /** Initiates the login flow (platform-specific). */
     fun login() {
@@ -42,6 +67,7 @@ object IamService {
         performPlatformLogoutLocal()
         state.value = IamState()
         loginInProgress.value = false
+        deviceAuthState.value = null
     }
 
     /**
@@ -64,6 +90,7 @@ object IamService {
         performPlatformLogoutBackchannel()
         state.value = IamState()
         loginInProgress.value = false
+        deviceAuthState.value = null
     }
 
     /** Returns the current Bearer access token, or null if not authenticated. */

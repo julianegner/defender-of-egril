@@ -1238,7 +1238,7 @@
     <string name="backend_info_account_heading">Cuenta de usuario opcional</string>
     <string name="backend_info_account_body">Una cuenta es completamente opcional — puedes jugar el juego completo sin registrarte. Con una cuenta gratuita puedes:\n\n• Guardar tu progreso en el servidor y continuar en cualquier dispositivo\n• Cambiar entre escritorio, móvil y web — y retomar exactamente donde lo dejaste\n• Subir tus propios mapas y niveles como contenido de la comunidad para que otros los descubran y jueguen\n• Descargar y jugar niveles creados por otros jugadores</string>
     <string name="backend_info_account_how_heading">¿Cómo obtener una cuenta?</string>
-    <string name="backend_info_account_how_body">Haz clic en el botón de inicio de sesión en la pantalla de inicio. Serás redirigido a una página de registro. Solo se requiere una dirección de correo electrónico.</string>
+    <string name="backend_info_account_how_body">Haz clic en el botón de inicio de sesión en la pantalla de inicio. Aparecerán un código de inicio de sesión y una URL — abre la URL en un navegador (en tu teléfono u otro dispositivo) e introduce el código para iniciar sesión o crear una cuenta gratuita. Solo se requiere una dirección de correo electrónico.</string>
 
     <!-- Keyboard Shortcuts Info -->
     <string name="keyboard_shortcuts_title">Atajos de Teclado</string>
@@ -1584,7 +1584,12 @@
     <!-- IAM / Keycloak -->
     <string name="iam_login">Iniciar sesión</string>
     <string name="iam_logout">Cerrar sesión</string>
-    <string name="iam_login_waiting">Esperando al navegador...</string>
+    <string name="iam_login_waiting">Esperando inicio de sesión...</string>
+    <string name="iam_device_login_title">Iniciar sesión en tu cuenta</string>
+    <string name="iam_device_login_instruction">Abre esta URL en un navegador en tu teléfono u otro dispositivo e ingresa el código que se muestra a continuación para iniciar sesión:</string>
+    <string name="iam_device_login_code_label">Tu código de inicio de sesión:</string>
+    <string name="iam_device_login_open_browser">Abrir en navegador</string>
+    <string name="iam_device_login_cancel">Cancelar</string>
     <string name="keycloak_account">Cuenta de Keycloak</string>
     <string name="user_account">Cuenta de usuario</string>
     <string name="iam_login_successful_heading">¡Inicio de sesión exitoso!</string>

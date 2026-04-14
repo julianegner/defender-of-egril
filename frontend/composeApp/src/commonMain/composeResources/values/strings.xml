@@ -1240,7 +1240,7 @@
     <string name="backend_info_account_heading">Optional User Account</string>
     <string name="backend_info_account_body">An account is entirely optional — you can play the full game without registering. With a free account you can:\n\n• Save your game progress on the server and continue on any device\n• Switch between desktop, mobile, and web — and resume exactly where you left off\n• Upload your own custom maps and levels as community content for others to discover and play\n• Download and play levels created by other players</string>
     <string name="backend_info_account_how_heading">How to get an account?</string>
-    <string name="backend_info_account_how_body">Click the login button on the start page. You will be directed to a registration page where you can create a free account. Only an e-mail address is required.</string>
+    <string name="backend_info_account_how_body">Click the login button on the start page. A login code and URL will appear — open the URL in a browser (on your phone or any other device) and enter the code to log in or create a free account. Only an e-mail address is required.</string>
 
     <!-- Keyboard Shortcuts Info -->
     <string name="keyboard_shortcuts_title">Keyboard Shortcuts</string>
@@ -1590,7 +1590,12 @@
     <!-- IAM / Keycloak -->
     <string name="iam_login">Login</string>
     <string name="iam_logout">Logout</string>
-    <string name="iam_login_waiting">Waiting for browser...</string>
+    <string name="iam_login_waiting">Waiting for login...</string>
+    <string name="iam_device_login_title">Log in to Your Account</string>
+    <string name="iam_device_login_instruction">Open this URL in a browser on your phone or another device and enter the code shown below to log in:</string>
+    <string name="iam_device_login_code_label">Your login code:</string>
+    <string name="iam_device_login_open_browser">Open in browser</string>
+    <string name="iam_device_login_cancel">Cancel</string>
     <string name="keycloak_account">Keycloak Account</string>
     <string name="user_account">User Account</string>
     <string name="iam_login_successful_heading">Login successful!</string>
