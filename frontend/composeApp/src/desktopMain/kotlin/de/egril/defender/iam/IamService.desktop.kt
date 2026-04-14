@@ -82,7 +82,7 @@ private data class DeviceAuthResponse(
  */
 private fun requestDeviceAuth(): DeviceAuthResponse? {
     return try {
-        val body = "client_id=${URLEncoder.encode(IamConfig.CLIENT_ID, "UTF-8")}&scope=openid"
+        val body = "client_id=${URLEncoder.encode(IamConfig.DESKTOP_CLIENT_ID, "UTF-8")}&scope=openid"
         val conn = URI.create(IamConfig.deviceAuthUrl).toURL().openConnection() as HttpURLConnection
         conn.requestMethod = "POST"
         conn.doOutput = true
@@ -146,7 +146,7 @@ private fun tryExchangeDeviceCode(deviceCode: String): TokenData? {
     return try {
         val body = buildString {
             append("grant_type=${URLEncoder.encode("urn:ietf:params:oauth:grant-type:device_code", "UTF-8")}")
-            append("&client_id=${URLEncoder.encode(IamConfig.CLIENT_ID, "UTF-8")}")
+            append("&client_id=${URLEncoder.encode(IamConfig.DESKTOP_CLIENT_ID, "UTF-8")}")
             append("&device_code=${URLEncoder.encode(deviceCode, "UTF-8")}")
         }
         val conn = URI.create(IamConfig.tokenUrl).toURL().openConnection() as HttpURLConnection

@@ -12,6 +12,15 @@ object IamConfig {
     const val REALM = "egril"
     const val CLIENT_ID = "defender-of-egril"
 
+    /**
+     * Client ID used by the desktop app for Device Authorization Grant (RFC 8628).
+     * This is a separate Keycloak client that has device auth enabled but does not
+     * enforce PKCE, which is incompatible with the device authorization endpoint.
+     * An audience mapper on this client adds "defender-of-egril" to the access token
+     * so the backend accepts it without modification.
+     */
+    const val DESKTOP_CLIENT_ID = "defender-of-egril-desktop"
+
     val baseUrl: String get() = getIamBaseUrl()
     val authUrl: String get() = "$baseUrl/realms/$REALM/protocol/openid-connect/auth"
     val tokenUrl: String get() = "$baseUrl/realms/$REALM/protocol/openid-connect/token"

@@ -31,7 +31,7 @@
       "publicClient": true,
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false,
-      "oauth2DeviceAuthorizationGrantEnabled": true,
+      "oauth2DeviceAuthorizationGrantEnabled": false,
       "protocol": "openid-connect",
       "redirectUris": [
         "http://localhost:8080/*",
@@ -48,10 +48,38 @@
         "+"
       ],
       "attributes": {
+        "pkce.code.challenge.method": "S256",
         "post.logout.redirect.uris": "http://localhost:8080/*##http://localhost:8081/*##http://localhost:8082/*##http://localhost:10001/*##egril://callback##https://defender.egril.de/*##+##",
         "backchannel.logout.url": "https://defender-backend.egril.de/api/backchannel-logout",
         "backchannel.logout.session.required": "false"
       }
+    },
+    {
+      "clientId": "defender-of-egril-desktop",
+      "name": "Defender of Egril Desktop",
+      "description": "Public client for the desktop app. Uses Device Authorization Grant (RFC 8628) — no browser redirect, no PKCE.",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "oauth2DeviceAuthorizationGrantEnabled": true,
+      "protocol": "openid-connect",
+      "attributes": {
+        "post.logout.redirect.uris": "egril://callback"
+      },
+      "protocolMappers": [
+        {
+          "name": "defender-of-egril-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "defender-of-egril",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
     },
     {
       "clientId": "defender-of-egril-cli",
