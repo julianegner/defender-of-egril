@@ -26,10 +26,10 @@ jobs:
         with:
           java-version: '24'
           distribution: 'temurin'
-      - name: Build production debug APK
+      - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
-        with:
-          arguments: :composeApp:assembleProductionDebug
+      - name: Build production debug APK
+        run: ./gradlew :composeApp:assembleProductionDebug
 
   build_aab:
     name: Build AAB
@@ -41,7 +41,7 @@ jobs:
         with:
           java-version: '24'
           distribution: 'temurin'
-      - name: Build production debug AAB
+      - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
-        with:
-          arguments: :composeApp:bundleProductionDebug
+      - name: Build production debug AAB
+        run: ./gradlew :composeApp:bundleProductionDebug
