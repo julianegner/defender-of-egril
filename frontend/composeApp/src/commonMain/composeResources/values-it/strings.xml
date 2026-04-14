@@ -1088,6 +1088,15 @@
     <string name="installation_web_title">Web/Browser</string>
     <string name="installation_web_step1">Nessuna installazione necessaria!</string>
     <string name="installation_web_step2">Visita semplicemente l\'URL del gioco in qualsiasi browser moderno (Chrome, Firefox, Safari, Edge)</string>
+    <string name="installation_steam_deck_title">Steam Deck</string>
+    <string name="installation_steam_deck_step1">1. Passare alla Modalità Desktop: Premi il tasto STEAM, vai su Alimentazione e seleziona "Passa al desktop"</string>
+    <string name="installation_steam_deck_step2">2. Scarica o installa il gioco (il file si trova di solito in /home/deck/ o in una cartella di download personalizzata)</string>
+    <string name="installation_steam_deck_step3">3. Apri il client Steam in Modalità Desktop</string>
+    <string name="installation_steam_deck_step4">4. Clicca su Giochi nel menu in alto, poi seleziona "Aggiungi un gioco non-Steam alla mia Libreria"</string>
+    <string name="installation_steam_deck_step5">5. Cerca il file eseguibile del gioco (spesso in /home/deck/ o in una cartella di download personalizzata)</string>
+    <string name="installation_steam_deck_step6">6. Spunta la casella accanto al gioco e clicca su "Aggiungi i programmi selezionati"</string>
+    <string name="installation_steam_deck_step7">7. Fai doppio clic sull\'icona "Torna alla Modalità Gaming" sul desktop</string>
+    <string name="installation_steam_deck_note">Il gioco apparirà ora nella tua Libreria sotto la scheda "Non-Steam".</string>
     <string name="installation_details_link">Per istruzioni dettagliate, consulta INSTALL.md nel repository GitHub.</string>
 
     <!-- Player Profile Screen -->

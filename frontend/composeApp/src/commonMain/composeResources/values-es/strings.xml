@@ -1088,6 +1088,15 @@
     <string name="installation_web_title">Web/Navegador</string>
     <string name="installation_web_step1">¡No se necesita instalación!</string>
     <string name="installation_web_step2">Solo visita la URL del juego en cualquier navegador moderno (Chrome, Firefox, Safari, Edge)</string>
+    <string name="installation_steam_deck_title">Steam Deck</string>
+    <string name="installation_steam_deck_step1">1. Cambiar al Modo Escritorio: Pulsa el botón STEAM, navega a Energía y selecciona "Cambiar a Escritorio"</string>
+    <string name="installation_steam_deck_step2">2. Descarga o instala el juego (el archivo suele estar en /home/deck/ o en una carpeta de descarga personalizada)</string>
+    <string name="installation_steam_deck_step3">3. Abre el cliente de Steam en Modo Escritorio</string>
+    <string name="installation_steam_deck_step4">4. Haz clic en Juegos en el menú superior y selecciona "Añadir un juego que no es de Steam a Mi biblioteca"</string>
+    <string name="installation_steam_deck_step5">5. Busca el archivo ejecutable del juego (normalmente en /home/deck/ o en una carpeta de descarga personalizada)</string>
+    <string name="installation_steam_deck_step6">6. Marca la casilla junto al juego y haz clic en "Añadir programas seleccionados"</string>
+    <string name="installation_steam_deck_step7">7. Haz doble clic en el icono "Volver al Modo Juego" en el escritorio</string>
+    <string name="installation_steam_deck_note">El juego aparecerá ahora en tu Biblioteca bajo la pestaña "No es de Steam".</string>
     <string name="installation_details_link">Para instrucciones detalladas, consulta INSTALL.md en el repositorio de GitHub.</string>
 
     <!-- Player Profile Screen -->

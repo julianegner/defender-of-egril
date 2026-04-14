@@ -121,6 +121,23 @@ fun InstallationInfo() {
             
             Spacer(modifier = Modifier.height(20.dp))
             
+            // Steam Deck Section
+            PlatformSection(
+                title = stringResource(Res.string.installation_steam_deck_title),
+                content = {
+                    InstallationStep(stringResource(Res.string.installation_steam_deck_step1))
+                    InstallationStep(stringResource(Res.string.installation_steam_deck_step2))
+                    InstallationStep(stringResource(Res.string.installation_steam_deck_step3))
+                    InstallationStep(stringResource(Res.string.installation_steam_deck_step4))
+                    InstallationStep(stringResource(Res.string.installation_steam_deck_step5))
+                    InstallationStep(stringResource(Res.string.installation_steam_deck_step6))
+                    InstallationStep(stringResource(Res.string.installation_steam_deck_step7))
+                    InstallationNote(stringResource(Res.string.installation_steam_deck_note))
+                }
+            )
+            
+            Spacer(modifier = Modifier.height(20.dp))
+            
             // Link to detailed documentation
             Text(
                 text = stringResource(Res.string.installation_details_link),
