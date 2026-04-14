@@ -520,6 +520,15 @@ tasks.matching { it.name.startsWith("copyNonXmlValueResourcesFor") }.configureEa
 //
 // For plain APK builds (`assemble*`) the deletion step is skipped, so the APK
 // remains self-contained and suitable for sideloading or local testing.
+//
+// IMPORTANT: APK and AAB builds MUST be run in SEPARATE Gradle invocations.
+// The `merge*Assets` task output is shared between the APK and AAB packaging
+// tasks for the same variant.  If both `assemble*` and `bundle*` tasks are
+// present in the same task graph, the deletion step runs (because a bundle task
+// is detected) and the APK is packaged without composeResources.  Always build
+// them as distinct Gradle invocations, e.g.:
+//   ./gradlew :composeApp:assembleProductionRelease  # APK – no deletion
+//   ./gradlew :composeApp:bundleProductionRelease    # AAB – deletion runs
 // ---------------------------------------------------------------------------
 afterEvaluate {
     // 1. Make the AGP-generated asset-pack pre-bundle tasks wait for the sync.
