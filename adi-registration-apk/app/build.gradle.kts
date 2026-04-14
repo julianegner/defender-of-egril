@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace = "de.egril.adi"
+    namespace = "de.egril.defender"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "de.egril.adi"
+        applicationId = "de.egril.defender"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
