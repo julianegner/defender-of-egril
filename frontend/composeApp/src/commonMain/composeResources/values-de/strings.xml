@@ -1235,7 +1235,7 @@
     <string name="backend_info_account_heading">Optionales Benutzerkonto</string>
     <string name="backend_info_account_body">Ein Konto ist vollständig optional – Sie können das gesamte Spiel ohne Registrierung spielen. Mit einem kostenlosen Konto können Sie:\n\n• Spielfortschritt auf dem Server speichern und auf jedem Gerät weiterspielen\n• Zwischen Desktop, Mobil und Web wechseln und genau dort weitermachen, wo Sie aufgehört haben\n• Eigene Karten und Level als Community-Inhalt hochladen\n• Level anderer Spieler herunterladen und spielen</string>
     <string name="backend_info_account_how_heading">Wie bekomme ich ein Konto?</string>
-    <string name="backend_info_account_how_body">Klicke auf der Startseite auf den Login-Button. Ein Login-Code und eine URL werden angezeigt — öffne die URL in einem Browser (auf deinem Handy oder einem anderen Gerät) und gib den Code ein, um dich anzumelden oder ein kostenloses Konto zu erstellen. Es wird nur eine E-Mail-Adresse benötigt.</string>
+    <string name="backend_info_account_how_body">Klicken Sie auf der Startseite auf den Login-Button. Ein Login-Code und eine URL werden angezeigt — öffnen Sie die URL in einem Browser (auf Ihrem Handy oder einem anderen Gerät) und geben Sie den Code ein, um sich anzumelden oder ein kostenloses Konto zu erstellen. Es wird nur eine E-Mail-Adresse benötigt.</string>
 
     <!-- Keyboard Shortcuts Info -->
     <string name="keyboard_shortcuts_title">Tastenkürzel</string>

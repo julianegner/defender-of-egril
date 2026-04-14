@@ -50,6 +50,9 @@ private const val PKCE_CALLBACK_PORT = 10001
  */
 private val loginGeneration = AtomicInteger(0)
 
+/** Minimum polling interval in seconds to avoid hammering the server (RFC 8628 §3.5). */
+private const val MIN_POLL_INTERVAL_SECONDS = 5L
+
 /**
  * Set to `true` to signal the device-auth polling loop to stop.
  *
@@ -118,8 +121,9 @@ private fun requestDeviceAuth(): DeviceAuthResponse? {
  */
 private fun pollDeviceToken(deviceCode: String, interval: Long, expiresIn: Long): TokenData? {
     val deadline = System.currentTimeMillis() + expiresIn * 1_000L
-    // Use the server-specified interval but clamp to at least 5 s to avoid hammering the server.
-    val pollIntervalMs = maxOf(interval, 5L) * 1_000L
+    // Use the server-specified interval but clamp to at least MIN_POLL_INTERVAL_SECONDS
+    // to avoid hammering the server (RFC 8628 §3.5).
+    val pollIntervalMs = maxOf(interval, MIN_POLL_INTERVAL_SECONDS) * 1_000L
 
     while (!deviceAuthCancelled.get() && System.currentTimeMillis() < deadline) {
         Thread.sleep(pollIntervalMs)
@@ -171,7 +175,8 @@ private fun tryExchangeDeviceCode(deviceCode: String): TokenData? {
                 null
             }
         }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        println("IAM: device-code token poll failed: ${e.message}")
         null
     }
 }
