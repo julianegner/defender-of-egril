@@ -92,8 +92,9 @@ private fun requestDeviceAuth(): DeviceAuthResponse? {
         conn.outputStream.use { it.write(body.toByteArray()) }
 
         if (conn.responseCode != 200) {
-            println("IAM: device-auth request failed with HTTP ${conn.responseCode}")
+            val errorBody = try { conn.errorStream?.bufferedReader()?.readText() } catch (_: Exception) { null }
             conn.disconnect()
+            println("IAM: device-auth request failed with HTTP ${conn.responseCode}: $errorBody")
             return null
         }
         val json = conn.inputStream.bufferedReader().readText()
@@ -136,15 +137,15 @@ private fun pollDeviceToken(deviceCode: String, interval: Long, expiresIn: Long)
 }
 
 /**
- * Sends a single `urn:ietf:params:oauth:grant-type:device_authorization` token request.
+ * Sends a single `urn:ietf:params:oauth:grant-type:device_code` token request (RFC 8628 §3.4).
  * Returns [TokenData] on success, `null` if the code is still pending
  * (`authorization_pending` / `slow_down`) or on network errors.
- * Throws (propagated to caller) on unrecoverable errors like `expired_token`.
+ * Sets [deviceAuthCancelled] on unrecoverable errors like `expired_token`.
  */
 private fun tryExchangeDeviceCode(deviceCode: String): TokenData? {
     return try {
         val body = buildString {
-            append("grant_type=${URLEncoder.encode("urn:ietf:params:oauth:grant-type:device_authorization", "UTF-8")}")
+            append("grant_type=${URLEncoder.encode("urn:ietf:params:oauth:grant-type:device_code", "UTF-8")}")
             append("&client_id=${URLEncoder.encode(IamConfig.CLIENT_ID, "UTF-8")}")
             append("&device_code=${URLEncoder.encode(deviceCode, "UTF-8")}")
         }
