@@ -38,7 +38,7 @@ WASM browser tests are not currently run in CI because the common test suite use
 - `version` (required): Release version string in `major.minor.patch` format (e.g. `1.2.3`)
 
 **Jobs:**
-- `prepare`: Validate version string and compute Android `versionCode`
+- `prepare`: Validate version string, verify it is strictly greater than the latest release, and compute Android `versionCode`
 - `tag`: Create and push git tag `v<version>` on the current commit
 - `build_android`: Build Android APK and AAB (signed if secrets are configured, debug otherwise)
 - `build_linux_deb`: Build Linux DEB package

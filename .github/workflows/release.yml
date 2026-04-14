@@ -99,6 +99,56 @@ jobs:
           echo "Tag:          v$VERSION"
           echo "VersionCode:  $VERSION_CODE"
 
+      - name: Check version is higher than latest release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NEW_VERSION="${{ github.event.inputs.version }}"
+
+          # Fetch the latest release tag via the GitHub API.
+          # If there is no release yet, skip the comparison.
+          LATEST_TAG=$(gh api repos/${{ github.repository }}/releases/latest --jq '.tag_name' 2>/dev/null || true)
+
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No previous release found – skipping version comparison."
+            exit 0
+          fi
+
+          # Strip the leading 'v' if present.
+          LATEST_VERSION="${LATEST_TAG#v}"
+
+          # Validate that the latest tag follows major.minor.patch.
+          if ! echo "$LATEST_VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Latest release tag '$LATEST_TAG' does not follow major.minor.patch format – skipping comparison."
+            exit 0
+          fi
+
+          echo "Latest release: $LATEST_VERSION"
+          echo "New version:    $NEW_VERSION"
+
+          # Compare versions component by component.
+          NEW_MAJOR=$(echo "$NEW_VERSION" | cut -d. -f1)
+          NEW_MINOR=$(echo "$NEW_VERSION" | cut -d. -f2)
+          NEW_PATCH=$(echo "$NEW_VERSION" | cut -d. -f3)
+
+          LAT_MAJOR=$(echo "$LATEST_VERSION" | cut -d. -f1)
+          LAT_MINOR=$(echo "$LATEST_VERSION" | cut -d. -f2)
+          LAT_PATCH=$(echo "$LATEST_VERSION" | cut -d. -f3)
+
+          if [ "$NEW_MAJOR" -gt "$LAT_MAJOR" ]; then
+            echo "Version check passed (major increased)."
+            exit 0
+          elif [ "$NEW_MAJOR" -eq "$LAT_MAJOR" ] && [ "$NEW_MINOR" -gt "$LAT_MINOR" ]; then
+            echo "Version check passed (minor increased)."
+            exit 0
+          elif [ "$NEW_MAJOR" -eq "$LAT_MAJOR" ] && [ "$NEW_MINOR" -eq "$LAT_MINOR" ] && [ "$NEW_PATCH" -gt "$LAT_PATCH" ]; then
+            echo "Version check passed (patch increased)."
+            exit 0
+          else
+            echo "::error::New version '$NEW_VERSION' (major=$NEW_MAJOR, minor=$NEW_MINOR, patch=$NEW_PATCH) must be strictly greater than the latest release '$LATEST_VERSION' (major=$LAT_MAJOR, minor=$LAT_MINOR, patch=$LAT_PATCH)."
+            exit 1
+          fi
+
   # ---------------------------------------------------------------------------
   # Android APK + AAB (uploaded as separate artifacts)
   # ---------------------------------------------------------------------------
