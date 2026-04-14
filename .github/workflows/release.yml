@@ -181,10 +181,8 @@ jobs:
           echo "KEYSTORE_PATH=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
 
       # Signed release build (when secrets are available)
-      # NOTE: APK and AAB must be built in SEPARATE Gradle invocations.
-      # When both assemble* and bundle* tasks run in the same invocation the
-      # shared merge*Assets task sees a bundle task in the graph and deletes
-      # composeResources from the merged-assets directory, which breaks the APK.
+      # APK and AAB are built in separate Gradle invocations to avoid sharing the
+      # merge*Assets task output between the two packaging tasks in a single run.
       - name: Build signed APK
         if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
         env:
@@ -218,7 +216,6 @@ jobs:
             -Pandroid.injected.signing.key.password="${ANDROID_KEY_PASSWORD}"
 
       # Unsigned debug build fallback (when no signing secrets are configured)
-      # NOTE: APK and AAB must be built in SEPARATE Gradle invocations (see above).
       - name: Build unsigned APK (fallback)
         if: ${{ env.ANDROID_KEYSTORE_BASE64 == '' }}
         env:

@@ -512,23 +512,17 @@ tasks.matching { it.name.startsWith("copyNonXmlValueResourcesFor") }.configureEa
 //     directory is populated before AGP packages the asset pack.  These tasks are
 //     chosen over the broader `bundle*` pattern to avoid adding the 220 MB file-sync
 //     as a dependency of Kotlin class-bundling tasks (e.g. `bundleXxxClassesToCompileJar`).
-//  2. A `doLast` action on every `merge*Assets` task removes the `composeResources/`
-//     tree from the base-module merged-assets directory when the current Gradle
-//     invocation includes an AAB-assembly task.  The task graph is finalized before
-//     any task begins executing, so checking it inside `doLast` is reliable.
+//  2. A `doFirst` action on every `package*Bundle` task removes the `composeResources/`
+//     tree from the base-module merged-assets directory immediately before the bundle
+//     is packaged.  Using doFirst on the packaging task (rather than doLast on the
+//     merge task) guarantees the deletion always runs even when merge*Assets is
+//     UP-TO-DATE – which happens when a prior APK build already executed the merge
+//     task in the same Gradle user-home cache.
 //     This keeps the base module under Google Play's 200 MB limit.
 //
-// For plain APK builds (`assemble*`) the deletion step is skipped, so the APK
-// remains self-contained and suitable for sideloading or local testing.
-//
-// IMPORTANT: APK and AAB builds MUST be run in SEPARATE Gradle invocations.
-// The `merge*Assets` task output is shared between the APK and AAB packaging
-// tasks for the same variant.  If both `assemble*` and `bundle*` tasks are
-// present in the same task graph, the deletion step runs (because a bundle task
-// is detected) and the APK is packaged without composeResources.  Always build
-// them as distinct Gradle invocations, e.g.:
-//   ./gradlew :composeApp:assembleProductionRelease  # APK – no deletion
-//   ./gradlew :composeApp:bundleProductionRelease    # AAB – deletion runs
+// For plain APK builds (`assemble*`) the deletion step is never triggered because
+// the `package*Bundle` task is not part of the task graph, so the APK remains
+// self-contained and suitable for sideloading or local testing.
 // ---------------------------------------------------------------------------
 afterEvaluate {
     // 1. Make the AGP-generated asset-pack pre-bundle tasks wait for the sync.
@@ -539,28 +533,23 @@ afterEvaluate {
     }
 
     // 2. Remove composeResources from the base module's merged-assets output
-    //    only when we are building an AAB.  We match only proper AAB-assembly
-    //    tasks (ending with a build-type name) to avoid false positives from
-    //    Kotlin's class-bundling tasks such as `bundleXxxClassesToCompileJar`.
-    //    The task graph is finalized before execution, so allTasks is stable here.
+    //    immediately before the AAB is packaged.  doFirst on package*Bundle runs
+    //    even when the upstream merge*Assets task was UP-TO-DATE, which is the
+    //    common case when an APK build has already executed merge*Assets in the
+    //    same Gradle cache (e.g. in CI where APK and AAB are built back-to-back).
     android.applicationVariants.all {
         val variantNameCapped = name.replaceFirstChar { it.uppercase() }
-        tasks.matching { it.name == "merge${variantNameCapped}Assets" }.configureEach {
-            doLast {
-                val isBundleBuild = project.gradle.taskGraph.allTasks.any { task ->
-                    task.project == project &&
-                        task.name.matches(Regex("bundle[A-Za-z]+(Debug|Release)"))
-                }
-                if (isBundleBuild) {
-                    outputs.files.files.forEach { mergeOutputDir ->
-                        val composeResDir = File(mergeOutputDir, "composeResources")
-                        if (composeResDir.exists()) {
-                            composeResDir.deleteRecursively()
-                            logger.lifecycle(
-                                "Asset-pack split: removed composeResources from base AAB " +
-                                    "module (resources are served from the install-time asset pack)"
-                            )
-                        }
+        val mergeAssetsTask = tasks.named("merge${variantNameCapped}Assets")
+        tasks.matching { it.name == "package${variantNameCapped}Bundle" }.configureEach {
+            doFirst {
+                mergeAssetsTask.get().outputs.files.files.forEach { mergeOutputDir ->
+                    val composeResDir = File(mergeOutputDir, "composeResources")
+                    if (composeResDir.exists()) {
+                        composeResDir.deleteRecursively()
+                        logger.lifecycle(
+                            "Asset-pack split: removed composeResources from base AAB " +
+                                "module (resources are served from the install-time asset pack)"
+                        )
                     }
                 }
             }
