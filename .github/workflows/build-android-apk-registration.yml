@@ -1,0 +1,60 @@
+name: Build Signed Android APK (ADI Registration)
+
+on:
+  workflow_dispatch:  # Allow manual triggering
+
+permissions:
+  contents: read
+
+jobs:
+  build_apk_release:
+    name: Build signed production APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 24
+        uses: actions/setup-java@v4
+        with:
+          java-version: '24'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Write ADI registration properties
+        env:
+          ANDROID_ADI_REGISTRATION_SNIPPET: ${{ secrets.ANDROID_ADI_REGISTRATION_SNIPPET }}
+        run: |
+          if [ -z "$ANDROID_ADI_REGISTRATION_SNIPPET" ]; then
+            echo "::error::Secret ANDROID_ADI_REGISTRATION_SNIPPET is not set or empty."
+            exit 1
+          fi
+          mkdir -p frontend/composeApp/src/androidMain/assets
+          printf '%s' "$ANDROID_ADI_REGISTRATION_SNIPPET" > frontend/composeApp/src/androidMain/assets/adi-registration.properties
+
+      - name: Decode Android keystore
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > "$RUNNER_TEMP/release.keystore"
+
+      - name: Build signed production release APK
+        run: |
+          ./gradlew \
+            :composeApp:assembleProductionRelease \
+            -Pandroid.injected.signing.store.file="$RUNNER_TEMP/release.keystore" \
+            -Pandroid.injected.signing.store.password="${{ secrets.ANDROID_STORE_PASSWORD }}" \
+            -Pandroid.injected.signing.key.alias="${{ secrets.ANDROID_KEY_ALIAS }}" \
+            -Pandroid.injected.signing.key.password="${{ secrets.ANDROID_KEY_PASSWORD }}"
+
+      - name: Collect APK
+        run: |
+          mkdir -p artifacts/apk
+          find frontend/composeApp/build/outputs/apk -name "*.apk" -exec cp {} artifacts/apk/ \;
+          ls -lh artifacts/apk/
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk-registration
+          path: artifacts/apk/
+          if-no-files-found: error
