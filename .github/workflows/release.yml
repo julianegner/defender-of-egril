@@ -191,7 +191,10 @@ jobs:
         run: |
           mkdir -p artifacts/apk artifacts/aab
           find frontend/composeApp/build/outputs/apk -name "*.apk" -exec cp {} artifacts/apk/ \;
-          find frontend/composeApp/build/outputs/bundle -name "*.aab" -exec cp {} artifacts/aab/ \;
+          find frontend/composeApp/build/outputs/bundle -name "*.aab" | while read f; do
+            newname=$(basename "$f" | sed 's/^composeApp/de.egril.defender/')
+            cp "$f" "artifacts/aab/$newname"
+          done
           ls -lh artifacts/apk/ artifacts/aab/
 
       - name: Upload Android APK artifact
