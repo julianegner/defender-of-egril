@@ -1737,6 +1737,8 @@ class GameEngine(private val state: GameState) {
         state.mineDigEffects.clear()
         state.arrowAttackEffects.clear()
         state.ballistaAttackEffects.clear()
+        state.bowAttackEffects.clear()
+        state.spearAttackEffects.clear()
 
         // Check and activate traps after all movements
         checkAndActivateTraps()

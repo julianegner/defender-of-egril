@@ -56,6 +56,8 @@ import de.egril.defender.ui.animations.AlchemyIdleAnimation
 import de.egril.defender.ui.animations.MineDigAnimation
 import de.egril.defender.ui.animations.ArrowAttackAnimation
 import de.egril.defender.ui.animations.BallistaAttackOverlay
+import de.egril.defender.ui.animations.BowAttackOverlay
+import de.egril.defender.ui.animations.SpearAttackOverlay
 import de.egril.defender.ui.animations.DragonTargetAnimation
 import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.icon.BombIcon
@@ -541,6 +543,24 @@ fun GameGrid(
                         animate = AppSettings.enableAnimations.value
                     )
                 }
+                val bowEffects = gameState.bowAttackEffects.toList()
+                if (bowEffects.isNotEmpty()) {
+                    BowAttackOverlay(
+                        effects = bowEffects,
+                        hexSizeDp = hexSize.value,
+                        contentSize = measuredContentSize,
+                        animate = AppSettings.enableAnimations.value
+                    )
+                }
+                val spearEffects = gameState.spearAttackEffects.toList()
+                if (spearEffects.isNotEmpty()) {
+                    SpearAttackOverlay(
+                        effects = spearEffects,
+                        hexSizeDp = hexSize.value,
+                        contentSize = measuredContentSize,
+                        animate = AppSettings.enableAnimations.value
+                    )
+                }
             }
         ) { position ->
             GridCell(
@@ -729,6 +749,10 @@ fun GridCell(
     val isArrowTargetTile = gameState.arrowAttackEffects.any { it.targetPosition == position }
     // True when this tile is the endpoint of a ballista attack (hit animation should be delayed)
     val isBallistaTargetTile = gameState.ballistaAttackEffects.any { it.targetPosition == position }
+    // True when this tile is the endpoint of a bow attack (hit animation should be delayed)
+    val isBowTargetTile = gameState.bowAttackEffects.any { it.targetPosition == position }
+    // True when this tile is the endpoint of a spear attack (hit animation should be delayed)
+    val isSpearTargetTile = gameState.spearAttackEffects.any { it.targetPosition == position }
     
     // Check if a dragon is targeting the mine at this position
     val dragonIsTargetingMine = defender != null &&
@@ -1276,6 +1300,8 @@ fun GridCell(
                 arrowAttackEffect = arrowAttackEffect,
                 isArrowTargetTile = isArrowTargetTile,
                 isBallistaTargetTile = isBallistaTargetTile,
+                isBowTargetTile = isBowTargetTile,
+                isSpearTargetTile = isSpearTargetTile,
                 dragonIsTargetingMine = dragonIsTargetingMine
             )
         }
@@ -1333,6 +1359,8 @@ fun GridCell(
                 arrowAttackEffect = arrowAttackEffect,
                 isArrowTargetTile = isArrowTargetTile,
                 isBallistaTargetTile = isBallistaTargetTile,
+                isBowTargetTile = isBowTargetTile,
+                isSpearTargetTile = isSpearTargetTile,
                 dragonIsTargetingMine = dragonIsTargetingMine
             )
         }
@@ -1387,6 +1415,8 @@ private fun BoxScope.GridCellContent(
     arrowAttackEffect: ArrowAttackEffect? = null,
     isArrowTargetTile: Boolean = false,
     isBallistaTargetTile: Boolean = false,
+    isBowTargetTile: Boolean = false,
+    isSpearTargetTile: Boolean = false,
     dragonIsTargetingMine: Boolean = false
 ) {
         when {
@@ -1903,6 +1933,8 @@ private fun BoxScope.GridCellContent(
                 val arrowDelay = when {
                     towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                     towerAttackEffect != null && isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                     else -> 0L
                 }
                 val impactDelay = if (towerAttackEffect != null) GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS else 0L
@@ -1946,6 +1978,8 @@ private fun BoxScope.GridCellContent(
                     val flightDelay = when {
                         isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                         isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
+                        isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                        isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                         else -> 0L
                     }
                     kotlinx.coroutines.delay(flightDelay + GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS)
@@ -1972,6 +2006,8 @@ private fun BoxScope.GridCellContent(
                 val arrowDelay = when {
                     towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                     towerAttackEffect != null && isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                     else -> 0L
                 }
                 val impactDelay = if (towerAttackEffect != null) GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS else 0L
@@ -1994,12 +2030,12 @@ private fun BoxScope.GridCellContent(
         }
 
         // Show tower attack impact overlay when this tile was attacked.
-        // When an arrow or ballista rock is targeting this tile the hit animation is delayed
+        // When a projectile is targeting this tile the hit animation is delayed
         // so the projectile visibly arrives before the impact flash.
         var showHitAnimation by remember(towerAttackEffect?.turnNumber, towerAttackEffect?.targetPosition) {
-            mutableStateOf(towerAttackEffect != null && !isArrowTargetTile && !isBallistaTargetTile)
+            mutableStateOf(towerAttackEffect != null && !isArrowTargetTile && !isBallistaTargetTile && !isBowTargetTile && !isSpearTargetTile)
         }
-        LaunchedEffect(towerAttackEffect?.turnNumber, towerAttackEffect?.targetPosition, isArrowTargetTile, isBallistaTargetTile) {
+        LaunchedEffect(towerAttackEffect?.turnNumber, towerAttackEffect?.targetPosition, isArrowTargetTile, isBallistaTargetTile, isBowTargetTile, isSpearTargetTile) {
             when {
                 towerAttackEffect != null && isArrowTargetTile -> {
                     kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS)
@@ -2007,6 +2043,14 @@ private fun BoxScope.GridCellContent(
                 }
                 towerAttackEffect != null && isBallistaTargetTile -> {
                     kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS)
+                    showHitAnimation = true
+                }
+                towerAttackEffect != null && isBowTargetTile -> {
+                    kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS)
+                    showHitAnimation = true
+                }
+                towerAttackEffect != null && isSpearTargetTile -> {
+                    kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS)
                     showHitAnimation = true
                 }
                 towerAttackEffect != null -> {

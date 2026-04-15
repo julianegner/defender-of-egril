@@ -102,7 +102,7 @@ class CombatSystem(
             )
         }
 
-        // Record arrow/bolt visual on the tower tile for ranged attacks (Bow, Spear)
+        // Record visual effect on the tower tile for ranged attacks (Bow, Spear)
         // Ballista uses a separate overlay animation (BallistaAttackEffect)
         if (defender.type.attackType == AttackType.RANGED) {
             if (defender.type == DefenderType.BALLISTA_TOWER) {
@@ -115,10 +115,20 @@ class CombatSystem(
                         )
                     )
                 }
-            } else {
-                if (state.arrowAttackEffects.none { it.sourcePosition == defender.position.value }) {
-                    state.arrowAttackEffects.add(
-                        ArrowAttackEffect(
+            } else if (defender.type == DefenderType.BOW_TOWER) {
+                if (state.bowAttackEffects.none { it.sourcePosition == defender.position.value }) {
+                    state.bowAttackEffects.add(
+                        BowAttackEffect(
+                            sourcePosition = defender.position.value,
+                            targetPosition = target.position.value,
+                            turnNumber = state.turnNumber.value
+                        )
+                    )
+                }
+            } else if (defender.type == DefenderType.SPEAR_TOWER) {
+                if (state.spearAttackEffects.none { it.sourcePosition == defender.position.value }) {
+                    state.spearAttackEffects.add(
+                        SpearAttackEffect(
                             sourcePosition = defender.position.value,
                             targetPosition = target.position.value,
                             turnNumber = state.turnNumber.value
@@ -216,7 +226,7 @@ class CombatSystem(
             )
         }
 
-        // Record arrow/bolt visual on the tower tile for ranged attacks (Bow, Spear)
+        // Record visual effect on the tower tile for ranged attacks (Bow, Spear)
         // Ballista uses a separate overlay animation (BallistaAttackEffect)
         if (defender.type.attackType == AttackType.RANGED) {
             if (defender.type == DefenderType.BALLISTA_TOWER) {
@@ -229,10 +239,20 @@ class CombatSystem(
                         )
                     )
                 }
-            } else {
-                if (state.arrowAttackEffects.none { it.sourcePosition == defender.position.value }) {
-                    state.arrowAttackEffects.add(
-                        ArrowAttackEffect(
+            } else if (defender.type == DefenderType.BOW_TOWER) {
+                if (state.bowAttackEffects.none { it.sourcePosition == defender.position.value }) {
+                    state.bowAttackEffects.add(
+                        BowAttackEffect(
+                            sourcePosition = defender.position.value,
+                            targetPosition = targetPosition,
+                            turnNumber = state.turnNumber.value
+                        )
+                    )
+                }
+            } else if (defender.type == DefenderType.SPEAR_TOWER) {
+                if (state.spearAttackEffects.none { it.sourcePosition == defender.position.value }) {
+                    state.spearAttackEffects.add(
+                        SpearAttackEffect(
                             sourcePosition = defender.position.value,
                             targetPosition = targetPosition,
                             turnNumber = state.turnNumber.value
