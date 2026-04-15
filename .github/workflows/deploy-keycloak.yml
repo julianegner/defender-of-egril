@@ -173,12 +173,11 @@ jobs:
             # to apply the desired client settings on every deployment, making it
             # idempotent regardless of whether the realm was freshly imported or already
             # existed.
-
-            sleep 300
+            
             # Wait for Keycloak to be ready (up to 3 minutes).
             echo "Waiting for Keycloak to be ready..."
             for i in $(seq 1 36); do
-              if curl -sf "${KC_URL}/health/ready" | grep -q '"status":"UP"'; then
+              if curl -sf "${KC_URL}/health/ready" | grep -q '"status": "UP"'; then
                 echo "Keycloak is ready."
                 break
               fi
