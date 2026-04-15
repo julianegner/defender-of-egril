@@ -99,6 +99,56 @@ jobs:
           echo "Tag:          v$VERSION"
           echo "VersionCode:  $VERSION_CODE"
 
+      - name: Check version is higher than latest release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NEW_VERSION="${{ github.event.inputs.version }}"
+
+          # Fetch the latest release tag via the GitHub API.
+          # If there is no release yet, skip the comparison.
+          LATEST_TAG=$(gh api repos/${{ github.repository }}/releases/latest --jq '.tag_name' 2>/dev/null || true)
+
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No previous release found – skipping version comparison."
+            exit 0
+          fi
+
+          # Strip the leading 'v' if present.
+          LATEST_VERSION="${LATEST_TAG#v}"
+
+          # Validate that the latest tag follows major.minor.patch.
+          if ! echo "$LATEST_VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Latest release tag '$LATEST_TAG' does not follow major.minor.patch format – skipping comparison."
+            exit 0
+          fi
+
+          echo "Latest release: $LATEST_VERSION"
+          echo "New version:    $NEW_VERSION"
+
+          # Compare versions component by component.
+          NEW_MAJOR=$(echo "$NEW_VERSION" | cut -d. -f1)
+          NEW_MINOR=$(echo "$NEW_VERSION" | cut -d. -f2)
+          NEW_PATCH=$(echo "$NEW_VERSION" | cut -d. -f3)
+
+          LAT_MAJOR=$(echo "$LATEST_VERSION" | cut -d. -f1)
+          LAT_MINOR=$(echo "$LATEST_VERSION" | cut -d. -f2)
+          LAT_PATCH=$(echo "$LATEST_VERSION" | cut -d. -f3)
+
+          if [ "$NEW_MAJOR" -gt "$LAT_MAJOR" ]; then
+            echo "Version check passed (major increased)."
+            exit 0
+          elif [ "$NEW_MAJOR" -eq "$LAT_MAJOR" ] && [ "$NEW_MINOR" -gt "$LAT_MINOR" ]; then
+            echo "Version check passed (minor increased)."
+            exit 0
+          elif [ "$NEW_MAJOR" -eq "$LAT_MAJOR" ] && [ "$NEW_MINOR" -eq "$LAT_MINOR" ] && [ "$NEW_PATCH" -gt "$LAT_PATCH" ]; then
+            echo "Version check passed (patch increased)."
+            exit 0
+          else
+            echo "::error::New version '$NEW_VERSION' (major=$NEW_MAJOR, minor=$NEW_MINOR, patch=$NEW_PATCH) must be strictly greater than the latest release '$LATEST_VERSION' (major=$LAT_MAJOR, minor=$LAT_MINOR, patch=$LAT_PATCH)."
+            exit 1
+          fi
+
   # ---------------------------------------------------------------------------
   # Android APK + AAB (uploaded as separate artifacts)
   # ---------------------------------------------------------------------------
@@ -131,7 +181,9 @@ jobs:
           echo "KEYSTORE_PATH=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
 
       # Signed release build (when secrets are available)
-      - name: Build signed APK and AAB
+      # APK and AAB are built in separate Gradle invocations to avoid sharing the
+      # merge*Assets task output between the two packaging tasks in a single run.
+      - name: Build signed APK
         if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -141,6 +193,21 @@ jobs:
         run: |
           ./gradlew \
             :composeApp:assembleProductionRelease \
+            -PappVersion="${APP_VERSION}" \
+            -Pandroid.injected.signing.store.file="$KEYSTORE_PATH" \
+            -Pandroid.injected.signing.store.password="${ANDROID_STORE_PASSWORD}" \
+            -Pandroid.injected.signing.key.alias="${ANDROID_KEY_ALIAS}" \
+            -Pandroid.injected.signing.key.password="${ANDROID_KEY_PASSWORD}"
+
+      - name: Build signed AAB
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+        run: |
+          ./gradlew \
             :composeApp:bundleProductionRelease \
             -PappVersion="${APP_VERSION}" \
             -Pandroid.injected.signing.store.file="$KEYSTORE_PATH" \
@@ -149,13 +216,21 @@ jobs:
             -Pandroid.injected.signing.key.password="${ANDROID_KEY_PASSWORD}"
 
       # Unsigned debug build fallback (when no signing secrets are configured)
-      - name: Build unsigned APK and AAB (fallback)
+      - name: Build unsigned APK (fallback)
         if: ${{ env.ANDROID_KEYSTORE_BASE64 == '' }}
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
         run: |
           ./gradlew \
             :composeApp:assembleProductionDebug \
+            -PappVersion="${APP_VERSION}"
+
+      - name: Build unsigned AAB (fallback)
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 == '' }}
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          ./gradlew \
             :composeApp:bundleProductionDebug \
             -PappVersion="${APP_VERSION}"
 
@@ -163,7 +238,10 @@ jobs:
         run: |
           mkdir -p artifacts/apk artifacts/aab
           find frontend/composeApp/build/outputs/apk -name "*.apk" -exec cp {} artifacts/apk/ \;
-          find frontend/composeApp/build/outputs/bundle -name "*.aab" -exec cp {} artifacts/aab/ \;
+          find frontend/composeApp/build/outputs/bundle -name "*.aab" | while read f; do
+            newname=$(basename "$f" | sed 's/^composeApp/de.egril.defender/')
+            cp "$f" "artifacts/aab/$newname"
+          done
           ls -lh artifacts/apk/ artifacts/aab/
 
       - name: Upload Android APK artifact
