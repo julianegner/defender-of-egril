@@ -67,13 +67,10 @@ TOKEN_BODY=$(curl -s -X POST \
   --data-urlencode "username=$ADMIN_USER" \
   --data-urlencode "password=$ADMIN_PASSWORD")
 
-# Extract the access token.
-# python3 is the reliable method; the grep fallback handles simple cases but
-# may fail with escaped or reformatted JSON.  python3 is strongly recommended.
-ADMIN_TOKEN=$(echo "$TOKEN_BODY" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('access_token',''))" 2>/dev/null || true)
-if [ -z "$ADMIN_TOKEN" ]; then
-  ADMIN_TOKEN=$(echo "$TOKEN_BODY" | grep -o '"access_token":"[^"]*"' | cut -d'"' -f4 || true)
-fi
+# Extract the access token using standard POSIX tools (grep + cut).
+# Keycloak access tokens (JWTs) never contain double-quote characters, so this
+# pattern reliably captures the full token value.
+ADMIN_TOKEN=$(echo "$TOKEN_BODY" | grep -o '"access_token":"[^"]*"' | cut -d'"' -f4)
 
 if [ -z "$ADMIN_TOKEN" ]; then
   echo "ERROR: Failed to obtain admin token. Response:"
