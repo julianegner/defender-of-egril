@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
@@ -46,7 +47,7 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}) {
         // Header
         Text(
             text = stringResource(Res.string.download_info_title),
-            style = MaterialTheme.typography.displayMedium,
+            style = MaterialTheme.typography.headlineLarge,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
             color = MaterialTheme.colorScheme.onBackground
@@ -224,26 +225,32 @@ private fun AssetListItem(asset: GithubReleaseAsset) {
             color = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.width(90.dp)
         )
+        // Fixed minimum width so the file-type label always stays on one line
+        // ("Flatpak" is the longest value at ~7 chars)
         Text(
             text = fileType,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.widthIn(min = 60.dp)
         )
-        DownloadLink(url = asset.downloadUrl, text = asset.name)
+        // Download link fills remaining space; long filenames are truncated with ellipsis
+        // so the entire row always fits on a single line on narrow screens.
+        DownloadLink(url = asset.downloadUrl, text = asset.name, modifier = Modifier.weight(1f))
     }
     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 }
 
 @Composable
-private fun DownloadLink(url: String, text: String) {
+private fun DownloadLink(url: String, text: String, modifier: Modifier = Modifier) {
     val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
     Text(
         text = text,
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.primary,
         textDecoration = TextDecoration.Underline,
-        modifier = Modifier
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier
             .padding(start = 8.dp)
             .clickable { uriHandler.openUri(url) }
     )

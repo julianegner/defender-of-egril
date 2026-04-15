@@ -27,7 +27,7 @@ fun InstallationInfo() {
         // Header
         Text(
             text = stringResource(Res.string.installation_info_title),
-            style = MaterialTheme.typography.displayMedium,
+            style = MaterialTheme.typography.headlineLarge,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
             color = MaterialTheme.colorScheme.onBackground

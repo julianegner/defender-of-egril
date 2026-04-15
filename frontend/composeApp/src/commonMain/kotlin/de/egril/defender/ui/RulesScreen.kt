@@ -40,7 +40,7 @@ fun RulesScreen(
                 // Header
                 Text(
                     text = stringResource(Res.string.how_to_play),
-                    style = MaterialTheme.typography.displayMedium,
+                    style = MaterialTheme.typography.headlineLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(bottom = 16.dp),
                     color = MaterialTheme.colorScheme.onBackground
@@ -54,7 +54,7 @@ fun RulesScreen(
                 // Back button
                 Button(
                     onClick = onBack,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                 ) {
                     Text(stringResource(Res.string.back))
                 }
