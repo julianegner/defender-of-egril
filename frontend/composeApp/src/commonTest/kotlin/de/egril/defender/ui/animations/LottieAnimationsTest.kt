@@ -36,6 +36,7 @@ class LottieAnimationsTest {
         val mineDigType = AnimationType.MINE_DIG
         val arrowAttackType = AnimationType.ARROW_ATTACK
         val dragonTargetType = AnimationType.DRAGON_TARGET
+        val ballistaAttackType = AnimationType.BALLISTA_ATTACK
 
         assertNotNull(healingType, "Green witch healing animation type should exist")
         assertNotNull(damageType, "Barricade damage animation type should exist")
@@ -59,6 +60,7 @@ class LottieAnimationsTest {
         assertNotNull(mineDigType, "Mine dig animation type should exist")
         assertNotNull(arrowAttackType, "Arrow attack animation type should exist")
         assertNotNull(dragonTargetType, "Dragon target animation type should exist")
+        assertNotNull(ballistaAttackType, "Ballista attack animation type should exist")
     }
 
     @Test
@@ -69,8 +71,8 @@ class LottieAnimationsTest {
     
     @Test
     fun testAnimationTypeCount() {
-        // Verify we have exactly 23 animation types
+        // Verify we have exactly 24 animation types
         val animationTypes = AnimationType.values()
-        assertEquals(23, animationTypes.size, "Should have exactly 23 animation types")
+        assertEquals(24, animationTypes.size, "Should have exactly 24 animation types")
     }
 }

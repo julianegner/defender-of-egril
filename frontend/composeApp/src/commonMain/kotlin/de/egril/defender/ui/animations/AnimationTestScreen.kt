@@ -1,5 +1,6 @@
 package de.egril.defender.ui.animations
 import io.github.alexzhirkevich.compottie.Compottie
+import de.egril.defender.ui.animations.BallistaAttackTestPreview
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -154,12 +155,17 @@ fun AnimationTestScreen(onBack: () -> Unit) {
         ) {
             // Use `key` to force a full recomposition (and thus restart) when the animation changes
             key(animationKey, selectedAnimation) {
-                val isLooping = selectedAnimation in LOOPING_ANIMATIONS
-                LottieAnimation(
-                    animationType = selectedAnimation,
-                    modifier = Modifier.size(200.dp),
-                    iterations = if (isLooping) Compottie.IterateForever else 1
-                )
+                if (selectedAnimation == AnimationType.BALLISTA_ATTACK) {
+                    // Special canvas-based preview for ballista (spans multiple tiles in gameplay)
+                    BallistaAttackTestPreview(modifier = Modifier.fillMaxSize())
+                } else {
+                    val isLooping = selectedAnimation in LOOPING_ANIMATIONS
+                    LottieAnimation(
+                        animationType = selectedAnimation,
+                        modifier = Modifier.size(200.dp),
+                        iterations = if (isLooping) Compottie.IterateForever else 1
+                    )
+                }
             }
         }
     }
@@ -312,4 +318,5 @@ private fun AnimationType.displayName(): String = when (this) {
     AnimationType.MINE_DIG                   -> "Mine Dig"
     AnimationType.ARROW_ATTACK               -> "Arrow Attack"
     AnimationType.DRAGON_TARGET              -> "Dragon Target (Mine)"
+    AnimationType.BALLISTA_ATTACK            -> "Ballista Attack (Rock)"
 }

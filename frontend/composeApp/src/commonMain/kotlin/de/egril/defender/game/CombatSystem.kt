@@ -102,20 +102,31 @@ class CombatSystem(
             )
         }
 
-        // Record arrow/bolt visual on the tower tile for ranged attacks (Bow, Spear, Ballista)
+        // Record arrow/bolt visual on the tower tile for ranged attacks (Bow, Spear)
+        // Ballista uses a separate overlay animation (BallistaAttackEffect)
         if (defender.type.attackType == AttackType.RANGED) {
-            if (state.arrowAttackEffects.none { it.sourcePosition == defender.position.value }) {
-                state.arrowAttackEffects.add(
-                    ArrowAttackEffect(
-                        sourcePosition = defender.position.value,
-                        targetPosition = target.position.value,
-                        turnNumber = state.turnNumber.value
+            if (defender.type == DefenderType.BALLISTA_TOWER) {
+                if (state.ballistaAttackEffects.none { it.sourcePosition == defender.position.value }) {
+                    state.ballistaAttackEffects.add(
+                        BallistaAttackEffect(
+                            sourcePosition = defender.position.value,
+                            targetPosition = target.position.value,
+                            turnNumber = state.turnNumber.value
+                        )
                     )
-                )
+                }
+            } else {
+                if (state.arrowAttackEffects.none { it.sourcePosition == defender.position.value }) {
+                    state.arrowAttackEffects.add(
+                        ArrowAttackEffect(
+                            sourcePosition = defender.position.value,
+                            targetPosition = target.position.value,
+                            turnNumber = state.turnNumber.value
+                        )
+                    )
+                }
             }
         }
-
-        defender.actionsRemaining.value--
 
         // Process defeated attackers immediately to give coins
         processDefeated()
@@ -203,22 +214,31 @@ class CombatSystem(
             )
         }
 
-        // Record arrow/bolt visual on the tower tile for ranged attacks (Bow, Spear, Ballista)
+        // Record arrow/bolt visual on the tower tile for ranged attacks (Bow, Spear)
+        // Ballista uses a separate overlay animation (BallistaAttackEffect)
         if (defender.type.attackType == AttackType.RANGED) {
-            if (state.arrowAttackEffects.none { it.sourcePosition == defender.position.value }) {
-                state.arrowAttackEffects.add(
-                    ArrowAttackEffect(
-                        sourcePosition = defender.position.value,
-                        targetPosition = targetPosition,
-                        turnNumber = state.turnNumber.value
+            if (defender.type == DefenderType.BALLISTA_TOWER) {
+                if (state.ballistaAttackEffects.none { it.sourcePosition == defender.position.value }) {
+                    state.ballistaAttackEffects.add(
+                        BallistaAttackEffect(
+                            sourcePosition = defender.position.value,
+                            targetPosition = targetPosition,
+                            turnNumber = state.turnNumber.value
+                        )
                     )
-                )
+                }
+            } else {
+                if (state.arrowAttackEffects.none { it.sourcePosition == defender.position.value }) {
+                    state.arrowAttackEffects.add(
+                        ArrowAttackEffect(
+                            sourcePosition = defender.position.value,
+                            targetPosition = targetPosition,
+                            turnNumber = state.turnNumber.value
+                        )
+                    )
+                }
             }
         }
-
-        defender.actionsRemaining.value--
-        
-        // Process defeated attackers immediately to give coins
         processDefeated()
         
         return true
