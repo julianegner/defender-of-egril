@@ -134,3 +134,83 @@ jobs:
             docker compose down keycloak nginx || true
             docker compose up -d
             echo "✅ Keycloak and nginx deployed"
+
+      - name: "🔧 Apply Keycloak client configuration via Admin API"
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 178.104.79.60
+          username: root
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
+          script: |
+            set -euo pipefail
+            KC_URL="http://localhost:8080"
+            ADMIN_PASSWORD="${{ secrets.PROD_KEYCLOAK_ADMIN_PASSWORD }}"
+
+            # Keycloak only imports the realm on first start (when the realm does not
+            # yet exist in the database), so changes to egril-realm.json are not applied
+            # automatically on subsequent deployments.  This step uses the Admin REST API
+            # to apply the desired client settings on every deployment, making it
+            # idempotent regardless of whether the realm was freshly imported or already
+            # existed.
+
+            # Wait for Keycloak to be ready (up to 3 minutes).
+            echo "Waiting for Keycloak to be ready..."
+            for i in $(seq 1 36); do
+              if curl -sf "${KC_URL}/health/ready" | grep -q '"status":"UP"'; then
+                echo "Keycloak is ready."
+                break
+              fi
+              echo "  attempt ${i}/36 – not ready yet, retrying in 5 s..."
+              sleep 5
+              if [ "${i}" -eq 36 ]; then
+                echo "❌ Keycloak did not become ready within 3 minutes."
+                exit 1
+              fi
+            done
+
+            # Obtain a short-lived admin token from the master realm.
+            TOKEN=$(curl -sf -X POST "${KC_URL}/realms/master/protocol/openid-connect/token" \
+              -H "Content-Type: application/x-www-form-urlencoded" \
+              -d "grant_type=password&client_id=admin-cli&username=admin&password=${ADMIN_PASSWORD}" | \
+              python3 -c "import sys, json; print(json.load(sys.stdin)['access_token'])")
+
+            # Look up the internal UUID of the defender-of-egril-desktop client.
+            CLIENT_LIST=$(curl -sf "${KC_URL}/admin/realms/egril/clients?clientId=defender-of-egril-desktop" \
+              -H "Authorization: Bearer ${TOKEN}")
+            CLIENT_UUID=$(echo "${CLIENT_LIST}" | python3 -c "
+            import sys, json
+            clients = json.load(sys.stdin)
+            print(clients[0]['id'] if clients else 'NOT_FOUND')
+            ")
+
+            if [ "${CLIENT_UUID}" = "NOT_FOUND" ]; then
+              echo "ℹ️  defender-of-egril-desktop client not found – skipping consent patch."
+              exit 0
+            fi
+
+            # Fetch the full client representation, set consentRequired=false, and PUT it back.
+            # consentRequired=true causes Keycloak to show the OAuth Grant consent page after
+            # the user logs in via the Device Authorization Grant flow (RFC 8628).  Setting it
+            # to false skips that page so the token is issued immediately.
+            CLIENT=$(curl -sf "${KC_URL}/admin/realms/egril/clients/${CLIENT_UUID}" \
+              -H "Authorization: Bearer ${TOKEN}")
+            UPDATED=$(echo "${CLIENT}" | python3 -c "
+            import sys, json
+            d = json.load(sys.stdin)
+            d['consentRequired'] = False
+            print(json.dumps(d))
+            ")
+
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X PUT \
+              "${KC_URL}/admin/realms/egril/clients/${CLIENT_UUID}" \
+              -H "Authorization: Bearer ${TOKEN}" \
+              -H "Content-Type: application/json" \
+              -d "${UPDATED}")
+
+            if [ "${HTTP_STATUS}" = "204" ]; then
+              echo "✅ consentRequired=false applied to defender-of-egril-desktop (HTTP 204)"
+            else
+              echo "❌ Unexpected HTTP ${HTTP_STATUS} when updating defender-of-egril-desktop."
+              exit 1
+            fi

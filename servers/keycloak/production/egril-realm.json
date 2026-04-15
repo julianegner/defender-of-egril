@@ -54,6 +54,34 @@
       }
     },
     {
+      "clientId": "defender-of-egril-desktop",
+      "name": "Defender of Egril Desktop",
+      "description": "Public client for the desktop app. Uses Device Authorization Grant (RFC 8628) — no browser redirect, no PKCE.",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "consentRequired": false,
+      "protocol": "openid-connect",
+      "attributes": {
+        "oauth2.device.authorization.grant.enabled": "true",
+        "post.logout.redirect.uris": "egril://callback"
+      },
+      "protocolMappers": [
+        {
+          "name": "defender-of-egril-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "defender-of-egril",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
       "clientId": "defender-of-egril-cli",
       "name": "Defender of Egril CLI",
       "description": "Public client for developer scripts and API testing. Allows Resource Owner Password Credentials flow.",

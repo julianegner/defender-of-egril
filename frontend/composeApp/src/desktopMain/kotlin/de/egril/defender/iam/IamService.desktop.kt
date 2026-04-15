@@ -6,12 +6,8 @@ import java.net.HttpURLConnection
 import java.net.ServerSocket
 import java.net.URI
 import java.net.URLEncoder
-import java.security.MessageDigest
-import java.util.Base64
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.atomic.AtomicReference
-import kotlin.random.Random
 
 actual fun getIamBaseUrl(): String = readIamBaseUrlFromJvmEnv()
 
@@ -19,7 +15,7 @@ actual fun getIamBaseUrl(): String = readIamBaseUrlFromJvmEnv()
 // Token storage – access token + refresh token held in memory only
 // ---------------------------------------------------------------------------
 
-/** Refresh token from the last successful PKCE exchange or token refresh. */
+/** Refresh token from the last successful token exchange or token refresh. */
 @Volatile
 private var storedRefreshToken: String? = null
 
@@ -38,32 +34,12 @@ private const val TOKEN_HTTP_TIMEOUT_MS = 10_000
 private var refreshThreadRunning = false
 
 /**
- * Fixed loopback port for the PKCE redirect URI.
- *
- * Keycloak 24 does NOT support wildcards in the port position of a redirect URI
- * (e.g. http://localhost:*\/callback is rejected). A dedicated, well-known port
- * registered in the Keycloak client avoids this restriction.
+ * Fixed loopback port for the PKCE redirect URI used in the logout callback flow.
  *
  * The port is registered in local-keycloak/egril-realm.json as
  * http://localhost:10001/callback.
  */
 private const val PKCE_CALLBACK_PORT = 10001
-
-/**
- * When set to `true`, the next call to [startPlatformLogin] will open the Keycloak
- * "restart login" URL (`/login-actions/restart?…skip_logout=false`) instead of
- * the standard authorization endpoint. This shows a completely blank login form
- * without any pre-filled username, ensuring no trace of the previous Keycloak
- * user is visible.
- *
- * The flag is set by [performPlatformLogoutBackchannel] (called when switching to
- * a local player with no remote account) and atomically consumed – and then cleared –
- * at the beginning of [startPlatformLogin].
- *
- * `AtomicBoolean.getAndSet(false)` is used to ensure only a single concurrent login
- * attempt can consume the flag, avoiding a race between two rapid login calls.
- */
-private val nextLoginUsesRestartUrl = AtomicBoolean(false)
 
 /**
  * Monotonically increasing counter that identifies the current login attempt.
@@ -74,86 +50,161 @@ private val nextLoginUsesRestartUrl = AtomicBoolean(false)
  */
 private val loginGeneration = AtomicInteger(0)
 
+/** Minimum polling interval in seconds to avoid hammering the server (RFC 8628 §3.5). */
+private const val MIN_POLL_INTERVAL_SECONDS = 5L
+
 /**
- * The [ServerSocket] currently blocking on `accept()` inside [waitForAuthCode],
- * or `null` when no login is in progress. Closing this socket interrupts the
- * waiting thread, frees port [PKCE_CALLBACK_PORT], and allows a fresh login to
- * bind the well-known port immediately.
+ * Set to `true` to signal the device-auth polling loop to stop.
  *
- * An [AtomicReference] ensures that [startPlatformLogin]'s `getAndSet(null)?.close()`
- * is performed atomically: it is impossible for two concurrent calls to both read
- * a non-null reference without one of them closing it.
- *
- * Written by [waitForAuthCode] (set on open, cleared with CAS in `finally`). Read and
- * closed by [startPlatformLogin] to cancel a pending login before starting a new one.
+ * Set by [startPlatformLogin] at the beginning of each call to cancel any
+ * in-progress poll, and by [performPlatformLogoutLocal] / [performPlatformLogoutBackchannel]
+ * when the user explicitly cancels or switches players.
  */
-private val pendingCallbackServer = AtomicReference<ServerSocket?>(null)
+private val deviceAuthCancelled = AtomicBoolean(false)
+
+// ---------------------------------------------------------------------------
+// Device Authorization Grant (RFC 8628) – login flow
+// ---------------------------------------------------------------------------
+
+/** Parsed response from the Keycloak device-authorization endpoint. */
+private data class DeviceAuthResponse(
+    val deviceCode: String,
+    val userCode: String,
+    val verificationUri: String,
+    val verificationUriComplete: String?,
+    val expiresIn: Long,
+    val interval: Long
+)
+
+/**
+ * POSTs to the Keycloak device-authorization endpoint and returns the response,
+ * or `null` if the request fails or the server returns a non-200 status.
+ */
+private fun requestDeviceAuth(): DeviceAuthResponse? {
+    return try {
+        val body = "client_id=${URLEncoder.encode(IamConfig.DESKTOP_CLIENT_ID, "UTF-8")}&scope=openid"
+        val conn = URI.create(IamConfig.deviceAuthUrl).toURL().openConnection() as HttpURLConnection
+        conn.requestMethod = "POST"
+        conn.doOutput = true
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+        conn.connectTimeout = TOKEN_HTTP_TIMEOUT_MS
+        conn.readTimeout = TOKEN_HTTP_TIMEOUT_MS
+        conn.outputStream.use { it.write(body.toByteArray()) }
+
+        if (conn.responseCode != 200) {
+            val errorBody = try { conn.errorStream?.bufferedReader()?.readText() } catch (_: Exception) { null }
+            conn.disconnect()
+            println("IAM: device-auth request failed with HTTP ${conn.responseCode}: $errorBody")
+            return null
+        }
+        val json = conn.inputStream.bufferedReader().readText()
+        conn.disconnect()
+
+        DeviceAuthResponse(
+            deviceCode = extractJsonStringValue(json, "device_code") ?: return null,
+            userCode = extractJsonStringValue(json, "user_code") ?: return null,
+            verificationUri = extractJsonStringValue(json, "verification_uri") ?: return null,
+            verificationUriComplete = extractJsonStringValue(json, "verification_uri_complete"),
+            expiresIn = extractJsonNumberValue(json, "expires_in") ?: 300L,
+            interval = extractJsonNumberValue(json, "interval") ?: 5L
+        )
+    } catch (e: Exception) {
+        println("IAM: device-auth request failed: ${e.message}")
+        null
+    }
+}
+
+/**
+ * Polls the Keycloak token endpoint using the Device Authorization Grant until
+ * the user completes login, the code expires, or [deviceAuthCancelled] is set.
+ *
+ * Returns the [TokenData] on success or `null` on failure / cancellation.
+ */
+private fun pollDeviceToken(deviceCode: String, interval: Long, expiresIn: Long): TokenData? {
+    val deadline = System.currentTimeMillis() + expiresIn * 1_000L
+    // Use the server-specified interval but clamp to at least MIN_POLL_INTERVAL_SECONDS
+    // to avoid hammering the server (RFC 8628 §3.5).
+    val pollIntervalMs = maxOf(interval, MIN_POLL_INTERVAL_SECONDS) * 1_000L
+
+    while (!deviceAuthCancelled.get() && System.currentTimeMillis() < deadline) {
+        Thread.sleep(pollIntervalMs)
+        if (deviceAuthCancelled.get()) break
+
+        val result = tryExchangeDeviceCode(deviceCode) ?: continue
+        return result
+    }
+    return null
+}
+
+/**
+ * Sends a single `urn:ietf:params:oauth:grant-type:device_code` token request (RFC 8628 §3.4).
+ * Returns [TokenData] on success, `null` if the code is still pending
+ * (`authorization_pending` / `slow_down`) or on network errors.
+ * Sets [deviceAuthCancelled] on unrecoverable errors like `expired_token`.
+ */
+private fun tryExchangeDeviceCode(deviceCode: String): TokenData? {
+    return try {
+        val body = buildString {
+            append("grant_type=${URLEncoder.encode("urn:ietf:params:oauth:grant-type:device_code", "UTF-8")}")
+            append("&client_id=${URLEncoder.encode(IamConfig.DESKTOP_CLIENT_ID, "UTF-8")}")
+            append("&device_code=${URLEncoder.encode(deviceCode, "UTF-8")}")
+        }
+        val conn = URI.create(IamConfig.tokenUrl).toURL().openConnection() as HttpURLConnection
+        conn.requestMethod = "POST"
+        conn.doOutput = true
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+        conn.connectTimeout = TOKEN_HTTP_TIMEOUT_MS
+        conn.readTimeout = TOKEN_HTTP_TIMEOUT_MS
+        conn.outputStream.use { it.write(body.toByteArray()) }
+
+        if (conn.responseCode == 200) {
+            val json = conn.inputStream.bufferedReader().readText()
+            conn.disconnect()
+            return parseTokenResponse(json)
+        }
+
+        // Non-200: read the error body to decide what to do
+        val errorJson = try { conn.errorStream?.bufferedReader()?.readText() } catch (_: Exception) { null } ?: ""
+        conn.disconnect()
+        val error = extractJsonStringValue(errorJson, "error") ?: ""
+        when (error) {
+            "authorization_pending", "slow_down" -> null  // still waiting – continue polling
+            else -> {
+                // expired_token, access_denied, or other unrecoverable error
+                println("IAM: device-code exchange failed: $error")
+                deviceAuthCancelled.set(true)
+                null
+            }
+        }
+    } catch (e: Exception) {
+        println("IAM: device-code token poll failed: ${e.message}")
+        null
+    }
+}
 
 internal actual fun startPlatformLogin() {
-    // If a previous login is still waiting for the browser callback, cancel it now.
-    // This frees port PKCE_CALLBACK_PORT so the new attempt can bind the well-known
-    // port. Without this, the second login falls back to a random port which is not
-    // registered in Keycloak and triggers "Invalid parameter: redirect_uri".
-    // getAndSet(null) is atomic: it is impossible for two concurrent cancels to both
-    // read the same non-null reference without one of them closing it.
-    pendingCallbackServer.getAndSet(null)?.close()
+    // Signal any in-progress polling loop to stop before starting a new login.
+    deviceAuthCancelled.set(true)
 
-    // Capture the current generation BEFORE spawning the thread. If startPlatformLogin
-    // is called again while this thread is running, the generation is incremented and
-    // this thread's finally block will not clear the newer login's loginInProgress flag.
     val myGeneration = loginGeneration.incrementAndGet()
-
-    // Resolve the locale and page texts on the calling thread (UI thread) before spawning
-    // the background daemon thread, so that LocalizedStrings is accessed in a context where
-    // the Compose runtime and resources are fully initialised.
-    val locale = currentLanguage.value
-    val loginPageHeading = "&#x2713; ${LocalizedStrings.get("iam_login_successful_heading", locale)}"
-    val loginPageMessage = LocalizedStrings.get("iam_login_successful_message", locale)
+    // Reset cancellation flag AFTER capturing the new generation so the new thread sees false.
+    deviceAuthCancelled.set(false)
 
     Thread {
         try {
-            // Atomically consume the flag — set by performPlatformLogoutBackchannel()
-            // when switching to a local player to ensure a completely blank login form.
-            val useRestartUrl = nextLoginUsesRestartUrl.getAndSet(false)
+            val deviceResponse = requestDeviceAuth() ?: return@Thread
 
-            val port = acquireCallbackPort()
-            val redirectUri = "http://localhost:$port/callback"
-            val codeVerifier = generateCodeVerifier()
-            val codeChallenge = generateCodeChallenge(codeVerifier)
-            val state = generateRandomBase64(16)
+            IamService.deviceAuthState.value = DeviceAuthState(
+                userCode = deviceResponse.userCode,
+                verificationUri = deviceResponse.verificationUri,
+                verificationUriComplete = deviceResponse.verificationUriComplete
+            )
 
-            // Choose the authorization URL based on the context:
-            //  - After switching to a local player: use the Keycloak restart URL. This
-            //    terminates the previous SSO session (skip_logout=false) and presents a
-            //    completely blank login form with no pre-filled username.
-            //  - Normal login (alwaysLogin on app restart, manual login for remote player):
-            //    use the standard OIDC authorization endpoint, which will reuse an existing
-            //    SSO session so the user does not have to re-enter credentials.
-            val baseLoginUrl = if (useRestartUrl) IamConfig.restartLoginUrl else IamConfig.authUrl
-            val authUrl = buildString {
-                append(baseLoginUrl)
-                append("?client_id=").append(IamConfig.CLIENT_ID)
-                if (useRestartUrl) append("&skip_logout=false")
-                append("&response_type=code")
-                append("&scope=openid")
-                append("&redirect_uri=").append(URLEncoder.encode(redirectUri, "UTF-8"))
-                append("&state=").append(state)
-                append("&code_challenge=").append(codeChallenge)
-                append("&code_challenge_method=S256")
-                // Forward the app's selected language so the Keycloak login page
-                // is displayed in the same language as the game UI.
-                append("&ui_locales=").append(locale.code)
-            }
-
-            // Open the Keycloak login page in a new browser window in the foreground.
-            // IamService.loginInProgress is set to true by IamService.login() before
-            // this call; the UI shows a "Waiting for browser login" dialog while
-            // this thread is blocked waiting for the callback.
-            openBrowserNewWindow(authUrl)
-
-            val code = waitForAuthCode(port, locale.code, loginPageHeading, loginPageMessage) ?: return@Thread
-
-            val tokenData = exchangeCodeForToken(code, codeVerifier, redirectUri) ?: return@Thread
+            val tokenData = pollDeviceToken(
+                deviceCode = deviceResponse.deviceCode,
+                interval = deviceResponse.interval,
+                expiresIn = deviceResponse.expiresIn
+            ) ?: return@Thread
 
             IamService.state.value = tokenData.toIamState()
             storedRefreshToken = tokenData.refreshToken
@@ -165,9 +216,8 @@ internal actual fun startPlatformLogin() {
         } catch (_: Exception) {
             // Login errors must never disrupt gameplay
         } finally {
-            // Clear the in-progress flag only if we are still the active login attempt.
-            // A newer login (higher generation) may have already taken over; clearing its
-            // flag here would incorrectly hide the "Waiting for login" indicator.
+            IamService.deviceAuthState.value = null
+            // Only clear loginInProgress for the login attempt that owns this thread.
             if (loginGeneration.get() == myGeneration) {
                 IamService.loginInProgress.value = false
             }
@@ -179,6 +229,7 @@ internal actual fun performPlatformLogout() {
     storedRefreshToken = null
     tokenExpiresAtMs = 0L
     refreshThreadRunning = false
+    deviceAuthCancelled.set(true)
     IamService.loginInProgress.value = false
     // Open the Keycloak logout endpoint in the browser so the SSO session is terminated.
     // We listen on PKCE_CALLBACK_PORT for the post-logout redirect so that we can serve
@@ -207,20 +258,19 @@ internal actual fun performPlatformLogout() {
 
 /**
  * Clears only in-memory token state without opening the browser or binding the
- * PKCE callback port. Used when switching players so that a subsequent login flow
- * can acquire the port without conflict.
+ * PKCE callback port. Used when switching players or cancelling a login flow.
  */
 internal actual fun performPlatformLogoutLocal() {
     storedRefreshToken = null
     tokenExpiresAtMs = 0L
     refreshThreadRunning = false
+    deviceAuthCancelled.set(true)
 }
 
 /**
  * Revokes the Keycloak session via an HTTP POST (backchannel logout) and clears
  * in-memory token state. This terminates the server-side session without opening
- * a browser window or binding the PKCE callback port, so a subsequent login can
- * proceed without any port conflict or race condition.
+ * a browser window, so a subsequent login can proceed without any port conflict.
  *
  * If no refresh token is stored (e.g. login never completed) the function behaves
  * identically to [performPlatformLogoutLocal].
@@ -230,12 +280,7 @@ internal actual fun performPlatformLogoutBackchannel() {
     storedRefreshToken = null
     tokenExpiresAtMs = 0L
     refreshThreadRunning = false
-
-    // Signal startPlatformLogin() to use the Keycloak restart URL the next time
-    // the user initiates a login. The restart URL shows a completely blank form
-    // without any pre-filled username, so no trace of the previous Keycloak user
-    // is visible. The flag is atomically consumed (and cleared) in startPlatformLogin().
-    nextLoginUsesRestartUrl.set(true)
+    deviceAuthCancelled.set(true)
 
     if (refreshToken != null) {
         // Fire-and-forget: revoke the server-side session on a background thread.
@@ -259,8 +304,6 @@ internal actual fun performPlatformLogoutBackchannel() {
                 conn.disconnect()
             } catch (e: Exception) {
                 // Backchannel logout failed – local state was already cleared above.
-                // The Keycloak session may persist until its natural expiry, but the
-                // next login will present a fresh login page once the session expires.
                 println("IAM: backchannel logout failed: ${e.message}")
             }
         }.also { it.isDaemon = true }.start()
@@ -269,8 +312,7 @@ internal actual fun performPlatformLogoutBackchannel() {
 
 actual suspend fun initPlatformIam() {
     // Desktop login is triggered manually; nothing to restore on startup.
-    // The background refresh thread is started in startPlatformLogin() after
-    // the initial PKCE exchange succeeds.
+    // The background refresh thread is started after the initial token exchange succeeds.
 }
 
 // ---------------------------------------------------------------------------
@@ -379,44 +421,6 @@ private fun parseTokenResponse(json: String): TokenData? {
     return TokenData(accessToken, refreshToken, expiresIn)
 }
 
-private fun waitForAuthCode(port: Int, langCode: String, heading: String, message: String): String? {
-    val server = ServerSocket(port)
-    pendingCallbackServer.set(server)  // publish so startPlatformLogin() can cancel us
-    server.soTimeout = 120_000 // 2-minute timeout to give the user time to log in
-    return try {
-        val socket = server.accept()
-        val requestLine = socket.getInputStream().bufferedReader().readLine() ?: return null
-        // e.g. "GET /callback?code=abc&state=xyz HTTP/1.1"
-        val pathAndQuery = requestLine.split(" ").getOrNull(1) ?: return null
-        val queryString = pathAndQuery.substringAfter("?", "")
-        val params = queryString.split("&")
-            .mapNotNull { it.split("=", limit = 2).takeIf { p -> p.size == 2 } }
-            .associate { (k, v) -> k to v }
-
-        // Auto-close the browser window after 2 seconds so the user returns to the app.
-        // window.close() is blocked by browsers when the page was not opened via JS, so
-        // we also show a manual-close hint as fallback.
-        serveAutoClosePage(socket, langCode = langCode, heading = heading, message = message)
-        params["code"]
-    } catch (_: Exception) {
-        null
-    } finally {
-        pendingCallbackServer.compareAndSet(server, null)  // only clear OUR reference
-        server.close()
-    }
-}
-
-/**
- * Listens on [PKCE_CALLBACK_PORT] for a single request (the post-logout redirect from
- * Keycloak) and serves an auto-closing "Logged out" page.
- *
- * [langCode], [heading], and [message] are resolved before this function is called
- * (on the UI thread) and passed in to avoid accessing localization APIs from a
- * background daemon thread.
- *
- * The server times out after 30 seconds; if Keycloak never redirects (e.g. network error)
- * it exits silently – the local state has already been cleared by [performPlatformLogout].
- */
 private fun serveLogoutCallback(langCode: String, heading: String, message: String) {
     try {
         val server = ServerSocket(PKCE_CALLBACK_PORT)
@@ -463,61 +467,6 @@ private fun serveAutoClosePage(socket: java.net.Socket, langCode: String, headin
     socket.close()
 }
 
-private fun exchangeCodeForToken(code: String, codeVerifier: String, redirectUri: String): TokenData? {
-    return try {
-        val body = buildString {
-            append("grant_type=authorization_code")
-            append("&client_id=${IamConfig.CLIENT_ID}")
-            append("&code=${URLEncoder.encode(code, "UTF-8")}")
-            append("&redirect_uri=${URLEncoder.encode(redirectUri, "UTF-8")}")
-            append("&code_verifier=${URLEncoder.encode(codeVerifier, "UTF-8")}")
-        }
-
-        val conn = URI.create(IamConfig.tokenUrl).toURL().openConnection() as HttpURLConnection
-        conn.requestMethod = "POST"
-        conn.doOutput = true
-        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-        conn.connectTimeout = TOKEN_HTTP_TIMEOUT_MS
-        conn.readTimeout = TOKEN_HTTP_TIMEOUT_MS
-        conn.outputStream.use { it.write(body.toByteArray()) }
-
-        val response = conn.inputStream.bufferedReader().readText()
-        conn.disconnect()
-
-        parseTokenResponse(response)
-    } catch (_: Exception) {
-        null
-    }
-}
-
-/**
- * Returns PKCE_CALLBACK_PORT if that port is available, otherwise finds any free port.
- *
- * Note: if a fallback port is returned it will NOT be registered in Keycloak, so the
- * authorization code exchange will fail. In practice port PKCE_CALLBACK_PORT should
- * always be available on a development machine.
- */
-private fun acquireCallbackPort(): Int {
-    return try {
-        ServerSocket(PKCE_CALLBACK_PORT).use { PKCE_CALLBACK_PORT }
-    } catch (_: Exception) {
-        ServerSocket(0).use { it.localPort }
-    }
-}
-
-private fun generateCodeVerifier(): String =
-    Base64.getUrlEncoder().withoutPadding()
-        .encodeToString(ByteArray(32).also { Random.nextBytes(it) })
-
-private fun generateCodeChallenge(verifier: String): String {
-    val hash = MessageDigest.getInstance("SHA-256").digest(verifier.toByteArray(Charsets.US_ASCII))
-    return Base64.getUrlEncoder().withoutPadding().encodeToString(hash)
-}
-
-private fun generateRandomBase64(bytes: Int): String =
-    Base64.getUrlEncoder().withoutPadding()
-        .encodeToString(ByteArray(bytes).also { Random.nextBytes(it) })
-
 /** Extracts a numeric field from a flat JSON object without a full parser. */
 private fun extractJsonNumberValue(json: String, key: String): Long? =
     Regex("\"${Regex.escape(key)}\"\\s*:\\s*(\\d+)").find(json)?.groupValues?.get(1)?.toLongOrNull()
@@ -535,6 +484,7 @@ private fun extractJsonNumberValue(json: String, key: String): Long? =
  * - **Linux / other**: tries common browsers with `--new-window`; falls back to `xdg-open`.
  *
  * Falls back to [java.awt.Desktop.browse] if all process-based attempts fail.
+ * Silently does nothing if a browser is unavailable (e.g. Steam Deck gaming mode).
  */
 private fun openBrowserNewWindow(url: String) {
     val os = System.getProperty("os.name").lowercase()
@@ -563,9 +513,9 @@ private fun openBrowserNewWindow(url: String) {
         java.awt.Desktop.getDesktop().browse(URI(url))
     } catch (e: Exception) {
         // Both the process-based launch and AWT have failed.
-        // The loginInProgress flag is cleared by the thread's finally block, so the
-        // spinner in the UI will disappear and the user can try again.
-        println("IAM: Failed to open browser for login: ${e.message}")
+        // On Steam Deck gaming mode this is expected – the user will use the code shown
+        // in the in-app dialog to complete login on their phone.
+        println("IAM: Failed to open browser: ${e.message}")
     }
 }
 

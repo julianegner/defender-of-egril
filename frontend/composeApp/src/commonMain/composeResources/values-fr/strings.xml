@@ -1238,7 +1238,7 @@
     <string name="backend_info_account_heading">Compte utilisateur optionnel</string>
     <string name="backend_info_account_body">Un compte est entièrement facultatif — vous pouvez jouer sans vous inscrire. Avec un compte gratuit vous pouvez :\n\n• Sauvegarder votre progression sur le serveur et continuer sur n\'importe quel appareil\n• Passer entre bureau, mobile et web — et reprendre exactement où vous en étiez\n• Téléverser vos propres cartes et niveaux comme contenu communautaire pour que d\'autres les découvrent et y jouent\n• Télécharger et jouer les niveaux créés par d\'autres joueurs</string>
     <string name="backend_info_account_how_heading">Comment obtenir un compte ?</string>
-    <string name="backend_info_account_how_body">Cliquez sur le bouton de connexion sur la page de démarrage. Vous serez redirigé vers une page d\'inscription. Seule une adresse e-mail est requise.</string>
+    <string name="backend_info_account_how_body">Cliquez sur le bouton de connexion sur la page de démarrage. Un code de connexion et une URL apparaîtront — ouvrez l\'URL dans un navigateur (sur votre téléphone ou un autre appareil) et entrez le code pour vous connecter ou créer un compte gratuit. Seule une adresse e-mail est requise.</string>
 
     <!-- Keyboard Shortcuts Info -->
     <string name="keyboard_shortcuts_title">Raccourcis Clavier</string>
@@ -1585,7 +1585,12 @@
     <!-- IAM / Keycloak -->
     <string name="iam_login">Connexion</string>
     <string name="iam_logout">Déconnexion</string>
-    <string name="iam_login_waiting">En attente du navigateur...</string>
+    <string name="iam_login_waiting">Connexion en cours...</string>
+    <string name="iam_device_login_title">Se connecter à votre compte</string>
+    <string name="iam_device_login_instruction">Ouvrez cette URL dans un navigateur sur votre téléphone ou un autre appareil et entrez le code ci-dessous pour vous connecter :</string>
+    <string name="iam_device_login_code_label">Votre code de connexion :</string>
+    <string name="iam_device_login_open_browser">Ouvrir dans le navigateur</string>
+    <string name="iam_device_login_cancel">Annuler</string>
     <string name="keycloak_account">Compte Keycloak</string>
     <string name="user_account">Compte utilisateur</string>
     <string name="iam_login_successful_heading">Connexion réussie !</string>

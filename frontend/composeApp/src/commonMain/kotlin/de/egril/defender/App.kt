@@ -111,6 +111,7 @@ fun App() {
         // Observe IAM state for login/logout UI updates
         val iamState by de.egril.defender.iam.IamService.state
         val iamLoginInProgress by de.egril.defender.iam.IamService.loginInProgress
+        val iamDeviceAuthState by de.egril.defender.iam.IamService.deviceAuthState
 
         // Refresh saved games whenever authentication state changes (login/logout/session restore).
         // This ensures remote saves appear immediately after the user logs in or after the
@@ -284,6 +285,14 @@ fun App() {
             )
         }
 
+        // Device Authorization Grant dialog – shown while the polling loop is active
+        iamDeviceAuthState?.let { deviceAuth ->
+            DeviceAuthLoginDialog(
+                deviceAuthState = deviceAuth,
+                onCancel = { de.egril.defender.iam.IamService.logoutLocal() }
+            )
+        }
+
         when (val screen = currentScreen) {
             is Screen.MainMenu -> {
                 MainMenuScreen(
@@ -300,7 +309,7 @@ fun App() {
                     iamLoginInProgress = iamLoginInProgress,
                     onIamLogin = { de.egril.defender.iam.IamService.login() },
                     onIamLogout = { de.egril.defender.iam.IamService.logout() },
-                    onIamLoginCancel = { de.egril.defender.iam.IamService.loginInProgress.value = false }
+                    onIamLoginCancel = { de.egril.defender.iam.IamService.logoutLocal() }
                 )
             }
             
