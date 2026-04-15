@@ -1,13 +1,16 @@
 package de.egril.defender.ui
 
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -17,11 +20,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import de.egril.defender.iam.DeviceAuthState
+import de.egril.defender.ui.common.QrCodeGenerator
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
-import io.github.alexzhirkevich.qrose.options.QrBrush
-import io.github.alexzhirkevich.qrose.options.solid
-import io.github.alexzhirkevich.qrose.rememberQrCodePainter
 
 /**
  * Dialog shown during the Device Authorization Grant (RFC 8628) login flow.
@@ -80,17 +81,23 @@ fun DeviceAuthLoginDialog(
                 )
 
                 // QR code so the user can scan the complete URL on another device.
-                val qrPainter = rememberQrCodePainter(clickUrl) {
-                    colors {
-                        dark = QrBrush.solid(MaterialTheme.colorScheme.onSurface)
-                        light = QrBrush.solid(MaterialTheme.colorScheme.surface)
+                val qrMatrix = remember(clickUrl) { QrCodeGenerator.generate(clickUrl) }
+                val darkColor = MaterialTheme.colorScheme.onSurface
+                Canvas(modifier = Modifier.size(180.dp)) {
+                    val modules = qrMatrix.size
+                    val cellSize = size.width / modules
+                    for (row in qrMatrix.indices) {
+                        for (col in qrMatrix[row].indices) {
+                            if (qrMatrix[row][col]) {
+                                drawRect(
+                                    color = darkColor,
+                                    topLeft = Offset(col * cellSize, row * cellSize),
+                                    size = Size(cellSize, cellSize)
+                                )
+                            }
+                        }
                     }
                 }
-                Image(
-                    painter = qrPainter,
-                    contentDescription = null,
-                    modifier = Modifier.size(180.dp)
-                )
 
                 // User code label + code
                 Column(

@@ -23,7 +23,6 @@ multiplatform-settings = "1.3.0"
 localization = "2.0.1"
 jlayer = "1.0.1"
 oidc = "0.16.5"
-qrose = "1.0.2"
 mockk = "1.14.3"
 robolectric = "4.15.1"
 ktor = "3.2.0"
@@ -52,7 +51,6 @@ flagkit = { module = "dev.carlsen.flagkit:flagkit", version.ref = "flagkit" }
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatform-settings" }
 jlayer = { module = "javazoom:jlayer", version.ref = "jlayer" }
 oidc-appsupport = { module = "io.github.kalinjul.kotlin.multiplatform:oidc-appsupport", version.ref = "oidc" }
-qrose = { module = "io.github.alexzhirkevich:qrose", version.ref = "qrose" }
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 ktor-server-core = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }

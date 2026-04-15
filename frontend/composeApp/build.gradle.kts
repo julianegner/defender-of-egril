@@ -341,7 +341,6 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.flagkit)
             implementation(libs.multiplatform.settings)
-            implementation(libs.qrose)
             // Compottie for Lottie animations
             implementation("io.github.alexzhirkevich:compottie:2.1.0")
             implementation("io.github.alexzhirkevich:compottie-dot:2.1.0")
