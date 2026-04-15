@@ -5,7 +5,12 @@ package de.egril.defender.editor
  * Official content is read-only in the editor - users must copy it to create a user version.
  */
 object OfficialContent {
-    
+
+    /**
+     * The editor level ID of the final level that triggers the credits screen after winning.
+     */
+    const val FINAL_LEVEL_ID = "the_final_stand"
+
     /**
      * Set of official map IDs from the repository
      */

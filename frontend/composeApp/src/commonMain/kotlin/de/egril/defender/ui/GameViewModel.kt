@@ -23,6 +23,7 @@ import de.egril.defender.config.LogConfig
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.editor.EditorJsonSerializer
+import de.egril.defender.editor.OfficialContent
 import de.egril.defender.ui.infopage.NewVersionInfo
 import de.egril.defender.ui.infopage.checkForNewerVersion
 
@@ -1255,7 +1256,7 @@ class GameViewModel {
             achievementManager?.onLoseLevel()
         }
         
-        val isLastLevel = _worldLevels.value.lastOrNull()?.level?.id == levelId
+        val isLastLevel = _worldLevels.value.firstOrNull { it.level.id == levelId }?.level?.editorLevelId == OfficialContent.FINAL_LEVEL_ID
         if (won) {
             val updatedLevels = _worldLevels.value.toMutableList()
             val currentIndex = updatedLevels.indexOfFirst { it.level.id == levelId }
