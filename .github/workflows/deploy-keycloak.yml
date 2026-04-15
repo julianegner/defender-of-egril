@@ -133,6 +133,26 @@ jobs:
             # nginx config, and environment changes take effect.
             docker compose down keycloak nginx || true
             docker compose up -d
+
+            # Wait here (in this SSH session) for the Keycloak container to
+            # report healthy before we exit.  Without this wait the next SSH
+            # step would start a fresh connection immediately and its own 3-
+            # minute curl loop would expire before Keycloak finishes booting in
+            # production 'start' mode (which routinely takes > 3 minutes).
+            echo "Waiting for Keycloak container to become healthy..."
+            for i in $(seq 1 72); do
+              KC_HEALTH=$(docker inspect --format='{{.State.Health.Status}}' defender-of-egril-keycloak 2>/dev/null || echo "not_found")
+              if [ "${KC_HEALTH}" = "healthy" ]; then
+                echo "✅ Keycloak container is healthy."
+                break
+              fi
+              echo "  attempt ${i}/72 – container health: ${KC_HEALTH}, retrying in 5 s..."
+              sleep 5
+              if [ "${i}" -eq 72 ]; then
+                echo "❌ Keycloak did not become healthy within 6 minutes."
+                exit 1
+              fi
+            done
             echo "✅ Keycloak and nginx deployed"
 
       - name: "🔧 Apply Keycloak client configuration via Admin API"
