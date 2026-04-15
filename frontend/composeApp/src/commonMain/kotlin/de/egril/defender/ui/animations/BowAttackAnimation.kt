@@ -245,7 +245,6 @@ fun BowAttackTestPreview(modifier: Modifier = Modifier) {
     val p = progress.value
 
     Canvas(modifier = modifier) {
-        val arrowLength = size.width * 0.12f
         val sourceX = size.width * 0.15f
         val targetX = size.width * 0.85f
         val midY = size.height * 0.5f
