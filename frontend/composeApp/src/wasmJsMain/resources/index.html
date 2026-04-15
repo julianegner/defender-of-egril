@@ -187,6 +187,30 @@
             canvas.classList.add('loaded');
             loading.classList.add('hidden');
         }, 3000);
+
+        // Fix for Android Firefox: WebGL context is discarded when the browser tab
+        // goes into the background and cannot be reused when it returns.
+        // Reloading the page is the most reliable way to restore the Skiko/Compose rendering pipeline.
+        canvas.addEventListener('webglcontextlost', function (event) {
+            // Allow the browser to restore the context rather than permanently losing it
+            event.preventDefault();
+        }, false);
+
+        canvas.addEventListener('webglcontextrestored', function () {
+            // Skiko's internal GL state cannot be restored incrementally; reload to reinitialize
+            window.location.reload();
+        }, false);
+
+        // Page Visibility API: reload when the tab becomes visible again if the WebGL
+        // context was lost while the page was hidden (common on Android Firefox)
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'visible') {
+                var gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+                if (gl && gl.isContextLost()) {
+                    window.location.reload();
+                }
+            }
+        });
     </script>
 </body>
 </html>
