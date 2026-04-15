@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -71,7 +70,7 @@ fun DeviceAuthLoginDialog(
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center,
                     textDecoration = TextDecoration.Underline,
-                    modifier = Modifier.clickable(role = Role.Link) { uriHandler.openUri(clickUrl) }
+                    modifier = Modifier.clickable { uriHandler.openUri(clickUrl) }
                 )
 
                 // User code label + code
