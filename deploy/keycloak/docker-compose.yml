@@ -60,7 +60,12 @@ services:
       KC_HOSTNAME_STRICT_HTTPS: "false"
       # Trust X-Forwarded-* headers from nginx so Keycloak generates https:// URLs.
       KC_PROXY_HEADERS: xforwarded
-    # Keycloak is not exposed on the host; nginx proxies to it on the internal network.
+    # Bind port 8080 to the loopback interface only so the deploy workflow can
+    # reach the Admin REST API from the host (localhost:8080) without exposing
+    # Keycloak publicly.  External traffic is still served exclusively through
+    # nginx (ports 80/443).
+    ports:
+      - "127.0.0.1:8080:8080"
     volumes:
       # Production realm (no test users).
       - ./egril-realm.json:/opt/keycloak/data/import/egril-realm.json:ro
