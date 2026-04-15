@@ -128,6 +128,8 @@ class CombatSystem(
             }
         }
 
+        defender.actionsRemaining.value--
+
         // Process defeated attackers immediately to give coins
         processDefeated()
 
@@ -239,6 +241,10 @@ class CombatSystem(
                 }
             }
         }
+
+        defender.actionsRemaining.value--
+
+        // Process defeated attackers immediately to give coins
         processDefeated()
         
         return true
