@@ -31,7 +31,6 @@
       "publicClient": true,
       "standardFlowEnabled": true,
       "directAccessGrantsEnabled": false,
-      "oauth2DeviceAuthorizationGrantEnabled": false,
       "protocol": "openid-connect",
       "redirectUris": [
         "http://localhost:8080/*",
@@ -62,9 +61,9 @@
       "publicClient": true,
       "standardFlowEnabled": false,
       "directAccessGrantsEnabled": false,
-      "oauth2DeviceAuthorizationGrantEnabled": true,
       "protocol": "openid-connect",
       "attributes": {
+        "oauth2.device.authorization.grant.enabled": "true",
         "post.logout.redirect.uris": "egril://callback"
       },
       "protocolMappers": [
