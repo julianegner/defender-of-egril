@@ -67,7 +67,9 @@ TOKEN_BODY=$(curl -s -X POST \
   --data-urlencode "username=$ADMIN_USER" \
   --data-urlencode "password=$ADMIN_PASSWORD")
 
-# Extract the access token – try python3 first, fall back to grep
+# Extract the access token.
+# python3 is the reliable method; the grep fallback handles simple cases but
+# may fail with escaped or reformatted JSON.  python3 is strongly recommended.
 ADMIN_TOKEN=$(echo "$TOKEN_BODY" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('access_token',''))" 2>/dev/null || true)
 if [ -z "$ADMIN_TOKEN" ]; then
   ADMIN_TOKEN=$(echo "$TOKEN_BODY" | grep -o '"access_token":"[^"]*"' | cut -d'"' -f4 || true)
@@ -84,7 +86,7 @@ echo ""
 # ---------------------------------------------------------------------------
 # Step 2 – Back up the current realm settings
 # ---------------------------------------------------------------------------
-TIMESTAMP=$(date -u +"%Y%m%dT%H%M%SZ")
+TIMESTAMP=$(date -u +'%Y%m%d-%H%M%S')
 BACKUP_FILE="${BACKUP_DIR}/egril-realm-backup-${TIMESTAMP}.json"
 
 echo "Step 2: Saving current realm settings to backup file..."
@@ -105,15 +107,16 @@ echo ""
 # Step 3 – Apply the new realm settings from the source file
 # ---------------------------------------------------------------------------
 echo "Step 3: Applying new realm settings from $REALM_JSON_FILE..."
-HTTP_STATUS=$(curl -s -o /tmp/replace-realm-response.txt -w "%{http_code}" \
+RESPONSE_FILE=$(mktemp)
+HTTP_STATUS=$(curl -s -o "$RESPONSE_FILE" -w "%{http_code}" \
   -X PUT \
   "$KEYCLOAK_URL/admin/realms/$REALM" \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
   -H "Content-Type: application/json" \
   -d "@$REALM_JSON_FILE")
 
-RESPONSE_BODY=$(cat /tmp/replace-realm-response.txt 2>/dev/null || true)
-rm -f /tmp/replace-realm-response.txt
+RESPONSE_BODY=$(cat "$RESPONSE_FILE" 2>/dev/null || true)
+rm -f "$RESPONSE_FILE"
 
 if [ "$HTTP_STATUS" = "204" ]; then
   echo ""
