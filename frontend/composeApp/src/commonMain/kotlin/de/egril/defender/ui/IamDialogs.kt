@@ -1,5 +1,6 @@
 package de.egril.defender.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -18,14 +19,18 @@ import androidx.compose.ui.window.Dialog
 import de.egril.defender.iam.DeviceAuthState
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
+import io.github.alexzhirkevich.qrose.options.QrBrush
+import io.github.alexzhirkevich.qrose.options.solid
+import io.github.alexzhirkevich.qrose.rememberQrCodePainter
 
 /**
  * Dialog shown during the Device Authorization Grant (RFC 8628) login flow.
  *
- * Displays the [DeviceAuthState.verificationUri] and [DeviceAuthState.userCode] so the
- * user can complete login on a phone or second device without needing a browser on the
- * machine running the game (e.g. Steam Deck gaming mode). The URL is a clickable link
- * that opens the browser when tapped.
+ * Displays the [DeviceAuthState.verificationUriComplete] (or [DeviceAuthState.verificationUri]
+ * as fallback) and [DeviceAuthState.userCode] so the user can complete login on a phone or
+ * second device without needing a browser on the machine running the game (e.g. Steam Deck
+ * gaming mode). The URL is a clickable link that opens the browser when tapped, and a QR code
+ * is shown below it so users on another device can scan it directly.
  */
 @Composable
 fun DeviceAuthLoginDialog(
@@ -62,15 +67,29 @@ fun DeviceAuthLoginDialog(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                // Verification URL – clickable link that opens the browser.
+                // Verification URL – shows the complete URL (pre-filled with user code) as a
+                // clickable link that opens the browser.
                 Text(
-                    text = deviceAuthState.verificationUri,
+                    text = clickUrl,
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center,
                     textDecoration = TextDecoration.Underline,
                     modifier = Modifier.clickable { uriHandler.openUri(clickUrl) }
+                )
+
+                // QR code so the user can scan the complete URL on another device.
+                val qrPainter = rememberQrCodePainter(clickUrl) {
+                    colors {
+                        dark = QrBrush.solid(MaterialTheme.colorScheme.onSurface)
+                        light = QrBrush.solid(MaterialTheme.colorScheme.surface)
+                    }
+                }
+                Image(
+                    painter = qrPainter,
+                    contentDescription = null,
+                    modifier = Modifier.size(180.dp)
                 )
 
                 // User code label + code
@@ -107,3 +126,4 @@ fun DeviceAuthLoginDialog(
         }
     }
 }
+
