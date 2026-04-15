@@ -1255,7 +1255,7 @@ class GameViewModel {
             achievementManager?.onLoseLevel()
         }
         
-        val isLastLevel = _worldLevels.value.lastOrNull()?.level?.id == levelId
+        val isLastLevel = _worldLevels.value.firstOrNull { it.level.id == levelId }?.level?.editorLevelId == de.egril.defender.editor.OfficialContent.FINAL_LEVEL_ID
         if (won) {
             val updatedLevels = _worldLevels.value.toMutableList()
             val currentIndex = updatedLevels.indexOfFirst { it.level.id == levelId }
