@@ -20,6 +20,12 @@ import de.egril.defender.ui.gameplay.GamePlayConstants
 import kotlinx.coroutines.delay
 import kotlin.math.sqrt
 
+/** Fraction of the animation (0–1) spent on the muzzle flash before the rock starts flying. */
+private const val FIRING_PHASE_END = 0.20f
+
+/** Rock radius as a fraction of the hex size. */
+private const val ROCK_RADIUS_RATIO = 0.30f
+
 /**
  * Map-level overlay animation for ballista attacks.
  *
@@ -110,59 +116,68 @@ private fun SingleBallistaRockOverlay(
     }
 
     val progress = overallProgress.value
-    val rockRadius = hexSizePx * 0.30f
-    val firingPhaseEnd = 0.20f
 
     Canvas(modifier = Modifier.requiredSize(contentWidth, contentHeight)) {
-        if (progress < firingPhaseEnd) {
-            // Phase 1: Muzzle flash / ballista firing glow on the source tile
-            val fp = progress / firingPhaseEnd
-            val glowAlpha = if (fp < 0.5f) fp * 2f else (1f - fp) * 2f
+        drawBallistaRock(progress, sourceCenter, targetCenter, hexSizePx)
+    }
+}
 
-            // Outer orange glow ring
-            drawCircle(
-                color = Color(0xFFFF8C00).copy(alpha = glowAlpha * 0.35f),
-                radius = hexSizePx * (0.7f + fp * 0.4f),
-                center = sourceCenter
-            )
-            // Inner bright golden flash
-            drawCircle(
-                color = Color(0xFFFFD700).copy(alpha = glowAlpha * 0.55f),
-                radius = hexSizePx * (0.35f + fp * 0.2f),
-                center = sourceCenter
-            )
-        } else if (progress < 1f) {
-            // Phase 2: Rock in flight
-            val flyProgress = (progress - firingPhaseEnd) / (1f - firingPhaseEnd)
-            val rockX = sourceCenter.x + (targetCenter.x - sourceCenter.x) * flyProgress
-            val rockY = sourceCenter.y + (targetCenter.y - sourceCenter.y) * flyProgress
-            val rockCenter = Offset(rockX, rockY)
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBallistaRock(
+    progress: Float,
+    sourceCenter: Offset,
+    targetCenter: Offset,
+    hexSizePx: Float
+) {
+    val rockRadius = hexSizePx * ROCK_RADIUS_RATIO
 
-            // Drop shadow (offset slightly down-right)
-            drawCircle(
-                color = Color(0x55000000),
-                radius = rockRadius * 0.9f,
-                center = Offset(rockCenter.x + rockRadius * 0.3f, rockCenter.y + rockRadius * 0.3f)
-            )
-            // Rock body – dark brownish-grey boulder
-            drawCircle(
-                color = Color(0xFF7A6A55),
-                radius = rockRadius,
-                center = rockCenter
-            )
-            // Slightly lighter surface layer for depth
-            drawCircle(
-                color = Color(0xFF9B8B73),
-                radius = rockRadius * 0.75f,
-                center = Offset(rockCenter.x - rockRadius * 0.08f, rockCenter.y - rockRadius * 0.08f)
-            )
-            // Highlight spot (upper-left)
-            drawCircle(
-                color = Color(0xAAC4B09A),
-                radius = rockRadius * 0.35f,
-                center = Offset(rockCenter.x - rockRadius * 0.28f, rockCenter.y - rockRadius * 0.32f)
-            )
-        }
+    if (progress < FIRING_PHASE_END) {
+        // Phase 1: Muzzle flash / ballista firing glow on the source tile
+        val fp = progress / FIRING_PHASE_END
+        val glowAlpha = if (fp < 0.5f) fp * 2f else (1f - fp) * 2f
+
+        // Outer orange glow ring
+        drawCircle(
+            color = Color(0xFFFF8C00).copy(alpha = glowAlpha * 0.35f),
+            radius = hexSizePx * (0.7f + fp * 0.4f),
+            center = sourceCenter
+        )
+        // Inner bright golden flash
+        drawCircle(
+            color = Color(0xFFFFD700).copy(alpha = glowAlpha * 0.55f),
+            radius = hexSizePx * (0.35f + fp * 0.2f),
+            center = sourceCenter
+        )
+    } else if (progress < 1f) {
+        // Phase 2: Rock in flight
+        val flyProgress = (progress - FIRING_PHASE_END) / (1f - FIRING_PHASE_END)
+        val rockX = sourceCenter.x + (targetCenter.x - sourceCenter.x) * flyProgress
+        val rockY = sourceCenter.y + (targetCenter.y - sourceCenter.y) * flyProgress
+        val rockCenter = Offset(rockX, rockY)
+
+        // Drop shadow (offset slightly down-right)
+        drawCircle(
+            color = Color(0x55000000),
+            radius = rockRadius * 0.9f,
+            center = Offset(rockCenter.x + rockRadius * 0.3f, rockCenter.y + rockRadius * 0.3f)
+        )
+        // Rock body – dark brownish-grey boulder
+        drawCircle(
+            color = Color(0xFF7A6A55),
+            radius = rockRadius,
+            center = rockCenter
+        )
+        // Slightly lighter surface layer for depth
+        drawCircle(
+            color = Color(0xFF9B8B73),
+            radius = rockRadius * 0.75f,
+            center = Offset(rockCenter.x - rockRadius * 0.08f, rockCenter.y - rockRadius * 0.08f)
+        )
+        // Highlight spot (upper-left)
+        drawCircle(
+            color = Color(0xAAC4B09A),
+            radius = rockRadius * 0.35f,
+            center = Offset(rockCenter.x - rockRadius * 0.28f, rockCenter.y - rockRadius * 0.32f)
+        )
     }
 }
 
@@ -185,15 +200,14 @@ fun BallistaAttackTestPreview(modifier: Modifier = Modifier) {
     val p = progress.value
 
     Canvas(modifier = modifier) {
-        val rockRadius = size.width * 0.045f
+        val rockRadius = size.width * 0.045f  // fixed size for the standalone preview
         val sourceX = size.width * 0.15f
         val targetX = size.width * 0.85f
         val midY = size.height * 0.5f
         val sourceCenter = Offset(sourceX, midY)
-        val firingPhaseEnd = 0.20f
 
-        if (p < firingPhaseEnd) {
-            val fp = p / firingPhaseEnd
+        if (p < FIRING_PHASE_END) {
+            val fp = p / FIRING_PHASE_END
             val glowAlpha = if (fp < 0.5f) fp * 2f else (1f - fp) * 2f
             // Outer glow
             drawCircle(
@@ -208,7 +222,7 @@ fun BallistaAttackTestPreview(modifier: Modifier = Modifier) {
                 center = sourceCenter
             )
         } else if (p < 1f) {
-            val flyProgress = (p - firingPhaseEnd) / (1f - firingPhaseEnd)
+            val flyProgress = (p - FIRING_PHASE_END) / (1f - FIRING_PHASE_END)
             val rockX = sourceX + (targetX - sourceX) * flyProgress
             val rockCenter = Offset(rockX, midY)
 
