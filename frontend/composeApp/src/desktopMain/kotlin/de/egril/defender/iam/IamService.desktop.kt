@@ -200,13 +200,6 @@ internal actual fun startPlatformLogin() {
                 verificationUriComplete = deviceResponse.verificationUriComplete
             )
 
-            // Try to open the browser for convenience. On a normal desktop this lets
-            // the user complete login in one click (verification_uri_complete pre-fills
-            // the code). On Steam Deck gaming mode the browser launch silently fails;
-            // the user completes login on their phone using the code shown in the dialog.
-            val browserUrl = deviceResponse.verificationUriComplete ?: deviceResponse.verificationUri
-            openBrowserNewWindow(browserUrl)
-
             val tokenData = pollDeviceToken(
                 deviceCode = deviceResponse.deviceCode,
                 interval = deviceResponse.interval,

@@ -1,14 +1,18 @@
 package de.egril.defender.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -21,17 +25,17 @@ import defender_of_egril.composeapp.generated.resources.*
  *
  * Displays the [DeviceAuthState.verificationUri] and [DeviceAuthState.userCode] so the
  * user can complete login on a phone or second device without needing a browser on the
- * machine running the game (e.g. Steam Deck gaming mode).
- *
- * On a regular desktop a browser window is opened automatically with the pre-filled
- * verification URL; the dialog serves as a visible status and fallback for users who
- * close or miss the browser window.
+ * machine running the game (e.g. Steam Deck gaming mode). The URL is a clickable link
+ * that opens the browser when tapped.
  */
 @Composable
 fun DeviceAuthLoginDialog(
     deviceAuthState: DeviceAuthState,
     onCancel: () -> Unit
 ) {
+    val uriHandler = LocalUriHandler.current
+    val clickUrl = deviceAuthState.verificationUriComplete ?: deviceAuthState.verificationUri
+
     Dialog(onDismissRequest = onCancel) {
         Surface(
             modifier = Modifier.widthIn(max = 420.dp),
@@ -59,17 +63,16 @@ fun DeviceAuthLoginDialog(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                // Verification URL – shown in a selectable container so the user can
-                // long-press / copy it on devices without a convenient clipboard.
-                SelectionContainer {
-                    Text(
-                        text = deviceAuthState.verificationUri,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary,
-                        textAlign = TextAlign.Center
-                    )
-                }
+                // Verification URL – clickable link that opens the browser.
+                Text(
+                    text = deviceAuthState.verificationUri,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center,
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier.clickable(role = Role.Link) { uriHandler.openUri(clickUrl) }
+                )
 
                 // User code label + code
                 Column(

@@ -61,6 +61,7 @@
       "publicClient": true,
       "standardFlowEnabled": false,
       "directAccessGrantsEnabled": false,
+      "consentRequired": false,
       "protocol": "openid-connect",
       "attributes": {
         "oauth2.device.authorization.grant.enabled": "true",
