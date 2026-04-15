@@ -44,7 +44,8 @@ enum class AnimationType {
     ALCHEMY_IDLE,
     MINE_DIG,
     ARROW_ATTACK,
-    DRAGON_TARGET
+    DRAGON_TARGET,
+    BALLISTA_ATTACK
 }
 
 /**
@@ -85,6 +86,9 @@ fun LottieAnimation(
         AnimationType.MINE_DIG -> "files/animations/mine_dig.json"
         AnimationType.ARROW_ATTACK -> "files/animations/arrow_attack.json"
         AnimationType.DRAGON_TARGET -> "files/animations/dragon_target.json"
+        // BALLISTA_ATTACK uses a Canvas-based overlay (BallistaAttackAnimation.kt) in gameplay;
+        // this path is only reached when displayed via LottieAnimation (e.g. test screen fallback).
+        AnimationType.BALLISTA_ATTACK -> "files/animations/arrow_attack.json"
     }
     
     // Load the animation JSON asynchronously
@@ -153,6 +157,7 @@ fun LottieAnimation(
                     AnimationType.MINE_DIG -> "Dwarven mine digging animation"
                     AnimationType.ARROW_ATTACK -> "Arrow attack projectile animation"
                     AnimationType.DRAGON_TARGET -> "Dragon targeting mine animation"
+                    AnimationType.BALLISTA_ATTACK -> "Ballista rock projectile animation"
                 },
                 contentScale = contentScale,
                 modifier = Modifier.fillMaxSize()

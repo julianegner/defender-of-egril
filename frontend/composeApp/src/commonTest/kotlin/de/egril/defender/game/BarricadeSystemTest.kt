@@ -449,4 +449,136 @@ class BarricadeSystemTest {
         val barricade = gameState.barricades.first()
         assertFalse(barricade.isGate, "Barricade should NOT be detected as a gate (only one tower)")
     }
+    
+    @Test
+    fun testDoubleTowerLevelSpellDoublesBarricadeHP() {
+        val level = createTestLevel()
+        val gameState = GameState(level)
+        val barricadeSystem = BarricadeSystem(gameState)
+        
+        // Spike Tower level 30: without spell HP = (30 - 20) / 2 = 5
+        val spikeTower = Defender(
+            id = 1,
+            type = DefenderType.SPIKE_TOWER,
+            position = mutableStateOf(Position(3, 0)),
+            level = mutableStateOf(30)
+        )
+        assertEquals(5, barricadeSystem.calculateBarricadeHP(spikeTower),
+            "Spike tower level 30 without spell should have 5 HP barricade")
+        
+        // Add DOUBLE_TOWER_LEVEL spell effect: effective level = 60, HP = (60 - 20) / 2 = 20
+        gameState.activeSpellEffects.add(
+            ActiveSpellEffect(
+                spell = SpellType.DOUBLE_TOWER_LEVEL,
+                defenderId = spikeTower.id,
+                turnsRemaining = 1,
+                castTurn = 1
+            )
+        )
+        assertEquals(20, barricadeSystem.calculateBarricadeHP(spikeTower),
+            "Spike tower level 30 with double level spell should have 20 HP barricade (effective level 60)")
+        
+        // Spear Tower level 15: without spell HP = 15 - 10 = 5
+        val spearTower = Defender(
+            id = 2,
+            type = DefenderType.SPEAR_TOWER,
+            position = mutableStateOf(Position(3, 0)),
+            level = mutableStateOf(15)
+        )
+        assertEquals(5, barricadeSystem.calculateBarricadeHP(spearTower),
+            "Spear tower level 15 without spell should have 5 HP barricade")
+        
+        // Add DOUBLE_TOWER_LEVEL spell effect for spear tower: effective level = 30, HP = 30 - 10 = 20
+        gameState.activeSpellEffects.add(
+            ActiveSpellEffect(
+                spell = SpellType.DOUBLE_TOWER_LEVEL,
+                defenderId = spearTower.id,
+                turnsRemaining = 1,
+                castTurn = 1
+            )
+        )
+        assertEquals(20, barricadeSystem.calculateBarricadeHP(spearTower),
+            "Spear tower level 15 with double level spell should have 20 HP barricade (effective level 30)")
+    }
+    
+    @Test
+    fun testDoubleTowerLevelSpellDoesNotAffectOtherTowers() {
+        val level = createTestLevel()
+        val gameState = GameState(level)
+        val barricadeSystem = BarricadeSystem(gameState)
+        
+        val tower1 = Defender(
+            id = 1,
+            type = DefenderType.SPIKE_TOWER,
+            position = mutableStateOf(Position(2, 2)),
+            level = mutableStateOf(30)
+        )
+        val tower2 = Defender(
+            id = 2,
+            type = DefenderType.SPIKE_TOWER,
+            position = mutableStateOf(Position(3, 2)),
+            level = mutableStateOf(30)
+        )
+        
+        // Add spell effect only for tower1
+        gameState.activeSpellEffects.add(
+            ActiveSpellEffect(
+                spell = SpellType.DOUBLE_TOWER_LEVEL,
+                defenderId = tower1.id,
+                turnsRemaining = 1,
+                castTurn = 1
+            )
+        )
+        
+        // Tower1 should have doubled HP
+        assertEquals(20, barricadeSystem.calculateBarricadeHP(tower1),
+            "Tower with double level spell should have doubled barricade HP")
+        // Tower2 should have normal HP
+        assertEquals(5, barricadeSystem.calculateBarricadeHP(tower2),
+            "Tower without double level spell should have normal barricade HP")
+    }
+    
+    @Test
+    fun testDoubleTowerLevelSpellBarricadeBuildingIntegration() {
+        val level = createTestLevel()
+        val gameState = GameState(level)
+        val barricadeSystem = BarricadeSystem(gameState)
+        
+        // Create a level 24 spike tower: without spell HP = (24 - 20) / 2 = 2
+        // with double level spell: effective level 48, HP = (48 - 20) / 2 = 14
+        val tower = Defender(
+            id = 1,
+            type = DefenderType.SPIKE_TOWER,
+            position = mutableStateOf(Position(3, 0)),
+            level = mutableStateOf(24)
+        )
+        tower.buildTimeRemaining.value = 0
+        tower.actionsRemaining.value = 2
+        gameState.defenders.add(tower)
+        
+        // Build barricade without spell
+        val barricadePos1 = Position(4, 0)
+        val success1 = barricadeSystem.performBuildBarricade(tower.id, barricadePos1)
+        assertTrue(success1, "Barricade building should succeed")
+        assertEquals(2, gameState.barricades.first().healthPoints.value,
+            "Barricade without spell should have 2 HP")
+        
+        // Add double level spell and build another barricade
+        gameState.activeSpellEffects.add(
+            ActiveSpellEffect(
+                spell = SpellType.DOUBLE_TOWER_LEVEL,
+                defenderId = tower.id,
+                turnsRemaining = 1,
+                castTurn = 1
+            )
+        )
+        
+        val barricadePos2 = Position(5, 0)
+        val success2 = barricadeSystem.performBuildBarricade(tower.id, barricadePos2)
+        assertTrue(success2, "Barricade building with spell should succeed")
+        
+        val spelledBarricade = gameState.barricades.find { it.position == barricadePos2 }!!
+        assertEquals(14, spelledBarricade.healthPoints.value,
+            "Barricade with double level spell should have 14 HP (effective level 48)")
+    }
 }

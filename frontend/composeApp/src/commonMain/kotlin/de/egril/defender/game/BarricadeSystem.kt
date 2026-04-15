@@ -12,15 +12,27 @@ class BarricadeSystem(private val state: GameState) {
     
     /**
      * Calculate health points for a new barricade from a tower.
-     * Spike Tower: HP = (tower level - 20) / 2 (minimum 1)
-     * Spear Tower: HP = tower level - 10 (minimum 1)
+     * Uses the effective level which accounts for active DOUBLE_TOWER_LEVEL spell.
+     * Spike Tower: HP = (effective level - 20) / 2 (minimum 1)
+     * Spear Tower: HP = effective level - 10 (minimum 1)
      */
     fun calculateBarricadeHP(tower: Defender): Int {
+        val effectiveLevel = getEffectiveLevel(tower)
         return if (tower.type == DefenderType.SPIKE_TOWER) {
-            maxOf(1, (tower.level.value - 20) / 2)
+            maxOf(1, (effectiveLevel - 20) / 2)
         } else {
-            maxOf(1, tower.level.value - 10)
+            maxOf(1, effectiveLevel - 10)
         }
+    }
+    
+    /**
+     * Get effective level for a defender, accounting for active DOUBLE_TOWER_LEVEL spell.
+     */
+    private fun getEffectiveLevel(tower: Defender): Int {
+        val hasDoubleLevelBuff = state.activeSpellEffects.any {
+            it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == tower.id
+        }
+        return if (hasDoubleLevelBuff) tower.level.value * 2 else tower.level.value
     }
     
     /**
