@@ -85,6 +85,7 @@ fun HexagonalMapView(
     focusTrigger: Any? = null,
     modifier: Modifier = Modifier,
     backgroundContent: (@Composable BoxScope.(contentSize: IntSize) -> Unit)? = null,
+    overlayContent: (@Composable BoxScope.(contentSize: IntSize) -> Unit)? = null,
     content: @Composable (
         position: Position
     ) -> Unit
@@ -352,6 +353,21 @@ fun HexagonalMapView(
                         content(position)
                     }
                 }
+            }
+        }
+
+        // Overlay content (e.g., multi-tile spanning animations) rendered above tiles
+        overlayContent?.let { ovContent ->
+            Box(
+                modifier = Modifier
+                    .graphicsLayer(
+                        scaleX = scale,
+                        scaleY = scale,
+                        translationX = offsetX,
+                        translationY = offsetY
+                    )
+            ) {
+                ovContent(actualContentSize)
             }
         }
     }
