@@ -16,7 +16,7 @@ object QrCodeGenerator {
     // ─────────────────────────────────────────────────────────────────────────
 
     fun generate(text: String): Array<BooleanArray> {
-        val bytes = text.toByteArray(Charsets.UTF_8)
+        val bytes = text.encodeToByteArray()
         val version = selectVersion(bytes.size)
         val dataCodewords = encodeData(bytes, version)
         val allCodewords = addErrorCorrection(dataCodewords, version)
