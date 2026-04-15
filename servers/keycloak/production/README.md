@@ -40,6 +40,15 @@ the Defender of Egril web app is served.
 
 Keycloak imports the realm **once** on first startup (when the realm does not
 yet exist in the database).  Subsequent container restarts do **not**
-re-import.  To apply realm changes to an existing deployment, use the
-Keycloak Admin Console or run the deploy-keycloak workflow which recreates
-the container.
+re-import, so changes to `egril-realm.json` are not applied automatically to
+an already-running instance.
+
+To apply client or realm changes without losing user data, the
+`deploy-keycloak` GitHub Actions workflow includes a post-deploy step that
+calls the Keycloak Admin REST API directly.  This step is idempotent and runs
+on every deployment.  Add similar API calls there whenever `egril-realm.json`
+is updated with settings that must be pushed to the live instance (e.g.
+`consentRequired`, redirect URIs, protocol mappers).
+
+To do a full re-import (destructive – wipes all users and sessions), drop the
+`keycloak` database on the DB server and restart the Keycloak container.
