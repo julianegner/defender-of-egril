@@ -445,6 +445,7 @@ fun DefenderInfo(
                                             defender = defender,
                                             onBarricadeAction = onBarricadeAction,
                                             selectedBarricadeAction = selectedBarricadeAction,
+                                            doubleLevelEffect = doubleLevelEffect,
                                             modifier = Modifier
                                                 .width(240.dp)
                                                 .height(buttonHeight)
@@ -756,14 +757,16 @@ fun BarricadeButton(
     defender: Defender,
     onBarricadeAction: (Int, BarricadeAction) -> Unit,
     selectedBarricadeAction: BarricadeAction? = null,  // Current barricade placement mode
+    doubleLevelEffect: ActiveSpellEffect? = null,  // Active DOUBLE_TOWER_LEVEL spell effect
     modifier: Modifier = Modifier.fillMaxWidth().height(56.dp)
 ) {
     if (defender.isReady) {
-        // Calculate HP that will be added based on tower type
+        // Calculate HP that will be added based on tower type, using effective level
+        val effectiveLevel = if (doubleLevelEffect != null) defender.level.value * 2 else defender.level.value
         val hpAmount = if (defender.type == DefenderType.SPIKE_TOWER) {
-            maxOf(1, (defender.level.value - 20) / 2)
+            maxOf(1, (effectiveLevel - 20) / 2)
         } else {
-            maxOf(1, defender.level.value - 10)
+            maxOf(1, effectiveLevel - 10)
         }
         val isBarricadeModeActive = selectedBarricadeAction == BarricadeAction.BUILD_BARRICADE
         
