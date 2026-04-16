@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import de.egril.defender.model.DefenderType
 import de.egril.defender.ui.icon.defender.*
 import de.egril.defender.ui.icon.enemy.*
+import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.black_shield
 import defender_of_egril.composeapp.generated.resources.greatvibes_regular
@@ -55,145 +56,133 @@ fun ApplicationBanner(
     // Load the Great Vibes font
     val greatVibesFont = FontFamily(Font(Res.font.greatvibes_regular))
     
-    // Natural (unscaled) component sizes for banner layout
-    // Components: Canvas (160dp) + Spacer (16dp) + Text (~200dp) + Spacer (24dp) + Shield (120dp)
-    // naturalTextWidth is an approximation used solely to estimate naturalBannerWidth for the
-    // fit-scale calculation; the text Column is not width-capped, so deviations are harmless.
-    val naturalCanvasWidth = 160.dp  // Wider canvas so all 5 icons fit without overflow
-    val naturalCanvasHeight = 80.dp
-    val naturalSpacerWidth = 16.dp
-    val naturalTextWidth = 200.dp
-    val naturalTextSpacerWidth = 24.dp
-    val naturalShieldSize = 120.dp
-    val naturalBannerWidth = naturalCanvasWidth + naturalSpacerWidth + naturalTextWidth +
-            naturalTextSpacerWidth + naturalShieldSize  // ~520dp
+    // Platform-specific spacing values
+    val elementOffsetX = 0f
+    val elementOffsetY = if (isPlatformMobile) -80f else 0f
 
-    // Minimum scale below which the banner would become unreadable.
-    // 0.5f keeps all elements visible even on very narrow screens (~260dp effective width).
-    val minBannerScale = 0.5f
+    val goblinOffsetX = elementOffsetX + (if (isPlatformMobile) 15f else 20f)
+    val goblinOffsetY = elementOffsetY + (if (isPlatformMobile) -15f else -20f)
+    val orkOffsetX = elementOffsetX + (if (isPlatformMobile) -50f else 0f)
+    val orkOffsetY = elementOffsetY + (if (isPlatformMobile) 20f else -10f)
+    val wizardOffsetX = elementOffsetX + (if (isPlatformMobile) -100f else -20f)
+    val wizardOffsetY = elementOffsetY + (if (isPlatformMobile) 60f else 0f)
 
-    // Responsive container: measures available width and shrinks the banner to fit on narrow screens
-    BoxWithConstraints(
-        modifier = modifier.fillMaxWidth().padding(horizontal = 8.dp),
+    val bowTowerOffsetX = elementOffsetX + (if (isPlatformMobile) 160f else 80f)
+    val bowTowerOffsetY = elementOffsetY + (if (isPlatformMobile) 0f else -20f)
+    val wizardTowerOffsetX = elementOffsetX + (if (isPlatformMobile) 240f else 100f)
+    val wizardTowerOffsetY = elementOffsetY + (if (isPlatformMobile) 60f else 0f)
+
+    // On mobile, add extra spacer to shift title text and shield to the right,
+    // matching the leftward shift of icons and towers.
+    val spacerWidth = if (isPlatformMobile) 80.dp * scale + 20.dp else 80.dp * scale
+    val canvasWidth = 80.dp * scale
+
+    // Calculate banner width from component widths to prevent stretching on different screen sizes
+    // Components: Canvas (80dp) + Spacer (80dp) + Text (~200dp) + Spacer (24dp) + Shield (120dp)
+    val textApproximateWidth = 200.dp * scale  // Approximate width for "Defender of Egril" text
+    val totalBannerWidth = canvasWidth + spacerWidth + textApproximateWidth + 24.dp * scale + 120.dp * scale
+
+    // Fixed width container to prevent banner stretching on different screen sizes
+    // Uses widthIn to cap maximum width while adapting to smaller screens
+    Box(
+        modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
-        // Calculate effective scale: honour the caller's requested scale but also shrink
-        // further if the available width is narrower than the banner's natural size.
-        val availableWidth = maxWidth
-        val fitScale = (availableWidth / naturalBannerWidth).coerceIn(minBannerScale, 1.0f)
-        val effectiveScale = minOf(scale, fitScale)
-
-        val canvasWidth = naturalCanvasWidth * effectiveScale
-        val spacerWidth = naturalSpacerWidth * effectiveScale
-
         Row(
-            modifier = Modifier.width(naturalBannerWidth * effectiveScale),
+            modifier = Modifier
+                .widthIn(max = totalBannerWidth)
+                .padding(horizontal = 8.dp),  // Prevent clipping on narrow screens
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            // Canvas with enemy and tower symbols.
-            // All positions are expressed as fractions of size.width / size.height so they
-            // scale correctly at every screen density and effectiveScale value.
-            Box(
-                modifier = Modifier
-                    .height(naturalCanvasHeight * effectiveScale)
-                    .width(canvasWidth)
-            ) {
-                Canvas(modifier = Modifier.fillMaxSize()) {
-                    val cw = size.width   // canvas width in px
-                    val ch = size.height  // canvas height in px
-                    // Place icons at 55 % of canvas height so battlements/ears sit above the
-                    // mid-line and feet/base sit below, both within the canvas bounds.
-                    val centerY = ch * 0.55f
+        // Canvas with enemy and tower symbols
+        Box(
+            modifier = Modifier
+                .height(80.dp * scale)
+                .width(canvasWidth)
+        ) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val centerX = size.width / 2
+                val centerY = (size.height / 2) + 20f
+                val iconSize = minOf(size.width, size.height)
 
-                    // enemySize is passed to drawXxxSymbol; the ears extend ±0.45*enemySize
-                    // from center, so visual half-width ≈ cw * 0.22 * 0.45 ≈ cw * 0.099.
-                    val enemySize = cw * 0.22f
-                    // towerIconSize is passed to drawTower; the base bottom half-width is
-                    // towerIconSize * 0.8 * 0.3 ≈ cw * 0.44 * 0.24 ≈ cw * 0.106.
-                    val towerIconSize = cw * 0.44f
+                // Draw enemy symbols with theme-aware outline
+                drawGoblinSymbol(centerX.plus(goblinOffsetX), centerY.plus(goblinOffsetY), iconSize * 0.7f, outlineColor)
+                drawOrkSymbol(centerX.plus(orkOffsetX), centerY.plus(orkOffsetY), iconSize * 0.7f, outlineColor)
+                drawEvilWizardSymbol(centerX.plus(wizardOffsetX), centerY.plus(wizardOffsetY), iconSize * 0.7f, outlineColor)
 
-                    // --- Enemy symbols: left side, ~25 % overlap left-to-right ---
-                    // Step between centers = 0.15 * cw ≈ 77 % of visual width → ~23 % overlap.
-                    // First center at 0.10 * cw leaves enemy visual half-width (0.099) of margin.
-                    drawGoblinSymbol(cw * 0.10f, centerY, enemySize, outlineColor)
-                    drawOrkSymbol(   cw * 0.25f, centerY, enemySize, outlineColor)
-                    drawEvilWizardSymbol(cw * 0.40f, centerY, enemySize, outlineColor)
+                // Draw bow tower (platform-specific offset for mobile spacing)
+                drawTower(DefenderType.BOW_TOWER, centerX.plus(bowTowerOffsetX), centerY.plus(bowTowerOffsetY), iconSize, lineColor)
 
-                    // --- Tower symbols: right side, ~25 % overlap left-to-right ---
-                    // Gap between last enemy right edge (0.40+0.099 ≈ 0.499) and first tower
-                    // left edge (0.655−0.106 ≈ 0.549) = ~0.05 * cw — clearly visible.
-                    drawTower(DefenderType.BOW_TOWER, cw * 0.655f, centerY, towerIconSize, lineColor)
+                // Draw background with same trapezoid shape as wizard tower to prevent bow tower from showing through
+                val wizardCenterX = centerX.plus(wizardTowerOffsetX)
+                val wizardCenterY = centerY.plus(wizardTowerOffsetY)
+                val wizardBaseSize = iconSize * 0.8f
+                val topWidth = wizardBaseSize * 0.4f
+                val bottomWidth = wizardBaseSize * 0.6f
+                val towerHeight = wizardBaseSize * 0.6f
+                val top = wizardCenterY - towerHeight / 2
+                val bottom = wizardCenterY + towerHeight / 2
 
-                    // Draw background trapezoid before wizard tower so the bow tower body
-                    // does not show through its transparent interior.
-                    val wizardCenterX = cw * 0.815f
-                    val wizardCenterY = centerY
-                    val wizardBaseSize = towerIconSize * 0.8f
-                    val topWidth = wizardBaseSize * 0.4f
-                    val bottomWidth = wizardBaseSize * 0.6f
-                    val towerHeight = wizardBaseSize * 0.6f
-                    val top = wizardCenterY - towerHeight / 2
-                    val bottom = wizardCenterY + towerHeight / 2
-
-                    val trapezoid = Path().apply {
-                        moveTo(wizardCenterX - bottomWidth / 2, bottom)
-                        lineTo(wizardCenterX + bottomWidth / 2, bottom)
-                        lineTo(wizardCenterX + topWidth / 2, top)
-                        lineTo(wizardCenterX - topWidth / 2, top)
-                        close()
-                    }
-                    drawPath(trapezoid, backgroundColor)
-
-                    // Battlements with background color
-                    val battlement = wizardBaseSize * 0.08f
-                    for (i in 0..2) {
-                        val x = wizardCenterX - topWidth / 2 + (topWidth / 3) * i
-                        drawRect(
-                            color = backgroundColor,
-                            topLeft = Offset(x, top - battlement),
-                            size = androidx.compose.ui.geometry.Size(battlement, battlement)
-                        )
-                    }
-
-                    drawTower(DefenderType.WIZARD_TOWER, wizardCenterX, wizardCenterY, towerIconSize, lineColor)
+                val trapezoid = Path().apply {
+                    moveTo(wizardCenterX - bottomWidth / 2, bottom)
+                    lineTo(wizardCenterX + bottomWidth / 2, bottom)
+                    lineTo(wizardCenterX + topWidth / 2, top)
+                    lineTo(wizardCenterX - topWidth / 2, top)
+                    close()
                 }
+                drawPath(trapezoid, backgroundColor)
+
+                // Draw battlements with background color
+                val battlement = wizardBaseSize * 0.08f
+                for (i in 0..2) {
+                    val x = wizardCenterX - topWidth / 2 + (topWidth / 3) * i
+                    drawRect(
+                        color = backgroundColor,
+                        topLeft = Offset(x, top - battlement),
+                        size = androidx.compose.ui.geometry.Size(battlement, battlement)
+                    )
+                }
+
+                // Draw wizard tower (platform-specific offset for mobile spacing)
+                drawTower(DefenderType.WIZARD_TOWER, centerX.plus(wizardTowerOffsetX), centerY.plus(wizardTowerOffsetY), iconSize, lineColor)
             }
+        }
 
-            Spacer(modifier = Modifier.width(spacerWidth))
+        Spacer(modifier = Modifier.width(spacerWidth))
 
-            // Middle: Two rows of text
-            Column(
-                horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.Center
-            ) {
-                // First row: "Defender of" - smaller size, Great Vibes font
-                Text(
-                    text = "Defender of",
-                    fontSize = (32 * effectiveScale).sp,
-                    fontFamily = greatVibesFont,
-                    fontWeight = FontWeight.Normal,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-
-                // Second row: "Egril" - larger size, Great Vibes font
-                Text(
-                    text = "Egril",
-                    fontSize = (56 * effectiveScale).sp,
-                    fontFamily = greatVibesFont,
-                    fontWeight = FontWeight.Normal,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            }
-
-            Spacer(modifier = Modifier.width(naturalTextSpacerWidth * effectiveScale))
-
-            // Right side: Application logo
-            Image(
-                painter = painterResource(Res.drawable.black_shield),
-                contentDescription = "Defender of Egril Logo",
-                modifier = Modifier.size(naturalShieldSize * effectiveScale)
+        // Left side: Two rows of text
+        Column(
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.Center
+        ) {
+            // First row: "Defender of" - smaller size, Great Vibes font
+            Text(
+                text = "Defender of",
+                fontSize = (32 * scale).sp,
+                fontFamily = greatVibesFont,
+                fontWeight = FontWeight.Normal,
+                color = MaterialTheme.colorScheme.onBackground
             )
+
+            // Second row: "Egril" - larger size, Great Vibes font
+            Text(
+                text = "Egril",
+                fontSize = (56 * scale).sp,
+                fontFamily = greatVibesFont,
+                fontWeight = FontWeight.Normal,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
+
+        Spacer(modifier = Modifier.width(24.dp * scale))
+
+        // Right side: Application logo
+        Image(
+            painter = painterResource(Res.drawable.black_shield),
+            contentDescription = "Defender of Egril Logo",
+            modifier = Modifier.size(120.dp * scale)
+        )
         }
     }
 }
