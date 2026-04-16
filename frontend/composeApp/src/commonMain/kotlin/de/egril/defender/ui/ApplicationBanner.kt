@@ -102,30 +102,34 @@ fun ApplicationBanner(
                 Canvas(modifier = Modifier.fillMaxSize()) {
                     val cw = size.width   // canvas width in px
                     val ch = size.height  // canvas height in px
-                    val centerY = ch * 0.6f  // slightly below vertical center for visual balance
+                    // Place icons at 55 % of canvas height so battlements/ears sit above the
+                    // mid-line and feet/base sit below, both within the canvas bounds.
+                    val centerY = ch * 0.55f
 
-                    // Icon sizes relative to canvas dimensions.
-                    // Enemies use 20 % of canvas width; towers are proportionally larger
-                    // (same 1/0.7 ratio as the original design).
-                    val enemySize = cw * 0.20f
-                    val towerSize = enemySize / 0.7f
+                    // enemySize is passed to drawXxxSymbol; the ears extend ±0.45*enemySize
+                    // from center, so visual half-width ≈ cw * 0.22 * 0.45 ≈ cw * 0.099.
+                    val enemySize = cw * 0.22f
+                    // towerIconSize is passed to drawTower; the base bottom half-width is
+                    // towerIconSize * 0.8 * 0.3 ≈ cw * 0.44 * 0.24 ≈ cw * 0.106.
+                    val towerIconSize = cw * 0.44f
 
-                    // --- Enemy symbols: left side, slightly overlapping left-to-right ---
-                    // Center-to-center step = 16.5 % of cw (~18 % overlap for 20 %-wide icons).
-                    drawGoblinSymbol(cw * 0.065f, centerY - enemySize * 0.15f, enemySize, outlineColor)
-                    drawOrkSymbol(cw * 0.23f,  centerY,                  enemySize, outlineColor)
-                    drawEvilWizardSymbol(cw * 0.395f, centerY + enemySize * 0.08f, enemySize, outlineColor)
+                    // --- Enemy symbols: left side, ~25 % overlap left-to-right ---
+                    // Step between centers = 0.15 * cw ≈ 77 % of visual width → ~23 % overlap.
+                    // First center at 0.10 * cw leaves enemy visual half-width (0.099) of margin.
+                    drawGoblinSymbol(cw * 0.10f, centerY, enemySize, outlineColor)
+                    drawOrkSymbol(   cw * 0.25f, centerY, enemySize, outlineColor)
+                    drawEvilWizardSymbol(cw * 0.40f, centerY, enemySize, outlineColor)
 
-                    // --- Tower symbols: right side, slightly overlapping left-to-right ---
-                    // A ~12dp gap is left between the last enemy's right edge and the first
-                    // tower's left edge, giving a clear visual separation.
-                    drawTower(DefenderType.BOW_TOWER, cw * 0.71f, centerY - enemySize * 0.15f, towerSize, lineColor)
+                    // --- Tower symbols: right side, ~25 % overlap left-to-right ---
+                    // Gap between last enemy right edge (0.40+0.099 ≈ 0.499) and first tower
+                    // left edge (0.655−0.106 ≈ 0.549) = ~0.05 * cw — clearly visible.
+                    drawTower(DefenderType.BOW_TOWER, cw * 0.655f, centerY, towerIconSize, lineColor)
 
-                    // Draw background trapezoid before wizard tower so bow tower
-                    // doesn't show through its transparent interior.
-                    val wizardCenterX = cw * 0.875f
+                    // Draw background trapezoid before wizard tower so the bow tower body
+                    // does not show through its transparent interior.
+                    val wizardCenterX = cw * 0.815f
                     val wizardCenterY = centerY
-                    val wizardBaseSize = towerSize * 0.8f
+                    val wizardBaseSize = towerIconSize * 0.8f
                     val topWidth = wizardBaseSize * 0.4f
                     val bottomWidth = wizardBaseSize * 0.6f
                     val towerHeight = wizardBaseSize * 0.6f
@@ -152,7 +156,7 @@ fun ApplicationBanner(
                         )
                     }
 
-                    drawTower(DefenderType.WIZARD_TOWER, wizardCenterX, wizardCenterY, towerSize, lineColor)
+                    drawTower(DefenderType.WIZARD_TOWER, wizardCenterX, wizardCenterY, towerIconSize, lineColor)
                 }
             }
 
