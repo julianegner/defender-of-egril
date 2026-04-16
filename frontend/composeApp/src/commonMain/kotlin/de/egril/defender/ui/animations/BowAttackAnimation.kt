@@ -193,65 +193,75 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBowVolley(
             Pair(0.5f, BACK_ROW_LAG)    // back between center and right
         )
 
-        for ((spreadMul, lag) in arrowDefs) {
-            // Back-row arrows haven't left the bow yet if they'd be behind the source
-            val effectiveFly = (flyProgress - lag).coerceAtLeast(0f)
-            if (effectiveFly <= 0f) continue
+        // Arrows fade out as the impact burst progresses so they vanish after the hit
+        val arrowAlpha = if (flyProgress < HIT_BURST_START_FLY) {
+            1f
+        } else {
+            val hitProgress = (flyProgress - HIT_BURST_START_FLY) / (1f - HIT_BURST_START_FLY)
+            1f - hitProgress
+        }
 
-            val offsetX = px * spread * spreadMul
-            val offsetY = py * spread * spreadMul
+        if (arrowAlpha > 0f) {
+            for ((spreadMul, lag) in arrowDefs) {
+                // Back-row arrows haven't left the bow yet if they'd be behind the source
+                val effectiveFly = (flyProgress - lag).coerceAtLeast(0f)
+                if (effectiveFly <= 0f) continue
 
-            val arrowTipX = sourceCenter.x + dx * effectiveFly + offsetX
-            val arrowTipY = sourceCenter.y + dy * effectiveFly + offsetY
-            val tipCenter = Offset(arrowTipX, arrowTipY)
-            val tailCenter = Offset(arrowTipX - nx * arrowLength, arrowTipY - ny * arrowLength)
+                val offsetX = px * spread * spreadMul
+                val offsetY = py * spread * spreadMul
 
-            // Arrow shaft (dark brown wood)
-            drawLine(
-                color = Color(0xFF8B4513),
-                start = tailCenter,
-                end = Offset(tipCenter.x - nx * headSize * 0.5f, tipCenter.y - ny * headSize * 0.5f),
-                strokeWidth = shaftWidth,
-                cap = StrokeCap.Round
-            )
+                val arrowTipX = sourceCenter.x + dx * effectiveFly + offsetX
+                val arrowTipY = sourceCenter.y + dy * effectiveFly + offsetY
+                val tipCenter = Offset(arrowTipX, arrowTipY)
+                val tailCenter = Offset(arrowTipX - nx * arrowLength, arrowTipY - ny * arrowLength)
 
-            // Arrowhead (silver triangle pointing in direction of travel)
-            val tipX = tipCenter.x
-            val tipY = tipCenter.y
-            val baseLeft = Offset(
-                tipX - nx * headSize - px * headSize * 0.55f,
-                tipY - ny * headSize - py * headSize * 0.55f
-            )
-            val baseRight = Offset(
-                tipX - nx * headSize + px * headSize * 0.55f,
-                tipY - ny * headSize + py * headSize * 0.55f
-            )
+                // Arrow shaft (dark brown wood)
+                drawLine(
+                    color = Color(0xFF8B4513).copy(alpha = arrowAlpha),
+                    start = tailCenter,
+                    end = Offset(tipCenter.x - nx * headSize * 0.5f, tipCenter.y - ny * headSize * 0.5f),
+                    strokeWidth = shaftWidth,
+                    cap = StrokeCap.Round
+                )
 
-            val arrowHeadPath = Path().apply {
-                moveTo(tipX, tipY)
-                lineTo(baseLeft.x, baseLeft.y)
-                lineTo(baseRight.x, baseRight.y)
-                close()
+                // Arrowhead (silver triangle pointing in direction of travel)
+                val tipX = tipCenter.x
+                val tipY = tipCenter.y
+                val baseLeft = Offset(
+                    tipX - nx * headSize - px * headSize * 0.55f,
+                    tipY - ny * headSize - py * headSize * 0.55f
+                )
+                val baseRight = Offset(
+                    tipX - nx * headSize + px * headSize * 0.55f,
+                    tipY - ny * headSize + py * headSize * 0.55f
+                )
+
+                val arrowHeadPath = Path().apply {
+                    moveTo(tipX, tipY)
+                    lineTo(baseLeft.x, baseLeft.y)
+                    lineTo(baseRight.x, baseRight.y)
+                    close()
+                }
+                drawPath(arrowHeadPath, Color(0xFFC8C8C8).copy(alpha = arrowAlpha))
+
+                // Small tail feathers (fletching) — two short lines at the tail
+                val fletchLength = arrowLength * 0.22f
+                val fletchSpread = hexSizePx * 0.07f
+                drawLine(
+                    color = Color(0xFFCCCCFF).copy(alpha = 0.8f * arrowAlpha),
+                    start = tailCenter,
+                    end = Offset(tailCenter.x + nx * fletchLength + px * fletchSpread, tailCenter.y + ny * fletchLength + py * fletchSpread),
+                    strokeWidth = shaftWidth * 0.7f,
+                    cap = StrokeCap.Round
+                )
+                drawLine(
+                    color = Color(0xFFCCCCFF).copy(alpha = 0.8f * arrowAlpha),
+                    start = tailCenter,
+                    end = Offset(tailCenter.x + nx * fletchLength - px * fletchSpread, tailCenter.y + ny * fletchLength - py * fletchSpread),
+                    strokeWidth = shaftWidth * 0.7f,
+                    cap = StrokeCap.Round
+                )
             }
-            drawPath(arrowHeadPath, Color(0xFFC8C8C8))
-
-            // Small tail feathers (fletching) — two short lines at the tail
-            val fletchLength = arrowLength * 0.22f
-            val fletchSpread = hexSizePx * 0.07f
-            drawLine(
-                color = Color(0xFFCCCCFF).copy(alpha = 0.8f),
-                start = tailCenter,
-                end = Offset(tailCenter.x + nx * fletchLength + px * fletchSpread, tailCenter.y + ny * fletchLength + py * fletchSpread),
-                strokeWidth = shaftWidth * 0.7f,
-                cap = StrokeCap.Round
-            )
-            drawLine(
-                color = Color(0xFFCCCCFF).copy(alpha = 0.8f),
-                start = tailCenter,
-                end = Offset(tailCenter.x + nx * fletchLength - px * fletchSpread, tailCenter.y + ny * fletchLength - py * fletchSpread),
-                strokeWidth = shaftWidth * 0.7f,
-                cap = StrokeCap.Round
-            )
         }
 
         // Phase 3 (overlapping): impact burst at the target as the front arrows arrive
