@@ -25,6 +25,7 @@ import de.egril.defender.ui.icon.TrophyIcon
 import de.egril.defender.ui.icon.UnlockIcon
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.utils.formatTimestamp
+import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.*
 import androidx.compose.foundation.text.selection.SelectionContainer
 
@@ -142,16 +143,18 @@ fun PlayerProfileScreen(
                     }
                 } else {
                     // Full header with player name title, switch player button, and collapse button
+                    val headerBottomPadding = if (isPlatformMobile) 8.dp else 24.dp
+                    val headerButtonHeight = if (isPlatformMobile) 28.dp else 36.dp
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 24.dp),
+                            .padding(bottom = headerBottomPadding),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         // Collapse button on the LEFT
                         TextButton(
                             onClick = { headerCollapsed = true },
-                            modifier = Modifier.height(36.dp)
+                            modifier = Modifier.height(headerButtonHeight)
                         ) {
                             Text(
                                 text = stringResource(Res.string.collapse),
@@ -161,7 +164,7 @@ fun PlayerProfileScreen(
                         // Switch player button (always visible)
                         OutlinedButton(
                             onClick = onSelectPlayer,
-                            modifier = Modifier.height(36.dp)
+                            modifier = Modifier.height(headerButtonHeight)
                         ) {
                             Text(
                                 text = stringResource(Res.string.switch_player),
@@ -171,7 +174,7 @@ fun PlayerProfileScreen(
                         // Title centered in remaining space
                         Text(
                             text = stringResource(Res.string.player_profile),
-                            style = MaterialTheme.typography.displayMedium,
+                            style = if (isPlatformMobile) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.displayMedium,
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.onBackground,
                             modifier = Modifier.weight(1f)
