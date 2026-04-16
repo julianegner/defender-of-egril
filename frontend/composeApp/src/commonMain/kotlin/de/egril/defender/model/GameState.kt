@@ -118,6 +118,18 @@ data class BallistaAttackEffect(
     val turnNumber: Int            // Turn when this attack occurred
 )
 
+data class BowAttackEffect(
+    val sourcePosition: Position,  // Bow tower's tile
+    val targetPosition: Position,  // Target tile
+    val turnNumber: Int            // Turn when this attack occurred
+)
+
+data class SpearAttackEffect(
+    val sourcePosition: Position,  // Spear tower's tile
+    val targetPosition: Position,  // Target tile
+    val turnNumber: Int            // Turn when this attack occurred
+)
+
 /**
  * Types of in-game event messages that are shown to the player.
  */
@@ -176,6 +188,8 @@ data class GameState(
     val mineDigEffects: SnapshotStateList<MineDigEffect> = mutableStateListOf(),  // Track dwarven mine digging visual effects
     val arrowAttackEffects: SnapshotStateList<ArrowAttackEffect> = mutableStateListOf(),  // Track arrow/bolt projectile effects for Bow and Spear towers
     val ballistaAttackEffects: SnapshotStateList<BallistaAttackEffect> = mutableStateListOf(),  // Track ballista projectile overlay effects
+    val bowAttackEffects: SnapshotStateList<BowAttackEffect> = mutableStateListOf(),  // Track bow arrow volley overlay effects
+    val spearAttackEffects: SnapshotStateList<SpearAttackEffect> = mutableStateListOf(),  // Track spear throw overlay effects
     val difficulty: DifficultyLevel = DifficultyLevel.MEDIUM,  // Track difficulty for this game session
     val tutorialState: MutableState<TutorialState> = mutableStateOf(
         // Enable tutorial only for the tutorial level (id=1, title contains "Welcome")

@@ -1,6 +1,8 @@
 package de.egril.defender.ui.animations
 import io.github.alexzhirkevich.compottie.Compottie
 import de.egril.defender.ui.animations.BallistaAttackTestPreview
+import de.egril.defender.ui.animations.BowAttackTestPreview
+import de.egril.defender.ui.animations.SpearAttackTestPreview
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -158,6 +160,12 @@ fun AnimationTestScreen(onBack: () -> Unit) {
                 if (selectedAnimation == AnimationType.BALLISTA_ATTACK) {
                     // Special canvas-based preview for ballista (spans multiple tiles in gameplay)
                     BallistaAttackTestPreview(modifier = Modifier.fillMaxSize())
+                } else if (selectedAnimation == AnimationType.BOW_ATTACK) {
+                    // Special canvas-based preview for bow arrow volley
+                    BowAttackTestPreview(modifier = Modifier.fillMaxSize())
+                } else if (selectedAnimation == AnimationType.SPEAR_ATTACK) {
+                    // Special canvas-based preview for spear throw
+                    SpearAttackTestPreview(modifier = Modifier.fillMaxSize())
                 } else {
                     val isLooping = selectedAnimation in LOOPING_ANIMATIONS
                     LottieAnimation(
@@ -319,4 +327,6 @@ private fun AnimationType.displayName(): String = when (this) {
     AnimationType.ARROW_ATTACK               -> "Arrow Attack"
     AnimationType.DRAGON_TARGET              -> "Dragon Target (Mine)"
     AnimationType.BALLISTA_ATTACK            -> "Ballista Attack (Rock)"
+    AnimationType.BOW_ATTACK                 -> "Bow Attack (Arrow Volley)"
+    AnimationType.SPEAR_ATTACK               -> "Spear Attack (Spear Throw)"
 }
