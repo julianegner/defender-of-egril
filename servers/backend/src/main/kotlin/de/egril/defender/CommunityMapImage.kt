@@ -290,14 +290,10 @@ object BackendMapImageGenerator {
         return Triple(pixels, imgW, imgH)
     }
 
-    /** Encode ARGB pixel data to PNG bytes using the JVM AWT library. */
+    /** Encode ARGB pixel data to optimally compressed PNG bytes. */
     fun encodeToPng(pixels: IntArray, width: Int, height: Int): ByteArray? {
         return try {
-            val image = java.awt.image.BufferedImage(width, height, java.awt.image.BufferedImage.TYPE_INT_ARGB)
-            image.setRGB(0, 0, width, height, pixels, 0, width)
-            val baos = java.io.ByteArrayOutputStream()
-            javax.imageio.ImageIO.write(image, "png", baos)
-            baos.toByteArray()
+            OptimalPngEncoder.encode(pixels, width, height)
         } catch (_: Exception) {
             null
         }
