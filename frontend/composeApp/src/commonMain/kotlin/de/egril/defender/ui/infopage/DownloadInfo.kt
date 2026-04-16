@@ -277,6 +277,7 @@ private fun GithubReleaseAsset.fileType(): String = when {
     name.endsWith(".deb", ignoreCase = true) -> "DEB"
     name.endsWith(".snap", ignoreCase = true) -> "Snap"
     name.endsWith(".flatpak", ignoreCase = true) -> "Flatpak"
+    name.endsWith(".AppImage", ignoreCase = true) -> "AppImage"
     name.endsWith(".dmg", ignoreCase = true) -> "DMG"
     name.endsWith(".ipa", ignoreCase = true) -> "IPA"
     else -> name.substringAfterLast(".").uppercase().ifEmpty { "File" }

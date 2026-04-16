@@ -56,21 +56,20 @@ fun ApplicationBanner(
     val greatVibesFont = FontFamily(Font(Res.font.greatvibes_regular))
     
     // Natural (unscaled) component sizes for banner layout
-    // Components: Canvas (80dp) + Spacer (80dp) + Text (~200dp) + Spacer (24dp) + Shield (120dp)
-    // naturalTextWidth is an approximation of the "Defender of / Egril" text block width.
-    // It is used solely to estimate naturalBannerWidth for the fit-scale calculation; the text
-    // Column inside the Row is not width-capped — it receives whatever space remains after the
-    // other fixed-size elements, so small deviations from the approximation are harmless.
-    val naturalCanvasWidth = 80.dp
-    val naturalSpacerWidth = 80.dp
+    // Components: Canvas (160dp) + Spacer (16dp) + Text (~200dp) + Spacer (24dp) + Shield (120dp)
+    // naturalTextWidth is an approximation used solely to estimate naturalBannerWidth for the
+    // fit-scale calculation; the text Column is not width-capped, so deviations are harmless.
+    val naturalCanvasWidth = 160.dp  // Wider canvas so all 5 icons fit without overflow
+    val naturalCanvasHeight = 80.dp
+    val naturalSpacerWidth = 16.dp
     val naturalTextWidth = 200.dp
     val naturalTextSpacerWidth = 24.dp
     val naturalShieldSize = 120.dp
     val naturalBannerWidth = naturalCanvasWidth + naturalSpacerWidth + naturalTextWidth +
-            naturalTextSpacerWidth + naturalShieldSize  // ~504dp
+            naturalTextSpacerWidth + naturalShieldSize  // ~520dp
 
     // Minimum scale below which the banner would become unreadable.
-    // 0.5f keeps all elements visible even on very narrow screens (~252dp effective width).
+    // 0.5f keeps all elements visible even on very narrow screens (~260dp effective width).
     val minBannerScale = 0.5f
 
     // Responsive container: measures available width and shrinks the banner to fit on narrow screens
@@ -92,34 +91,41 @@ fun ApplicationBanner(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            // Canvas with enemy and tower symbols
+            // Canvas with enemy and tower symbols.
+            // All positions are expressed as fractions of size.width / size.height so they
+            // scale correctly at every screen density and effectiveScale value.
             Box(
                 modifier = Modifier
-                    .height(naturalCanvasWidth * effectiveScale)
+                    .height(naturalCanvasHeight * effectiveScale)
                     .width(canvasWidth)
             ) {
                 Canvas(modifier = Modifier.fillMaxSize()) {
-                    val centerX = size.width / 2
-                    val centerY = (size.height / 2) + 20f
-                    // iconSize scales with canvas pixel dimensions — all offsets are
-                    // expressed as fractions of iconSize so they remain correct at any
-                    // screen density or effective scale.
-                    val iconSize = minOf(size.width, size.height)
+                    val cw = size.width   // canvas width in px
+                    val ch = size.height  // canvas height in px
+                    val centerY = ch * 0.6f  // slightly below vertical center for visual balance
 
-                    // Draw enemy symbols with theme-aware outline
-                    // Offsets as fractions of iconSize so they scale with canvas size
-                    drawGoblinSymbol(centerX + iconSize * 0.125f, centerY - iconSize * 0.125f, iconSize * 0.7f, outlineColor)
-                    drawOrkSymbol(centerX, centerY - iconSize * 0.0625f, iconSize * 0.7f, outlineColor)
-                    drawEvilWizardSymbol(centerX - iconSize * 0.125f, centerY, iconSize * 0.7f, outlineColor)
+                    // Icon sizes relative to canvas dimensions.
+                    // Enemies use 20 % of canvas width; towers are proportionally larger
+                    // (same 1/0.7 ratio as the original design).
+                    val enemySize = cw * 0.20f
+                    val towerSize = enemySize / 0.7f
 
-                    // Draw bow tower
-                    drawTower(DefenderType.BOW_TOWER, centerX + iconSize * 0.5f, centerY - iconSize * 0.125f, iconSize, lineColor)
+                    // --- Enemy symbols: left side, slightly overlapping left-to-right ---
+                    // Center-to-center step = 16.5 % of cw (~18 % overlap for 20 %-wide icons).
+                    drawGoblinSymbol(cw * 0.065f, centerY - enemySize * 0.15f, enemySize, outlineColor)
+                    drawOrkSymbol(cw * 0.23f,  centerY,                  enemySize, outlineColor)
+                    drawEvilWizardSymbol(cw * 0.395f, centerY + enemySize * 0.08f, enemySize, outlineColor)
 
-                    // Draw background with same trapezoid shape as wizard tower
-                    // to prevent bow tower from showing through
-                    val wizardCenterX = centerX + iconSize * 0.625f
+                    // --- Tower symbols: right side, slightly overlapping left-to-right ---
+                    // A ~12dp gap is left between the last enemy's right edge and the first
+                    // tower's left edge, giving a clear visual separation.
+                    drawTower(DefenderType.BOW_TOWER, cw * 0.71f, centerY - enemySize * 0.15f, towerSize, lineColor)
+
+                    // Draw background trapezoid before wizard tower so bow tower
+                    // doesn't show through its transparent interior.
+                    val wizardCenterX = cw * 0.875f
                     val wizardCenterY = centerY
-                    val wizardBaseSize = iconSize * 0.8f
+                    val wizardBaseSize = towerSize * 0.8f
                     val topWidth = wizardBaseSize * 0.4f
                     val bottomWidth = wizardBaseSize * 0.6f
                     val towerHeight = wizardBaseSize * 0.6f
@@ -135,7 +141,7 @@ fun ApplicationBanner(
                     }
                     drawPath(trapezoid, backgroundColor)
 
-                    // Draw battlements with background color
+                    // Battlements with background color
                     val battlement = wizardBaseSize * 0.08f
                     for (i in 0..2) {
                         val x = wizardCenterX - topWidth / 2 + (topWidth / 3) * i
@@ -146,8 +152,7 @@ fun ApplicationBanner(
                         )
                     }
 
-                    // Draw wizard tower
-                    drawTower(DefenderType.WIZARD_TOWER, wizardCenterX, wizardCenterY, iconSize, lineColor)
+                    drawTower(DefenderType.WIZARD_TOWER, wizardCenterX, wizardCenterY, towerSize, lineColor)
                 }
             }
 
