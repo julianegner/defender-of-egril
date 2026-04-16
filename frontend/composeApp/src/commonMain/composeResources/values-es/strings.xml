@@ -1622,6 +1622,7 @@
 
     <!-- Sticker screen tabs -->
     <string name="sticker_tab_original">Pegatina</string>
+    <string name="sticker_tab_banner_image">Imagen de Banner</string>
     <string name="sticker_tab_enemies">Enemigos</string>
     <string name="sticker_tab_towers">Torres</string>
     <string name="sticker_tab_qr_code">Código QR</string>

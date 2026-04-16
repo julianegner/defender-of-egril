@@ -1628,6 +1628,7 @@
 
     <!-- Sticker screen tabs -->
     <string name="sticker_tab_original">Sticker</string>
+    <string name="sticker_tab_banner_image">Banner Image</string>
     <string name="sticker_tab_enemies">Enemies</string>
     <string name="sticker_tab_towers">Towers</string>
     <string name="sticker_tab_qr_code">QR Code</string>

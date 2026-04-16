@@ -53,8 +53,9 @@ fun StickerScreen(
         }
     }
 
-    // Total tabs = original + allSymbolTabs + QR code
-    val totalTabs = 1 + allSymbolTabs.size + 1
+    // Total tabs = original + banner image + allSymbolTabs + QR code
+    val totalTabs = 1 + 1 + allSymbolTabs.size + 1
+    val bannerImageTabIndex = 1
     val qrCodeTabIndex = totalTabs - 1
 
     Surface(
@@ -101,9 +102,15 @@ fun StickerScreen(
                         onClick = { selectedTab = 0 },
                         text = { Text(stringResource(Res.string.sticker_tab_original)) }
                     )
-                    // Tabs 1..(1+allSymbolTabs.size-1): symbol tabs
+                    // Tab 1: PNG banner image
+                    Tab(
+                        selected = selectedTab == bannerImageTabIndex,
+                        onClick = { selectedTab = bannerImageTabIndex },
+                        text = { Text(stringResource(Res.string.sticker_tab_banner_image)) }
+                    )
+                    // Tabs 2..(2+allSymbolTabs.size-1): symbol tabs
                     allSymbolTabs.forEachIndexed { idx, tab ->
-                        val tabIndex = 1 + idx
+                        val tabIndex = 2 + idx
                         Tab(
                             selected = selectedTab == tabIndex,
                             onClick = { selectedTab = tabIndex },
@@ -122,9 +129,10 @@ fun StickerScreen(
 
                 when {
                     selectedTab == 0 -> StickerOriginalTab()
+                    selectedTab == bannerImageTabIndex -> StickerBannerImageTab()
                     selectedTab == qrCodeTabIndex -> StickerQrCodeTab()
                     else -> {
-                        val symbolTabIndex = selectedTab - 1
+                        val symbolTabIndex = selectedTab - 2
                         if (symbolTabIndex in allSymbolTabs.indices) {
                             StickerSymbolTab(allSymbolTabs[symbolTabIndex])
                         }
@@ -189,6 +197,20 @@ private fun StickerOriginalTab() {
                 )
             }
         }
+    }
+}
+
+/**
+ * Tab 1: PNG banner image tab showing [ApplicationBannerImage].
+ */
+@Composable
+private fun StickerBannerImageTab() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        ApplicationBannerImage()
     }
 }
 

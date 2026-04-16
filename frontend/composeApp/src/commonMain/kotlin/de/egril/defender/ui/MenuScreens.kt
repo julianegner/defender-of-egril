@@ -252,7 +252,7 @@ fun MainMenuScreen(
                 }
                 
                 // Application banner with logo and styled text
-                ApplicationBanner(scale = if (isPlatformMobile) 0.8f else 1f)
+                ApplicationBannerImage()
                 
                 Spacer(modifier = Modifier.height(8.dp))
                 

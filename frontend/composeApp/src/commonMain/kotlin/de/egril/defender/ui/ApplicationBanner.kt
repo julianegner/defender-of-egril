@@ -76,12 +76,12 @@ fun ApplicationBanner(
     // matching the leftward shift of icons and towers.
     val spacerWidth = if (isPlatformMobile) 80.dp * scale + 20.dp else 80.dp * scale
     val canvasWidth = 80.dp * scale
-    
+
     // Calculate banner width from component widths to prevent stretching on different screen sizes
     // Components: Canvas (80dp) + Spacer (80dp) + Text (~200dp) + Spacer (24dp) + Shield (120dp)
     val textApproximateWidth = 200.dp * scale  // Approximate width for "Defender of Egril" text
     val totalBannerWidth = canvasWidth + spacerWidth + textApproximateWidth + 24.dp * scale + 120.dp * scale
-    
+
     // Fixed width container to prevent banner stretching on different screen sizes
     // Uses widthIn to cap maximum width while adapting to smaller screens
     Box(
@@ -113,7 +113,7 @@ fun ApplicationBanner(
 
                 // Draw bow tower (platform-specific offset for mobile spacing)
                 drawTower(DefenderType.BOW_TOWER, centerX.plus(bowTowerOffsetX), centerY.plus(bowTowerOffsetY), iconSize, lineColor)
-                
+
                 // Draw background with same trapezoid shape as wizard tower to prevent bow tower from showing through
                 val wizardCenterX = centerX.plus(wizardTowerOffsetX)
                 val wizardCenterY = centerY.plus(wizardTowerOffsetY)
@@ -123,7 +123,7 @@ fun ApplicationBanner(
                 val towerHeight = wizardBaseSize * 0.6f
                 val top = wizardCenterY - towerHeight / 2
                 val bottom = wizardCenterY + towerHeight / 2
-                
+
                 val trapezoid = Path().apply {
                     moveTo(wizardCenterX - bottomWidth / 2, bottom)
                     lineTo(wizardCenterX + bottomWidth / 2, bottom)
@@ -132,7 +132,7 @@ fun ApplicationBanner(
                     close()
                 }
                 drawPath(trapezoid, backgroundColor)
-                
+
                 // Draw battlements with background color
                 val battlement = wizardBaseSize * 0.08f
                 for (i in 0..2) {
@@ -143,14 +143,14 @@ fun ApplicationBanner(
                         size = androidx.compose.ui.geometry.Size(battlement, battlement)
                     )
                 }
-                
+
                 // Draw wizard tower (platform-specific offset for mobile spacing)
                 drawTower(DefenderType.WIZARD_TOWER, centerX.plus(wizardTowerOffsetX), centerY.plus(wizardTowerOffsetY), iconSize, lineColor)
             }
         }
-        
+
         Spacer(modifier = Modifier.width(spacerWidth))
-        
+
         // Left side: Two rows of text
         Column(
             horizontalAlignment = Alignment.End,
@@ -164,7 +164,7 @@ fun ApplicationBanner(
                 fontWeight = FontWeight.Normal,
                 color = MaterialTheme.colorScheme.onBackground
             )
-            
+
             // Second row: "Egril" - larger size, Great Vibes font
             Text(
                 text = "Egril",
@@ -174,9 +174,9 @@ fun ApplicationBanner(
                 color = MaterialTheme.colorScheme.onBackground
             )
         }
-        
+
         Spacer(modifier = Modifier.width(24.dp * scale))
-        
+
         // Right side: Application logo
         Image(
             painter = painterResource(Res.drawable.black_shield),

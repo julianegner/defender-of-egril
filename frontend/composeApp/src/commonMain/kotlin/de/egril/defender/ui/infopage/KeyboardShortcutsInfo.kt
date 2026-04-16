@@ -28,7 +28,7 @@ fun KeyboardShortcutsInfo() {
         ) {
         Text(
             text = stringResource(Res.string.keyboard_shortcuts_title),
-            style = MaterialTheme.typography.displayMedium,
+            style = MaterialTheme.typography.headlineLarge,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
             color = MaterialTheme.colorScheme.onBackground

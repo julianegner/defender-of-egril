@@ -189,6 +189,8 @@ object FinalCreditsData {
         "ic_menu_compass",     // UI icon, not a game scene image
         "black_shield",        // UI icon, not a game scene image
         "black_shield2",       // UI icon, not a game scene image
-        "qr_code_defender"     // QR code, not a game scene image
+        "qr_code_defender",    // QR code, not a game scene image
+        "banner_light",        // placeholder PNG for ApplicationBannerImage (light mode)
+        "banner_dark"          // placeholder PNG for ApplicationBannerImage (dark mode)
     )
 }
