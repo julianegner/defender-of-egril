@@ -15,6 +15,11 @@ import kotlin.math.abs
  * Additionally, map images are fully opaque (alpha = 0xFF), so this encoder strips
  * the alpha channel and writes RGB (3 bytes/pixel) instead of RGBA (4 bytes/pixel),
  * saving ~25% of raw data before compression.
+ *
+ * NOTE: This file is intentionally duplicated in the backend server module
+ * (servers/backend/src/main/kotlin/de/egril/defender/OptimalPngEncoder.kt)
+ * because frontend and backend are separate Gradle modules with no shared JVM library.
+ * Keep both copies in sync when making changes.
  */
 object OptimalPngEncoder {
 
