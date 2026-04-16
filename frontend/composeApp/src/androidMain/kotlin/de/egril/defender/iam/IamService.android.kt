@@ -347,7 +347,6 @@ private suspend fun pollDeviceTokenAndroid(
         // delay() is a cancellable suspension point: if the coroutine is cancelled
         // (e.g. via currentLoginJob.cancel()) a CancellationException is thrown here.
         delay(pollIntervalMs)
-        if (deviceAuthCancelledAndroid) break
 
         val result = tryExchangeDeviceCodeAndroid(deviceCode)
         if (result != null) return result

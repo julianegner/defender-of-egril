@@ -1598,6 +1598,8 @@
     <string name="iam_login_successful_message">Ritorno al gioco... puoi chiudere questa finestra se non si chiude automaticamente.</string>
     <string name="iam_logout_successful_heading">Disconnessione riuscita!</string>
     <string name="iam_logout_successful_message">Puoi chiudere questa finestra o tornare al gioco.</string>
+    <string name="iam_login_error_heading">Errore di accesso</string>
+    <string name="iam_login_error_message">Impossibile completare l\'accesso. Riprova.</string>
     <string name="always_log_in">Accedi sempre</string>
     <string name="use_remote_settings">Usa impostazioni remote</string>
     <string name="account">Account</string>

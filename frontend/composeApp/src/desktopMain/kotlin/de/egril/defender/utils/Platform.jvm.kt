@@ -15,7 +15,7 @@ import java.util.Locale
  */
 private fun detectSteamDeckGamingMode(): Boolean {
     val os = System.getProperty("os.name", "").lowercase()
-    if (!os.contains("linux")) return false
+    if (!os.startsWith("linux")) return false
 
     val isSteamDeck = try {
         File("/etc/os-release").readLines().any { line ->

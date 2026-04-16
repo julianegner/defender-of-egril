@@ -271,6 +271,8 @@ private fun startPkceLogin() {
     // Resolve page texts on this thread before the server starts waiting.
     val loginPageHeading = "&#x2713; ${LocalizedStrings.get("iam_login_successful_heading", locale)}"
     val loginPageMessage = LocalizedStrings.get("iam_login_successful_message", locale)
+    val errorPageHeading = LocalizedStrings.get("iam_login_error_heading", locale)
+    val errorPageMessage = LocalizedStrings.get("iam_login_error_message", locale)
 
     // Open the browser before starting the server so the user can see the login page
     // while we set up the callback listener.
@@ -280,7 +282,9 @@ private fun startPkceLogin() {
         expectedState = stateParam,
         locale = locale.code,
         loginPageHeading = loginPageHeading,
-        loginPageMessage = loginPageMessage
+        loginPageMessage = loginPageMessage,
+        errorPageHeading = errorPageHeading,
+        errorPageMessage = errorPageMessage
     ) ?: return
 
     val tokenData = exchangeCodeForToken(
@@ -541,7 +545,9 @@ private fun waitForPkceCallback(
     expectedState: String,
     locale: String,
     loginPageHeading: String,
-    loginPageMessage: String
+    loginPageMessage: String,
+    errorPageHeading: String,
+    errorPageMessage: String
 ): String? {
     return try {
         val server = ServerSocket(PKCE_CALLBACK_PORT)
@@ -575,7 +581,7 @@ private fun waitForPkceCallback(
                 val authCode = params["code"]
 
                 if (receivedState != expectedState || authCode == null) {
-                    serveAutoClosePage(socket, langCode = locale, heading = "Error", message = "Invalid state or missing code.")
+                    serveAutoClosePage(socket, langCode = locale, heading = errorPageHeading, message = errorPageMessage)
                     continue
                 }
 
