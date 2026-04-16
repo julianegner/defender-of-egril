@@ -637,6 +637,33 @@ afterEvaluate {
         logger.lifecycle("Desktop 'run' task configured with profile '$profile'")
     }
 
+    // ── Web/WASM: inject profile URLs into the production distribution ────────
+    // The distribution task copies resources from src/wasmJsMain/resources/ into
+    // the output directory (build/dist/wasmJs/productionExecutable/).  We patch
+    // the Keycloak URL in the *output* index.html after the task completes so
+    // that deployed builds point at the correct Keycloak instance.
+    tasks.matching { it.name == "wasmJsBrowserDistribution" }.configureEach {
+        val profileProps = loadProfileProperties(profile)
+        val iamUrl = profileProps.getProperty("iam.base.url")
+
+        doLast {
+            if (iamUrl != null) {
+                val outputIndexHtml = project.layout.buildDirectory.get().asFile
+                    .resolve("dist/wasmJs/productionExecutable/index.html")
+                if (outputIndexHtml.exists()) {
+                    val original = outputIndexHtml.readText()
+                    val urlLinePattern = Regex("""(window\.keycloakConfig\s*=\s*window\.keycloakConfig\s*\|\|\s*\{[^}]*\burl:\s*')[^']*""")
+                    val modified = urlLinePattern.find(original)?.let { match ->
+                        val replacement = "${match.groupValues[1]}$iamUrl"
+                        original.substring(0, match.range.first) + replacement + original.substring(match.range.last + 1)
+                    } ?: original
+                    outputIndexHtml.writeText(modified)
+                    logger.lifecycle("WASM distribution configured with IAM URL: $iamUrl (profile: $profile)")
+                }
+            }
+        }
+    }
+
     // ── Web/WASM: temporarily substitute profile URLs for the dev server ─────
     // The Kotlin/WASM webpack dev server serves resources from
     // src/wasmJsMain/resources/. We modify index.html and dev-server-proxy.js

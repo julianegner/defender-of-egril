@@ -69,9 +69,13 @@ private external fun jsSetDarkModeCookie(isDark: Boolean)
 /**
  * Initiates a Keycloak login, forwarding the app's selected [locale] so the
  * login page is shown in the same language as the game.
+ *
+ * Returns `true` if the Keycloak JS adapter was available and the login
+ * redirect was initiated, `false` if the adapter was not yet initialised
+ * (e.g. because the Keycloak server was unreachable at page load time).
  */
-@JsFun("(locale) => { if (window._keycloak) { window._keycloak.login({ prompt: 'login', locale: locale }); } }")
-private external fun jsKcLoginWithLocale(locale: String)
+@JsFun("(locale) => { if (window._keycloak) { window._keycloak.login({ prompt: 'login', locale: locale }); return true; } return false; }")
+private external fun jsKcLoginWithLocale(locale: String): Boolean
 
 @JsFun("() => { if (window._keycloak) { window._keycloak.logout({ redirectUri: window.location.origin }); } }")
 private external fun jsKcLogout()
@@ -89,7 +93,15 @@ internal actual fun startPlatformLogin() {
 
     // Forward the app's selected language to the Keycloak login page.
     val locale = currentLanguage.value
-    jsKcLoginWithLocale(locale.code)
+    val loginStarted = jsKcLoginWithLocale(locale.code)
+
+    // If the Keycloak JS adapter was not available (e.g. the Keycloak server
+    // was unreachable at page load time), the browser redirect never happens.
+    // Reset the in-progress flag so the UI is not stuck showing "Waiting for
+    // login…" indefinitely.
+    if (!loginStarted) {
+        IamService.loginInProgress.value = false
+    }
 }
 
 internal actual fun performPlatformLogout() {
