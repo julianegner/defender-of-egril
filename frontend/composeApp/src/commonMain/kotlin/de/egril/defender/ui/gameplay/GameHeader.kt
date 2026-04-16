@@ -3,7 +3,6 @@ package de.egril.defender.ui.gameplay
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -31,6 +30,8 @@ import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.ui.TooltipWrapper
 import de.egril.defender.ui.common.SelectableText
+import de.egril.defender.utils.isLimitedInputDevice
+import de.egril.defender.utils.isPlatformMobile
 
 @Composable
 fun GameHeader(
@@ -222,13 +223,15 @@ fun GameHeader(
                     }
                 }
 
-                // Shortcuts button
-                TooltipWrapper(text = stringResource(Res.string.tooltip_shortcuts)) {
-                    IconButton(
-                        onClick = { showShortcutsDialog = true },
-                        modifier = Modifier.size(buttonHeight)
-                    ) {
-                        KeyboardKeyIcon(size = buttonIconSize)
+                // Shortcuts button (not shown on mobile platforms)
+                if (!isPlatformMobile && !isLimitedInputDevice) {
+                    TooltipWrapper(text = stringResource(Res.string.tooltip_shortcuts)) {
+                        IconButton(
+                            onClick = { showShortcutsDialog = true },
+                            modifier = Modifier.size(buttonHeight)
+                        ) {
+                            KeyboardKeyIcon(size = buttonIconSize)
+                        }
                     }
                 }
 
