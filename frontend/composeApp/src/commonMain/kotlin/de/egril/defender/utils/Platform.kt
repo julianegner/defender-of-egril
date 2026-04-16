@@ -4,6 +4,11 @@ interface Platform {
     val name: String
     val isAndroidTV: Boolean
     /**
+     * `true` when the app is running on a Steam Deck in **gaming mode** (gamescope session).
+     * `false` on all other platforms and on a Steam Deck in desktop mode (KDE Plasma).
+     */
+    val isSteamDeckGamingMode: Boolean
+    /**
      * Extended platform detail string.
      * Desktop: OS name and version (e.g. "Windows 11 10.0").
      * Android: friendly OS release (e.g. "Android 13").
@@ -32,6 +37,20 @@ val isPlatformAndroid = getPlatform().name.startsWith("Android")
 val isPlatformIos = getPlatform().name.startsWith("iOS")
 val isPlatformDesktop = getPlatform().name.startsWith("Java")
 val isPlatformMobile = isPlatformAndroid || isPlatformIos
+
+/**
+ * `true` when the app is running on a device with limited input capabilities where a
+ * browser-based OAuth2 Authorization Code flow is impractical.
+ *
+ * Currently covers:
+ * - Steam Deck in **gaming mode** (gamescope session, no accessible desktop browser)
+ * - Android TV devices (leanback UI, typically no keyboard/browser)
+ *
+ * On such devices the Device Authorization Grant (RFC 8628) is used instead of the
+ * standard Authorization Code Grant with PKCE.
+ */
+val isLimitedInputDevice: Boolean
+    get() = getPlatform().isAndroidTV || getPlatform().isSteamDeckGamingMode
 
 /**
  * Returns a short platform identifier suitable for backend API calls and analytics.

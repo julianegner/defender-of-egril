@@ -31,3 +31,7 @@ internal fun extractUsernameFromJwt(token: String): String? {
 /** Extracts a simple string field from a flat JSON object without a full parser. */
 internal fun extractJsonStringValue(json: String, key: String): String? =
     Regex("\"${Regex.escape(key)}\"\\s*:\\s*\"([^\"]+)\"").find(json)?.groupValues?.get(1)
+
+/** Extracts a numeric field from a flat JSON object without a full parser. */
+internal fun extractJsonLongValue(json: String, key: String): Long? =
+    Regex("\"${Regex.escape(key)}\"\\s*:\\s*(\\d+)").find(json)?.groupValues?.get(1)?.toLongOrNull()

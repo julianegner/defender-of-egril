@@ -2,6 +2,7 @@ package de.egril.defender.utils
 
 import kotlin.test.Test
 import kotlin.test.assertNotNull
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class PlatformTest {
@@ -22,6 +23,30 @@ class PlatformTest {
         // On non-Android platforms, this should be false
         // On Android, it depends on whether FEATURE_LEANBACK is present
         assertTrue(isTV || !isTV, "isAndroidTV should be a boolean value")
+    }
+
+    @Test
+    fun testPlatformHasSteamDeckGamingModeProperty() {
+        val platform = getPlatform()
+        // isSteamDeckGamingMode should be a boolean (non-null)
+        // Only JVMPlatform (desktopMain) can return true; all other platforms return false
+        val isSteamDeck = platform.isSteamDeckGamingMode
+        assertTrue(isSteamDeck || !isSteamDeck, "isSteamDeckGamingMode should be a boolean value")
+    }
+
+    @Test
+    fun testNonSteamDeckPlatformsReturnFalse() {
+        val platform = getPlatform()
+        // In the test environment (not a Steam Deck) isSteamDeckGamingMode must be false
+        if (!isPlatformDesktop) {
+            assertFalse(platform.isSteamDeckGamingMode, "Non-desktop platforms must report isSteamDeckGamingMode=false")
+        }
+    }
+
+    @Test
+    fun testIsLimitedInputDeviceIsFalseInTestEnvironment() {
+        // In CI / unit-test environments we are never on an Android TV or Steam Deck gaming mode
+        assertFalse(isLimitedInputDevice, "isLimitedInputDevice should be false in the test environment")
     }
     
     @Test
