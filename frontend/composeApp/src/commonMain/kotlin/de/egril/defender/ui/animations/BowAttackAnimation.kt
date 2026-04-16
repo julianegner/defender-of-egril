@@ -20,24 +20,41 @@ import de.egril.defender.model.Position
 import de.egril.defender.ui.hexagon.HexagonalGridConstants
 import de.egril.defender.ui.gameplay.GamePlayConstants
 import kotlinx.coroutines.delay
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.math.sqrt
+import kotlin.math.PI
 
 /** Fraction of the animation (0–1) spent on the bow-string flash before the arrows start flying. */
 private const val FIRING_PHASE_END = 0.20f
 
-/** Number of arrows in the volley. */
-private const val VOLLEY_SIZE = 3
+/**
+ * flyProgress threshold (0–1) at which the impact burst starts appearing at the target.
+ * The front-row arrows arrive at the target when flyProgress = 1.0; the burst begins
+ * slightly before so it overlaps the arrival.
+ */
+private const val HIT_BURST_START_FLY = 0.88f
+
+/**
+ * Forward lag (in flyProgress units) for the two staggered back-row arrows.
+ * They trail behind the front-row volley so they appear slightly to the rear.
+ */
+private const val BACK_ROW_LAG = 0.12f
 
 /**
  * Map-level overlay animation for bow tower attacks.
  *
- * A volley of [VOLLEY_SIZE] arrows flies from the bow tower tile to the target tile across
- * multiple tiles. This Canvas-based overlay is rendered at the same coordinate space as the
- * tiles (via the HexagonalMapView overlayContent slot) so it can span any distance.
+ * A volley of 5 arrows flies from the bow tower tile to the target tile across multiple tiles:
+ * 3 arrows in a front row (spread -1, 0, +1) and 2 staggered arrows in a back row
+ * (spread -0.5 and +0.5, lagging slightly behind the front row).
+ *
+ * This Canvas-based overlay is rendered at the same coordinate space as the tiles (via the
+ * HexagonalMapView overlayContent slot) so it can span any distance.
  *
  * Animation sequence:
  *  1. Bow-string flash on the source tile (0–20% of total duration)
  *  2. Arrow volley flies from source to target (20–100% of total duration)
+ *     – Impact burst appears as the front arrows arrive (last ~12% of flight)
  *  3. Impact at target handled by the existing TowerAttackImpactAnimation (delayed by
  *     [GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS])
  *
@@ -146,7 +163,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBowVolley(
             radius = hexSizePx * (0.3f + fp * 0.18f),
             center = sourceCenter
         )
-    } else if (progress < 1f) {
+    } else if (progress <= 1f) {
         // Phase 2: Arrow volley in flight
         val flyProgress = (progress - FIRING_PHASE_END) / (1f - FIRING_PHASE_END)
 
@@ -166,13 +183,26 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBowVolley(
         val shaftWidth = hexSizePx * 0.06f
         val headSize = hexSizePx * 0.18f
 
-        // Draw each arrow in the volley, fanned out perpendicular to the flight direction
-        for (i in -1..1) {
-            val offsetX = px * spread * i
-            val offsetY = py * spread * i
+        // 5 arrows: 3 front-row + 2 staggered back-row
+        // Each arrow is defined by (perpendicular spread multiplier, forward lag in flyProgress)
+        val arrowDefs = listOf(
+            Pair(-1.0f, 0.0f),          // front-left
+            Pair(0.0f, 0.0f),           // front-center
+            Pair(1.0f, 0.0f),           // front-right
+            Pair(-0.5f, BACK_ROW_LAG),  // back between left and center
+            Pair(0.5f, BACK_ROW_LAG)    // back between center and right
+        )
 
-            val arrowTipX = sourceCenter.x + dx * flyProgress + offsetX
-            val arrowTipY = sourceCenter.y + dy * flyProgress + offsetY
+        for ((spreadMul, lag) in arrowDefs) {
+            // Back-row arrows haven't left the bow yet if they'd be behind the source
+            val effectiveFly = (flyProgress - lag).coerceAtLeast(0f)
+            if (effectiveFly <= 0f) continue
+
+            val offsetX = px * spread * spreadMul
+            val offsetY = py * spread * spreadMul
+
+            val arrowTipX = sourceCenter.x + dx * effectiveFly + offsetX
+            val arrowTipY = sourceCenter.y + dy * effectiveFly + offsetY
             val tipCenter = Offset(arrowTipX, arrowTipY)
             val tailCenter = Offset(arrowTipX - nx * arrowLength, arrowTipY - ny * arrowLength)
 
@@ -205,7 +235,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBowVolley(
             }
             drawPath(arrowHeadPath, Color(0xFFC8C8C8))
 
-            // Small tail feathers (fletching) — two short lines at the tail angled ±30° from shaft
+            // Small tail feathers (fletching) — two short lines at the tail
             val fletchLength = arrowLength * 0.22f
             val fletchSpread = hexSizePx * 0.07f
             drawLine(
@@ -223,7 +253,51 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBowVolley(
                 cap = StrokeCap.Round
             )
         }
+
+        // Phase 3 (overlapping): impact burst at the target as the front arrows arrive
+        if (flyProgress >= HIT_BURST_START_FLY) {
+            val hitProgress = (flyProgress - HIT_BURST_START_FLY) / (1f - HIT_BURST_START_FLY)
+            drawArrowImpactBurst(targetCenter, hitProgress, hexSizePx)
+        }
     }
+}
+
+/** Draws a radiating burst of lines at [center] to represent the arrow volley's impact. */
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawArrowImpactBurst(
+    center: Offset,
+    hitProgress: Float,
+    hexSizePx: Float
+) {
+    val maxLineLength = hexSizePx * 0.55f
+    val innerRadius = hexSizePx * 0.12f
+    val alpha = (1f - hitProgress) * 0.85f
+    val lineCount = 8
+    val lineWidth = hexSizePx * 0.055f
+
+    for (i in 0 until lineCount) {
+        val angle = (i.toDouble() * (360.0 / lineCount) + hitProgress * 20.0) * PI / 180.0
+        val lineLength = maxLineLength * hitProgress
+        val startX = (center.x + cos(angle) * innerRadius).toFloat()
+        val startY = (center.y + sin(angle) * innerRadius).toFloat()
+        val endX = (center.x + cos(angle) * (innerRadius + lineLength)).toFloat()
+        val endY = (center.y + sin(angle) * (innerRadius + lineLength)).toFloat()
+
+        // Outer gold/yellow burst lines
+        drawLine(
+            color = Color(0xFFFFCC00).copy(alpha = alpha),
+            start = Offset(startX, startY),
+            end = Offset(endX, endY),
+            strokeWidth = lineWidth,
+            cap = StrokeCap.Round
+        )
+    }
+
+    // Central flash circle
+    drawCircle(
+        color = Color(0xFFFFFFAA).copy(alpha = alpha * 0.7f),
+        radius = hexSizePx * (0.08f + hitProgress * 0.18f),
+        center = center
+    )
 }
 
 /**
