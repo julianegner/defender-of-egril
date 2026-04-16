@@ -138,6 +138,19 @@ class CombatSystem(
             }
         }
 
+        // Record pike extend overlay effect for Spike Tower melee attacks
+        if (defender.type == DefenderType.SPIKE_TOWER) {
+            if (state.pikeAttackEffects.none { it.sourcePosition == defender.position.value }) {
+                state.pikeAttackEffects.add(
+                    PikeAttackEffect(
+                        sourcePosition = defender.position.value,
+                        targetPosition = target.position.value,
+                        turnNumber = state.turnNumber.value
+                    )
+                )
+            }
+        }
+
         defender.actionsRemaining.value--
 
         // Process defeated attackers immediately to give coins
@@ -259,6 +272,19 @@ class CombatSystem(
                         )
                     )
                 }
+            }
+        }
+
+        // Record pike extend overlay effect for Spike Tower melee attacks
+        if (defender.type == DefenderType.SPIKE_TOWER) {
+            if (state.pikeAttackEffects.none { it.sourcePosition == defender.position.value }) {
+                state.pikeAttackEffects.add(
+                    PikeAttackEffect(
+                        sourcePosition = defender.position.value,
+                        targetPosition = targetPosition,
+                        turnNumber = state.turnNumber.value
+                    )
+                )
             }
         }
 
