@@ -1,5 +1,6 @@
 package de.egril.defender
 
+import de.egril.defender.png.OptimalPngEncoder
 import kotlin.math.*
 
 /**

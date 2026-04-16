@@ -1,5 +1,7 @@
 package de.egril.defender.mapgen
 
+import de.egril.defender.png.OptimalPngEncoder
+
 actual object MapImageEncoder {
     actual fun encodeToPng(pixels: IntArray, width: Int, height: Int): ByteArray? {
         return try {

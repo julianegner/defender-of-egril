@@ -354,6 +354,7 @@ kotlin {
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.jlayer)
+            implementation(project(":png-encoder"))
         }
         desktopTest.dependencies {
             implementation(libs.compose.ui.test.junit4)

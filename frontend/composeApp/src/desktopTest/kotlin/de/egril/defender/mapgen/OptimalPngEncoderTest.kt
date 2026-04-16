@@ -1,5 +1,6 @@
 package de.egril.defender.mapgen
 
+import de.egril.defender.png.OptimalPngEncoder
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import javax.imageio.ImageIO
