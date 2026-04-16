@@ -1624,6 +1624,7 @@
 
     <!-- Sticker screen tabs -->
     <string name="sticker_tab_original">Adesivo</string>
+    <string name="sticker_tab_banner_image">Immagine Banner</string>
     <string name="sticker_tab_enemies">Nemici</string>
     <string name="sticker_tab_towers">Torri</string>
     <string name="sticker_tab_qr_code">Codice QR</string>

@@ -1623,6 +1623,7 @@
 
     <!-- Sticker screen tabs -->
     <string name="sticker_tab_original">Autocollant</string>
+    <string name="sticker_tab_banner_image">Image de Bannière</string>
     <string name="sticker_tab_enemies">Ennemis</string>
     <string name="sticker_tab_towers">Tours</string>
     <string name="sticker_tab_qr_code">Code QR</string>
