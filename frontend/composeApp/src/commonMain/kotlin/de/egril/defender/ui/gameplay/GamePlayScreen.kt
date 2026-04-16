@@ -597,6 +597,7 @@ private fun GamePlayScreenContent(
                             if (gameState.hasDefendersWithUnusedActions()) {
                                 showEndTurnConfirmation = true
                             } else {
+                                selectedDefenderType = null
                                 onEndPlayerTurn()
                             }
                             true
@@ -722,7 +723,10 @@ private fun GamePlayScreenContent(
                     // Try to place defender if one is selected
                     selectedDefenderType?.let { type ->
                         if (onPlaceDefender(type, position)) {
-                            selectedDefenderType = null
+                            // Only deselect if player can no longer afford this tower type
+                            if (!gameState.canPlaceDefender(type)) {
+                                selectedDefenderType = null
+                            }
                             // Track tutorial progress
                             if (gameState.tutorialState.value.isActive && 
                                 !gameState.tutorialState.value.hasPlacedFirstTower) {
@@ -1286,6 +1290,7 @@ private fun GamePlayScreenContent(
                             showEndTurnConfirmation = true
                         } else {
                             // End turn directly
+                            selectedDefenderType = null
                             onEndPlayerTurn()
                             // Track tutorial progress
                             if (gameState.tutorialState.value.isActive && 
@@ -1466,6 +1471,7 @@ private fun GamePlayScreenContent(
             EndTurnConfirmationDialog(
                 onConfirm = {
                     showEndTurnConfirmation = false
+                    selectedDefenderType = null
                     onEndPlayerTurn()
                     // Track tutorial progress
                     if (gameState.tutorialState.value.isActive && 
@@ -1475,6 +1481,7 @@ private fun GamePlayScreenContent(
                 },
                 onAutoAttackAndConfirm = {
                     showEndTurnConfirmation = false
+                    selectedDefenderType = null
                     onAutoAttackAndEndTurn()
                     // Track tutorial progress
                     if (gameState.tutorialState.value.isActive && 
