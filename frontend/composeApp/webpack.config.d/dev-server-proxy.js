@@ -17,7 +17,7 @@ config.devServer.port = config.devServer.port || 8082;
 config.devServer.proxy = [
     {
         context: ["/api"],
-        target: "http://localhost:8080",
+        target: "https://defender-backend.egril.de",
         changeOrigin: true
     }
 ];
