@@ -8,6 +8,7 @@ import java.util.Locale
 class AndroidPlatform : Platform {
     override val name: String = buildPlatformName()
     override val isAndroidTV: Boolean = checkIsAndroidTV()
+    override val isSteamDeckGamingMode: Boolean = false
     override val platformExtended: String = buildPlatformExtended()
     
     private fun checkIsAndroidTV(): Boolean {

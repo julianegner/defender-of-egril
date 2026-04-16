@@ -1597,6 +1597,8 @@
     <string name="iam_login_successful_message">Retour au jeu... vous pouvez fermer cette fenêtre si elle ne se ferme pas automatiquement.</string>
     <string name="iam_logout_successful_heading">Déconnexion réussie !</string>
     <string name="iam_logout_successful_message">Vous pouvez fermer cette fenêtre ou revenir au jeu.</string>
+    <string name="iam_login_error_heading">Erreur de connexion</string>
+    <string name="iam_login_error_message">La connexion n\'a pas pu être complétée. Veuillez réessayer.</string>
     <string name="always_log_in">Toujours se connecter</string>
     <string name="use_remote_settings">Utiliser les paramètres distants</string>
     <string name="account">Compte</string>

@@ -2,6 +2,7 @@ package de.egril.defender.iam
 
 import com.hyperether.resources.LocalizedStrings
 import com.hyperether.resources.currentLanguage
+import de.egril.defender.utils.getPlatform
 import java.net.HttpURLConnection
 import java.net.ServerSocket
 import java.net.URI
@@ -192,26 +193,12 @@ internal actual fun startPlatformLogin() {
 
     Thread {
         try {
-            val deviceResponse = requestDeviceAuth() ?: return@Thread
-
-            IamService.deviceAuthState.value = DeviceAuthState(
-                userCode = deviceResponse.userCode,
-                verificationUri = deviceResponse.verificationUri,
-                verificationUriComplete = deviceResponse.verificationUriComplete
-            )
-
-            val tokenData = pollDeviceToken(
-                deviceCode = deviceResponse.deviceCode,
-                interval = deviceResponse.interval,
-                expiresIn = deviceResponse.expiresIn
-            ) ?: return@Thread
-
-            IamService.state.value = tokenData.toIamState()
-            storedRefreshToken = tokenData.refreshToken
-            tokenExpiresAtMs = System.currentTimeMillis() + tokenData.expiresInSeconds * 1_000L
-
-            if (tokenData.refreshToken != null) {
-                startBackgroundTokenRefresh()
+            if (getPlatform().isSteamDeckGamingMode) {
+                // Steam Deck gaming mode: no accessible browser, use Device Authorization Grant.
+                startDeviceAuthLogin()
+            } else {
+                // Regular desktop: use standard PKCE Authorization Code Grant via browser.
+                startPkceLogin()
             }
         } catch (_: Exception) {
             // Login errors must never disrupt gameplay
@@ -225,16 +212,114 @@ internal actual fun startPlatformLogin() {
     }.also { it.isDaemon = true }.start()
 }
 
+/**
+ * Device Authorization Grant (RFC 8628) login flow.
+ * Used on limited-input devices such as Steam Deck in gaming mode where opening
+ * a browser is impractical. Displays a short user code the user can enter on
+ * a phone or second device to complete authentication.
+ */
+private fun startDeviceAuthLogin() {
+    val deviceResponse = requestDeviceAuth() ?: return
+
+    IamService.deviceAuthState.value = DeviceAuthState(
+        userCode = deviceResponse.userCode,
+        verificationUri = deviceResponse.verificationUri,
+        verificationUriComplete = deviceResponse.verificationUriComplete
+    )
+
+    val tokenData = pollDeviceToken(
+        deviceCode = deviceResponse.deviceCode,
+        interval = deviceResponse.interval,
+        expiresIn = deviceResponse.expiresIn
+    ) ?: return
+
+    IamService.state.value = tokenData.toIamState()
+    storedRefreshToken = tokenData.refreshToken
+    tokenExpiresAtMs = System.currentTimeMillis() + tokenData.expiresInSeconds * 1_000L
+
+    if (tokenData.refreshToken != null) {
+        startBackgroundTokenRefresh()
+    }
+}
+
+/**
+ * PKCE Authorization Code Grant login flow.
+ * Used on regular desktop devices where a browser is readily available.
+ * Opens the Keycloak login page in the system browser and exchanges the
+ * returned authorization code for tokens via a loopback callback server.
+ */
+private fun startPkceLogin() {
+    val codeVerifier = generatePkceCodeVerifier()
+    val codeChallenge = generatePkceCodeChallenge(codeVerifier)
+    val stateParam = generatePkceState()
+    val locale = currentLanguage.value
+    val callbackUri = "http://localhost:$PKCE_CALLBACK_PORT/callback"
+
+    val authUrl = buildString {
+        append(IamConfig.authUrl)
+        append("?response_type=code")
+        append("&client_id=${URLEncoder.encode(IamConfig.CLIENT_ID, "UTF-8")}")
+        append("&redirect_uri=${URLEncoder.encode(callbackUri, "UTF-8")}")
+        append("&scope=openid")
+        append("&code_challenge=${URLEncoder.encode(codeChallenge, "UTF-8")}")
+        append("&code_challenge_method=S256")
+        append("&state=${URLEncoder.encode(stateParam, "UTF-8")}")
+        append("&prompt=login")
+        append("&ui_locales=${URLEncoder.encode(locale.code, "UTF-8")}")
+    }
+
+    // Resolve page texts on this thread before the server starts waiting.
+    val loginPageHeading = "&#x2713; ${LocalizedStrings.get("iam_login_successful_heading", locale)}"
+    val loginPageMessage = LocalizedStrings.get("iam_login_successful_message", locale)
+    val errorPageHeading = LocalizedStrings.get("iam_login_error_heading", locale)
+    val errorPageMessage = LocalizedStrings.get("iam_login_error_message", locale)
+
+    // Open the browser before starting the server so the user can see the login page
+    // while we set up the callback listener.
+    openBrowserNewWindow(authUrl)
+
+    val authCode = waitForPkceCallback(
+        expectedState = stateParam,
+        locale = locale.code,
+        loginPageHeading = loginPageHeading,
+        loginPageMessage = loginPageMessage,
+        errorPageHeading = errorPageHeading,
+        errorPageMessage = errorPageMessage
+    ) ?: return
+
+    val tokenData = exchangeCodeForToken(
+        code = authCode,
+        codeVerifier = codeVerifier,
+        redirectUri = callbackUri
+    ) ?: return
+
+    IamService.state.value = tokenData.toIamState()
+    storedRefreshToken = tokenData.refreshToken
+    tokenExpiresAtMs = System.currentTimeMillis() + tokenData.expiresInSeconds * 1_000L
+
+    if (tokenData.refreshToken != null) {
+        startBackgroundTokenRefresh()
+    }
+}
+
 internal actual fun performPlatformLogout() {
     storedRefreshToken = null
     tokenExpiresAtMs = 0L
     refreshThreadRunning = false
     deviceAuthCancelled.set(true)
     IamService.loginInProgress.value = false
-    // Open the Keycloak logout endpoint in the browser so the SSO session is terminated.
-    // We listen on PKCE_CALLBACK_PORT for the post-logout redirect so that we can serve
-    // an auto-closing "Logged out" page. The URI http://localhost:10001/* is registered
-    // in the Keycloak client, so http://localhost:10001/logout-callback is accepted.
+
+    if (getPlatform().isSteamDeckGamingMode) {
+        // On Steam Deck gaming mode there is no accessible browser for an SSO logout page.
+        // Local state has already been cleared above; the server-side session will expire naturally.
+        return
+    }
+
+    // Regular desktop: open the Keycloak logout endpoint in the browser so the SSO session
+    // is terminated. We listen on PKCE_CALLBACK_PORT for the post-logout redirect so that we
+    // can serve an auto-closing "Logged out" page.
+    // The URI http://localhost:10001/* is registered in the Keycloak client, so
+    // http://localhost:10001/logout-callback is accepted.
 
     // Resolve locale and page texts on the calling thread (UI thread) before spawning
     // the background daemon thread.
@@ -419,6 +504,139 @@ private fun parseTokenResponse(json: String): TokenData? {
     val refreshToken = extractJsonStringValue(json, "refresh_token")
     val expiresIn = extractJsonNumberValue(json, "expires_in") ?: 300L
     return TokenData(accessToken, refreshToken, expiresIn)
+}
+
+// ---------------------------------------------------------------------------
+// PKCE Authorization Code Grant – login flow for regular desktops
+// ---------------------------------------------------------------------------
+
+/** Generates a cryptographically random PKCE code verifier (RFC 7636 §4.1). */
+private fun generatePkceCodeVerifier(): String {
+    val bytes = ByteArray(32)
+    java.security.SecureRandom().nextBytes(bytes)
+    return java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(bytes)
+}
+
+/** Derives the PKCE code challenge from [codeVerifier] using SHA-256 (RFC 7636 §4.2). */
+private fun generatePkceCodeChallenge(codeVerifier: String): String {
+    val digest = java.security.MessageDigest.getInstance("SHA-256")
+    val hash = digest.digest(codeVerifier.toByteArray(Charsets.US_ASCII))
+    return java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(hash)
+}
+
+/** Generates a random state parameter to prevent CSRF attacks. */
+private fun generatePkceState(): String {
+    val bytes = ByteArray(16)
+    java.security.SecureRandom().nextBytes(bytes)
+    return java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(bytes)
+}
+
+/**
+ * Listens on [PKCE_CALLBACK_PORT] for the Keycloak authorization callback, validates the
+ * [expectedState] parameter, serves an auto-closing confirmation page, and returns the
+ * authorization code.
+ *
+ * Checks [deviceAuthCancelled] every [PKCE_CALLBACK_POLL_MS] milliseconds so that a
+ * subsequent login attempt or explicit logout can abort the wait.
+ *
+ * Returns `null` on timeout, cancellation, state mismatch, or socket error.
+ */
+private fun waitForPkceCallback(
+    expectedState: String,
+    locale: String,
+    loginPageHeading: String,
+    loginPageMessage: String,
+    errorPageHeading: String,
+    errorPageMessage: String
+): String? {
+    return try {
+        val server = ServerSocket(PKCE_CALLBACK_PORT)
+        // Short socket accept timeout so we can check deviceAuthCancelled periodically.
+        server.soTimeout = PKCE_CALLBACK_POLL_MS.toInt()
+        try {
+            val deadline = System.currentTimeMillis() + PKCE_LOGIN_TIMEOUT_MS
+            while (!deviceAuthCancelled.get() && System.currentTimeMillis() < deadline) {
+                val socket = try {
+                    server.accept()
+                } catch (_: java.net.SocketTimeoutException) {
+                    continue // timeout slice expired – check cancellation flag and retry
+                }
+
+                // Read the first line of the HTTP request to extract query parameters.
+                val requestLine = try {
+                    socket.getInputStream().bufferedReader().readLine()
+                } catch (_: Exception) {
+                    socket.close()
+                    continue
+                } ?: run { socket.close(); continue }
+
+                // requestLine is e.g. "GET /callback?code=xxx&state=yyy HTTP/1.1"
+                val query = Regex("GET /[^?]*\\?([^\\s]+)").find(requestLine)?.groupValues?.get(1) ?: ""
+                val params = query.split("&").associate { param ->
+                    val (k, v) = param.split("=", limit = 2).let { it[0] to (it.getOrNull(1) ?: "") }
+                    k to java.net.URLDecoder.decode(v, "UTF-8")
+                }
+
+                val receivedState = params["state"]
+                val authCode = params["code"]
+
+                if (receivedState != expectedState || authCode == null) {
+                    serveAutoClosePage(socket, langCode = locale, heading = errorPageHeading, message = errorPageMessage)
+                    continue
+                }
+
+                serveAutoClosePage(socket, langCode = locale, heading = loginPageHeading, message = loginPageMessage)
+                return authCode
+            }
+            null
+        } finally {
+            server.close()
+        }
+    } catch (_: Exception) {
+        null
+    }
+}
+
+/** Timeout for the PKCE callback server (5 minutes). */
+private const val PKCE_LOGIN_TIMEOUT_MS = 5 * 60 * 1_000L
+
+/** How often to poll the cancellation flag while waiting for the PKCE callback (ms). */
+private const val PKCE_CALLBACK_POLL_MS = 2_000L
+
+/**
+ * Exchanges a PKCE authorization [code] for tokens at the Keycloak token endpoint.
+ * Returns `null` if the exchange fails or the server returns a non-200 response.
+ */
+private fun exchangeCodeForToken(code: String, codeVerifier: String, redirectUri: String): TokenData? {
+    return try {
+        val body = buildString {
+            append("grant_type=authorization_code")
+            append("&client_id=${URLEncoder.encode(IamConfig.CLIENT_ID, "UTF-8")}")
+            append("&code=${URLEncoder.encode(code, "UTF-8")}")
+            append("&redirect_uri=${URLEncoder.encode(redirectUri, "UTF-8")}")
+            append("&code_verifier=${URLEncoder.encode(codeVerifier, "UTF-8")}")
+        }
+        val conn = URI.create(IamConfig.tokenUrl).toURL().openConnection() as HttpURLConnection
+        conn.requestMethod = "POST"
+        conn.doOutput = true
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+        conn.connectTimeout = TOKEN_HTTP_TIMEOUT_MS
+        conn.readTimeout = TOKEN_HTTP_TIMEOUT_MS
+        conn.outputStream.use { it.write(body.toByteArray()) }
+
+        if (conn.responseCode != 200) {
+            val errorBody = try { conn.errorStream?.bufferedReader()?.readText() } catch (_: Exception) { null }
+            conn.disconnect()
+            println("IAM: PKCE code exchange failed with HTTP ${conn.responseCode}: $errorBody")
+            return null
+        }
+        val json = conn.inputStream.bufferedReader().readText()
+        conn.disconnect()
+        parseTokenResponse(json)
+    } catch (e: Exception) {
+        println("IAM: PKCE code exchange failed: ${e.message}")
+        null
+    }
 }
 
 private fun serveLogoutCallback(langCode: String, heading: String, message: String) {
