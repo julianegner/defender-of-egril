@@ -81,6 +81,12 @@ class AndroidPlatformTest {
     }
     
     @Test
+    fun `isSteamDeckGamingMode always returns false on Android`() {
+        val platform = AndroidPlatform()
+        assertFalse(platform.isSteamDeckGamingMode)
+    }
+    
+    @Test
     fun `platform name falls back to base info when context unavailable`() {
         every { AndroidContextProvider.getContext() } throws RuntimeException("Context not available")
         

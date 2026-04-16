@@ -29,6 +29,7 @@ private external fun getBrowserInfo(): String?
 class WasmPlatform: Platform {
     override val name: String = getBrowserUserAgent()?.let { "Web with Kotlin/Wasm $it" } ?: "Web with Kotlin/Wasm"
     override val isAndroidTV: Boolean = false
+    override val isSteamDeckGamingMode: Boolean = false
     override val platformExtended: String = getBrowserInfo() ?: "Unknown"
 }
 
