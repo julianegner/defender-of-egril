@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.*
@@ -83,6 +84,7 @@ fun CompactDefenderButton(
                     fontWeight = FontWeight.Bold,
                     fontSize = 12.sp,
                     maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f),
                     color = if (isSelected && isDarkMode) Color.White else Color.White  // Ensure bright text
                 )
@@ -166,77 +168,105 @@ fun DefenderButton(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
             ) {
-                // Tower icon on the left
+                // Tower icon on the left – reduced to give enough room for text
                 Box(
-                    modifier = Modifier.size(60.dp),
+                    modifier = Modifier.size(36.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    TowerTypeIcon(defenderType = type, modifier = Modifier.size(56.dp))
+                    TowerTypeIcon(defenderType = type, modifier = Modifier.size(32.dp))
                 }
 
-                Spacer(modifier = Modifier.width(2.dp))
+                Spacer(modifier = Modifier.width(4.dp))
 
-                // Stats on the right
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    // Left column: name with price, attack type, build time.
-                    // Uses weight(1f) so it fills available space and the price is never clipped.
-                    Column(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .weight(1f),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.Start
+                // All info in a single column so nothing is pushed off-screen
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    val locale = com.hyperether.resources.currentLanguage.value
+                    // Name + cost
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        val locale = com.hyperether.resources.currentLanguage.value
-                        // Name row: tower name on left, price on right – both always visible
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                type.getLocalizedShortName(locale),
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 12.sp,
-                                maxLines = 1,
-                                modifier = Modifier.weight(1f)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            MoneyIcon(size = 14.dp)
+                        Text(
+                            type.getLocalizedShortName(locale),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 11.sp,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f)
+                        )
+                        MoneyIcon(size = 10.dp)
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Text(
+                            "${type.baseCost}",
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 10.sp
+                        )
+                    }
+
+                    // Attack type
+                    Text(
+                        type.attackType.getLocalizedName(locale),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 9.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        color = GamePlayColors.Yellow
+                    )
+
+                    // Damage + Range on one row
+                    val rangeText = if (type.minRange > 0) "${type.minRange}-${type.baseRange}" else "${type.baseRange}"
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            ExplosionIcon(size = 9.dp)
                             Spacer(modifier = Modifier.width(2.dp))
                             Text(
-                                "${type.baseCost}",
+                                "${type.baseDamage}",
                                 style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 14.sp
+                                fontSize = 9.sp
                             )
                         }
-
-                        Text(
-                            type.attackType.getLocalizedName(locale),
-                            style = MaterialTheme.typography.labelSmall,
-                            fontSize = 10.sp,
-                            color = GamePlayColors.Yellow
-                        )
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            TimerIcon(size = 15.dp)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            TargetIcon(size = 9.dp)
+                            Spacer(modifier = Modifier.width(2.dp))
                             Text(
-                                "${type.buildTime}T",
+                                rangeText,
                                 style = MaterialTheme.typography.labelSmall,
-                                fontSize = 10.sp
+                                fontSize = 9.sp
                             )
                         }
                     }
-                    Column(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .padding(start = 8.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.Start
+
+                    // Actions + Build time on one row
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        TowerStats(type.minRange, type.baseDamage, type.baseRange, type.actionsPerTurn)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            LightningIcon(size = 9.dp)
+                            Spacer(modifier = Modifier.width(2.dp))
+                            Text(
+                                "${type.actionsPerTurn}",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontSize = 9.sp
+                            )
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            TimerIcon(size = 9.dp)
+                            Spacer(modifier = Modifier.width(2.dp))
+                            Text(
+                                "${type.buildTime}T",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontSize = 9.sp
+                            )
+                        }
                     }
                 }
             }
