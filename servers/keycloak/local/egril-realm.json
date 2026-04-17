@@ -6,7 +6,7 @@
   "loginTheme": "egril",
   "registrationAllowed": true,
   "loginWithEmailAllowed": true,
-  "registrationEmailAsUsername": true,
+  "registrationEmailAsUsername": false,
   "rememberMe": true,
   "resetPasswordAllowed": true,
   "editUsernameAllowed": true,
