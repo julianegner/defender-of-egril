@@ -20,13 +20,18 @@ import de.egril.defender.utils.BigHeadMode
 
 /**
  * Composable that draws an enemy unit icon
+ *
+ * @param healthOverride When provided, this value is shown instead of [attacker.currentHealth]
+ *   in the health bar. Used to delay the health display during attack animations so the number
+ *   only changes after the projectile impact flash has completed.
  */
 @Composable
 fun EnemyIcon(
     attacker: Attacker,
     modifier: Modifier = Modifier,
     healthTextColor: Color = Color.White,
-    backgroundColor: Color? = null
+    backgroundColor: Color? = null,
+    healthOverride: Int? = null
 ) {
     val bgLuminance = (backgroundColor ?: MaterialTheme.colorScheme.background).luminance()
     val contrastOutlineColor = if (bgLuminance < 0.5f) Color.White else Color.Black
@@ -74,7 +79,7 @@ fun EnemyIcon(
         // Health number at bottom center - 10dp from bottom edge (hidden for Ewhad)
         if (attacker.type != AttackerType.EWHAD) {
             Text(
-                text = "${attacker.currentHealth.value}",
+                text = "${healthOverride ?: attacker.currentHealth.value}",
                 style = MaterialTheme.typography.labelSmall,
                 fontSize = 13.sp,
                 color = healthTextColor,
