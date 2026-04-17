@@ -100,7 +100,7 @@ fun GameControlsPanel(
         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val isNarrowPanel = maxWidth < 500.dp
         val expandedGridColumns = if (isNarrowPanel) 4 else 7
-        val expandedGridHeight = if (isNarrowPanel) 70.dp else 75.dp
+        val expandedGridHeight = if (isNarrowPanel) 70.dp else 80.dp
 
         Column(modifier = Modifier.fillMaxWidth()) {
 

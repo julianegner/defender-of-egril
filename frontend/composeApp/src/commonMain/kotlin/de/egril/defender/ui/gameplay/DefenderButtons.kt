@@ -33,9 +33,9 @@ import defender_of_egril.composeapp.generated.resources.*
  * Holds all size and spacing constants for one tier of the responsive [DefenderButton] layout.
  *
  * Three pre-built instances are provided in the companion object:
- * - [Wide]   – used when the button cell is ≥ 100 dp (desktop 7-column grid)
- * - [Medium] – used when the button cell is ≥ 55 dp  (4-column mobile/tablet grid)
- * - [Narrow] – fallback for very small cells (< 55 dp)
+ * - [Wide]   – used when the button cell is ≥ 130 dp (desktop layout with ample space)
+ * - [Medium] – used when the button cell is ≥ 60 dp  (tablet / mobile grid)
+ * - [Narrow] – fallback for very small cells (< 60 dp)
  */
 private data class DefenderButtonConfig(
     // Icon
@@ -52,11 +52,11 @@ private data class DefenderButtonConfig(
     val nameFontSize: TextUnit,
     val attackTypeFontSize: TextUnit,
 
-    // Build-time row (Wide only)
+    // Build-time row (Wide and Medium 2-row)
     val timerIconSize: Dp,
     val buildTimeFontSize: TextUnit,
 
-    // Inline stats row (Medium only)
+    // Inline stats row (Medium and Wide)
     val statsIconSize: Dp,
     val statsInnerSpacing: Dp,     // spacer between a stat icon and its value text
     val statsBetweenSpacing: Dp,   // spacer between the damage and range pairs
@@ -76,12 +76,12 @@ private data class DefenderButtonConfig(
             statsColumnPaddingStart = 4.dp
         )
 
-        /** Tablet / 4-column mobile layout – 28 dp icon, 13 sp price, inline stats. */
+        /** Tablet / mobile layout – 28 dp icon, 13 sp price, 2-row layout when tall enough. */
         val Medium = DefenderButtonConfig(
             iconSize = 28.dp, iconBoxSize = 28.dp, iconSpacing = 2.dp,
             moneyIconSize = 12.dp, priceFontSize = 13.sp, priceSpacing = 4.dp,
             nameFontSize = 10.sp, attackTypeFontSize = 9.sp,
-            timerIconSize = 0.dp, buildTimeFontSize = 0.sp,
+            timerIconSize = 10.dp, buildTimeFontSize = 9.sp,
             statsIconSize = 10.dp, statsInnerSpacing = 1.dp, statsBetweenSpacing = 4.dp, statsFontSize = 9.sp,
             statsColumnPaddingStart = 0.dp
         )
@@ -95,6 +95,65 @@ private data class DefenderButtonConfig(
             statsIconSize = 0.dp, statsInnerSpacing = 0.dp, statsBetweenSpacing = 0.dp, statsFontSize = 0.sp,
             statsColumnPaddingStart = 0.dp
         )
+    }
+}
+
+// ─── Shared private helpers ───────────────────────────────────────────────────
+
+/** Tower icon centred inside a sized box (Wide uses iconBoxSize > iconSize; others equal). */
+@Composable
+private fun TowerButtonIcon(type: DefenderType, cfg: DefenderButtonConfig) {
+    Box(
+        modifier = Modifier.size(cfg.iconBoxSize),
+        contentAlignment = Alignment.Center
+    ) {
+        TowerTypeIcon(defenderType = type, modifier = Modifier.size(cfg.iconSize))
+    }
+}
+
+/** Money icon + cost text as a horizontal row (compact, used inside a single content row). */
+@Composable
+private fun TowerButtonPriceRow(type: DefenderType, cfg: DefenderButtonConfig) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        MoneyIcon(size = cfg.moneyIconSize)
+        Text(
+            "${type.baseCost}",
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold,
+            fontSize = cfg.priceFontSize
+        )
+    }
+}
+
+/** Build-time row (timer icon + "NT"). Renders nothing when timerIconSize == 0.dp. */
+@Composable
+private fun TowerButtonBuildTime(type: DefenderType, cfg: DefenderButtonConfig) {
+    if (cfg.timerIconSize > 0.dp) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            TimerIcon(size = cfg.timerIconSize)
+            Text(
+                "${type.buildTime}T",
+                style = MaterialTheme.typography.labelSmall,
+                fontSize = cfg.buildTimeFontSize
+            )
+        }
+    }
+}
+
+/** Damage + range inline row. Renders nothing when statsIconSize == 0.dp. */
+@Composable
+private fun TowerButtonInlineStats(type: DefenderType, cfg: DefenderButtonConfig) {
+    if (cfg.statsIconSize > 0.dp) {
+        val rangeText = if (type.minRange > 0) "${type.minRange}-${type.baseRange}" else "${type.baseRange}"
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            ExplosionIcon(size = cfg.statsIconSize)
+            Spacer(modifier = Modifier.width(cfg.statsInnerSpacing))
+            Text("${type.baseDamage}", style = MaterialTheme.typography.labelSmall, fontSize = cfg.statsFontSize)
+            Spacer(modifier = Modifier.width(cfg.statsBetweenSpacing))
+            TargetIcon(size = cfg.statsIconSize)
+            Spacer(modifier = Modifier.width(cfg.statsInnerSpacing))
+            Text(rangeText, style = MaterialTheme.typography.labelSmall, fontSize = cfg.statsFontSize)
+        }
     }
 }
 
@@ -229,7 +288,7 @@ fun DefenderButton(
             enabled = actuallyCanAfford,  // Use recalculated value
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (isSelected) GamePlayColors.InfoDark else MaterialTheme.colorScheme.primary,
-                contentColor = if (isSelected && isDarkMode) Color.White else Color.White,  // Brighter text when selected in dark mode
+                contentColor = Color.White,
                 disabledContainerColor = GamePlayColors.DisabledButton,
                 disabledContentColor = GamePlayColors.DisabledButtonText
             ),
@@ -238,24 +297,22 @@ fun DefenderButton(
         ) {
             BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
                 val cfg = when {
-                    maxWidth >= 100.dp -> DefenderButtonConfig.Wide
-                    maxWidth >= 55.dp  -> DefenderButtonConfig.Medium
+                    maxWidth >= 130.dp -> DefenderButtonConfig.Wide
+                    maxWidth >= 60.dp  -> DefenderButtonConfig.Medium
                     else               -> DefenderButtonConfig.Narrow
                 }
-                when (cfg) {
-                    DefenderButtonConfig.Wide -> {
+                // Use 2-row Medium layout only when there is enough vertical space
+                val use2RowMedium = cfg == DefenderButtonConfig.Medium && maxHeight >= 50.dp
+
+                when {
+                    cfg == DefenderButtonConfig.Wide -> {
                         // Wide layout (desktop): icon box → name/type/buildtime column → price column → stats column
                         Row(
                             modifier = Modifier.fillMaxSize(),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Start
                         ) {
-                            Box(
-                                modifier = Modifier.size(cfg.iconBoxSize),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                TowerTypeIcon(defenderType = type, modifier = Modifier.size(cfg.iconSize))
-                            }
+                            TowerButtonIcon(type, cfg)
                             Spacer(modifier = Modifier.width(cfg.iconSpacing))
                             Column(
                                 modifier = Modifier.fillMaxHeight().weight(1f),
@@ -278,14 +335,7 @@ fun DefenderButton(
                                     overflow = TextOverflow.Ellipsis,
                                     color = GamePlayColors.Yellow
                                 )
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    TimerIcon(size = cfg.timerIconSize)
-                                    Text(
-                                        "${type.buildTime}T",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontSize = cfg.buildTimeFontSize
-                                    )
-                                }
+                                TowerButtonBuildTime(type, cfg)
                             }
                             Spacer(modifier = Modifier.width(cfg.priceSpacing))
                             Column(
@@ -310,29 +360,63 @@ fun DefenderButton(
                             }
                         }
                     }
-                    DefenderButtonConfig.Medium -> {
-                        // Medium layout (tablet / 4-col mobile): icon → price column → name/type/stats column
+                    use2RowMedium -> {
+                        // Medium 2-row layout (tablet / single-row mobile grid): all info visible, no truncation
+                        // Row 1: icon → name (flex) → price
+                        // Row 2: (indented) attack type → stats → build time
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Start
+                            ) {
+                                TowerButtonIcon(type, cfg)
+                                Spacer(modifier = Modifier.width(cfg.iconSpacing))
+                                Text(
+                                    type.getLocalizedShortName(locale),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = cfg.nameFontSize,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Spacer(modifier = Modifier.width(cfg.priceSpacing))
+                                TowerButtonPriceRow(type, cfg)
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth()
+                                    .padding(start = cfg.iconBoxSize + cfg.iconSpacing),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Start
+                            ) {
+                                Text(
+                                    type.attackType.getLocalizedName(locale),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontSize = cfg.attackTypeFontSize,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    color = GamePlayColors.Yellow,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                TowerButtonInlineStats(type, cfg)
+                                Spacer(modifier = Modifier.width(cfg.statsBetweenSpacing))
+                                TowerButtonBuildTime(type, cfg)
+                            }
+                        }
+                    }
+                    cfg == DefenderButtonConfig.Medium -> {
+                        // Medium single-row layout (compact cells, e.g. 2-row grid on small phones)
                         Row(
                             modifier = Modifier.fillMaxSize(),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.Start
                         ) {
-                            TowerTypeIcon(defenderType = type, modifier = Modifier.size(cfg.iconSize))
+                            TowerButtonIcon(type, cfg)
                             Spacer(modifier = Modifier.width(cfg.iconSpacing))
-                            Column(
-                                modifier = Modifier.fillMaxHeight(),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                MoneyIcon(size = cfg.moneyIconSize)
-                                Text(
-                                    "${type.baseCost}",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = cfg.priceFontSize
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(cfg.priceSpacing))
                             Column(
                                 modifier = Modifier.fillMaxHeight().weight(1f),
                                 verticalArrangement = Arrangement.Center,
@@ -354,17 +438,10 @@ fun DefenderButton(
                                     overflow = TextOverflow.Ellipsis,
                                     color = GamePlayColors.Yellow
                                 )
-                                val rangeText = if (type.minRange > 0) "${type.minRange}-${type.baseRange}" else "${type.baseRange}"
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    ExplosionIcon(size = cfg.statsIconSize)
-                                    Spacer(modifier = Modifier.width(cfg.statsInnerSpacing))
-                                    Text("${type.baseDamage}", style = MaterialTheme.typography.labelSmall, fontSize = cfg.statsFontSize)
-                                    Spacer(modifier = Modifier.width(cfg.statsBetweenSpacing))
-                                    TargetIcon(size = cfg.statsIconSize)
-                                    Spacer(modifier = Modifier.width(cfg.statsInnerSpacing))
-                                    Text(rangeText, style = MaterialTheme.typography.labelSmall, fontSize = cfg.statsFontSize)
-                                }
+                                TowerButtonInlineStats(type, cfg)
                             }
+                            Spacer(modifier = Modifier.width(cfg.priceSpacing))
+                            TowerButtonPriceRow(type, cfg)
                         }
                     }
                     else -> {
@@ -374,7 +451,7 @@ fun DefenderButton(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
-                            TowerTypeIcon(defenderType = type, modifier = Modifier.size(cfg.iconSize))
+                            TowerButtonIcon(type, cfg)
                             Text(
                                 type.getLocalizedShortName(locale),
                                 style = MaterialTheme.typography.labelSmall,
