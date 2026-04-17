@@ -167,7 +167,7 @@ fun DefenderButton(
             BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
                 when {
                     maxWidth >= 100.dp -> {
-                        // Wide layout (desktop): large icon + two-column stats
+                        // Wide layout (desktop): icon + price (left, large, centered) + name/stats
                         Row(
                             modifier = Modifier.fillMaxSize(),
                             verticalAlignment = Alignment.CenterVertically,
@@ -179,60 +179,60 @@ fun DefenderButton(
                             ) {
                                 TowerTypeIcon(defenderType = type, modifier = Modifier.size(56.dp))
                             }
-                            Spacer(modifier = Modifier.width(2.dp))
-                            Row(modifier = Modifier.fillMaxWidth()) {
-                                Column(
-                                    modifier = Modifier.fillMaxHeight().weight(1f),
-                                    verticalArrangement = Arrangement.Center,
-                                    horizontalAlignment = Alignment.Start
-                                ) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(
-                                            type.getLocalizedShortName(locale),
-                                            style = MaterialTheme.typography.labelSmall,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 12.sp,
-                                            maxLines = 1,
-                                            overflow = TextOverflow.Ellipsis,
-                                            modifier = Modifier.weight(1f)
-                                        )
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        MoneyIcon(size = 14.dp)
-                                        Spacer(modifier = Modifier.width(2.dp))
-                                        Text(
-                                            "${type.baseCost}",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 14.sp
-                                        )
-                                    }
+                            Spacer(modifier = Modifier.width(4.dp))
+                            // Price – large, vertically centered
+                            Column(
+                                modifier = Modifier.fillMaxHeight(),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                MoneyIcon(size = 16.dp)
+                                Text(
+                                    "${type.baseCost}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(6.dp))
+                            // Name / attack type / build time
+                            Column(
+                                modifier = Modifier.fillMaxHeight().weight(1f),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                Text(
+                                    type.getLocalizedShortName(locale),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 12.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Text(
+                                    type.attackType.getLocalizedName(locale),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontSize = 10.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    color = GamePlayColors.Yellow
+                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    TimerIcon(size = 15.dp)
                                     Text(
-                                        type.attackType.getLocalizedName(locale),
+                                        "${type.buildTime}T",
                                         style = MaterialTheme.typography.labelSmall,
-                                        fontSize = 10.sp,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                        color = GamePlayColors.Yellow
+                                        fontSize = 10.sp
                                     )
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        TimerIcon(size = 15.dp)
-                                        Text(
-                                            "${type.buildTime}T",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            fontSize = 10.sp
-                                        )
-                                    }
                                 }
-                                Column(
-                                    modifier = Modifier.fillMaxHeight().padding(start = 8.dp),
-                                    verticalArrangement = Arrangement.Center,
-                                    horizontalAlignment = Alignment.Start
-                                ) {
-                                    TowerStats(type.minRange, type.baseDamage, type.baseRange, type.actionsPerTurn)
-                                }
+                            }
+                            // Stats column
+                            Column(
+                                modifier = Modifier.fillMaxHeight().padding(start = 4.dp),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.Start
+                            ) {
+                                TowerStats(type.minRange, type.baseDamage, type.baseRange, type.actionsPerTurn)
                             }
                         }
                     }
