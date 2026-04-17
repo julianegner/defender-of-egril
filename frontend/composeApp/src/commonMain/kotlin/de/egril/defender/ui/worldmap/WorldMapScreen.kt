@@ -540,7 +540,7 @@ fun WorldMapScreen(
                 }
                 
                 // User/Community Levels Buttons (only in Image Map View when not showing tab view)
-                if (isEditorAvailable() && (hasUserLevels || hasCommunityLevels) && !useLevelCards && imageMapActiveTab == null) {
+                if ((hasUserLevels || hasCommunityLevels) && !useLevelCards && imageMapActiveTab == null) {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         horizontalAlignment = Alignment.End
@@ -556,7 +556,9 @@ fun WorldMapScreen(
                             }
                         }
                         // Editor Button below the level buttons
-                        EditorButtonCard(onClick = onOpenEditor)
+                        if (isEditorAvailable()) {
+                            EditorButtonCard(onClick = onOpenEditor)
+                        }
                     }
                 } else if (isEditorAvailable()) {
                     // Just Editor Button (when no user/community levels or already in tab view)
