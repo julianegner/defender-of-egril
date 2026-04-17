@@ -237,7 +237,7 @@ fun DefenderButton(
                         }
                     }
                     maxWidth >= 55.dp -> {
-                        // Medium layout (tablet / 4-col mobile): small icon + single column
+                        // Medium layout (tablet / 4-col mobile): icon + price (left, large, centered) + name/stats
                         Row(
                             modifier = Modifier.fillMaxSize(),
                             verticalAlignment = Alignment.CenterVertically,
@@ -245,33 +245,35 @@ fun DefenderButton(
                         ) {
                             TowerTypeIcon(defenderType = type, modifier = Modifier.size(28.dp))
                             Spacer(modifier = Modifier.width(2.dp))
+                            // Price – large, vertically centered
+                            Column(
+                                modifier = Modifier.fillMaxHeight(),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                MoneyIcon(size = 12.dp)
+                                Text(
+                                    "${type.baseCost}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.sp
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(4.dp))
+                            // Name / attack type / stats
                             Column(
                                 modifier = Modifier.fillMaxHeight().weight(1f),
                                 verticalArrangement = Arrangement.Center,
                                 horizontalAlignment = Alignment.Start
                             ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        type.getLocalizedShortName(locale),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 10.sp,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                        modifier = Modifier.weight(1f)
-                                    )
-                                    MoneyIcon(size = 10.dp)
-                                    Spacer(modifier = Modifier.width(2.dp))
-                                    Text(
-                                        "${type.baseCost}",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 11.sp
-                                    )
-                                }
+                                Text(
+                                    type.getLocalizedShortName(locale),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 10.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                                 Text(
                                     type.attackType.getLocalizedName(locale),
                                     style = MaterialTheme.typography.labelSmall,
