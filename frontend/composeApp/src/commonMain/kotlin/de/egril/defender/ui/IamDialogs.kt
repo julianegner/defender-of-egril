@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalUriHandler
+import kotlin.math.ceil
+import kotlin.math.floor
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -85,14 +87,19 @@ fun DeviceAuthLoginDialog(
                 val darkColor = MaterialTheme.colorScheme.onSurface
                 Canvas(modifier = Modifier.size(180.dp)) {
                     val modules = qrMatrix.size
-                    val cellSize = size.width / modules
                     for (row in qrMatrix.indices) {
                         for (col in qrMatrix[row].indices) {
                             if (qrMatrix[row][col]) {
+                                // Use floor/ceil to pixel-align each cell edge, preventing
+                                // sub-pixel gaps (light gray lines) between adjacent dark modules.
+                                val left = floor(col * size.width / modules)
+                                val top = floor(row * size.height / modules)
+                                val right = ceil((col + 1) * size.width / modules)
+                                val bottom = ceil((row + 1) * size.height / modules)
                                 drawRect(
                                     color = darkColor,
-                                    topLeft = Offset(col * cellSize, row * cellSize),
-                                    size = Size(cellSize, cellSize)
+                                    topLeft = Offset(left, top),
+                                    size = Size(right - left, bottom - top)
                                 )
                             }
                         }
