@@ -71,8 +71,8 @@ class LottieAnimationsTest {
     
     @Test
     fun testAnimationTypeCount() {
-        // Verify we have exactly 27 animation types
+        // Verify we have exactly 29 animation types
         val animationTypes = AnimationType.values()
-        assertEquals(27, animationTypes.size, "Should have exactly 27 animation types")
+        assertEquals(29, animationTypes.size, "Should have exactly 29 animation types")
     }
 }

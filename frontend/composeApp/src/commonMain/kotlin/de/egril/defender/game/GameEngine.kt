@@ -1739,6 +1739,8 @@ class GameEngine(private val state: GameState) {
         state.ballistaAttackEffects.clear()
         state.bowAttackEffects.clear()
         state.spearAttackEffects.clear()
+        state.wizardAttackEffects.clear()
+        state.alchemyAttackEffects.clear()
 
         // Check and activate traps after all movements
         checkAndActivateTraps()

@@ -151,6 +151,32 @@ class CombatSystem(
             }
         }
 
+        // Record wizard fireball overlay effect for Wizard Tower area attacks
+        if (defender.type == DefenderType.WIZARD_TOWER) {
+            if (state.wizardAttackEffects.none { it.sourcePosition == defender.position.value }) {
+                state.wizardAttackEffects.add(
+                    WizardAttackEffect(
+                        sourcePosition = defender.position.value,
+                        targetPosition = target.position.value,
+                        turnNumber = state.turnNumber.value
+                    )
+                )
+            }
+        }
+
+        // Record alchemy acid vial overlay effect for Alchemy Tower lasting attacks
+        if (defender.type == DefenderType.ALCHEMY_TOWER) {
+            if (state.alchemyAttackEffects.none { it.sourcePosition == defender.position.value }) {
+                state.alchemyAttackEffects.add(
+                    AlchemyAttackEffect(
+                        sourcePosition = defender.position.value,
+                        targetPosition = target.position.value,
+                        turnNumber = state.turnNumber.value
+                    )
+                )
+            }
+        }
+
         defender.actionsRemaining.value--
 
         // Process defeated attackers immediately to give coins
@@ -280,6 +306,32 @@ class CombatSystem(
             if (state.pikeAttackEffects.none { it.sourcePosition == defender.position.value }) {
                 state.pikeAttackEffects.add(
                     PikeAttackEffect(
+                        sourcePosition = defender.position.value,
+                        targetPosition = targetPosition,
+                        turnNumber = state.turnNumber.value
+                    )
+                )
+            }
+        }
+
+        // Record wizard fireball overlay effect for Wizard Tower area attacks
+        if (defender.type == DefenderType.WIZARD_TOWER) {
+            if (state.wizardAttackEffects.none { it.sourcePosition == defender.position.value }) {
+                state.wizardAttackEffects.add(
+                    WizardAttackEffect(
+                        sourcePosition = defender.position.value,
+                        targetPosition = targetPosition,
+                        turnNumber = state.turnNumber.value
+                    )
+                )
+            }
+        }
+
+        // Record alchemy acid vial overlay effect for Alchemy Tower lasting attacks
+        if (defender.type == DefenderType.ALCHEMY_TOWER) {
+            if (state.alchemyAttackEffects.none { it.sourcePosition == defender.position.value }) {
+                state.alchemyAttackEffects.add(
+                    AlchemyAttackEffect(
                         sourcePosition = defender.position.value,
                         targetPosition = targetPosition,
                         turnNumber = state.turnNumber.value

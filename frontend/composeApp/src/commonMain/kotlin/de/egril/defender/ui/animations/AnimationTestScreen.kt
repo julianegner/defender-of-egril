@@ -4,6 +4,8 @@ import de.egril.defender.ui.animations.BallistaAttackTestPreview
 import de.egril.defender.ui.animations.BowAttackTestPreview
 import de.egril.defender.ui.animations.SpearAttackTestPreview
 import de.egril.defender.ui.animations.PikeAttackTestPreview
+import de.egril.defender.ui.animations.WizardAttackTestPreview
+import de.egril.defender.ui.animations.AlchemyAttackTestPreview
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -170,6 +172,12 @@ fun AnimationTestScreen(onBack: () -> Unit) {
                 } else if (selectedAnimation == AnimationType.PIKE_ATTACK) {
                     // Special canvas-based preview for pike extend
                     PikeAttackTestPreview(modifier = Modifier.fillMaxSize())
+                } else if (selectedAnimation == AnimationType.WIZARD_ATTACK) {
+                    // Special canvas-based preview for wizard fireball
+                    WizardAttackTestPreview(modifier = Modifier.fillMaxSize())
+                } else if (selectedAnimation == AnimationType.ALCHEMY_ATTACK) {
+                    // Special canvas-based preview for alchemy acid vial
+                    AlchemyAttackTestPreview(modifier = Modifier.fillMaxSize())
                 } else {
                     val isLooping = selectedAnimation in LOOPING_ANIMATIONS
                     LottieAnimation(
@@ -334,4 +342,6 @@ private fun AnimationType.displayName(): String = when (this) {
     AnimationType.BOW_ATTACK                 -> "Bow Attack (Arrow Volley)"
     AnimationType.SPEAR_ATTACK               -> "Spear Attack (Spear Throw)"
     AnimationType.PIKE_ATTACK                -> "Pike Attack (Pike Extend)"
+    AnimationType.WIZARD_ATTACK              -> "Wizard Attack (Fireball)"
+    AnimationType.ALCHEMY_ATTACK             -> "Alchemy Attack (Acid Vial)"
 }

@@ -59,6 +59,8 @@ import de.egril.defender.ui.animations.BallistaAttackOverlay
 import de.egril.defender.ui.animations.BowAttackOverlay
 import de.egril.defender.ui.animations.SpearAttackOverlay
 import de.egril.defender.ui.animations.PikeAttackOverlay
+import de.egril.defender.ui.animations.WizardAttackOverlay
+import de.egril.defender.ui.animations.AlchemyAttackOverlay
 import de.egril.defender.ui.animations.DragonTargetAnimation
 import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.icon.BombIcon
@@ -571,6 +573,24 @@ fun GameGrid(
                         animate = AppSettings.enableAnimations.value
                     )
                 }
+                val wizardEffects = gameState.wizardAttackEffects.toList()
+                if (wizardEffects.isNotEmpty()) {
+                    WizardAttackOverlay(
+                        effects = wizardEffects,
+                        hexSizeDp = hexSize.value,
+                        contentSize = measuredContentSize,
+                        animate = AppSettings.enableAnimations.value
+                    )
+                }
+                val alchemyEffects = gameState.alchemyAttackEffects.toList()
+                if (alchemyEffects.isNotEmpty()) {
+                    AlchemyAttackOverlay(
+                        effects = alchemyEffects,
+                        hexSizeDp = hexSize.value,
+                        contentSize = measuredContentSize,
+                        animate = AppSettings.enableAnimations.value
+                    )
+                }
             }
         ) { position ->
             GridCell(
@@ -765,6 +785,18 @@ fun GridCell(
     val isSpearTargetTile = gameState.spearAttackEffects.any { it.targetPosition == position }
     // True when this tile is the endpoint of a pike attack (hit animation should be delayed)
     val isPikeTargetTile = gameState.pikeAttackEffects.any { it.targetPosition == position }
+    // True when this tile is the endpoint of a wizard fireball attack (hit animation should be delayed)
+    val isWizardTargetTile = gameState.wizardAttackEffects.any { it.targetPosition == position }
+    // True when this tile is the endpoint of an alchemy acid vial attack (hit animation should be delayed)
+    val isAlchemyTargetTile = gameState.alchemyAttackEffects.any { it.targetPosition == position }
+    // True when this tile is within the area of effect of a wizard fireball attack.
+    // The fireball's area covers the target tile + all of its hex neighbors (radius 1), so any
+    // tile with hexDistanceTo(targetPosition) <= 1 is affected.
+    val isInWizardAttackArea = gameState.wizardAttackEffects.any { it.targetPosition.hexDistanceTo(position) <= 1 }
+    // True when this tile is within the area of effect of an alchemy acid vial attack.
+    // Acid has a base radius of 1 but can extend up to 2 at high tower levels; use radius 2 here
+    // to conservatively cover the maximum possible area so no affected tile shows prematurely.
+    val isInAlchemyAttackArea = gameState.alchemyAttackEffects.any { it.targetPosition.hexDistanceTo(position) <= 2 }
     
     // Check if a dragon is targeting the mine at this position
     val dragonIsTargetingMine = defender != null &&
@@ -813,6 +845,41 @@ fun GridCell(
 
     // Check for field effects at this position
     val fieldEffect = gameState.fieldEffects.find { it.position == position }
+
+    // When animations are enabled, delay showing fireball / acid field-effect markers on the tile
+    // until the attack animation has finished (projectile flight + impact flash).
+    // When animations are off, or when the effect is from a prior turn (no matching attack overlay
+    // is active), show it immediately.
+    val animate = AppSettings.enableAnimations.value
+    var showFieldEffect by remember { mutableStateOf(false) }
+    LaunchedEffect(
+        fieldEffect?.position?.x, fieldEffect?.position?.y, fieldEffect?.type, fieldEffect?.defenderId,
+        isInWizardAttackArea, isInAlchemyAttackArea, animate
+    ) {
+        when {
+            fieldEffect == null -> showFieldEffect = false
+            animate && isInWizardAttackArea -> {
+                showFieldEffect = false
+                kotlinx.coroutines.delay(
+                    GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS +
+                    GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS
+                )
+                showFieldEffect = true
+            }
+            animate && isInAlchemyAttackArea -> {
+                showFieldEffect = false
+                kotlinx.coroutines.delay(
+                    GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS +
+                    GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS
+                )
+                showFieldEffect = true
+            }
+            else -> showFieldEffect = true
+        }
+    }
+    // Use effectiveFieldEffect for all visual rendering; raw fieldEffect is still used for
+    // gameplay logic (trap placement detection etc.) so the game state stays accurate.
+    val effectiveFieldEffect: FieldEffect? = if (showFieldEffect) fieldEffect else null
 
     // Check for traps at this position
     val trap = gameState.traps.find { it.position == position }
@@ -1063,8 +1130,8 @@ fun GridCell(
             }
         }
 
-        fieldEffect != null -> {
-            when (fieldEffect.type) {
+        effectiveFieldEffect != null -> {
+            when (effectiveFieldEffect.type) {
                 FieldEffectType.FIREBALL -> GamePlayColors.Warning.copy(alpha = 0.5f)  // Orange tint for fireball
                 FieldEffectType.ACID -> GamePlayColors.Success.copy(alpha = 0.6f)  // Green tint for acid
             }
@@ -1098,7 +1165,7 @@ fun GridCell(
         else -> baseBackgroundColor  // No selection highlighting during placement or in initial phase
     }
 
-    val finalBackgroundColor = if (useTransparentBackground && attacker == null && defender == null && fieldEffect == null && trap == null && barricade == null && bombEffect == null && bombExplosion == null) {
+    val finalBackgroundColor = if (useTransparentBackground && attacker == null && defender == null && effectiveFieldEffect == null && trap == null && barricade == null && bombEffect == null && bombExplosion == null) {
         Color.Transparent
     } else {
         backgroundColor
@@ -1159,8 +1226,8 @@ fun GridCell(
         isTarget -> GamePlayColors.Success  // Green border for target (adapts to dark mode automatically)
         attacker != null -> GamePlayColors.ErrorDark  // Darker red border for enemies
         defender != null -> if (defender.isReady) GamePlayColors.InfoDark else GamePlayColors.Building  // Darker blue/gray border for towers
-        fieldEffect != null -> {
-            when (fieldEffect.type) {
+        effectiveFieldEffect != null -> {
+            when (effectiveFieldEffect.type) {
                 FieldEffectType.FIREBALL -> GamePlayColors.WarningDeep  // Deep orange border for fireball
                 FieldEffectType.ACID -> GamePlayColors.Success  // Green border for acid
             }
@@ -1185,7 +1252,7 @@ fun GridCell(
             spellTargeting?.activeSpell != SpellType.FEAR_SPELL_AREA -> 4.dp  // Thick purple border for valid spell targets
         isSpawnPoint || isTarget -> 3.dp
         attacker != null || defender != null -> 3.dp
-        fieldEffect != null -> 3.dp  // Thick border for field effects
+        effectiveFieldEffect != null -> 3.dp  // Thick border for field effects
         trap != null -> 3.dp  // Thick border for trap
         barricade != null -> 3.dp  // Thick border for barricade
         else -> 0.dp  // No border for empty cells
@@ -1275,7 +1342,7 @@ fun GridCell(
                 healingEffect = healingEffect,
                 damageEffect = damageEffect,
                 defender = defender,
-                fieldEffect = fieldEffect,
+                fieldEffect = effectiveFieldEffect,
                 trap = trap,
                 barricade = barricade,
                 isSpawnPoint = isSpawnPoint,
@@ -1315,6 +1382,10 @@ fun GridCell(
                 isBowTargetTile = isBowTargetTile,
                 isSpearTargetTile = isSpearTargetTile,
                 isPikeTargetTile = isPikeTargetTile,
+                isWizardTargetTile = isWizardTargetTile,
+                isAlchemyTargetTile = isAlchemyTargetTile,
+                isInWizardAttackArea = isInWizardAttackArea,
+                isInAlchemyAttackArea = isInAlchemyAttackArea,
                 dragonIsTargetingMine = dragonIsTargetingMine
             )
         }
@@ -1335,7 +1406,7 @@ fun GridCell(
                 healingEffect = healingEffect,
                 damageEffect = damageEffect,
                 defender = defender,
-                fieldEffect = fieldEffect,
+                fieldEffect = effectiveFieldEffect,
                 trap = trap,
                 barricade = barricade,
                 isSpawnPoint = isSpawnPoint,
@@ -1375,6 +1446,10 @@ fun GridCell(
                 isBowTargetTile = isBowTargetTile,
                 isSpearTargetTile = isSpearTargetTile,
                 isPikeTargetTile = isPikeTargetTile,
+                isWizardTargetTile = isWizardTargetTile,
+                isAlchemyTargetTile = isAlchemyTargetTile,
+                isInWizardAttackArea = isInWizardAttackArea,
+                isInAlchemyAttackArea = isInAlchemyAttackArea,
                 dragonIsTargetingMine = dragonIsTargetingMine
             )
         }
@@ -1432,18 +1507,62 @@ private fun BoxScope.GridCellContent(
     isBowTargetTile: Boolean = false,
     isSpearTargetTile: Boolean = false,
     isPikeTargetTile: Boolean = false,
+    isWizardTargetTile: Boolean = false,
+    isAlchemyTargetTile: Boolean = false,
+    isInWizardAttackArea: Boolean = false,
+    isInAlchemyAttackArea: Boolean = false,
     dragonIsTargetingMine: Boolean = false
 ) {
+        // When animations are enabled, delay updating the enemy's displayed health value until
+        // the attack animation (projectile flight + impact flash) has completed.
+        // This way the health number on the icon only changes after the impact flash, matching
+        // the visual sequence of: projectile arrives → flash → damage visible.
+        // When animations are off, or when the health changes without a tower attack (e.g. acid
+        // DOT ticks during the enemy turn), the displayed value updates immediately.
+        // For AoE attacks (wizard fireball, alchemy acid) we must also delay tiles that are in
+        // the blast area but not the exact target position — those tiles have towerAttackEffect == null
+        // but their enemy HP still changes as part of the AoE damage.
+        val animationsEnabled = AppSettings.enableAnimations.value
+        var displayedHealth by remember { mutableStateOf(attacker?.currentHealth?.value ?: 0) }
+        LaunchedEffect(
+            attacker?.id, attacker?.currentHealth?.value, towerAttackEffect?.turnNumber,
+            isInWizardAttackArea, isInAlchemyAttackArea, animationsEnabled
+        ) {
+            val currentHealth = attacker?.currentHealth?.value
+            if (attacker != null && currentHealth != null) {
+                val flightDelay: Long = when {
+                    !animationsEnabled -> 0L
+                    // Direct-target tiles: use the specific flight delay for that tower type
+                    towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
+                    towerAttackEffect != null && isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
+                    // AoE surrounding tiles: towerAttackEffect is null for them, but still delay
+                    isInWizardAttackArea -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                    isInAlchemyAttackArea -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
+                    else -> 0L
+                }
+                if (flightDelay > 0L) {
+                    kotlinx.coroutines.delay(flightDelay + GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS)
+                }
+                displayedHealth = currentHealth
+            }
+        }
+
         when {
             attacker != null -> {
                 // Use graphical icon for enemy units
-                // Key by id, position, level, currentHealth, and movementPenalty to force recomposition when any changes
+                // Key by id, position, level, and movementPenalty to force recomposition when any changes.
+                // currentHealth is intentionally omitted from the key so that the delayed displayedHealth
+                // state (see above) is not discarded when health changes during an attack animation.
                 key(
                     attacker.id,
                     attacker.position.value.x,
                     attacker.position.value.y,
                     attacker.level,
-                    attacker.currentHealth.value,
                     attacker.movementPenalty.value
                 ) {
                     // Detect freeze effect before Box so it can be used in modifier for outline
@@ -1468,7 +1587,7 @@ private fun BoxScope.GridCellContent(
                         else
                             Modifier
                     ) {
-                        EnemyIcon(attacker = attacker, backgroundColor = attackerTileBackground)
+                        EnemyIcon(attacker = attacker, backgroundColor = attackerTileBackground, healthOverride = displayedHealth)
                         // Show healing effect overlay if present
                         if (healingEffect != null) {
                             GreenWitchHealingAnimation(
@@ -1951,6 +2070,8 @@ private fun BoxScope.GridCellContent(
                     towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                     towerAttackEffect != null && isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                     towerAttackEffect != null && isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
+                    towerAttackEffect != null && isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
                     else -> 0L
                 }
                 val impactDelay = if (towerAttackEffect != null) GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS else 0L
@@ -1997,6 +2118,8 @@ private fun BoxScope.GridCellContent(
                         isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                         isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                         isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
+                        isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                        isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
                         else -> 0L
                     }
                     kotlinx.coroutines.delay(flightDelay + GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS)
@@ -2026,6 +2149,8 @@ private fun BoxScope.GridCellContent(
                     towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                     towerAttackEffect != null && isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                     towerAttackEffect != null && isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
+                    towerAttackEffect != null && isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
                     else -> 0L
                 }
                 val impactDelay = if (towerAttackEffect != null) GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS else 0L
@@ -2051,9 +2176,9 @@ private fun BoxScope.GridCellContent(
         // When a projectile is targeting this tile the hit animation is delayed
         // so the projectile visibly arrives before the impact flash.
         var showHitAnimation by remember(towerAttackEffect?.turnNumber, towerAttackEffect?.targetPosition) {
-            mutableStateOf(towerAttackEffect != null && !isArrowTargetTile && !isBallistaTargetTile && !isBowTargetTile && !isSpearTargetTile && !isPikeTargetTile)
+            mutableStateOf(towerAttackEffect != null && !isArrowTargetTile && !isBallistaTargetTile && !isBowTargetTile && !isSpearTargetTile && !isPikeTargetTile && !isWizardTargetTile && !isAlchemyTargetTile)
         }
-        LaunchedEffect(towerAttackEffect?.turnNumber, towerAttackEffect?.targetPosition, isArrowTargetTile, isBallistaTargetTile, isBowTargetTile, isSpearTargetTile, isPikeTargetTile) {
+        LaunchedEffect(towerAttackEffect?.turnNumber, towerAttackEffect?.targetPosition, isArrowTargetTile, isBallistaTargetTile, isBowTargetTile, isSpearTargetTile, isPikeTargetTile, isWizardTargetTile, isAlchemyTargetTile) {
             when {
                 towerAttackEffect != null && isArrowTargetTile -> {
                     kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS)
@@ -2073,6 +2198,14 @@ private fun BoxScope.GridCellContent(
                 }
                 towerAttackEffect != null && isPikeTargetTile -> {
                     kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS)
+                    showHitAnimation = true
+                }
+                towerAttackEffect != null && isWizardTargetTile -> {
+                    kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS)
+                    showHitAnimation = true
+                }
+                towerAttackEffect != null && isAlchemyTargetTile -> {
+                    kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS)
                     showHitAnimation = true
                 }
                 towerAttackEffect != null -> {
@@ -2130,13 +2263,32 @@ private fun BoxScope.GridCellContent(
             val dx = (arrowAttackEffect.targetPosition.x - arrowAttackEffect.sourcePosition.x).toFloat()
             val dy = (arrowAttackEffect.targetPosition.y - arrowAttackEffect.sourcePosition.y).toFloat()
             val angle = if (dx == 0f && dy == 0f) 0f
-                else (atan2(dy.toDouble(), dx.toDouble()) * (180.0 / kotlin.math.PI)).toFloat()
+                else (atan2(dy.toDouble(), dx.toDouble()) * GamePlayConstants.AnimationTimings.RADIANS_TO_DEGREES).toFloat()
             ArrowAttackAnimation(
                 animate = AppSettings.enableAnimations.value,
                 directionAngle = angle,
                 isTargetTile = isArrowTargetTile,
                 modifier = Modifier.fillMaxSize().zIndex(18f)
             )
+        }
+
+        // Show per-tile Lottie arrow animation at the bow attack target tile when the volley arrives.
+        // Uses showHitAnimation as the delay trigger (already delayed by ARROW_FLIGHT_DELAY_MS) so
+        // the arrow lands visually at the same time the impact flash fires.
+        if (showHitAnimation && isBowTargetTile) {
+            val bowEffect = gameState.bowAttackEffects.find { it.targetPosition == position }
+            if (bowEffect != null) {
+                val dx = (bowEffect.targetPosition.x - bowEffect.sourcePosition.x).toFloat()
+                val dy = (bowEffect.targetPosition.y - bowEffect.sourcePosition.y).toFloat()
+                val angle = if (dx == 0f && dy == 0f) 0f
+                    else (atan2(dy.toDouble(), dx.toDouble()) * GamePlayConstants.AnimationTimings.RADIANS_TO_DEGREES).toFloat()
+                ArrowAttackAnimation(
+                    animate = AppSettings.enableAnimations.value,
+                    directionAngle = angle,
+                    isTargetTile = true,
+                    modifier = Modifier.fillMaxSize().zIndex(18f)
+                )
+            }
         }
 
         // Show dragon-targeting warning animation on mines that a dragon is approaching
