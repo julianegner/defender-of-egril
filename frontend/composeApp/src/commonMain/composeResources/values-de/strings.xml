@@ -1339,6 +1339,7 @@
 
     <!-- Level Loading -->
     <string name="loading_level">Level wird geladen…</string>
+    <string name="loading_world_map">Weltkarte wird geladen…</string>
 
     <!-- Map Image and Debug Options -->
     <string name="level_map_image">Karten-Hintergrundbild</string>

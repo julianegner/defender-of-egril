@@ -36,8 +36,10 @@ import de.egril.defender.editor.EditorStorage
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.icon.LockIcon
 import org.jetbrains.compose.resources.painterResource
+import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.world_map_background
+import defender_of_egril.composeapp.generated.resources.loading_world_map
 
 import de.egril.defender.editor.WorldMapData
 import de.egril.defender.editor.WorldMapLocationData
@@ -221,44 +223,68 @@ fun ImageWorldMapView(
     ) {
         // Get the painter to access image dimensions
         val mapPainter = painterResource(Res.drawable.world_map_background)
-        val imageAspectRatio = mapPainter.intrinsicSize.width / mapPainter.intrinsicSize.height
-        
-        // Draw the map image and overlay locations
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .graphicsLayer(
-                    scaleX = scale,
-                    scaleY = scale,
-                    translationX = offsetX,
-                    translationY = offsetY
-                )
-        ) {
-            // Background map image
-            Image(
-                painter = mapPainter,
-                contentDescription = "World Map",
+        val mapLoaded = mapPainter.intrinsicSize.width.isFinite() && mapPainter.intrinsicSize.width > 0f
+
+        if (!mapLoaded) {
+            // Show loading spinner while the background map image is loading
+            Box(
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Fit
-            )
-            
-            // Draw road connections between locations
-            RoadConnectionsOverlay(
-                roads = roads,
-                containerSize = containerSize,
-                isDarkMode = isDarkMode,
-                imageAspectRatio = imageAspectRatio
-            )
-            
-            // Location markers overlay - clickable markers
-            LocationMarkersOverlay(
-                locations = locations,
-                worldLevels = worldLevels,
-                containerSize = containerSize,
-                isDarkMode = isDarkMode,
-                onLocationClicked = onLocationClicked,
-                imageAspectRatio = imageAspectRatio
-            )
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Text(
+                        text = stringResource(Res.string.loading_world_map),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+            }
+        } else {
+            val imageAspectRatio = mapPainter.intrinsicSize.width / mapPainter.intrinsicSize.height
+
+            // Draw the map image and overlay locations
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer(
+                        scaleX = scale,
+                        scaleY = scale,
+                        translationX = offsetX,
+                        translationY = offsetY
+                    )
+            ) {
+                // Background map image
+                Image(
+                    painter = mapPainter,
+                    contentDescription = "World Map",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Fit
+                )
+
+                // Draw road connections between locations
+                RoadConnectionsOverlay(
+                    roads = roads,
+                    containerSize = containerSize,
+                    isDarkMode = isDarkMode,
+                    imageAspectRatio = imageAspectRatio
+                )
+
+                // Location markers overlay - clickable markers
+                LocationMarkersOverlay(
+                    locations = locations,
+                    worldLevels = worldLevels,
+                    containerSize = containerSize,
+                    isDarkMode = isDarkMode,
+                    onLocationClicked = onLocationClicked,
+                    imageAspectRatio = imageAspectRatio
+                )
+            }
         }
     }
 }
@@ -406,6 +432,12 @@ private fun BoxScope.LocationMarkersOverlay(
         // Try to load custom icon for this location
         val iconResourceName = location.locationData?.iconResourceName
         val iconPainter = de.egril.defender.ui.editor.worldmap.LocationIconUtils.loadIconPainter(iconResourceName)
+        // Only use the icon painter once its image has finished loading (valid intrinsic size).
+        // Before loading completes, fall through to the circular badge fallback so locations
+        // appear immediately after the map background loads and icons appear one by one.
+        val iconPainterReady = iconPainter != null &&
+            iconPainter.intrinsicSize.width.isFinite() &&
+            iconPainter.intrinsicSize.width > 0f
         
         // Determine location status based on contained levels
         val hasWonLevel = levelsAtLocation.any { it.status == LevelStatus.WON }
@@ -470,7 +502,7 @@ private fun BoxScope.LocationMarkersOverlay(
                 Spacer(modifier = Modifier.height(spacerHeight))
                 
                 // Marker with icon or circular fallback
-                if (iconPainter != null) {
+                if (iconPainterReady) {
                     // Icon-based marker
                     Box(
                         modifier = Modifier
