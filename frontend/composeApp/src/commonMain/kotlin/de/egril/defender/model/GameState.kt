@@ -130,6 +130,12 @@ data class SpearAttackEffect(
     val turnNumber: Int            // Turn when this attack occurred
 )
 
+data class PikeAttackEffect(
+    val sourcePosition: Position,  // Pike (spike) tower's tile
+    val targetPosition: Position,  // Target tile
+    val turnNumber: Int            // Turn when this attack occurred
+)
+
 /**
  * Types of in-game event messages that are shown to the player.
  */
@@ -190,6 +196,7 @@ data class GameState(
     val ballistaAttackEffects: SnapshotStateList<BallistaAttackEffect> = mutableStateListOf(),  // Track ballista projectile overlay effects
     val bowAttackEffects: SnapshotStateList<BowAttackEffect> = mutableStateListOf(),  // Track bow arrow volley overlay effects
     val spearAttackEffects: SnapshotStateList<SpearAttackEffect> = mutableStateListOf(),  // Track spear throw overlay effects
+    val pikeAttackEffects: SnapshotStateList<PikeAttackEffect> = mutableStateListOf(),  // Track pike extend overlay effects
     val difficulty: DifficultyLevel = DifficultyLevel.MEDIUM,  // Track difficulty for this game session
     val tutorialState: MutableState<TutorialState> = mutableStateOf(
         // Enable tutorial only for the tutorial level (id=1, title contains "Welcome")

@@ -3,6 +3,7 @@ import io.github.alexzhirkevich.compottie.Compottie
 import de.egril.defender.ui.animations.BallistaAttackTestPreview
 import de.egril.defender.ui.animations.BowAttackTestPreview
 import de.egril.defender.ui.animations.SpearAttackTestPreview
+import de.egril.defender.ui.animations.PikeAttackTestPreview
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -166,6 +167,9 @@ fun AnimationTestScreen(onBack: () -> Unit) {
                 } else if (selectedAnimation == AnimationType.SPEAR_ATTACK) {
                     // Special canvas-based preview for spear throw
                     SpearAttackTestPreview(modifier = Modifier.fillMaxSize())
+                } else if (selectedAnimation == AnimationType.PIKE_ATTACK) {
+                    // Special canvas-based preview for pike extend
+                    PikeAttackTestPreview(modifier = Modifier.fillMaxSize())
                 } else {
                     val isLooping = selectedAnimation in LOOPING_ANIMATIONS
                     LottieAnimation(
@@ -329,4 +333,5 @@ private fun AnimationType.displayName(): String = when (this) {
     AnimationType.BALLISTA_ATTACK            -> "Ballista Attack (Rock)"
     AnimationType.BOW_ATTACK                 -> "Bow Attack (Arrow Volley)"
     AnimationType.SPEAR_ATTACK               -> "Spear Attack (Spear Throw)"
+    AnimationType.PIKE_ATTACK                -> "Pike Attack (Pike Extend)"
 }
