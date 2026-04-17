@@ -102,6 +102,8 @@ fun GameControlsPanel(
         val expandedGridColumns = if (isNarrowPanel) 4 else 7
         val expandedGridHeight = if (isNarrowPanel) 70.dp else 75.dp
 
+        Column(modifier = Modifier.fillMaxWidth()) {
+
         // Title - hide when tower is selected
         if (!compactBuyPanel) {
             Text(title, style = MaterialTheme.typography.titleMedium)
@@ -301,6 +303,7 @@ fun GameControlsPanel(
                 Text(primaryButtonText)
             }
         }
+        } // end inner Column
         } // end BoxWithConstraints
     }
 }
