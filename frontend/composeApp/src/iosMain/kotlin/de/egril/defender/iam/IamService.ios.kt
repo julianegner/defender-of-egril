@@ -119,10 +119,20 @@ actual suspend fun initPlatformIam() {
 /**
  * Opens the Keycloak user account console via UIApplication so the user can
  * manage their credentials, update their username, or delete their account.
+ *
+ * Uses the non-deprecated `openURL:options:completionHandler:` API (iOS 10+).
  */
 internal actual fun openPlatformAccountConsole() {
-    val url = platform.Foundation.NSURL.URLWithString(IamConfig.accountUrl) ?: return
-    platform.UIKit.UIApplication.sharedApplication.openURL(url)
+    val url = platform.Foundation.NSURL.URLWithString(IamConfig.accountUrl)
+    if (url == null) {
+        println("IAM: Failed to create NSURL for account console URL: ${IamConfig.accountUrl}")
+        return
+    }
+    platform.UIKit.UIApplication.sharedApplication.openURL(
+        url = url,
+        options = emptyMap<Any?, Any?>(),
+        completionHandler = null
+    )
 }
 
 // ---------------------------------------------------------------------------

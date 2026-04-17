@@ -21,6 +21,7 @@ import de.egril.defender.ui.ProfileTabScrollbar
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.getLocalizedDescription
 import de.egril.defender.ui.icon.LockIcon
+import de.egril.defender.ui.icon.ToolsIcon
 import de.egril.defender.ui.icon.TrophyIcon
 import de.egril.defender.ui.icon.UnlockIcon
 import de.egril.defender.ui.settings.SettingsButton
@@ -808,6 +809,8 @@ private fun UserAccountCard(
                         onClick = onManageAccount,
                         modifier = Modifier.height(36.dp)
                     ) {
+                        ToolsIcon(size = 14.dp)
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = stringResource(Res.string.iam_manage_account),
                             style = MaterialTheme.typography.bodySmall
