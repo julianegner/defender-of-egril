@@ -205,9 +205,12 @@ fun ImageWorldMapView(
             .then(
                 if (isPlatformMobile) {
                     Modifier.pointerInput(Unit) {
-                        detectTransformGestures { _, _, zoom, _ ->
-                            if (zoom != 1f) {
-                                scale = (scale * zoom).coerceIn(0.5f, 3f)
+                        detectTransformGestures { _, pan, zoom, _ ->
+                            val newScale = (scale * zoom).coerceIn(0.5f, 3f)
+                            scale = newScale
+                            if (newScale > 1f) {
+                                offsetX += pan.x
+                                offsetY += pan.y
                             }
                         }
                     }
