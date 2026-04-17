@@ -295,7 +295,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawFlameTrail(
         val cx = ballCenter.x - nx * tailLength * t
         val cy = ballCenter.y - ny * tailLength * t
         val width = halfWidth * (1f - t)  // taper to zero at tip
-        val flicker = sin((flickerT + t * 3.14159f * 2f).toDouble()).toFloat() * flickerAmp * halfWidth * (1f - t)
+        val flicker = sin((flickerT + t * kotlin.math.PI.toFloat() * 2f).toDouble()).toFloat() * flickerAmp * halfWidth * (1f - t)
         leftPoints.add(Offset(cx + px * (width + flicker), cy + py * (width + flicker)))
         rightPoints.add(Offset(cx - px * (width - flicker), cy - py * (width - flicker)))
     }
