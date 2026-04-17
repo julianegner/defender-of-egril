@@ -168,105 +168,80 @@ fun DefenderButton(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Start
             ) {
-                // Tower icon on the left – reduced to give enough room for text
+                // Tower icon on the left
                 Box(
-                    modifier = Modifier.size(36.dp),
+                    modifier = Modifier.size(60.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    TowerTypeIcon(defenderType = type, modifier = Modifier.size(32.dp))
+                    TowerTypeIcon(defenderType = type, modifier = Modifier.size(56.dp))
                 }
 
-                Spacer(modifier = Modifier.width(4.dp))
+                Spacer(modifier = Modifier.width(2.dp))
 
-                // All info in a single column so nothing is pushed off-screen
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    val locale = com.hyperether.resources.currentLanguage.value
-                    // Name + cost
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                // Stats on the right
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    // Left column: name with price, attack type, build time.
+                    // Uses weight(1f) so it fills available space and the price is never clipped.
+                    Column(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .weight(1f),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.Start
                     ) {
+                        val locale = com.hyperether.resources.currentLanguage.value
+                        // Name row: tower name on left, price on right – both always visible
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                type.getLocalizedShortName(locale),
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            MoneyIcon(size = 14.dp)
+                            Spacer(modifier = Modifier.width(2.dp))
+                            Text(
+                                "${type.baseCost}",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
+                            )
+                        }
+
                         Text(
-                            type.getLocalizedShortName(locale),
+                            type.attackType.getLocalizedName(locale),
                             style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 11.sp,
+                            fontSize = 10.sp,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f)
+                            color = GamePlayColors.Yellow
                         )
-                        MoneyIcon(size = 10.dp)
-                        Spacer(modifier = Modifier.width(2.dp))
-                        Text(
-                            "${type.baseCost}",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 10.sp
-                        )
-                    }
-
-                    // Attack type
-                    Text(
-                        type.attackType.getLocalizedName(locale),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontSize = 9.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        color = GamePlayColors.Yellow
-                    )
-
-                    // Damage + Range on one row
-                    val rangeText = if (type.minRange > 0) "${type.minRange}-${type.baseRange}" else "${type.baseRange}"
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            ExplosionIcon(size = 9.dp)
-                            Spacer(modifier = Modifier.width(2.dp))
-                            Text(
-                                "${type.baseDamage}",
-                                style = MaterialTheme.typography.labelSmall,
-                                fontSize = 9.sp
-                            )
-                        }
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            TargetIcon(size = 9.dp)
-                            Spacer(modifier = Modifier.width(2.dp))
-                            Text(
-                                rangeText,
-                                style = MaterialTheme.typography.labelSmall,
-                                fontSize = 9.sp
-                            )
-                        }
-                    }
-
-                    // Actions + Build time on one row
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            LightningIcon(size = 9.dp)
-                            Spacer(modifier = Modifier.width(2.dp))
-                            Text(
-                                "${type.actionsPerTurn}",
-                                style = MaterialTheme.typography.labelSmall,
-                                fontSize = 9.sp
-                            )
-                        }
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            TimerIcon(size = 9.dp)
-                            Spacer(modifier = Modifier.width(2.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            TimerIcon(size = 15.dp)
                             Text(
                                 "${type.buildTime}T",
                                 style = MaterialTheme.typography.labelSmall,
-                                fontSize = 9.sp
+                                fontSize = 10.sp
                             )
                         }
+                    }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .padding(start = 8.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.Start
+                    ) {
+                        TowerStats(type.minRange, type.baseDamage, type.baseRange, type.actionsPerTurn)
                     }
                 }
             }
