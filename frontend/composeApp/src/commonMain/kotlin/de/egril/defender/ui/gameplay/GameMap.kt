@@ -59,6 +59,8 @@ import de.egril.defender.ui.animations.BallistaAttackOverlay
 import de.egril.defender.ui.animations.BowAttackOverlay
 import de.egril.defender.ui.animations.SpearAttackOverlay
 import de.egril.defender.ui.animations.PikeAttackOverlay
+import de.egril.defender.ui.animations.WizardAttackOverlay
+import de.egril.defender.ui.animations.AlchemyAttackOverlay
 import de.egril.defender.ui.animations.DragonTargetAnimation
 import de.egril.defender.ui.icon.CrossIcon
 import de.egril.defender.ui.icon.BombIcon
@@ -571,6 +573,24 @@ fun GameGrid(
                         animate = AppSettings.enableAnimations.value
                     )
                 }
+                val wizardEffects = gameState.wizardAttackEffects.toList()
+                if (wizardEffects.isNotEmpty()) {
+                    WizardAttackOverlay(
+                        effects = wizardEffects,
+                        hexSizeDp = hexSize.value,
+                        contentSize = measuredContentSize,
+                        animate = AppSettings.enableAnimations.value
+                    )
+                }
+                val alchemyEffects = gameState.alchemyAttackEffects.toList()
+                if (alchemyEffects.isNotEmpty()) {
+                    AlchemyAttackOverlay(
+                        effects = alchemyEffects,
+                        hexSizeDp = hexSize.value,
+                        contentSize = measuredContentSize,
+                        animate = AppSettings.enableAnimations.value
+                    )
+                }
             }
         ) { position ->
             GridCell(
@@ -765,6 +785,10 @@ fun GridCell(
     val isSpearTargetTile = gameState.spearAttackEffects.any { it.targetPosition == position }
     // True when this tile is the endpoint of a pike attack (hit animation should be delayed)
     val isPikeTargetTile = gameState.pikeAttackEffects.any { it.targetPosition == position }
+    // True when this tile is the endpoint of a wizard fireball attack (hit animation should be delayed)
+    val isWizardTargetTile = gameState.wizardAttackEffects.any { it.targetPosition == position }
+    // True when this tile is the endpoint of an alchemy acid vial attack (hit animation should be delayed)
+    val isAlchemyTargetTile = gameState.alchemyAttackEffects.any { it.targetPosition == position }
     
     // Check if a dragon is targeting the mine at this position
     val dragonIsTargetingMine = defender != null &&
@@ -1315,6 +1339,8 @@ fun GridCell(
                 isBowTargetTile = isBowTargetTile,
                 isSpearTargetTile = isSpearTargetTile,
                 isPikeTargetTile = isPikeTargetTile,
+                isWizardTargetTile = isWizardTargetTile,
+                isAlchemyTargetTile = isAlchemyTargetTile,
                 dragonIsTargetingMine = dragonIsTargetingMine
             )
         }
@@ -1375,6 +1401,8 @@ fun GridCell(
                 isBowTargetTile = isBowTargetTile,
                 isSpearTargetTile = isSpearTargetTile,
                 isPikeTargetTile = isPikeTargetTile,
+                isWizardTargetTile = isWizardTargetTile,
+                isAlchemyTargetTile = isAlchemyTargetTile,
                 dragonIsTargetingMine = dragonIsTargetingMine
             )
         }
@@ -1432,6 +1460,8 @@ private fun BoxScope.GridCellContent(
     isBowTargetTile: Boolean = false,
     isSpearTargetTile: Boolean = false,
     isPikeTargetTile: Boolean = false,
+    isWizardTargetTile: Boolean = false,
+    isAlchemyTargetTile: Boolean = false,
     dragonIsTargetingMine: Boolean = false
 ) {
         when {
@@ -1951,6 +1981,8 @@ private fun BoxScope.GridCellContent(
                     towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                     towerAttackEffect != null && isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                     towerAttackEffect != null && isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
+                    towerAttackEffect != null && isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
                     else -> 0L
                 }
                 val impactDelay = if (towerAttackEffect != null) GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS else 0L
@@ -1997,6 +2029,8 @@ private fun BoxScope.GridCellContent(
                         isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                         isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                         isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
+                        isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                        isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
                         else -> 0L
                     }
                     kotlinx.coroutines.delay(flightDelay + GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS)
@@ -2026,6 +2060,8 @@ private fun BoxScope.GridCellContent(
                     towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                     towerAttackEffect != null && isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                     towerAttackEffect != null && isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
+                    towerAttackEffect != null && isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
                     else -> 0L
                 }
                 val impactDelay = if (towerAttackEffect != null) GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS else 0L
@@ -2051,9 +2087,9 @@ private fun BoxScope.GridCellContent(
         // When a projectile is targeting this tile the hit animation is delayed
         // so the projectile visibly arrives before the impact flash.
         var showHitAnimation by remember(towerAttackEffect?.turnNumber, towerAttackEffect?.targetPosition) {
-            mutableStateOf(towerAttackEffect != null && !isArrowTargetTile && !isBallistaTargetTile && !isBowTargetTile && !isSpearTargetTile && !isPikeTargetTile)
+            mutableStateOf(towerAttackEffect != null && !isArrowTargetTile && !isBallistaTargetTile && !isBowTargetTile && !isSpearTargetTile && !isPikeTargetTile && !isWizardTargetTile && !isAlchemyTargetTile)
         }
-        LaunchedEffect(towerAttackEffect?.turnNumber, towerAttackEffect?.targetPosition, isArrowTargetTile, isBallistaTargetTile, isBowTargetTile, isSpearTargetTile, isPikeTargetTile) {
+        LaunchedEffect(towerAttackEffect?.turnNumber, towerAttackEffect?.targetPosition, isArrowTargetTile, isBallistaTargetTile, isBowTargetTile, isSpearTargetTile, isPikeTargetTile, isWizardTargetTile, isAlchemyTargetTile) {
             when {
                 towerAttackEffect != null && isArrowTargetTile -> {
                     kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS)
@@ -2073,6 +2109,14 @@ private fun BoxScope.GridCellContent(
                 }
                 towerAttackEffect != null && isPikeTargetTile -> {
                     kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS)
+                    showHitAnimation = true
+                }
+                towerAttackEffect != null && isWizardTargetTile -> {
+                    kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS)
+                    showHitAnimation = true
+                }
+                towerAttackEffect != null && isAlchemyTargetTile -> {
+                    kotlinx.coroutines.delay(GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS)
                     showHitAnimation = true
                 }
                 towerAttackEffect != null -> {
