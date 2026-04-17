@@ -1602,6 +1602,7 @@
     <string name="iam_login_error_message">No se pudo completar el inicio de sesión. Por favor, inténtalo de nuevo.</string>
     <string name="always_log_in">Iniciar sesión siempre</string>
     <string name="use_remote_settings">Usar configuración remota</string>
+    <string name="iam_manage_account">Gestionar cuenta</string>
     <string name="account">Cuenta</string>
 
     <!-- Community maps/levels -->

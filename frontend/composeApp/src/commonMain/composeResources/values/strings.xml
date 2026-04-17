@@ -1608,6 +1608,7 @@
     <string name="iam_login_error_message">The login could not be completed. Please try again.</string>
     <string name="always_log_in">Always log in</string>
     <string name="use_remote_settings">Use remote settings</string>
+    <string name="iam_manage_account">Manage Account</string>
     <string name="account">Account</string>
 
     <!-- Community maps/levels -->

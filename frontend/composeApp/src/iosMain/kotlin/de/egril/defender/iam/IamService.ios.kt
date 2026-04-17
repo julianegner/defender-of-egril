@@ -116,6 +116,15 @@ actual suspend fun initPlatformIam() {
     // No stored session is restored on startup (no TokenStore used).
 }
 
+/**
+ * Opens the Keycloak user account console via UIApplication so the user can
+ * manage their credentials, update their username, or delete their account.
+ */
+internal actual fun openPlatformAccountConsole() {
+    val url = platform.Foundation.NSURL.URLWithString(IamConfig.accountUrl) ?: return
+    platform.UIKit.UIApplication.sharedApplication.openURL(url)
+}
+
 // ---------------------------------------------------------------------------
 // Background token refresh
 // ---------------------------------------------------------------------------

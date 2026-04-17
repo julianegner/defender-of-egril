@@ -399,3 +399,21 @@ private suspend fun tryExchangeDeviceCodeAndroid(deviceCode: String): AndroidTok
         null
     }
 }
+
+/**
+ * Opens the Keycloak user account console in the system browser so the user can
+ * manage their credentials, update their username, or delete their account.
+ */
+internal actual fun openPlatformAccountConsole() {
+    try {
+        val context = de.egril.defender.AndroidContextProvider.getContext()
+        val intent = android.content.Intent(
+            android.content.Intent.ACTION_VIEW,
+            android.net.Uri.parse(IamConfig.accountUrl)
+        )
+        intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
+    } catch (_: Exception) {
+        // Silently ignore if no browser is available
+    }
+}

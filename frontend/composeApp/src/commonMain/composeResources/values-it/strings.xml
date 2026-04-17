@@ -1604,6 +1604,7 @@
     <string name="iam_login_error_message">Impossibile completare l\'accesso. Riprova.</string>
     <string name="always_log_in">Accedi sempre</string>
     <string name="use_remote_settings">Usa impostazioni remote</string>
+    <string name="iam_manage_account">Gestisci account</string>
     <string name="account">Account</string>
 
     <!-- Community maps/levels -->

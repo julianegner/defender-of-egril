@@ -45,6 +45,7 @@ fun PlayerProfileScreen(
     iamLoginInProgress: Boolean = false,
     onIamLogin: () -> Unit = {},
     onIamLogout: () -> Unit = {},
+    onManageAccount: () -> Unit = {},
     onAlwaysLoginChanged: (Boolean) -> Unit = {},
     onUseRemoteSettingsChanged: (Boolean) -> Unit = {}
 ) {
@@ -206,6 +207,7 @@ fun PlayerProfileScreen(
                             iamLoginInProgress = iamLoginInProgress,
                             onIamLogin = onIamLogin,
                             onIamLogout = onIamLogout,
+                            onManageAccount = onManageAccount,
                             alwaysLogin = playerProfile.alwaysLogin,
                             onAlwaysLoginChanged = onAlwaysLoginChanged,
                             useRemoteSettings = playerProfile.useRemoteSettings,
@@ -738,6 +740,7 @@ private fun UserAccountCard(
     iamLoginInProgress: Boolean,
     onIamLogin: () -> Unit,
     onIamLogout: () -> Unit,
+    onManageAccount: () -> Unit = {},
     alwaysLogin: Boolean = false,
     onAlwaysLoginChanged: (Boolean) -> Unit = {},
     useRemoteSettings: Boolean = true,
@@ -798,16 +801,29 @@ private fun UserAccountCard(
                     )
                 }
                 Spacer(modifier = Modifier.height(4.dp))
-                OutlinedButton(
-                    onClick = onIamLogout,
-                    modifier = Modifier.height(36.dp)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    LockIcon(size = 14.dp)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = stringResource(Res.string.iam_logout),
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                    OutlinedButton(
+                        onClick = onManageAccount,
+                        modifier = Modifier.height(36.dp)
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.iam_manage_account),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    OutlinedButton(
+                        onClick = onIamLogout,
+                        modifier = Modifier.height(36.dp)
+                    ) {
+                        LockIcon(size = 14.dp)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(Res.string.iam_logout),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
                 }
             } else if (iamLoginInProgress) {
                 OutlinedButton(

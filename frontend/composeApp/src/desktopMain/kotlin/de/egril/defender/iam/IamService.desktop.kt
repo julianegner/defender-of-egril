@@ -777,3 +777,11 @@ private fun openBrowserLinuxNewWindow(url: String): Boolean {
         false
     }
 }
+
+/**
+ * Opens the Keycloak user account console in a browser window so the user can
+ * manage their credentials, update their username, or delete their account.
+ */
+internal actual fun openPlatformAccountConsole() {
+    openBrowserNewWindow(IamConfig.accountUrl)
+}
