@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import de.egril.defender.ui.infopage.HowToPlayContent
@@ -20,7 +21,18 @@ fun RulesScreen(
     onBack: () -> Unit
 ) {
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .onPreviewKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown &&
+                    (event.key == Key.Back || event.key == Key.Escape)
+                ) {
+                    onBack()
+                    true
+                } else {
+                    false
+                }
+            },
         color = MaterialTheme.colorScheme.background
     ) {
         Box(

@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.hyperether.resources.stringResource
@@ -31,7 +32,20 @@ fun SettingsDialog(
             modifier = Modifier
                 .widthIn(min = 300.dp, max = 500.dp)
                 .wrapContentHeight()
-                .heightIn(max = 600.dp),
+                .heightIn(max = 600.dp)
+                .onPreviewKeyEvent { event ->
+                    // Allow closing the dialog with the Back button (Android TV remote)
+                    // or Escape (keyboard). Using onPreviewKeyEvent ensures this fires
+                    // before child elements (e.g. Sliders) can consume the event.
+                    if (event.type == KeyEventType.KeyDown &&
+                        (event.key == Key.Back || event.key == Key.Escape)
+                    ) {
+                        onDismiss()
+                        true
+                    } else {
+                        false
+                    }
+                },
             shape = RoundedCornerShape(16.dp),
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 6.dp
