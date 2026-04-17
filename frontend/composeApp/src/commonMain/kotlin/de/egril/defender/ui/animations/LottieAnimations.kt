@@ -48,7 +48,9 @@ enum class AnimationType {
     BALLISTA_ATTACK,
     BOW_ATTACK,
     SPEAR_ATTACK,
-    PIKE_ATTACK
+    PIKE_ATTACK,
+    WIZARD_ATTACK,
+    ALCHEMY_ATTACK
 }
 
 /**
@@ -89,12 +91,14 @@ fun LottieAnimation(
         AnimationType.MINE_DIG -> "files/animations/mine_dig.json"
         AnimationType.ARROW_ATTACK -> "files/animations/arrow_attack.json"
         AnimationType.DRAGON_TARGET -> "files/animations/dragon_target.json"
-        // BALLISTA_ATTACK, BOW_ATTACK, SPEAR_ATTACK, PIKE_ATTACK use Canvas-based overlays in gameplay;
+        // BALLISTA_ATTACK, BOW_ATTACK, SPEAR_ATTACK, PIKE_ATTACK, WIZARD_ATTACK, ALCHEMY_ATTACK use Canvas-based overlays in gameplay;
         // these paths are only reached when displayed via LottieAnimation (e.g. test screen fallback).
         AnimationType.BALLISTA_ATTACK -> "files/animations/arrow_attack.json"
         AnimationType.BOW_ATTACK -> "files/animations/arrow_attack.json"
         AnimationType.SPEAR_ATTACK -> "files/animations/arrow_attack.json"
         AnimationType.PIKE_ATTACK -> "files/animations/arrow_attack.json"
+        AnimationType.WIZARD_ATTACK -> "files/animations/tower_attack_impact.json"
+        AnimationType.ALCHEMY_ATTACK -> "files/animations/tower_attack_impact.json"
     }
     
     // Load the animation JSON asynchronously
@@ -167,6 +171,8 @@ fun LottieAnimation(
                     AnimationType.BOW_ATTACK -> "Bow arrow volley animation"
                     AnimationType.SPEAR_ATTACK -> "Spear throw animation"
                     AnimationType.PIKE_ATTACK -> "Pike extend animation"
+                    AnimationType.WIZARD_ATTACK -> "Wizard fireball animation"
+                    AnimationType.ALCHEMY_ATTACK -> "Alchemy acid vial animation"
                 },
                 contentScale = contentScale,
                 modifier = Modifier.fillMaxSize()

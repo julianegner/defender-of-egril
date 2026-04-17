@@ -133,6 +133,12 @@ object GamePlayConstants {
         /** Delay before the pike hit animation so the extending pike visibly reaches the target first. */
         const val PIKE_EXTEND_DELAY_MS = 900L
 
+        /** Delay before the wizard fireball hit animation so the fireball visibly arrives first. */
+        const val WIZARD_FLIGHT_DELAY_MS = 1000L
+
+        /** Delay before the alchemy acid vial hit animation so the vial visibly arrives first. */
+        const val ALCHEMY_FLIGHT_DELAY_MS = 1000L
+
         /** Duration of the enemy death Lottie animation (30 frames @ 30 fps = 1 000 ms). */
         const val ENEMY_DEATH_ANIMATION_DURATION_MS = 1000L
 
