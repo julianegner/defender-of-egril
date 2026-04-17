@@ -132,37 +132,41 @@ object EditorStorage {
      * @param oldId If the map was renamed (ID changed), pass the old ID here so that the old
      *   JSON and PNG files are deleted after saving under the new name.
      */
-    fun saveMap(map: EditorMap, oldId: String? = null): Boolean {
-        // Validate and update readyToUse before saving
-        val validatedMap = map.copy(readyToUse = map.validateReadyToUse())
+    /**
+     * Result of [saveMapData] indicating whether the image needs regeneration.
+     */
+    data class MapSaveResult(
+        val imageNeedsRegeneration: Boolean,
+        val validatedMap: EditorMap
+    )
 
-        // Get existing map BEFORE updating cache (for image regeneration decision)
+    /**
+     * Save the map JSON data and determine whether the map image needs regeneration.
+     * Does NOT generate the image — call [generateMapPixels] and [compressAndSaveMapImage]
+     * separately so the UI can show each step.
+     *
+     * @return a [MapSaveResult] telling the caller whether the image needs regeneration
+     */
+    fun saveMapData(map: EditorMap, oldId: String? = null): MapSaveResult {
+        val validatedMap = map.copy(readyToUse = map.validateReadyToUse())
         val existingMap = mapsCache[validatedMap.id]
 
         mapsCache[validatedMap.id] = validatedMap
         val json = EditorJsonSerializer.serializeMap(validatedMap)
 
-        // Save to appropriate directory based on isOfficial flag
         val targetDir = if (validatedMap.isOfficial) OFFICIAL_MAPS_DIR else USER_MAPS_DIR
         fileStorage.writeFile("$targetDir/${validatedMap.id}.json", json)
 
-        // Only regenerate the map image if:
-        // - the PNG does not exist yet, OR
-        // - at least one tile's visual appearance has changed.
-        // Note: SPAWN_POINT and TARGET use the same biome as PATH in the image generator,
-        // so changes between these tile types do not affect the rendered image and are ignored.
         val pngPath = "$targetDir/${validatedMap.id}.png"
         val pngExists = fileStorage.fileExists(pngPath)
         val tilesChanged = existingMap == null ||
             normalizeForImageComparison(existingMap.tiles) != normalizeForImageComparison(validatedMap.tiles)
-        val imageRegenerated = !pngExists || tilesChanged
-        if (imageRegenerated) {
-            generateAndSaveMapImage(validatedMap)
-        } else {
+        val imageNeedsRegeneration = !pngExists || tilesChanged
+
+        if (!imageNeedsRegeneration) {
             println("Skipping map image regeneration for ${validatedMap.id} (no tile type changes)")
         }
 
-        // If the map was renamed (old ID differs from new ID), delete the old files
         if (oldId != null && oldId != validatedMap.id) {
             mapsCache.remove(oldId)
             fileStorage.deleteFile("$USER_MAPS_DIR/$oldId.json")
@@ -170,12 +174,46 @@ object EditorStorage {
             println("Deleted old map files for renamed map: $oldId -> ${validatedMap.id}")
         }
 
-        // Track changes to official data
         if (validatedMap.isOfficial) {
             OfficialDataChangeTracker.trackMapModified(validatedMap.id)
         }
 
-        return imageRegenerated
+        return MapSaveResult(imageNeedsRegeneration, validatedMap)
+    }
+
+    /**
+     * Generate map image pixel data. This is the CPU-intensive step.
+     * @return Triple of (pixels, width, height)
+     */
+    fun generateMapPixels(map: EditorMap): Triple<IntArray, Int, Int> {
+        return de.egril.defender.mapgen.MapImageGenerator.generatePixels(map)
+    }
+
+    /**
+     * Compress pixel data to PNG and save to disk.
+     * @return the compressed PNG size in bytes, or -1 on failure
+     */
+    fun compressAndSaveMapImage(map: EditorMap, pixels: IntArray, width: Int, height: Int): Long {
+        val pngBytes = de.egril.defender.mapgen.MapImageEncoder.encodeToPng(pixels, width, height)
+        if (pngBytes != null) {
+            val targetDir = if (map.isOfficial) OFFICIAL_MAPS_DIR else USER_MAPS_DIR
+            fileStorage.writeBinaryFile("$targetDir/${map.id}.png", pngBytes)
+            println("Generated map image: ${map.id}.png (${pngBytes.size / 1024} KB)")
+            return pngBytes.size.toLong()
+        }
+        return -1
+    }
+
+    /**
+     * Save a map, including JSON data and (if needed) regenerating + compressing the map image.
+     * Convenience method that calls [saveMapData], [generateMapPixels], and [compressAndSaveMapImage].
+     */
+    fun saveMap(map: EditorMap, oldId: String? = null): Boolean {
+        val result = saveMapData(map, oldId)
+        if (result.imageNeedsRegeneration) {
+            generateAndSaveMapImage(result.validatedMap)
+        }
+        return result.imageNeedsRegeneration
     }
 
     /**
@@ -235,7 +273,7 @@ object EditorStorage {
             if (pngBytes != null) {
                 val targetDir = if (map.isOfficial) OFFICIAL_MAPS_DIR else USER_MAPS_DIR
                 fileStorage.writeBinaryFile("$targetDir/${map.id}.png", pngBytes)
-                println("Generated map image: ${map.id}.png")
+                println("Generated map image: ${map.id}.png (${pngBytes.size / 1024} KB)")
             }
         } catch (e: Exception) {
             println("Failed to generate map image for ${map.id}: ${e.message}")

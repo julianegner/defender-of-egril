@@ -2,7 +2,7 @@ package de.egril.defender.ui
 
 import kotlinx.browser.window
 
-actual fun isEditorAvailable(): Boolean = true
+actual fun isEditorAvailable(): Boolean = false
 
 actual fun getGameplayUIScale(): Float = 1.0f
 

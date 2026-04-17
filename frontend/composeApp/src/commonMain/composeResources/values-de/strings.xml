@@ -396,6 +396,8 @@
     <string name="map_image_generation_close">Schließen</string>
     <string name="map_image_generation_error">Generierung fehlgeschlagen: %1$s</string>
     <string name="map_image_generation_preview_label">Kartenbild-Vorschau</string>
+    <string name="map_image_compressing">Kartenbild wird komprimiert…</string>
+    <string name="map_image_compressed_size">Komprimierte Größe: %1$s KB</string>
     <string name="add">Hinzufügen</string>
     <string name="turn_x">Runde %d</string>
     <string name="x_enemies">(%d Gegner)</string>
