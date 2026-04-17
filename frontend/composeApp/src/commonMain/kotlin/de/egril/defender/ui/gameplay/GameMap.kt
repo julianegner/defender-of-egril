@@ -1384,6 +1384,8 @@ fun GridCell(
                 isPikeTargetTile = isPikeTargetTile,
                 isWizardTargetTile = isWizardTargetTile,
                 isAlchemyTargetTile = isAlchemyTargetTile,
+                isInWizardAttackArea = isInWizardAttackArea,
+                isInAlchemyAttackArea = isInAlchemyAttackArea,
                 dragonIsTargetingMine = dragonIsTargetingMine
             )
         }
@@ -1446,6 +1448,8 @@ fun GridCell(
                 isPikeTargetTile = isPikeTargetTile,
                 isWizardTargetTile = isWizardTargetTile,
                 isAlchemyTargetTile = isAlchemyTargetTile,
+                isInWizardAttackArea = isInWizardAttackArea,
+                isInAlchemyAttackArea = isInAlchemyAttackArea,
                 dragonIsTargetingMine = dragonIsTargetingMine
             )
         }
@@ -1505,6 +1509,8 @@ private fun BoxScope.GridCellContent(
     isPikeTargetTile: Boolean = false,
     isWizardTargetTile: Boolean = false,
     isAlchemyTargetTile: Boolean = false,
+    isInWizardAttackArea: Boolean = false,
+    isInAlchemyAttackArea: Boolean = false,
     dragonIsTargetingMine: Boolean = false
 ) {
         // When animations are enabled, delay updating the enemy's displayed health value until
@@ -1513,24 +1519,33 @@ private fun BoxScope.GridCellContent(
         // the visual sequence of: projectile arrives → flash → damage visible.
         // When animations are off, or when the health changes without a tower attack (e.g. acid
         // DOT ticks during the enemy turn), the displayed value updates immediately.
+        // For AoE attacks (wizard fireball, alchemy acid) we must also delay tiles that are in
+        // the blast area but not the exact target position — those tiles have towerAttackEffect == null
+        // but their enemy HP still changes as part of the AoE damage.
         val animationsEnabled = AppSettings.enableAnimations.value
         var displayedHealth by remember { mutableStateOf(attacker?.currentHealth?.value ?: 0) }
         LaunchedEffect(
-            attacker?.id, attacker?.currentHealth?.value, towerAttackEffect?.turnNumber, animationsEnabled
+            attacker?.id, attacker?.currentHealth?.value, towerAttackEffect?.turnNumber,
+            isInWizardAttackArea, isInAlchemyAttackArea, animationsEnabled
         ) {
             val currentHealth = attacker?.currentHealth?.value
             if (attacker != null && currentHealth != null) {
-                if (towerAttackEffect != null && animationsEnabled) {
-                    val flightDelay = when {
-                        isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                        isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
-                        isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                        isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                        isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
-                        isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
-                        isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
-                        else -> 0L
-                    }
+                val flightDelay: Long = when {
+                    !animationsEnabled -> 0L
+                    // Direct-target tiles: use the specific flight delay for that tower type
+                    towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
+                    towerAttackEffect != null && isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
+                    // AoE surrounding tiles: towerAttackEffect is null for them, but still delay
+                    isInWizardAttackArea -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                    isInAlchemyAttackArea -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
+                    else -> 0L
+                }
+                if (flightDelay > 0L) {
                     kotlinx.coroutines.delay(flightDelay + GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS)
                 }
                 displayedHealth = currentHealth

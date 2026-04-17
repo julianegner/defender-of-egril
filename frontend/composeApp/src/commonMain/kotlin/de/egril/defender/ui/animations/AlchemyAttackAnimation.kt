@@ -173,7 +173,7 @@ private fun DrawScope.drawAcidVial(
 
         // Rotation angle: vial points in the direction of travel, with a gentle tumble
         // The vial tumbles 270° over the full flight (so it spins gently)
-        val flightAngleDeg = Math.toDegrees(atan2(dy.toDouble(), dx.toDouble())).toFloat()
+        val flightAngleDeg = (atan2(dy.toDouble(), dx.toDouble()) * GamePlayConstants.AnimationTimings.RADIANS_TO_DEGREES).toFloat()
         val tumbleDeg = flyProgress * 270f
         val totalRotationDeg = flightAngleDeg + 90f + tumbleDeg  // +90 so tube points forward
 
