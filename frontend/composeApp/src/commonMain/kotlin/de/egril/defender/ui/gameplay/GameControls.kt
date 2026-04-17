@@ -97,6 +97,13 @@ fun GameControlsPanel(
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        val isNarrowPanel = maxWidth < 500.dp
+        val expandedGridColumns = if (isNarrowPanel) 4 else 7
+        val expandedGridHeight = if (isNarrowPanel) 70.dp else 75.dp
+
+        Column(modifier = Modifier.fillMaxWidth()) {
+
         // Title - hide when tower is selected
         if (!compactBuyPanel) {
             Text(title, style = MaterialTheme.typography.titleMedium)
@@ -170,7 +177,8 @@ fun GameControlsPanel(
 
                 // Right side: buy buttons and End Turn button
                 Column(modifier = Modifier
-                    .width(600.dp),
+                    .widthIn(max = 600.dp)
+                    .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(4.dp)
 
@@ -222,8 +230,8 @@ fun GameControlsPanel(
         } else {
             // Expanded view: Original layout
             LazyVerticalGrid(
-                columns = GridCells.Fixed(7),
-                modifier = Modifier.fillMaxWidth().height(75.dp),
+                columns = GridCells.Fixed(expandedGridColumns),
+                modifier = Modifier.fillMaxWidth().height(expandedGridHeight),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
@@ -295,6 +303,8 @@ fun GameControlsPanel(
                 Text(primaryButtonText)
             }
         }
+        } // end inner Column
+        } // end BoxWithConstraints
     }
 }
 
