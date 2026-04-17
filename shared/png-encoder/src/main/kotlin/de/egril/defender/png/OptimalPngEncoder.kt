@@ -142,9 +142,11 @@ object OptimalPngEncoder {
         // Collect unique colors into a list for partitioning
         val entries = histogram.map { (rgb, count) -> ColorEntry(rgb, count) }
 
-        // Partition into buckets using median cut
+        // Partition into buckets using median cut.
+        // Track splittable bucket count to avoid O(n²) any{} scan each iteration.
         val buckets = mutableListOf(entries.toMutableList())
-        while (buckets.size < MAX_PALETTE_SIZE && buckets.any { it.size > 1 }) {
+        var splittableCount = if (entries.size > 1) 1 else 0
+        while (buckets.size < MAX_PALETTE_SIZE && splittableCount > 0) {
             // Find the bucket with the widest color range to split
             var bestIdx = -1
             var bestRange = -1
@@ -159,9 +161,12 @@ object OptimalPngEncoder {
             if (bestIdx < 0) break
 
             val bucket = buckets.removeAt(bestIdx)
+            splittableCount-- // removed one splittable bucket
             val (lo, hi) = splitBucket(bucket)
             buckets.add(lo)
             buckets.add(hi)
+            if (lo.size > 1) splittableCount++
+            if (hi.size > 1) splittableCount++
         }
 
         // Compute palette: average color of each bucket, weighted by frequency
@@ -174,6 +179,7 @@ object OptimalPngEncoder {
                 bSum += (entry.rgb and 0xFF).toLong() * entry.count
                 wSum += entry.count
             }
+            if (wSum == 0L) continue
             val r = (rSum / wSum).toInt().coerceIn(0, 255)
             val g = (gSum / wSum).toInt().coerceIn(0, 255)
             val b = (bSum / wSum).toInt().coerceIn(0, 255)
