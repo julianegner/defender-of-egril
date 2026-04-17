@@ -144,5 +144,8 @@ object GamePlayConstants {
 
         /** Pause between the death animation finishing and the coin-gain animation starting. */
         const val COIN_GAIN_DELAY_AFTER_DEATH_MS = 400L
+
+        /** Conversion factor from radians to degrees (used for projectile direction angles). */
+        const val RADIANS_TO_DEGREES = 180.0 / kotlin.math.PI
     }
 }
