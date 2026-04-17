@@ -37,6 +37,7 @@ import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.icon.LockIcon
 import org.jetbrains.compose.resources.painterResource
 import com.hyperether.resources.stringResource
+import androidx.compose.ui.graphics.painter.Painter
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.world_map_background
 import defender_of_egril.composeapp.generated.resources.loading_world_map
@@ -45,6 +46,14 @@ import de.egril.defender.editor.WorldMapData
 import de.egril.defender.editor.WorldMapLocationData
 import de.egril.defender.editor.WorldMapPathData
 import de.egril.defender.editor.WorldMapPoint
+
+/**
+ * Returns true when the painter has finished loading its image data (valid, positive intrinsic size).
+ * On WASM/web, [painterResource] loads asynchronously, so this starts as false and becomes true
+ * once the resource is available, triggering recomposition automatically.
+ */
+private fun Painter.isLoaded(): Boolean =
+    intrinsicSize.width.isFinite() && intrinsicSize.width > 0f
 
 /**
  * World map location data for placing level markers on the map.
@@ -223,7 +232,7 @@ fun ImageWorldMapView(
     ) {
         // Get the painter to access image dimensions
         val mapPainter = painterResource(Res.drawable.world_map_background)
-        val mapLoaded = mapPainter.intrinsicSize.width.isFinite() && mapPainter.intrinsicSize.width > 0f
+        val mapLoaded = mapPainter.isLoaded()
 
         if (!mapLoaded) {
             // Show loading spinner while the background map image is loading
@@ -435,9 +444,7 @@ private fun BoxScope.LocationMarkersOverlay(
         // Only use the icon painter once its image has finished loading (valid intrinsic size).
         // Before loading completes, fall through to the circular badge fallback so locations
         // appear immediately after the map background loads and icons appear one by one.
-        val iconPainterReady = iconPainter != null &&
-            iconPainter.intrinsicSize.width.isFinite() &&
-            iconPainter.intrinsicSize.width > 0f
+        val iconPainterReady = iconPainter?.isLoaded() == true
         
         // Determine location status based on contained levels
         val hasWonLevel = levelsAtLocation.any { it.status == LevelStatus.WON }
