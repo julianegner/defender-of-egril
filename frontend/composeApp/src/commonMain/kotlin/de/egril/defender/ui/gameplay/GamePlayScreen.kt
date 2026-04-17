@@ -254,6 +254,10 @@ private fun GamePlayScreenContent(
     var showEndTurnConfirmation by remember { mutableStateOf(false) }  // End turn confirmation dialog
     var showAbortInstantTowerDialog by remember { mutableStateOf(false) }  // Abort instant tower spell dialog
 
+    // Wrap end-turn callbacks to always clear the selected tower type when the turn ends
+    val endPlayerTurnAction: () -> Unit = { selectedDefenderType = null; onEndPlayerTurn() }
+    val autoAttackAndEndTurnAction: () -> Unit = { selectedDefenderType = null; onAutoAttackAndEndTurn() }
+
     // Demo mode: "stop demo?" confirmation dialog
     var showStopDemoDialog by remember { mutableStateOf(false) }
 
@@ -529,7 +533,7 @@ private fun GamePlayScreenContent(
     // Using onPreviewKeyEvent to intercept before HexagonalMapView handles it
     // This works in the "capture" phase and doesn't require focus on this element
     val keyboardHandler: (KeyEvent) -> Boolean = remember(
-        onSaveGame, onCheatCode, onEndPlayerTurn, onAutoAttackAndEndTurn, onStartFirstPlayerTurn,
+        onSaveGame, onCheatCode, endPlayerTurnAction, autoAttackAndEndTurnAction, onStartFirstPlayerTurn,
         onDefenderAttack, onDefenderAttackPosition, isDemoMode
     ) {
         { event ->
@@ -550,7 +554,7 @@ private fun GamePlayScreenContent(
                 event.type == KeyEventType.KeyDown &&
                         event.key == Key.A && event.isCtrlPressed &&
                         gameState.phase.value == GamePhase.PLAYER_TURN -> {
-                    onAutoAttackAndEndTurn()
+                    autoAttackAndEndTurnAction()
                     true
                 }
                 // F: Attack with selected tower's current target (player turn only)
@@ -597,7 +601,7 @@ private fun GamePlayScreenContent(
                             if (gameState.hasDefendersWithUnusedActions()) {
                                 showEndTurnConfirmation = true
                             } else {
-                                onEndPlayerTurn()
+                                endPlayerTurnAction()
                             }
                             true
                         }
@@ -722,7 +726,10 @@ private fun GamePlayScreenContent(
                     // Try to place defender if one is selected
                     selectedDefenderType?.let { type ->
                         if (onPlaceDefender(type, position)) {
-                            selectedDefenderType = null
+                            // Only deselect if player can no longer afford this tower type
+                            if (!gameState.canPlaceDefender(type)) {
+                                selectedDefenderType = null
+                            }
                             // Track tutorial progress
                             if (gameState.tutorialState.value.isActive && 
                                 !gameState.tutorialState.value.hasPlacedFirstTower) {
@@ -1286,7 +1293,7 @@ private fun GamePlayScreenContent(
                             showEndTurnConfirmation = true
                         } else {
                             // End turn directly
-                            onEndPlayerTurn()
+                            endPlayerTurnAction()
                             // Track tutorial progress
                             if (gameState.tutorialState.value.isActive && 
                                 !gameState.tutorialState.value.hasStartedFirstTurn) {
@@ -1466,7 +1473,7 @@ private fun GamePlayScreenContent(
             EndTurnConfirmationDialog(
                 onConfirm = {
                     showEndTurnConfirmation = false
-                    onEndPlayerTurn()
+                    endPlayerTurnAction()
                     // Track tutorial progress
                     if (gameState.tutorialState.value.isActive && 
                         !gameState.tutorialState.value.hasStartedFirstTurn) {
@@ -1475,7 +1482,7 @@ private fun GamePlayScreenContent(
                 },
                 onAutoAttackAndConfirm = {
                     showEndTurnConfirmation = false
-                    onAutoAttackAndEndTurn()
+                    autoAttackAndEndTurnAction()
                     // Track tutorial progress
                     if (gameState.tutorialState.value.isActive && 
                         !gameState.tutorialState.value.hasStartedFirstTurn) {
