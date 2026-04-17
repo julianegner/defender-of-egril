@@ -180,24 +180,14 @@ fun DefenderButton(
                                 TowerTypeIcon(defenderType = type, modifier = Modifier.size(56.dp))
                             }
                             Spacer(modifier = Modifier.width(4.dp))
-                            // Price – large, vertically centered
-                            Column(
-                                modifier = Modifier.fillMaxHeight(),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                MoneyIcon(size = 16.dp)
-                                Text(
-                                    "${type.baseCost}",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(6.dp))
                             // Name / attack type / build time
                             Column(
-                                modifier = Modifier.fillMaxHeight().weight(1f),
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .width(100.dp)
+                                    // .weight(1f)  // Take remaining horizontal space in Row
+                                    .border(1.dp, Color.Red)  // Debug border to visualize column bounds
+                                ,
                                 verticalArrangement = Arrangement.Center,
                                 horizontalAlignment = Alignment.Start
                             ) {
@@ -225,6 +215,21 @@ fun DefenderButton(
                                         fontSize = 10.sp
                                     )
                                 }
+                            }
+                            Spacer(modifier = Modifier.width(4.dp))
+                            // Price – large, vertically centered
+                            Column(
+                                modifier = Modifier.fillMaxHeight(),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                MoneyIcon(size = 16.dp)
+                                Text(
+                                    "${type.baseCost}",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp
+                                )
                             }
                             // Stats column
                             Column(
