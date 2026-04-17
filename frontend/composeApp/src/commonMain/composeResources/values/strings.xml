@@ -400,6 +400,8 @@
     <string name="map_image_generation_close">Close</string>
     <string name="map_image_generation_error">Generation failed: %1$s</string>
     <string name="map_image_generation_preview_label">Map image preview</string>
+    <string name="map_image_compressing">Compressing map image…</string>
+    <string name="map_image_compressed_size">Compressed size: %1$s KB</string>
     <string name="add">Add</string>
     <string name="turn_x">Turn %d</string>
     <string name="x_enemies">(%d enemies)</string>

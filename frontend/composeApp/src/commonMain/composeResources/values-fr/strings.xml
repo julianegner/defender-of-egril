@@ -396,6 +396,8 @@
     <string name="map_image_generation_close">Fermer</string>
     <string name="map_image_generation_error">Échec de génération : %1$s</string>
     <string name="map_image_generation_preview_label">Aperçu de l'image de carte</string>
+    <string name="map_image_compressing">Compression de l'image de carte…</string>
+    <string name="map_image_compressed_size">Taille compressée : %1$s Ko</string>
     <string name="add">Ajouter</string>
     <string name="turn_x">Tour %d</string>
     <string name="x_enemies">(%d ennemis)</string>
