@@ -130,6 +130,9 @@ object GamePlayConstants {
         /** Delay before the ballista rock hit animation so the rock visibly arrives first. */
         const val BALLISTA_FLIGHT_DELAY_MS = 1000L
 
+        /** Delay before the pike hit animation so the extending pike visibly reaches the target first. */
+        const val PIKE_EXTEND_DELAY_MS = 900L
+
         /** Duration of the enemy death Lottie animation (30 frames @ 30 fps = 1 000 ms). */
         const val ENEMY_DEATH_ANIMATION_DURATION_MS = 1000L
 
