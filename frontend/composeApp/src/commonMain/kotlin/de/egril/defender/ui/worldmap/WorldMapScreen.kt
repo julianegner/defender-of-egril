@@ -3,7 +3,6 @@
 package de.egril.defender.ui.worldmap
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -12,8 +11,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.LevelStatus
@@ -114,7 +111,6 @@ fun WorldMapScreen(
 ) {
     var showCheatDialog by remember { mutableStateOf(false) }
     var selectedLocation by remember { mutableStateOf<Pair<WorldMapLocation, List<WorldLevel>>?>(null) }
-    val focusRequester = remember { FocusRequester() }
 
     // ID of the community level currently being downloaded on-demand (null if none)
     var downloadingLevelId by remember { mutableStateOf<String?>(null) }
@@ -126,11 +122,6 @@ fun WorldMapScreen(
         onDownloadCommunityLevel?.invoke(fileInfo) { _ ->
             downloadingLevelId = null
         }
-    }
-
-    // Request focus on launch so keyboard events are dispatched to this screen
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
     }
 
     // Fetch community content from backend when the world map is shown
@@ -235,15 +226,19 @@ fun WorldMapScreen(
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .focusRequester(focusRequester)
-            .focusable()
             .onPreviewKeyEvent { event ->
-                if (event.type == KeyEventType.KeyDown &&
-                    event.key == Key.C && !event.isCtrlPressed &&
-                    onCheatCode != null
-                ) {
-                    showCheatDialog = true
-                    true
+                if (event.type == KeyEventType.KeyDown) {
+                    when {
+                        event.key == Key.Back || event.key == Key.Escape -> {
+                            onBackToMenu()
+                            true
+                        }
+                        event.key == Key.C && !event.isCtrlPressed && onCheatCode != null -> {
+                            showCheatDialog = true
+                            true
+                        }
+                        else -> false
+                    }
                 } else {
                     false
                 }
