@@ -794,7 +794,8 @@ fun GridCell(
     // tile with hexDistanceTo(targetPosition) <= 1 is affected.
     val isInWizardAttackArea = gameState.wizardAttackEffects.any { it.targetPosition.hexDistanceTo(position) <= 1 }
     // True when this tile is within the area of effect of an alchemy acid vial attack.
-    // Acid has a base radius of 1 but can extend to 2 at high tower levels, so use radius 2.
+    // Acid has a base radius of 1 but can extend up to 2 at high tower levels; use radius 2 here
+    // to conservatively cover the maximum possible area so no affected tile shows prematurely.
     val isInAlchemyAttackArea = gameState.alchemyAttackEffects.any { it.targetPosition.hexDistanceTo(position) <= 2 }
     
     // Check if a dragon is targeting the mine at this position
@@ -2247,7 +2248,7 @@ private fun BoxScope.GridCellContent(
             val dx = (arrowAttackEffect.targetPosition.x - arrowAttackEffect.sourcePosition.x).toFloat()
             val dy = (arrowAttackEffect.targetPosition.y - arrowAttackEffect.sourcePosition.y).toFloat()
             val angle = if (dx == 0f && dy == 0f) 0f
-                else (atan2(dy.toDouble(), dx.toDouble()) * (180.0 / kotlin.math.PI)).toFloat()
+                else (atan2(dy.toDouble(), dx.toDouble()) * GamePlayConstants.AnimationTimings.RADIANS_TO_DEGREES).toFloat()
             ArrowAttackAnimation(
                 animate = AppSettings.enableAnimations.value,
                 directionAngle = angle,
@@ -2265,7 +2266,7 @@ private fun BoxScope.GridCellContent(
                 val dx = (bowEffect.targetPosition.x - bowEffect.sourcePosition.x).toFloat()
                 val dy = (bowEffect.targetPosition.y - bowEffect.sourcePosition.y).toFloat()
                 val angle = if (dx == 0f && dy == 0f) 0f
-                    else (atan2(dy.toDouble(), dx.toDouble()) * (180.0 / kotlin.math.PI)).toFloat()
+                    else (atan2(dy.toDouble(), dx.toDouble()) * GamePlayConstants.AnimationTimings.RADIANS_TO_DEGREES).toFloat()
                 ArrowAttackAnimation(
                     animate = AppSettings.enableAnimations.value,
                     directionAngle = angle,
