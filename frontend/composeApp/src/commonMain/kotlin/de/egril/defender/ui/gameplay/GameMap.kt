@@ -789,6 +789,13 @@ fun GridCell(
     val isWizardTargetTile = gameState.wizardAttackEffects.any { it.targetPosition == position }
     // True when this tile is the endpoint of an alchemy acid vial attack (hit animation should be delayed)
     val isAlchemyTargetTile = gameState.alchemyAttackEffects.any { it.targetPosition == position }
+    // True when this tile is within the area of effect of a wizard fireball attack.
+    // The fireball's area covers the target tile + all of its hex neighbors (radius 1), so any
+    // tile with hexDistanceTo(targetPosition) <= 1 is affected.
+    val isInWizardAttackArea = gameState.wizardAttackEffects.any { it.targetPosition.hexDistanceTo(position) <= 1 }
+    // True when this tile is within the area of effect of an alchemy acid vial attack.
+    // Acid has a base radius of 1 but can extend to 2 at high tower levels, so use radius 2.
+    val isInAlchemyAttackArea = gameState.alchemyAttackEffects.any { it.targetPosition.hexDistanceTo(position) <= 2 }
     
     // Check if a dragon is targeting the mine at this position
     val dragonIsTargetingMine = defender != null &&
@@ -846,11 +853,11 @@ fun GridCell(
     var showFieldEffect by remember { mutableStateOf(false) }
     LaunchedEffect(
         fieldEffect?.position?.x, fieldEffect?.position?.y, fieldEffect?.type, fieldEffect?.defenderId,
-        isWizardTargetTile, isAlchemyTargetTile, animate
+        isInWizardAttackArea, isInAlchemyAttackArea, animate
     ) {
         when {
             fieldEffect == null -> showFieldEffect = false
-            animate && isWizardTargetTile -> {
+            animate && isInWizardAttackArea -> {
                 showFieldEffect = false
                 kotlinx.coroutines.delay(
                     GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS +
@@ -858,7 +865,7 @@ fun GridCell(
                 )
                 showFieldEffect = true
             }
-            animate && isAlchemyTargetTile -> {
+            animate && isInAlchemyAttackArea -> {
                 showFieldEffect = false
                 kotlinx.coroutines.delay(
                     GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS +
@@ -2247,6 +2254,25 @@ private fun BoxScope.GridCellContent(
                 isTargetTile = isArrowTargetTile,
                 modifier = Modifier.fillMaxSize().zIndex(18f)
             )
+        }
+
+        // Show per-tile Lottie arrow animation at the bow attack target tile when the volley arrives.
+        // Uses showHitAnimation as the delay trigger (already delayed by ARROW_FLIGHT_DELAY_MS) so
+        // the arrow lands visually at the same time the impact flash fires.
+        if (showHitAnimation && isBowTargetTile) {
+            val bowEffect = gameState.bowAttackEffects.find { it.targetPosition == position }
+            if (bowEffect != null) {
+                val dx = (bowEffect.targetPosition.x - bowEffect.sourcePosition.x).toFloat()
+                val dy = (bowEffect.targetPosition.y - bowEffect.sourcePosition.y).toFloat()
+                val angle = if (dx == 0f && dy == 0f) 0f
+                    else (atan2(dy.toDouble(), dx.toDouble()) * (180.0 / kotlin.math.PI)).toFloat()
+                ArrowAttackAnimation(
+                    animate = AppSettings.enableAnimations.value,
+                    directionAngle = angle,
+                    isTargetTile = true,
+                    modifier = Modifier.fillMaxSize().zIndex(18f)
+                )
+            }
         }
 
         // Show dragon-targeting warning animation on mines that a dragon is approaching
