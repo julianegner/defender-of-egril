@@ -115,12 +115,34 @@ data class WorldMapPathData(
 }
 
 /**
+ * A rectangular sea area on the world map, used for wave animations.
+ * Coordinates are in permille (0-1000) of the world map dimensions.
+ */
+data class WorldMapSeaArea(
+    val x: Int,      // Left edge (permille 0-1000)
+    val y: Int,      // Top edge (permille 0-1000)
+    val width: Int,  // Width (permille)
+    val height: Int  // Height (permille)
+)
+
+/**
+ * A river path on the world map, used for flowing water animations.
+ * Coordinates are in permille (0-1000) of the world map dimensions.
+ * Points are ordered from source (upstream) to destination (towards sea).
+ */
+data class WorldMapRiver(
+    val points: List<WorldMapPoint>  // River path points (ordered towards sea)
+)
+
+/**
  * Complete world map data containing all locations and paths.
  * This is stored in a separate JSON file for easy editing.
  */
 data class WorldMapData(
     val locations: List<WorldMapLocationData> = emptyList(),
-    val paths: List<WorldMapPathData> = emptyList()
+    val paths: List<WorldMapPathData> = emptyList(),
+    val seaAreas: List<WorldMapSeaArea> = emptyList(),
+    val rivers: List<WorldMapRiver> = emptyList()
 ) {
     /**
      * Get all locations that have at least one playable level.

@@ -98,11 +98,15 @@ fun ImageWorldMapView(
     modifier: Modifier = Modifier
 ) {
     val isDarkMode = AppSettings.isDarkMode.value
+    val enableAnimations = AppSettings.enableAnimations.value
     
     // Generate location data and road connections from level maps
     val (locations, roads) = remember(worldLevels) {
         generateWorldMapLocationsAndRoads(worldLevels)
     }
+    
+    // Load worldmap data for sea areas and river paths (used by water animations)
+    val worldMapData = remember { EditorStorage.getWorldMapData() }
     
     // Pan and zoom state
     var scale by remember { mutableStateOf(1f) }
@@ -240,6 +244,14 @@ fun ImageWorldMapView(
                 contentDescription = "World Map",
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Fit
+            )
+            
+            // Water animations overlay (sea waves + river flow)
+            WaterAnimationsOverlay(
+                worldMapData = worldMapData,
+                containerSize = containerSize,
+                imageAspectRatio = imageAspectRatio,
+                enableAnimations = enableAnimations
             )
             
             // Draw road connections between locations

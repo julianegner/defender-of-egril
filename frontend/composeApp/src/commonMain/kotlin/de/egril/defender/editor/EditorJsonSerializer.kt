@@ -1176,13 +1176,34 @@ object EditorJsonSerializer {
     }"""
         }
         
+        val seaAreasJson = if (data.seaAreas.isEmpty()) {
+            "[]"
+        } else {
+            "[\n    " + data.seaAreas.joinToString(",\n    ") { area ->
+                """{"x": ${area.x}, "y": ${area.y}, "width": ${area.width}, "height": ${area.height}}"""
+            } + "\n  ]"
+        }
+
+        val riversJson = if (data.rivers.isEmpty()) {
+            "[]"
+        } else {
+            "[\n    " + data.rivers.joinToString(",\n    ") { river ->
+                val pointsJson = "[" + river.points.joinToString(", ") { pt ->
+                    """{"x": ${pt.x}, "y": ${pt.y}}"""
+                } + "]"
+                """{"points": $pointsJson}"""
+            } + "\n  ]"
+        }
+
         val data = """{
   "locations": [
     $locationsJson
   ],
   "paths": [
     $pathsJson
-  ]
+  ],
+  "seaAreas": $seaAreasJson,
+  "rivers": $riversJson
 }"""
         return """{
   "metadata": {
@@ -1303,7 +1324,53 @@ object EditorJsonSerializer {
                 }
             }
             
-            return WorldMapData(locations, paths)
+            // Parse sea areas (optional for backward compatibility)
+            val seaAreas = mutableListOf<WorldMapSeaArea>()
+            if (dataJson.contains("\"seaAreas\"")) {
+                try {
+                    val seaAreasSection = extractJsonArray(dataJson, "seaAreas")
+                    val seaAreaEntries = splitJsonArrayObjects(seaAreasSection)
+                    for (entry in seaAreaEntries) {
+                        if (!entry.contains("\"x\"")) continue
+                        val x = JsonUtils.extractNumericValue(entry, "x").toIntOrNull() ?: continue
+                        val y = JsonUtils.extractNumericValue(entry, "y").toIntOrNull() ?: continue
+                        val width = JsonUtils.extractNumericValue(entry, "width").toIntOrNull() ?: continue
+                        val height = JsonUtils.extractNumericValue(entry, "height").toIntOrNull() ?: continue
+                        seaAreas.add(WorldMapSeaArea(x, y, width, height))
+                    }
+                } catch (e: Exception) {
+                    // If parsing fails, use empty list
+                }
+            }
+            
+            // Parse rivers (optional for backward compatibility)
+            val rivers = mutableListOf<WorldMapRiver>()
+            if (dataJson.contains("\"rivers\"")) {
+                try {
+                    val riversSection = extractJsonArray(dataJson, "rivers")
+                    val riverEntries = splitJsonArrayObjects(riversSection)
+                    for (entry in riverEntries) {
+                        if (!entry.contains("\"points\"")) continue
+                        val points = mutableListOf<WorldMapPoint>()
+                        val pointsSection = entry.substringAfter("\"points\": [").substringBefore("]")
+                        if (pointsSection.isNotBlank() && pointsSection.contains("{")) {
+                            val pointEntries = splitJsonArrayObjects(pointsSection)
+                            for (pt in pointEntries) {
+                                val ptX = JsonUtils.extractNumericValue(pt, "x").toIntOrNull() ?: continue
+                                val ptY = JsonUtils.extractNumericValue(pt, "y").toIntOrNull() ?: continue
+                                points.add(WorldMapPoint(ptX, ptY))
+                            }
+                        }
+                        if (points.size >= 2) {
+                            rivers.add(WorldMapRiver(points))
+                        }
+                    }
+                } catch (e: Exception) {
+                    // If parsing fails, use empty list
+                }
+            }
+            
+            return WorldMapData(locations, paths, seaAreas, rivers)
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Error deserializing world map data: ${e.message}")
