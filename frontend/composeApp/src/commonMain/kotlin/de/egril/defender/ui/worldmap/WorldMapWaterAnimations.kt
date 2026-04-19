@@ -19,11 +19,41 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.unit.IntSize
 import de.egril.defender.editor.WorldMapData
-import de.egril.defender.editor.WorldMapRiver
-import de.egril.defender.editor.WorldMapSeaArea
 import kotlin.math.PI
 import kotlin.math.sin
 import kotlin.math.sqrt
+
+// ----- Visual constants -----
+
+/** Semi-transparent blue used for sea wave lines. */
+private val SEA_WAVE_COLOR = Color(0x3300AAFF)
+
+/** Semi-transparent cyan used for river flow dashes. */
+private val RIVER_FLOW_COLOR = Color(0x6600BBEE)
+
+/** Amplitude of a sea wave as a fraction of the sea area height. */
+private const val SEA_WAVE_AMPLITUDE_FACTOR = 0.04f
+
+/** Number of wave lines drawn per sea area. */
+private const val SEA_WAVE_COUNT = 5
+
+/** Horizontal wavelength of sea waves expressed as a fraction of the area width. */
+private const val SEA_WAVE_WAVELENGTH_FRACTION = 3f
+
+/** Phase offset between adjacent wave lines, in multiples of π. */
+private const val SEA_WAVE_PHASE_STEP_PI_DIVISOR = 2.5f
+
+/** Horizontal distance in canvas pixels between wave path sample points (lower = smoother). */
+private const val SEA_WAVE_STEP_SIZE = 3f
+
+/** Length of each river flow dash expressed as a fraction of the total river path length. */
+private const val RIVER_DASH_LENGTH_FACTOR = 0.06f
+
+/** Gap between dash start-points expressed as a multiple of the dash length. */
+private const val RIVER_DASH_SPACING_MULTIPLIER = 2.5f
+
+/** Maximum number of dashes drawn per river path (limits GPU overdraw). */
+private const val RIVER_MAX_DASHES = 30
 
 /**
  * Overlay that renders water animations on the world map:
@@ -32,6 +62,11 @@ import kotlin.math.sqrt
  *
  * Animations are rendered only when [enableAnimations] is true.
  * Both animation types respect the animation setting from AppSettings.
+ *
+ * Note: The `rememberInfiniteTransition` and `animateFloat` calls are placed
+ * unconditionally before the early return so that the number of composable
+ * invocations never varies between recompositions (a Compose requirement).
+ * When animations are disabled the animated values are simply not used.
  */
 @Composable
 fun BoxScope.WaterAnimationsOverlay(
@@ -40,7 +75,8 @@ fun BoxScope.WaterAnimationsOverlay(
     imageAspectRatio: Float,
     enableAnimations: Boolean
 ) {
-    // Always create transitions so composable calls are unconditional
+    // Transitions must be created unconditionally to satisfy Compose's rules
+    // about stable composition counts across recompositions.
     val infiniteTransition = rememberInfiniteTransition(label = "worldmap_water")
 
     // Sea wave phase: full cycle every 5 seconds
@@ -122,14 +158,12 @@ private fun DrawScope.drawSeaWaves(
     areaH: Float,
     phase: Float
 ) {
-    val waveColor = Color(0x3300AAFF)  // semi-transparent blue
-    val amplitude = (areaH * 0.04f).coerceAtLeast(2f)
-    val numWaves = 5
-    val freqX = 2f * PI.toFloat() / (areaW / 3f)
+    val amplitude = (areaH * SEA_WAVE_AMPLITUDE_FACTOR).coerceAtLeast(2f)
+    val freqX = 2f * PI.toFloat() / (areaW / SEA_WAVE_WAVELENGTH_FRACTION)
 
-    for (waveIdx in 0 until numWaves) {
-        val waveY = areaY + areaH * (waveIdx + 1f) / (numWaves + 1f)
-        val phaseOffset = waveIdx * PI.toFloat() / 2.5f
+    for (waveIdx in 0 until SEA_WAVE_COUNT) {
+        val waveY = areaY + areaH * (waveIdx + 1f) / (SEA_WAVE_COUNT + 1f)
+        val phaseOffset = waveIdx * PI.toFloat() / SEA_WAVE_PHASE_STEP_PI_DIVISOR
 
         val path = Path()
         var firstPoint = true
@@ -142,9 +176,9 @@ private fun DrawScope.drawSeaWaves(
             } else {
                 path.lineTo(x, y)
             }
-            x += 3f
+            x += SEA_WAVE_STEP_SIZE
         }
-        drawPath(path, waveColor, style = Stroke(width = 1.5f, cap = StrokeCap.Round))
+        drawPath(path, SEA_WAVE_COLOR, style = Stroke(width = 1.5f, cap = StrokeCap.Round))
     }
 }
 
@@ -173,10 +207,9 @@ private fun DrawScope.drawRiverFlow(
     }
     if (totalLength < 1f) return
 
-    val dashColor = Color(0x6600BBEE)   // semi-transparent river blue
-    val dashLength = (totalLength * 0.06f).coerceIn(5f, 20f)
-    val dashSpacing = dashLength * 2.5f
-    val numDashes = ((totalLength / dashSpacing) + 1).toInt().coerceAtMost(30)
+    val dashLength = (totalLength * RIVER_DASH_LENGTH_FACTOR).coerceIn(5f, 20f)
+    val dashSpacing = dashLength * RIVER_DASH_SPACING_MULTIPLIER
+    val numDashes = ((totalLength / dashSpacing) + 1).toInt().coerceAtMost(RIVER_MAX_DASHES)
 
     for (dashIdx in 0 until numDashes) {
         // Distribute dashes evenly and advance with phase
@@ -187,7 +220,7 @@ private fun DrawScope.drawRiverFlow(
         val endOffset = getPointAtDistance(points, segmentLengths, totalLength, dashEnd.coerceAtMost(totalLength)) ?: continue
 
         drawLine(
-            color = dashColor,
+            color = RIVER_FLOW_COLOR,
             start = startOffset,
             end = endOffset,
             strokeWidth = 3.5f,

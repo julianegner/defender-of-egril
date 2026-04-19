@@ -1339,7 +1339,9 @@ object EditorJsonSerializer {
                         seaAreas.add(WorldMapSeaArea(x, y, width, height))
                     }
                 } catch (e: Exception) {
-                    // If parsing fails, use empty list
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                        println("Error deserializing world map sea areas: ${e.message}")
+                    }
                 }
             }
             
@@ -1366,7 +1368,9 @@ object EditorJsonSerializer {
                         }
                     }
                 } catch (e: Exception) {
-                    // If parsing fails, use empty list
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                        println("Error deserializing world map rivers: ${e.message}")
+                    }
                 }
             }
             
