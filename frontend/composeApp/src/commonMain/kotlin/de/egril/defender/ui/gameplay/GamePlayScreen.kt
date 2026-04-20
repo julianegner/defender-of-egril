@@ -1508,9 +1508,35 @@ private fun GamePlayScreenContent(
 
         // Time reminder dialog
         reminderMessage?.let { reminder ->
+            val elapsedTime = reminder.elapsedMs?.let { elapsedMs ->
+                val hours = elapsedMs / (60 * 60 * 1000)
+                val minutes = (elapsedMs % (60 * 60 * 1000)) / (60 * 1000)
+                buildString {
+                    if (hours > 0) {
+                        val hourStr = if (hours == 1L) {
+                            stringResource(Res.string.hour, hours.toInt())
+                        } else {
+                            stringResource(Res.string.hours, hours.toInt())
+                        }
+                        append(hourStr)
+                    }
+                    if (minutes > 0) {
+                        if (hours > 0) append(" ")
+                        val minuteStr = if (minutes == 1L) {
+                            stringResource(Res.string.minute, minutes.toInt())
+                        } else {
+                            stringResource(Res.string.minutes, minutes.toInt())
+                        }
+                        append(minuteStr)
+                    }
+                    if (hours == 0L && minutes == 0L) {
+                        append(stringResource(Res.string.minutes, 0))
+                    }
+                }
+            }
             ReminderDialog(
                 type = reminder.type,
-                elapsedTime = reminder.elapsedTime,
+                elapsedTime = elapsedTime,
                 timeDescription = when (reminder.timeDescription) {
                     "close_to_midnight" -> stringResource(Res.string.time_for_sleep_close_to_midnight)
                     "midnight" -> stringResource(Res.string.time_for_sleep_midnight)
