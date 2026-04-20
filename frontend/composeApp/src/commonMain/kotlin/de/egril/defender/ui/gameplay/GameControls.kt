@@ -99,8 +99,14 @@ fun GameControlsPanel(
     Column(modifier = Modifier.fillMaxWidth()) {
         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val isNarrowPanel = maxWidth < 500.dp
-        val expandedGridColumns = if (isNarrowPanel) 4 else 7
-        val expandedGridHeight = if (isNarrowPanel) 70.dp else 80.dp
+        // On wide panels (≥ 910 dp, e.g. desktop) show all towers in a single row.
+        // On narrower panels (phone landscape, small tablet) use 4 columns which wraps into
+        // 2 rows, giving each button ~2× the width so all info is readable without truncation.
+        val numAvailableTowers = gameState.level.availableTowers.count { it != DefenderType.DRAGONS_LAIR }
+        val expandedGridColumns = if (maxWidth >= 910.dp) 7 else 4
+        val rowHeight = if (isNarrowPanel) 70.dp else 80.dp
+        val numExpandedRows = (numAvailableTowers + expandedGridColumns - 1) / expandedGridColumns
+        val expandedGridHeight = rowHeight * numExpandedRows + 4.dp * (numExpandedRows - 1)
 
         Column(modifier = Modifier.fillMaxWidth()) {
 
