@@ -111,8 +111,9 @@ object RepositoryManager {
     )
     
     /**
-     * Detect new map and level files in repository that are not in gamedata/official
-     * @return NewRepositoryData with lists of new files, or null if no new files found
+     * Detect new map and level files in repository that are not in gamedata/official.
+     * Returns null immediately if the stored version already matches the bundled version.
+     * @return NewRepositoryData with lists of new files, or null if no changes found
      */
     suspend fun detectNewRepositoryFiles(): NewRepositoryData? {
         try {
@@ -120,6 +121,20 @@ object RepositoryManager {
             if (!RepositoryLoader.hasRepositoryFiles()) {
                 println("No repository files found")
                 return null
+            }
+
+            // Fast path: if version matches, no changes needed
+            val bundledVersion = RepositoryLoader.loadVersion()
+            val storedVersion = fileStorage.readFile("$GAMEDATA_DIR/version.txt")?.trim()
+            if (bundledVersion != null && bundledVersion == storedVersion) {
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                println("Repository data is up to date (version $storedVersion), no sync needed")
+                }
+                return null
+            }
+
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("Repository version changed (stored: $storedVersion, bundled: $bundledVersion) - checking for updates")
             }
             
             // Check if official gamedata exists
