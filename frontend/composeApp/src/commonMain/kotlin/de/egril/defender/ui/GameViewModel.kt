@@ -2159,6 +2159,14 @@ class GameViewModel {
             val username = iamState.username
             val player = _currentPlayer.value
             if (username != null && player != null && player.remoteUsername == null) {
+                // Safety check: if this remote account is already linked to a *different*
+                // local player profile, a stale Keycloak session is being reused for the
+                // wrong local player.  Terminate that session immediately and abort linking.
+                val existingOwner = de.egril.defender.save.PlayerProfileStorage.findByRemoteUsername(username)
+                if (existingOwner != null && existingOwner.id != player.id) {
+                    de.egril.defender.iam.IamService.logoutBackchannel()
+                    return
+                }
                 de.egril.defender.save.PlayerProfileStorage.linkRemoteUser(player.id, username)
                 _currentPlayer.value = player.copy(remoteUsername = username)
                 // On first SSO login, use the account's first name as the local player name

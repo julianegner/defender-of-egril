@@ -229,6 +229,15 @@ object PlayerProfileStorage {
     }
     
     /**
+     * Find the player profile that is linked to the given remote (Keycloak) username.
+     * @param remoteUsername The Keycloak username to look up
+     * @return The linked player profile, or null if no profile is linked to that username
+     */
+    fun findByRemoteUsername(remoteUsername: String): PlayerProfile? {
+        return getAllProfiles().profiles.find { it.remoteUsername == remoteUsername }
+    }
+
+    /**
      * Link a remote Keycloak username to a player profile.
      * This is called the first time a player logs in via Keycloak.
      * @param playerId The ID of the player to link
