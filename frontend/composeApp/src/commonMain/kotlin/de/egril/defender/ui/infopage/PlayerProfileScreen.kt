@@ -83,11 +83,54 @@ fun PlayerProfileScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 8.dp),
+                            .padding(bottom = 8.dp)
+                            .padding(end = 56.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        // Expand button on the LEFT
+                        // Player name and info on the LEFT, taking remaining space
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            // Player name
+                            Text(
+                                text = playerProfile.name,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            if (remoteAccountName != null) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    UnlockIcon(size = 12.dp)
+                                    Text(
+                                        text = remoteAccountName,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.secondary
+                                    )
+                                }
+                            }
+                            // XP
+                            Text(
+                                text = stringResource(Res.string.xp_progress, stats.totalXP, de.egril.defender.model.PlayerAbilities.getXPForNextLevel(stats.level)),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            // Available ability points
+                            if (stats.availableAbilityPoints > 0) {
+                                Text(
+                                    text = stringResource(Res.string.available_stat_points, stats.availableAbilityPoints),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                        // Expand button on the RIGHT
                         TextButton(
                             onClick = { headerCollapsed = false },
                             modifier = Modifier.height(28.dp)
@@ -97,7 +140,7 @@ fun PlayerProfileScreen(
                                 style = MaterialTheme.typography.labelSmall
                             )
                         }
-                        // Switch player button (always visible)
+                        // Switch player button on the RIGHT
                         OutlinedButton(
                             onClick = onSelectPlayer,
                             modifier = Modifier.height(28.dp)
@@ -105,41 +148,6 @@ fun PlayerProfileScreen(
                             Text(
                                 text = stringResource(Res.string.switch_player),
                                 style = MaterialTheme.typography.bodySmall
-                            )
-                        }
-                        // Player name
-                        Text(
-                            text = playerProfile.name,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        if (remoteAccountName != null) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(2.dp)
-                            ) {
-                                UnlockIcon(size = 12.dp)
-                                Text(
-                                    text = remoteAccountName,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.secondary
-                                )
-                            }
-                        }
-                        // XP
-                        Text(
-                            text = stringResource(Res.string.xp_progress, stats.totalXP, de.egril.defender.model.PlayerAbilities.getXPForNextLevel(stats.level)),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        // Available ability points
-                        if (stats.availableAbilityPoints > 0) {
-                            Text(
-                                text = stringResource(Res.string.available_stat_points, stats.availableAbilityPoints),
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
@@ -150,10 +158,20 @@ fun PlayerProfileScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = headerBottomPadding),
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(bottom = headerBottomPadding)
+                            .padding(end = 56.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        // Collapse button on the LEFT
+                        // Title on the LEFT, centered in remaining space
+                        Text(
+                            text = stringResource(Res.string.player_profile),
+                            style = if (isPlatformMobile) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.displayMedium,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.weight(1f)
+                        )
+                        // Collapse button on the RIGHT
                         TextButton(
                             onClick = { headerCollapsed = true },
                             modifier = Modifier.height(headerButtonHeight)
@@ -163,7 +181,7 @@ fun PlayerProfileScreen(
                                 style = MaterialTheme.typography.labelSmall
                             )
                         }
-                        // Switch player button (always visible)
+                        // Switch player button on the RIGHT
                         OutlinedButton(
                             onClick = onSelectPlayer,
                             modifier = Modifier.height(headerButtonHeight)
@@ -173,14 +191,6 @@ fun PlayerProfileScreen(
                                 style = MaterialTheme.typography.bodySmall
                             )
                         }
-                        // Title centered in remaining space
-                        Text(
-                            text = stringResource(Res.string.player_profile),
-                            style = if (isPlatformMobile) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.displayMedium,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onBackground,
-                            modifier = Modifier.weight(1f)
-                        )
                     }
                 }
                 
@@ -194,26 +204,63 @@ fun PlayerProfileScreen(
                         .padding(horizontal = 16.dp)
                 ) {
                     if (!headerCollapsed) {
-                        // Player Info Card (only shown in full-header mode)
-                        PlayerInfoCard(
-                            playerProfile = playerProfile,
-                            onEditName = onEditName
-                        )
-                        
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        // User Account card (shown in full-header mode only)
-                        UserAccountCard(
-                            iamState = iamState,
-                            iamLoginInProgress = iamLoginInProgress,
-                            onIamLogin = onIamLogin,
-                            onIamLogout = onIamLogout,
-                            onManageAccount = onManageAccount,
-                            alwaysLogin = playerProfile.alwaysLogin,
-                            onAlwaysLoginChanged = onAlwaysLoginChanged,
-                            useRemoteSettings = playerProfile.useRemoteSettings,
-                            onUseRemoteSettingsChanged = onUseRemoteSettingsChanged
-                        )
+                        // Cards: side-by-side on landscape, stacked+scrollable on portrait
+                        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                            val isPortrait = maxHeight > maxWidth
+                            if (isPortrait) {
+                                // Mobile/portrait: stacked, scrollable
+                                val cardsScrollState = rememberScrollState()
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .verticalScroll(cardsScrollState)
+                                ) {
+                                    PlayerInfoCard(
+                                        playerProfile = playerProfile,
+                                        onEditName = onEditName
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    UserAccountCard(
+                                        iamState = iamState,
+                                        iamLoginInProgress = iamLoginInProgress,
+                                        onIamLogin = onIamLogin,
+                                        onIamLogout = onIamLogout,
+                                        onManageAccount = onManageAccount,
+                                        alwaysLogin = playerProfile.alwaysLogin,
+                                        onAlwaysLoginChanged = onAlwaysLoginChanged,
+                                        useRemoteSettings = playerProfile.useRemoteSettings,
+                                        onUseRemoteSettingsChanged = onUseRemoteSettingsChanged
+                                    )
+                                }
+                            } else {
+                                // Desktop/landscape: side by side, ~30% profile / ~70% account
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                    verticalAlignment = Alignment.Top
+                                ) {
+                                    Box(modifier = Modifier.weight(0.3f)) {
+                                        PlayerInfoCard(
+                                            playerProfile = playerProfile,
+                                            onEditName = onEditName
+                                        )
+                                    }
+                                    Box(modifier = Modifier.weight(0.7f)) {
+                                        UserAccountCard(
+                                            iamState = iamState,
+                                            iamLoginInProgress = iamLoginInProgress,
+                                            onIamLogin = onIamLogin,
+                                            onIamLogout = onIamLogout,
+                                            onManageAccount = onManageAccount,
+                                            alwaysLogin = playerProfile.alwaysLogin,
+                                            onAlwaysLoginChanged = onAlwaysLoginChanged,
+                                            useRemoteSettings = playerProfile.useRemoteSettings,
+                                            onUseRemoteSettingsChanged = onUseRemoteSettingsChanged
+                                        )
+                                    }
+                                }
+                            }
+                        }
 
                         Spacer(modifier = Modifier.height(24.dp))
                     } else {
@@ -766,66 +813,154 @@ private fun UserAccountCard(
             )
 
             if (iamState.isAuthenticated) {
-                // Username
-                iamState.username?.let { username ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        UnlockIcon(size = 14.dp)
-                        Text(
-                            text = username,
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                }
-                // Full name (first + last)
+                // Three-column layout when wide enough: names | action buttons | toggles
+                // Stacked layout on narrow widths
                 val fullName = listOfNotNull(iamState.firstName, iamState.lastName)
                     .filter { it.isNotBlank() }
                     .joinToString(" ")
                     .takeIf { it.isNotBlank() }
-                if (fullName != null) {
-                    Text(
-                        text = fullName,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                // Email
-                iamState.email?.let { email ->
-                    Text(
-                        text = email,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedButton(
-                        onClick = onManageAccount,
-                        modifier = Modifier.height(36.dp)
-                    ) {
-                        ToolsIcon(size = 14.dp)
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = stringResource(Res.string.iam_manage_account),
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-                    OutlinedButton(
-                        onClick = onIamLogout,
-                        modifier = Modifier.height(36.dp)
-                    ) {
-                        LockIcon(size = 14.dp)
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = stringResource(Res.string.iam_logout),
-                            style = MaterialTheme.typography.bodySmall
-                        )
+                BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                    val isWide = maxWidth >= 560.dp
+                    if (isWide) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            // Column 1: User names
+                            Column(
+                                modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                iamState.username?.let { username ->
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        UnlockIcon(size = 14.dp)
+                                        Text(
+                                            text = username,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
+                                if (fullName != null) {
+                                    Text(
+                                        text = fullName,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                iamState.email?.let { email ->
+                                    Text(
+                                        text = email,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                            // Column 2: Action buttons
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                OutlinedButton(
+                                    onClick = onManageAccount,
+                                    modifier = Modifier.height(36.dp)
+                                ) {
+                                    ToolsIcon(size = 14.dp)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = stringResource(Res.string.iam_manage_account),
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                                OutlinedButton(
+                                    onClick = onIamLogout,
+                                    modifier = Modifier.height(36.dp)
+                                ) {
+                                    LockIcon(size = 14.dp)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = stringResource(Res.string.iam_logout),
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                            }
+                            // Column 3: Toggles
+                            AccountSettingToggles(
+                                alwaysLogin = alwaysLogin,
+                                onAlwaysLoginChanged = onAlwaysLoginChanged,
+                                useRemoteSettings = useRemoteSettings,
+                                onUseRemoteSettingsChanged = onUseRemoteSettingsChanged,
+                                spreadAcrossWidth = false
+                            )
+                        }
+                    } else {
+                        // Narrow: stacked layout
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            iamState.username?.let { username ->
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    UnlockIcon(size = 14.dp)
+                                    Text(
+                                        text = username,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
+                            if (fullName != null) {
+                                Text(
+                                    text = fullName,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            iamState.email?.let { email ->
+                                Text(
+                                    text = email,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                OutlinedButton(
+                                    onClick = onManageAccount,
+                                    modifier = Modifier.height(36.dp)
+                                ) {
+                                    ToolsIcon(size = 14.dp)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = stringResource(Res.string.iam_manage_account),
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                                OutlinedButton(
+                                    onClick = onIamLogout,
+                                    modifier = Modifier.height(36.dp)
+                                ) {
+                                    LockIcon(size = 14.dp)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = stringResource(Res.string.iam_logout),
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+                            }
+                            HorizontalDivider()
+                            AccountSettingToggles(
+                                alwaysLogin = alwaysLogin,
+                                onAlwaysLoginChanged = onAlwaysLoginChanged,
+                                useRemoteSettings = useRemoteSettings,
+                                onUseRemoteSettingsChanged = onUseRemoteSettingsChanged,
+                                spreadAcrossWidth = true
+                            )
+                        }
                     }
                 }
             } else if (iamLoginInProgress) {
@@ -844,6 +979,14 @@ private fun UserAccountCard(
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
+                HorizontalDivider()
+                AccountSettingToggles(
+                    alwaysLogin = alwaysLogin,
+                    onAlwaysLoginChanged = onAlwaysLoginChanged,
+                    useRemoteSettings = useRemoteSettings,
+                    onUseRemoteSettingsChanged = onUseRemoteSettingsChanged,
+                    spreadAcrossWidth = true
+                )
             } else {
                 OutlinedButton(
                     onClick = onIamLogin,
@@ -856,43 +999,66 @@ private fun UserAccountCard(
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
-            }
-
-            HorizontalDivider()
-
-            // "Always log in" toggle
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(Res.string.always_log_in),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Switch(
-                    checked = alwaysLogin,
-                    onCheckedChange = { onAlwaysLoginChanged(it) }
+                HorizontalDivider()
+                AccountSettingToggles(
+                    alwaysLogin = alwaysLogin,
+                    onAlwaysLoginChanged = onAlwaysLoginChanged,
+                    useRemoteSettings = useRemoteSettings,
+                    onUseRemoteSettingsChanged = onUseRemoteSettingsChanged,
+                    spreadAcrossWidth = true
                 )
             }
+        }
+    }
+}
 
-            // "Use remote settings" toggle
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(Res.string.use_remote_settings),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Switch(
-                    checked = useRemoteSettings,
-                    onCheckedChange = { onUseRemoteSettingsChanged(it) }
-                )
-            }
+/**
+ * Reusable composable for the "Always log in" and "Use remote settings" toggle rows.
+ *
+ * @param spreadAcrossWidth When true, each row fills the available width with SpaceBetween
+ *   arrangement (used in the stacked / non-authenticated layout). When false, label and switch
+ *   are placed compactly side by side (used as the third column in the wide authenticated layout).
+ */
+@Composable
+private fun AccountSettingToggles(
+    alwaysLogin: Boolean,
+    onAlwaysLoginChanged: (Boolean) -> Unit,
+    useRemoteSettings: Boolean,
+    onUseRemoteSettingsChanged: (Boolean) -> Unit,
+    spreadAcrossWidth: Boolean = false
+) {
+    val rowModifier = if (spreadAcrossWidth) Modifier.fillMaxWidth() else Modifier
+    val rowArrangement = if (spreadAcrossWidth) Arrangement.SpaceBetween else Arrangement.spacedBy(8.dp)
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Row(
+            modifier = rowModifier,
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = rowArrangement
+        ) {
+            Text(
+                text = stringResource(Res.string.always_log_in),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Switch(
+                checked = alwaysLogin,
+                onCheckedChange = { onAlwaysLoginChanged(it) }
+            )
+        }
+        Row(
+            modifier = rowModifier,
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = rowArrangement
+        ) {
+            Text(
+                text = stringResource(Res.string.use_remote_settings),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Switch(
+                checked = useRemoteSettings,
+                onCheckedChange = { onUseRemoteSettingsChanged(it) }
+            )
         }
     }
 }
