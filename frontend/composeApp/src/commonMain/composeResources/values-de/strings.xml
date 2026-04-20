@@ -1601,6 +1601,7 @@
     <string name="iam_login_error_message">Die Anmeldung konnte nicht abgeschlossen werden. Bitte versuche es erneut.</string>
     <string name="always_log_in">Immer anmelden</string>
     <string name="use_remote_settings">Remote-Einstellungen verwenden</string>
+    <string name="iam_manage_account">Konto verwalten</string>
     <string name="account">Konto</string>
 
     <!-- Community maps/levels -->

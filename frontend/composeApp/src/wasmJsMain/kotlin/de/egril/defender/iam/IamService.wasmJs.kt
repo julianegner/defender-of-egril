@@ -80,6 +80,9 @@ private external fun jsKcLoginWithLocale(locale: String): Boolean
 @JsFun("() => { if (window._keycloak) { window._keycloak.logout({ redirectUri: window.location.origin }); } }")
 private external fun jsKcLogout()
 
+@JsFun("(url) => { window.open(url, '_blank', 'noopener,noreferrer'); }")
+private external fun jsOpenUrl(url: String)
+
 // ---------------------------------------------------------------------------
 // Platform implementations
 // ---------------------------------------------------------------------------
@@ -124,6 +127,14 @@ internal actual fun performPlatformLogoutLocal() {
  */
 internal actual fun performPlatformLogoutBackchannel() {
     jsKcLogout()
+}
+
+/**
+ * Opens the Keycloak user account console in a new browser tab so the user can
+ * manage their credentials, update their username, or delete their account.
+ */
+internal actual fun openPlatformAccountConsole() {
+    jsOpenUrl(IamConfig.accountUrl)
 }
 
 // Background scope for the token-sync loop. Lives for the duration of the app.

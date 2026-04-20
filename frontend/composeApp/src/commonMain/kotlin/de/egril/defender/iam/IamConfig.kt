@@ -42,6 +42,12 @@ object IamConfig {
      * Keycloak user via an active browser session cookie.
      */
     val restartLoginUrl: String get() = "$baseUrl/realms/$REALM/login-actions/restart"
+
+    /**
+     * Keycloak user account console URL. Opening this URL allows the user to manage
+     * their account: change credentials, update their username, or delete their account.
+     */
+    val accountUrl: String get() = "$baseUrl/realms/$REALM/account"
 }
 
 /** Returns the Keycloak base URL for the current platform. */

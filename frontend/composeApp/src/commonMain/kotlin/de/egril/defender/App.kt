@@ -372,6 +372,7 @@ fun App() {
                         iamLoginInProgress = iamLoginInProgress,
                         onIamLogin = { de.egril.defender.iam.IamService.login() },
                         onIamLogout = { de.egril.defender.iam.IamService.logout() },
+                        onManageAccount = { de.egril.defender.iam.IamService.openAccountConsole() },
                         onAlwaysLoginChanged = { value -> viewModel.setAlwaysLogin(value) },
                         onUseRemoteSettingsChanged = { value -> viewModel.setUseRemoteSettings(value) }
                     )

@@ -1603,6 +1603,7 @@
     <string name="iam_login_error_message">La connexion n\'a pas pu être complétée. Veuillez réessayer.</string>
     <string name="always_log_in">Toujours se connecter</string>
     <string name="use_remote_settings">Utiliser les paramètres distants</string>
+    <string name="iam_manage_account">Gérer le compte</string>
     <string name="account">Compte</string>
 
     <!-- Community maps/levels -->

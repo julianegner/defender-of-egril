@@ -98,6 +98,11 @@ object IamService {
 
     /** Returns true if the user is currently authenticated. */
     fun isAuthenticated(): Boolean = state.value.isAuthenticated
+
+    /** Opens the Keycloak user account console so the user can manage credentials, username, or delete their account. */
+    fun openAccountConsole() {
+        openPlatformAccountConsole()
+    }
 }
 
 /** Starts the platform-specific OAuth2/OIDC login flow. */
@@ -128,3 +133,10 @@ internal expect fun performPlatformLogoutBackchannel()
  * Implementations may suspend to wait for an asynchronous SDK.
  */
 expect suspend fun initPlatformIam()
+
+/**
+ * Opens the Keycloak user account console URL in the platform-specific browser.
+ * This allows the user to change credentials, update their username, or delete
+ * their account.
+ */
+internal expect fun openPlatformAccountConsole()
