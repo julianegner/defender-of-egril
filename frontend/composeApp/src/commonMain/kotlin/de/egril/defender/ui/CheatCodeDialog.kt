@@ -81,6 +81,8 @@ fun CheatCodeDialog(
         }
     }
     
+    val invalidCheatCodeMessage = stringResource(Res.string.cheat_dialog_invalid_code)
+
     // Function to apply the cheat code
     val applyCheat = {
         val success = onApplyCheatCode(cheatCodeInput)
@@ -91,7 +93,7 @@ fun CheatCodeDialog(
             }
             errorMessage = ""
         } else {
-            errorMessage = "Invalid cheat code"
+            errorMessage = invalidCheatCodeMessage
         }
     }
     
@@ -108,11 +110,11 @@ fun CheatCodeDialog(
             }
             errorMessage = ""
         },
-        title = { Text("Cheat Code") },
+        title = { Text(stringResource(Res.string.cheat_dialog_title)) },
         text = {
             SelectionContainer {
             Column {
-                Text("Enter cheat code:")
+                Text(stringResource(Res.string.cheat_dialog_enter_code))
                 Spacer(modifier = Modifier.height(8.dp))
                 TextField(
                     value = cheatCodeInput,
@@ -141,11 +143,11 @@ fun CheatCodeDialog(
                 
                 if (showHints) {
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("Available codes:", style = MaterialTheme.typography.labelSmall)
-                    Text("• cash - Get 1000 coins", style = MaterialTheme.typography.bodySmall)
-                    Text("• mmmoney - Get a million coins", style = MaterialTheme.typography.bodySmall)
-                    Text("• emptypocket - Set coins to 0", style = MaterialTheme.typography.bodySmall)
-                    Text("• dragon - Spawn dragon from mine", style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(Res.string.cheat_dialog_available_codes), style = MaterialTheme.typography.labelSmall)
+                    Text(stringResource(Res.string.cheat_dialog_hint_cash), style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(Res.string.cheat_dialog_hint_mmmoney), style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(Res.string.cheat_dialog_hint_emptypocket), style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(Res.string.cheat_dialog_hint_dragon), style = MaterialTheme.typography.bodySmall)
                 }
             }
             }
@@ -154,7 +156,7 @@ fun CheatCodeDialog(
             Button(
                 onClick = applyCheat
             ) {
-                Text("Apply")
+                Text(stringResource(Res.string.apply))
             }
         },
         dismissButton = {
@@ -167,7 +169,7 @@ fun CheatCodeDialog(
                     errorMessage = ""
                 }
             ) {
-                Text("Cancel")
+                Text(stringResource(Res.string.cancel))
             }
         }
     )
