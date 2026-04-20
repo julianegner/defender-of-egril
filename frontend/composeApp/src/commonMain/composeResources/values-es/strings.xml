@@ -1610,6 +1610,7 @@
     <string name="iam_logout_successful_message">Puedes cerrar esta ventana o volver al juego.</string>
     <string name="iam_login_error_heading">Error de inicio de sesión</string>
     <string name="iam_login_error_message">No se pudo completar el inicio de sesión. Por favor, inténtalo de nuevo.</string>
+    <string name="iam_close_window">Cerrar ventana</string>
     <string name="always_log_in">Iniciar sesión siempre</string>
     <string name="use_remote_settings">Usar configuración remota</string>
     <string name="iam_manage_account">Gestionar cuenta</string>
