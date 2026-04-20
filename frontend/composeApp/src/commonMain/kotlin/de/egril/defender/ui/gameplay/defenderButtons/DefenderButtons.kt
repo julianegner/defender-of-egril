@@ -1,27 +1,23 @@
 package de.egril.defender.ui.gameplay.defenderButtons
 
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.absoluteOffset
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,7 +25,6 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -37,6 +32,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.DefenderType
+import de.egril.defender.ui.TowerTypeIcon
 import de.egril.defender.ui.androidTVModifier
 import de.egril.defender.ui.animations.InstantTowerSpellAnimation
 import de.egril.defender.ui.animations.SpellInstantTowerColor
@@ -45,16 +41,13 @@ import de.egril.defender.ui.gameplay.GamePlayConstants
 import de.egril.defender.ui.gameplay.IconTextRow
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.getLocalizedShortName
-import de.egril.defender.ui.hexagon.TowerIconOnHexagon
 import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.TargetIcon
 import de.egril.defender.ui.icon.TimerIcon
 import de.egril.defender.ui.settings.AppSettings
-import org.jetbrains.compose.resources.painterResource
 import com.hyperether.resources.stringResource
-import de.egril.defender.ui.TowerTypeIcon
 import defender_of_egril.composeapp.generated.resources.*
 
 @Composable
@@ -66,6 +59,7 @@ fun DefenderButton(
     instantTowerActive: Boolean = false,
     onClick: () -> Unit
 ) {
+    val isDarkMode = AppSettings.isDarkMode.value
     val locale = com.hyperether.resources.currentLanguage.value
     val actuallyCanAfford = coinsState.value >= type.baseCost
 
@@ -77,72 +71,23 @@ fun DefenderButton(
         "${stringResource(Res.string.coins_label)}: ${type.baseCost}" +
         if (isSelected) ", ${stringResource(Res.string.selected)}" else ""
 
-    /*
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isSelected) GamePlayColors.InfoDark else MaterialTheme.colorScheme.primary,
-                contentColor = if (isSelected && isDarkMode) Color.White else Color.White,  // Brighter text when selected in dark mode
-                disabledContainerColor = GamePlayColors.DisabledButton,
-                disabledContentColor = GamePlayColors.DisabledButtonText
-            ),
-
-            TODO text color for TowerStats
-                invalid button??
-     */
-
-    Box(modifier = Modifier
+    val buttonModifier = Modifier
         .fillMaxWidth()
-        .height(70.dp)) {
+        .height(70.dp)
+        .androidTVModifier(isSelected = isSelected, description = description)
 
-/*
-        Image(
-            painter = painterResource(Res.drawable.stone_slab_wide),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-                // .width(300.dp)
-                // .height(100.dp)
-        )
-
- */
-/*
-        Image(
-            painter = painterResource(Res.drawable.stone_slab_wide),
-            contentDescription = null,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .fillMaxWidth(1.2f)
-                .fillMaxHeight(1.2f),
-            contentScale = ContentScale.Crop
-        )
-
- */
-
-
-/*
     Box(modifier = buttonModifier) {
         Button(
             onClick = onClick,
-            enabled = actuallyCanAfford,  // Use recalculated value
+            enabled = actuallyCanAfford,
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (isSelected) GamePlayColors.InfoDark else MaterialTheme.colorScheme.primary,
-                contentColor = if (isSelected && isDarkMode) Color.White else Color.White,  // Brighter text when selected in dark mode
+                contentColor = if (isSelected && isDarkMode) Color.White else Color.White,
                 disabledContainerColor = GamePlayColors.DisabledButton,
                 disabledContentColor = GamePlayColors.DisabledButtonText
             ),
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(2.dp)
-        ) {
-            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-
- */
-
-
-        // Clickable content area
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .androidTVModifier(isSelected = isSelected, description = description)
-                .clickable(enabled = actuallyCanAfford, onClick = onClick)
         ) {
             BoxWithConstraints(
                 modifier = Modifier
@@ -173,7 +118,6 @@ fun DefenderButton(
                                 timerIconSize = 12.dp, buildTimeFontSize = 10.sp,
                                 modifier = Modifier.fillMaxHeight().weight(1f)
                             )
-                            // Column 4: stats
                             if (bw >= 170.dp) {
                                 Column(
                                     modifier = Modifier
@@ -189,24 +133,6 @@ fun DefenderButton(
                     }
                 }
             }
-        }
-
-        // Selected overlay
-        if (isSelected) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color(0x552196F3))
-            )
-        }
-
-        // Not affordable overlay
-        if (!actuallyCanAfford) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color(0xAA000000))
-            )
         }
 
         // Show glow animation overlay + purple border when Instant Tower spell is active and tower is affordable
