@@ -7,14 +7,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.DefenderType
-import de.egril.defender.ui.gameplay.CompactDefenderButton
-import de.egril.defender.ui.gameplay.DefenderButton
+import de.egril.defender.ui.gameplay.defenderButtons.CompactDefenderButton
+import de.egril.defender.ui.gameplay.defenderButtons.DefenderButton
 import de.egril.defender.ui.settings.AppSettings
 import org.junit.After
 import org.junit.Rule

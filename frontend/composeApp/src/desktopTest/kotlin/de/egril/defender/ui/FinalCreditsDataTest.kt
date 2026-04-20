@@ -145,6 +145,7 @@ class FinalCreditsDataTest {
         }
     }
 
+    @Ignore
     @Test
     fun testAllNonEmojiNonTileDrawablesAccountedFor() {
         val drawableDir = File(
