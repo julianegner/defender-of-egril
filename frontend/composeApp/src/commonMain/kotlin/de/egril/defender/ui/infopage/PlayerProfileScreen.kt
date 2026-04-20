@@ -64,7 +64,6 @@ fun PlayerProfileScreen(
                     .padding(8.dp)
             )
             
-            SelectionContainer {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -94,40 +93,49 @@ fun PlayerProfileScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            // Player name
-                            Text(
-                                text = playerProfile.name,
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            if (remoteAccountName != null) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(2.dp)
-                                ) {
-                                    UnlockIcon(size = 12.dp)
-                                    Text(
-                                        text = remoteAccountName,
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.secondary
-                                    )
-                                }
-                            }
-                            // XP
-                            Text(
-                                text = stringResource(Res.string.xp_progress, stats.totalXP, de.egril.defender.model.PlayerAbilities.getXPForNextLevel(stats.level)),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            // Available ability points
-                            if (stats.availableAbilityPoints > 0) {
+                            SelectionContainer {
+                                // Player name
                                 Text(
-                                    text = stringResource(Res.string.available_stat_points, stats.availableAbilityPoints),
-                                    style = MaterialTheme.typography.labelSmall,
+                                    text = playerProfile.name,
+                                    style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.primary
                                 )
+                                if (remoteAccountName != null) {
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                    ) {
+                                        UnlockIcon(size = 12.dp)
+                                        Text(
+                                            text = remoteAccountName,
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.secondary
+                                        )
+                                    }
+                                }
+                                // XP
+                                Text(
+                                    text = stringResource(
+                                        Res.string.xp_progress,
+                                        stats.totalXP,
+                                        de.egril.defender.model.PlayerAbilities.getXPForNextLevel(stats.level)
+                                    ),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                // Available ability points
+                                if (stats.availableAbilityPoints > 0) {
+                                    Text(
+                                        text = stringResource(
+                                            Res.string.available_stat_points,
+                                            stats.availableAbilityPoints
+                                        ),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
                             }
                         }
                         // Expand button on the RIGHT
@@ -206,46 +214,21 @@ fun PlayerProfileScreen(
                     if (!headerCollapsed) {
                         // Cards: side-by-side on landscape, stacked+scrollable on portrait
                         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-                            val isPortrait = maxHeight > maxWidth
-                            if (isPortrait) {
-                                // Mobile/portrait: stacked, scrollable
-                                val cardsScrollState = rememberScrollState()
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .verticalScroll(cardsScrollState)
-                                ) {
-                                    PlayerInfoCard(
-                                        playerProfile = playerProfile,
-                                        onEditName = onEditName
-                                    )
-                                    Spacer(modifier = Modifier.height(12.dp))
-                                    UserAccountCard(
-                                        iamState = iamState,
-                                        iamLoginInProgress = iamLoginInProgress,
-                                        onIamLogin = onIamLogin,
-                                        onIamLogout = onIamLogout,
-                                        onManageAccount = onManageAccount,
-                                        alwaysLogin = playerProfile.alwaysLogin,
-                                        onAlwaysLoginChanged = onAlwaysLoginChanged,
-                                        useRemoteSettings = playerProfile.useRemoteSettings,
-                                        onUseRemoteSettingsChanged = onUseRemoteSettingsChanged
-                                    )
-                                }
-                            } else {
-                                // Desktop/landscape: side by side, ~30% profile / ~70% account
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                    verticalAlignment = Alignment.Top
-                                ) {
-                                    Box(modifier = Modifier.weight(0.3f)) {
+                            SelectionContainer {
+                                val isPortrait = maxHeight > maxWidth
+                                if (isPortrait) {
+                                    // Mobile/portrait: stacked, scrollable
+                                    val cardsScrollState = rememberScrollState()
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .verticalScroll(cardsScrollState)
+                                    ) {
                                         PlayerInfoCard(
                                             playerProfile = playerProfile,
                                             onEditName = onEditName
                                         )
-                                    }
-                                    Box(modifier = Modifier.weight(0.7f)) {
+                                        Spacer(modifier = Modifier.height(12.dp))
                                         UserAccountCard(
                                             iamState = iamState,
                                             iamLoginInProgress = iamLoginInProgress,
@@ -257,6 +240,33 @@ fun PlayerProfileScreen(
                                             useRemoteSettings = playerProfile.useRemoteSettings,
                                             onUseRemoteSettingsChanged = onUseRemoteSettingsChanged
                                         )
+                                    }
+                                } else {
+                                    // Desktop/landscape: side by side, ~30% profile / ~70% account
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                        verticalAlignment = Alignment.Top
+                                    ) {
+                                        Box(modifier = Modifier.weight(0.3f)) {
+                                            PlayerInfoCard(
+                                                playerProfile = playerProfile,
+                                                onEditName = onEditName
+                                            )
+                                        }
+                                        Box(modifier = Modifier.weight(0.7f)) {
+                                            UserAccountCard(
+                                                iamState = iamState,
+                                                iamLoginInProgress = iamLoginInProgress,
+                                                onIamLogin = onIamLogin,
+                                                onIamLogout = onIamLogout,
+                                                onManageAccount = onManageAccount,
+                                                alwaysLogin = playerProfile.alwaysLogin,
+                                                onAlwaysLoginChanged = onAlwaysLoginChanged,
+                                                useRemoteSettings = playerProfile.useRemoteSettings,
+                                                onUseRemoteSettingsChanged = onUseRemoteSettingsChanged
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -359,7 +369,6 @@ fun PlayerProfileScreen(
                 }
             }
         }
-            }
     }
 }
 
