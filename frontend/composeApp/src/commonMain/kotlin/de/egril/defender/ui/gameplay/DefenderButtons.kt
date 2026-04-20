@@ -26,16 +26,23 @@ import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.TargetIcon
 import de.egril.defender.ui.icon.TimerIcon
 import de.egril.defender.ui.settings.AppSettings
+import com.hyperether.resources.AppLocale
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
- * Holds all size and spacing constants for one tier of the responsive [DefenderButton] layout.
+ * Holds all size, spacing, and layout-strategy constants for one tier of the responsive
+ * [DefenderButton] layout.
  *
  * Three pre-built instances are provided in the companion object:
  * - [Wide]   – used when the button cell is ≥ 100 dp (desktop 7-column grid)
  * - [Medium] – used when the button cell is ≥ 55 dp  (4-column mobile/tablet grid)
  * - [Narrow] – fallback for very small cells (< 55 dp)
+ *
+ * The layout-strategy flags ([useVerticalLayout], [priceBeforeName], [wrapIconInBox],
+ * [showAttackType], [showBuildTime], [showInlineStats], [showSeparateStats]) drive a single
+ * shared [DefenderButtonContent] composable so that the three layout variants no longer need
+ * their own independent Compose sub-trees.
  */
 private data class DefenderButtonConfig(
     // Icon
@@ -63,7 +70,16 @@ private data class DefenderButtonConfig(
     val statsFontSize: TextUnit,
 
     // Separate stats column (Wide only)
-    val statsColumnPaddingStart: Dp
+    val statsColumnPaddingStart: Dp,
+
+    // Layout-strategy flags
+    val useVerticalLayout: Boolean,   // Narrow: stack elements vertically
+    val priceBeforeName: Boolean,     // Medium: show price column before name column
+    val wrapIconInBox: Boolean,       // Wide: wrap icon in a fixed-size Box
+    val showAttackType: Boolean,      // Wide/Medium: show attack-type label
+    val showBuildTime: Boolean,       // Wide: show build-time row
+    val showInlineStats: Boolean,     // Medium: show damage/range inline in name column
+    val showSeparateStats: Boolean    // Wide: show a dedicated stats column
 ) {
     companion object {
         /** Desktop / large-window layout – 60 dp icon, prominent 16 sp price, full stats column. */
@@ -73,7 +89,9 @@ private data class DefenderButtonConfig(
             nameFontSize = 12.sp, attackTypeFontSize = 10.sp,
             timerIconSize = 15.dp, buildTimeFontSize = 10.sp,
             statsIconSize = 12.dp, statsInnerSpacing = 1.dp, statsBetweenSpacing = 4.dp, statsFontSize = 10.sp,
-            statsColumnPaddingStart = 4.dp
+            statsColumnPaddingStart = 4.dp,
+            useVerticalLayout = false, priceBeforeName = false, wrapIconInBox = true,
+            showAttackType = true, showBuildTime = true, showInlineStats = false, showSeparateStats = true
         )
 
         /** Tablet / 4-column mobile layout – 28 dp icon, 13 sp price, inline stats. */
@@ -83,7 +101,9 @@ private data class DefenderButtonConfig(
             nameFontSize = 10.sp, attackTypeFontSize = 9.sp,
             timerIconSize = 0.dp, buildTimeFontSize = 0.sp,
             statsIconSize = 10.dp, statsInnerSpacing = 1.dp, statsBetweenSpacing = 4.dp, statsFontSize = 9.sp,
-            statsColumnPaddingStart = 0.dp
+            statsColumnPaddingStart = 0.dp,
+            useVerticalLayout = false, priceBeforeName = true, wrapIconInBox = false,
+            showAttackType = true, showBuildTime = false, showInlineStats = true, showSeparateStats = false
         )
 
         /** Narrow fallback – icon + name + price stacked vertically. */
@@ -93,7 +113,9 @@ private data class DefenderButtonConfig(
             nameFontSize = 8.sp, attackTypeFontSize = 0.sp,
             timerIconSize = 0.dp, buildTimeFontSize = 0.sp,
             statsIconSize = 0.dp, statsInnerSpacing = 0.dp, statsBetweenSpacing = 0.dp, statsFontSize = 0.sp,
-            statsColumnPaddingStart = 0.dp
+            statsColumnPaddingStart = 0.dp,
+            useVerticalLayout = true, priceBeforeName = false, wrapIconInBox = false,
+            showAttackType = false, showBuildTime = false, showInlineStats = false, showSeparateStats = false
         )
     }
 }
@@ -150,7 +172,6 @@ fun CompactDefenderButton(
 
                 Spacer(modifier = Modifier.width(4.dp))
 
-                val locale = com.hyperether.resources.currentLanguage.value
                 Text(
                     type.getLocalizedShortName(locale),
                     style = MaterialTheme.typography.labelSmall,
@@ -159,7 +180,7 @@ fun CompactDefenderButton(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f),
-                    color = if (isSelected && isDarkMode) Color.White else Color.White  // Ensure bright text
+                    color = if (isSelected && isDarkMode) Color.White else Color.White
                 )
 
                 Spacer(modifier = Modifier.width(4.dp))
@@ -242,161 +263,7 @@ fun DefenderButton(
                     maxWidth >= 55.dp  -> DefenderButtonConfig.Medium
                     else               -> DefenderButtonConfig.Narrow
                 }
-                when (cfg) {
-                    DefenderButtonConfig.Wide -> {
-                        // Wide layout (desktop): icon box → name/type/buildtime column → price column → stats column
-                        Row(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Start
-                        ) {
-                            Box(
-                                modifier = Modifier.size(cfg.iconBoxSize),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                TowerTypeIcon(defenderType = type, modifier = Modifier.size(cfg.iconSize))
-                            }
-                            Spacer(modifier = Modifier.width(cfg.iconSpacing))
-                            Column(
-                                modifier = Modifier.fillMaxHeight().weight(1f),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.Start
-                            ) {
-                                Text(
-                                    type.getLocalizedShortName(locale),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = cfg.nameFontSize,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Text(
-                                    type.attackType.getLocalizedName(locale),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontSize = cfg.attackTypeFontSize,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    color = GamePlayColors.Yellow
-                                )
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    TimerIcon(size = cfg.timerIconSize)
-                                    Text(
-                                        "${type.buildTime}T",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontSize = cfg.buildTimeFontSize
-                                    )
-                                }
-                            }
-                            Spacer(modifier = Modifier.width(cfg.priceSpacing))
-                            Column(
-                                modifier = Modifier.fillMaxHeight(),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                MoneyIcon(size = cfg.moneyIconSize)
-                                Text(
-                                    "${type.baseCost}",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = cfg.priceFontSize
-                                )
-                            }
-                            Column(
-                                modifier = Modifier.fillMaxHeight().padding(start = cfg.statsColumnPaddingStart),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.Start
-                            ) {
-                                TowerStats(type.minRange, type.baseDamage, type.baseRange, type.actionsPerTurn)
-                            }
-                        }
-                    }
-                    DefenderButtonConfig.Medium -> {
-                        // Medium layout (tablet / 4-col mobile): icon → price column → name/type/stats column
-                        Row(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Start
-                        ) {
-                            TowerTypeIcon(defenderType = type, modifier = Modifier.size(cfg.iconSize))
-                            Spacer(modifier = Modifier.width(cfg.iconSpacing))
-                            Column(
-                                modifier = Modifier.fillMaxHeight(),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                MoneyIcon(size = cfg.moneyIconSize)
-                                Text(
-                                    "${type.baseCost}",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = cfg.priceFontSize
-                                )
-                            }
-                            Spacer(modifier = Modifier.width(cfg.priceSpacing))
-                            Column(
-                                modifier = Modifier.fillMaxHeight().weight(1f),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.Start
-                            ) {
-                                Text(
-                                    type.getLocalizedShortName(locale),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = cfg.nameFontSize,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                Text(
-                                    type.attackType.getLocalizedName(locale),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontSize = cfg.attackTypeFontSize,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    color = GamePlayColors.Yellow
-                                )
-                                val rangeText = if (type.minRange > 0) "${type.minRange}-${type.baseRange}" else "${type.baseRange}"
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    ExplosionIcon(size = cfg.statsIconSize)
-                                    Spacer(modifier = Modifier.width(cfg.statsInnerSpacing))
-                                    Text("${type.baseDamage}", style = MaterialTheme.typography.labelSmall, fontSize = cfg.statsFontSize)
-                                    Spacer(modifier = Modifier.width(cfg.statsBetweenSpacing))
-                                    TargetIcon(size = cfg.statsIconSize)
-                                    Spacer(modifier = Modifier.width(cfg.statsInnerSpacing))
-                                    Text(rangeText, style = MaterialTheme.typography.labelSmall, fontSize = cfg.statsFontSize)
-                                }
-                            }
-                        }
-                    }
-                    else -> {
-                        // Narrow layout (very small cells): icon + name + cost stacked vertically
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            TowerTypeIcon(defenderType = type, modifier = Modifier.size(cfg.iconSize))
-                            Text(
-                                type.getLocalizedShortName(locale),
-                                style = MaterialTheme.typography.labelSmall,
-                                fontSize = cfg.nameFontSize,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                MoneyIcon(size = cfg.moneyIconSize)
-                                Spacer(modifier = Modifier.width(cfg.priceSpacing))
-                                Text(
-                                    "${type.baseCost}",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = cfg.priceFontSize
-                                )
-                            }
-                        }
-                    }
-                }
+                DefenderButtonContent(cfg, type, locale)
             }
         }
         // Show glow animation overlay + purple border when Instant Tower spell is active and tower is affordable
@@ -409,6 +276,152 @@ fun DefenderButton(
                 modifier = Modifier.fillMaxSize()
                     .border(2.dp, SpellInstantTowerColor, RoundedCornerShape(percent = 50))
             )
+        }
+    }
+}
+
+@Composable
+private fun DefenderButtonIcon(cfg: DefenderButtonConfig, type: DefenderType) {
+    if (cfg.wrapIconInBox) {
+        Box(modifier = Modifier.size(cfg.iconBoxSize), contentAlignment = Alignment.Center) {
+            TowerTypeIcon(defenderType = type, modifier = Modifier.size(cfg.iconSize))
+        }
+    } else {
+        TowerTypeIcon(defenderType = type, modifier = Modifier.size(cfg.iconSize))
+    }
+}
+
+@Composable
+private fun DefenderButtonPriceColumn(cfg: DefenderButtonConfig, type: DefenderType) {
+    Column(
+        modifier = Modifier.fillMaxHeight(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        MoneyIcon(size = cfg.moneyIconSize)
+        Text(
+            "${type.baseCost}",
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold,
+            fontSize = cfg.priceFontSize
+        )
+    }
+}
+
+@Composable
+private fun DefenderButtonNameColumn(
+    cfg: DefenderButtonConfig,
+    type: DefenderType,
+    locale: AppLocale,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxHeight(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.Start
+    ) {
+        Text(
+            type.getLocalizedShortName(locale),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold,
+            fontSize = cfg.nameFontSize,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        if (cfg.showAttackType) {
+            Text(
+                type.attackType.getLocalizedName(locale),
+                style = MaterialTheme.typography.labelSmall,
+                fontSize = cfg.attackTypeFontSize,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                color = GamePlayColors.Yellow
+            )
+        }
+        if (cfg.showBuildTime) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                TimerIcon(size = cfg.timerIconSize)
+                Text(
+                    "${type.buildTime}T",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontSize = cfg.buildTimeFontSize
+                )
+            }
+        }
+        if (cfg.showInlineStats) {
+            val rangeText = if (type.minRange > 0) "${type.minRange}-${type.baseRange}" else "${type.baseRange}"
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                ExplosionIcon(size = cfg.statsIconSize)
+                Spacer(modifier = Modifier.width(cfg.statsInnerSpacing))
+                Text("${type.baseDamage}", style = MaterialTheme.typography.labelSmall, fontSize = cfg.statsFontSize)
+                Spacer(modifier = Modifier.width(cfg.statsBetweenSpacing))
+                TargetIcon(size = cfg.statsIconSize)
+                Spacer(modifier = Modifier.width(cfg.statsInnerSpacing))
+                Text(rangeText, style = MaterialTheme.typography.labelSmall, fontSize = cfg.statsFontSize)
+            }
+        }
+    }
+}
+
+@Composable
+private fun DefenderButtonContent(cfg: DefenderButtonConfig, type: DefenderType, locale: AppLocale) {
+    if (cfg.useVerticalLayout) {
+        // Narrow: icon + name + price stacked vertically
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            DefenderButtonIcon(cfg, type)
+            Text(
+                type.getLocalizedShortName(locale),
+                style = MaterialTheme.typography.labelSmall,
+                fontSize = cfg.nameFontSize,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                MoneyIcon(size = cfg.moneyIconSize)
+                Spacer(modifier = Modifier.width(cfg.priceSpacing))
+                Text(
+                    "${type.baseCost}",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = cfg.priceFontSize
+                )
+            }
+        }
+    } else {
+        // Wide / Medium: horizontal row
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            DefenderButtonIcon(cfg, type)
+            Spacer(modifier = Modifier.width(cfg.iconSpacing))
+            if (cfg.priceBeforeName) {
+                // Medium: [icon] [price] [name+type+stats]
+                DefenderButtonPriceColumn(cfg, type)
+                Spacer(modifier = Modifier.width(cfg.priceSpacing))
+                DefenderButtonNameColumn(cfg, type, locale, modifier = Modifier.weight(1f))
+            } else {
+                // Wide: [icon] [name+type+buildtime] [price] [stats]
+                DefenderButtonNameColumn(cfg, type, locale, modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(cfg.priceSpacing))
+                DefenderButtonPriceColumn(cfg, type)
+                if (cfg.showSeparateStats) {
+                    Column(
+                        modifier = Modifier.fillMaxHeight().padding(start = cfg.statsColumnPaddingStart),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.Start
+                    ) {
+                        TowerStats(type.minRange, type.baseDamage, type.baseRange, type.actionsPerTurn)
+                    }
+                }
+            }
         }
     }
 }
