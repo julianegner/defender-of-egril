@@ -1,5 +1,6 @@
 package de.egril.defender.ui.gameplay.defenderButtons
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,12 +11,14 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -74,12 +77,6 @@ fun DefenderButton(
         "${stringResource(Res.string.coins_label)}: ${type.baseCost}" +
         if (isSelected) ", ${stringResource(Res.string.selected)}" else ""
 
-    val buttonModifier = Modifier
-        .fillMaxWidth()
-        .height(70.dp)
-        .androidTVModifier(isSelected = isSelected, description = description)
-
-
     /*
             colors = ButtonDefaults.buttonColors(
                 containerColor = if (isSelected) GamePlayColors.InfoDark else MaterialTheme.colorScheme.primary,
@@ -92,19 +89,59 @@ fun DefenderButton(
                 invalid button??
      */
 
-    Box(modifier = buttonModifier) {
-        // Stone slab background – edges of the visible image act as the button border
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .height(70.dp)) {
+
+/*
         Image(
             painter = painterResource(Res.drawable.stone_slab_wide),
             contentDescription = null,
-            modifier = Modifier.width(70.dp).height(30.dp)
-            // contentScale = ContentScale.FillBounds
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+                // .width(300.dp)
+                // .height(100.dp)
         )
+
+ */
+/*
+        Image(
+            painter = painterResource(Res.drawable.stone_slab_wide),
+            contentDescription = null,
+            modifier = Modifier
+                .align(Alignment.Center)
+                .fillMaxWidth(1.2f)
+                .fillMaxHeight(1.2f),
+            contentScale = ContentScale.Crop
+        )
+
+ */
+
+
+/*
+    Box(modifier = buttonModifier) {
+        Button(
+            onClick = onClick,
+            enabled = actuallyCanAfford,  // Use recalculated value
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isSelected) GamePlayColors.InfoDark else MaterialTheme.colorScheme.primary,
+                contentColor = if (isSelected && isDarkMode) Color.White else Color.White,  // Brighter text when selected in dark mode
+                disabledContainerColor = GamePlayColors.DisabledButton,
+                disabledContentColor = GamePlayColors.DisabledButtonText
+            ),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(2.dp)
+        ) {
+            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+
+ */
+
 
         // Clickable content area
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .androidTVModifier(isSelected = isSelected, description = description)
                 .clickable(enabled = actuallyCanAfford, onClick = onClick)
         ) {
             BoxWithConstraints(
@@ -113,7 +150,7 @@ fun DefenderButton(
                     .padding(horizontal = 4.dp, vertical = 2.dp)
             ) {
                 val bw = maxWidth
-                // Full layout: icon | price | name+buildtime | stats
+                // icon | price | name+buildtime | stats
                 Row(
                     modifier = Modifier.fillMaxSize(),
                     verticalAlignment = Alignment.CenterVertically,

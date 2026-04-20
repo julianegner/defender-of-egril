@@ -1,5 +1,6 @@
 package de.egril.defender.ui.gameplay
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -10,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,9 +24,11 @@ import defender_of_egril.composeapp.generated.resources.end_turn_button
 import defender_of_egril.composeapp.generated.resources.enemy_turn_title
 import defender_of_egril.composeapp.generated.resources.start_battle
 import defender_of_egril.composeapp.generated.resources.your_turn_message
+import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.config.LogConfig
 import de.egril.defender.ui.gameplay.defenderButtons.CompactDefenderButton
 import de.egril.defender.ui.gameplay.defenderButtons.DefenderButton
+import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun ColumnScope.TurnButton(
@@ -243,8 +247,9 @@ fun GameControlsPanel(
                     key = { type -> "${type.name}_${coinsState.value}_${gameState.defenders.count { it.type == type }}" }) { type ->
                     val canAfford = coinsState.value >= type.baseCost
                     if (LogConfig.ENABLE_UI_LOGGING) {
-                    println("DEBUG: ${phase.name} Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford")
+                        println("DEBUG: ${phase.name} Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford")
                     }
+
                     DefenderButton(
                         type = type,
                         isSelected = selectedDefenderType == type,
