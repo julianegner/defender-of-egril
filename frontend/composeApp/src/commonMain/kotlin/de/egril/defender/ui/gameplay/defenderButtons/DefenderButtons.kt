@@ -8,9 +8,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,8 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,7 +34,6 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.DefenderType
-import de.egril.defender.ui.TowerTypeIcon
 import de.egril.defender.ui.androidTVModifier
 import de.egril.defender.ui.animations.InstantTowerSpellAnimation
 import de.egril.defender.ui.animations.SpellInstantTowerColor
@@ -53,98 +50,9 @@ import de.egril.defender.ui.icon.TargetIcon
 import de.egril.defender.ui.icon.TimerIcon
 import de.egril.defender.ui.settings.AppSettings
 import org.jetbrains.compose.resources.painterResource
-
-@Composable
-fun CompactDefenderButton(
-    type: DefenderType,
-    isSelected: Boolean,
-    canAfford: Boolean,
-    instantTowerActive: Boolean = false,
-    modifier: Modifier,
-    onClick: () -> Unit
-) {
-    val isDarkMode = AppSettings.isDarkMode.value
-    val locale = com.hyperether.resources.currentLanguage.value
-
-    // Create accessible content description
-    val towerName = type.getLocalizedShortName(locale)
-    val description = "$towerName, ${stringResource(Res.string.coins_label)}: ${type.baseCost}" +
-        if (isSelected) ", ${stringResource(Res.string.selected)}" else ""
-
-    // Apply Android TV modifiers for accessibility and focus
-    val buttonModifier = modifier.androidTVModifier(
-        isSelected = isSelected,
-        description = description
-    )
-
-    Box(modifier = buttonModifier) {
-        Button(
-            onClick = onClick,
-            enabled = canAfford,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isSelected) GamePlayColors.InfoDark else MaterialTheme.colorScheme.primary,
-                contentColor = if (isSelected && isDarkMode) Color.White else Color.White,  // Brighter text when selected in dark mode
-                disabledContainerColor = GamePlayColors.DisabledButton,
-                disabledContentColor = GamePlayColors.DisabledButtonText
-            ),
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(4.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxSize(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start
-            ) {
-                // Tower icon
-                Box(
-                    modifier = Modifier.size(28.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    TowerTypeIcon(defenderType = type, modifier = Modifier.size(30.dp))
-                }
-
-                Spacer(modifier = Modifier.width(4.dp))
-
-                val locale = com.hyperether.resources.currentLanguage.value
-                Text(
-                    type.getLocalizedShortName(locale),
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f),
-                    color = if (isSelected && isDarkMode) Color.White else Color.White  // Ensure bright text
-                )
-
-                Spacer(modifier = Modifier.width(4.dp))
-
-                // Cost
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    MoneyIcon(size = 14.dp)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        "${type.baseCost}",
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
-                }
-            }
-        }
-        // Show glow animation overlay + purple border when Instant Tower spell is active and tower is affordable
-        if (instantTowerActive && canAfford) {
-            InstantTowerSpellAnimation(
-                animate = AppSettings.enableAnimations.value,
-                modifier = Modifier.fillMaxSize()
-            )
-            Box(
-                modifier = Modifier.fillMaxSize()
-                    .border(2.dp, SpellInstantTowerColor, RoundedCornerShape(percent = 50))
-            )
-        }
-    }
-}
+import com.hyperether.resources.stringResource
+import de.egril.defender.ui.TowerTypeIcon
+import defender_of_egril.composeapp.generated.resources.*
 
 @Composable
 fun DefenderButton(
@@ -171,13 +79,26 @@ fun DefenderButton(
         .height(70.dp)
         .androidTVModifier(isSelected = isSelected, description = description)
 
+
+    /*
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isSelected) GamePlayColors.InfoDark else MaterialTheme.colorScheme.primary,
+                contentColor = if (isSelected && isDarkMode) Color.White else Color.White,  // Brighter text when selected in dark mode
+                disabledContainerColor = GamePlayColors.DisabledButton,
+                disabledContentColor = GamePlayColors.DisabledButtonText
+            ),
+
+            TODO text color for TowerStats
+                invalid button??
+     */
+
     Box(modifier = buttonModifier) {
         // Stone slab background – edges of the visible image act as the button border
         Image(
             painter = painterResource(Res.drawable.stone_slab_wide),
             contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
+            modifier = Modifier.width(70.dp).height(30.dp)
+            // contentScale = ContentScale.FillBounds
         )
 
         // Clickable content area
@@ -192,22 +113,22 @@ fun DefenderButton(
                     .padding(horizontal = 4.dp, vertical = 2.dp)
             ) {
                 val bw = maxWidth
-                when {
-                    bw >= 170.dp -> {
-                        // Full layout: icon | price | name+buildtime | stats
-                        Row(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Start
-                        ) {
-                            TowerIconOnHexagon(defenderType = type, size = 54.dp)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            DefenderPriceColumn(
-                                cost = type.baseCost,
-                                moneyIconSize = 16.dp,
-                                priceFontSize = 14.sp,
-                                width = 32.dp
-                            )
+                // Full layout: icon | price | name+buildtime | stats
+                Row(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    TowerTypeIcon(defenderType = type, modifier = Modifier.size(54.dp))
+                    if (bw >= 60.dp) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        DefenderPriceColumn(
+                            cost = type.baseCost,
+                            moneyIconSize = 16.dp,
+                            priceFontSize = 14.sp,
+                            width = 32.dp
+                        )
+                        if (bw >= 110.dp) {
                             Spacer(modifier = Modifier.width(4.dp))
                             DefenderInfoColumn(
                                 type = type, locale = locale,
@@ -216,66 +137,17 @@ fun DefenderButton(
                                 modifier = Modifier.fillMaxHeight().weight(1f)
                             )
                             // Column 4: stats
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .padding(start = 4.dp),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.Start
-                            ) {
-                                TowerStats(type.minRange, type.baseDamage, type.baseRange, type.actionsPerTurn)
+                            if (bw >= 170.dp) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .padding(start = 4.dp),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.Start
+                                ) {
+                                    TowerStats(type.minRange, type.baseDamage, type.baseRange, type.actionsPerTurn)
+                                }
                             }
-                        }
-                    }
-
-                    bw >= 110.dp -> {
-                        // Middle layout: icon | price | name+buildtime
-                        Row(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Start
-                        ) {
-                            TowerIconOnHexagon(defenderType = type, size = 46.dp)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            DefenderPriceColumn(
-                                cost = type.baseCost,
-                                moneyIconSize = 13.dp,
-                                priceFontSize = 12.sp,
-                                width = 28.dp
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            DefenderInfoColumn(
-                                type = type, locale = locale,
-                                nameFontSize = 10.sp, attackTypeFontSize = 9.sp,
-                                timerIconSize = 10.dp, buildTimeFontSize = 9.sp,
-                                modifier = Modifier.fillMaxHeight().weight(1f)
-                            )
-                        }
-                    }
-
-                    bw >= 60.dp -> {
-                        // Lesser layout: icon | price
-                        Row(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Start
-                        ) {
-                            TowerIconOnHexagon(defenderType = type, size = 40.dp)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            DefenderPriceColumn(
-                                cost = type.baseCost, moneyIconSize = 12.dp, priceFontSize = 11.sp,
-                                modifier = Modifier.fillMaxHeight().weight(1f)
-                            )
-                        }
-                    }
-
-                    else -> {
-                        // Minimum layout: icon only
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            TowerIconOnHexagon(defenderType = type, size = 50.dp)
                         }
                     }
                 }
