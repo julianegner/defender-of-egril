@@ -14,6 +14,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.*
@@ -181,59 +183,14 @@ fun DefenderButton(
                         ) {
                             TowerIconOnHexagon(defenderType = type, size = 54.dp)
                             Spacer(modifier = Modifier.width(4.dp))
-                            // Column 2: price
-                            Column(
-                                modifier = Modifier.width(32.dp),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                MoneyIcon(size = 16.dp)
-                                Text(
-                                    "${type.baseCost}",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp,
-                                    color = Color.White
-                                )
-                            }
+                            DefenderPriceColumn(cost = type.baseCost, moneyIconSize = 16.dp, priceFontSize = 14.sp, width = 32.dp)
                             Spacer(modifier = Modifier.width(4.dp))
-                            // Column 3: name + build time
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .weight(1f),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.Start
-                            ) {
-                                Text(
-                                    type.getLocalizedShortName(locale),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 12.sp,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    color = Color.White
-                                )
-                                Text(
-                                    type.attackType.getLocalizedName(locale),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontSize = 10.sp,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    color = GamePlayColors.Yellow
-                                )
-                                if (type.buildTime > 0) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        TimerIcon(size = 12.dp)
-                                        Text(
-                                            "${type.buildTime}T",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            fontSize = 10.sp,
-                                            color = Color.White
-                                        )
-                                    }
-                                }
-                            }
+                            DefenderInfoColumn(
+                                type = type, locale = locale,
+                                nameFontSize = 12.sp, attackTypeFontSize = 10.sp,
+                                timerIconSize = 12.dp, buildTimeFontSize = 10.sp,
+                                modifier = Modifier.fillMaxHeight().weight(1f)
+                            )
                             // Column 4: stats
                             Column(
                                 modifier = Modifier
@@ -255,59 +212,14 @@ fun DefenderButton(
                         ) {
                             TowerIconOnHexagon(defenderType = type, size = 46.dp)
                             Spacer(modifier = Modifier.width(4.dp))
-                            // Column 2: price
-                            Column(
-                                modifier = Modifier.width(28.dp),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                MoneyIcon(size = 13.dp)
-                                Text(
-                                    "${type.baseCost}",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 12.sp,
-                                    color = Color.White
-                                )
-                            }
+                            DefenderPriceColumn(cost = type.baseCost, moneyIconSize = 13.dp, priceFontSize = 12.sp, width = 28.dp)
                             Spacer(modifier = Modifier.width(4.dp))
-                            // Column 3: name + build time
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .weight(1f),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.Start
-                            ) {
-                                Text(
-                                    type.getLocalizedShortName(locale),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 10.sp,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    color = Color.White
-                                )
-                                Text(
-                                    type.attackType.getLocalizedName(locale),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontSize = 9.sp,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    color = GamePlayColors.Yellow
-                                )
-                                if (type.buildTime > 0) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        TimerIcon(size = 10.dp)
-                                        Text(
-                                            "${type.buildTime}T",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            fontSize = 9.sp,
-                                            color = Color.White
-                                        )
-                                    }
-                                }
-                            }
+                            DefenderInfoColumn(
+                                type = type, locale = locale,
+                                nameFontSize = 10.sp, attackTypeFontSize = 9.sp,
+                                timerIconSize = 10.dp, buildTimeFontSize = 9.sp,
+                                modifier = Modifier.fillMaxHeight().weight(1f)
+                            )
                         }
                     }
                     bw >= 60.dp -> {
@@ -319,23 +231,10 @@ fun DefenderButton(
                         ) {
                             TowerIconOnHexagon(defenderType = type, size = 40.dp)
                             Spacer(modifier = Modifier.width(4.dp))
-                            // Column 2: price
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .weight(1f),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                MoneyIcon(size = 12.dp)
-                                Text(
-                                    "${type.baseCost}",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 11.sp,
-                                    color = Color.White
-                                )
-                            }
+                            DefenderPriceColumn(
+                                cost = type.baseCost, moneyIconSize = 12.dp, priceFontSize = 11.sp,
+                                modifier = Modifier.fillMaxHeight().weight(1f)
+                            )
                         }
                     }
                     else -> {
@@ -383,6 +282,78 @@ fun DefenderButton(
         }
     }
 }
+
+@Composable
+private fun DefenderPriceColumn(
+    cost: Int,
+    moneyIconSize: Dp,
+    priceFontSize: TextUnit,
+    width: Dp? = null,
+    modifier: Modifier = Modifier
+) {
+    val columnModifier = if (width != null) modifier.width(width) else modifier
+    Column(
+        modifier = columnModifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        MoneyIcon(size = moneyIconSize)
+        Text(
+            "$cost",
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold,
+            fontSize = priceFontSize,
+            color = Color.White
+        )
+    }
+}
+
+@Composable
+private fun DefenderInfoColumn(
+    type: DefenderType,
+    locale: com.hyperether.resources.AppLocale,
+    nameFontSize: TextUnit,
+    attackTypeFontSize: TextUnit,
+    timerIconSize: Dp,
+    buildTimeFontSize: TextUnit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.Start
+    ) {
+        Text(
+            type.getLocalizedShortName(locale),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold,
+            fontSize = nameFontSize,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            color = Color.White
+        )
+        Text(
+            type.attackType.getLocalizedName(locale),
+            style = MaterialTheme.typography.labelSmall,
+            fontSize = attackTypeFontSize,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            color = GamePlayColors.Yellow
+        )
+        if (type.buildTime > 0) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                TimerIcon(size = timerIconSize)
+                Text(
+                    "${type.buildTime}T",
+                    style = MaterialTheme.typography.labelSmall,
+                    fontSize = buildTimeFontSize,
+                    color = Color.White
+                )
+            }
+        }
+    }
+}
+
 
 @Composable
 fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int, rangeColor: Color = Color.Unspecified) {
