@@ -221,18 +221,41 @@ object RepositoryLoader {
             }
 
             // Load and save world map data from repository to official directory
-            // Only write if the file doesn't already exist (to preserve user edits)
-            val worldMapData = loadWorldMapData()
-            if (worldMapData != null) {
+            // Preserve user-editable content (locations, paths) from the existing file,
+            // but always refresh animation-only data (seaAreas, rivers) from the repository.
+            val repositoryWorldMapData = loadWorldMapData()
+            if (repositoryWorldMapData != null) {
                 if (!storage.fileExists("gamedata/official/worldmap.json")) {
-                    val worldMapJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
+                    // First install: write the full repository worldmap
+                    val worldMapJson = EditorJsonSerializer.serializeWorldMapData(repositoryWorldMapData)
                     storage.writeFile("gamedata/official/worldmap.json", worldMapJson)
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("Loaded and saved official worldmap.json from repository")
                     }
                 } else {
-                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                    println("Skipping worldmap.json - file already exists (preserving user edits)")
+                    // File exists: merge animation data (seaAreas, rivers) from repository
+                    // into the stored file while preserving user-edited locations and paths.
+                    val storedJson = storage.readFile("gamedata/official/worldmap.json")
+                    val storedData = if (storedJson != null) {
+                        EditorJsonSerializer.deserializeWorldMapData(storedJson)
+                    } else null
+                    val needsMerge = storedData != null &&
+                        (storedData.seaAreas.isEmpty() || storedData.rivers.isEmpty()) &&
+                        (repositoryWorldMapData.seaAreas.isNotEmpty() || repositoryWorldMapData.rivers.isNotEmpty())
+                    if (needsMerge) {
+                        val mergedData = storedData!!.copy(
+                            seaAreas = repositoryWorldMapData.seaAreas,
+                            rivers = repositoryWorldMapData.rivers
+                        )
+                        val worldMapJson = EditorJsonSerializer.serializeWorldMapData(mergedData)
+                        storage.writeFile("gamedata/official/worldmap.json", worldMapJson)
+                        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                        println("Updated worldmap.json with sea areas and rivers from repository")
+                        }
+                    } else {
+                        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                        println("Skipping worldmap.json merge - file already has animation data or no repository data to merge")
+                        }
                     }
                 }
             } else {

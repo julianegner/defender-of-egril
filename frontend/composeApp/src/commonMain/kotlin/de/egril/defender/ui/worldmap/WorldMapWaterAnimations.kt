@@ -26,10 +26,10 @@ import kotlin.math.sqrt
 // ----- Visual constants -----
 
 /** Semi-transparent blue used for sea wave lines. */
-private val SEA_WAVE_COLOR = Color(0x3300AAFF)
+private val SEA_WAVE_COLOR = Color(0x5500AAFF)
 
 /** Semi-transparent cyan used for river flow dashes. */
-private val RIVER_FLOW_COLOR = Color(0x6600BBEE)
+private val RIVER_FLOW_COLOR = Color(0x8000BBEE)
 
 /** Amplitude of a sea wave as a fraction of the sea area height. */
 private const val SEA_WAVE_AMPLITUDE_FACTOR = 0.04f
@@ -178,7 +178,7 @@ private fun DrawScope.drawSeaWaves(
             }
             x += SEA_WAVE_STEP_SIZE
         }
-        drawPath(path, SEA_WAVE_COLOR, style = Stroke(width = 1.5f, cap = StrokeCap.Round))
+        drawPath(path, SEA_WAVE_COLOR, style = Stroke(width = 2.0f, cap = StrokeCap.Round))
     }
 }
 
