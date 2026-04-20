@@ -1477,6 +1477,16 @@
     <string name="cheat_lockall_desc">Alle Level sperren</string>
     <string name="cheat_lock_desc">Bestimmtes Level sperren</string>
 
+    <!-- Cheat code dialog UI -->
+    <string name="cheat_dialog_title">Cheat-Code</string>
+    <string name="cheat_dialog_enter_code">Cheat-Code eingeben:</string>
+    <string name="cheat_dialog_invalid_code">Ungültiger Cheat-Code</string>
+    <string name="cheat_dialog_available_codes">Verfügbare Codes:</string>
+    <string name="cheat_dialog_hint_cash">• cash - 1.000 Münzen erhalten</string>
+    <string name="cheat_dialog_hint_mmmoney">• mmmoney - Eine Million Münzen erhalten</string>
+    <string name="cheat_dialog_hint_emptypocket">• emptypocket - Münzen auf 0 setzen</string>
+    <string name="cheat_dialog_hint_dragon">• dragon - Drachen aus der Mine erschaffen</string>
+
     <!-- Freeze status labels -->
     <string name="frozen_label">Eingefroren</string>
     <string name="frozen_turns_remaining">Eingefroren: %d Runden verbleibend</string>

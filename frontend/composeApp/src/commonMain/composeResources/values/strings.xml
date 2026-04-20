@@ -1481,6 +1481,16 @@
     <string name="cheat_lockall_desc">Lock all levels</string>
     <string name="cheat_lock_desc">Lock specific level</string>
 
+    <!-- Cheat code dialog UI -->
+    <string name="cheat_dialog_title">Cheat Code</string>
+    <string name="cheat_dialog_enter_code">Enter cheat code:</string>
+    <string name="cheat_dialog_invalid_code">Invalid cheat code</string>
+    <string name="cheat_dialog_available_codes">Available codes:</string>
+    <string name="cheat_dialog_hint_cash">• cash - Get 1000 coins</string>
+    <string name="cheat_dialog_hint_mmmoney">• mmmoney - Get a million coins</string>
+    <string name="cheat_dialog_hint_emptypocket">• emptypocket - Set coins to 0</string>
+    <string name="cheat_dialog_hint_dragon">• dragon - Spawn dragon from mine</string>
+
     <!-- Freeze status labels -->
     <string name="frozen_label">Frozen</string>
     <string name="frozen_turns_remaining">Frozen: %d turns remaining</string>

@@ -1478,6 +1478,16 @@
     <string name="cheat_lockall_desc">Bloquear todos los niveles</string>
     <string name="cheat_lock_desc">Bloquear nivel específico</string>
 
+    <!-- Cheat code dialog UI -->
+    <string name="cheat_dialog_title">Código de trucos</string>
+    <string name="cheat_dialog_enter_code">Ingresa el código de trucos:</string>
+    <string name="cheat_dialog_invalid_code">Código de trucos inválido</string>
+    <string name="cheat_dialog_available_codes">Códigos disponibles:</string>
+    <string name="cheat_dialog_hint_cash">• cash - Obtener 1000 monedas</string>
+    <string name="cheat_dialog_hint_mmmoney">• mmmoney - Obtener un millón de monedas</string>
+    <string name="cheat_dialog_hint_emptypocket">• emptypocket - Establecer monedas en 0</string>
+    <string name="cheat_dialog_hint_dragon">• dragon - Crear dragón desde la mina</string>
+
     <!-- Freeze status labels -->
     <string name="frozen_label">Congelado</string>
     <string name="frozen_turns_remaining">Congelado: %d turnos restantes</string>
