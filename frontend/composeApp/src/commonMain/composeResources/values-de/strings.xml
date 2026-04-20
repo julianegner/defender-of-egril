@@ -1609,6 +1609,7 @@
     <string name="iam_logout_successful_message">Du kannst dieses Fenster schließen oder zum Spiel zurückkehren.</string>
     <string name="iam_login_error_heading">Anmeldefehler</string>
     <string name="iam_login_error_message">Die Anmeldung konnte nicht abgeschlossen werden. Bitte versuche es erneut.</string>
+    <string name="iam_close_window">Fenster schließen</string>
     <string name="always_log_in">Immer anmelden</string>
     <string name="use_remote_settings">Remote-Einstellungen verwenden</string>
     <string name="iam_manage_account">Konto verwalten</string>

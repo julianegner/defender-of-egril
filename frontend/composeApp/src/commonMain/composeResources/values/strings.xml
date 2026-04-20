@@ -1616,6 +1616,7 @@
     <string name="iam_logout_successful_message">You can close this window or return to the game.</string>
     <string name="iam_login_error_heading">Login error</string>
     <string name="iam_login_error_message">The login could not be completed. Please try again.</string>
+    <string name="iam_close_window">Close Window</string>
     <string name="always_log_in">Always log in</string>
     <string name="use_remote_settings">Use remote settings</string>
     <string name="iam_manage_account">Manage Account</string>
