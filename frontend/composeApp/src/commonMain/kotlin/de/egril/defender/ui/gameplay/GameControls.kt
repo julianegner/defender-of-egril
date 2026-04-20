@@ -21,9 +21,10 @@ import defender_of_egril.composeapp.generated.resources.initial_building_phase
 import defender_of_egril.composeapp.generated.resources.end_turn_button
 import defender_of_egril.composeapp.generated.resources.enemy_turn_title
 import defender_of_egril.composeapp.generated.resources.start_battle
-import defender_of_egril.composeapp.generated.resources.turn
 import defender_of_egril.composeapp.generated.resources.your_turn_message
 import de.egril.defender.config.LogConfig
+import de.egril.defender.ui.gameplay.defenderButtons.CompactDefenderButton
+import de.egril.defender.ui.gameplay.defenderButtons.DefenderButton
 
 @Composable
 fun ColumnScope.TurnButton(

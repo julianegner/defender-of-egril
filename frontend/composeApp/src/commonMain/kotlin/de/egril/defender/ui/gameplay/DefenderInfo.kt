@@ -3,9 +3,7 @@ package de.egril.defender.ui.gameplay
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,7 +18,6 @@ import de.egril.defender.model.*
 import de.egril.defender.ui.*
 import de.egril.defender.ui.animations.SpellDoubleLevelColor
 import de.egril.defender.ui.animations.SpellDoubleReachColor
-import de.egril.defender.ui.icon.HoleIcon
 import de.egril.defender.ui.icon.InfoIcon
 import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.PickIcon
@@ -29,8 +26,8 @@ import de.egril.defender.ui.icon.TimerIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
 import de.egril.defender.ui.icon.WarningIcon
-import com.hyperether.resources.AppLocale
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.gameplay.defenderButtons.TowerStats
 import defender_of_egril.composeapp.generated.resources.*
 
 @Composable

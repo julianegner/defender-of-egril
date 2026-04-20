@@ -1,13 +1,30 @@
-package de.egril.defender.ui.gameplay
+package de.egril.defender.ui.gameplay.defenderButtons
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,10 +35,16 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import de.egril.defender.model.*
-import de.egril.defender.ui.*
+import de.egril.defender.model.DefenderType
+import de.egril.defender.ui.TowerTypeIcon
+import de.egril.defender.ui.androidTVModifier
 import de.egril.defender.ui.animations.InstantTowerSpellAnimation
 import de.egril.defender.ui.animations.SpellInstantTowerColor
+import de.egril.defender.ui.gameplay.GamePlayColors
+import de.egril.defender.ui.gameplay.GamePlayConstants
+import de.egril.defender.ui.gameplay.IconTextRow
+import de.egril.defender.ui.getLocalizedName
+import de.egril.defender.ui.getLocalizedShortName
 import de.egril.defender.ui.hexagon.TowerIconOnHexagon
 import de.egril.defender.ui.icon.ExplosionIcon
 import de.egril.defender.ui.icon.LightningIcon
@@ -29,11 +52,7 @@ import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.TargetIcon
 import de.egril.defender.ui.icon.TimerIcon
 import de.egril.defender.ui.settings.AppSettings
-import com.hyperether.resources.stringResource
-import defender_of_egril.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
-
-
 
 @Composable
 fun CompactDefenderButton(
@@ -44,14 +63,14 @@ fun CompactDefenderButton(
     modifier: Modifier,
     onClick: () -> Unit
 ) {
-    val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
+    val isDarkMode = AppSettings.isDarkMode.value
     val locale = com.hyperether.resources.currentLanguage.value
-    
+
     // Create accessible content description
     val towerName = type.getLocalizedShortName(locale)
     val description = "$towerName, ${stringResource(Res.string.coins_label)}: ${type.baseCost}" +
         if (isSelected) ", ${stringResource(Res.string.selected)}" else ""
-    
+
     // Apply Android TV modifiers for accessibility and focus
     val buttonModifier = modifier.androidTVModifier(
         isSelected = isSelected,
@@ -183,7 +202,12 @@ fun DefenderButton(
                         ) {
                             TowerIconOnHexagon(defenderType = type, size = 54.dp)
                             Spacer(modifier = Modifier.width(4.dp))
-                            DefenderPriceColumn(cost = type.baseCost, moneyIconSize = 16.dp, priceFontSize = 14.sp, width = 32.dp)
+                            DefenderPriceColumn(
+                                cost = type.baseCost,
+                                moneyIconSize = 16.dp,
+                                priceFontSize = 14.sp,
+                                width = 32.dp
+                            )
                             Spacer(modifier = Modifier.width(4.dp))
                             DefenderInfoColumn(
                                 type = type, locale = locale,
@@ -203,6 +227,7 @@ fun DefenderButton(
                             }
                         }
                     }
+
                     bw >= 110.dp -> {
                         // Middle layout: icon | price | name+buildtime
                         Row(
@@ -212,7 +237,12 @@ fun DefenderButton(
                         ) {
                             TowerIconOnHexagon(defenderType = type, size = 46.dp)
                             Spacer(modifier = Modifier.width(4.dp))
-                            DefenderPriceColumn(cost = type.baseCost, moneyIconSize = 13.dp, priceFontSize = 12.sp, width = 28.dp)
+                            DefenderPriceColumn(
+                                cost = type.baseCost,
+                                moneyIconSize = 13.dp,
+                                priceFontSize = 12.sp,
+                                width = 28.dp
+                            )
                             Spacer(modifier = Modifier.width(4.dp))
                             DefenderInfoColumn(
                                 type = type, locale = locale,
@@ -222,6 +252,7 @@ fun DefenderButton(
                             )
                         }
                     }
+
                     bw >= 60.dp -> {
                         // Lesser layout: icon | price
                         Row(
@@ -237,6 +268,7 @@ fun DefenderButton(
                             )
                         }
                     }
+
                     else -> {
                         // Minimum layout: icon only
                         Box(
@@ -289,7 +321,7 @@ private fun DefenderPriceColumn(
     moneyIconSize: Dp,
     priceFontSize: TextUnit,
     width: Dp? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier.Companion
 ) {
     val columnModifier = if (width != null) modifier.width(width) else modifier
     Column(
@@ -316,7 +348,7 @@ private fun DefenderInfoColumn(
     attackTypeFontSize: TextUnit,
     timerIconSize: Dp,
     buildTimeFontSize: TextUnit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier.Companion
 ) {
     Column(
         modifier = modifier,
@@ -364,14 +396,14 @@ fun TowerStats(minRange: Int, damage: Int, range: Int, actionsPerTurn: Int, rang
             iconSize = GamePlayConstants.IconSizes.Small,
             spacerWidth = GamePlayConstants.Spacing.IconText
         )
-        
+
         val rangeText = if (minRange > 0) "$minRange-$range" else range.toString()
         Row(verticalAlignment = Alignment.CenterVertically) {
             TargetIcon(size = GamePlayConstants.IconSizes.Small)
             Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
             Text(rangeText, style = MaterialTheme.typography.bodySmall, color = rangeColor)
         }
-        
+
         IconTextRow(
             icon = { size -> LightningIcon(size = size) },
             text = actionsPerTurn.toString(),
