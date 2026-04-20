@@ -423,8 +423,8 @@ fun BoxScope.WorldMapWaterAnimationsOverlay(
 
         // ── Tidal shore animation ──────────────────────────────────────
         // Draw breathing circles along the coastline that expand/contract
-        val tidalRadius = 6f + 5f * sin(tidalPhase * Math.PI.toFloat())
-        val tidalAlpha = 0.12f + 0.08f * sin(tidalPhase * Math.PI.toFloat())
+        val tidalRadius = 6f + 5f * sin(tidalPhase * kotlin.math.PI.toFloat())
+        val tidalAlpha = 0.12f + 0.08f * sin(tidalPhase * kotlin.math.PI.toFloat())
 
         for (segment in COASTAL_SEGMENTS) {
             for (pt in segment.points) {
