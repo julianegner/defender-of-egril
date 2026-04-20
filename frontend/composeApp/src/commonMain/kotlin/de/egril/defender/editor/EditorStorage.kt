@@ -672,6 +672,19 @@ object EditorStorage {
         communityLevelsCache.clear()
         communityMapsCache.clear()
     }
+
+    /**
+     * Clear the in-memory official data caches (forces reload from disk on next access).
+     * Call this after syncing official content from the repository so subsequent reads pick up
+     * the newly written files.
+     */
+    fun clearOfficialDataCache() {
+        levelSequenceCache = null
+        userLevelSequenceCache = null
+        worldMapDataCache = null
+        mapsCache.clear()
+        levelsCache.clear()
+    }
     
     fun getLevelSequence(): LevelSequence {
         if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {

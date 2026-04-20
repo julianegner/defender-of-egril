@@ -27,6 +27,21 @@ object RepositoryLoader {
     }
     
     /**
+     * Load version from repository
+     */
+    suspend fun loadVersion(): String? {
+        return try {
+            val bytes = Res.readBytes("files/repository/version.txt")
+            bytes.decodeToString().trim()
+        } catch (e: Exception) {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("Could not load version from repository: ${e.message}")
+            }
+            null
+        }
+    }
+
+    /**
      * Load sequence from repository
      */
     suspend fun loadSequence(): LevelSequence? {
@@ -130,13 +145,28 @@ object RepositoryLoader {
     }
     
     /**
-     * Load all repository files and save them to file storage
-     * @return true if repository files were successfully loaded and saved
+     * Load all repository files and save them to file storage.
+     * Skips the full reload if the stored version already matches the bundled version.
+     * @return true if repository files were successfully loaded and saved (or already up to date)
      */
     suspend fun loadAndSaveRepositoryFiles(storage: FileStorage): Boolean {
         return try {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Loading repository files...")
+            }
+
+            // Fast path: skip full reload if stored version matches bundled version
+            val bundledVersion = loadVersion()
+            val storedVersion = storage.readFile("gamedata/version.txt")?.trim()
+            if (bundledVersion != null && bundledVersion == storedVersion) {
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                println("Repository data is up to date (version $storedVersion), skipping reload")
+                }
+                return true
+            }
+
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("Repository version changed (stored: $storedVersion, bundled: $bundledVersion) - reloading all official data")
             }
 
             // Load sequence first
@@ -206,34 +236,20 @@ object RepositoryLoader {
                 }
             }
             
-            // Save sequence to official directory only if it doesn't already exist
-            // (to preserve user edits made via the editor's Save Sequence button)
-            if (!storage.fileExists("gamedata/official/sequence.json")) {
-                val sequenceJson = EditorJsonSerializer.serializeSequence(sequence)
-                storage.writeFile("gamedata/official/sequence.json", sequenceJson)
-                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                println("Saved official sequence")
-                }
-            } else {
-                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                println("Skipping sequence.json - file already exists (preserving user edits)")
-                }
+            // Always save sequence to official directory from repository to keep it up to date
+            val sequenceJson = EditorJsonSerializer.serializeSequence(sequence)
+            storage.writeFile("gamedata/official/sequence.json", sequenceJson)
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("Saved official sequence")
             }
 
-            // Load and save world map data from repository to official directory
-            // Only write if the file doesn't already exist (to preserve user edits)
+            // Always load and save world map data from repository to official directory
             val worldMapData = loadWorldMapData()
             if (worldMapData != null) {
-                if (!storage.fileExists("gamedata/official/worldmap.json")) {
-                    val worldMapJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
-                    storage.writeFile("gamedata/official/worldmap.json", worldMapJson)
-                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                    println("Loaded and saved official worldmap.json from repository")
-                    }
-                } else {
-                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                    println("Skipping worldmap.json - file already exists (preserving user edits)")
-                    }
+                val worldMapJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
+                storage.writeFile("gamedata/official/worldmap.json", worldMapJson)
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                println("Loaded and saved official worldmap.json from repository")
                 }
             } else {
                 if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
@@ -241,8 +257,8 @@ object RepositoryLoader {
                 }
             }
             
-            // Save version file
-            storage.writeFile("gamedata/version.txt", "10")
+            // Save version file (use bundledVersion if available, otherwise fall back to hardcoded)
+            storage.writeFile("gamedata/version.txt", bundledVersion ?: "10")
             
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Repository files loaded successfully: $successCount levels, $mapCount maps")
