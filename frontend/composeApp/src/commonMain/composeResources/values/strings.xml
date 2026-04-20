@@ -48,6 +48,8 @@
     <string name="animations">Animations</string>
     <string name="animations_on">Animations On</string>
     <string name="animations_off">Static Icons</string>
+    <string name="worldmap_animations_on">Worldmap Animations On</string>
+    <string name="worldmap_animations_off">Worldmap Animations Off</string>
     <string name="header_text_size">Level Header Text Size</string>
     <string name="header_text_size_small">Small</string>
     <string name="header_text_size_medium">Medium</string>

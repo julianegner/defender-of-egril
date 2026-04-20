@@ -66,6 +66,7 @@ object AppSettings {
     private const val KEY_USE_LEVEL_MAP_IMAGE = "use_level_map_image"
     private const val KEY_SHOW_DEBUG_OPTIONS = "show_debug_options"
     private const val KEY_ENABLE_ANIMATIONS = "enable_animations"
+    private const val KEY_ENABLE_WORLDMAP_ANIMATIONS = "enable_worldmap_animations"
     private const val KEY_CHECK_FOR_UPDATES = "check_for_updates"
     
     private val settings: Settings = Settings()
@@ -217,6 +218,15 @@ object AppSettings {
      */
     val enableAnimations: MutableState<Boolean> = mutableStateOf(
         settings.getBoolean(KEY_ENABLE_ANIMATIONS, true)
+    )
+
+    /**
+     * Enable worldmap animations - show water/tidal animations on the world map
+     * Only effective when enableAnimations is also true
+     * Default is true (worldmap animations ON)
+     */
+    val enableWorldMapAnimations: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_ENABLE_WORLDMAP_ANIMATIONS, true)
     )
 
     /**
@@ -508,6 +518,15 @@ object AppSettings {
     }
 
     /**
+     * Save enable worldmap animations preference
+     */
+    fun saveEnableWorldMapAnimations(enabled: Boolean) {
+        enableWorldMapAnimations.value = enabled
+        settings.putBoolean(KEY_ENABLE_WORLDMAP_ANIMATIONS, enabled)
+        onPersist?.invoke()
+    }
+
+    /**
      * Save check for updates preference
      */
     fun saveCheckForUpdates(enabled: Boolean) {
@@ -542,6 +561,7 @@ object AppSettings {
         put(KEY_HEADER_TEXT_SIZE, headerTextSize.value.name)
         put(KEY_USE_LEVEL_MAP_IMAGE, useLevelMapImage.value.toString())
         put(KEY_ENABLE_ANIMATIONS, enableAnimations.value.toString())
+        put(KEY_ENABLE_WORLDMAP_ANIMATIONS, enableWorldMapAnimations.value.toString())
         put(KEY_CHECK_FOR_UPDATES, checkForUpdates.value.toString())
     }
 
@@ -581,6 +601,7 @@ object AppSettings {
             }
             map[KEY_USE_LEVEL_MAP_IMAGE]?.toBooleanStrictOrNull()?.let { saveUseLevelMapImage(it) }
             map[KEY_ENABLE_ANIMATIONS]?.toBooleanStrictOrNull()?.let { saveEnableAnimations(it) }
+            map[KEY_ENABLE_WORLDMAP_ANIMATIONS]?.toBooleanStrictOrNull()?.let { saveEnableWorldMapAnimations(it) }
             map[KEY_CHECK_FOR_UPDATES]?.toBooleanStrictOrNull()?.let { saveCheckForUpdates(it) }
         } finally {
             onPersist = savedCallback
@@ -632,6 +653,9 @@ object AppSettings {
         
         // Reset animations to ON
         saveEnableAnimations(true)
+        
+        // Reset worldmap animations to ON
+        saveEnableWorldMapAnimations(true)
         
         // Reset check for updates to ON
         saveCheckForUpdates(true)

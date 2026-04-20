@@ -48,6 +48,8 @@
     <string name="animations">Animazioni</string>
     <string name="animations_on">Animazioni Attive</string>
     <string name="animations_off">Icone Statiche</string>
+    <string name="worldmap_animations_on">Animazioni Mappa Attive</string>
+    <string name="worldmap_animations_off">Animazioni Mappa Disattivate</string>
     <string name="header_text_size">Dimensione del Testo dell'Intestazione del Livello</string>
     <string name="header_text_size_small">Piccolo</string>
     <string name="header_text_size_medium">Medio</string>

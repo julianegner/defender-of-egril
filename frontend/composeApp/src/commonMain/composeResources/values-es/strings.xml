@@ -48,6 +48,8 @@
     <string name="animations">Animaciones</string>
     <string name="animations_on">Animaciones Activadas</string>
     <string name="animations_off">Iconos Estáticos</string>
+    <string name="worldmap_animations_on">Animaciones del Mapa Activadas</string>
+    <string name="worldmap_animations_off">Animaciones del Mapa Desactivadas</string>
     <string name="header_text_size">Tamaño de Texto del Encabezado del Nivel</string>
     <string name="header_text_size_small">Pequeño</string>
     <string name="header_text_size_medium">Mediano</string>

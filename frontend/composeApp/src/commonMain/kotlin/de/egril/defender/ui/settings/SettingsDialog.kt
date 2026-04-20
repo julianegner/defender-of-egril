@@ -185,6 +185,19 @@ fun SettingsDialog(
                         modifier = Modifier.fillMaxWidth()
                     )
 
+                    // Worldmap animations switch (only visible when animations are ON)
+                    if (AppSettings.enableAnimations.value) {
+                        DualLabelSwitch(
+                            state = AppSettings.enableWorldMapAnimations,
+                            leftText = stringResource(Res.string.worldmap_animations_off),
+                            rightText = stringResource(Res.string.worldmap_animations_on),
+                            onCheckedChange = { enabled ->
+                                AppSettings.saveEnableWorldMapAnimations(enabled)
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
                     // Show testing levels switch
                     GenericSwitch(
                         state = AppSettings.showTestingLevels,

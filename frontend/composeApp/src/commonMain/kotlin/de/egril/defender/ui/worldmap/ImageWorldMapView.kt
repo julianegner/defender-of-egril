@@ -242,6 +242,16 @@ fun ImageWorldMapView(
                 contentScale = ContentScale.Fit
             )
             
+            // Water animations overlay (tidal + river flow)
+            // Only shown when both animations and worldmap animations settings are ON
+            if (AppSettings.enableAnimations.value && AppSettings.enableWorldMapAnimations.value) {
+                WorldMapWaterAnimationsOverlay(
+                    imageAspectRatio = imageAspectRatio,
+                    containerWidth = containerSize.width,
+                    containerHeight = containerSize.height
+                )
+            }
+            
             // Draw road connections between locations
             RoadConnectionsOverlay(
                 roads = roads,
