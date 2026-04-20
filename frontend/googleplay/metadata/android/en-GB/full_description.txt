@@ -1,0 +1,47 @@
+DEFEND EGRIL - THE LAST STAND OF THE MEADOWS
+
+The evil warlord Ewhad has rallied the Hordes of Gleid Thyae and set his sights on Egril's peaceful meadows. Only your tactical skill and a well-placed line of defences stand between the land and total destruction.
+
+Defender of Egril is a turn-based, hex-grid tower defence strategy game that rewards careful planning, smart upgrading, and decisive targeting.
+
+--- GAMEPLAY ---
+
+* Place and upgrade towers before and during each wave
+* Manually choose which enemy each tower targets - precision matters
+* Manage action points: every tower gets a limited number of attacks per turn
+* Earn gold by defeating enemies and reinvest it in new towers or upgrades
+* Survive all enemy waves to unlock the next level on the world map
+
+--- TOWER ARSENAL ---
+
+Spike Tower - Close-range melee, affordable and dependable
+Bow Tower - Long-range archery for distant threats
+Spear Tower - Medium-range piercing power
+Wizard Tower - Area-of-effect fireballs that hit multiple enemies at once
+Alchemy Tower - Acid attacks with lingering damage over time
+Ballista Tower - Extreme-range siege weapon with a minimum firing range
+Dwarven Mine - Generates gold coins through mining actions
+Dragon's Lair - Summons powerful dragons into battle
+
+--- YOUR ENEMIES ---
+
+Face an ever-growing horde of fantasy creatures: swift Goblins, armoured Orks, hulking Ogres, Skeletons, Evil Wizards, Witches, Blue Demons (acid immune), Red Demons (fire immune), Evil Mages that summon reinforcements, Red Witches that disable your towers, Green Witches that heal allies - and terrifying boss monsters including the mighty Ewhad himself.
+
+--- STRATEGY ---
+
+* Hexagonal grid tactics with waypoint-based enemy paths
+* Block enemy routes with cleverly placed towers
+* Counter specific enemy immunities with the right tower types
+* Initial building phase: place towers instantly before the first wave
+
+--- FEATURES ---
+
+* Turn-based strategy with full manual targeting control
+* World map with unlockable levels and increasing difficulty
+* Save and load your game progress at any time
+* Pan and zoom the battlefield (0.5x - 3x) with an auto-appearing minimap
+* Dark mode, language selection, tile visuals, and animation settings
+* Fully localised: English, German, Spanish, French, and Italian
+* Level Editor available on desktop and web versions
+
+Download Defender of Egril - free to play, forever.

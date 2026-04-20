@@ -1,0 +1,46 @@
+# Deploy Google Play Store listing metadata
+#
+# Trigger: manual dispatch, or automatically when any listing file changes on main.
+#
+# What it does:
+#   Uploads store listing metadata (titles, descriptions, changelogs) to Google
+#   Play via Fastlane supply. No APK or AAB is uploaded by this workflow.
+#
+# Required secret:
+#   GOOGLE_PLAY_SERVICE_ACCOUNT_JSON – Full JSON content of a Google Play
+#   service account key with "Edit store listing" permission for de.egril.defender.
+#   See frontend/googleplay/README.md for setup instructions.
+
+name: Deploy Play Store Listing
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend/googleplay/metadata/**'
+
+permissions:
+  contents: read
+
+jobs:
+  upload_listing:
+    name: Upload Store Listing Metadata
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: frontend/googleplay
+
+      - name: Upload store listing via Fastlane supply
+        working-directory: frontend/googleplay
+        env:
+          GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+        run: bundle exec fastlane upload_listing

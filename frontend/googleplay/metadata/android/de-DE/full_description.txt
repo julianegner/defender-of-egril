@@ -1,0 +1,47 @@
+VERTEIDIGE EGRIL - DAS LETZTE GEFECHT AUF DEN WIESEN
+
+Der böse Kriegsherr Ewhad hat die Horden von Gleid Thyae versammelt und zielt auf Egrils friedliche Wiesen. Nur dein taktisches Geschick und eine gut platzierte Verteidigungslinie können das Land retten.
+
+Defender of Egril ist ein rundenbasiertes Turmverteidigungs-Strategiespiel auf einem Hexfeld-Raster. Sorgfältige Planung, kluges Aufrüsten und präzises Anvisieren führen zum Sieg.
+
+--- SPIELMECHANIK ---
+
+* Platziere und rüste Türme vor und während jeder Welle auf
+* Wähle manuell, welchen Feind jeder Turm angreift - Präzision ist entscheidend
+* Verwalte Aktionspunkte: Jeder Turm kann pro Runde nur begrenzt angreifen
+* Verdiene Gold durch das Besiegen von Feinden und investiere es in neue Türme oder Upgrades
+* Überlebe alle Angriffswellen, um auf der Weltkarte das nächste Level freizuschalten
+
+--- TÜRME ---
+
+Stachelturm - Nahkampf, günstig und zuverlässig
+Bogenturm - Weitreichende Bogenschießkunst für entfernte Feinde
+Speertrum - Mittlere Reichweite mit durchdringender Kraft
+Zaubererturm - Flächenschaden durch Feuerbälle, trifft mehrere Feinde gleichzeitig
+Alchemieturm - Säure-Angriffe mit anhaltendem Schaden
+Ballistarum - Extremreichweiten-Belagerungswaffe mit Mindestreichweite
+Zwergenbergwerk - Erzeugt Goldmünzen durch Abbauaktionen
+Drachenhöhle - Beschwört mächtige Drachen in den Kampf
+
+--- DEINE FEINDE ---
+
+Begegne immer größeren Horden: flinke Goblins, gepanzerte Orks, massive Oger, Skelette, böse Zauberer, Hexen, Blaue Dämonen (säureimmun), Rote Dämonen (feuerimmun), Böse Magier die Verstärkung beschwören, Rote Hexen die Türme deaktivieren, Grüne Hexen die Verbündete heilen - und Bossgegner wie der mächtige Ewhad.
+
+--- STRATEGIE ---
+
+* Hexfeld-Taktik mit wegpunktbasierten Feindbewegungen
+* Feindwege durch clever platzierte Türme blockieren
+* Feindimmunitäten mit dem richtigen Turmtyp kontern
+* Anfangsbauphase: Türme sofort platzieren, bevor die erste Welle beginnt
+
+--- FEATURES ---
+
+* Rundenbasierte Strategie mit vollständiger manueller Zielauswahl
+* Weltkarte mit freischaltbaren Leveln und steigendem Schwierigkeitsgrad
+* Spielstand jederzeit speichern und laden
+* Schlachtfeld schwenken und zoomen (0,5x - 3x) mit automatischer Minikarte
+* Dunkelmodus, Sprachauswahl, Kachel-Optik und Animationseinstellungen
+* Vollständig lokalisiert: Englisch, Deutsch, Spanisch, Französisch und Italienisch
+* Level-Editor in der Desktop- und Web-Version
+
+Lade Defender of Egril herunter - kostenlos spielen, für immer.

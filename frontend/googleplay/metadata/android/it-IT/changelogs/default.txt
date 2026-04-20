@@ -1,0 +1,2 @@
+Novità in questa versione:
+- Correzioni di bug e miglioramenti delle prestazioni

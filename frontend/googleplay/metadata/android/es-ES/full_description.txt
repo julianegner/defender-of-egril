@@ -1,0 +1,47 @@
+DEFIENDE EGRIL - LA ÚLTIMA BATALLA POR LOS PRADOS
+
+El malvado señor de la guerra Ewhad ha reunido las Hordas de Gleid Thyae y tiene los ojos puestos en los pacíficos prados de Egril. Solo tu habilidad táctica y una sólida línea de defensa pueden salvar estas tierras.
+
+Defender of Egril es un juego de estrategia de defensa de torres por turnos en una cuadrícula hexagonal. La planificación cuidadosa, las mejoras inteligentes y la precisión al apuntar son la clave de la victoria.
+
+--- MECANICAS DE JUEGO ---
+
+* Coloca y mejora torres antes y durante cada oleada
+* Elige manualmente qué enemigo ataca cada torre - la precisión importa
+* Gestiona los puntos de acción: cada torre tiene ataques limitados por turno
+* Gana monedas de oro derrotando enemigos e inviértelas en torres nuevas o mejoras
+* Sobrevive a todas las oleadas para desbloquear el siguiente nivel en el mapa del mundo
+
+--- ARSENAL DE TORRES ---
+
+Torre de Pinchos - Cuerpo a cuerpo, económica y fiable
+Torre de Arqueros - Arquería de largo alcance para amenazas distantes
+Torre de Lanzas - Poder perforante de alcance medio
+Torre del Mago - Bolas de fuego de área que golpean a varios enemigos
+Torre de Alquimia - Ataques de ácido con daño continuo
+Torre de Ballesta - Arma de asedio de alcance extremo con alcance mínimo
+Mina Enana - Genera monedas de oro mediante acciones de excavación
+Guarida del Dragón - Invoca poderosos dragones a la batalla
+
+--- TUS ENEMIGOS ---
+
+Enfrenta hordas cada vez más grandes: veloces Duendes, Orcos acorazados, Ogros enormes, Esqueletos, Magos Malvados, Brujas, Demonios Azules (inmunes al ácido), Demonios Rojos (inmunes al fuego), Magos Malvados que invocan refuerzos, Brujas Rojas que desactivan torres, Brujas Verdes que curan aliados - y aterradores jefes como el poderoso Ewhad.
+
+--- ESTRATEGIA ---
+
+* Táctica en cuadrícula hexagonal con rutas de enemigos basadas en puntos de paso
+* Bloquea las rutas enemigas con torres colocadas estratégicamente
+* Contrarresta las inmunidades con el tipo de torre adecuado
+* Fase de construcción inicial: coloca torres al instante antes de la primera oleada
+
+--- CARACTERISTICAS ---
+
+* Estrategia por turnos con control manual total de objetivos
+* Mapa del mundo con niveles desbloqueables y dificultad creciente
+* Guarda y carga tu progreso en cualquier momento
+* Desplázate y amplía el campo de batalla (0,5x - 3x) con un minimapa automático
+* Modo oscuro, selección de idioma, efectos visuales y animaciones configurables
+* Totalmente localizado: inglés, alemán, español, francés e italiano
+* Editor de niveles disponible en las versiones de escritorio y web
+
+Descarga Defender of Egril - gratis para siempre.
