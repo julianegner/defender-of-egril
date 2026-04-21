@@ -459,10 +459,14 @@ fun WorldMapScreen(
                 val buttonMinWidth = if (isMobileImageMap) BUTTON_WIDTH_MOBILE_IMAGE_MAP else BUTTON_WIDTH_DEFAULT
                 
                 // Button layout varies by platform and view mode:
+                // - Mobile + Image Map + Tab Active: No buttons (community/user tabs shown)
                 // - Mobile + Image Map: Column layout, left-aligned, smaller buttons
                 // - Mobile + Level Cards: Row layout, centered, normal buttons
                 // - Desktop: Row layout, centered
                 when {
+                    isMobileImageMap && imageMapActiveTab != null -> {
+                        // Tab view is active on mobile - do not show worldmap action buttons
+                    }
                     isMobileImageMap -> {
                         // Mobile + Image Map View: Column layout, left-aligned, smaller buttons
                         Column(
