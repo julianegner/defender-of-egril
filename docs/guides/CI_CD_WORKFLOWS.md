@@ -153,7 +153,34 @@ This workflow provides an easy way to build and test Windows EXE installers with
 3. Click on a completed run
 4. Download the `windows-exe-installer` artifact
 
-### 6. Debug Android ProGuard (`debug-proguard.yml`)
+### 6. Deploy AAB to Google Play Store (`deploy-play-store-aab.yml`)
+
+**Trigger:** Manual dispatch only
+
+**Purpose:** Download the AAB from the latest GitHub Release and upload it to Google Play
+
+**Inputs:**
+- `track` (required, default: `internal`): Google Play track – one of `internal`, `alpha`, `beta`, `production`
+
+**Jobs:**
+- `check_release`: Fetches the latest GitHub Release, verifies it contains a `.aab` file, and writes a summary with the version, release name, and target track. **Cancel the workflow here if the wrong version is shown.**
+- `deploy`: Downloads the AAB and uploads it via Fastlane `supply`. Gated by the `google-play` GitHub environment (see setup below).
+
+**Required Secret:**
+- `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` – Full JSON content of a Google Play service account key with **Release manager** permission for `de.egril.defender`. See `frontend/googleplay/README.md` for setup instructions.
+
+**Optional: Manual Approval Gate**
+
+To require a human approval between the version-check step and the actual upload:
+1. Go to **Settings → Environments** in the GitHub repository.
+2. Create an environment named exactly `google-play`.
+3. Under **Protection rules**, enable **Required reviewers** and add yourself (or a team).
+
+When this is configured the `deploy` job will pause and wait for approval after the `check_release` job displays the version. You can then review the summary and either approve or reject the deployment.
+
+Without the environment the upload proceeds automatically after the version check.
+
+### 7. Debug Android ProGuard (`debug-proguard.yml`)
 
 **Trigger:** Manual dispatch only
 
@@ -227,6 +254,38 @@ You can still manually trigger the legacy build workflow via the GitHub Actions 
 2. Select "Deploy WasmJS App to GitHub Pages" workflow
 3. Click "Run workflow"
 4. The WASM version will be deployed to GitHub Pages
+
+### Deploying AAB to Google Play Store
+
+Use the **Deploy AAB to Google Play Store** workflow (`deploy-play-store-aab.yml`) to push the latest release to Google Play:
+
+1. Ensure the `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` secret is configured in repository settings (see `frontend/googleplay/README.md` for setup instructions).
+2. Go to the **Actions** tab in the GitHub repository.
+3. Select the **"Deploy AAB to Google Play Store"** workflow in the left sidebar.
+4. Click **"Run workflow"**.
+5. Choose the target Google Play track (`internal`, `alpha`, `beta`, or `production`). Start with `internal` for first-time testing.
+6. Click **"Run workflow"** to start.
+
+The workflow will:
+- Fetch the latest GitHub Release and display its version, release name, and the AAB filename in the job summary.
+- **Pause here** – review the summary to confirm this is the correct version to deploy.  If the wrong version is shown, cancel the run now.
+- Download the AAB from the GitHub Release.
+- Upload it to Google Play via Fastlane supply.
+
+#### Setting up the Manual Approval Gate (recommended)
+
+To require an explicit approval between the version-check and the upload:
+1. Go to **Settings → Environments** in the GitHub repository.
+2. Create an environment named `google-play`.
+3. Under **Protection rules**, enable **Required reviewers** and add yourself or a team.
+
+When configured, the deploy job will pause waiting for approval so you have time to review the version summary before the upload proceeds.
+
+#### Setting up the Service Account Secret
+
+Add `GOOGLE_PLAY_SERVICE_ACCOUNT_JSON` as a repository secret (Settings → Secrets and variables → Actions):
+- Value: the full JSON content of a Google Play service account key with **Release manager** permission for `de.egril.defender`.
+- See `frontend/googleplay/README.md` for detailed setup steps.
 
 ### Debug Android Build
 
