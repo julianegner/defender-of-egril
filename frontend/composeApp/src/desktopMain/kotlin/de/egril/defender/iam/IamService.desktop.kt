@@ -274,6 +274,7 @@ private fun startPkceLogin() {
     val errorPageHeading = LocalizedStrings.get("iam_login_error_heading", locale)
     val errorPageMessage = LocalizedStrings.get("iam_login_error_message", locale)
     val closeButtonText = LocalizedStrings.get("iam_close_window", locale)
+    val manualCloseText = LocalizedStrings.get("iam_close_window_manually", locale)
 
     // Open the browser before starting the server so the user can see the login page
     // while we set up the callback listener.
@@ -286,7 +287,8 @@ private fun startPkceLogin() {
         loginPageMessage = loginPageMessage,
         errorPageHeading = errorPageHeading,
         errorPageMessage = errorPageMessage,
-        closeButtonText = closeButtonText
+        closeButtonText = closeButtonText,
+        manualCloseText = manualCloseText
     ) ?: return
 
     val tokenData = exchangeCodeForToken(
@@ -329,6 +331,7 @@ internal actual fun performPlatformLogout() {
     val logoutPageHeading = "&#x2713; ${LocalizedStrings.get("iam_logout_successful_heading", locale)}"
     val logoutPageMessage = LocalizedStrings.get("iam_logout_successful_message", locale)
     val closeButtonText = LocalizedStrings.get("iam_close_window", locale)
+    val manualCloseText = LocalizedStrings.get("iam_close_window_manually", locale)
 
     try {
         val logoutCallbackUri = "http://localhost:$PKCE_CALLBACK_PORT/logout-callback"
@@ -336,7 +339,7 @@ internal actual fun performPlatformLogout() {
                 "&post_logout_redirect_uri=${URLEncoder.encode(logoutCallbackUri, "UTF-8")}"
         // Spin up a one-shot server BEFORE opening the browser so we don't miss the redirect.
         Thread {
-            serveLogoutCallback(locale.code, logoutPageHeading, logoutPageMessage, closeButtonText)
+            serveLogoutCallback(locale.code, logoutPageHeading, logoutPageMessage, closeButtonText, manualCloseText)
         }.also { it.isDaemon = true }.start()
         openBrowserNewWindow(logoutUrl)
     } catch (_: Exception) {
@@ -551,7 +554,8 @@ private fun waitForPkceCallback(
     loginPageMessage: String,
     errorPageHeading: String,
     errorPageMessage: String,
-    closeButtonText: String
+    closeButtonText: String,
+    manualCloseText: String
 ): String? {
     return try {
         val server = ServerSocket(PKCE_CALLBACK_PORT)
@@ -585,11 +589,11 @@ private fun waitForPkceCallback(
                 val authCode = params["code"]
 
                 if (receivedState != expectedState || authCode == null) {
-                    serveAutoClosePage(socket, langCode = locale, heading = errorPageHeading, message = errorPageMessage, closeButtonText = closeButtonText)
+                    serveAutoClosePage(socket, langCode = locale, heading = errorPageHeading, message = errorPageMessage, closeButtonText = closeButtonText, manualCloseText = manualCloseText)
                     continue
                 }
 
-                serveAutoClosePage(socket, langCode = locale, heading = loginPageHeading, message = loginPageMessage, closeButtonText = closeButtonText)
+                serveAutoClosePage(socket, langCode = locale, heading = loginPageHeading, message = loginPageMessage, closeButtonText = closeButtonText, manualCloseText = manualCloseText)
                 return authCode
             }
             null
@@ -643,13 +647,13 @@ private fun exchangeCodeForToken(code: String, codeVerifier: String, redirectUri
     }
 }
 
-private fun serveLogoutCallback(langCode: String, heading: String, message: String, closeButtonText: String) {
+private fun serveLogoutCallback(langCode: String, heading: String, message: String, closeButtonText: String, manualCloseText: String) {
     try {
         val server = ServerSocket(PKCE_CALLBACK_PORT)
         server.soTimeout = 30_000
         try {
             val socket = server.accept()
-            serveAutoClosePage(socket, langCode = langCode, heading = heading, message = message, closeButtonText = closeButtonText)
+            serveAutoClosePage(socket, langCode = langCode, heading = heading, message = message, closeButtonText = closeButtonText, manualCloseText = manualCloseText)
         } finally {
             server.close()
         }
@@ -661,26 +665,37 @@ private fun serveLogoutCallback(langCode: String, heading: String, message: Stri
 /**
  * Writes a self-contained HTML page to [socket] that displays [heading] and [message],
  * then attempts to close the browser window automatically after 2 seconds via JavaScript.
- * A centered [closeButtonText] button is shown so the user can close the window manually
- * if the auto-close does not work (e.g. due to browser security restrictions).
+ * A centered [closeButtonText] button is shown so the user can close the window manually.
+ * Because modern browsers block [window.close()] for windows not opened by JavaScript,
+ * a [manualCloseText] hint is always shown after the close attempt (button click or auto-close)
+ * so the user knows they can close the window manually.
  * Includes security headers to prevent XSS and clickjacking.
  * The [langCode] is used for the HTML lang attribute (e.g. "en", "de").
  * The socket is closed after writing.
  */
-private fun serveAutoClosePage(socket: java.net.Socket, langCode: String, heading: String, message: String, closeButtonText: String) {
+private fun serveAutoClosePage(socket: java.net.Socket, langCode: String, heading: String, message: String, closeButtonText: String, manualCloseText: String) {
     val html = """<!DOCTYPE html>
 <html lang="$langCode">
 <head><meta charset="UTF-8">
 <style>
 body{font-family:sans-serif;text-align:center;padding:40px;}
 button{margin-top:16px;padding:10px 24px;font-size:1rem;cursor:pointer;}
+#close-hint{display:none;margin-top:16px;color:#666;font-size:0.9rem;}
 </style>
 </head>
 <body>
 <h2>$heading</h2>
 <p>$message</p>
-<button onclick="window.open('','_self');window.close();">$closeButtonText</button>
-<script>setTimeout(function(){window.open('','_self');window.close();},2000);</script>
+<button onclick="tryClose()">$closeButtonText</button>
+<p id="close-hint">$manualCloseText</p>
+<script>
+function tryClose() {
+    window.open('', '_self');
+    window.close();
+    document.getElementById('close-hint').style.display = 'block';
+}
+setTimeout(tryClose, 2000);
+</script>
 </body>
 </html>"""
     socket.getOutputStream().write(buildString {
