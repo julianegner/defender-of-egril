@@ -7,58 +7,93 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.IntSize
 
 /**
- * Shallow coastal water color used for the tide animation waves.
+ * Shallow coastal water color used for the tide animation.
  * Matches the lighter blue band visible near the shoreline on the world map image.
  */
 private val TIDE_WAVE_COLOR = Color(0xFF469FE2)
 
 /**
- * Shore anchor points in normalized image coordinates (x, y).
- * Positioned a few percent seaward of the actual land boundary so that the
- * expanding rings stay over water and do not bleed onto the green/yellow land areas.
- * The coast runs roughly from upper-centre down to lower-left.
+ * Points tracing the continent's west-facing coastline in normalized image coordinates (x, y).
+ * Each point is offset ~2–3 % of the image width seaward (to the left) from the actual
+ * land boundary so that even at maximum stroke width the band stays mostly over water.
+ * Points are ordered top-to-bottom along the coast.
  */
-private val SHORE_ANCHORS = listOf(
-    Offset(0.22f, 0.12f),   // Upper northern coast
-    Offset(0.16f, 0.17f),   // Upper coast
-    Offset(0.14f, 0.23f),   // Mid-upper coast
-    Offset(0.12f, 0.30f),   // Mid coast
-    Offset(0.09f, 0.37f),   // Lower-mid coast
-    Offset(0.07f, 0.47f),   // Lower coast
+private val CONTINENT_COAST_POINTS = listOf(
+    Offset(0.25f, 0.08f),
+    Offset(0.22f, 0.10f),
+    Offset(0.22f, 0.12f),
+    Offset(0.19f, 0.14f),
+    Offset(0.18f, 0.18f),
+    Offset(0.17f, 0.20f),
+    Offset(0.17f, 0.22f),
+    Offset(0.17f, 0.26f),
+    Offset(0.17f, 0.28f),
+    Offset(0.13f, 0.30f),
+    Offset(0.12f, 0.32f),
+    Offset(0.12f, 0.34f),
+    Offset(0.12f, 0.36f),
+    Offset(0.12f, 0.38f),
+    Offset(0.09f, 0.40f),
+    Offset(0.08f, 0.42f),
+    Offset(0.07f, 0.44f),
+    Offset(0.06f, 0.46f),
+    Offset(0.05f, 0.48f),
+    Offset(0.02f, 0.50f),
+    Offset(0.06f, 0.52f),
+    Offset(0.07f, 0.54f),
+    Offset(0.08f, 0.56f),
+    Offset(0.09f, 0.58f),
+    Offset(0.10f, 0.60f),
+    Offset(0.17f, 0.62f),
+    Offset(0.17f, 0.64f),
+    Offset(0.17f, 0.66f),
+    Offset(0.17f, 0.68f),
+    Offset(0.18f, 0.70f),
+    Offset(0.18f, 0.72f),
+    Offset(0.18f, 0.74f),
+    Offset(0.19f, 0.78f),
+    Offset(0.22f, 0.80f),
+    Offset(0.22f, 0.82f),
 )
 
-private const val WAVE_COUNT = 4
-/** Duration of one half-cycle (expand OR contract) in milliseconds — ~3× the original 4500 ms. */
-private const val WAVE_HALF_CYCLE_MS = 13500
-/** Maximum outward ring expansion as a fraction of the image width (~1.6 %). */
-private const val MAX_WAVE_EXPANSION_FRACTION = 0.016f
-/** Base ring radius as a fraction of the image width (~0.8 %). */
-private const val BASE_RADIUS_FRACTION = 0.008f
-/** Maximum ring stroke alpha. */
-private const val MAX_WAVE_ALPHA = 0.55f
-/** Stroke width as a fraction of the image width. */
-private const val WAVE_STROKE_FRACTION = 0.005f
-/** Vertical-to-horizontal scale of each wave oval, reflecting the roughly N–S coast orientation. */
-private const val WAVE_OVAL_VERTICAL_SCALE = 1.8f
+/** Center of the lower-left island in normalized image coordinates. */
+private val ISLAND_CENTER = Offset(0.080f, 0.875f)
+/** Island horizontal radius as a fraction of image width. */
+private const val ISLAND_RADIUS_X = 0.045f
+/** Island vertical radius as a fraction of image width (image-width-relative for consistency). */
+private const val ISLAND_RADIUS_Y = 0.038f
+
+/** Duration of one half-cycle (expand OR contract) in milliseconds — slow ambient tide. */
+private const val TIDE_HALF_CYCLE_MS = 13500
+/** Stroke width at minimum tide (contracted) as a fraction of image width. */
+private const val MIN_STROKE_FRACTION = 0.003f
+/** Stroke width at maximum tide (expanded) as a fraction of image width. */
+private const val MAX_STROKE_FRACTION = 0.018f
+/** Fixed alpha for the tide color — constant so the band is always visible. */
+private const val TIDE_ALPHA = 0.50f
 
 /**
  * Tide animation overlay for the world map.
  *
- * Draws thin semi-transparent stroke rings along the coastline that expand
- * seaward and then contract back — simulating a slow, ambient tide.
+ * Draws exactly **two** semi-transparent blue stroke shapes that simulate a slow
+ * coastal tide — one tracing the continent's west-facing shoreline and one encircling
+ * the small island in the lower-left:
  *
- * - Rings are stroke-only (not filled) so they are confined to a narrow coastal band
- *   and never cover land.
- * - [RepeatMode.Reverse] makes the motion genuinely forth-and-back.
- * - Multiple rings are staggered in phase for a continuous cascading look.
+ * - The stroke width pulses from [MIN_STROKE_FRACTION] to [MAX_STROKE_FRACTION] of the
+ *   image width and back, creating a band that expands toward open sea and then contracts
+ *   back to the shore.
+ * - [RepeatMode.Reverse] makes the motion genuinely forth-and-back with no abrupt reset.
+ * - Both shapes animate together with the same phase, so the tide appears uniform.
  * - The animation respects [AppSettings.enableAnimations] (gated in the call site).
  *
- * @param containerSize Pixel size of the host container (unused in drawing; reserved for API
- *                      symmetry with other overlay composables).
+ * @param containerSize Pixel size of the host container (reserved for API symmetry).
  * @param imageAspectRatio Aspect ratio (width/height) of the world map background image.
  * @param modifier Modifier applied to the full-size Canvas.
  */
@@ -70,23 +105,22 @@ fun TideAnimationOverlay(
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "tide")
 
-    // Forward (expand) + reverse (contract) = true tide forth-and-back motion.
+    // Expand (0→1) then contract (1→0) — genuine tide forth-and-back.
     val tideProgress by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = WAVE_HALF_CYCLE_MS, easing = LinearEasing),
+            animation = tween(durationMillis = TIDE_HALF_CYCLE_MS, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
         ),
-        label = "tide_wave"
+        label = "tide_progress"
     )
 
     Canvas(modifier = modifier) {
         val cw = size.width
         val ch = size.height
 
-        // Calculate actual image bounds within the container.
-        // ContentScale.Fit letterboxes the image, so we must account for that offset.
+        // Compute actual image bounds within the container (ContentScale.Fit letterboxes).
         val containerAspectRatio = cw / ch.coerceAtLeast(1f)
         val (imageWidth, imageHeight, imgOffsetX, imgOffsetY) = if (containerAspectRatio > imageAspectRatio) {
             val iH = ch
@@ -98,35 +132,31 @@ fun TideAnimationOverlay(
             listOf(iW, iH, 0f, (ch - iH) / 2f)
         }
 
-        val maxExpansion = imageWidth * MAX_WAVE_EXPANSION_FRACTION
-        val strokeWidth = imageWidth * WAVE_STROKE_FRACTION
+        val strokeWidth = imageWidth * (MIN_STROKE_FRACTION + tideProgress * (MAX_STROKE_FRACTION - MIN_STROKE_FRACTION))
+        val color = TIDE_WAVE_COLOR.copy(alpha = TIDE_ALPHA)
+        val stroke = Stroke(width = strokeWidth, cap = StrokeCap.Round, join = StrokeJoin.Round)
 
-        for (waveIndex in 0 until WAVE_COUNT) {
-            // Stagger each ring evenly in phase so they cascade continuously.
-            val phaseOffset = waveIndex.toFloat() / WAVE_COUNT
-            val phase = (tideProgress + phaseOffset) % 1f
-
-            // Expansion grows from 0 to maxExpansion as phase goes 0→1.
-            val expansion = phase * maxExpansion
-
-            // Alpha is greatest near the shore (phase ≈ 0) and fades at full expansion.
-            val alpha = (1f - phase) * MAX_WAVE_ALPHA
-
-            for (anchor in SHORE_ANCHORS) {
-                val cx = imgOffsetX + anchor.x * imageWidth
-                val cy = imgOffsetY + anchor.y * imageHeight
-
-                val baseRadius = imageWidth * BASE_RADIUS_FRACTION
-                val rx = baseRadius + expansion
-                val ry = rx * WAVE_OVAL_VERTICAL_SCALE
-
-                drawOval(
-                    color = TIDE_WAVE_COLOR.copy(alpha = alpha),
-                    topLeft = Offset(cx - rx, cy - ry),
-                    size = Size(rx * 2f, ry * 2f),
-                    style = Stroke(width = strokeWidth)
-                )
+        // --- 1. Continent coast polyline ---
+        val coastPath = Path().apply {
+            val first = CONTINENT_COAST_POINTS.first()
+            moveTo(imgOffsetX + first.x * imageWidth, imgOffsetY + first.y * imageHeight)
+            for (i in 1 until CONTINENT_COAST_POINTS.size) {
+                val pt = CONTINENT_COAST_POINTS[i]
+                lineTo(imgOffsetX + pt.x * imageWidth, imgOffsetY + pt.y * imageHeight)
             }
         }
+        drawPath(path = coastPath, color = color, style = stroke)
+
+        // --- 2. Island ring ---
+        val cx = imgOffsetX + ISLAND_CENTER.x * imageWidth
+        val cy = imgOffsetY + ISLAND_CENTER.y * imageHeight
+        val rx = ISLAND_RADIUS_X * imageWidth
+        val ry = ISLAND_RADIUS_Y * imageWidth
+        drawOval(
+            color = color,
+            topLeft = Offset(cx - rx, cy - ry),
+            size = Size(rx * 2f, ry * 2f),
+            style = stroke
+        )
     }
 }
