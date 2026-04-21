@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.sp
 import de.egril.defender.ui.icon.WarningIcon
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.*
-import org.jetbrains.compose.resources.stringResource
+import com.hyperether.resources.stringResource
 import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**

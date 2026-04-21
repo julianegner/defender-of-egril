@@ -48,7 +48,7 @@ import defender_of_egril.composeapp.generated.resources.cheat_unlockall_desc
 import defender_of_egril.composeapp.generated.resources.cheat_unlock_desc
 import defender_of_egril.composeapp.generated.resources.cheat_lockall_desc
 import defender_of_egril.composeapp.generated.resources.cheat_lock_desc
-import org.jetbrains.compose.resources.stringResource
+import com.hyperether.resources.stringResource
 import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
