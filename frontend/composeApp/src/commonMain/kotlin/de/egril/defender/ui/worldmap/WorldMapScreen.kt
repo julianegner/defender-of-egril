@@ -271,7 +271,7 @@ fun WorldMapScreen(
                 )
             } else {
                 // Image Map View
-                if (isEditorAvailable() && (hasUserLevels || hasCommunityLevels) && imageMapActiveTab != null) {
+                if ((hasUserLevels || hasCommunityLevels) && imageMapActiveTab != null) {
                     // Show tab view – Official tab returns to image map, Community/User tabs show level cards
                     Column(
                         modifier = Modifier
@@ -529,8 +529,9 @@ fun WorldMapScreen(
                     }
                 }
                 
-                // Spacer to push buttons to the right (only on desktop/wasm)
-                if (!isPlatformMobile && isEditorAvailable()) {
+                // Spacer to push community/user/editor buttons to the right
+                if ((!isPlatformMobile && isEditorAvailable()) ||
+                    (isMobileImageMap && (hasUserLevels || hasCommunityLevels) && imageMapActiveTab == null)) {
                     Spacer(modifier = Modifier.weight(1f))
                 }
                 
