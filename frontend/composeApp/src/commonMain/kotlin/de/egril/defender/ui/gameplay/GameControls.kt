@@ -105,7 +105,10 @@ fun GameControlsPanel(
         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val isNarrowPanel = maxWidth < 500.dp
         val expandedGridColumns = if (isNarrowPanel) 4 else 7
-        val expandedGridHeight = if (isNarrowPanel) 70.dp else 75.dp
+        val buttonRowHeight = 70.dp
+        val numTowers = gameState.level.availableTowers.filter { it != DefenderType.DRAGONS_LAIR }.size
+        val numRows = ((numTowers + expandedGridColumns - 1) / expandedGridColumns).coerceAtLeast(1)
+        val expandedGridHeight = buttonRowHeight * numRows + 4.dp * (numRows - 1)
 
         Column(modifier = Modifier.fillMaxWidth()) {
 
@@ -189,14 +192,17 @@ fun GameControlsPanel(
 
                 ) {
 
-                    val isMobile = uiScale < 1f
+                    val compactButtonHeight = 45.dp
                     val compactDefenderButtonModifier = Modifier
                         .fillMaxWidth()
-                        .height(if (isMobile) 45.dp else 45.dp)
+                        .height(compactButtonHeight)
+                    val compactNumItems = gameState.level.availableTowers.size + 1
+                    val compactNumRows = ((compactNumItems + 3) / 4).coerceAtLeast(1)
+                    val compactGridHeight = compactButtonHeight * compactNumRows + 4.dp * (compactNumRows - 1)
 
                     // Compact buy buttons
                     LazyVerticalGrid(
-                        modifier = Modifier.padding(top = 8.dp),
+                        modifier = Modifier.padding(top = 8.dp).height(compactGridHeight),
                         columns = GridCells.Fixed(4),
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
