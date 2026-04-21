@@ -15,4 +15,19 @@ platform :android do
       json_key_data: ENV["GOOGLE_PLAY_SERVICE_ACCOUNT_JSON"]
     )
   end
+
+  desc "Upload an AAB to Google Play (no metadata update)"
+  lane :upload_aab do
+    supply(
+      package_name: "de.egril.defender",
+      aab: ENV["AAB_PATH"],
+      track: ENV["PLAY_TRACK"] || "internal",
+      skip_upload_apk: true,
+      skip_upload_metadata: true,
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      json_key_data: ENV["GOOGLE_PLAY_SERVICE_ACCOUNT_JSON"]
+    )
+  end
 end

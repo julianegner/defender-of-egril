@@ -1,0 +1,140 @@
+# Deploy AAB to Google Play Store
+#
+# Trigger: manual dispatch only.
+#
+# What it does:
+#   1. Fetches the latest GitHub release and shows the version and AAB filename
+#      in the job summary so you can cancel if something is off.
+#   2. Downloads the AAB from that release.
+#   3. Uploads the AAB to Google Play via Fastlane supply.
+#
+# The deploy job is protected by the "google-play" GitHub environment.
+# Configure that environment with required reviewers to get a manual approval
+# gate between the version-check step and the actual upload.
+# Without a protected environment the upload proceeds automatically after the
+# version check.
+#
+# Required secret:
+#   GOOGLE_PLAY_SERVICE_ACCOUNT_JSON – Full JSON content of a Google Play
+#   service account key with "Release manager" permission for de.egril.defender.
+#   See frontend/googleplay/README.md for setup instructions.
+
+name: Deploy AAB to Google Play Store
+
+on:
+  workflow_dispatch:
+    inputs:
+      track:
+        description: "Google Play track to upload to"
+        required: true
+        default: "internal"
+        type: choice
+        options:
+          - internal
+          - alpha
+          - beta
+          - production
+
+permissions:
+  contents: read
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Fetch the latest GitHub release and display its details so the operator
+  # can verify the correct version is being deployed before the upload starts.
+  # ---------------------------------------------------------------------------
+  check_release:
+    name: Check Latest Release
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.latest_release.outputs.version }}
+      aab_url: ${{ steps.latest_release.outputs.aab_url }}
+      aab_name: ${{ steps.latest_release.outputs.aab_name }}
+
+    steps:
+      - name: Get latest release info
+        id: latest_release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RELEASE_JSON=$(gh api repos/${{ github.repository }}/releases/latest)
+
+          VERSION=$(echo "$RELEASE_JSON" | jq -r '.tag_name')
+          RELEASE_NAME=$(echo "$RELEASE_JSON" | jq -r '.name')
+          RELEASE_URL=$(echo "$RELEASE_JSON" | jq -r '.html_url')
+
+          # Locate the first AAB asset in the release
+          AAB_URL=$(echo "$RELEASE_JSON" | jq -r '.assets[] | select(.name | endswith(".aab")) | .browser_download_url' | head -1)
+          AAB_NAME=$(echo "$RELEASE_JSON" | jq -r '.assets[] | select(.name | endswith(".aab")) | .name' | head -1)
+
+          if [ -z "$AAB_URL" ]; then
+            echo "::error::No .aab file found in the latest release ($VERSION). Make sure the release workflow has run and attached a signed AAB."
+            exit 1
+          fi
+
+          echo "version=$VERSION"   >> "$GITHUB_OUTPUT"
+          echo "aab_url=$AAB_URL"   >> "$GITHUB_OUTPUT"
+          echo "aab_name=$AAB_NAME" >> "$GITHUB_OUTPUT"
+
+          echo "## Latest Release" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Version | \`$VERSION\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Release | $RELEASE_NAME |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Release page | [$RELEASE_URL]($RELEASE_URL) |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| AAB file | \`$AAB_NAME\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Target track | \`${{ github.event.inputs.track }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "> **If this is not the release you want to deploy, cancel this workflow run now.**" >> "$GITHUB_STEP_SUMMARY"
+
+          echo "Version:    $VERSION"
+          echo "Release:    $RELEASE_NAME"
+          echo "AAB file:   $AAB_NAME"
+          echo "Track:      ${{ github.event.inputs.track }}"
+
+  # ---------------------------------------------------------------------------
+  # Download the AAB and push it to Google Play.
+  # Protected by the "google-play" environment – add required reviewers there
+  # to get a manual approval gate after the version check above.
+  # ---------------------------------------------------------------------------
+  deploy:
+    name: Upload AAB to Google Play (${{ github.event.inputs.track }})
+    needs: check_release
+    runs-on: ubuntu-latest
+    environment: google-play
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download AAB from GitHub Release
+        run: |
+          echo "Downloading ${{ needs.check_release.outputs.aab_name }} from release ${{ needs.check_release.outputs.version }} ..."
+          curl -fL -o release.aab "${{ needs.check_release.outputs.aab_url }}"
+          ls -lh release.aab
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: frontend/googleplay
+
+      - name: Upload AAB to Google Play via Fastlane
+        working-directory: frontend/googleplay
+        env:
+          GOOGLE_PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_JSON }}
+          AAB_PATH: ${{ github.workspace }}/release.aab
+          PLAY_TRACK: ${{ github.event.inputs.track }}
+        run: bundle exec fastlane upload_aab
+
+      - name: Write deploy summary
+        run: |
+          echo "## Deployment Complete" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Version | \`${{ needs.check_release.outputs.version }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| AAB file | \`${{ needs.check_release.outputs.aab_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Track | \`${{ github.event.inputs.track }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Status | ✅ Uploaded successfully |" >> "$GITHUB_STEP_SUMMARY"
