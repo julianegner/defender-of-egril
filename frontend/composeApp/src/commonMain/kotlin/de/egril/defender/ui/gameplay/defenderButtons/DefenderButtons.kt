@@ -118,7 +118,9 @@ fun DefenderButton(
                                 timerIconSize = 12.dp, buildTimeFontSize = 10.sp,
                                 modifier = Modifier.fillMaxHeight().width(100.dp)
                             )
-                            if (bw >= 170.dp) {
+                            // Stats need space beyond the fixed content (icon+spacer+price+spacer+infoCol = 194dp)
+                            // plus a minimum of ~50dp for the stats column itself
+                            if (bw >= 250.dp) {
                                 Column(
                                     modifier = Modifier
                                         .fillMaxHeight()
