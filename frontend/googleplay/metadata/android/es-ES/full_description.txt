@@ -1,0 +1,42 @@
+DEFIENDE EGRIL - LA ÚLTIMA BATALLA EN LOS PRADOS
+
+El malvado señor de la guerra Ewhad ha reunido las Hordas de Gleid Thyae y tiene los ojos puestos en los pacíficos prados de Egril. Solo tu habilidad táctica y una sólida línea de defensa pueden salvar estas tierras.
+
+Defender of Egril es un juego de estrategia de defensa de torres por turnos. La planificación cuidadosa, las mejoras inteligentes y la precisión al apuntar son la clave de la victoria.
+
+--- MECÁNICAS DE JUEGO ---
+
+* Coloca y mejora torres antes y durante cada oleada
+* Elige manualmente qué enemigo ataca cada torre
+* Gestiona los puntos de acción: cada torre tiene ataques limitados por turno
+* Gana monedas de oro derrotando enemigos e inviértelas en torres nuevas o mejoras
+* Sobrevive a todas las oleadas para desbloquear el siguiente nivel en el mapa del mundo
+
+--- TORRES ---
+
+Torre de Pinchos - Cuerpo a cuerpo, económica y fiable
+Torre de Arqueros - Arquería de largo alcance para amenazas distantes
+Torre de Lanzas - Alcance medio con poder perforante
+Torre del Mago - Bolas de fuego de área que golpean a varios enemigos
+Torre de Alquimia - Ataques de ácido con daño continuo
+Torre de Ballesta - Arma de asedio de alcance extremo con alcance mínimo
+Mina Enana - Genera monedas de oro mediante acciones de excavación
+
+--- TUS ENEMIGOS ---
+
+Enfrenta hordas cada vez mayores: veloces Duendes, Orcos acorazados, enormes Ogros, Esqueletos, Magos malvados que invocan demonios, Brujas Rojas que desactivan torres, Brujas Verdes que curan aliados - y al final, el poderoso Ewhad.
+
+--- CARACTERÍSTICAS ---
+
+* Estrategia por turnos
+* Mapa del mundo con niveles desbloqueables y dificultad creciente
+* Usa puntos de experiencia para desbloquear habilidades y hechizos
+* Guarda y carga tu progreso en cualquier momento
+* Desplázate y amplía el campo de batalla con un minimapa automático
+* Totalmente localizado: inglés, alemán, español, francés e italiano
+* Editor de niveles en la versión de escritorio
+* Una cuenta remota opcional permite guardar en el servidor y cambiar entre dispositivos con el mismo progreso.
+
+Descarga Defender of Egril - gratis para siempre.
+
+Defender of Egril es de código abierto. El código fuente está aquí: https://github.com/julianegner/defender-of-egril

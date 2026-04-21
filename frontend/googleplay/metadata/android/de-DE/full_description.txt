@@ -1,0 +1,42 @@
+VERTEIDIGE EGRIL - DAS LETZTE GEFECHT AUF DEN WIESEN
+
+Der böse Kriegsherr Ewhad hat die Horden von Gleid Thyae versammelt und zielt auf Egrils friedliche Wiesen. Nur dein taktisches Geschick und eine gut platzierte Verteidigungslinie können das Land retten.
+
+Defender of Egril ist ein rundenbasiertes Tower Defense-Strategiespiel. Sorgfältige Planung, kluges Aufrüsten und präzises Zielen führen zum Sieg.
+
+--- SPIELMECHANIK ---
+
+* Platziere und rüste Türme vor und während jeder Welle auf
+* Wähle manuell, welchen Feind jeder Turm angreift
+* Verwalte Aktionspunkte: Jeder Turm kann pro Runde nur begrenzt angreifen
+* Verdiene Gold durch das Besiegen von Feinden und investiere es in neue Türme oder Upgrades
+* Überlebe alle Angriffswellen, um auf der Weltkarte das nächste Level freizuschalten
+
+--- TÜRME ---
+
+Stachelturm - Nahkampf, günstig und zuverlässig
+Bogenturm - Weitreichende Bogenschießkunst für entfernte Feinde
+Speertrum - Mittlere Reichweite mit durchdringender Kraft
+Zaubererturm - Flächenschaden durch Feuerbälle, trifft mehrere Feinde gleichzeitig
+Alchemieturm - Säure-Angriffe mit anhaltendem Schaden
+Ballistaturm - Extremreichweiten-Belagerungswaffe mit Mindestreichweite
+Zwergenbergwerk - Erzeugt Goldmünzen durch Abbauaktionen
+
+--- DEINE FEINDE ---
+
+Begegne immer größeren Horden: flinke Goblins, gepanzerte Orks, massive Oger, Skelette, böse Zauberer die Dämonen beschwören, Rote Hexen die Türme deaktivieren, Grüne Hexen die Verbündete heilen - und und am Ende der mächtige Ewhad.
+
+--- FEATURES ---
+
+* Rundenbasierte Strategie
+* Weltkarte mit freischaltbaren Leveln und steigendem Schwierigkeitsgrad
+* Erfahrungspunkte nutzen, um Fähigkeiten und Zauber freizuschalten.
+* Spielstand jederzeit speichern und laden
+* Schlachtfeld schwenken und zoomen mit automatischer Minikarte
+* Vollständig lokalisiert: Englisch, Deutsch, Spanisch, Französisch und Italienisch
+* Level-Editor in der Desktopversion
+* Ein optionaler remote-Account bietet Speichern auf dem Server und Wechsel zwischen Geräten mit dem gleichen Spielstand.
+
+Lade Defender of Egril herunter - kostenlos spielen, für immer.
+
+Defender of Egril ist Open Source. Der Sourcecode liegt hier: https://github.com/julianegner/defender-of-egril

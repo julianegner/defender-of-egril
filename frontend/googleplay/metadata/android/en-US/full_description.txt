@@ -1,0 +1,42 @@
+DEFEND EGRIL - THE LAST STAND ON THE MEADOWS
+
+The evil warlord Ewhad has rallied the Hordes of Gleid Thyae and set his sights on Egril's peaceful meadows. Only your tactical skill and a well-placed line of defenses can save the land.
+
+Defender of Egril is a turn-based tower defense strategy game. Careful planning, smart upgrades, and precise targeting lead to victory.
+
+--- GAMEPLAY ---
+
+* Place and upgrade towers before and during each wave
+* Manually choose which enemy each tower attacks
+* Manage action points: every tower has a limited number of attacks per turn
+* Earn gold by defeating enemies and invest it in new towers or upgrades
+* Survive all enemy waves to unlock the next level on the world map
+
+--- TOWERS ---
+
+Spike Tower - Melee, affordable and reliable
+Bow Tower - Long-range archery for distant threats
+Spear Tower - Medium range with piercing power
+Wizard Tower - Area-of-effect fireballs hitting multiple enemies at once
+Alchemy Tower - Acid attacks with lasting damage
+Ballista Tower - Extreme-range siege weapon with a minimum firing range
+Dwarven Mine - Generates gold coins through mining actions
+
+--- YOUR ENEMIES ---
+
+Face ever-growing hordes: swift Goblins, armored Orks, massive Ogres, Skeletons, evil Wizards who summon demons, Red Witches who disable towers, Green Witches who heal allies - and at the end, the mighty Ewhad.
+
+--- FEATURES ---
+
+* Turn-based strategy
+* World map with unlockable levels and increasing difficulty
+* Use experience points to unlock skills and spells
+* Save and load your game progress at any time
+* Pan and zoom the battlefield with an auto-appearing minimap
+* Fully localized: English, German, Spanish, French, and Italian
+* Level Editor in the desktop version
+* An optional remote account enables server-side saving and switching between devices with the same game progress.
+
+Download Defender of Egril - free to play, forever.
+
+Defender of Egril is open source. The source code is here: https://github.com/julianegner/defender-of-egril

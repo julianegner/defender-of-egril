@@ -1,0 +1,42 @@
+DIFENDI EGRIL - L'ULTIMA BATTAGLIA SUI PRATI
+
+Il malvagio signore della guerra Ewhad ha radunato le Orde di Gleid Thyae e punta i prati pacifici di Egril. Solo il tuo genio tattico e una linea di difesa ben posizionata possono salvare queste terre.
+
+Defender of Egril è un gioco di strategia tower defense a turni. Pianificazione accurata, potenziamenti intelligenti e mira precisa sono le chiavi della vittoria.
+
+--- MECCANICHE DI GIOCO ---
+
+* Posiziona e potenzia le torri prima e durante ogni ondata
+* Scegli manualmente quale nemico attacca ogni torre
+* Gestisci i punti azione: ogni torre ha un numero limitato di attacchi per turno
+* Guadagna monete d'oro sconfiggendo i nemici e reinvestile in nuove torri o potenziamenti
+* Sopravvivi a tutte le ondate nemiche per sbloccare il livello successivo sulla mappa del mondo
+
+--- TORRI ---
+
+Torre con Punte - Corpo a corpo, economica e affidabile
+Torre degli Arcieri - Tiro con l'arco a lunga gittata contro minacce distanti
+Torre delle Lance - Gittata media con potenza perforante
+Torre del Mago - Palle di fuoco ad area che colpiscono più nemici
+Torre dell'Alchimia - Attacchi acidi con danno continuo
+Balista - Arma d'assedio a gittata estrema con gittata minima
+Miniera Nanica - Genera monete d'oro tramite azioni di scavo
+
+--- I TUOI NEMICI ---
+
+Affronta orde sempre più numerose: Goblin veloci, Orchi corazzati, Orchi enormi, Scheletri, Maghi malvagi che evocano demoni, Streghe Rosse che disattivano le torri, Streghe Verdi che curano i propri alleati - e alla fine, il potente Ewhad.
+
+--- CARATTERISTICHE ---
+
+* Strategia a turni
+* Mappa del mondo con livelli sbloccabili e difficoltà crescente
+* Usa punti esperienza per sbloccare abilità e incantesimi
+* Salva e carica i tuoi progressi in qualsiasi momento
+* Sposta e ingrandisci il campo di battaglia con una mini-mappa automatica
+* Completamente localizzato: inglese, tedesco, spagnolo, francese e italiano
+* Editor di livelli nella versione desktop
+* Un account remoto opzionale consente il salvataggio sul server e il passaggio tra dispositivi con lo stesso progresso.
+
+Scarica Defender of Egril - gratis per sempre.
+
+Defender of Egril è open source. Il codice sorgente è qui: https://github.com/julianegner/defender-of-egril
