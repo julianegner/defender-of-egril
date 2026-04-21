@@ -218,10 +218,21 @@ fun App() {
                 players = allPlayers,
                 currentPlayerId = currentPlayer?.id,
                 onSelectPlayer = { playerId ->
-                    // Always revoke any active or stale Keycloak session when switching
-                    // local players. This prevents a residual SSO browser session from
-                    // the previous player being silently reused for the new player.
-                    de.egril.defender.iam.IamService.logoutBackchannel()
+                    val newPlayerHasRemoteAccount = allPlayers.find { it.id == playerId }?.remoteUsername != null
+                    if (iamState.isAuthenticated) {
+                        // Any player switch while authenticated: revoke the Keycloak session
+                        // server-side via HTTP POST. This terminates the server-side session
+                        // without occupying the PKCE callback port, so a subsequent login for
+                        // the new player can proceed immediately.
+                        de.egril.defender.iam.IamService.logoutBackchannel()
+                    } else if (!newPlayerHasRemoteAccount) {
+                        // Not authenticated but switching to a player with no remote account:
+                        // clear any stale local state just in case.
+                        de.egril.defender.iam.IamService.logoutLocal()
+                    }
+                    // Note: when not authenticated and switching to a player WITH a remote
+                    // account, we do nothing here. Any stale session that might silently
+                    // re-authenticate is caught by the guard in GameViewModel.onAuthStateChanged.
                     viewModel.switchPlayer(playerId)
                     showPlayerSelection = false
                 },
