@@ -1,47 +1,42 @@
-DEFENDS EGRIL - LE DERNIER REMPART DES PRAIRIES
+DÉFENDS EGRIL - LE DERNIER COMBAT SUR LES PRAIRIES
 
 L'infâme seigneur de guerre Ewhad a rassemblé les Hordes de Gleid Thyae et marche sur les paisibles prairies d'Egril. Seuls ton génie tactique et une ligne de défense bien positionnée peuvent sauver ces terres.
 
-Defender of Egril est un jeu de stratégie de défense de tours au tour par tour sur une grille hexagonale. Planification rigoureuse, améliorations judicieuses et ciblage précis sont les clés de la victoire.
+Defender of Egril est un jeu de stratégie tower defense au tour par tour. Planification rigoureuse, améliorations judicieuses et ciblage précis sont les clés de la victoire.
 
 --- MÉCANIQUES DE JEU ---
 
 * Place et améliore tes tours avant et pendant chaque vague
-* Choisis manuellement quelle tour attaque quel ennemi - la précision est capitale
+* Choisis manuellement quelle tour attaque quel ennemi
 * Gère tes points d'action : chaque tour dispose d'un nombre limité d'attaques par manche
 * Gagne des pièces d'or en battant tes ennemis et reinvestis-les dans de nouvelles tours ou des améliorations
 * Survie à toutes les vagues ennemies pour débloquer le niveau suivant sur la carte du monde
 
---- ARSENAL DE TOURS ---
+--- TOURS ---
 
 Tour à Piques - Corps à corps, abordable et fiable
 Tour d'Archer - Tir à l'arc longue portée contre les menaces distantes
-Tour de Lance - Puissance perforante à portée moyenne
+Tour de Lance - Portée moyenne avec puissance perforante
 Tour du Mage - Boules de feu à zone d'effet touchant plusieurs ennemis
 Tour d'Alchimie - Attaques acides infligeant des dégâts persistants
 Baliste - Arme de siège extrême portée avec une portée minimum
 Mine Naine - Génère des pièces d'or grâce aux actions d'extraction
-Repaire du Dragon - Invoque de puissants dragons dans la bataille
 
 --- TES ENNEMIS ---
 
-Affronte des hordes de créatures fantastiques : Gobelins agiles, Orques blindés, Ogres colossaux, Squelettes, Mages Maléfiques, Sorcières, Démons Bleus (immunisés à l'acide), Démons Rouges (immunisés au feu), Mages Maléfiques qui invoquent des renforts, Sorcières Rouges qui désactivent tes tours, Sorcières Vertes qui soignent leurs alliés - et des boss redoutables dont le puissant Ewhad.
-
---- STRATÉGIE ---
-
-* Tactique sur grille hexagonale avec des chemins ennemis basés sur des points de passage
-* Bloque les routes ennemies avec des tours stratégiquement placées
-* Contre les immunités ennemies avec le bon type de tour
-* Phase de construction initiale : place tes tours instantanément avant la première vague
+Affronte des hordes toujours plus grandes : Gobelins agiles, Orques blindés, Ogres colossaux, Squelettes, Mages maléfiques qui invoquent des démons, Sorcières Rouges qui désactivent tes tours, Sorcières Vertes qui soignent leurs alliés - et au bout du chemin, le puissant Ewhad.
 
 --- FONCTIONNALITÉS ---
 
-* Stratégie au tour par tour avec ciblage manuel complet
+* Stratégie au tour par tour
 * Carte du monde avec niveaux déverrouillables et difficulté croissante
+* Utilise des points d'expérience pour débloquer des compétences et des sorts
 * Sauvegarde et charge ta progression à tout moment
-* Déplace et zoome sur le champ de bataille (0,5x - 3x) avec une mini-carte automatique
-* Mode sombre, choix de langue, visuels de tuiles et animations réglables
+* Déplace et zoome sur le champ de bataille avec une mini-carte automatique
 * Entièrement localisé : anglais, allemand, espagnol, français et italien
-* Éditeur de niveaux disponible sur les versions bureau et web
+* Éditeur de niveaux dans la version bureau
+* Un compte distant optionnel permet la sauvegarde côté serveur et le passage d'un appareil à l'autre avec la même progression.
 
 Télécharge Defender of Egril - gratuit pour toujours.
+
+Defender of Egril est open source. Le code source est ici : https://github.com/julianegner/defender-of-egril
