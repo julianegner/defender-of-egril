@@ -116,7 +116,7 @@ fun DefenderButton(
                                 type = type, locale = locale,
                                 nameFontSize = 12.sp, attackTypeFontSize = 10.sp,
                                 timerIconSize = 12.dp, buildTimeFontSize = 10.sp,
-                                modifier = Modifier.fillMaxHeight().weight(1f)
+                                modifier = Modifier.fillMaxHeight().width(100.dp)
                             )
                             if (bw >= 170.dp) {
                                 Column(
