@@ -148,6 +148,13 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
               </div>
             )}
 
+            {/* Hint shown on the registration page: users can log in with email even if username ≠ email */}
+            {kcContext.pageId === "register.ftl" && (
+              <div className="kc-alert kc-alert-info" role="note">
+                <span>{msg("registrationEmailLoginHint")}</span>
+              </div>
+            )}
+
             {children}
 
             {/* Registration section – only shown on the login page when the realm allows it */}
