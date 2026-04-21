@@ -241,7 +241,17 @@ fun ImageWorldMapView(
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Fit
             )
-            
+
+            // Tide animation overlay: animated shallow-water waves along the coastline.
+            // Only shown when animations are enabled.
+            if (AppSettings.enableAnimations.value) {
+                TideAnimationOverlay(
+                    containerSize = containerSize,
+                    imageAspectRatio = imageAspectRatio,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
             // Draw road connections between locations
             RoadConnectionsOverlay(
                 roads = roads,
