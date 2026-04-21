@@ -221,18 +221,18 @@ fun App() {
                     val newPlayerHasRemoteAccount = allPlayers.find { it.id == playerId }?.remoteUsername != null
                     if (iamState.isAuthenticated) {
                         // Any player switch while authenticated: revoke the Keycloak session
-                        // server-side via HTTP POST and set the nextLoginUsesRestartUrl flag so
-                        // that the next login (whether triggered by alwaysLogin or manually)
-                        // opens the /login-actions/restart URL with skip_logout=false. This shows
-                        // a completely blank login form and prevents Keycloak from silently
-                        // re-authenticating as the previous user via an active SSO browser cookie,
-                        // regardless of whether the new player has a remote account or not.
+                        // server-side via HTTP POST. This terminates the server-side session
+                        // without occupying the PKCE callback port, so a subsequent login for
+                        // the new player can proceed immediately.
                         de.egril.defender.iam.IamService.logoutBackchannel()
                     } else if (!newPlayerHasRemoteAccount) {
                         // Not authenticated but switching to a player with no remote account:
                         // clear any stale local state just in case.
                         de.egril.defender.iam.IamService.logoutLocal()
                     }
+                    // Note: when not authenticated and switching to a player WITH a remote
+                    // account, we do nothing here. Any stale session that might silently
+                    // re-authenticate is caught by the guard in GameViewModel.onAuthStateChanged.
                     viewModel.switchPlayer(playerId)
                     showPlayerSelection = false
                 },
