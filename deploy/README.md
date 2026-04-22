@@ -195,9 +195,18 @@ The pre-provisioned **Defender of Egril – Overview** dashboard shows:
 | Events per Day | Time series of daily event volume for the past 90 days |
 | Recent Events | Table of the 100 most recent events with all fields |
 | CPU / Memory / Disk | Gauge panels for all three Hetzner servers with colour thresholds: green (0–70 %), yellow (70–85 %), red (85–100 %) |
+| Backend Errors Today | Count of HTTP 5xx errors recorded today (green = 0, yellow ≥ 1, red ≥ 5) |
+| Backend Errors (Last 7 Days) | Count of HTTP 5xx errors over the past 7 days (green = 0, yellow ≥ 1, red ≥ 10) |
+| Backend Errors over Time | Time series of daily error counts for the past 30 days |
+| Recent Backend Errors | Table of the 50 most recent errors with status code, method, endpoint, message, and timestamp |
 
 Event types recorded by the frontend: `APP_STARTED`, `LEVEL_STARTED`,
 `LEVEL_WON`, `LEVEL_LOST`, `GAME_LEFT`.
+
+Backend errors are recorded automatically whenever the backend responds with an HTTP 5xx status code
+(e.g. `500 Internal Server Error` or `503 Service Unavailable`). Each error entry stores the HTTP
+method, endpoint path, status code, and a short description. Errors are also written to the
+application log (SLF4J / Logback) regardless of database availability.
 
 ### Architecture
 

@@ -8,14 +8,16 @@ COPY gradlew gradlew.bat ./
 COPY gradle/ gradle/
 COPY build.gradle.kts settings.gradle.kts gradle.properties ./
 COPY servers/backend/build.gradle.kts servers/backend/build.gradle.kts
+COPY shared/png-encoder/ shared/png-encoder/
 
 RUN chmod +x gradlew
 
-# settings.gradle.kts includes both :composeApp and :server.
-# The composeApp module is not needed for the server build, but Gradle requires
-# the declared project directory to exist. Create a minimal stub so configuration
-# succeeds without copying any composeApp source code.
-RUN mkdir -p frontend/composeApp && echo "" > frontend/composeApp/build.gradle.kts
+# settings.gradle.kts includes :composeApp, :assetPack, :png-encoder, and :server.
+# The composeApp and assetPack modules are not needed for the server build, but Gradle
+# requires all declared project directories to exist. Create minimal stubs so
+# configuration succeeds without copying any unrelated source code.
+RUN mkdir -p frontend/composeApp && echo "" > frontend/composeApp/build.gradle.kts \
+ && mkdir -p frontend/assetPack    && echo "" > frontend/assetPack/build.gradle.kts
 
 # Download dependencies (cached unless build files change)
 RUN ./gradlew :server:dependencies --no-daemon -q || true
