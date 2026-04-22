@@ -36,6 +36,7 @@ fun Application.module() {
         startDatabaseReconnectScheduler()
     }
 
+    configureErrorLogging(dataSourceRef)
     configureRouting(dataSourceRef)
 }
 

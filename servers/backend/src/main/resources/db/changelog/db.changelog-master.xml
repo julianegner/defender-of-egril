@@ -15,5 +15,6 @@
     <include file="db/changelog/migrations/008-events-platform-extended.sql"/>
     <include file="db/changelog/migrations/009-community-map-image.sql"/>
     <include file="db/changelog/migrations/010-community-description.sql"/>
+    <include file="db/changelog/migrations/011-backend-errors.sql"/>
 
 </databaseChangeLog>
