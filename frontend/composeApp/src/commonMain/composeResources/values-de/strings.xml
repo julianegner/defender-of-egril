@@ -1714,4 +1714,7 @@
     <string name="animation_test_animation_label">Animation</string>
     <string name="animation_test_background_label">Hintergrund</string>
     <string name="animation_test_replay">↺ Wiederholen</string>
+
+    <!-- Loading progress -->
+    <string name="loading_data">Daten werden geladen</string>
 </resources>

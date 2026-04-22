@@ -97,6 +97,8 @@ fun App() {
         val demoSelectedDefenderId by viewModel.demoSelectedDefenderId.collectAsState()
         val demoSelectedTargetPosition by viewModel.demoSelectedTargetPosition.collectAsState()
         val newVersionAvailable by viewModel.newVersionAvailable.collectAsState()
+        val isDataLoaded by viewModel.isDataLoaded.collectAsState()
+        val loadingProgress by viewModel.loadingProgress.collectAsState()
 
         val remoteCommunityLevelsMeta by viewModel.remoteCommunityLevelsMeta.collectAsState()
         val remoteCommunityMapsMeta by viewModel.remoteCommunityMapsMeta.collectAsState()
@@ -309,7 +311,9 @@ fun App() {
                     iamLoginInProgress = iamLoginInProgress,
                     onIamLogin = { de.egril.defender.iam.IamService.login() },
                     onIamLogout = { de.egril.defender.iam.IamService.logout() },
-                    onIamLoginCancel = { de.egril.defender.iam.IamService.logoutLocal() }
+                    onIamLoginCancel = { de.egril.defender.iam.IamService.logoutLocal() },
+                    isDataLoaded = isDataLoaded,
+                    loadingProgress = loadingProgress
                 )
             }
             
