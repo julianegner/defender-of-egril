@@ -457,13 +457,15 @@ fun WorldMapScreen(
             ) {
                 // Button width: smaller on mobile in image map view, standard otherwise
                 val buttonMinWidth = if (isMobileImageMap) BUTTON_WIDTH_MOBILE_IMAGE_MAP else BUTTON_WIDTH_DEFAULT
-                
+
+
+                val tabIndex = imageMapActiveTab ?: 0
                 // Button layout varies by platform and view mode:
                 // - Mobile + Image Map: Column layout, left-aligned, smaller buttons
                 // - Mobile + Level Cards: Row layout, centered, normal buttons
                 // - Desktop: Row layout, centered
                 when {
-                    isMobileImageMap -> {
+                    isMobileImageMap && tabIndex == 0 -> {
                         // Mobile + Image Map View: Column layout, left-aligned, smaller buttons
                         Column(
                             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -491,26 +493,7 @@ fun WorldMapScreen(
                             }
                         }
                     }
-                    isMobileLevelCards -> {
-                        // Mobile + Level Cards View: Row layout, centered, normal buttons
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            Button(onClick = onLoadGame) {
-                                Text(stringResource(Res.string.load_game))
-                            }
-                            
-                            Button(onClick = onShowRules) {
-                                Text(stringResource(Res.string.rules))
-                            }
-                            
-                            Button(onClick = onBackToMenu) {
-                                Text(stringResource(Res.string.back))
-                            }
-                        }
-                    }
                     else -> {
-                        // Desktop: Row layout, centered
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(16.dp)
                         ) {

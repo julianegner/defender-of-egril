@@ -19,7 +19,21 @@ import de.egril.defender.ui.icon.LockIcon
 import de.egril.defender.ui.icon.SwordIcon
 import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.stringResource
+import de.egril.defender.model.Position
 import defender_of_egril.composeapp.generated.resources.*
+
+
+data class WorldMapLevelInfo(
+    val levelId: String,
+    val levelIndex: Int,              // 1-based index for display
+    val name: String,
+    val subtitle: String,
+    val status: LevelStatus,
+    val position: Position,
+    val isFinalLevel: Boolean,
+    val isTutorialLevel: Boolean,
+    val prerequisites: Set<String>
+    )
 
 /**
  * Dialog overlay showing level details with a "Play Level" button
