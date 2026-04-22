@@ -147,9 +147,14 @@ object RepositoryLoader {
     /**
      * Load all repository files and save them to file storage.
      * Skips the full reload if the stored version already matches the bundled version.
+     * @param storage File storage to save to
+     * @param onProgress Optional progress callback invoked as (loaded, total, currentFilename)
      * @return true if repository files were successfully loaded and saved (or already up to date)
      */
-    suspend fun loadAndSaveRepositoryFiles(storage: FileStorage): Boolean {
+    suspend fun loadAndSaveRepositoryFiles(
+        storage: FileStorage,
+        onProgress: ((loaded: Int, total: Int, filename: String) -> Unit)? = null
+    ): Boolean {
         return try {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Loading repository files...")
@@ -180,6 +185,10 @@ object RepositoryLoader {
             println("Found ${sequence.sequence.size} levels in repository sequence")
             }
 
+            // Estimated total: levels (N) + maps upper-bound (N, since each level may need a unique map) + 1 worldmap file
+            val estimatedTotal = sequence.sequence.size * 2 + 1  // N levels + N maps (max) + 1 worldmap
+            var loaded = 0
+
             // Track which maps we need to load
             val mapsToLoad = mutableSetOf<String>()
             
@@ -204,7 +213,13 @@ object RepositoryLoader {
                     println("WARNING: Could not load level $levelId from repository")
                     }
                 }
+                loaded++
+                onProgress?.invoke(loaded, estimatedTotal, "$levelId.json")
             }
+
+            // Now that we know the actual number of unique maps, compute the real total:
+            // N levels + M unique maps + 1 worldmap file (M ≤ N since maps are shared across levels)
+            val actualTotal = sequence.sequence.size + mapsToLoad.size + 1  // N levels + M maps + 1 worldmap
             
             // Load all required maps
             var mapCount = 0
@@ -234,6 +249,8 @@ object RepositoryLoader {
                         println("WARNING: Could not load map $mapId from repository")
                     }
                 }
+                loaded++
+                onProgress?.invoke(loaded, actualTotal, "$mapId.json")
             }
             
             // Always save sequence to official directory from repository to keep it up to date
@@ -256,6 +273,8 @@ object RepositoryLoader {
                 println("No worldmap.json in repository, skipping")
                 }
             }
+            loaded++
+            onProgress?.invoke(loaded, actualTotal, "worldmap.json")
             
             // Save version file (use bundledVersion if available, otherwise fall back to hardcoded)
             storage.writeFile("gamedata/version.txt", bundledVersion ?: "10")

@@ -91,6 +91,43 @@ object EditorStorage {
     }
 
     /**
+     * Async version of ensureInitialized that supports loading progress reporting.
+     * Use this on platforms where file loading is inherently asynchronous (e.g. WASM).
+     * Reports loading progress via [onProgress] as (loaded, total, currentFilename).
+     */
+    suspend fun ensureInitializedAsync(
+        onProgress: ((loaded: Int, total: Int, filename: String) -> Unit)? = null
+    ) {
+        if (initialized) return
+
+        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+        println("Initializing EditorStorage asynchronously - loading repository files...")
+        }
+        val repositoryLoaded = RepositoryLoader.loadAndSaveRepositoryFiles(fileStorage, onProgress)
+
+        if (!repositoryLoaded) {
+            println("Repository files could not be loaded (async) - this may be a test environment")
+        }
+
+        val missingCategories = validateRepositoryData()
+        if (missingCategories.isNotEmpty()) {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("Missing data categories: $missingCategories - continuing anyway (test environment)")
+            }
+        }
+
+        val sequence = getLevelSequence()
+        if (sequence.sequence.isEmpty()) {
+            println("Level sequence is empty - continuing anyway (test environment)")
+        }
+
+        initialized = true
+        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+        println("EditorStorage initialized asynchronously. Repository loaded: $repositoryLoaded")
+        }
+    }
+
+    /**
      * Validate that all required repository data exists and is not empty
      * @return List of missing or empty categories
      */

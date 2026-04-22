@@ -63,7 +63,9 @@ fun MainMenuScreen(
     iamLoginInProgress: Boolean = false,
     onIamLogin: () -> Unit = {},
     onIamLogout: () -> Unit = {},
-    onIamLoginCancel: () -> Unit = {}
+    onIamLoginCancel: () -> Unit = {},
+    isDataLoaded: Boolean = true,
+    loadingProgress: LoadingProgress? = null
 ) {
     // Track if settings hint should be shown
     val showSettingsHint by AppSettings.settingsHintShown
@@ -275,6 +277,7 @@ fun MainMenuScreen(
                     ) {
                         Button(
                             onClick = onStartGame,
+                            enabled = isDataLoaded,
                             modifier = Modifier.weight(1f).height(40.dp)
                         ) {
                             Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.bodySmall, maxLines = 1)
@@ -306,6 +309,7 @@ fun MainMenuScreen(
                     ) {
                         Button(
                             onClick = onStartGame,
+                            enabled = isDataLoaded,
                             modifier = Modifier.width(200.dp).height(60.dp)
                         ) {
                             Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
@@ -346,6 +350,38 @@ fun MainMenuScreen(
                             )
                         ) {
                             Text(stringResource(Res.string.download_button), style = MaterialTheme.typography.titleMedium)
+                        }
+                    }
+                }
+                
+                // Loading progress indicator (shown on WASM while repository files are loading)
+                if (!isDataLoaded) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = stringResource(Res.string.loading_data),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                        if (loadingProgress != null) {
+                            Text(
+                                text = "${loadingProgress.loadedCount}/${loadingProgress.totalCount}: ${loadingProgress.currentFile}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
                 }

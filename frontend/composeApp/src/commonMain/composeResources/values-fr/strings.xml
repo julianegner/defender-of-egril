@@ -1716,4 +1716,7 @@
     <string name="animation_test_animation_label">Animation</string>
     <string name="animation_test_background_label">Arrière-plan</string>
     <string name="animation_test_replay">↺ Rejouer</string>
+
+    <!-- Loading progress -->
+    <string name="loading_data">Chargement des données</string>
 </resources>

@@ -9,6 +9,7 @@ import de.egril.defender.model.*
 import de.egril.defender.model.DifficultyModifiers
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.utils.CheatCodeHandler
+import de.egril.defender.utils.isPlatformWasm
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,6 +25,16 @@ import de.egril.defender.editor.EditorJsonSerializer
 import de.egril.defender.editor.OfficialContent
 import de.egril.defender.ui.infopage.NewVersionInfo
 import de.egril.defender.ui.infopage.checkForNewerVersion
+
+/**
+ * Represents the progress of loading repository data files (levels, maps, worldmap).
+ * Used on WASM/web where files are loaded asynchronously on startup.
+ */
+data class LoadingProgress(
+    val loadedCount: Int,
+    val totalCount: Int,
+    val currentFile: String
+)
 
 sealed class Screen {
     object MainMenu : Screen()
@@ -86,6 +97,13 @@ class GameViewModel {
     
     private val _showCheatHelp = MutableStateFlow(false)
     val showCheatHelp: StateFlow<Boolean> = _showCheatHelp.asStateFlow()
+
+    // Data loading state – used on WASM/web where repository files are loaded asynchronously
+    private val _isDataLoaded = MutableStateFlow(!isPlatformWasm)
+    val isDataLoaded: StateFlow<Boolean> = _isDataLoaded.asStateFlow()
+
+    private val _loadingProgress = MutableStateFlow<LoadingProgress?>(null)
+    val loadingProgress: StateFlow<LoadingProgress?> = _loadingProgress.asStateFlow()
 
     // Player profile state
     private val _currentPlayer = MutableStateFlow<de.egril.defender.save.PlayerProfile?>(null)
@@ -193,22 +211,35 @@ class GameViewModel {
     val remoteCommunityMapsMeta: StateFlow<List<de.egril.defender.save.CommunityFileInfo>> = _remoteCommunityMapsMeta.asStateFlow()
 
     init {
-        // Ensure EditorStorage is initialized with repository data
-        de.egril.defender.editor.EditorStorage.ensureInitialized()
-        
         de.egril.defender.analytics.reportEvent(de.egril.defender.analytics.GameEventType.APP_STARTED, null)
 
-        initializePlayerProfile()
-        initializeWorldMap()
+        // Upload settings to the dedicated backend table whenever a setting is changed
+        // and the user is authenticated.
+        de.egril.defender.ui.settings.AppSettings.onPersist = { uploadSettingsToBackend() }
+
+        if (isPlatformWasm) {
+            // On WASM, repository files are loaded asynchronously. Initialize with progress
+            // tracking and only start the world map after all data is ready.
+            initializePlayerProfile()
+            viewModelScope.launch {
+                de.egril.defender.editor.EditorStorage.ensureInitializedAsync { loaded, total, filename ->
+                    _loadingProgress.value = LoadingProgress(loaded, total, filename)
+                }
+                _loadingProgress.value = null
+                _isDataLoaded.value = true
+                initializeWorldMap()
+            }
+        } else {
+            // On non-WASM platforms, repository files are loaded synchronously before this point.
+            de.egril.defender.editor.EditorStorage.ensureInitialized()
+            initializePlayerProfile()
+            initializeWorldMap()
+        }
         // Note: saved games are loaded via onAuthStateChanged() which is called by a
         // LaunchedEffect in App.kt on every change of iamState.isAuthenticated (including
         // the initial composition).  This avoids an NPE that would occur if
         // refreshSavedGames() were called here directly, because _savedGames is declared
         // further down in the file and not yet initialised at this point in the constructor.
-
-        // Upload settings to the dedicated backend table whenever a setting is changed
-        // and the user is authenticated.
-        de.egril.defender.ui.settings.AppSettings.onPersist = { uploadSettingsToBackend() }
     }
     
     /**
