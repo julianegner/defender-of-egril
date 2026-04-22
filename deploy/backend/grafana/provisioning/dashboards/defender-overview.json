@@ -719,7 +719,7 @@
         {
           "datasource": { "type": "postgres", "uid": "postgres-app" },
           "format": "time_series",
-          "rawSql": "SELECT date_trunc('day', created_at) AS time, COUNT(*) AS \"Errors\" FROM backend_errors WHERE created_at >= NOW() - INTERVAL '30 days' GROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT date_trunc('day', created_at) AS time, COUNT(*) AS \"Errors\" FROM backend_errors WHERE created_at >= NOW() - INTERVAL '30 days' GROUP BY date_trunc('day', created_at) ORDER BY 1",
           "refId": "A"
         }
       ]

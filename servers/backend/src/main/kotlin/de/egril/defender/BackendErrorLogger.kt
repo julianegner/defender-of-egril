@@ -46,7 +46,7 @@ fun Application.configureErrorLogging(dataSourceRef: AtomicReference<DataSource?
     intercept(ApplicationCallPipeline.Monitoring) {
         try {
             proceed()
-        } catch (e: Throwable) {
+        } catch (e: Exception) {
             logBackendError(
                 dataSourceRef,
                 call.request.path(),
