@@ -1,5 +1,7 @@
 package de.egril.defender.analytics
 
+val backendUrl: String = "https://defender-backend.egril.de"
+
 /**
  * Reports a game lifecycle event to the backend analytics endpoint.
  *

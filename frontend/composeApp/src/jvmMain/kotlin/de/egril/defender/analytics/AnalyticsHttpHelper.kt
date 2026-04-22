@@ -4,8 +4,6 @@ import de.egril.defender.iam.IamService
 import java.net.HttpURLConnection
 import java.net.URI
 
-private val backendUrl: String = "https://defender-backend.egril.de"
-
 /**
  * Fire-and-forget HTTP POST to the analytics backend.
  * Runs on a daemon thread so it never blocks the game.
