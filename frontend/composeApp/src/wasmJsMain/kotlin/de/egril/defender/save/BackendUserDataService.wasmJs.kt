@@ -2,6 +2,7 @@
 
 package de.egril.defender.save
 
+import de.egril.defender.analytics.backendUrl
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.w3c.xhr.XMLHttpRequest
 import kotlin.coroutines.resume
@@ -12,7 +13,7 @@ actual object BackendUserDataService {
         suspendCancellableCoroutine { continuation ->
             try {
                 val xhr = XMLHttpRequest()
-                xhr.open("POST", "/api/userdata", async = true)
+                xhr.open("POST", "$backendUrl/api/userdata", async = true)
                 xhr.setRequestHeader("Content-Type", "application/json")
                 xhr.setRequestHeader("Authorization", "Bearer $token")
                 xhr.onload = {

@@ -2,6 +2,7 @@
 
 package de.egril.defender.save
 
+import de.egril.defender.analytics.backendUrl
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.w3c.xhr.XMLHttpRequest
 import kotlin.coroutines.resume
@@ -36,9 +37,9 @@ actual object BackendCommunityService {
         suspendCancellableCoroutine { continuation ->
             try {
                 val path = if (fileType != null) {
-                    "/api/community/files?fileType=$fileType"
+                    "$backendUrl/api/community/files?fileType=$fileType"
                 } else {
-                    "/api/community/files"
+                    "$backendUrl/api/community/files"
                 }
                 val xhr = XMLHttpRequest()
                 xhr.open("GET", path, async = true)
@@ -64,7 +65,7 @@ actual object BackendCommunityService {
     ): CommunityFileData? = suspendCancellableCoroutine { continuation ->
         try {
             val xhr = XMLHttpRequest()
-            xhr.open("GET", "/api/community/files/$fileType/$fileId", async = true)
+            xhr.open("GET", "$backendUrl/api/community/files/$fileType/$fileId", async = true)
             xhr.onload = {
                 if (xhr.status.toInt() in 200..299) {
                     continuation.resume(parseCommunityFileDataJson(xhr.responseText))
