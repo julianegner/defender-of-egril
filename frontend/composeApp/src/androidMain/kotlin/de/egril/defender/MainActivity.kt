@@ -67,4 +67,12 @@ class MainActivity : ComponentActivity() {
         setSoundEffectsAppInBackground(false)
         GlobalBackgroundMusicManager.resumeMusic()
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (isFinishing) {
+            // Release audio resources only when the Activity is truly finishing (not just recreating).
+            GlobalBackgroundMusicManager.release()
+        }
+    }
 }

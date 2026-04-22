@@ -36,6 +36,11 @@ fun setSoundEffectsAppInBackground(inBackground: Boolean) {
  * Must be called from Android-specific code before playing sounds
  */
 fun initializeAndroidAudio(context: Context) {
+    // Release old SoundPool (if Activity is recreated without process death) and clear
+    // stale sound IDs so they are reloaded against the new pool.
+    soundPool?.release()
+    soundIds.clear()
+
     appContext = context.applicationContext
     
     soundPool = SoundPool.Builder()
