@@ -28,6 +28,7 @@ import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.config.LogConfig
 import de.egril.defender.ui.gameplay.defenderButtons.CompactDefenderButton
 import de.egril.defender.ui.gameplay.defenderButtons.DefenderButton
+import de.egril.defender.utils.isPlatformMobile
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
@@ -105,7 +106,11 @@ fun GameControlsPanel(
         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val isNarrowPanel = maxWidth < 500.dp
         val expandedGridColumns = if (isNarrowPanel) 4 else 7
-        val expandedGridHeight = if (isNarrowPanel) 70.dp else 75.dp
+        val expandedGridHeight =
+            if (isPlatformMobile && isNarrowPanel) 75.dp
+            else if (isNarrowPanel) 70.dp
+            else if (isPlatformMobile) 80.dp
+            else 75.dp
 
         Column(modifier = Modifier.fillMaxWidth()) {
 
@@ -263,7 +268,7 @@ fun GameControlsPanel(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(if (isPlatformMobile) 4.dp else 8.dp))
 
             // Selected defender info and attack button
             selectedDefenderId?.let { defenderId ->
