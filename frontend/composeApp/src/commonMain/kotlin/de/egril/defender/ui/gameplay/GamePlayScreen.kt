@@ -231,6 +231,8 @@ private fun GamePlayScreenContent(
     var showRemoveTrapDialog by remember { mutableStateOf(false) }
     var trapToRemove by remember { mutableStateOf<Position?>(null) }
 
+    var tabScrollPosition by remember { mutableStateOf<Position?>(null) }  // Tab-triggered scroll-to-tower
+
     var currentDigOutcome by remember { mutableStateOf<DigOutcome?>(null) }
     var currentDragonName by remember { mutableStateOf<String?>(null) }  // Track dragon name for dig outcome
     var showDigOutcomeDialog by remember { mutableStateOf(false) }
@@ -461,6 +463,49 @@ private fun GamePlayScreenContent(
         }
     }
 
+    // Auto-jump: select first actionable tower when player turn starts (if setting is ON)
+    LaunchedEffect(gameState.phase.value) {
+        if (AppSettings.autoJumpToNextTower.value &&
+            gameState.phase.value == GamePhase.PLAYER_TURN) {
+            val actionable = gameState.getActionableTowersForTab()
+            if (actionable.isNotEmpty()) {
+                val first = actionable.first()
+                selectedDefenderId = first.id
+                selectedAttackerId = null
+                selectedTargetId = null
+                selectedTargetPosition = null
+                selectedMineAction = null
+                selectedWizardAction = null
+                selectedBarricadeAction = null
+                tabScrollPosition = first.position.value
+            }
+        }
+    }
+
+    // Auto-jump: when the current selected tower runs out of actions, jump to the next (if setting is ON)
+    val selectedDefenderActionsRemaining = selectedDefenderId?.let { id ->
+        gameState.defenders.find { it.id == id }?.actionsRemaining?.value
+    }
+    LaunchedEffect(selectedDefenderActionsRemaining, selectedDefenderId) {
+        if (AppSettings.autoJumpToNextTower.value &&
+            gameState.phase.value == GamePhase.PLAYER_TURN &&
+            selectedDefenderId != null &&
+            (selectedDefenderActionsRemaining ?: 1) <= 0) {
+            val actionable = gameState.getActionableTowersForTab()
+            if (actionable.isNotEmpty()) {
+                val first = actionable.first()
+                selectedDefenderId = first.id
+                selectedAttackerId = null
+                selectedTargetId = null
+                selectedTargetPosition = null
+                selectedMineAction = null
+                selectedWizardAction = null
+                selectedBarricadeAction = null
+                tabScrollPosition = first.position.value
+            }
+        }
+    }
+
     // Mine action handler
     val handleMineAction: (Int, MineAction) -> Unit = { mineId, action ->
         when (action) {
@@ -580,6 +625,26 @@ private fun GamePlayScreenContent(
                     } else {
                         false
                     }
+                }
+                // Tab: Select next actionable tower (player turn only)
+                event.type == KeyEventType.KeyDown &&
+                        event.key == Key.Tab &&
+                        gameState.phase.value == GamePhase.PLAYER_TURN -> {
+                    val actionable = gameState.getActionableTowersForTab()
+                    if (actionable.isNotEmpty()) {
+                        val currentIdx = actionable.indexOfFirst { it.id == selectedDefenderId }
+                        val nextIdx = if (currentIdx < 0 || currentIdx >= actionable.size - 1) 0 else currentIdx + 1
+                        val nextTower = actionable[nextIdx]
+                        selectedDefenderId = nextTower.id
+                        selectedAttackerId = null
+                        selectedTargetId = null
+                        selectedTargetPosition = null
+                        selectedMineAction = null
+                        selectedWizardAction = null
+                        selectedBarricadeAction = null
+                        tabScrollPosition = nextTower.position.value
+                    }
+                    true
                 }
                 // C: Open cheat code dialog
                 event.type == KeyEventType.KeyDown &&
@@ -921,8 +986,14 @@ private fun GamePlayScreenContent(
                     }
                 },
                 modifier = Modifier.fillMaxSize(),
-                scrollToPosition = scrollToPosition,
-                onScrollToPositionConsumed = onScrollToPositionConsumed,
+                scrollToPosition = scrollToPosition ?: tabScrollPosition,
+                onScrollToPositionConsumed = {
+                    if (scrollToPosition != null) {
+                        onScrollToPositionConsumed?.invoke()
+                    } else {
+                        tabScrollPosition = null
+                    }
+                },
                 isDemoMode = isDemoMode,
                 demoHoveredPosition = demoHoveredPosition
             )

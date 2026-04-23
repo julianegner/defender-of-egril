@@ -11,6 +11,7 @@ This document lists all keyboard shortcuts and usable keys in Defender of Egril.
 | Key | Action | Notes |
 |-----|--------|-------|
 | `F` | Attack | Fires the selected tower at the currently selected target (enemy or position). Only works during Player Turn when a tower with actions remaining is selected and a target is chosen. |
+| `Tab` | Select Next Actionable Tower | Selects the next tower that has action points remaining and enemies in range (or is a mine). Cycles through all such towers. Only available during Player Turn. |
 | `Ctrl+A` | Auto-attack & End Turn | Automatically fires all towers that have targets in range, then ends the turn. Only available during Player Turn. |
 | `C` | Open Cheat Dialog | Opens the cheat code input dialog. |
 | `E` | Toggle Enemy List | Shows or hides the enemy list overlay. |

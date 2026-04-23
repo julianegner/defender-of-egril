@@ -1262,7 +1262,9 @@
     <string name="keyboard_shortcut_pan_down">Pan map down</string>
     <string name="keyboard_shortcut_pan_left">Pan map left</string>
     <string name="keyboard_shortcut_pan_right">Pan map right</string>
-    <string name="keyboard_shortcuts_note">Note: Keyboard shortcuts are available on desktop only.</string>
+    <string name="keyboard_shortcut_tab_next_tower">Select next actionable tower</string>
+    <string name="auto_jump_to_next_tower">Auto-jump to next actionable tower</string>
+    <string name="keyboard_shortcuts_note">Note: Keyboard shortcuts are available on desktop and in the web app.</string>
     <string name="keyboard_modifier_ctrl">Ctrl</string>
 
     <!-- License Info -->

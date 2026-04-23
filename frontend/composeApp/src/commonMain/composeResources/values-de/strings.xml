@@ -1257,7 +1257,9 @@
     <string name="keyboard_shortcut_pan_down">Karte nach unten schwenken</string>
     <string name="keyboard_shortcut_pan_left">Karte nach links schwenken</string>
     <string name="keyboard_shortcut_pan_right">Karte nach rechts schwenken</string>
-    <string name="keyboard_shortcuts_note">Hinweis: Tastenkürzel sind nur auf dem Desktop verfügbar.</string>
+    <string name="keyboard_shortcut_tab_next_tower">Nächsten aktionsfähigen Turm auswählen</string>
+    <string name="auto_jump_to_next_tower">Automatisch zum nächsten aktionsfähigen Turm springen</string>
+    <string name="keyboard_shortcuts_note">Hinweis: Tastenkürzel sind auf dem Desktop und in der Web-App verfügbar.</string>
     <string name="keyboard_modifier_ctrl">Strg</string>
 
     <!-- License Info -->
