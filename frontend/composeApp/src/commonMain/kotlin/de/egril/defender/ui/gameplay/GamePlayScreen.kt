@@ -482,15 +482,28 @@ private fun GamePlayScreenContent(
         }
     }
 
-    // Auto-jump: when the current selected tower runs out of actions, jump to the next (if setting is ON)
+    // Auto-jump: when the current selected tower runs out of actions, jump to the next (if setting is ON).
+    // Use SideEffect to track the actions-remaining value from the previous composition so that we
+    // only jump on the transition (> 0) → 0 for the *same* tower, and ignore manually selected
+    // towers that already have 0 actions when selected.
     val selectedDefenderActionsRemaining = selectedDefenderId?.let { id ->
         gameState.defenders.find { it.id == id }?.actionsRemaining?.value
     }
-    LaunchedEffect(selectedDefenderActionsRemaining, selectedDefenderId) {
-        if (AppSettings.autoJumpToNextTower.value &&
-            gameState.phase.value == GamePhase.PLAYER_TURN &&
-            selectedDefenderId != null &&
-            (selectedDefenderActionsRemaining ?: 1) <= 0) {
+    val prevAutoJumpDefenderId = remember { mutableStateOf<Int?>(null) }
+    val prevAutoJumpActions = remember { mutableStateOf<Int?>(null) }
+    val actionsJustExhausted =
+        selectedDefenderId != null &&
+        selectedDefenderId == prevAutoJumpDefenderId.value &&
+        selectedDefenderActionsRemaining == 0 &&
+        (prevAutoJumpActions.value ?: 0) > 0
+    SideEffect {
+        prevAutoJumpDefenderId.value = selectedDefenderId
+        prevAutoJumpActions.value = selectedDefenderActionsRemaining
+    }
+    LaunchedEffect(actionsJustExhausted) {
+        if (actionsJustExhausted &&
+            AppSettings.autoJumpToNextTower.value &&
+            gameState.phase.value == GamePhase.PLAYER_TURN) {
             val actionable = gameState.getActionableTowersForTab()
             if (actionable.isNotEmpty()) {
                 val first = actionable.first()
