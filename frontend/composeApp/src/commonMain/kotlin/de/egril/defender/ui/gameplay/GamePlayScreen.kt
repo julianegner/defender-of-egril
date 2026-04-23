@@ -87,7 +87,8 @@ fun GamePlayScreen(
     demoSelectedDefenderType: DefenderType? = null,
     demoHoveredPosition: Position? = null,
     demoSelectedDefenderId: Int? = null,
-    demoSelectedTargetPosition: Position? = null
+    demoSelectedTargetPosition: Position? = null,
+    onGetAutoAttackTarget: ((Int) -> Position?)? = null  // Get best auto-attack target for a tower
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -146,7 +147,8 @@ fun GamePlayScreen(
         demoSelectedDefenderType = demoSelectedDefenderType,
         demoHoveredPosition = demoHoveredPosition,
         demoSelectedDefenderId = demoSelectedDefenderId,
-        demoSelectedTargetPosition = demoSelectedTargetPosition
+        demoSelectedTargetPosition = demoSelectedTargetPosition,
+        onGetAutoAttackTarget = onGetAutoAttackTarget
     )
 }
 
@@ -210,7 +212,8 @@ private fun GamePlayScreenContent(
     demoSelectedDefenderType: DefenderType? = null,
     demoHoveredPosition: Position? = null,
     demoSelectedDefenderId: Int? = null,
-    demoSelectedTargetPosition: Position? = null
+    demoSelectedTargetPosition: Position? = null,
+    onGetAutoAttackTarget: ((Int) -> Position?)? = null  // Get best auto-attack target for a tower
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
@@ -463,22 +466,48 @@ private fun GamePlayScreenContent(
         }
     }
 
+    // Helper: select the next actionable tower after the given one (cycling), scroll to it,
+    // and pre-select its best auto-attack target. If no actionable tower exists, trigger the
+    // end-turn flow ("jump to Next turn button").
+    val jumpToNextActionableTower: (Int?) -> Unit = { currentId ->
+        val actionable = gameState.getActionableTowersForTab()
+        if (actionable.isEmpty()) {
+            // No tower with actions left → trigger the end turn flow
+            if (gameState.hasDefendersWithUnusedActions()) {
+                showEndTurnConfirmation = true
+            } else {
+                endPlayerTurnAction()
+            }
+        } else {
+            val currentIdx = actionable.indexOfFirst { it.id == currentId }
+            val nextIdx = if (currentIdx < 0 || currentIdx >= actionable.size - 1) 0 else currentIdx + 1
+            val nextTower = actionable[nextIdx]
+            selectedDefenderId = nextTower.id
+            selectedAttackerId = null
+            selectedMineAction = null
+            selectedWizardAction = null
+            selectedBarricadeAction = null
+            tabScrollPosition = nextTower.position.value
+
+            // Auto-select the best attack target using the same logic as automatic attacks
+            val autoTarget = onGetAutoAttackTarget?.invoke(nextTower.id)
+            if (autoTarget != null) {
+                selectedTargetPosition = autoTarget
+                selectedTargetId = gameState.attackers.find {
+                    !it.isDefeated.value && it.position.value == autoTarget
+                }?.id
+            } else {
+                selectedTargetId = null
+                selectedTargetPosition = null
+            }
+        }
+    }
+
     // Auto-jump: select first actionable tower when player turn starts (if setting is ON)
     LaunchedEffect(gameState.phase.value) {
         if (AppSettings.autoJumpToNextTower.value &&
             gameState.phase.value == GamePhase.PLAYER_TURN) {
-            val actionable = gameState.getActionableTowersForTab()
-            if (actionable.isNotEmpty()) {
-                val first = actionable.first()
-                selectedDefenderId = first.id
-                selectedAttackerId = null
-                selectedTargetId = null
-                selectedTargetPosition = null
-                selectedMineAction = null
-                selectedWizardAction = null
-                selectedBarricadeAction = null
-                tabScrollPosition = first.position.value
-            }
+            jumpToNextActionableTower(null)
         }
     }
 
@@ -504,18 +533,7 @@ private fun GamePlayScreenContent(
         if (actionsJustExhausted &&
             AppSettings.autoJumpToNextTower.value &&
             gameState.phase.value == GamePhase.PLAYER_TURN) {
-            val actionable = gameState.getActionableTowersForTab()
-            if (actionable.isNotEmpty()) {
-                val first = actionable.first()
-                selectedDefenderId = first.id
-                selectedAttackerId = null
-                selectedTargetId = null
-                selectedTargetPosition = null
-                selectedMineAction = null
-                selectedWizardAction = null
-                selectedBarricadeAction = null
-                tabScrollPosition = first.position.value
-            }
+            jumpToNextActionableTower(selectedDefenderId)
         }
     }
 
@@ -643,20 +661,7 @@ private fun GamePlayScreenContent(
                 event.type == KeyEventType.KeyDown &&
                         event.key == Key.Tab &&
                         gameState.phase.value == GamePhase.PLAYER_TURN -> {
-                    val actionable = gameState.getActionableTowersForTab()
-                    if (actionable.isNotEmpty()) {
-                        val currentIdx = actionable.indexOfFirst { it.id == selectedDefenderId }
-                        val nextIdx = if (currentIdx < 0 || currentIdx >= actionable.size - 1) 0 else currentIdx + 1
-                        val nextTower = actionable[nextIdx]
-                        selectedDefenderId = nextTower.id
-                        selectedAttackerId = null
-                        selectedTargetId = null
-                        selectedTargetPosition = null
-                        selectedMineAction = null
-                        selectedWizardAction = null
-                        selectedBarricadeAction = null
-                        tabScrollPosition = nextTower.position.value
-                    }
+                    jumpToNextActionableTower(selectedDefenderId)
                     true
                 }
                 // C: Open cheat code dialog
