@@ -98,15 +98,15 @@ fun DefenderButton(
             ) {
                 val bw = maxWidth
                 // Columns: icon | price | name+buildtime | stats
-                // Thresholds account for cumulative column widths so no column is partially visible.
-                // icon=54, spacer=4, price=32, spacer=4, info=100, padding=4, stats≈38, right-margin≈10
+                // Thresholds ensure no column is partially visible.
+                // Column widths: icon=54, spacer=4, price=32, spacer=4, info=100, padding_start=4, stats≈34, padding_end=8
                 Row(
                     modifier = Modifier.fillMaxSize(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start
                 ) {
                     TowerTypeIcon(defenderType = type, modifier = Modifier.size(54.dp))
-                    // Show price column when icon+spacer+price fits (54+4+32=90, +10 margin = 100)
+                    // 2 cols: icon(54)+spacer(4)+price(32)=90dp content; threshold 100dp adds margin
                     if (bw >= 100.dp) {
                         Spacer(modifier = Modifier.width(4.dp))
                         DefenderPriceColumn(
@@ -115,7 +115,7 @@ fun DefenderButton(
                             priceFontSize = 14.sp,
                             width = 32.dp
                         )
-                        // Show info column when icon+price+info fits (90+4+100=194, +10 margin = 204 → 195)
+                        // 3 cols: 2-col content(90)+spacer(4)+info(100)=194dp; threshold 195dp
                         if (bw >= 195.dp) {
                             Spacer(modifier = Modifier.width(4.dp))
                             DefenderInfoColumn(
@@ -124,7 +124,7 @@ fun DefenderButton(
                                 timerIconSize = 12.dp, buildTimeFontSize = 10.sp,
                                 modifier = Modifier.fillMaxHeight().width(100.dp)
                             )
-                            // Show stats column when all 4 columns fit (194+4+38+12 right-margin = 248 → 240)
+                            // 4 cols: 3-col content(194)+padding_start(4)+stats(~34)+padding_end(8)=~240dp
                             if (bw >= 240.dp) {
                                 Column(
                                     modifier = Modifier

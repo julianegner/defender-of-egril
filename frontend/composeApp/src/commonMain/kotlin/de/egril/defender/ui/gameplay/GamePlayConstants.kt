@@ -76,8 +76,10 @@ object GamePlayConstants {
 
         /**
          * Maximum width of a buy tower (defender) button when showing all 4 info columns.
-         * Column breakdown (inner content): icon(54) + spacer(4) + price(32) + spacer(4) +
-         * info(100) + padding(4) + stats(~38) + right-margin(12) ≈ 248dp inner → 260dp total.
+         * Column breakdown (inner bw): icon(54)+spacer(4)+price(32)+spacer(4)+info(100)+
+         * padding_start(4)+stats(~34)+padding_end(8) ≈ 240dp inner content.
+         * Adding button overhead (contentPadding 2*2=4dp, horizontal padding 2*4=8dp) = 12dp
+         * gives ~252dp total, rounded up to 260dp to provide a comfortable margin.
          * Buttons should not grow wider than this even when more space is available.
          */
         val DefenderButtonMaxWidth = 260.dp
