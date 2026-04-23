@@ -178,10 +178,12 @@ fun App() {
                 is Screen.GamePlay -> {
                     WindowCloseHandler.setUnsavedChangesChecker { viewModel.hasUnsavedChanges() }
                     WindowCloseHandler.setSaveGameCallback { viewModel.saveCurrentGame() }
+                    WindowCloseHandler.setBackgroundSaveCallback { viewModel.saveGameOnBackground() }
                 }
                 else -> {
                     WindowCloseHandler.setUnsavedChangesChecker(null)
                     WindowCloseHandler.setSaveGameCallback(null)
+                    WindowCloseHandler.setBackgroundSaveCallback(null)
                 }
             }
         }
