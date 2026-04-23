@@ -164,10 +164,22 @@ object RepositoryLoader {
             val bundledVersion = loadVersion()
             val storedVersion = storage.readFile("gamedata/version.txt")?.trim()
             if (bundledVersion != null && bundledVersion == storedVersion) {
-                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                println("Repository data is up to date (version $storedVersion), skipping reload")
+                // Also verify that official maps are actually present in persistent storage.
+                // If a previous sync wrote maps only to the in-memory fallback (due to a
+                // localStorage quota overflow), they will be absent after a page reload even
+                // though the version file is still intact.  In that case we must re-sync so
+                // the maps end up in the in-memory store for the current session.
+                val officialMapFiles = storage.listFiles("gamedata/official/maps")
+                if (officialMapFiles.isNotEmpty()) {
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                    println("Repository data is up to date (version $storedVersion), skipping reload")
+                    }
+                    return true
                 }
-                return true
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                println("Version matches ($storedVersion) but official maps are missing - performing full sync to restore data")
+                }
+                // Fall through to full sync below
             }
 
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
