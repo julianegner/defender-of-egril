@@ -73,8 +73,23 @@ private external fun jsSetDarkModeCookie(isDark: Boolean)
  * Returns `true` if the Keycloak JS adapter was available and the login
  * redirect was initiated, `false` if the adapter was not yet initialised
  * (e.g. because the Keycloak server was unreachable at page load time).
+ *
+ * Stale `kc-callback-*` entries are cleared from localStorage before the
+ * redirect so that a full localStorage does not cause a QuotaExceededError
+ * when Keycloak tries to store the new callback state.
  */
-@JsFun("(locale) => { if (window._keycloak) { window._keycloak.login({ prompt: 'login', locale: locale }); return true; } return false; }")
+@JsFun("""(locale) => {
+    if (window._keycloak) {
+        try {
+            Object.keys(localStorage)
+                .filter(function(k) { return k.startsWith('kc-callback-'); })
+                .forEach(function(k) { localStorage.removeItem(k); });
+        } catch (e) { /* ignore cleanup errors */ }
+        window._keycloak.login({ prompt: 'login', locale: locale });
+        return true;
+    }
+    return false;
+}""")
 private external fun jsKcLoginWithLocale(locale: String): Boolean
 
 @JsFun("() => { if (window._keycloak) { window._keycloak.logout({ redirectUri: window.location.origin }); } }")

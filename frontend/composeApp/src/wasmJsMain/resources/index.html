@@ -137,6 +137,16 @@
                             });
                     };
 
+                    // Remove stale kc-callback-* entries left over from previous incomplete
+                    // login redirects.  These accumulate in localStorage and can cause a
+                    // QuotaExceededError when Keycloak tries to store a new callback entry
+                    // on the next login attempt.
+                    try {
+                        Object.keys(localStorage)
+                            .filter(function(k) { return k.startsWith('kc-callback-'); })
+                            .forEach(function(k) { localStorage.removeItem(k); });
+                    } catch (e) { /* ignore cleanup errors */ }
+
                     kc.init({ onLoad: 'check-sso', checkLoginIframe: false, silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html' })
                         .then(function (authenticated) {
                             window._kcAuthenticated = authenticated === true;
