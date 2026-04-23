@@ -5,7 +5,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -110,8 +109,8 @@ fun GameControlsPanel(
 
     Column(modifier = Modifier.fillMaxWidth()) {
         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-        val isNarrowPanel = maxWidth < 500.dp
-        val expandedGridColumns = if (isNarrowPanel) 4 else 7
+        val panelWidth = maxWidth  // Capture for use in nested composable scopes
+        val isNarrowPanel = panelWidth < 500.dp
         val expandedGridHeight =
             if (isPlatformMobile && isNarrowPanel) 75.dp
             else if (isNarrowPanel) 70.dp
@@ -245,33 +244,39 @@ fun GameControlsPanel(
                 }
             }
         } else {
-            // Expanded view: Original layout
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(expandedGridColumns),
-                modifier = Modifier.fillMaxWidth().height(expandedGridHeight),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                items(
-                    gameState.level.availableTowers
-                        .filter { it != DefenderType.DRAGONS_LAIR }
-                        .toTypedArray(),
-                    key = { type -> "${type.name}_${coinsState.value}_${gameState.defenders.count { it.type == type }}" }) { type ->
-                    val canAfford = coinsState.value >= type.baseCost
-                    if (LogConfig.ENABLE_UI_LOGGING) {
-                        println("DEBUG: ${phase.name} Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford")
-                    }
+            // Expanded view: Flexible layout — all buttons in one row, same width, centered when max width is reached.
+            val types = gameState.level.availableTowers
+                .filter { it != DefenderType.DRAGONS_LAIR }
+            val numButtons = types.size
+            if (numButtons > 0) {
+                val buttonSpacing = 4.dp
+                val totalSpacing = buttonSpacing * (numButtons - 1)
+                val availablePerButton = (panelWidth - totalSpacing) / numButtons
+                val buttonWidth = minOf(availablePerButton, GamePlayConstants.ButtonSizes.DefenderButtonMaxWidth)
 
-                    DefenderButton(
-                        type = type,
-                        isSelected = selectedDefenderType == type,
-                        canAfford = canAfford,
-                        coinsState = coinsState,
-                        instantTowerActive = gameState.instantTowerSpellActive.value,
-                        onClick = {
-                            onSelectDefenderType(if (selectedDefenderType == type) null else type)
+                Row(
+                    modifier = Modifier.fillMaxWidth().height(expandedGridHeight),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    types.forEachIndexed { index, type ->
+                        if (index > 0) Spacer(modifier = Modifier.width(4.dp))
+                        val canAfford = coinsState.value >= type.baseCost
+                        if (LogConfig.ENABLE_UI_LOGGING) {
+                            println("DEBUG: ${phase.name} Button for ${type.displayName} - coins: ${coinsState.value}, cost: ${type.baseCost}, canAfford: $canAfford")
                         }
-                    )
+                        DefenderButton(
+                            type = type,
+                            isSelected = selectedDefenderType == type,
+                            canAfford = canAfford,
+                            coinsState = coinsState,
+                            instantTowerActive = gameState.instantTowerSpellActive.value,
+                            modifier = Modifier.width(buttonWidth),
+                            onClick = {
+                                onSelectDefenderType(if (selectedDefenderType == type) null else type)
+                            }
+                        )
+                    }
                 }
             }
 

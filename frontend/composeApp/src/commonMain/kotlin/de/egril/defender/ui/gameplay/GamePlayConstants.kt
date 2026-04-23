@@ -73,6 +73,14 @@ object GamePlayConstants {
         
         /** Compact button height */
         val CompactHeight = 32.dp
+
+        /**
+         * Maximum width of a buy tower (defender) button when showing all 4 info columns.
+         * Column breakdown (inner content): icon(54) + spacer(4) + price(32) + spacer(4) +
+         * info(100) + padding(4) + stats(~38) + right-margin(12) ≈ 248dp inner → 260dp total.
+         * Buttons should not grow wider than this even when more space is available.
+         */
+        val DefenderButtonMaxWidth = 260.dp
     }
     
     /**
