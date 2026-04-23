@@ -1260,7 +1260,10 @@
     <string name="keyboard_shortcut_pan_down">Desplazar mapa hacia abajo</string>
     <string name="keyboard_shortcut_pan_left">Desplazar mapa hacia la izquierda</string>
     <string name="keyboard_shortcut_pan_right">Desplazar mapa hacia la derecha</string>
-    <string name="keyboard_shortcuts_note">Nota: Los atajos de teclado solo están disponibles en escritorio.</string>
+    <string name="keyboard_shortcut_tab_next_tower">Seleccionar la siguiente torre accionable</string>
+    <string name="keyboard_shortcut_shift_tab_prev_tower">Seleccionar la torre accionable anterior</string>
+    <string name="auto_jump_to_next_tower">Saltar automáticamente a la siguiente torre accionable</string>
+    <string name="keyboard_shortcuts_note">Nota: Los atajos de teclado están disponibles en escritorio y en la aplicación web.</string>
     <string name="keyboard_modifier_ctrl">Ctrl</string>
 
     <!-- License Info -->

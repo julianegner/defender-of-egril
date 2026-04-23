@@ -387,6 +387,32 @@ data class GameState(
     }
     
     /**
+     * Get defenders that can be tabbed to: have action points left and either are mines
+     * or have at least one enemy within attack range. Sorted by position (top-to-bottom,
+     * left-to-right) for deterministic Tab cycling.
+     */
+    fun getActionableTowersForTab(): List<Defender> {
+        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
+        return defenders.filter { defender ->
+            if (!defender.isReady ||
+                defender.actionsRemaining.value <= 0 ||
+                defender.isDisabled.value) {
+                return@filter false
+            }
+            when (defender.type) {
+                DefenderType.DWARVEN_MINE -> true
+                else -> {
+                    if (defender.type.attackType == AttackType.NONE) {
+                        false
+                    } else {
+                        activeAttackers.any { attacker -> defender.canAttack(attacker) }
+                    }
+                }
+            }
+        }.sortedWith(compareBy({ it.position.value.y }, { it.position.value.x }))
+    }
+
+    /**
      * Check if there are defenders that can perform auto-attacks.
      * Returns true if there are defenders with actions that can be automated (regular attacks).
      * Excludes special actions like mines, traps, and alchemy towers.

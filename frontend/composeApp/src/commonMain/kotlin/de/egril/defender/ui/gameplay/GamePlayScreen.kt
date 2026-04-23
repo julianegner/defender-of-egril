@@ -87,7 +87,8 @@ fun GamePlayScreen(
     demoSelectedDefenderType: DefenderType? = null,
     demoHoveredPosition: Position? = null,
     demoSelectedDefenderId: Int? = null,
-    demoSelectedTargetPosition: Position? = null
+    demoSelectedTargetPosition: Position? = null,
+    onGetAutoAttackTarget: ((Int) -> Position?)? = null  // Get best auto-attack target for a tower
 ) {
     GamePlayScreenContent(
         gameState = gameState,
@@ -146,7 +147,8 @@ fun GamePlayScreen(
         demoSelectedDefenderType = demoSelectedDefenderType,
         demoHoveredPosition = demoHoveredPosition,
         demoSelectedDefenderId = demoSelectedDefenderId,
-        demoSelectedTargetPosition = demoSelectedTargetPosition
+        demoSelectedTargetPosition = demoSelectedTargetPosition,
+        onGetAutoAttackTarget = onGetAutoAttackTarget
     )
 }
 
@@ -210,7 +212,8 @@ private fun GamePlayScreenContent(
     demoSelectedDefenderType: DefenderType? = null,
     demoHoveredPosition: Position? = null,
     demoSelectedDefenderId: Int? = null,
-    demoSelectedTargetPosition: Position? = null
+    demoSelectedTargetPosition: Position? = null,
+    onGetAutoAttackTarget: ((Int) -> Position?)? = null  // Get best auto-attack target for a tower
 ) {
     var selectedDefenderType by remember { mutableStateOf<DefenderType?>(null) }
     var selectedDefenderId by remember { mutableStateOf<Int?>(null) }
@@ -230,6 +233,9 @@ private fun GamePlayScreenContent(
     var selectedBarricadePosition by remember { mutableStateOf<Position?>(null) }  // For barricade info panel
     var showRemoveTrapDialog by remember { mutableStateOf(false) }
     var trapToRemove by remember { mutableStateOf<Position?>(null) }
+
+    var highlightEndTurnButton by remember { mutableStateOf(false) }
+    var tabScrollPosition by remember { mutableStateOf<Position?>(null) }  // Tab-triggered scroll-to-tower
 
     var currentDigOutcome by remember { mutableStateOf<DigOutcome?>(null) }
     var currentDragonName by remember { mutableStateOf<String?>(null) }  // Track dragon name for dig outcome
@@ -461,6 +467,85 @@ private fun GamePlayScreenContent(
         }
     }
 
+    // Helper: select the next (or previous if reversed) actionable tower, scroll to it, and
+    // pre-select its best auto-attack target. If no actionable tower exists, visually highlight
+    // the End Turn button (do NOT actually end the turn).
+    val jumpToNextActionableTower: (Int?, Boolean) -> Unit = { currentId, reversed ->
+        val actionable = gameState.getActionableTowersForTab()
+        if (actionable.isEmpty()) {
+            // No tower with actions left → highlight the End Turn button (keyboard focus)
+            highlightEndTurnButton = true
+        } else {
+            highlightEndTurnButton = false
+            val currentIdx = actionable.indexOfFirst { it.id == currentId }
+            val nextIdx = if (reversed) {
+                if (currentIdx <= 0) actionable.size - 1 else currentIdx - 1
+            } else {
+                if (currentIdx < 0 || currentIdx >= actionable.size - 1) 0 else currentIdx + 1
+            }
+            val nextTower = actionable[nextIdx]
+            selectedDefenderId = nextTower.id
+            selectedAttackerId = null
+            selectedMineAction = null
+            selectedWizardAction = null
+            selectedBarricadeAction = null
+            tabScrollPosition = nextTower.position.value
+
+            // Auto-select the best attack target using the same logic as automatic attacks
+            val autoTarget = onGetAutoAttackTarget?.invoke(nextTower.id)
+            if (autoTarget != null) {
+                selectedTargetPosition = autoTarget
+                selectedTargetId = gameState.attackers.find {
+                    !it.isDefeated.value && it.position.value == autoTarget
+                }?.id
+            } else {
+                selectedTargetId = null
+                selectedTargetPosition = null
+            }
+        }
+    }
+
+    // Auto-jump: select first actionable tower when player turn starts (if setting is ON)
+    LaunchedEffect(gameState.phase.value) {
+        if (AppSettings.autoJumpToNextTower.value &&
+            gameState.phase.value == GamePhase.PLAYER_TURN) {
+            jumpToNextActionableTower(null, false)
+        }
+    }
+
+    // Auto-jump: when the current selected tower runs out of actions, jump to the next (if setting is ON).
+    // Use SideEffect to track the actions-remaining value from the previous composition so that we
+    // only jump on the transition (> 0) → 0 for the *same* tower, and ignore manually selected
+    // towers that already have 0 actions when selected.
+    val selectedDefenderActionsRemaining = selectedDefenderId?.let { id ->
+        gameState.defenders.find { it.id == id }?.actionsRemaining?.value
+    }
+    val prevAutoJumpDefenderId = remember { mutableStateOf<Int?>(null) }
+    val prevAutoJumpActions = remember { mutableStateOf<Int?>(null) }
+    val actionsJustExhausted =
+        selectedDefenderId != null &&
+        selectedDefenderId == prevAutoJumpDefenderId.value &&
+        selectedDefenderActionsRemaining == 0 &&
+        (prevAutoJumpActions.value ?: 0) > 0
+    SideEffect {
+        prevAutoJumpDefenderId.value = selectedDefenderId
+        prevAutoJumpActions.value = selectedDefenderActionsRemaining
+    }
+    LaunchedEffect(actionsJustExhausted) {
+        if (actionsJustExhausted &&
+            AppSettings.autoJumpToNextTower.value &&
+            gameState.phase.value == GamePhase.PLAYER_TURN) {
+            jumpToNextActionableTower(selectedDefenderId, false)
+        }
+    }
+
+    // Clear End Turn button highlight when a defender is selected (manual map click or other means)
+    LaunchedEffect(selectedDefenderId) {
+        if (selectedDefenderId != null) {
+            highlightEndTurnButton = false
+        }
+    }
+
     // Mine action handler
     val handleMineAction: (Int, MineAction) -> Unit = { mineId, action ->
         when (action) {
@@ -581,6 +666,13 @@ private fun GamePlayScreenContent(
                         false
                     }
                 }
+                // Tab / Shift+Tab: Select next/previous actionable tower (player turn only)
+                event.type == KeyEventType.KeyDown &&
+                        event.key == Key.Tab &&
+                        gameState.phase.value == GamePhase.PLAYER_TURN -> {
+                    jumpToNextActionableTower(selectedDefenderId, event.isShiftPressed)
+                    true
+                }
                 // C: Open cheat code dialog
                 event.type == KeyEventType.KeyDown &&
                         event.key == Key.C && !event.isCtrlPressed &&
@@ -598,7 +690,11 @@ private fun GamePlayScreenContent(
                 event.type == KeyEventType.KeyDown && event.key == Key.Enter && !event.isCtrlPressed -> {
                     when (gameState.phase.value) {
                         GamePhase.PLAYER_TURN -> {
-                            if (gameState.hasDefendersWithUnusedActions()) {
+                            if (highlightEndTurnButton) {
+                                // End Turn button has keyboard focus — end the turn directly
+                                highlightEndTurnButton = false
+                                endPlayerTurnAction()
+                            } else if (gameState.hasDefendersWithUnusedActions()) {
                                 showEndTurnConfirmation = true
                             } else {
                                 endPlayerTurnAction()
@@ -921,8 +1017,14 @@ private fun GamePlayScreenContent(
                     }
                 },
                 modifier = Modifier.fillMaxSize(),
-                scrollToPosition = scrollToPosition,
-                onScrollToPositionConsumed = onScrollToPositionConsumed,
+                scrollToPosition = scrollToPosition ?: tabScrollPosition,
+                onScrollToPositionConsumed = {
+                    if (scrollToPosition != null) {
+                        onScrollToPositionConsumed?.invoke()
+                    } else {
+                        tabScrollPosition = null
+                    }
+                },
                 isDemoMode = isDemoMode,
                 demoHoveredPosition = demoHoveredPosition
             )
@@ -1314,7 +1416,8 @@ private fun GamePlayScreenContent(
                     uiScale = uiScale,
                     onShowDragonInfo = { 
                         gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.DRAGON_INFO)
-                    }
+                    },
+                    highlightEndTurnButton = highlightEndTurnButton
                 )
             }
 

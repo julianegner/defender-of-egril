@@ -1122,6 +1122,17 @@ class GameViewModel {
         return gameEngine?.performMineDigWithOutcome(outcome)
     }
 
+    /**
+     * Returns the best auto-attack target position for the given defender,
+     * using the same logic as the automatic attack system. Returns null if there
+     * is no suitable target (e.g. no enemies in range, or the tower is a mine/lair).
+     */
+    fun getAutoAttackTargetPosition(defenderId: Int): Position? {
+        val engine = gameEngine ?: return null
+        val defender = _gameState.value?.defenders?.find { it.id == defenderId } ?: return null
+        return engine.getNextAutoAttackTargetPosition(defender)
+    }
+
     fun endPlayerTurn() {
         val state = _gameState.value ?: return
         val engine = gameEngine ?: return

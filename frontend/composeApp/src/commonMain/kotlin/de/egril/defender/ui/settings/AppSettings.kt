@@ -67,6 +67,7 @@ object AppSettings {
     private const val KEY_SHOW_DEBUG_OPTIONS = "show_debug_options"
     private const val KEY_ENABLE_ANIMATIONS = "enable_animations"
     private const val KEY_CHECK_FOR_UPDATES = "check_for_updates"
+    private const val KEY_AUTO_JUMP_TO_NEXT_TOWER = "auto_jump_to_next_tower"
     
     private val settings: Settings = Settings()
 
@@ -226,6 +227,16 @@ object AppSettings {
      */
     val checkForUpdates: MutableState<Boolean> = mutableStateOf(
         settings.getBoolean(KEY_CHECK_FOR_UPDATES, true)
+    )
+
+    /**
+     * Auto-jump to next actionable tower – when ON, the game automatically selects the
+     * next tower with remaining action points after the current one is exhausted, and also
+     * selects the first actionable tower at the start of each player turn.
+     * Default is false (OFF).
+     */
+    val autoJumpToNextTower: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_AUTO_JUMP_TO_NEXT_TOWER, false)
     )
 
     // Session-only debug states (not persisted)
@@ -517,6 +528,15 @@ object AppSettings {
     }
 
     /**
+     * Save auto-jump to next tower preference
+     */
+    fun saveAutoJumpToNextTower(enabled: Boolean) {
+        autoJumpToNextTower.value = enabled
+        settings.putBoolean(KEY_AUTO_JUMP_TO_NEXT_TOWER, enabled)
+        onPersist?.invoke()
+    }
+
+    /**
      * Serialize all relevant (non-debug, non-hint) settings into a flat map for remote storage.
      * Keys match the internal KEY_* constants; values are String representations.
      */
@@ -543,6 +563,7 @@ object AppSettings {
         put(KEY_USE_LEVEL_MAP_IMAGE, useLevelMapImage.value.toString())
         put(KEY_ENABLE_ANIMATIONS, enableAnimations.value.toString())
         put(KEY_CHECK_FOR_UPDATES, checkForUpdates.value.toString())
+        put(KEY_AUTO_JUMP_TO_NEXT_TOWER, autoJumpToNextTower.value.toString())
     }
 
     /**
@@ -582,6 +603,7 @@ object AppSettings {
             map[KEY_USE_LEVEL_MAP_IMAGE]?.toBooleanStrictOrNull()?.let { saveUseLevelMapImage(it) }
             map[KEY_ENABLE_ANIMATIONS]?.toBooleanStrictOrNull()?.let { saveEnableAnimations(it) }
             map[KEY_CHECK_FOR_UPDATES]?.toBooleanStrictOrNull()?.let { saveCheckForUpdates(it) }
+            map[KEY_AUTO_JUMP_TO_NEXT_TOWER]?.toBooleanStrictOrNull()?.let { saveAutoJumpToNextTower(it) }
         } finally {
             onPersist = savedCallback
         }

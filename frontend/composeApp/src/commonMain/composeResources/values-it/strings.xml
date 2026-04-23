@@ -1260,7 +1260,10 @@
     <string name="keyboard_shortcut_pan_down">Sposta la mappa verso il basso</string>
     <string name="keyboard_shortcut_pan_left">Sposta la mappa a sinistra</string>
     <string name="keyboard_shortcut_pan_right">Sposta la mappa a destra</string>
-    <string name="keyboard_shortcuts_note">Nota: Le scorciatoie da tastiera sono disponibili solo su desktop.</string>
+    <string name="keyboard_shortcut_tab_next_tower">Seleziona la prossima torre azionabile</string>
+    <string name="keyboard_shortcut_shift_tab_prev_tower">Seleziona la torre azionabile precedente</string>
+    <string name="auto_jump_to_next_tower">Salta automaticamente alla prossima torre azionabile</string>
+    <string name="keyboard_shortcuts_note">Nota: Le scorciatoie da tastiera sono disponibili su desktop e nell\'app web.</string>
     <string name="keyboard_modifier_ctrl">Ctrl</string>
 
     <!-- License Info -->

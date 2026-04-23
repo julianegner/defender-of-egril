@@ -317,6 +317,17 @@ fun SettingsDialog(
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
+
+                    // Auto-jump to next actionable tower switch
+                    GenericSwitch(
+                        state = AppSettings.autoJumpToNextTower,
+                        checkedText = stringResource(Res.string.auto_jump_to_next_tower),
+                        uncheckedText = stringResource(Res.string.auto_jump_to_next_tower),
+                        onCheckedChange = { enabled ->
+                            AppSettings.saveAutoJumpToNextTower(enabled)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
                 
                 HorizontalDivider()
