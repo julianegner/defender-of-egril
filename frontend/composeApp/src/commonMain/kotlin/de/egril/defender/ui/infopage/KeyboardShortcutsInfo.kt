@@ -50,6 +50,7 @@ fun KeyboardShortcutsInfo() {
             ShortcutSection(title = stringResource(Res.string.keyboard_shortcuts_gameplay_section)) {
                 ShortcutRow(key = "F", description = stringResource(Res.string.keyboard_shortcut_attack))
                 ShortcutRow(key = "Tab", description = stringResource(Res.string.keyboard_shortcut_tab_next_tower))
+                ShortcutRow(key = "Shift+Tab", description = stringResource(Res.string.keyboard_shortcut_shift_tab_prev_tower))
                 ShortcutRow(key = "$ctrl+A", description = stringResource(Res.string.keyboard_shortcut_auto_attack))
                 ShortcutRow(key = "C", description = stringResource(Res.string.keyboard_shortcut_cheat))
                 ShortcutRow(key = "E", description = stringResource(Res.string.keyboard_shortcut_enemy_list))

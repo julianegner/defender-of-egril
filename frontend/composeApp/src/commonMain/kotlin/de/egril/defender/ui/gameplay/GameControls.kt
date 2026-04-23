@@ -1,6 +1,7 @@
 package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -36,7 +37,8 @@ fun ColumnScope.TurnButton(
     isPlayerTurn: Boolean,
     modifier: Modifier,
     onPrimaryAction: () -> Unit = {},
-    primaryButtonColor: Color = GamePlayColors.WarningDeep
+    primaryButtonColor: Color = GamePlayColors.WarningDeep,
+    highlighted: Boolean = false
     ){
     Button(
         onClick = onPrimaryAction,
@@ -46,7 +48,12 @@ fun ColumnScope.TurnButton(
         } else {
             ButtonDefaults.buttonColors()
         },
-        modifier = modifier
+        modifier = modifier.then(
+            if (highlighted && isPlayerTurn)
+                Modifier.border(2.dp, MaterialTheme.colorScheme.primary, ButtonDefaults.shape)
+            else
+                Modifier
+        )
     ) {
         Text(if (isPlayerTurn) stringResource(Res.string.end_turn_button) else stringResource(Res.string.start_battle),
             style = MaterialTheme.typography.labelMedium,
@@ -83,7 +90,8 @@ fun GameControlsPanel(
     selectedBarricadeAction: BarricadeAction? = null,  // Add barricade placement mode state
     onRemoveBarricade: ((Position) -> Unit)? = null,  // Callback to remove a barricade
     uiScale: Float = 1f,  // Add platform scale parameter
-    onShowDragonInfo: () -> Unit = {}  // Add dragon info callback
+    onShowDragonInfo: () -> Unit = {},  // Add dragon info callback
+    highlightEndTurnButton: Boolean = false  // Visually highlight the End Turn button (keyboard focus)
 ) {
     // Automatically fold buy panel when a defender, attacker, or barricade is selected
     val compactBuyPanel = selectedDefenderId != null || selectedAttackerId != null || selectedBarricadePosition != null
@@ -230,7 +238,8 @@ fun GameControlsPanel(
                                 TurnButton(
                                     isPlayerTurn,
                                     modifier = compactDefenderButtonModifier,
-                                    onPrimaryAction
+                                    onPrimaryAction,
+                                    highlighted = highlightEndTurnButton
                                 )
                             }
                         }
@@ -304,7 +313,12 @@ fun GameControlsPanel(
 
             Button(
                 onClick = onPrimaryAction,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().then(
+                    if (highlightEndTurnButton && isPlayerTurn)
+                        Modifier.border(2.dp, MaterialTheme.colorScheme.primary, ButtonDefaults.shape)
+                    else
+                        Modifier
+                ),
                 colors = if (isPlayerTurn) {
                     ButtonDefaults.buttonColors(containerColor = primaryButtonColor)
                 } else {
