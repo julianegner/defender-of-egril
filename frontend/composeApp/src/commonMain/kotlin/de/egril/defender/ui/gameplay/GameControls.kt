@@ -1,7 +1,7 @@
 package de.egril.defender.ui.gameplay
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -48,12 +48,10 @@ fun ColumnScope.TurnButton(
         } else {
             ButtonDefaults.buttonColors()
         },
-        modifier = modifier.then(
-            if (highlighted && isPlayerTurn)
-                Modifier.border(2.dp, MaterialTheme.colorScheme.primary, ButtonDefaults.shape)
-            else
-                Modifier
-        )
+        border = if (highlighted && isPlayerTurn)
+            BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+        else null,
+        modifier = modifier
     ) {
         Text(if (isPlayerTurn) stringResource(Res.string.end_turn_button) else stringResource(Res.string.start_battle),
             style = MaterialTheme.typography.labelMedium,
@@ -313,12 +311,10 @@ fun GameControlsPanel(
 
             Button(
                 onClick = onPrimaryAction,
-                modifier = Modifier.fillMaxWidth().then(
-                    if (highlightEndTurnButton && isPlayerTurn)
-                        Modifier.border(2.dp, MaterialTheme.colorScheme.primary, ButtonDefaults.shape)
-                    else
-                        Modifier
-                ),
+                modifier = Modifier.fillMaxWidth(),
+                border = if (highlightEndTurnButton && isPlayerTurn)
+                    BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+                else null,
                 colors = if (isPlayerTurn) {
                     ButtonDefaults.buttonColors(containerColor = primaryButtonColor)
                 } else {

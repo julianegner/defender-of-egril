@@ -690,7 +690,11 @@ private fun GamePlayScreenContent(
                 event.type == KeyEventType.KeyDown && event.key == Key.Enter && !event.isCtrlPressed -> {
                     when (gameState.phase.value) {
                         GamePhase.PLAYER_TURN -> {
-                            if (gameState.hasDefendersWithUnusedActions()) {
+                            if (highlightEndTurnButton) {
+                                // End Turn button has keyboard focus — end the turn directly
+                                highlightEndTurnButton = false
+                                endPlayerTurnAction()
+                            } else if (gameState.hasDefendersWithUnusedActions()) {
                                 showEndTurnConfirmation = true
                             } else {
                                 endPlayerTurnAction()
