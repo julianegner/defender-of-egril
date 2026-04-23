@@ -1,8 +1,10 @@
 {
   "__inputs": [],
   "__requires": [],
-  "annotations": { "list": [] },
-  "description": "Defender of Egril – events, users, and Hetzner server health",
+  "annotations": {
+    "list": []
+  },
+  "description": "Defender of Egril \u2013 events, users, and Hetzner server health",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -11,40 +13,69 @@
   "panels": [
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
       "id": 100,
-      "title": "📊 Game Activity",
+      "title": "\ud83d\udcca Game Activity",
       "type": "row"
     },
     {
-      "datasource": { "type": "postgres", "uid": "postgres-app" },
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres-app"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
-            "steps": [{ "color": "blue", "value": null }]
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
           },
           "mappings": [],
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 1 },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
       "id": 1,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto"
       },
       "title": "Total Events",
       "type": "stat",
       "targets": [
         {
-          "datasource": { "type": "postgres", "uid": "postgres-app" },
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres-app"
+          },
           "format": "table",
           "rawSql": "SELECT COUNT(*) AS value FROM events",
           "refId": "A"
@@ -52,34 +83,58 @@
       ]
     },
     {
-      "datasource": { "type": "postgres", "uid": "postgres-app" },
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres-app"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
-            "steps": [{ "color": "green", "value": null }]
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
           },
           "mappings": [],
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 1 },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      },
       "id": 2,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto"
       },
       "title": "Events Today",
       "type": "stat",
       "targets": [
         {
-          "datasource": { "type": "postgres", "uid": "postgres-app" },
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres-app"
+          },
           "format": "table",
           "rawSql": "SELECT COUNT(*) AS value FROM events WHERE created_at >= CURRENT_DATE",
           "refId": "A"
@@ -87,34 +142,58 @@
       ]
     },
     {
-      "datasource": { "type": "postgres", "uid": "postgres-app" },
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres-app"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
-            "steps": [{ "color": "purple", "value": null }]
+            "steps": [
+              {
+                "color": "purple",
+                "value": null
+              }
+            ]
           },
           "mappings": [],
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 1 },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      },
       "id": 3,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto"
       },
       "title": "Levels Started Today",
       "type": "stat",
       "targets": [
         {
-          "datasource": { "type": "postgres", "uid": "postgres-app" },
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres-app"
+          },
           "format": "table",
           "rawSql": "SELECT COUNT(*) AS value FROM events WHERE event_type = 'LEVEL_STARTED' AND created_at >= CURRENT_DATE",
           "refId": "A"
@@ -122,34 +201,58 @@
       ]
     },
     {
-      "datasource": { "type": "postgres", "uid": "postgres-keycloak" },
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres-keycloak"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
-            "steps": [{ "color": "orange", "value": null }]
+            "steps": [
+              {
+                "color": "orange",
+                "value": null
+              }
+            ]
           },
           "mappings": [],
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 1 },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
       "id": 4,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto"
       },
       "title": "Keycloak Users",
       "type": "stat",
       "targets": [
         {
-          "datasource": { "type": "postgres", "uid": "postgres-keycloak" },
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres-keycloak"
+          },
           "format": "table",
           "rawSql": "SELECT COUNT(*) AS value FROM user_entity",
           "refId": "A"
@@ -157,21 +260,41 @@
       ]
     },
     {
-      "datasource": { "type": "postgres", "uid": "postgres-app" },
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres-app"
+      },
       "fieldConfig": {
-        "defaults": { "color": { "mode": "palette-classic" }, "custom": {} },
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {}
+        },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 5 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      },
       "id": 5,
       "options": {
         "barRadius": 0.05,
         "barWidth": 0.7,
         "groupWidth": 0.7,
-        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
         "orientation": "auto",
         "stacking": "none",
-        "tooltip": { "mode": "single", "sort": "none" },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        },
         "xTickLabelRotation": 0,
         "xTickLabelSpacing": 100
       },
@@ -179,7 +302,10 @@
       "type": "barchart",
       "targets": [
         {
-          "datasource": { "type": "postgres", "uid": "postgres-app" },
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres-app"
+          },
           "format": "table",
           "rawSql": "SELECT event_type, COUNT(*) AS count FROM events GROUP BY event_type ORDER BY count DESC",
           "refId": "A"
@@ -187,25 +313,48 @@
       ]
     },
     {
-      "datasource": { "type": "postgres", "uid": "postgres-app" },
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres-app"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": { "lineWidth": 2, "fillOpacity": 10 }
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 5 },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      },
       "id": 6,
       "options": {
-        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "title": "Events per Day (Last 90 Days)",
       "type": "timeseries",
       "targets": [
         {
-          "datasource": { "type": "postgres", "uid": "postgres-app" },
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres-app"
+          },
           "format": "time_series",
           "rawSql": "SELECT date_trunc('day', created_at) AS time, COUNT(*) AS \"Events\" FROM events WHERE created_at >= NOW() - INTERVAL '90 days' GROUP BY 1 ORDER BY 1",
           "refId": "A"
@@ -213,88 +362,189 @@
       ]
     },
     {
-      "datasource": { "type": "postgres", "uid": "postgres-app" },
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres-app"
+      },
       "fieldConfig": {
-        "defaults": { "custom": { "align": "auto" } },
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "created_at" },
+            "matcher": {
+              "id": "byName",
+              "options": "created_at"
+            },
             "properties": [
-              { "id": "custom.width", "value": 200 },
-              { "id": "unit", "value": "dateTimeAsLocal" }
+              {
+                "id": "custom.width",
+                "value": 200
+              },
+              {
+                "id": "unit",
+                "value": "dateTimeAsLocal"
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "event_type" },
-            "properties": [{ "id": "custom.width", "value": 160 }]
+            "matcher": {
+              "id": "byName",
+              "options": "event_type"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
           },
           {
-            "matcher": { "id": "byName", "options": "platform" },
-            "properties": [{ "id": "custom.width", "value": 100 }]
+            "matcher": {
+              "id": "byName",
+              "options": "platform"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
           },
           {
-            "matcher": { "id": "byName", "options": "user_name" },
-            "properties": [{ "id": "custom.width", "value": 150 }]
+            "matcher": {
+              "id": "byName",
+              "options": "user_name"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
           },
           {
-            "matcher": { "id": "byName", "options": "turn_number" },
-            "properties": [{ "id": "custom.width", "value": 100 }]
+            "matcher": {
+              "id": "byName",
+              "options": "turn_number"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
           },
           {
-            "matcher": { "id": "byName", "options": "platform_extended" },
-            "properties": [{ "id": "custom.width", "value": 250 }]
+            "matcher": {
+              "id": "byName",
+              "options": "platform_extended"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 250
+              }
+            ]
           }
         ]
       },
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 13 },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
       "id": 7,
       "options": {
-        "footer": { "show": false },
+        "footer": {
+          "show": false
+        },
         "showHeader": true,
-        "sortBy": [{ "desc": true, "displayName": "created_at" }]
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "created_at"
+          }
+        ]
       },
       "title": "Recent Events (Last 100)",
       "type": "table",
       "targets": [
         {
-          "datasource": { "type": "postgres", "uid": "postgres-app" },
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres-app"
+          },
           "format": "table",
-          "rawSql": "SELECT id, event_type, platform, level_name, version_name, user_name, turn_number, platform_extended, created_at FROM events ORDER BY created_at DESC LIMIT 100",
+          "rawSql": "SELECT id, event_type, platform, level_name, version_name, user_name, turn_number, platform_extended, created_at FROM events WHERE ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') ORDER BY created_at DESC LIMIT 100",
           "refId": "A"
         }
       ]
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 23 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
       "id": 101,
-      "title": "🖥️ Hetzner Server Metrics",
+      "title": "\ud83d\udda5\ufe0f Hetzner Server Metrics",
       "type": "row"
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-hetzner" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-hetzner"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "min": 0,
           "max": 100,
           "unit": "percent",
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 70 },
-              { "color": "red", "value": 85 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
             ]
           }
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 8, "x": 0, "y": 24 },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 0,
+        "y": 24
+      },
       "id": 10,
       "options": {
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
@@ -302,7 +552,10 @@
       "type": "gauge",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-hetzner" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-hetzner"
+          },
           "expr": "100 - (avg by (instance) (irate(node_cpu_seconds_total{mode=\"idle\", instance=\"db-server\"}[5m])) * 100)",
           "legendFormat": "CPU %",
           "refId": "A"
@@ -310,29 +563,54 @@
       ]
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-hetzner" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-hetzner"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "min": 0,
           "max": 100,
           "unit": "percent",
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 70 },
-              { "color": "red", "value": 85 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
             ]
           }
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 8, "x": 8, "y": 24 },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 8,
+        "y": 24
+      },
       "id": 11,
       "options": {
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
@@ -340,7 +618,10 @@
       "type": "gauge",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-hetzner" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-hetzner"
+          },
           "expr": "100 - (avg by (instance) (irate(node_cpu_seconds_total{mode=\"idle\", instance=\"keycloak-server\"}[5m])) * 100)",
           "legendFormat": "CPU %",
           "refId": "A"
@@ -348,29 +629,54 @@
       ]
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-hetzner" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-hetzner"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "min": 0,
           "max": 100,
           "unit": "percent",
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 70 },
-              { "color": "red", "value": 85 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
             ]
           }
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 8, "x": 16, "y": 24 },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 16,
+        "y": 24
+      },
       "id": 12,
       "options": {
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
@@ -378,7 +684,10 @@
       "type": "gauge",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-hetzner" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-hetzner"
+          },
           "expr": "100 - (avg by (instance) (irate(node_cpu_seconds_total{mode=\"idle\", instance=\"backend-server\"}[5m])) * 100)",
           "legendFormat": "CPU %",
           "refId": "A"
@@ -386,29 +695,54 @@
       ]
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-hetzner" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-hetzner"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "min": 0,
           "max": 100,
           "unit": "percent",
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 70 },
-              { "color": "red", "value": 85 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
             ]
           }
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 8, "x": 0, "y": 29 },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 0,
+        "y": 29
+      },
       "id": 20,
       "options": {
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
@@ -416,7 +750,10 @@
       "type": "gauge",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-hetzner" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-hetzner"
+          },
           "expr": "(1 - (node_memory_MemAvailable_bytes{instance=\"db-server\"} / node_memory_MemTotal_bytes{instance=\"db-server\"})) * 100",
           "legendFormat": "Memory %",
           "refId": "A"
@@ -424,29 +761,54 @@
       ]
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-hetzner" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-hetzner"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "min": 0,
           "max": 100,
           "unit": "percent",
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 70 },
-              { "color": "red", "value": 85 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
             ]
           }
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 8, "x": 8, "y": 29 },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 8,
+        "y": 29
+      },
       "id": 21,
       "options": {
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
@@ -454,7 +816,10 @@
       "type": "gauge",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-hetzner" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-hetzner"
+          },
           "expr": "(1 - (node_memory_MemAvailable_bytes{instance=\"keycloak-server\"} / node_memory_MemTotal_bytes{instance=\"keycloak-server\"})) * 100",
           "legendFormat": "Memory %",
           "refId": "A"
@@ -462,29 +827,54 @@
       ]
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-hetzner" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-hetzner"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "min": 0,
           "max": 100,
           "unit": "percent",
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 70 },
-              { "color": "red", "value": 85 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
             ]
           }
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 8, "x": 16, "y": 29 },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 16,
+        "y": 29
+      },
       "id": 22,
       "options": {
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
@@ -492,7 +882,10 @@
       "type": "gauge",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-hetzner" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-hetzner"
+          },
           "expr": "(1 - (node_memory_MemAvailable_bytes{instance=\"backend-server\"} / node_memory_MemTotal_bytes{instance=\"backend-server\"})) * 100",
           "legendFormat": "Memory %",
           "refId": "A"
@@ -500,29 +893,54 @@
       ]
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-hetzner" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-hetzner"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "min": 0,
           "max": 100,
           "unit": "percent",
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 70 },
-              { "color": "red", "value": 85 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
             ]
           }
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 8, "x": 0, "y": 34 },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 0,
+        "y": 34
+      },
       "id": 30,
       "options": {
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
@@ -530,7 +948,10 @@
       "type": "gauge",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-hetzner" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-hetzner"
+          },
           "expr": "(1 - (node_filesystem_free_bytes{instance=\"db-server\", mountpoint=\"/\", fstype!~\"tmpfs|overlay\"} / node_filesystem_size_bytes{instance=\"db-server\", mountpoint=\"/\", fstype!~\"tmpfs|overlay\"})) * 100",
           "legendFormat": "Disk %",
           "refId": "A"
@@ -538,29 +959,54 @@
       ]
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-hetzner" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-hetzner"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "min": 0,
           "max": 100,
           "unit": "percent",
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 70 },
-              { "color": "red", "value": 85 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
             ]
           }
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 8, "x": 8, "y": 34 },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 8,
+        "y": 34
+      },
       "id": 31,
       "options": {
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
@@ -568,7 +1014,10 @@
       "type": "gauge",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-hetzner" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-hetzner"
+          },
           "expr": "(1 - (node_filesystem_free_bytes{instance=\"keycloak-server\", mountpoint=\"/\", fstype!~\"tmpfs|overlay\"} / node_filesystem_size_bytes{instance=\"keycloak-server\", mountpoint=\"/\", fstype!~\"tmpfs|overlay\"})) * 100",
           "legendFormat": "Disk %",
           "refId": "A"
@@ -576,29 +1025,54 @@
       ]
     },
     {
-      "datasource": { "type": "prometheus", "uid": "prometheus-hetzner" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus-hetzner"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "min": 0,
           "max": 100,
           "unit": "percent",
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 70 },
-              { "color": "red", "value": 85 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
             ]
           }
         },
         "overrides": []
       },
-      "gridPos": { "h": 5, "w": 8, "x": 16, "y": 34 },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 16,
+        "y": 34
+      },
       "id": 32,
       "options": {
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "showThresholdLabels": false,
         "showThresholdMarkers": true
       },
@@ -606,7 +1080,10 @@
       "type": "gauge",
       "targets": [
         {
-          "datasource": { "type": "prometheus", "uid": "prometheus-hetzner" },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus-hetzner"
+          },
           "expr": "(1 - (node_filesystem_free_bytes{instance=\"backend-server\", mountpoint=\"/\", fstype!~\"tmpfs|overlay\"} / node_filesystem_size_bytes{instance=\"backend-server\", mountpoint=\"/\", fstype!~\"tmpfs|overlay\"})) * 100",
           "legendFormat": "Disk %",
           "refId": "A"
@@ -615,22 +1092,41 @@
     },
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 39 },
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 39
+      },
       "id": 102,
-      "title": "⚠️ Backend Errors",
+      "title": "\u26a0\ufe0f Backend Errors",
       "type": "row"
     },
     {
-      "datasource": { "type": "postgres", "uid": "postgres-app" },
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres-app"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 1 },
-              { "color": "red", "value": 5 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
             ]
           },
           "mappings": [],
@@ -638,21 +1134,35 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 40 },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 40
+      },
       "id": 50,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto"
       },
       "title": "Backend Errors Today",
       "type": "stat",
       "targets": [
         {
-          "datasource": { "type": "postgres", "uid": "postgres-app" },
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres-app"
+          },
           "format": "table",
           "rawSql": "SELECT COUNT(*) AS value FROM backend_errors WHERE created_at >= CURRENT_DATE",
           "refId": "A"
@@ -660,16 +1170,30 @@
       ]
     },
     {
-      "datasource": { "type": "postgres", "uid": "postgres-app" },
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres-app"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "thresholds" },
+          "color": {
+            "mode": "thresholds"
+          },
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "green", "value": null },
-              { "color": "yellow", "value": 1 },
-              { "color": "red", "value": 10 }
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
             ]
           },
           "mappings": [],
@@ -677,21 +1201,35 @@
         },
         "overrides": []
       },
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 40 },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 40
+      },
       "id": 51,
       "options": {
         "colorMode": "background",
         "graphMode": "none",
         "justifyMode": "center",
         "orientation": "auto",
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto"
       },
       "title": "Backend Errors (Last 7 Days)",
       "type": "stat",
       "targets": [
         {
-          "datasource": { "type": "postgres", "uid": "postgres-app" },
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres-app"
+          },
           "format": "table",
           "rawSql": "SELECT COUNT(*) AS value FROM backend_errors WHERE created_at >= NOW() - INTERVAL '7 days'",
           "refId": "A"
@@ -699,25 +1237,48 @@
       ]
     },
     {
-      "datasource": { "type": "postgres", "uid": "postgres-app" },
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres-app"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": { "mode": "palette-classic" },
-          "custom": { "lineWidth": 2, "fillOpacity": 10 }
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "lineWidth": 2,
+            "fillOpacity": 10
+          }
         },
         "overrides": []
       },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 44 },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 44
+      },
       "id": 52,
       "options": {
-        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
-        "tooltip": { "mode": "multi", "sort": "desc" }
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "title": "Backend Errors over Time (Last 30 Days)",
       "type": "timeseries",
       "targets": [
         {
-          "datasource": { "type": "postgres", "uid": "postgres-app" },
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres-app"
+          },
           "format": "time_series",
           "rawSql": "SELECT date_trunc('day', created_at) AS time, COUNT(*) AS \"Errors\" FROM backend_errors WHERE created_at >= NOW() - INTERVAL '30 days' GROUP BY date_trunc('day', created_at) ORDER BY 1",
           "refId": "A"
@@ -725,43 +1286,98 @@
       ]
     },
     {
-      "datasource": { "type": "postgres", "uid": "postgres-app" },
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres-app"
+      },
       "fieldConfig": {
-        "defaults": { "custom": { "align": "auto" } },
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        },
         "overrides": [
           {
-            "matcher": { "id": "byName", "options": "created_at" },
+            "matcher": {
+              "id": "byName",
+              "options": "created_at"
+            },
             "properties": [
-              { "id": "custom.width", "value": 200 },
-              { "id": "unit", "value": "dateTimeAsLocal" }
+              {
+                "id": "custom.width",
+                "value": 200
+              },
+              {
+                "id": "unit",
+                "value": "dateTimeAsLocal"
+              }
             ]
           },
           {
-            "matcher": { "id": "byName", "options": "status_code" },
-            "properties": [{ "id": "custom.width", "value": 100 }]
+            "matcher": {
+              "id": "byName",
+              "options": "status_code"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
           },
           {
-            "matcher": { "id": "byName", "options": "http_method" },
-            "properties": [{ "id": "custom.width", "value": 80 }]
+            "matcher": {
+              "id": "byName",
+              "options": "http_method"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 80
+              }
+            ]
           },
           {
-            "matcher": { "id": "byName", "options": "endpoint" },
-            "properties": [{ "id": "custom.width", "value": 250 }]
+            "matcher": {
+              "id": "byName",
+              "options": "endpoint"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 250
+              }
+            ]
           }
         ]
       },
-      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 52 },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 52
+      },
       "id": 53,
       "options": {
-        "footer": { "show": false },
+        "footer": {
+          "show": false
+        },
         "showHeader": true,
-        "sortBy": [{ "desc": true, "displayName": "created_at" }]
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "created_at"
+          }
+        ]
       },
       "title": "Recent Backend Errors (Last 50)",
       "type": "table",
       "targets": [
         {
-          "datasource": { "type": "postgres", "uid": "postgres-app" },
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres-app"
+          },
           "format": "table",
           "rawSql": "SELECT id, status_code, http_method, endpoint, message, created_at FROM backend_errors ORDER BY created_at DESC LIMIT 50",
           "refId": "A"
@@ -771,12 +1387,31 @@
   ],
   "refresh": "5m",
   "schemaVersion": 39,
-  "tags": ["defender-of-egril"],
-  "time": { "from": "now-24h", "to": "now" },
+  "tags": [
+    "defender-of-egril"
+  ],
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Defender of Egril – Overview",
+  "title": "Defender of Egril \u2013 Overview",
   "uid": "defender-overview",
   "version": 1,
-  "weekStart": ""
+  "weekStart": "",
+  "templating": {
+    "list": [
+      {
+        "name": "with_app_started",
+        "label": "with APP_STARTED",
+        "type": "boolean",
+        "current": {
+          "value": "true"
+        },
+        "hide": 0,
+        "description": "When unchecked, APP_STARTED events are hidden from the Recent Events list"
+      }
+    ]
+  }
 }
