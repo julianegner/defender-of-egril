@@ -22,7 +22,13 @@ object WindowCloseHandler {
      * Returns true if official data has been modified, false otherwise.
      */
     private var officialDataChangedChecker: (() -> Boolean)? = null
-    
+
+    /**
+     * Callback to save the game state when the app goes to the background.
+     * Used on Android to preserve game progress when the process may be killed.
+     */
+    private var backgroundSaveCallback: (() -> Unit)? = null
+
     /**
      * Set the callback to check for unsaved changes.
      */
@@ -44,6 +50,21 @@ object WindowCloseHandler {
         officialDataChangedChecker = checker
     }
     
+    /**
+     * Set the callback to save the game state when the app goes to the background.
+     */
+    fun setBackgroundSaveCallback(callback: (() -> Unit)?) {
+        backgroundSaveCallback = callback
+    }
+
+    /**
+     * Save the game to the background save slot.
+     * Should be called when the app is paused (goes to background).
+     */
+    fun saveOnBackground() {
+        backgroundSaveCallback?.invoke()
+    }
+
     /**
      * Check if there are unsaved changes.
      * Returns true if there are unsaved changes, false otherwise.

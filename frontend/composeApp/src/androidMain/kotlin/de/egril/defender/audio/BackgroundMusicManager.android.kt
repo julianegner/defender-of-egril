@@ -82,6 +82,19 @@ class AndroidBackgroundMusicManager(private val context: Context) : BackgroundMu
                             
                             player.isLooping = loop
                             
+                            // Register error listener before start() so any immediate or
+                            // deferred errors (e.g. audio session lost while backgrounded)
+                            // are handled before playback begins.
+                            player.setOnErrorListener { mp, what, extra ->
+                                println("MediaPlayer error: what=$what extra=$extra – releasing player")
+                                if (mediaPlayer == mp) {
+                                    mediaPlayer = null
+                                    playing = false
+                                }
+                                try { mp.release() } catch (_: Exception) {}
+                                true
+                            }
+                            
                             // Get track-specific relative volume
                             val trackVolume = BackgroundMusicSettings.getRelativeVolume(music)
                             
@@ -124,10 +137,18 @@ class AndroidBackgroundMusicManager(private val context: Context) : BackgroundMu
     
     override fun stopMusic() {
         mediaPlayer?.let { player ->
-            if (player.isPlaying) {
-                player.stop()
+            try {
+                if (player.isPlaying) {
+                    player.stop()
+                }
+            } catch (_: IllegalStateException) {
+                // MediaPlayer in invalid state (e.g. Error after long background); ignore
             }
-            player.release()
+            try {
+                player.release()
+            } catch (_: Exception) {
+                // Ignore release errors
+            }
             mediaPlayer = null
         }
         playing = false
@@ -137,18 +158,40 @@ class AndroidBackgroundMusicManager(private val context: Context) : BackgroundMu
     
     override fun pauseMusic() {
         mediaPlayer?.let { player ->
-            if (player.isPlaying) {
-                player.pause()
+            try {
+                if (player.isPlaying) {
+                    player.pause()
+                    playing = false
+                }
+            } catch (e: IllegalStateException) {
+                // MediaPlayer entered an invalid state (audio session lost after long background).
+                // Release it so it can be recreated if playMusic() is called again.
+                println("MediaPlayer in invalid state on pause, releasing: ${e.message}")
+                try { player.release() } catch (_: Exception) {}
+                mediaPlayer = null
                 playing = false
             }
         }
     }
     
     override fun resumeMusic() {
-        mediaPlayer?.let { player ->
-            if (!player.isPlaying && enabled && AppSettings.isSoundEnabled.value && AppSettings.isMusicEnabled.value) {
-                player.start()
-                playing = true
+        val player = mediaPlayer
+        if (player != null) {
+            try {
+                if (!player.isPlaying && enabled && AppSettings.isSoundEnabled.value && AppSettings.isMusicEnabled.value) {
+                    player.start()
+                    playing = true
+                }
+            } catch (e: IllegalStateException) {
+                // MediaPlayer entered an invalid state (audio session lost after long background).
+                // Release the broken player and restart the last known track.
+                // All lifecycle callbacks (onResume/onPause) run on the Main thread so there
+                // is no concurrent access to mediaPlayer between these two lines.
+                println("MediaPlayer in invalid state on resume, restarting: ${e.message}")
+                try { player.release() } catch (_: Exception) {}
+                mediaPlayer = null
+                playing = false
+                currentMusic?.let { playMusic(it, loop = true) }
             }
         }
     }
@@ -159,10 +202,14 @@ class AndroidBackgroundMusicManager(private val context: Context) : BackgroundMu
         
         // Update volume of currently playing music
         mediaPlayer?.let { player ->
-            val music = currentMusic
-            val trackVolume = if (music != null) BackgroundMusicSettings.getRelativeVolume(music) else 1.0f
-            val effectiveVolume = (AppSettings.soundVolume.value * this.volume * trackVolume * 0.3f).coerceIn(0f, 1f)
-            player.setVolume(effectiveVolume, effectiveVolume)
+            try {
+                val music = currentMusic
+                val trackVolume = if (music != null) BackgroundMusicSettings.getRelativeVolume(music) else 1.0f
+                val effectiveVolume = (AppSettings.soundVolume.value * this.volume * trackVolume * 0.3f).coerceIn(0f, 1f)
+                player.setVolume(effectiveVolume, effectiveVolume)
+            } catch (_: IllegalStateException) {
+                // MediaPlayer in invalid state; volume will be applied when music restarts
+            }
         }
     }
     
@@ -213,7 +260,7 @@ class AndroidBackgroundMusicManager(private val context: Context) : BackgroundMu
 private var androidContext: Context? = null
 
 fun setAndroidContext(context: Context) {
-    androidContext = context
+    androidContext = context.applicationContext
 }
 
 /**

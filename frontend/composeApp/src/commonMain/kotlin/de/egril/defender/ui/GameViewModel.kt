@@ -79,7 +79,7 @@ data class ReminderMessage(
 )
 
 class GameViewModel {
-    
+
     private val _currentScreen = MutableStateFlow<Screen>(Screen.MainMenu)
     val currentScreen: StateFlow<Screen> = _currentScreen.asStateFlow()
     
@@ -228,12 +228,17 @@ class GameViewModel {
                 _loadingProgress.value = null
                 _isDataLoaded.value = true
                 initializeWorldMap()
+                // Note: background save restore is intentionally skipped on WASM because the
+                // platform does not have a persistent process lifecycle the same way Android does.
             }
         } else {
             // On non-WASM platforms, repository files are loaded synchronously before this point.
             de.egril.defender.editor.EditorStorage.ensureInitialized()
             initializePlayerProfile()
             initializeWorldMap()
+            // Restore game from background save if the process was killed while the app
+            // was in the background during gameplay (primarily for Android).
+            restoreBackgroundSaveIfExists()
         }
         // Note: saved games are loaded via onAuthStateChanged() which is called by a
         // LaunchedEffect in App.kt on every change of iamState.isAuthenticated (including
@@ -660,6 +665,9 @@ class GameViewModel {
             de.egril.defender.analytics.reportEvent(de.egril.defender.analytics.GameEventType.LEVEL_LEFT, levelName, turnNumber)
         }
         stopTimeTracking()
+        // Player explicitly left gameplay – remove any background save so it is not
+        // restored on the next cold start.
+        deleteBackgroundSave()
         // Reload levels from disk to ensure latest changes are visible
         reloadWorldMap()
         _currentScreen.value = Screen.WorldMap
@@ -1328,6 +1336,8 @@ class GameViewModel {
             }
             return
         }
+        // Level ended – remove any background save so it is not restored on the next cold start.
+        deleteBackgroundSave()
         _currentScreen.value = Screen.LevelComplete(levelId, won, isLastLevel, xpEarned)
     }
     
@@ -1924,7 +1934,52 @@ class GameViewModel {
     fun continueFromAutosave() {
         loadGame("autosave_game")
     }
-    
+
+    /**
+     * Save the current game state to the background save slot.
+     * Called when the app goes to the background (onPause) while in gameplay.
+     * Uses a fixed ID so the previous background save is always overwritten.
+     */
+    fun saveGameOnBackground() {
+        if (_currentScreen.value !is Screen.GamePlay) return
+        val state = _gameState.value ?: return
+        de.egril.defender.save.SaveFileStorage.saveGameState(
+            state,
+            comment = "Background save",
+            saveId = BACKGROUND_SAVE_ID
+        )
+    }
+
+    /**
+     * Restore the game from the background save if one exists.
+     * Called on ViewModel initialization to resume gameplay after the process was killed
+     * while the app was in the background.
+     */
+    private fun restoreBackgroundSaveIfExists() {
+        if (de.egril.defender.save.SaveFileStorage.loadGameState(BACKGROUND_SAVE_ID) == null) return
+        loadGame(BACKGROUND_SAVE_ID)
+        val restored = _currentScreen.value is Screen.GamePlay
+        if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+            if (restored) {
+                println("Background save restored successfully.")
+            } else {
+                println("Background save exists but could not be restored (level may no longer be available).")
+            }
+        }
+        // Always delete the background save after attempting restore to prevent it
+        // from being re-applied on subsequent cold starts (infinite retry loop).
+        // A fresh background save will be created on the next onPause while in gameplay.
+        deleteBackgroundSave()
+    }
+
+    /**
+     * Delete the background save file, if it exists.
+     * Called when the player explicitly leaves the game (back to map, level complete).
+     */
+    private fun deleteBackgroundSave() {
+        de.egril.defender.save.SaveFileStorage.deleteSavedGame(BACKGROUND_SAVE_ID)
+    }
+
     /**
      * Create a snapshot of the current game state for change detection
      */
@@ -3328,5 +3383,8 @@ class GameViewModel {
     companion object {
         /** Maximum counter suffix tried when generating a unique default player name. */
         private const val MAX_PLAYER_NAME_COUNTER = 999
+
+        /** Fixed save ID used for the background save (overwritten on every onPause). */
+        private const val BACKGROUND_SAVE_ID = "background_save"
     }
 }

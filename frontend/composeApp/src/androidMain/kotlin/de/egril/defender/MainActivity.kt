@@ -13,6 +13,7 @@ import de.egril.defender.audio.setAndroidContext
 import de.egril.defender.audio.setSoundEffectsAppInBackground
 import de.egril.defender.iam.AndroidIamFlowProvider
 import de.egril.defender.save.AndroidFileExportImport
+import de.egril.defender.utils.WindowCloseHandler
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,6 +59,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
+        // Save game state to a background save slot so it can be restored if the process
+        // is killed while the app is in the background for a long time.
+        WindowCloseHandler.saveOnBackground()
         GlobalBackgroundMusicManager.pauseMusic()
         setSoundEffectsAppInBackground(true)
     }
@@ -66,5 +70,13 @@ class MainActivity : ComponentActivity() {
         super.onResume()
         setSoundEffectsAppInBackground(false)
         GlobalBackgroundMusicManager.resumeMusic()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (isFinishing) {
+            // Release audio resources only when the Activity is truly finishing (not just recreating).
+            GlobalBackgroundMusicManager.release()
+        }
     }
 }
