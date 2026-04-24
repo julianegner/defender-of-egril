@@ -1110,6 +1110,44 @@ fun GridCell(
         maxOf(0, penalizedSpeed - 1) == 0
     }
 
+    // Suppress the red background on enemy tiles during attack animations (for survived enemies).
+    // When an attack is in progress (towerAttackEffect exists) and a live enemy is on the tile,
+    // remove the red background immediately and restore it once the projectile flight + impact
+    // flash has completed.  This provides visual feedback that the enemy was hit without
+    // permanently removing the background for enemies that survive the attack.
+    // AoE attacks (wizard fireball, alchemy acid) are also handled for surrounding tiles.
+    var suppressEnemyBackground by remember { mutableStateOf(false) }
+    LaunchedEffect(
+        towerAttackEffect?.turnNumber, towerAttackEffect?.targetPosition,
+        isInWizardAttackArea, isInAlchemyAttackArea, animate
+    ) {
+        if (!animate || attacker == null) {
+            suppressEnemyBackground = false
+            return@LaunchedEffect
+        }
+        val hasDirectAttack = towerAttackEffect != null
+        val hasAoEAttack = isInWizardAttackArea || isInAlchemyAttackArea
+        if (hasDirectAttack || hasAoEAttack) {
+            suppressEnemyBackground = true
+            val flightDelay: Long = when {
+                towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                towerAttackEffect != null && isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
+                towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                towerAttackEffect != null && isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                towerAttackEffect != null && isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
+                towerAttackEffect != null && isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                towerAttackEffect != null && isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
+                isInWizardAttackArea -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                isInAlchemyAttackArea -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
+                else -> 0L
+            }
+            kotlinx.coroutines.delay(flightDelay + GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS)
+            suppressEnemyBackground = false
+        } else {
+            suppressEnemyBackground = false
+        }
+    }
+
     // Apply slight tint for selection states, but keep base color visible
     // Override with red background for enemy units and colored background for defenders
     // During INITIAL_BUILDING phase, don't apply any selection tints
@@ -1117,7 +1155,7 @@ fun GridCell(
     // Special case: Keep river background visible for defenders on rafts
     val backgroundColor = when {
         attackerIsFrozen || coolingReducesAttackerToZero -> TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f)  // Turquoise background for frozen/cooled-to-zero enemies
-        attacker != null -> if (isDarkMode) GamePlayColors.ErrorDark else GamePlayColors.Error  // Darker red background for enemies in dark mode
+        attacker != null && !suppressEnemyBackground -> if (isDarkMode) GamePlayColors.ErrorDark else GamePlayColors.Error  // Darker red background for enemies in dark mode
         defender != null && isRiverTile -> {
             // Keep river blue background visible for defenders on rafts
             GamePlayColors.River
@@ -1224,7 +1262,7 @@ fun GridCell(
 
         isSpawnPoint -> GamePlayColors.WarningDark  // Darker orange border for spawn in dark mode
         isTarget -> GamePlayColors.Success  // Green border for target (adapts to dark mode automatically)
-        attacker != null -> GamePlayColors.ErrorDark  // Darker red border for enemies
+        attacker != null && !suppressEnemyBackground -> GamePlayColors.ErrorDark  // Darker red border for enemies
         defender != null -> if (defender.isReady) GamePlayColors.InfoDark else GamePlayColors.Building  // Darker blue/gray border for towers
         effectiveFieldEffect != null -> {
             when (effectiveFieldEffect.type) {
@@ -1386,7 +1424,8 @@ fun GridCell(
                 isAlchemyTargetTile = isAlchemyTargetTile,
                 isInWizardAttackArea = isInWizardAttackArea,
                 isInAlchemyAttackArea = isInAlchemyAttackArea,
-                dragonIsTargetingMine = dragonIsTargetingMine
+                dragonIsTargetingMine = dragonIsTargetingMine,
+                suppressEnemyBackground = suppressEnemyBackground
             )
         }
     } else {
@@ -1450,7 +1489,8 @@ fun GridCell(
                 isAlchemyTargetTile = isAlchemyTargetTile,
                 isInWizardAttackArea = isInWizardAttackArea,
                 isInAlchemyAttackArea = isInAlchemyAttackArea,
-                dragonIsTargetingMine = dragonIsTargetingMine
+                dragonIsTargetingMine = dragonIsTargetingMine,
+                suppressEnemyBackground = suppressEnemyBackground
             )
         }
     }
@@ -1511,7 +1551,8 @@ private fun BoxScope.GridCellContent(
     isAlchemyTargetTile: Boolean = false,
     isInWizardAttackArea: Boolean = false,
     isInAlchemyAttackArea: Boolean = false,
-    dragonIsTargetingMine: Boolean = false
+    dragonIsTargetingMine: Boolean = false,
+    suppressEnemyBackground: Boolean = false
 ) {
         // When animations are enabled, delay updating the enemy's displayed health value until
         // the attack animation (projectile flight + impact flash) has completed.
@@ -1574,11 +1615,13 @@ private fun BoxScope.GridCellContent(
                         val barbsSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
                         maxOf(0, barbsSpeed - 1) == 0
                     }
-                    // Compute the actual tile background color so the icon can derive the correct outline color
-                    val attackerTileBackground = if (freezeEffect != null || coolingReducesToZero) {
-                        TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f)
-                    } else {
-                        GamePlayColors.Error
+                    // Compute the actual tile background color so the icon can derive the correct outline color.
+                    // When the red background is suppressed during an attack animation, use the path color
+                    // so the enemy icon contrast remains correct against the revealed tile background.
+                    val attackerTileBackground = when {
+                        freezeEffect != null || coolingReducesToZero -> TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f)
+                        suppressEnemyBackground -> GamePlayColors.Path
+                        else -> GamePlayColors.Error
                     }
                     Box(
                         contentAlignment = Alignment.Center,
