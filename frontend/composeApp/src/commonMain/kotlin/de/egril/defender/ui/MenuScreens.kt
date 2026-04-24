@@ -6,7 +6,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,9 +47,9 @@ import defender_of_egril.composeapp.generated.resources.emoji_skull
 import org.jetbrains.compose.resources.painterResource
 
 /** Top padding for the main content column on mobile when a player area is visible. */
-private val MobileTopPaddingWithPlayer = 150.dp
+private val MobileTopPaddingWithPlayer = 110.dp
 /** Top padding for the main content column on mobile when no player area is shown (only exit button). */
-private val MobileTopPaddingWithoutPlayer = 60.dp
+private val MobileTopPaddingWithoutPlayer = 56.dp
 
 /**
  * Compact row of main menu action buttons for mobile and mobile-web layouts.
@@ -298,16 +300,18 @@ fun MainMenuScreen(
             // If a player name is shown (incl. IAM login/logout button), use a larger offset.
             val mobileTopPadding = if (currentPlayerName != null) MobileTopPaddingWithPlayer else MobileTopPaddingWithoutPlayer
             val isMobileUI = isPlatformMobile || isMobileWebBrowser()
+            val scrollState = rememberScrollState()
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .then(if (isPlatformMobile) Modifier.padding(top = mobileTopPadding) else Modifier),
+                    .then(if (isPlatformMobile) Modifier.padding(top = mobileTopPadding) else Modifier)
+                    .then(if (isMobileUI) Modifier.verticalScroll(scrollState) else Modifier),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = if (isMobileUI) Arrangement.Top else Arrangement.Center
             ) {
                 // Add top spacer on mobile/mobile-web to position banner in the upper third of the screen
                 if (isMobileUI) {
-                    Spacer(modifier = Modifier.weight(0.5f))
+                    Spacer(modifier = Modifier.height(8.dp))
                 }
                 
                 // Application banner with logo and styled text
@@ -437,9 +441,9 @@ fun MainMenuScreen(
                     }
                 }
                 
-                // Add bottom spacer for mobile/mobile-web to push content up and leave room for version
+                // Add bottom spacer for mobile/mobile-web
                 if (isMobileUI) {
-                    Spacer(modifier = Modifier.weight(1.3f))
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
             
