@@ -311,11 +311,10 @@ fun MainMenuScreen(
                 }
                 
                 // Application banner with logo and styled text
-                // Cap the banner width on mobile/mobile-web so it stays readable on wide landscape screens
                 ApplicationBannerImage(
-                    modifier = if (isMobileUI) Modifier.widthIn(max = 700.dp) else Modifier
+                    modifier = if (isMobileUI) Modifier.height(120.dp) else Modifier
                 )
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 Text(
@@ -347,8 +346,7 @@ fun MainMenuScreen(
                         isDataLoaded = isDataLoaded,
                         onShowRules = onShowRules,
                         buttonHeight = 30.dp,
-                        textStyle = MaterialTheme.typography.labelSmall,
-                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                        textStyle = MaterialTheme.typography.labelSmall
                     )
                 } else {
                     Row(
@@ -361,7 +359,7 @@ fun MainMenuScreen(
                         ) {
                             Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
                         }
-                        
+
                         // Continue Game button (only visible if autosave exists)
                         if (hasAutosave) {
                             Button(
@@ -371,36 +369,42 @@ fun MainMenuScreen(
                                     containerColor = MaterialTheme.colorScheme.secondary
                                 )
                             ) {
-                                Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.titleMedium)
+                                Text(
+                                    stringResource(Res.string.continue_game),
+                                    style = MaterialTheme.typography.titleMedium
+                                )
                             }
                         }
                     }
-                    
+
                     Spacer(modifier = Modifier.height(16.dp))
-                    
+
                     Button(
                         onClick = onShowRules,
                         modifier = Modifier.width(200.dp).height(60.dp)
                     ) {
                         Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
                     }
-                    
-                    // Download button (only for WASM with impressum)
-                    if (isPlatformWasm && WithImpressum.withImpressum) {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        
-                        Button(
-                            onClick = onShowDownloadInfo,
-                            modifier = Modifier.width(200.dp).height(60.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.tertiary
-                            )
-                        ) {
-                            Text(stringResource(Res.string.download_button), style = MaterialTheme.typography.titleMedium)
-                        }
+                }
+
+                // Download button (only for WASM with impressum)
+                if (isPlatformWasm && WithImpressum.withImpressum) {
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = onShowDownloadInfo,
+                        modifier = Modifier.width(200.dp).height(if (isMobileWebBrowser()) 30.dp else 60.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiary
+                        )
+                    ) {
+                        Text(
+                            stringResource(Res.string.download_button),
+                            style = if (isMobileWebBrowser()) MaterialTheme.typography.labelSmall else MaterialTheme.typography.titleMedium
+                        )
                     }
                 }
-                
+
                 // Loading progress indicator (shown on WASM while repository files are loading)
                 if (!isDataLoaded) {
                     Spacer(modifier = Modifier.height(16.dp))
