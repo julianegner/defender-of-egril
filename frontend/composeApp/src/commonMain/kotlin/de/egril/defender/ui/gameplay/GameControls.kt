@@ -256,7 +256,7 @@ fun GameControlsPanel(
 
                 Row(
                     modifier = Modifier.fillMaxWidth().height(expandedGridHeight),
-                    horizontalArrangement = Arrangement.Center,
+                    horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     types.forEachIndexed { index, type ->

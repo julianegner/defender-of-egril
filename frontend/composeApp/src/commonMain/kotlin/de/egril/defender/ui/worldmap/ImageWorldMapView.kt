@@ -32,6 +32,7 @@ import de.egril.defender.ui.mouseWheelZoom
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.utils.isPlatformAndroid
 import de.egril.defender.utils.isPlatformMobile
+import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.icon.LockIcon
@@ -421,8 +422,17 @@ private fun BoxScope.LocationMarkersOverlay(
         
         // Calculate marker position accounting for image bounds within container
         // Use smaller sizes on Android (scaled down for better fit on mobile screens)
-        val scaleFactor = if (isPlatformAndroid) 0.35f else 1f  // 35% size on Android
-        val labelScaleFactor = if (isPlatformAndroid) 0.4f else 1f  // 40% for label font
+        // and on mobile web browsers (50% size for better fit on small screens)
+        val scaleFactor = when {
+            isPlatformAndroid -> 0.35f  // 35% size on Android
+            isMobileWebBrowser() -> 0.5f  // 50% size on mobile web
+            else -> 1f
+        }
+        val labelScaleFactor = when {
+            isPlatformAndroid -> 0.4f  // 40% for label font on Android
+            isMobileWebBrowser() -> 0.5f  // 50% for label font on mobile web
+            else -> 1f
+        }
         val markerSize = (40 * scaleFactor).dp
         val iconMarkerSize = (48 * scaleFactor).dp  // Slightly larger for icon-based markers
         val labelHorizontalPadding = (6 * scaleFactor).dp

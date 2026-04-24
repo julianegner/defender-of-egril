@@ -22,6 +22,7 @@ import de.egril.defender.ui.settings.DifficultyDisplay
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.editor.RepositoryManager
 import de.egril.defender.utils.isPlatformMobile
+import de.egril.defender.utils.isPlatformWasm
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
@@ -441,9 +442,11 @@ fun WorldMapScreen(
             // Determine button arrangement based on platform and view mode
             val isMobileImageMap = isPlatformMobile && !useLevelCards
             val isMobileLevelCards = isPlatformMobile && useLevelCards
+            // Wasm/web also uses the stacked (image map) layout when in image map mode
+            val isImageMapLayout = (isPlatformMobile || isPlatformWasm) && !useLevelCards
             val buttonArrangement = when {
                 isMobileLevelCards -> Arrangement.Center
-                isMobileImageMap -> Arrangement.Start
+                isImageMapLayout -> Arrangement.Start
                 else -> Arrangement.Center  // Desktop
             }
             
@@ -462,11 +465,12 @@ fun WorldMapScreen(
                 val tabIndex = imageMapActiveTab ?: 0
                 // Button layout varies by platform and view mode:
                 // - Mobile + Image Map: Column layout, left-aligned, smaller buttons
+                // - Wasm/Web + Image Map: Column layout, left-aligned, standard buttons
                 // - Mobile + Level Cards: Row layout, centered, normal buttons
                 // - Desktop: Row layout, centered
                 when {
-                    isMobileImageMap && tabIndex == 0 -> {
-                        // Mobile + Image Map View: Column layout, left-aligned, smaller buttons
+                    isImageMapLayout && tabIndex == 0 -> {
+                        // Mobile/Wasm + Image Map View: Column layout, left-aligned
                         Column(
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                             horizontalAlignment = Alignment.Start
@@ -513,8 +517,8 @@ fun WorldMapScreen(
                 }
                 
                 // Spacer to push community/user/editor buttons to the right
-                if ((!isPlatformMobile && isEditorAvailable()) ||
-                    (isMobileImageMap && (hasUserLevels || hasCommunityLevels) && imageMapActiveTab == null)) {
+                if ((!isPlatformMobile && !isPlatformWasm && isEditorAvailable()) ||
+                    (isImageMapLayout && (hasUserLevels || hasCommunityLevels) && imageMapActiveTab == null)) {
                     Spacer(modifier = Modifier.weight(1f))
                 }
                 
