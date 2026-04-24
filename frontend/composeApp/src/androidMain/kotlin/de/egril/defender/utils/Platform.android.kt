@@ -10,6 +10,7 @@ class AndroidPlatform : Platform {
     override val isAndroidTV: Boolean = checkIsAndroidTV()
     override val isSteamDeckGamingMode: Boolean = false
     override val platformExtended: String = buildPlatformExtended()
+    override val osName: String = buildOsName()
     
     private fun checkIsAndroidTV(): Boolean {
         return try {
@@ -43,6 +44,10 @@ class AndroidPlatform : Platform {
         } catch (e: Exception) {
             version
         }
+    }
+
+    private fun buildOsName(): String {
+        return "Android ${Build.VERSION.RELEASE}"
     }
 }
 

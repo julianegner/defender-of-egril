@@ -46,6 +46,23 @@ class JVMPlatform: Platform {
         val osVersion = System.getProperty("os.version") ?: ""
         if (osVersion.isBlank()) osName else "$osName $osVersion"
     }
+    override val osName: String? = run {
+        val osNameProp = System.getProperty("os.name") ?: return@run null
+        if (osNameProp.lowercase().startsWith("linux")) {
+            try {
+                File("/etc/os-release").readLines()
+                    .firstOrNull { it.startsWith("PRETTY_NAME=") }
+                    ?.removePrefix("PRETTY_NAME=")
+                    ?.trim('"')
+                    ?: osNameProp
+            } catch (_: Exception) {
+                osNameProp
+            }
+        } else {
+            val osVersion = System.getProperty("os.version") ?: ""
+            if (osVersion.isBlank()) osNameProp else "$osNameProp $osVersion"
+        }
+    }
 }
 
 actual fun getPlatform(): Platform = JVMPlatform()

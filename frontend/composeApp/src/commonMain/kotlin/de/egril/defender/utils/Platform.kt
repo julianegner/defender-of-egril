@@ -16,6 +16,16 @@ interface Platform {
      * Web: browser name and version (e.g. "Chrome/120.0.6099.130").
      */
     val platformExtended: String
+    /**
+     * Human-readable operating system name and version.
+     * Desktop Linux: pretty name from /etc/os-release (e.g. "Ubuntu 22.04.5 LTS").
+     * Desktop Windows/macOS: OS name and version (e.g. "Windows 10", "Mac OS X 14.3.1").
+     * Android: OS release version (e.g. "Android 14").
+     * iOS: system name and version (e.g. "iOS 17.0").
+     * Web: OS extracted from browser user agent (e.g. "Android 14", "Windows 10/11", "macOS 14.3.1").
+     * Returns null if the OS cannot be determined.
+     */
+    val osName: String?
 }
 
 expect fun getPlatform(): Platform
