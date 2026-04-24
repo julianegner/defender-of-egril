@@ -58,6 +58,7 @@ fun DefenderButton(
     canAfford: Boolean,
     coinsState: State<Int>,
     instantTowerActive: Boolean = false,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     val isDarkMode = AppSettings.isDarkMode.value
@@ -73,8 +74,7 @@ fun DefenderButton(
         if (isSelected) ", ${stringResource(Res.string.selected)}" else ""
 
     val buttonHeight = if (isPlatformMobile) 80.dp else 70.dp
-    val buttonModifier = Modifier
-        .fillMaxWidth()
+    val buttonModifier = modifier
         .height(buttonHeight)
         .androidTVModifier(isSelected = isSelected, description = description)
 
@@ -97,14 +97,17 @@ fun DefenderButton(
                     .padding(horizontal = 4.dp, vertical = 2.dp)
             ) {
                 val bw = maxWidth
-                // icon | price | name+buildtime | stats
+                // Columns: icon | price | name+buildtime | stats
+                // Thresholds ensure no column is partially visible.
+                // Column widths: icon=54, spacer=4, price=32, spacer=4, info=100, padding_start=4, stats≈34, padding_end=8
                 Row(
                     modifier = Modifier.fillMaxSize(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Start
                 ) {
                     TowerTypeIcon(defenderType = type, modifier = Modifier.size(54.dp))
-                    if (bw >= 60.dp) {
+                    // 2 cols: icon(54)+spacer(4)+price(32)=90dp content; threshold 100dp adds margin
+                    if (bw >= 100.dp) {
                         Spacer(modifier = Modifier.width(4.dp))
                         DefenderPriceColumn(
                             cost = type.baseCost,
@@ -112,7 +115,8 @@ fun DefenderButton(
                             priceFontSize = 14.sp,
                             width = 32.dp
                         )
-                        if (bw >= 110.dp) {
+                        // 3 cols: 2-col content(90)+spacer(4)+info(100)=194dp; threshold 195dp
+                        if (bw >= 195.dp) {
                             Spacer(modifier = Modifier.width(4.dp))
                             DefenderInfoColumn(
                                 type = type, locale = locale,
@@ -120,11 +124,12 @@ fun DefenderButton(
                                 timerIconSize = 12.dp, buildTimeFontSize = 10.sp,
                                 modifier = Modifier.fillMaxHeight().width(100.dp)
                             )
-                            if (bw >= 170.dp) {
+                            // 4 cols: 3-col content(194)+padding_start(4)+stats(~34)+padding_end(8)=~240dp
+                            if (bw >= 240.dp) {
                                 Column(
                                     modifier = Modifier
                                         .fillMaxHeight()
-                                        .padding(start = 4.dp),
+                                        .padding(start = 4.dp, end = 8.dp),
                                     verticalArrangement = Arrangement.Center,
                                     horizontalAlignment = Alignment.Start
                                 ) {
