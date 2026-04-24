@@ -1398,7 +1398,7 @@
   "timezone": "browser",
   "title": "Defender of Egril \u2013 Overview",
   "uid": "defender-overview",
-  "version": 1,
+  "version": 2,
   "weekStart": "",
   "templating": {
     "list": [
@@ -1407,9 +1407,25 @@
         "label": "with APP_STARTED",
         "type": "boolean",
         "current": {
+          "selected": true,
+          "text": "true",
           "value": "true"
         },
+        "options": [
+          {
+            "selected": true,
+            "text": "true",
+            "value": "true"
+          },
+          {
+            "selected": false,
+            "text": "false",
+            "value": "false"
+          }
+        ],
+        "query": "false,true",
         "hide": 0,
+        "skipUrlSync": false,
         "description": "When unchecked, APP_STARTED events are hidden from the Recent Events list"
       }
     ]
