@@ -416,6 +416,18 @@
           {
             "matcher": {
               "id": "byName",
+              "options": "os_name"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 180
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
               "options": "user_name"
             },
             "properties": [
@@ -479,7 +491,7 @@
             "uid": "postgres-app"
           },
           "format": "table",
-          "rawSql": "SELECT id, event_type, platform, level_name, version_name, user_name, turn_number, platform_extended, created_at FROM events WHERE ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') ORDER BY created_at DESC LIMIT 100",
+          "rawSql": "SELECT id, event_type, platform, os_name, level_name, version_name, user_name, turn_number, platform_extended, created_at FROM events WHERE ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') ORDER BY created_at DESC LIMIT 100",
           "refId": "A"
         }
       ]

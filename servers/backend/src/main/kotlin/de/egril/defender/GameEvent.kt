@@ -10,6 +10,7 @@ import kotlinx.serialization.Serializable
  * @param platform The short frontend platform identifier (e.g. WEB, DESKTOP, ANDROID, IOS)
  * @param platformLong The full platform name including user agent for web (e.g. "Web with Kotlin/Wasm Mozilla/5.0 ..."), optional
  * @param platformExtended Extended OS/browser detail: OS name+version for desktop, Android release version for Android, iOS system+version for iOS, browser name+version for web, optional
+ * @param osName The operating system name and version (e.g. "Ubuntu 22.04.5 LTS", "Android 14", "iOS 17.0", "Windows 10/11"), optional
  * @param versionName The version name of the frontend (e.g. "1.0"), optional
  * @param commitHash The short git commit hash of the frontend build, optional
  * @param username The Keycloak username of the authenticated player, optional (only present when logged in)
@@ -22,6 +23,7 @@ data class GameEvent(
     val platform: String,
     val platformLong: String? = null,
     val platformExtended: String? = null,
+    val osName: String? = null,
     val versionName: String? = null,
     val commitHash: String? = null,
     val username: String? = null,

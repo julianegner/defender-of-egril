@@ -26,11 +26,41 @@ private external fun getBrowserUserAgent(): String?
 }""")
 private external fun getBrowserInfo(): String?
 
+/**
+ * Extracts the operating system name from the browser User-Agent string.
+ * Detection order: Android → iOS → Windows → macOS → ChromeOS → Linux → null.
+ */
+@JsFun("""() => {
+    try {
+        var ua = navigator.userAgent;
+        var android = ua.match(/Android ([0-9.]+)/);
+        if (android) return "Android " + android[1];
+        var ios = ua.match(/(?:iPhone|iPad|iPod).*?OS ([0-9_]+)/);
+        if (ios) return "iOS " + ios[1].replace(/_/g, ".");
+        var win = ua.match(/Windows NT ([0-9.]+)/);
+        if (win) {
+            var v = win[1];
+            if (v === "10.0") return "Windows 10+";
+            if (v === "6.3") return "Windows 8.1";
+            if (v === "6.2") return "Windows 8";
+            if (v === "6.1") return "Windows 7";
+            return "Windows NT " + v;
+        }
+        var mac = ua.match(/Mac OS X ([0-9_.]+)/);
+        if (mac) return "macOS " + mac[1].replace(/_/g, ".");
+        if (ua.indexOf("CrOS") >= 0) return "ChromeOS";
+        if (ua.indexOf("Linux") >= 0) return "Linux";
+        return null;
+    } catch (e) { return null; }
+}""")
+private external fun getBrowserOsName(): String?
+
 class WasmPlatform: Platform {
     override val name: String = getBrowserUserAgent()?.let { "Web with Kotlin/Wasm $it" } ?: "Web with Kotlin/Wasm"
     override val isAndroidTV: Boolean = false
     override val isSteamDeckGamingMode: Boolean = false
     override val platformExtended: String = getBrowserInfo() ?: "Unknown"
+    override val osName: String? = getBrowserOsName()
 }
 
 actual fun getPlatform(): Platform = WasmPlatform()

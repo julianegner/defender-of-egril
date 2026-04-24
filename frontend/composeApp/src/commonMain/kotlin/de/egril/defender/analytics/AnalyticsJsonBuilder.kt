@@ -11,6 +11,7 @@ internal fun buildEventJson(eventType: GameEventType, levelName: String?, platfo
     val currentPlatform = getPlatform()
     val platformLong = currentPlatform.name
     val platformExtended = currentPlatform.platformExtended
+    val osName = currentPlatform.osName
     val iamState = IamService.state.value
     val username = if (iamState.isAuthenticated) iamState.username else null
     append("{\"event\":\"")
@@ -21,7 +22,13 @@ internal fun buildEventJson(eventType: GameEventType, levelName: String?, platfo
     append(escapeJson(platformLong))
     append("\",\"platformExtended\":\"")
     append(escapeJson(platformExtended))
-    append("\",\"versionName\":\"")
+    append("\"")
+    if (osName != null) {
+        append(",\"osName\":\"")
+        append(escapeJson(osName))
+        append("\"")
+    }
+    append(",\"versionName\":\"")
     append(escapeJson(AppBuildInfo.VERSION_NAME))
     append("\",\"commitHash\":\"")
     append(escapeJson(AppBuildInfo.COMMIT_HASH))

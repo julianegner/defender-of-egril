@@ -8,6 +8,7 @@ class IOSPlatform: Platform {
     override val isAndroidTV: Boolean = false
     override val isSteamDeckGamingMode: Boolean = false
     override val platformExtended: String = UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
+    override val osName: String = UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
 }
 
 actual fun getPlatform(): Platform = IOSPlatform()

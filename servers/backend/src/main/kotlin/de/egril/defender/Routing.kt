@@ -129,6 +129,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
             val message = buildString {
                 append("[${event.event}] platform=${event.platform}")
                 if (event.platformExtended != null) append(" platformExtended=${event.platformExtended}")
+                if (event.osName != null) append(" os=${event.osName}")
                 if (event.levelName != null) append(" levelName=${event.levelName}")
                 if (event.versionName != null) append(" version=${event.versionName}")
                 if (event.commitHash != null) append(" commit=${event.commitHash}")
@@ -140,17 +141,18 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
             dataSourceRef.get()?.connection?.use { conn ->
                 try {
                     conn.prepareStatement(
-                        "INSERT INTO events (event_type, platform, platform_long, platform_extended, level_name, version_name, commit_hash, user_name, turn_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                        "INSERT INTO events (event_type, platform, platform_long, platform_extended, os_name, level_name, version_name, commit_hash, user_name, turn_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                     ).use { stmt ->
                         stmt.setString(1, event.event)
                         stmt.setString(2, event.platform)
                         stmt.setString(3, event.platformLong)
                         stmt.setString(4, event.platformExtended)
-                        stmt.setString(5, event.levelName)
-                        stmt.setString(6, event.versionName)
-                        stmt.setString(7, event.commitHash)
-                        stmt.setString(8, authUser)
-                        if (event.turnNumber != null) stmt.setInt(9, event.turnNumber) else stmt.setNull(9, java.sql.Types.INTEGER)
+                        stmt.setString(5, event.osName)
+                        stmt.setString(6, event.levelName)
+                        stmt.setString(7, event.versionName)
+                        stmt.setString(8, event.commitHash)
+                        stmt.setString(9, authUser)
+                        if (event.turnNumber != null) stmt.setInt(10, event.turnNumber) else stmt.setNull(10, java.sql.Types.INTEGER)
                         stmt.executeUpdate()
                     }
                 } catch (e: Exception) {
