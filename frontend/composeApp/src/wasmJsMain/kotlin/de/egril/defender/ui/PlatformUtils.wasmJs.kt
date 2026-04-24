@@ -19,6 +19,8 @@ private external fun isMobileBrowser(): Boolean
 
 actual fun getGameplayUIScale(): Float = if (isMobileBrowser()) 0.5f else 1.0f
 
+actual fun isMobileWebBrowser(): Boolean = isMobileBrowser()
+
 actual fun exitApplication() {
     // On web, close the window (may not work depending on browser security)
     window.close()

@@ -7,6 +7,8 @@ actual fun isEditorAvailable(): Boolean = false
 
 actual fun getGameplayUIScale(): Float = 0.5f
 
+actual fun isMobileWebBrowser(): Boolean = false
+
 actual fun exitApplication() {
     // On Android, finish the activity
     val context = AndroidContextProvider.getContext()

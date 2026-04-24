@@ -29,6 +29,7 @@ import de.egril.defender.config.LogConfig
 import de.egril.defender.ui.gameplay.defenderButtons.CompactDefenderButton
 import de.egril.defender.ui.gameplay.defenderButtons.DefenderButton
 import de.egril.defender.utils.isPlatformMobile
+import de.egril.defender.ui.isMobileWebBrowser
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
@@ -111,10 +112,11 @@ fun GameControlsPanel(
         BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         val panelWidth = maxWidth  // Capture for use in nested composable scopes
         val isNarrowPanel = panelWidth < 500.dp
+        val isMobileUI = isPlatformMobile || isMobileWebBrowser()
         val expandedGridHeight =
-            if (isPlatformMobile && isNarrowPanel) 75.dp
+            if (isMobileUI && isNarrowPanel) 75.dp
             else if (isNarrowPanel) 70.dp
-            else if (isPlatformMobile) 80.dp
+            else if (isMobileUI) 80.dp
             else 75.dp
 
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -256,7 +258,7 @@ fun GameControlsPanel(
 
                 Row(
                     modifier = Modifier.fillMaxWidth().height(expandedGridHeight),
-                    horizontalArrangement = Arrangement.Center,
+                    horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     types.forEachIndexed { index, type ->

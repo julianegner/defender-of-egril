@@ -13,6 +13,12 @@ expect fun isEditorAvailable(): Boolean
 expect fun getGameplayUIScale(): Float
 
 /**
+ * Returns true if the app is running in a web browser on a mobile device.
+ * Always returns false on non-WASM platforms.
+ */
+expect fun isMobileWebBrowser(): Boolean
+
+/**
  * Platform-specific function to exit the application
  */
 expect fun exitApplication()

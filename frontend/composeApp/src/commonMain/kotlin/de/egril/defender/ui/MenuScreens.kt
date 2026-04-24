@@ -34,6 +34,7 @@ import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.SettingsHintBox
 import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.utils.isPlatformWasm
+import de.egril.defender.ui.isMobileWebBrowser
 import com.hyperether.resources.stringResource
 import de.egril.defender.utils.isPlatformIos
 import defender_of_egril.composeapp.generated.resources.*
@@ -47,6 +48,61 @@ import org.jetbrains.compose.resources.painterResource
 private val MobileTopPaddingWithPlayer = 150.dp
 /** Top padding for the main content column on mobile when no player area is shown (only exit button). */
 private val MobileTopPaddingWithoutPlayer = 60.dp
+
+/**
+ * Compact row of main menu action buttons for mobile and mobile-web layouts.
+ * @param buttonHeight Height of each button (40.dp for native mobile, 30.dp for mobile web)
+ * @param textStyle Typography style for button labels
+ * @param contentPadding Internal padding for each button (null uses default)
+ */
+@Composable
+private fun MainMenuButtonRow(
+    onStartGame: () -> Unit,
+    onContinueGame: () -> Unit,
+    hasAutosave: Boolean,
+    isDataLoaded: Boolean,
+    onShowRules: () -> Unit,
+    buttonHeight: androidx.compose.ui.unit.Dp,
+    textStyle: androidx.compose.ui.text.TextStyle,
+    contentPadding: PaddingValues? = null
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Button(
+            onClick = onStartGame,
+            enabled = isDataLoaded,
+            modifier = Modifier.weight(1f).height(buttonHeight),
+            contentPadding = contentPadding ?: ButtonDefaults.ContentPadding
+        ) {
+            Text(stringResource(Res.string.start_game), style = textStyle, maxLines = 1)
+        }
+
+        if (hasAutosave) {
+            Button(
+                onClick = onContinueGame,
+                modifier = Modifier.weight(1f).height(buttonHeight),
+                contentPadding = contentPadding ?: ButtonDefaults.ContentPadding,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary
+                )
+            ) {
+                Text(stringResource(Res.string.continue_game), style = textStyle, maxLines = 1)
+            }
+        }
+
+        Button(
+            onClick = onShowRules,
+            modifier = Modifier.weight(1f).height(buttonHeight),
+            contentPadding = contentPadding ?: ButtonDefaults.ContentPadding
+        ) {
+            Text(stringResource(Res.string.rules), style = textStyle, maxLines = 1)
+        }
+    }
+}
 
 @Composable
 fun MainMenuScreen(
@@ -238,71 +294,60 @@ fun MainMenuScreen(
                 }
             }
             
-            // On mobile, add enough top padding to clear the player area and exit button.
+            // On mobile and mobile-web browsers, add enough top padding to clear the player area and exit button.
             // If a player name is shown (incl. IAM login/logout button), use a larger offset.
             val mobileTopPadding = if (currentPlayerName != null) MobileTopPaddingWithPlayer else MobileTopPaddingWithoutPlayer
+            val isMobileUI = isPlatformMobile || isMobileWebBrowser()
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .then(if (isPlatformMobile) Modifier.padding(top = mobileTopPadding) else Modifier),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = if (isPlatformMobile) Arrangement.Top else Arrangement.Center
+                verticalArrangement = if (isMobileUI) Arrangement.Top else Arrangement.Center
             ) {
-                // Add top spacer for mobile to center content with room for version at bottom
-                if (isPlatformMobile) {
-                    Spacer(modifier = Modifier.weight(1f))
+                // Add top spacer on mobile/mobile-web to position banner in the upper third of the screen
+                if (isMobileUI) {
+                    Spacer(modifier = Modifier.weight(0.5f))
                 }
                 
                 // Application banner with logo and styled text
-                ApplicationBannerImage()
-                
+                ApplicationBannerImage(
+                    modifier = if (isMobileUI) Modifier.height(120.dp) else Modifier
+                )
+
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 Text(
                     text = stringResource(Res.string.app_subtitle),
-                    style = if (isPlatformMobile) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodyLarge,
+                    style = if (isMobileUI) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 
                 Spacer(modifier = Modifier.height(24.dp))
                 
-                // On mobile, buttons are in a single row; on desktop, in a row/column layout
+                // On mobile, buttons are in a single row; on mobile web, same row layout but smaller; on desktop, in a row/column layout
                 if (isPlatformMobile) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Button(
-                            onClick = onStartGame,
-                            enabled = isDataLoaded,
-                            modifier = Modifier.weight(1f).height(40.dp)
-                        ) {
-                            Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.bodySmall, maxLines = 1)
-                        }
-                        
-                        // Continue Game button (only visible if autosave exists)
-                        if (hasAutosave) {
-                            Button(
-                                onClick = onContinueGame,
-                                modifier = Modifier.weight(1f).height(40.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.secondary
-                                )
-                            ) {
-                                Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.bodySmall, maxLines = 1)
-                            }
-                        }
-                        
-                        Button(
-                            onClick = onShowRules,
-                            modifier = Modifier.weight(1f).height(40.dp)
-                        ) {
-                            Text(stringResource(Res.string.rules), style = MaterialTheme.typography.bodySmall, maxLines = 1)
-                        }
-                    }
+                    MainMenuButtonRow(
+                        onStartGame = onStartGame,
+                        onContinueGame = onContinueGame,
+                        hasAutosave = hasAutosave,
+                        isDataLoaded = isDataLoaded,
+                        onShowRules = onShowRules,
+                        buttonHeight = 40.dp,
+                        textStyle = MaterialTheme.typography.bodySmall
+                    )
+                } else if (isMobileWebBrowser()) {
+                    // Mobile web browser: compact row layout at 50% button size
+                    MainMenuButtonRow(
+                        onStartGame = onStartGame,
+                        onContinueGame = onContinueGame,
+                        hasAutosave = hasAutosave,
+                        isDataLoaded = isDataLoaded,
+                        onShowRules = onShowRules,
+                        buttonHeight = 30.dp,
+                        textStyle = MaterialTheme.typography.labelSmall
+                    )
                 } else {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -314,7 +359,7 @@ fun MainMenuScreen(
                         ) {
                             Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
                         }
-                        
+
                         // Continue Game button (only visible if autosave exists)
                         if (hasAutosave) {
                             Button(
@@ -324,36 +369,42 @@ fun MainMenuScreen(
                                     containerColor = MaterialTheme.colorScheme.secondary
                                 )
                             ) {
-                                Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.titleMedium)
+                                Text(
+                                    stringResource(Res.string.continue_game),
+                                    style = MaterialTheme.typography.titleMedium
+                                )
                             }
                         }
                     }
-                    
+
                     Spacer(modifier = Modifier.height(16.dp))
-                    
+
                     Button(
                         onClick = onShowRules,
                         modifier = Modifier.width(200.dp).height(60.dp)
                     ) {
                         Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
                     }
-                    
-                    // Download button (only for WASM with impressum)
-                    if (isPlatformWasm && WithImpressum.withImpressum) {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        
-                        Button(
-                            onClick = onShowDownloadInfo,
-                            modifier = Modifier.width(200.dp).height(60.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.tertiary
-                            )
-                        ) {
-                            Text(stringResource(Res.string.download_button), style = MaterialTheme.typography.titleMedium)
-                        }
+                }
+
+                // Download button (only for WASM with impressum)
+                if (isPlatformWasm && WithImpressum.withImpressum) {
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = onShowDownloadInfo,
+                        modifier = Modifier.width(200.dp).height(if (isMobileWebBrowser()) 30.dp else 60.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.tertiary
+                        )
+                    ) {
+                        Text(
+                            stringResource(Res.string.download_button),
+                            style = if (isMobileWebBrowser()) MaterialTheme.typography.labelSmall else MaterialTheme.typography.titleMedium
+                        )
                     }
                 }
-                
+
                 // Loading progress indicator (shown on WASM while repository files are loading)
                 if (!isDataLoaded) {
                     Spacer(modifier = Modifier.height(16.dp))
@@ -386,8 +437,8 @@ fun MainMenuScreen(
                     }
                 }
                 
-                // Add bottom spacer for mobile to push content up and leave room for version
-                if (isPlatformMobile) {
+                // Add bottom spacer for mobile/mobile-web to push content up and leave room for version
+                if (isMobileUI) {
                     Spacer(modifier = Modifier.weight(1.3f))
                 }
             }
