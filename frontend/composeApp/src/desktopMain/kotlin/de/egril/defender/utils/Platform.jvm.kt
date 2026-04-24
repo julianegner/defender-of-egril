@@ -50,11 +50,11 @@ class JVMPlatform: Platform {
         val osNameProp = System.getProperty("os.name") ?: return@run null
         if (osNameProp.lowercase().startsWith("linux")) {
             try {
-                File("/etc/os-release").readLines()
-                    .firstOrNull { it.startsWith("PRETTY_NAME=") }
-                    ?.removePrefix("PRETTY_NAME=")
-                    ?.trim('"')
-                    ?: osNameProp
+                File("/etc/os-release").useLines { lines ->
+                    lines.firstOrNull { it.startsWith("PRETTY_NAME=") }
+                        ?.removePrefix("PRETTY_NAME=")
+                        ?.trim('"')
+                } ?: osNameProp
             } catch (_: Exception) {
                 osNameProp
             }

@@ -35,12 +35,12 @@ private external fun getBrowserInfo(): String?
         var ua = navigator.userAgent;
         var android = ua.match(/Android ([0-9.]+)/);
         if (android) return "Android " + android[1];
-        var ios = ua.match(/(?:iPhone|iPad|iPod)[^)]*?OS ([0-9_]+)/);
+        var ios = ua.match(/(?:iPhone|iPad|iPod).*?OS ([0-9_]+)/);
         if (ios) return "iOS " + ios[1].replace(/_/g, ".");
         var win = ua.match(/Windows NT ([0-9.]+)/);
         if (win) {
             var v = win[1];
-            if (v === "10.0") return "Windows 10/11";
+            if (v === "10.0") return "Windows 10+";
             if (v === "6.3") return "Windows 8.1";
             if (v === "6.2") return "Windows 8";
             if (v === "6.1") return "Windows 7";
