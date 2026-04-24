@@ -294,29 +294,33 @@ fun MainMenuScreen(
                 }
             }
             
-            // On mobile, add enough top padding to clear the player area and exit button.
+            // On mobile and mobile-web browsers, add enough top padding to clear the player area and exit button.
             // If a player name is shown (incl. IAM login/logout button), use a larger offset.
             val mobileTopPadding = if (currentPlayerName != null) MobileTopPaddingWithPlayer else MobileTopPaddingWithoutPlayer
+            val isMobileUI = isPlatformMobile || isMobileWebBrowser()
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .then(if (isPlatformMobile) Modifier.padding(top = mobileTopPadding) else Modifier),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = if (isPlatformMobile) Arrangement.Top else Arrangement.Center
+                verticalArrangement = if (isMobileUI) Arrangement.Top else Arrangement.Center
             ) {
-                // Add top spacer for mobile to center content with room for version at bottom
-                if (isPlatformMobile) {
-                    Spacer(modifier = Modifier.weight(1f))
+                // Add top spacer on mobile/mobile-web to position banner in the upper third of the screen
+                if (isMobileUI) {
+                    Spacer(modifier = Modifier.weight(0.5f))
                 }
                 
                 // Application banner with logo and styled text
-                ApplicationBannerImage()
+                // Cap the banner width on mobile/mobile-web so it stays readable on wide landscape screens
+                ApplicationBannerImage(
+                    modifier = if (isMobileUI) Modifier.widthIn(max = 700.dp) else Modifier
+                )
                 
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 Text(
                     text = stringResource(Res.string.app_subtitle),
-                    style = if (isPlatformMobile) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodyLarge,
+                    style = if (isMobileUI) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -429,8 +433,8 @@ fun MainMenuScreen(
                     }
                 }
                 
-                // Add bottom spacer for mobile to push content up and leave room for version
-                if (isPlatformMobile) {
+                // Add bottom spacer for mobile/mobile-web to push content up and leave room for version
+                if (isMobileUI) {
                     Spacer(modifier = Modifier.weight(1.3f))
                 }
             }
