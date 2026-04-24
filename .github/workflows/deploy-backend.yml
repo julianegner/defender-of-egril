@@ -6,6 +6,10 @@
 #   3. SSHes into the backend server, uploads the compose file and nginx config,
 #      writes the .env file, pulls the new image, and restarts the containers.
 #
+# This workflow can be triggered manually from ANY branch via the GitHub Actions
+# UI (use the "Use workflow from" dropdown), the GitHub CLI, or the REST API.
+# Tip – GitHub CLI: gh workflow run deploy-backend.yml --ref <branch-name>
+#
 # Server: ubuntu-8gb-nbg1-3
 #   Public IP:   178.104.84.83
 #   Private IP:  10.0.0.4
@@ -19,6 +23,11 @@ name: Deploy Backend
 
 on:
   workflow_dispatch:
+    inputs:
+      reason:
+        description: "Reason / branch info (optional, for the run log)"
+        required: false
+        default: ""
 
 env:
   REGISTRY: ghcr.io
@@ -145,4 +154,4 @@ jobs:
             docker compose down backend nginx grafana prometheus || true
             docker compose pull backend
             docker compose up -d
-            echo "✅ Backend deployed (image tag: ${{ needs.build-and-push.outputs.image_tag }})"
+            echo "✅ Backend deployed (image tag: ${{ needs.build-and-push.outputs.image_tag }}, branch: ${{ github.ref_name }})"
