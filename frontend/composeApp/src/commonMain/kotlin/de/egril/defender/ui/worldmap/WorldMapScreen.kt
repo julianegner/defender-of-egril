@@ -17,6 +17,7 @@ import de.egril.defender.model.LevelStatus
 import de.egril.defender.model.WorldLevel
 import de.egril.defender.ui.CheatCodeDialog
 import de.egril.defender.ui.isEditorAvailable
+import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.DifficultyDisplay
 import de.egril.defender.ui.settings.AppSettings
@@ -34,6 +35,7 @@ import de.egril.defender.ui.icon.UnlockIcon
 
 // Button sizing constants for world map bottom bar
 private val BUTTON_WIDTH_MOBILE_IMAGE_MAP = 133.dp  // ~33% smaller than default for compact mobile layout
+private val BUTTON_WIDTH_MOBILE_WEB_IMAGE_MAP = 140.dp  // 70% of default for mobile web browsers
 private val BUTTON_WIDTH_DEFAULT = 200.dp  // Standard button width for desktop and mobile level cards view
 
 /**
@@ -459,7 +461,11 @@ fun WorldMapScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Button width: smaller on mobile in image map view, standard otherwise
-                val buttonMinWidth = if (isMobileImageMap) BUTTON_WIDTH_MOBILE_IMAGE_MAP else BUTTON_WIDTH_DEFAULT
+                val buttonMinWidth = when {
+                    isMobileImageMap -> BUTTON_WIDTH_MOBILE_IMAGE_MAP
+                    isMobileWebBrowser() -> BUTTON_WIDTH_MOBILE_WEB_IMAGE_MAP
+                    else -> BUTTON_WIDTH_DEFAULT
+                }
 
 
                 val tabIndex = imageMapActiveTab ?: 0
