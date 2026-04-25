@@ -1723,4 +1723,7 @@
 
     <!-- Loading progress -->
     <string name="loading_data">Caricamento dati</string>
+
+    <!-- Settings tabs -->
+    <string name="general">Generale</string>
 </resources>

@@ -1720,4 +1720,7 @@
 
     <!-- Loading progress -->
     <string name="loading_data">Daten werden geladen</string>
+
+    <!-- Settings tabs -->
+    <string name="general">Allgemein</string>
 </resources>
