@@ -27,6 +27,7 @@ import defender_of_egril.composeapp.generated.resources.animation_test_backgroun
 import defender_of_egril.composeapp.generated.resources.animation_test_replay
 import defender_of_egril.composeapp.generated.resources.animation_test_title
 import defender_of_egril.composeapp.generated.resources.back
+import de.egril.defender.ui.icon.ReloadIcon
 
 /**
  * Background preset for the animation test screen.
@@ -145,6 +146,8 @@ fun AnimationTestScreen(onBack: () -> Unit) {
 
             // Replay button
             OutlinedButton(onClick = { animationKey++ }) {
+                ReloadIcon(size = 14.dp)
+                Spacer(modifier = Modifier.width(4.dp))
                 Text(stringResource(Res.string.animation_test_replay))
             }
         }

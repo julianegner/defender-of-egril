@@ -882,7 +882,7 @@
     <string name="editor_info_level_editor_features">Sélectionner une carte pour votre niveau - Définir les pièces de départ et les points de vie - Configurer les apparitions d'ennemis par tour - Choisir quels types de tours sont disponibles - Ajouter des points d'apparition et des points de cheminement - Configurer les restrictions de tours et les règles spéciales</string>
     <string name="editor_info_level_sequence_title">Séquence de Niveaux</string>
     <string name="editor_info_level_sequence_text">L'onglet Séquence de Niveaux vous permet d'organiser les niveaux dans l'ordre où ils apparaissent dans le jeu. Cela définit la progression et la courbe de difficulté.</string>
-    <string name="editor_info_level_sequence_features">Glisser-déposer les niveaux pour les réorganiser - Utiliser les boutons ↑ et ↓ pour déplacer les niveaux - Ajouter des niveaux à la séquence - Supprimer des niveaux de la séquence - Définir les dépendances des niveaux</string>
+    <string name="editor_info_level_sequence_features">Glisser-déposer les niveaux pour les réorganiser - Utiliser les boutons haut et bas pour déplacer les niveaux - Ajouter des niveaux à la séquence - Supprimer des niveaux de la séquence - Définir les dépendances des niveaux</string>
     <string name="editor_info_world_map_title">Positions de la Carte du Monde</string>
     <string name="editor_info_world_map_text">L'onglet Positions de la Carte du Monde vous permet de définir où les niveaux apparaissent sur la carte du monde et comment ils sont connectés.</string>
     <string name="editor_info_world_map_features">Définir les coordonnées X/Y pour chaque niveau - Créer des connexions entre les niveaux (route ou mer) - Connecter automatiquement les niveaux en fonction des dépendances - Configurer les styles visuels de connexion - Définir des points de cheminement pour les chemins de connexion</string>
@@ -1065,7 +1065,7 @@
     <string name="installation_windows_note">Cet avertissement apparaît car le jeu n\'est pas signé avec un certificat commercial. Le jeu est sûr à installer.</string>
     <string name="installation_android_title">Android (Installation manuelle)</string>
     <string name="installation_android_step1">1. Activez "Installer des applications inconnues" dans les Paramètres :</string>
-    <string name="installation_android_step1a">• Allez dans Paramètres → Applications → Accès spécial → Installer des applications inconnues</string>
+    <string name="installation_android_step1a">• Allez dans Paramètres > Applications > Accès spécial > Installer des applications inconnues</string>
     <string name="installation_android_step1b">• Sélectionnez votre navigateur et activez "Autoriser depuis cette source"</string>
     <string name="installation_android_step2">2. Téléchargez l\'APK depuis GitHub Releases</string>
     <string name="installation_android_step3">3. Ouvrez le fichier APK téléchargé</string>
@@ -1086,7 +1086,7 @@
     <string name="installation_macos_step1">1. Téléchargez le fichier .dmg depuis GitHub Releases</string>
     <string name="installation_macos_step2">2. Ouvrez le fichier .dmg et faites glisser Defender of Egril dans le dossier Applications</string>
     <string name="installation_macos_step3">3. Lancez le jeu depuis le dossier Applications</string>
-    <string name="installation_macos_note">Si macOS Gatekeeper empêche l\'application de se lancer, ouvrez Préférences Système → Confidentialité &amp; Sécurité et cliquez sur "Ouvrir quand même"</string>
+    <string name="installation_macos_note">Si macOS Gatekeeper empêche l\'application de se lancer, ouvrez Préférences Système > Confidentialité &amp; Sécurité et cliquez sur "Ouvrir quand même"</string>
     <string name="installation_web_title">Web/Navigateur</string>
     <string name="installation_web_step1">Aucune installation nécessaire !</string>
     <string name="installation_web_step2">Visitez simplement l\'URL du jeu dans n\'importe quel navigateur moderne (Chrome, Firefox, Safari, Edge)</string>
@@ -1681,7 +1681,7 @@
     <string name="editor_howto_initial_setup_text">Placez des tours sur la carte avant que le joueur commence le niveau. Sélectionnez un type de tour dans la liste, puis cliquez sur une tuile de la mini-carte pour le placer. Cliquez sur une tour déjà placée pour la supprimer. Utile pour les niveaux tutoriels ou les niveaux avec des défenses préconstruites.</string>
     <string name="editor_howto_sequence_title">Onglet Séquence de Niveaux (Niveaux Officiels Uniquement)</string>
     <string name="editor_howto_sequence_text">La Séquence de Niveaux définit l\'ordre dans lequel les niveaux officiels apparaissent dans le jeu et leurs dépendances. Cet onglet n\'est pas nécessaire pour les niveaux créés par les utilisateurs ou les niveaux communautaires, qui sont gérés séparément et toujours accessibles depuis la carte du monde.</string>
-    <string name="editor_howto_sequence_features">Utilisez les boutons ↑ et ↓ pour réorganiser les niveaux dans la séquence - Les niveaux sont liés par des dépendances : un niveau est débloqué quand son prédécesseur est terminé - La séquence est sauvegardée dans sequence.json - Seuls les niveaux dans la séquence apparaissent dans le jeu</string>
+    <string name="editor_howto_sequence_features">Utilisez les boutons haut et bas pour réorganiser les niveaux dans la séquence - Les niveaux sont liés par des dépendances : un niveau est débloqué quand son prédécesseur est terminé - La séquence est sauvegardée dans sequence.json - Seuls les niveaux dans la séquence apparaissent dans le jeu</string>
     <string name="editor_howto_worldmap_title">Onglet Positions de la Carte du Monde (Niveaux Officiels Uniquement)</string>
     <string name="editor_howto_worldmap_text">Placez les niveaux officiels sur la carte du monde visuelle et définissez les connexions entre eux. Les niveaux créés par les utilisateurs et les niveaux communautaires n\'ont pas besoin d\'être placés ici – ils sont toujours accessibles via les panneaux dédiés sur la carte du monde.</string>
     <string name="editor_howto_worldmap_features">Chaque entrée représente un emplacement de niveau sur l\'image de la carte du monde - Définissez les coordonnées X/Y en pixels pour positionner l\'emplacement - Ajoutez des connexions entre les emplacements pour les relier visuellement - Choisissez le type de connexion : Route (chemin terrestre) ou Route Maritime (chemin océanique) - Ajoutez des points de contrôle pour courber la ligne de connexion entre deux emplacements - La mini-carte affiche un aperçu de tous les emplacements et connexions</string>
@@ -1718,7 +1718,7 @@
     <string name="animation_test_title">Test d\'animation</string>
     <string name="animation_test_animation_label">Animation</string>
     <string name="animation_test_background_label">Arrière-plan</string>
-    <string name="animation_test_replay">↺ Rejouer</string>
+    <string name="animation_test_replay">Rejouer</string>
 
     <!-- Loading progress -->
     <string name="loading_data">Chargement des données</string>

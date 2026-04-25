@@ -885,7 +885,7 @@
     <string name="editor_info_level_editor_features">Select a map for your level - Set starting coins and health points - Configure enemy spawns by turn - Choose which tower types are available - Add spawn points and waypoints - Configure tower restrictions and special rules</string>
     <string name="editor_info_level_sequence_title">Level Sequence</string>
     <string name="editor_info_level_sequence_text">The Level Sequence tab lets you arrange levels in the order they appear in the game. This defines the progression and difficulty curve.</string>
-    <string name="editor_info_level_sequence_features">Drag and drop levels to reorder - Use ↑ and ↓ buttons to move levels - Add levels to the sequence - Remove levels from the sequence - Set level dependencies</string>
+    <string name="editor_info_level_sequence_features">Drag and drop levels to reorder - Use up and down buttons to move levels - Add levels to the sequence - Remove levels from the sequence - Set level dependencies</string>
     <string name="editor_info_world_map_title">World Map Positions</string>
     <string name="editor_info_world_map_text">The World Map Positions tab lets you define where levels appear on the world map and how they are connected.</string>
     <string name="editor_info_world_map_features">Set X/Y coordinates for each level - Create connections between levels (road or sea) - Auto-connect levels based on dependencies - Configure connection visual styles - Define waypoints for connection paths</string>
@@ -1066,7 +1066,7 @@
     <string name="installation_windows_note">This warning appears because the game is not signed with a commercial certificate. The game is safe to install.</string>
     <string name="installation_android_title">Android (Sideloading)</string>
     <string name="installation_android_step1">1. Enable "Install unknown apps" in Settings:</string>
-    <string name="installation_android_step1a">• Go to Settings → Apps → Special app access → Install unknown apps</string>
+    <string name="installation_android_step1a">• Go to Settings > Apps > Special app access > Install unknown apps</string>
     <string name="installation_android_step1b">• Select your browser and enable "Allow from this source"</string>
     <string name="installation_android_step2">2. Download the APK from GitHub Releases</string>
     <string name="installation_android_step3">3. Open the downloaded APK file</string>
@@ -1087,7 +1087,7 @@
     <string name="installation_macos_step1">1. Download the .dmg file from GitHub Releases</string>
     <string name="installation_macos_step2">2. Open the .dmg file and drag Defender of Egril to the Applications folder</string>
     <string name="installation_macos_step3">3. Launch the game from the Applications folder</string>
-    <string name="installation_macos_note">If macOS Gatekeeper prevents the app from launching, open System Settings → Privacy &amp; Security and click "Open Anyway"</string>
+    <string name="installation_macos_note">If macOS Gatekeeper prevents the app from launching, open System Settings > Privacy &amp; Security and click "Open Anyway"</string>
     <string name="installation_web_title">Web/Browser</string>
     <string name="installation_web_step1">No installation needed!</string>
     <string name="installation_web_step2">Just visit the game URL in any modern browser (Chrome, Firefox, Safari, Edge)</string>
@@ -1686,7 +1686,7 @@
     <string name="editor_howto_initial_setup_text">Pre-place towers on the map before the player starts the level. Select a tower type from the list, then click a tile on the minimap to place it there. Click an already-placed tower to remove it. This is useful for tutorial levels or levels that begin with pre-built defenses.</string>
     <string name="editor_howto_sequence_title">Level Sequence Tab (Official Levels Only)</string>
     <string name="editor_howto_sequence_text">The Level Sequence defines the order in which official levels appear in the game and sets their dependencies. This tab is not needed for user-created or community levels, which are managed separately and always accessible from the world map.</string>
-    <string name="editor_howto_sequence_features">Use the ↑ and ↓ buttons to reorder levels in the sequence - Levels are linked by dependency: a level is unlocked when its predecessor is completed - The sequence is saved to sequence.json - Only levels in the sequence appear in the game</string>
+    <string name="editor_howto_sequence_features">Use the up and down buttons to reorder levels in the sequence - Levels are linked by dependency: a level is unlocked when its predecessor is completed - The sequence is saved to sequence.json - Only levels in the sequence appear in the game</string>
     <string name="editor_howto_worldmap_title">World Map Positions Tab (Official Levels Only)</string>
     <string name="editor_howto_worldmap_text">Place official levels on the visual world map and define the connections between them. User-created and community levels do not need to be placed here – they are always accessible via the dedicated user/community level panels on the world map.</string>
     <string name="editor_howto_worldmap_features">Each entry represents a level location on the world map image - Set X/Y pixel coordinates to position the location on the map - Add connections between locations to link them visually - Choose the connection type: Road (land path) or Sea Route (ocean path) - Add control points to curve a connection line between two locations - The minimap shows a preview of all locations and connections</string>
@@ -1723,7 +1723,7 @@
     <string name="animation_test_title">Animation Test</string>
     <string name="animation_test_animation_label">Animation</string>
     <string name="animation_test_background_label">Background</string>
-    <string name="animation_test_replay">↺ Replay</string>
+    <string name="animation_test_replay">Replay</string>
 
     <!-- Loading progress -->
     <string name="loading_data">Loading data</string>

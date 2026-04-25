@@ -8,11 +8,16 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.icon.DownArrowIcon
+import de.egril.defender.ui.icon.LeftArrowIcon
+import de.egril.defender.ui.icon.RightArrowIcon
+import de.egril.defender.ui.icon.UpArrowIcon
 import defender_of_egril.composeapp.generated.resources.*
 import androidx.compose.foundation.text.selection.SelectionContainer
 
@@ -56,10 +61,54 @@ fun KeyboardShortcutsInfo() {
                 ShortcutRow(key = "E", description = stringResource(Res.string.keyboard_shortcut_enemy_list))
                 ShortcutRow(key = "Enter", description = stringResource(Res.string.keyboard_shortcut_end_turn))
                 ShortcutRow(key = "$ctrl+S", description = stringResource(Res.string.keyboard_shortcut_save))
-                ShortcutRow(key = "W / ↑", description = stringResource(Res.string.keyboard_shortcut_pan_up))
-                ShortcutRow(key = "S / ↓", description = stringResource(Res.string.keyboard_shortcut_pan_down))
-                ShortcutRow(key = "A / ←", description = stringResource(Res.string.keyboard_shortcut_pan_left))
-                ShortcutRow(key = "D / →", description = stringResource(Res.string.keyboard_shortcut_pan_right))
+                ShortcutRow(
+                    keyContent = {
+                        Text(
+                            text = "W / ",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        UpArrowIcon(size = 14.dp)
+                    },
+                    description = stringResource(Res.string.keyboard_shortcut_pan_up)
+                )
+                ShortcutRow(
+                    keyContent = {
+                        Text(
+                            text = "S / ",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        DownArrowIcon(size = 14.dp)
+                    },
+                    description = stringResource(Res.string.keyboard_shortcut_pan_down)
+                )
+                ShortcutRow(
+                    keyContent = {
+                        Text(
+                            text = "A / ",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        LeftArrowIcon(size = 14.dp)
+                    },
+                    description = stringResource(Res.string.keyboard_shortcut_pan_left)
+                )
+                ShortcutRow(
+                    keyContent = {
+                        Text(
+                            text = "D / ",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        RightArrowIcon(size = 14.dp)
+                    },
+                    description = stringResource(Res.string.keyboard_shortcut_pan_right)
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -128,15 +177,30 @@ private fun ShortcutSection(
 
 @Composable
 private fun ShortcutRow(key: String, description: String) {
+    ShortcutRow(
+        keyContent = {
+            Text(
+                text = key,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.width(100.dp)
+            )
+        },
+        description = description
+    )
+}
+
+@Composable
+private fun ShortcutRow(keyContent: @Composable RowScope.() -> Unit, description: String) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)
+        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = key,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.width(100.dp)
+        Row(
+            modifier = Modifier.width(100.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            content = keyContent
         )
         Text(
             text = description,

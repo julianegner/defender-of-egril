@@ -38,6 +38,7 @@ class UnicodeEmojiValidationTest {
     
     // Comprehensive Unicode emoji ranges covering most emoji characters
     // Reference: https://unicode.org/emoji/charts/full-emoji-list.html
+    // Also includes arrow/symbol characters that do not render correctly on WASM
     private val emojiPattern = Regex(
         "[" +
         // Emoticons
@@ -46,6 +47,8 @@ class UnicodeEmojiValidationTest {
         "\u2702-\u27b0" +
         // Miscellaneous Symbols
         "\u2600-\u26ff" +
+        // Arrows block (U+2190–U+21FF) - arrows do not render correctly on WASM
+        "\u2190-\u21ff" +
         // Miscellaneous Symbols and Arrows
         "\u2b05-\u2b07\u2b1b-\u2b1c\u2b50\u2b55" +
         // Supplemental Symbols and Pictographs

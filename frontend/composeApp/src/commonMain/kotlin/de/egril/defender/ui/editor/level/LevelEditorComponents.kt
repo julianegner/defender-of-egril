@@ -929,9 +929,8 @@ fun ChangeAllSpawnPointsDialog(
                                 )
                                 
                                 // Arrow
-                                Text(
-                                    text = "↓",
-                                    style = MaterialTheme.typography.headlineSmall,
+                                DownArrowIcon(
+                                    size = 24.dp,
                                     modifier = Modifier.align(Alignment.CenterHorizontally)
                                 )
                                 

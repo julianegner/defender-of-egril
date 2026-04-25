@@ -37,6 +37,7 @@ import de.egril.defender.editor.TileType
 import de.egril.defender.editor.WaypointValidationResult
 import de.egril.defender.model.Position
 import de.egril.defender.ui.editor.ConfirmationDialog
+import de.egril.defender.ui.icon.RightArrowIcon
 import de.egril.defender.ui.icon.WarningIcon
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
@@ -413,9 +414,8 @@ fun WaypointsTab(
                         style = MaterialTheme.typography.titleSmall,
                         modifier = Modifier.weight(1f)
                     )
-                    Text(
-                        text = "→",
-                        style = MaterialTheme.typography.titleSmall,
+                    RightArrowIcon(
+                        size = 14.dp,
                         modifier = Modifier.padding(horizontal = 8.dp)
                     )
                     Text(
@@ -439,8 +439,8 @@ fun WaypointsTab(
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.weight(1f)
                     )
-                    Text(
-                        text = "→",
+                    RightArrowIcon(
+                        size = 14.dp,
                         modifier = Modifier.padding(horizontal = 8.dp)
                     )
                     val waypointFromSpawn = localWaypoints.firstOrNull { it.position == spawnPoint }

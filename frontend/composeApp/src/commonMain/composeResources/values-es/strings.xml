@@ -882,7 +882,7 @@
     <string name="editor_info_level_editor_features">Seleccionar un mapa para tu nivel - Establecer monedas iniciales y puntos de salud - Configurar apariciones de enemigos por turno - Elegir qué tipos de torres están disponibles - Agregar puntos de generación y puntos de ruta - Configurar restricciones de torres y reglas especiales</string>
     <string name="editor_info_level_sequence_title">Secuencia de Niveles</string>
     <string name="editor_info_level_sequence_text">La pestaña de Secuencia de Niveles te permite organizar los niveles en el orden en que aparecen en el juego. Esto define la progresión y la curva de dificultad.</string>
-    <string name="editor_info_level_sequence_features">Arrastrar y soltar niveles para reordenar - Usar los botones ↑ y ↓ para mover niveles - Agregar niveles a la secuencia - Eliminar niveles de la secuencia - Establecer dependencias de niveles</string>
+    <string name="editor_info_level_sequence_features">Arrastrar y soltar niveles para reordenar - Usar los botones arriba y abajo para mover niveles - Agregar niveles a la secuencia - Eliminar niveles de la secuencia - Establecer dependencias de niveles</string>
     <string name="editor_info_world_map_title">Posiciones del Mapa Mundial</string>
     <string name="editor_info_world_map_text">La pestaña de Posiciones del Mapa Mundial te permite definir dónde aparecen los niveles en el mapa mundial y cómo están conectados.</string>
     <string name="editor_info_world_map_features">Establecer coordenadas X/Y para cada nivel - Crear conexiones entre niveles (camino o mar) - Conectar automáticamente niveles según dependencias - Configurar estilos visuales de conexión - Definir puntos de ruta para caminos de conexión</string>
@@ -1065,7 +1065,7 @@
     <string name="installation_windows_note">Esta advertencia aparece porque el juego no está firmado con un certificado comercial. El juego es seguro de instalar.</string>
     <string name="installation_android_title">Android (Instalación manual)</string>
     <string name="installation_android_step1">1. Habilita "Instalar aplicaciones desconocidas" en Ajustes:</string>
-    <string name="installation_android_step1a">• Ve a Ajustes → Aplicaciones → Acceso especial → Instalar aplicaciones desconocidas</string>
+    <string name="installation_android_step1a">• Ve a Ajustes > Aplicaciones > Acceso especial > Instalar aplicaciones desconocidas</string>
     <string name="installation_android_step1b">• Selecciona tu navegador y habilita "Permitir desde esta fuente"</string>
     <string name="installation_android_step2">2. Descarga el APK desde GitHub Releases</string>
     <string name="installation_android_step3">3. Abre el archivo APK descargado</string>
@@ -1086,7 +1086,7 @@
     <string name="installation_macos_step1">1. Descarga el archivo .dmg desde GitHub Releases</string>
     <string name="installation_macos_step2">2. Abre el archivo .dmg y arrastra Defender of Egril a la carpeta Aplicaciones</string>
     <string name="installation_macos_step3">3. Inicia el juego desde la carpeta Aplicaciones</string>
-    <string name="installation_macos_note">Si macOS Gatekeeper impide abrir la app, ve a Preferencias del Sistema → Privacidad y seguridad y haz clic en "Abrir de todos modos"</string>
+    <string name="installation_macos_note">Si macOS Gatekeeper impide abrir la app, ve a Preferencias del Sistema > Privacidad y seguridad y haz clic en "Abrir de todos modos"</string>
     <string name="installation_web_title">Web/Navegador</string>
     <string name="installation_web_step1">¡No se necesita instalación!</string>
     <string name="installation_web_step2">Solo visita la URL del juego en cualquier navegador moderno (Chrome, Firefox, Safari, Edge)</string>
@@ -1680,7 +1680,7 @@
     <string name="editor_howto_initial_setup_text">Coloca torres en el mapa antes de que el jugador inicie el nivel. Selecciona un tipo de torre de la lista y haz clic en un mosaico del minimapa para colocarlo. Haz clic en una torre ya colocada para eliminarla. Útil para niveles tutorial o niveles con defensas preconstruidas.</string>
     <string name="editor_howto_sequence_title">Pestaña Secuencia de Niveles (Solo Niveles Oficiales)</string>
     <string name="editor_howto_sequence_text">La Secuencia de Niveles define el orden en que los niveles oficiales aparecen en el juego y sus dependencias. Esta pestaña no es necesaria para niveles creados por usuarios o de comunidad, que se gestionan por separado y siempre son accesibles desde el mapa del mundo.</string>
-    <string name="editor_howto_sequence_features">Usa los botones ↑ y ↓ para reordenar los niveles en la secuencia - Los niveles están vinculados por dependencias: un nivel se desbloquea cuando se completa el anterior - La secuencia se guarda en sequence.json - Solo los niveles en la secuencia aparecen en el juego</string>
+    <string name="editor_howto_sequence_features">Usa los botones arriba y abajo para reordenar los niveles en la secuencia - Los niveles están vinculados por dependencias: un nivel se desbloquea cuando se completa el anterior - La secuencia se guarda en sequence.json - Solo los niveles en la secuencia aparecen en el juego</string>
     <string name="editor_howto_worldmap_title">Pestaña Posiciones del Mapa del Mundo (Solo Niveles Oficiales)</string>
     <string name="editor_howto_worldmap_text">Coloca los niveles oficiales en el mapa del mundo visual y define las conexiones entre ellos. Los niveles creados por usuarios y de comunidad no necesitan colocarse aquí – siempre son accesibles a través de los paneles dedicados en el mapa del mundo.</string>
     <string name="editor_howto_worldmap_features">Cada entrada representa una ubicación de nivel en la imagen del mapa del mundo - Establece coordenadas X/Y en píxeles para posicionar la ubicación - Añade conexiones entre ubicaciones para enlazarlas visualmente - Elige el tipo de conexión: Carretera (camino terrestre) o Ruta Marítima (camino oceánico) - Añade puntos de control para curvar la línea de conexión entre dos ubicaciones - El minimapa muestra una vista previa de todas las ubicaciones y conexiones</string>
@@ -1717,7 +1717,7 @@
     <string name="animation_test_title">Prueba de animación</string>
     <string name="animation_test_animation_label">Animación</string>
     <string name="animation_test_background_label">Fondo</string>
-    <string name="animation_test_replay">↺ Repetir</string>
+    <string name="animation_test_replay">Repetir</string>
 
     <!-- Loading progress -->
     <string name="loading_data">Cargando datos</string>

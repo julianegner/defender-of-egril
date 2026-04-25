@@ -882,7 +882,7 @@
     <string name="editor_info_level_editor_features">Wählen Sie eine Karte für Ihr Level - Startmünzen und Gesundheitspunkte festlegen - Feindspawns nach Runde konfigurieren - Auswählen, welche Turmtypen verfügbar sind - Spawnpunkte und Wegpunkte hinzufügen - Turmbeschränkungen und Sonderregeln konfigurieren</string>
     <string name="editor_info_level_sequence_title">Level-Sequenz</string>
     <string name="editor_info_level_sequence_text">Die Level-Sequenz-Registerkarte ermöglicht es Ihnen, Level in der Reihenfolge anzuordnen, in der sie im Spiel erscheinen. Dies definiert den Fortschritt und die Schwierigkeitskurve.</string>
-    <string name="editor_info_level_sequence_features">Level per Drag-and-Drop neu anordnen - ↑- und ↓-Tasten verwenden, um Level zu verschieben - Level zur Sequenz hinzufügen - Level aus der Sequenz entfernen - Level-Abhängigkeiten festlegen</string>
+    <string name="editor_info_level_sequence_features">Level per Drag-and-Drop neu anordnen - Auf- und Ab-Tasten verwenden, um Level zu verschieben - Level zur Sequenz hinzufügen - Level aus der Sequenz entfernen - Level-Abhängigkeiten festlegen</string>
     <string name="editor_info_world_map_title">Weltkartenpositionen</string>
     <string name="editor_info_world_map_text">Die Registerkarte Weltkartenpositionen ermöglicht es Ihnen, zu definieren, wo Level auf der Weltkarte erscheinen und wie sie verbunden sind.</string>
     <string name="editor_info_world_map_features">X/Y-Koordinaten für jedes Level festlegen - Verbindungen zwischen Leveln erstellen (Straße oder Meer) - Level automatisch basierend auf Abhängigkeiten verbinden - Visuelle Stile für Verbindungen konfigurieren - Wegpunkte für Verbindungspfade definieren</string>
@@ -1064,7 +1064,7 @@
     <string name="installation_windows_note">Diese Warnung erscheint, weil das Spiel nicht mit einem kommerziellen Zertifikat signiert ist. Das Spiel ist sicher zu installieren.</string>
     <string name="installation_android_title">Android (Sideloading)</string>
     <string name="installation_android_step1">1. "Unbekannte Apps installieren" in den Einstellungen aktivieren:</string>
-    <string name="installation_android_step1a">• Gehe zu Einstellungen → Apps → Spezieller App-Zugriff → Unbekannte Apps installieren</string>
+    <string name="installation_android_step1a">• Gehe zu Einstellungen > Apps > Spezieller App-Zugriff > Unbekannte Apps installieren</string>
     <string name="installation_android_step1b">• Wähle deinen Browser und aktiviere "Aus dieser Quelle zulassen"</string>
     <string name="installation_android_step2">2. APK von GitHub Releases herunterladen</string>
     <string name="installation_android_step3">3. Heruntergeladene APK-Datei öffnen</string>
@@ -1085,7 +1085,7 @@
     <string name="installation_macos_step1">1. .dmg-Datei von GitHub Releases herunterladen</string>
     <string name="installation_macos_step2">2. .dmg-Datei öffnen und Defender of Egril in den Programme-Ordner ziehen</string>
     <string name="installation_macos_step3">3. Spiel aus dem Programme-Ordner starten</string>
-    <string name="installation_macos_note">Falls macOS Gatekeeper das Starten der App verhindert, öffne Systemeinstellungen → Datenschutz &amp; Sicherheit und klicke auf "Trotzdem öffnen"</string>
+    <string name="installation_macos_note">Falls macOS Gatekeeper das Starten der App verhindert, öffne Systemeinstellungen > Datenschutz &amp; Sicherheit und klicke auf "Trotzdem öffnen"</string>
     <string name="installation_web_title">Web/Browser</string>
     <string name="installation_web_step1">Keine Installation erforderlich!</string>
     <string name="installation_web_step2">Besuche einfach die Spiel-URL in einem modernen Browser (Chrome, Firefox, Safari, Edge)</string>
@@ -1679,7 +1679,7 @@
     <string name="editor_howto_initial_setup_text">Platziere Türme vorab auf der Karte, bevor der Spieler das Level beginnt. Wähle einen Turmtyp aus der Liste und klicke auf eine Kachel auf der Minimap, um ihn dort zu platzieren. Klicke auf einen bereits platzierten Turm, um ihn zu entfernen. Besonders nützlich für Tutoriallevel oder Level mit vorgefertigten Verteidigungsanlagen.</string>
     <string name="editor_howto_sequence_title">Level-Sequenz-Reiter (nur offizielle Level)</string>
     <string name="editor_howto_sequence_text">Die Level-Sequenz legt die Reihenfolge fest, in der offizielle Level im Spiel erscheinen, und definiert ihre Abhängigkeiten. Dieser Reiter wird für nutzererstellte oder Community-Level nicht benötigt – diese werden separat verwaltet und sind jederzeit über die Weltkarte zugänglich.</string>
-    <string name="editor_howto_sequence_features">Mit den ↑- und ↓-Schaltflächen Level in der Sequenz verschieben - Level sind durch Abhängigkeiten verknüpft: Ein Level wird freigeschaltet, wenn sein Vorgänger abgeschlossen ist - Die Sequenz wird in sequence.json gespeichert - Nur Level in der Sequenz erscheinen im Spiel</string>
+    <string name="editor_howto_sequence_features">Mit den Auf- und Ab-Schaltflächen Level in der Sequenz verschieben - Level sind durch Abhängigkeiten verknüpft: Ein Level wird freigeschaltet, wenn sein Vorgänger abgeschlossen ist - Die Sequenz wird in sequence.json gespeichert - Nur Level in der Sequenz erscheinen im Spiel</string>
     <string name="editor_howto_worldmap_title">Weltkartenposition-Reiter (nur offizielle Level)</string>
     <string name="editor_howto_worldmap_text">Platziere offizielle Level auf der visuellen Weltkarte und definiere Verbindungen zwischen ihnen. Nutzererstellte und Community-Level müssen hier nicht eingetragen werden – sie sind stets über die entsprechenden Bereiche auf der Weltkarte zugänglich.</string>
     <string name="editor_howto_worldmap_features">Jeder Eintrag repräsentiert einen Levelstandort auf dem Weltkartenbild - X/Y-Pixelkoordinaten festlegen, um den Standort auf der Karte zu positionieren - Verbindungen zwischen Standorten hinzufügen, um sie visuell zu verknüpfen - Verbindungstyp wählen: Straße (Landweg) oder Seeroute (Ozeanweg) - Steuerpunkte hinzufügen, um eine Verbindungslinie zwischen zwei Standorten zu krümmen - Die Minimap zeigt eine Vorschau aller Standorte und Verbindungen</string>
@@ -1716,7 +1716,7 @@
     <string name="animation_test_title">Animationstest</string>
     <string name="animation_test_animation_label">Animation</string>
     <string name="animation_test_background_label">Hintergrund</string>
-    <string name="animation_test_replay">↺ Wiederholen</string>
+    <string name="animation_test_replay">Wiederholen</string>
 
     <!-- Loading progress -->
     <string name="loading_data">Daten werden geladen</string>

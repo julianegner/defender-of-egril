@@ -882,7 +882,7 @@
     <string name="editor_info_level_editor_features">Selezionare una mappa per il tuo livello - Impostare monete iniziali e punti vita - Configurare gli spawn dei nemici per turno - Scegliere quali tipi di torri sono disponibili - Aggiungere punti di spawn e waypoint - Configurare restrizioni delle torri e regole speciali</string>
     <string name="editor_info_level_sequence_title">Sequenza di Livelli</string>
     <string name="editor_info_level_sequence_text">La scheda Sequenza di Livelli ti consente di organizzare i livelli nell'ordine in cui appaiono nel gioco. Questo definisce la progressione e la curva di difficoltà.</string>
-    <string name="editor_info_level_sequence_features">Trascinare e rilasciare i livelli per riordinarli - Usare i pulsanti ↑ e ↓ per spostare i livelli - Aggiungere livelli alla sequenza - Rimuovere livelli dalla sequenza - Impostare dipendenze dei livelli</string>
+    <string name="editor_info_level_sequence_features">Trascinare e rilasciare i livelli per riordinarli - Usare i pulsanti su e giù per spostare i livelli - Aggiungere livelli alla sequenza - Rimuovere livelli dalla sequenza - Impostare dipendenze dei livelli</string>
     <string name="editor_info_world_map_title">Posizioni Mappa del Mondo</string>
     <string name="editor_info_world_map_text">La scheda Posizioni Mappa del Mondo ti consente di definire dove appaiono i livelli sulla mappa del mondo e come sono connessi.</string>
     <string name="editor_info_world_map_features">Impostare coordinate X/Y per ogni livello - Creare connessioni tra livelli (strada o mare) - Connettere automaticamente i livelli in base alle dipendenze - Configurare stili visivi delle connessioni - Definire waypoint per i percorsi di connessione</string>
@@ -1065,7 +1065,7 @@
     <string name="installation_windows_note">Questo avviso appare perché il gioco non è firmato con un certificato commerciale. Il gioco è sicuro da installare.</string>
     <string name="installation_android_title">Android (Installazione manuale)</string>
     <string name="installation_android_step1">1. Abilita "Installa app sconosciute" nelle Impostazioni:</string>
-    <string name="installation_android_step1a">• Vai a Impostazioni → App → Accesso speciale → Installa app sconosciute</string>
+    <string name="installation_android_step1a">• Vai a Impostazioni > App > Accesso speciale > Installa app sconosciute</string>
     <string name="installation_android_step1b">• Seleziona il tuo browser e abilita "Consenti da questa fonte"</string>
     <string name="installation_android_step2">2. Scarica l\'APK da GitHub Releases</string>
     <string name="installation_android_step3">3. Apri il file APK scaricato</string>
@@ -1086,7 +1086,7 @@
     <string name="installation_macos_step1">1. Scarica il file .dmg da GitHub Releases</string>
     <string name="installation_macos_step2">2. Apri il file .dmg e trascina Defender of Egril nella cartella Applicazioni</string>
     <string name="installation_macos_step3">3. Avvia il gioco dalla cartella Applicazioni</string>
-    <string name="installation_macos_note">Se macOS Gatekeeper impedisce l\'avvio dell\'app, apri Preferenze di Sistema → Privacy e sicurezza e fai clic su "Apri comunque"</string>
+    <string name="installation_macos_note">Se macOS Gatekeeper impedisce l\'avvio dell\'app, apri Preferenze di Sistema > Privacy e sicurezza e fai clic su "Apri comunque"</string>
     <string name="installation_web_title">Web/Browser</string>
     <string name="installation_web_step1">Nessuna installazione necessaria!</string>
     <string name="installation_web_step2">Visita semplicemente l\'URL del gioco in qualsiasi browser moderno (Chrome, Firefox, Safari, Edge)</string>
@@ -1682,7 +1682,7 @@
     <string name="editor_howto_initial_setup_text">Posiziona torri sulla mappa prima che il giocatore inizi il livello. Seleziona un tipo di torre dall\'elenco, poi clicca su una tessera della minimappa per posizionarla. Clicca su una torre già posizionata per rimuoverla. Utile per livelli tutorial o livelli con difese pre-costruite.</string>
     <string name="editor_howto_sequence_title">Scheda Sequenza Livelli (Solo Livelli Ufficiali)</string>
     <string name="editor_howto_sequence_text">La Sequenza Livelli definisce l\'ordine in cui i livelli ufficiali appaiono nel gioco e le loro dipendenze. Questa scheda non è necessaria per i livelli creati dagli utenti o quelli della community, che vengono gestiti separatamente e sono sempre accessibili dalla mappa del mondo.</string>
-    <string name="editor_howto_sequence_features">Usa i pulsanti ↑ e ↓ per riordinare i livelli nella sequenza - I livelli sono collegati da dipendenze: un livello si sblocca quando il precedente viene completato - La sequenza viene salvata in sequence.json - Solo i livelli nella sequenza appaiono nel gioco</string>
+    <string name="editor_howto_sequence_features">Usa i pulsanti su e giù per riordinare i livelli nella sequenza - I livelli sono collegati da dipendenze: un livello si sblocca quando il precedente viene completato - La sequenza viene salvata in sequence.json - Solo i livelli nella sequenza appaiono nel gioco</string>
     <string name="editor_howto_worldmap_title">Scheda Posizioni Mappa del Mondo (Solo Livelli Ufficiali)</string>
     <string name="editor_howto_worldmap_text">Posiziona i livelli ufficiali sulla mappa del mondo visuale e definisci le connessioni tra di loro. I livelli creati dagli utenti e quelli della community non devono essere inseriti qui – sono sempre accessibili tramite i pannelli dedicati sulla mappa del mondo.</string>
     <string name="editor_howto_worldmap_features">Ogni voce rappresenta una posizione di livello sull\'immagine della mappa del mondo - Imposta le coordinate X/Y in pixel per posizionare la posizione - Aggiungi connessioni tra posizioni per collegarle visualmente - Scegli il tipo di connessione: Strada (percorso terrestre) o Rotta Marina (percorso oceanico) - Aggiungi punti di controllo per curvare la linea di connessione tra due posizioni - La minimappa mostra un\'anteprima di tutte le posizioni e connessioni</string>
@@ -1719,7 +1719,7 @@
     <string name="animation_test_title">Test animazione</string>
     <string name="animation_test_animation_label">Animazione</string>
     <string name="animation_test_background_label">Sfondo</string>
-    <string name="animation_test_replay">↺ Riproduci</string>
+    <string name="animation_test_replay">Riproduci</string>
 
     <!-- Loading progress -->
     <string name="loading_data">Caricamento dati</string>
