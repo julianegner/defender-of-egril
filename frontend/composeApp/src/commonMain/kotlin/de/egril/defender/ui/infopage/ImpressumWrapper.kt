@@ -1,14 +1,12 @@
 package de.egril.defender.ui.infopage
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextDecoration
@@ -16,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import de.egril.defender.ui.ImpressumConstants
 import de.egril.defender.WithImpressum
 import androidx.compose.foundation.text.selection.SelectionContainer
+import de.egril.defender.ui.icon.CrossIcon
 
 /**
  * Clickable text that looks like a link
@@ -48,13 +47,6 @@ private fun ImpressumContent() {
                 .padding(12.dp)
                 .fillMaxWidth()
         ) {
-        Text(
-            text = ImpressumConstants.IMPRESSUM_TITLE,
-            style = MaterialTheme.typography.titleMedium,
-            fontStyle = FontStyle.Italic,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        
         Text(
             text = buildString {
                 append(ImpressumConstants.IMPRESSUM_NAME)
@@ -106,25 +98,31 @@ fun ImpressumWrapper(rowModifier: Modifier = Modifier) {
         modifier = rowModifier
     ) {
         if (displayImpressum) {
-            Column(
-                modifier = Modifier
-                    .border(1.dp, MaterialTheme.colorScheme.outline)
-                    .padding(8.dp)
+            Card(
+                modifier = Modifier.widthIn(max = 400.dp),
+                shape = RoundedCornerShape(12.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    Text(
-                        text = "X",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = Color.Gray,
+                Column {
+                    Row(
                         modifier = Modifier
-                            .clickable { displayImpressum = false }
-                            .padding(8.dp)
-                    )
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, top = 4.dp, end = 4.dp, bottom = 4.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = ImpressumConstants.IMPRESSUM_TITLE,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontStyle = FontStyle.Italic
+                        )
+                        IconButton(onClick = { displayImpressum = false }) {
+                            CrossIcon(size = 16.dp)
+                        }
+                    }
+                    HorizontalDivider()
+                    ImpressumContent()
                 }
-                ImpressumContent()
             }
         } else {
             Text(
