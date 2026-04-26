@@ -1669,7 +1669,7 @@
     <string name="editor_howto_tile_types_title">Tile Types</string>
     <string name="editor_howto_tile_types">PATH: The route enemies walk along - BUILD_AREA: Areas where towers can be placed (adjacent to PATH tiles, auto-calculated) - ISLAND: A 2×2 build area in the middle of paths - NO_PLAY: Non-playable background area (default for unset tiles) - SPAWN_POINT: Where enemies enter the map - TARGET: The goal enemies try to reach - RIVER: Water tile with a configurable flow direction and speed</string>
     <string name="editor_howto_map_controls_title">Map Editor Controls</string>
-    <string name="editor_howto_map_controls">Click a tile to paint it with the selected tile type - Click and drag to paint multiple tiles at once - Ctrl+Scroll or the zoom buttons to zoom in and out - Click the ▲/▼ button to collapse or expand the header for more editing space - "Change All NO_PLAY to PATH" converts every background tile to PATH at once</string>
+    <string name="editor_howto_map_controls">Click a tile to paint it with the selected tile type - Click and drag to paint multiple tiles at once - Ctrl+Scroll or the zoom buttons to zoom in and out - Click the collapse/expand button to collapse or expand the header for more editing space - "Change All NO_PLAY to PATH" converts every background tile to PATH at once</string>
     <string name="editor_howto_river_title">River Tiles</string>
     <string name="editor_howto_river_text">Select the RIVER tile type, then configure the flow direction (e.g. NORTH, EAST, SOUTH_WEST) and flow speed using the controls that appear. River tiles are visual only and do not affect gameplay.</string>
     <string name="editor_howto_level_editor_title">Level Editor Tab</string>

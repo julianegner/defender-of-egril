@@ -28,6 +28,8 @@ import defender_of_egril.composeapp.generated.resources.animation_test_replay
 import defender_of_egril.composeapp.generated.resources.animation_test_title
 import defender_of_egril.composeapp.generated.resources.back
 import de.egril.defender.ui.icon.ReloadIcon
+import de.egril.defender.ui.icon.TriangleDownIcon
+import de.egril.defender.ui.icon.TriangleUpIcon
 
 /**
  * Background preset for the animation test screen.
@@ -230,10 +232,8 @@ private fun AnimationDropdown(
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f)
             )
-            Text(
-                text = if (expanded) "▲" else "▼",
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            if (expanded) TriangleUpIcon(size = 14.dp, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            else TriangleDownIcon(size = 14.dp, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
 
         DropdownMenu(
@@ -283,10 +283,8 @@ private fun BackgroundDropdown(
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f)
             )
-            Text(
-                text = if (expanded) "▲" else "▼",
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            if (expanded) TriangleUpIcon(size = 14.dp, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            else TriangleDownIcon(size = 14.dp, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
 
         DropdownMenu(

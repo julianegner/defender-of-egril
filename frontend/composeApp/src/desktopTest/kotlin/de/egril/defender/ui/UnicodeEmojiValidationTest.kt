@@ -49,6 +49,8 @@ class UnicodeEmojiValidationTest {
         "\u2600-\u26ff" +
         // Arrows block (U+2190–U+21FF) - arrows do not render correctly on WASM
         "\u2190-\u21ff" +
+        // Geometric Shapes (U+25A0–U+25FF) - do not render correctly on WASM
+        "\u25a0-\u25ff" +
         // Miscellaneous Symbols and Arrows
         "\u2b05-\u2b07\u2b1b-\u2b1c\u2b50\u2b55" +
         // Supplemental Symbols and Pictographs
