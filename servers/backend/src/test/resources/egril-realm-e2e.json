@@ -1,0 +1,47 @@
+{
+  "realm": "egril",
+  "enabled": true,
+  "sslRequired": "none",
+  "clients": [
+    {
+      "clientId": "defender-of-egril-cli",
+      "name": "Defender of Egril CLI (e2e)",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "protocol": "openid-connect",
+      "attributes": {}
+    }
+  ],
+  "users": [
+    {
+      "username": "e2e-player-a",
+      "email": "e2e-player-a@test.org",
+      "enabled": true,
+      "emailVerified": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "e2e-test-password",
+          "temporary": false
+        }
+      ]
+    },
+    {
+      "username": "e2e-player-b",
+      "email": "e2e-player-b@test.org",
+      "enabled": true,
+      "emailVerified": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "e2e-test-password",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}

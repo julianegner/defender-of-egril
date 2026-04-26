@@ -35,3 +35,35 @@ dependencies {
     testImplementation(libs.testcontainers.core)
     testImplementation(libs.testcontainers.postgresql)
 }
+
+// Exclude end-to-end tests from the regular test task so that the normal CI build
+// does not require Docker / a running Keycloak container.
+tasks.named<Test>("test") {
+    filter {
+        excludeTestsMatching("*EndToEnd*")
+    }
+}
+
+/**
+ * Runs the full end-to-end test suite against containerized Keycloak + PostgreSQL.
+ *
+ * Usage:
+ *   ./gradlew :server:e2eTest
+ *
+ * Requirements:
+ *   - Docker must be available on the host (Testcontainers pulls the images automatically)
+ *   - Internet access to pull quay.io/keycloak/keycloak:24.0 (first run only)
+ *
+ * Keycloak startup takes ~60-90 s, so the task timeout is set generously.
+ */
+tasks.register<Test>("e2eTest") {
+    description = "Runs end-to-end tests with containerised Keycloak and PostgreSQL via Testcontainers"
+    group = "verification"
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+    filter {
+        includeTestsMatching("*EndToEnd*")
+    }
+    // Allow up to 10 minutes for Keycloak to start and all tests to complete
+    jvmArgs("-Djunit.platform.execution.timeout=600s")
+}

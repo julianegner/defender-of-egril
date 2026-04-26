@@ -1,0 +1,45 @@
+name: end-to-end tests
+
+on:
+  workflow_dispatch:  # Manual trigger
+  schedule:
+    - cron: '0 4 * * 1'  # Weekly on Monday at 04:00 UTC
+
+permissions:
+  contents: read
+
+jobs:
+  e2e_tests:
+    name: Cross-platform continuation e2e tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 24
+        uses: actions/setup-java@v4
+        with:
+          java-version: '24'
+          distribution: 'temurin'
+
+      # Testcontainers uses Docker – verify it is available before wasting time
+      - name: Verify Docker is available
+        run: docker info
+
+      # Pull the Keycloak image explicitly so the pull time is visible in the logs
+      # separately from the actual test execution time.
+      - name: Pre-pull Keycloak image
+        run: docker pull quay.io/keycloak/keycloak:24.0
+
+      - name: Run end-to-end tests
+        uses: gradle/gradle-build-action@v3
+        with:
+          arguments: :server:e2eTest
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-results
+          path: servers/backend/build/reports/tests/e2eTest/
+          retention-days: 30
