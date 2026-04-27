@@ -394,7 +394,7 @@ private fun LevelTabContent() {
             GenericSwitch(
                 state = AppSettings.showControlPad,
                 checkedText = stringResource(Res.string.control_pad_enabled),
-                uncheckedText = stringResource(Res.string.control_pad_disabled),
+                uncheckedText = stringResource(Res.string.control_pad_enabled),
                 onCheckedChange = { enabled ->
                     AppSettings.saveShowControlPad(enabled)
                 },
