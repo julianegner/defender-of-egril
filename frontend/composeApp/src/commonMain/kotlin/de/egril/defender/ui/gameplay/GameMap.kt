@@ -88,6 +88,8 @@ import de.egril.defender.ui.hexagon.HexagonalMapView
 import de.egril.defender.ui.hexagon.MinimapConfig
 import de.egril.defender.ui.icon.PentagramIcon
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.audio.GlobalSoundManager
+import de.egril.defender.audio.SoundEvent
 import de.egril.defender.ui.rememberMapImageState
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -1110,32 +1112,26 @@ fun GridCell(
         maxOf(0, penalizedSpeed - 1) == 0
     }
 
-    // True when ANY tower attack animation is currently running.
-    // Used as a LaunchedEffect key so non-targeted enemy tiles can start their time-limited
-    // suppression when a new attack begins.  Note: this value stays true for the entire player
-    // turn (effects are cleared at the start of the next enemy turn), so it must NOT be used
-    // directly in enemyBgSuppressed — it is only a trigger key for the LaunchedEffect below.
-    val anyTowerAttackActive = animate && (
-        gameState.towerAttackEffects.isNotEmpty() ||
-        gameState.arrowAttackEffects.isNotEmpty() ||
-        gameState.ballistaAttackEffects.isNotEmpty() ||
-        gameState.bowAttackEffects.isNotEmpty() ||
-        gameState.spearAttackEffects.isNotEmpty() ||
-        gameState.pikeAttackEffects.isNotEmpty() ||
-        gameState.wizardAttackEffects.isNotEmpty() ||
-        gameState.alchemyAttackEffects.isNotEmpty()
-    )
+    // Total count of accumulated tower attack effects this turn.
+    // Unlike the boolean anyTowerAttackActive (which stays true the entire player turn once any
+    // attack fires), this count increments by 1 for each new attack, so LaunchedEffects that use
+    // it as a key will re-fire on every individual attack rather than only the first one.
+    val towerAttackCount = if (animate)
+        gameState.towerAttackEffects.size
+    else
+        0
 
     // Suppress the red background on enemy tiles during attack animations.
     // * Directly targeted / AoE tiles: suppress for the precise projectile flight + impact window.
     // * All other live enemy tiles: suppress for the maximum possible animation duration so all
     //   enemies visually "de-highlight" while any attack is running, then restore automatically.
-    //   anyTowerAttackActive is used as a key so this fires when any attack starts; after the
-    //   time-limited delay the flag is cleared even though the effects may still be in game state.
+    //   towerAttackCount is used as a key so this fires for EVERY new attack (unlike a boolean
+    //   which only changes from false → true once per turn).
+    val anyTowerAttackActive = towerAttackCount > 0
     var suppressEnemyBackground by remember { mutableStateOf(false) }
     LaunchedEffect(
         towerAttackEffect?.turnNumber, towerAttackEffect?.targetPosition,
-        isInWizardAttackArea, isInAlchemyAttackArea, anyTowerAttackActive, animate
+        isInWizardAttackArea, isInAlchemyAttackArea, towerAttackCount, animate
     ) {
         if (!animate || attacker == null) {
             suppressEnemyBackground = false
@@ -2275,6 +2271,7 @@ private fun BoxScope.GridCellContent(
                     kotlinx.coroutines.delay(flightDelay + impactDelay)
                 }
                 showDeathAnimation = true
+                GlobalSoundManager.playSound(SoundEvent.ENEMY_DESTROYED)
             } else {
                 showDeathAnimation = false
             }
