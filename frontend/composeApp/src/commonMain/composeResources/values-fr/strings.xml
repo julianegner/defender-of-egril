@@ -1725,4 +1725,5 @@
 
     <!-- Settings tabs -->
     <string name="general">Général</string>
+    <string name="settings_tab_level">Level</string>
 </resources>

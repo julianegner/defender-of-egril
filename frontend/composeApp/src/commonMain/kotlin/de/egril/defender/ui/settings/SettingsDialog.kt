@@ -67,7 +67,7 @@ fun SettingsDialog(
                 val tabs = listOf(
                     stringResource(Res.string.general),
                     stringResource(Res.string.world_map),
-                    stringResource(Res.string.level),
+                    stringResource(Res.string.settings_tab_level),
                     stringResource(Res.string.sound)
                 )
 
@@ -393,8 +393,8 @@ private fun LevelTabContent() {
             // Control pad switch
             GenericSwitch(
                 state = AppSettings.showControlPad,
-                checkedText = stringResource(Res.string.controls),
-                uncheckedText = stringResource(Res.string.controls),
+                checkedText = stringResource(Res.string.control_pad_enabled),
+                uncheckedText = stringResource(Res.string.control_pad_disabled),
                 onCheckedChange = { enabled ->
                     AppSettings.saveShowControlPad(enabled)
                 },
