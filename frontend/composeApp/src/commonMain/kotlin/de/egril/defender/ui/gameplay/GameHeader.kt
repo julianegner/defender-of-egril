@@ -31,6 +31,7 @@ import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.ui.TooltipWrapper
 import de.egril.defender.ui.common.SelectableText
+import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.utils.isLimitedInputDevice
 import de.egril.defender.utils.isPlatformMobile
 
@@ -224,8 +225,8 @@ fun GameHeader(
                     }
                 }
 
-                // Shortcuts button (not shown on mobile platforms)
-                if (!isPlatformMobile && !isLimitedInputDevice) {
+                // Shortcuts button (not shown on mobile platforms or mobile web browsers)
+                if (!isPlatformMobile && !isLimitedInputDevice && !isMobileWebBrowser()) {
                     TooltipWrapper(text = stringResource(Res.string.tooltip_shortcuts)) {
                         IconButton(
                             onClick = { showShortcutsDialog = true },
