@@ -21,6 +21,8 @@
     {
       "username": "e2e-player-a",
       "email": "e2e-player-a@test.org",
+      "firstName": "E2E",
+      "lastName": "Player A",
       "enabled": true,
       "emailVerified": true,
       "requiredActions": [],
@@ -35,6 +37,8 @@
     {
       "username": "e2e-player-b",
       "email": "e2e-player-b@test.org",
+      "firstName": "E2E",
+      "lastName": "Player B",
       "enabled": true,
       "emailVerified": true,
       "requiredActions": [],
