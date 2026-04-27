@@ -7,12 +7,16 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.text.selection.SelectionContainer
 
 /**
@@ -242,6 +246,8 @@ fun ImpressumSection() {
         return
     }
     
+    val uriHandler = LocalUriHandler.current
+    
     Spacer(modifier = Modifier.height(20.dp))
     
     Column(
@@ -275,10 +281,23 @@ fun ImpressumSection() {
                 modifier = Modifier.padding(bottom = 4.dp)
             )
             
-            Text(
-                text = "${de.egril.defender.ui.ImpressumConstants.IMPRESSUM_EMAIL_LABEL}${de.egril.defender.ui.ImpressumConstants.IMPRESSUM_EMAIL}",
-                style = MaterialTheme.typography.bodySmall
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = de.egril.defender.ui.ImpressumConstants.IMPRESSUM_EMAIL_LABEL,
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Text(
+                    text = de.egril.defender.ui.ImpressumConstants.IMPRESSUM_EMAIL,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier.clickable {
+                        uriHandler.openUri("mailto:${de.egril.defender.ui.ImpressumConstants.IMPRESSUM_EMAIL}")
+                    }
+                )
+            }
         }
     }
 }
