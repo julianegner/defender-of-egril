@@ -2,6 +2,9 @@
   "realm": "egril",
   "enabled": true,
   "sslRequired": "none",
+  "loginWithEmailAllowed": true,
+  "registrationEmailAsUsername": false,
+  "accessTokenLifespan": 300,
   "clients": [
     {
       "clientId": "defender-of-egril-cli",
