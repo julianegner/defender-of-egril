@@ -1178,7 +1178,7 @@ fun GridCell(
     val isDeathEffectActive = deathEffect != null && attacker == null
     val enemyBgSuppressed = suppressEnemyBackground
 
-    var showDeathEnemyBackground by remember(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber, isInWizardAttackArea, isInAlchemyAttackArea) {
+    var showDeathEnemyBackground by remember(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
         // Start showing the red background immediately when a killed enemy has an attack animation
         // to play — this prevents any ghost flash before the pre-death phase.
         mutableStateOf(
@@ -1186,7 +1186,7 @@ fun GridCell(
                 (towerAttackEffect != null || isInWizardAttackArea || isInAlchemyAttackArea)
         )
     }
-    LaunchedEffect(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber, isInWizardAttackArea, isInAlchemyAttackArea) {
+    LaunchedEffect(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
         if (isDeathEffectActive && (towerAttackEffect != null || isInWizardAttackArea || isInAlchemyAttackArea) && animate) {
             showDeathEnemyBackground = true
             val flightDelay: Long = when {
@@ -2173,10 +2173,10 @@ private fun BoxScope.GridCellContent(
         //
         // Pre-death rendering: during showDeathEnemyBackground the tile background is red (set in
         // GridCell) and the enemy icon is shown here; after the impact the ghost takes over.
-        var showGhost by remember(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber, isInWizardAttackArea, isInAlchemyAttackArea) {
+        var showGhost by remember(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
             mutableStateOf(isDeathEffectActive)
         }
-        LaunchedEffect(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber, isInWizardAttackArea, isInAlchemyAttackArea) {
+        LaunchedEffect(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
             if (isDeathEffectActive) {
                 showGhost = true
                 val arrowDelay = when {
@@ -2246,10 +2246,10 @@ private fun BoxScope.GridCellContent(
             }
         }
 
-        var showDeathAnimation by remember(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber, isInWizardAttackArea, isInAlchemyAttackArea) {
+        var showDeathAnimation by remember(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
             mutableStateOf(false)
         }
-        LaunchedEffect(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber, isInWizardAttackArea, isInAlchemyAttackArea) {
+        LaunchedEffect(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
             if (isDeathEffectActive) {
                 // Wait for both the projectile flight and the impact flash to finish before
                 // starting the death animation.  Also handles AoE secondary targets where
@@ -2285,10 +2285,10 @@ private fun BoxScope.GridCellContent(
 
         // Show coin gain animation overlay after the full death-animation sequence has finished:
         // arrowDelay + impactDelay + deathDuration + post-death pause.
-        var showCoinAnimation by remember(coinGainEffect?.turnNumber, coinGainEffect?.position, isInWizardAttackArea, isInAlchemyAttackArea) {
+        var showCoinAnimation by remember(coinGainEffect?.turnNumber, coinGainEffect?.position) {
             mutableStateOf(false)
         }
-        LaunchedEffect(coinGainEffect?.turnNumber, coinGainEffect?.position, towerAttackEffect?.turnNumber, isInWizardAttackArea, isInAlchemyAttackArea) {
+        LaunchedEffect(coinGainEffect?.turnNumber, coinGainEffect?.position, towerAttackEffect?.turnNumber) {
             if (coinGainEffect != null) {
                 val arrowDelay = when {
                     towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
