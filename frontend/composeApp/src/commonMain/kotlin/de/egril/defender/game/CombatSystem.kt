@@ -613,10 +613,8 @@ class CombatSystem(
             val xpEarned = attacker.type.xp * attacker.level.value
             state.xpEarnedThisLevel.value += xpEarned
             
-            // Play enemy destroyed sound only if not building a bridge
-            if (!attacker.isBuildingBridge.value) {
-                GlobalSoundManager.playSound(SoundEvent.ENEMY_DESTROYED)
-            }
+            // Note: ENEMY_DESTROYED sound is played by the UI (GameMap) when the death animation
+            // starts, so that sound and animation are in sync.  Do NOT play it here.
             
             // Queue Ewhad message (retreats unless it's the final stand level)
             if (attacker.type == AttackerType.EWHAD) {
