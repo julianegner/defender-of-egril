@@ -14,6 +14,7 @@ fun Application.configurePlugins() {
         json(Json {
             prettyPrint = true
             isLenient = true
+            ignoreUnknownKeys = true
         })
     }
     install(CallLogging) {

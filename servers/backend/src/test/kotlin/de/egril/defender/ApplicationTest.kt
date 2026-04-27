@@ -86,6 +86,19 @@ class ApplicationTest {
     }
 
     @Test
+    fun testPostEventWithUnknownFields() = testApplication {
+        application {
+            module()
+        }
+        client.post("/api/events") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"event":"APP_STARTED","platform":"WEB","unknownFutureField":"someValue","anotherNewField":42}""")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+    }
+
+    @Test
     fun testPostEventMalformedJson() = testApplication {
         application {
             module()
