@@ -1110,9 +1110,11 @@ fun GridCell(
         maxOf(0, penalizedSpeed - 1) == 0
     }
 
-    // True when ANY tower attack animation is currently running (regardless of which tile is targeted).
-    // Used to suppress the red background on ALL live enemy tiles during an attack, so only the
-    // tile being attacked stands out visually.
+    // True when ANY tower attack animation is currently running.
+    // Used as a LaunchedEffect key so non-targeted enemy tiles can start their time-limited
+    // suppression when a new attack begins.  Note: this value stays true for the entire player
+    // turn (effects are cleared at the start of the next enemy turn), so it must NOT be used
+    // directly in enemyBgSuppressed — it is only a trigger key for the LaunchedEffect below.
     val anyTowerAttackActive = animate && (
         gameState.towerAttackEffects.isNotEmpty() ||
         gameState.arrowAttackEffects.isNotEmpty() ||
@@ -1124,12 +1126,16 @@ fun GridCell(
         gameState.alchemyAttackEffects.isNotEmpty()
     )
 
-    // Suppress the red background on the specific attacked enemy tile (for survived enemies).
-    // For non-targeted live enemies the global anyTowerAttackActive flag handles suppression.
+    // Suppress the red background on enemy tiles during attack animations.
+    // * Directly targeted / AoE tiles: suppress for the precise projectile flight + impact window.
+    // * All other live enemy tiles: suppress for the maximum possible animation duration so all
+    //   enemies visually "de-highlight" while any attack is running, then restore automatically.
+    //   anyTowerAttackActive is used as a key so this fires when any attack starts; after the
+    //   time-limited delay the flag is cleared even though the effects may still be in game state.
     var suppressEnemyBackground by remember { mutableStateOf(false) }
     LaunchedEffect(
         towerAttackEffect?.turnNumber, towerAttackEffect?.targetPosition,
-        isInWizardAttackArea, isInAlchemyAttackArea, animate
+        isInWizardAttackArea, isInAlchemyAttackArea, anyTowerAttackActive, animate
     ) {
         if (!animate || attacker == null) {
             suppressEnemyBackground = false
@@ -1138,6 +1144,7 @@ fun GridCell(
         val hasDirectAttack = towerAttackEffect != null
         val hasAoEAttack = isInWizardAttackArea || isInAlchemyAttackArea
         if (hasDirectAttack || hasAoEAttack) {
+            // Directly targeted or AoE tile: use precise per-tower-type timing.
             suppressEnemyBackground = true
             val flightDelay: Long = when {
                 towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
@@ -1153,6 +1160,15 @@ fun GridCell(
             }
             kotlinx.coroutines.delay(flightDelay + GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS)
             suppressEnemyBackground = false
+        } else if (anyTowerAttackActive) {
+            // Non-targeted live enemy tile: suppress for the maximum possible animation duration
+            // so it de-highlights with all other enemies, then restores automatically.
+            suppressEnemyBackground = true
+            kotlinx.coroutines.delay(
+                GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS +
+                    GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS
+            )
+            suppressEnemyBackground = false
         } else {
             suppressEnemyBackground = false
         }
@@ -1161,13 +1177,21 @@ fun GridCell(
     // For a KILLED enemy: keep red background showing on the tile throughout the projectile flight
     // and impact flash so the player sees the enemy before it dies.  After the impact the flag
     // resets so the normal ghost/death animation flow takes over.
-    // These helper vals are defined early so they can be used in the LaunchedEffect bodies above.
-    val enemyBgSuppressed = suppressEnemyBackground || anyTowerAttackActive
+    // Initialized to true for attack kills so the red background is present from the very first
+    // frame (avoiding a brief ghost-before-pre-death flash).
     val isDeathEffectActive = deathEffect != null && attacker == null
+    val enemyBgSuppressed = suppressEnemyBackground
 
-    var showDeathEnemyBackground by remember { mutableStateOf(false) }
+    var showDeathEnemyBackground by remember(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
+        // Start showing the red background immediately when a killed enemy has an attack animation
+        // to play — this prevents any ghost flash before the pre-death phase.
+        mutableStateOf(
+            animate && isDeathEffectActive &&
+                (towerAttackEffect != null || isInWizardAttackArea || isInAlchemyAttackArea)
+        )
+    }
     LaunchedEffect(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
-        if (isDeathEffectActive && towerAttackEffect != null && animate) {
+        if (isDeathEffectActive && (towerAttackEffect != null || isInWizardAttackArea || isInAlchemyAttackArea) && animate) {
             showDeathEnemyBackground = true
             val flightDelay: Long = when {
                 isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
@@ -1175,8 +1199,8 @@ fun GridCell(
                 isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                 isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
                 isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
-                isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
-                isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
+                isWizardTargetTile || isInWizardAttackArea -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                isAlchemyTargetTile || isInAlchemyAttackArea -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
                 else -> 0L
             }
             kotlinx.coroutines.delay(flightDelay + GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS)
@@ -1471,7 +1495,6 @@ fun GridCell(
                 isInAlchemyAttackArea = isInAlchemyAttackArea,
                 dragonIsTargetingMine = dragonIsTargetingMine,
                 suppressEnemyBackground = suppressEnemyBackground,
-                anyTowerAttackActive = anyTowerAttackActive,
                 showDeathEnemyBackground = showDeathEnemyBackground
             )
         }
@@ -1538,7 +1561,6 @@ fun GridCell(
                 isInAlchemyAttackArea = isInAlchemyAttackArea,
                 dragonIsTargetingMine = dragonIsTargetingMine,
                 suppressEnemyBackground = suppressEnemyBackground,
-                anyTowerAttackActive = anyTowerAttackActive,
                 showDeathEnemyBackground = showDeathEnemyBackground
             )
         }
@@ -1602,7 +1624,6 @@ private fun BoxScope.GridCellContent(
     isInAlchemyAttackArea: Boolean = false,
     dragonIsTargetingMine: Boolean = false,
     suppressEnemyBackground: Boolean = false,
-    anyTowerAttackActive: Boolean = false,
     showDeathEnemyBackground: Boolean = false
 ) {
         // When animations are enabled, delay updating the enemy's displayed health value until
@@ -1615,8 +1636,8 @@ private fun BoxScope.GridCellContent(
         // the blast area but not the exact target position — those tiles have towerAttackEffect == null
         // but their enemy HP still changes as part of the AoE damage.
         val isDeathEffectActive = deathEffect != null && attacker == null
-        // Combined flag matching the same condition computed in GridCell.
-        val enemyBgSuppressed = suppressEnemyBackground || anyTowerAttackActive
+        // suppressEnemyBackground already covers all cases (targeted, AoE, and non-targeted tiles).
+        val enemyBgSuppressed = suppressEnemyBackground
         val animationsEnabled = AppSettings.enableAnimations.value
         var displayedHealth by remember { mutableStateOf(attacker?.currentHealth?.value ?: 0) }
         LaunchedEffect(
@@ -2170,9 +2191,12 @@ private fun BoxScope.GridCellContent(
                     towerAttackEffect != null && isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
                     towerAttackEffect != null && isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
                     towerAttackEffect != null && isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
+                    // AoE secondary targets: delay matches the fireball/acid flight time
+                    isInWizardAttackArea -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                    isInAlchemyAttackArea -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
                     else -> 0L
                 }
-                val impactDelay = if (towerAttackEffect != null) GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS else 0L
+                val impactDelay = if (towerAttackEffect != null || isInWizardAttackArea || isInAlchemyAttackArea) GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS else 0L
                 kotlinx.coroutines.delay(arrowDelay + impactDelay + GamePlayConstants.AnimationTimings.ENEMY_DEATH_ANIMATION_DURATION_MS)
                 showGhost = false
             } else {
@@ -2231,20 +2255,24 @@ private fun BoxScope.GridCellContent(
         }
         LaunchedEffect(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
             if (isDeathEffectActive) {
-                if (towerAttackEffect != null) {
-                    // For ranged attacks, the hit animation is delayed; wait for both the
-                    // projectile flight and the impact flash (~670ms) to finish first.
-                    val flightDelay = when {
-                        isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                        isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
-                        isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                        isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
-                        isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
-                        isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
-                        isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
-                        else -> 0L
-                    }
-                    kotlinx.coroutines.delay(flightDelay + GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS)
+                // Wait for both the projectile flight and the impact flash to finish before
+                // starting the death animation.  Also handles AoE secondary targets where
+                // towerAttackEffect is null but the tile is in the fireball/acid blast area.
+                val flightDelay = when {
+                    towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
+                    towerAttackEffect != null && isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                    towerAttackEffect != null && isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
+                    isInWizardAttackArea -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                    isInAlchemyAttackArea -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
+                    else -> 0L
+                }
+                val impactDelay = if (towerAttackEffect != null || isInWizardAttackArea || isInAlchemyAttackArea) GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS else 0L
+                if (flightDelay > 0L || impactDelay > 0L) {
+                    kotlinx.coroutines.delay(flightDelay + impactDelay)
                 }
                 showDeathAnimation = true
             } else {
@@ -2273,9 +2301,12 @@ private fun BoxScope.GridCellContent(
                     towerAttackEffect != null && isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
                     towerAttackEffect != null && isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
                     towerAttackEffect != null && isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
+                    // AoE secondary targets have no direct towerAttackEffect but are in the blast area
+                    isInWizardAttackArea -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                    isInAlchemyAttackArea -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
                     else -> 0L
                 }
-                val impactDelay = if (towerAttackEffect != null) GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS else 0L
+                val impactDelay = if (towerAttackEffect != null || isInWizardAttackArea || isInAlchemyAttackArea) GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS else 0L
                 kotlinx.coroutines.delay(
                     arrowDelay + impactDelay +
                     GamePlayConstants.AnimationTimings.ENEMY_DEATH_ANIMATION_DURATION_MS +
