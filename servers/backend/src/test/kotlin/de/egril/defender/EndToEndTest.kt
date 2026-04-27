@@ -77,7 +77,11 @@ class EndToEndTest {
             )
             .withCommand("start-dev --import-realm --health-enabled=true")
             .waitingFor(
-                Wait.forHttp("/health/ready")
+                // Wait for the realm-specific OIDC discovery endpoint rather than the generic
+                // /health/ready endpoint. In Keycloak 24 dev mode, /health/ready can return 200
+                // before the realm import completes. The OIDC discovery endpoint only becomes
+                // available once the realm is fully imported and ready to issue tokens.
+                Wait.forHttp("/realms/$REALM/.well-known/openid-configuration")
                     .forPort(8080)
                     .forStatusCode(200)
                     .withStartupTimeout(Duration.ofMinutes(3))
@@ -141,7 +145,16 @@ class EndToEndTest {
                 connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
                 connection.outputStream.use { it.write(body.toByteArray()) }
 
-                val responseBody = connection.inputStream.use { it.readBytes().toString(Charsets.UTF_8) }
+                val responseCode = connection.responseCode
+                val responseBody = if (responseCode < 400) {
+                    connection.inputStream.use { it.readBytes().toString(Charsets.UTF_8) }
+                } else {
+                    val errorBody = connection.errorStream?.use { it.readBytes().toString(Charsets.UTF_8) }
+                        ?: "<no error body>"
+                    error(
+                        "Keycloak token request failed with HTTP $responseCode for user '$username': $errorBody"
+                    )
+                }
                 val json = Json.parseToJsonElement(responseBody).jsonObject
                 return checkNotNull(json["access_token"]?.jsonPrimitive?.content) {
                     "Keycloak token response did not contain 'access_token': $responseBody"
