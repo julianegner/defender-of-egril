@@ -46,6 +46,7 @@ import de.egril.defender.model.Position
 import de.egril.defender.ui.IconGridScrollbar
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.icon.CheckmarkIcon
+import de.egril.defender.ui.icon.RightArrowIcon
 import de.egril.defender.ui.icon.WarningIcon
 import de.egril.defender.ui.icon.PencilIcon
 import org.jetbrains.compose.resources.painterResource
@@ -1198,7 +1199,12 @@ private fun PathListItem(
                         )
                     }
                     Text(
-                        text = "$fromName → $toName",
+                        text = fromName,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    RightArrowIcon(size = 14.dp)
+                    Text(
+                        text = toName,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -1683,7 +1689,12 @@ private fun EditPathDialog(
         text = {
             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                 Text(
-                    "Connection: ${path.fromLocationId} → ${path.toLocationId}",
+                    "Connection: ${path.fromLocationId}",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                RightArrowIcon(size = 14.dp)
+                Text(
+                    path.toLocationId,
                     style = MaterialTheme.typography.bodyMedium
                 )
                 
@@ -1750,11 +1761,21 @@ private fun EditPathDialog(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                "Seg ${index + 1}: $fromPoint → $toPoint",
-                                style = MaterialTheme.typography.bodySmall,
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
                                 modifier = Modifier.weight(1f)
-                            )
+                            ) {
+                                Text(
+                                    "Seg ${index + 1}: $fromPoint",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                RightArrowIcon(size = 12.dp)
+                                Text(
+                                    toPoint,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
                             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Button(
                                     onClick = {

@@ -16,6 +16,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.currentLanguage
+import de.egril.defender.ui.icon.TriangleDownIcon
+import de.egril.defender.ui.icon.TriangleUpIcon
 import dev.carlsen.flagkit.FlagKit
 
 /**
@@ -45,13 +47,23 @@ fun LanguageChooser(
         }
         
         // Dropdown arrow icon
-        Text(
-            text = if (expanded) "▲" else "▼",
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(end = 16.dp),
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        if (expanded) {
+            TriangleUpIcon(
+                size = 14.dp,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 16.dp)
+            )
+        } else {
+            TriangleDownIcon(
+                size = 14.dp,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 16.dp)
+            )
+        }
         
         DropdownMenu(
             expanded = expanded,

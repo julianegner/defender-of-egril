@@ -188,7 +188,7 @@ $tileEntries
     @Test
     fun testValidMapPassesValidation() {
         val map = buildValidEditorMap()
-        assertTrue(map.validateReadyToUse(), "Map with valid spawn→path→target route should pass")
+        assertTrue(map.validateReadyToUse(), "Map with valid spawn->path->target route should pass")
     }
 
     @Test
@@ -1136,7 +1136,7 @@ $tileEntries
         val newFilterResult = newLogicEditorLevel?.testingOnly != true
         assertFalse(
             newFilterResult,
-            "FIX: testing community level's testingOnly=true is evaluated → correctly excluded"
+            "FIX: testing community level's testingOnly=true is evaluated -> correctly excluded"
         )
     }
 

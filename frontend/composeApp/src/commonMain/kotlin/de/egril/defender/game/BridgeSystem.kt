@@ -273,11 +273,11 @@ class BridgeSystem(private val state: GameState) {
                     // Move wizard onto the bridge
                     attacker.position.value = bridgePos
                     if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                    println("${attacker.type} ${attacker.id} built magical bridge at ${bridgePos} and moved onto it, level ${attacker.level.value + 1} → ${attacker.level.value}")
+                    println("${attacker.type} ${attacker.id} built magical bridge at ${bridgePos} and moved onto it, level ${attacker.level.value + 1} -> ${attacker.level.value}")
                     }
                 } else {
                     if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                    println("${attacker.type} ${attacker.id} built magical bridge at ${bridgePos}, level ${attacker.level.value + 1} → ${attacker.level.value}")
+                    println("${attacker.type} ${attacker.id} built magical bridge at ${bridgePos}, level ${attacker.level.value + 1} -> ${attacker.level.value}")
                     }
                 }
                 return true

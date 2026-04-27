@@ -20,6 +20,7 @@ import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.KeyboardKeyIcon
 import de.egril.defender.ui.icon.SaveIcon
 import de.egril.defender.ui.icon.ToolsIcon
+import de.egril.defender.ui.icon.TriangleDownIcon
 import de.egril.defender.ui.icon.TriangleLeftIcon
 import de.egril.defender.ui.icon.TriangleRightIcon
 import de.egril.defender.ui.infopage.KeyboardShortcutsInfo
@@ -494,10 +495,11 @@ internal fun LevelSpecialTowersInfoDialog(
                 )
                 
                 // Expand/collapse indicator
-                Text(
-                    text = if (isExpanded) "▼" else "▶",
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                if (isExpanded) {
+                    TriangleDownIcon(size = 14.dp)
+                } else {
+                    TriangleRightIcon(size = 14.dp)
+                }
             }
             
             // Expanded content

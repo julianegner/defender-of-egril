@@ -19,6 +19,7 @@ import de.egril.defender.ui.icon.HeartIcon
 import de.egril.defender.ui.icon.LockIcon
 import de.egril.defender.ui.icon.SnowflakeIcon
 import de.egril.defender.ui.icon.ShieldIcon
+import de.egril.defender.ui.icon.RightArrowIcon
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -132,8 +133,9 @@ fun AttackerInfo(
                             
                             // If affected by barbs, show current speed in red
                             if (attacker.movementPenalty.value > 0) {
+                                RightArrowIcon(size = 12.dp, tint = Color.Red)
                                 Text(
-                                    "→ $barbsSpeed",
+                                    "$barbsSpeed",
                                     style = MaterialTheme.typography.bodySmall,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.Red
@@ -142,8 +144,9 @@ fun AttackerInfo(
 
                             // If in cooling area, show cooled speed in turquoise
                             if (cooledSpeed != null) {
+                                RightArrowIcon(size = 12.dp, tint = Color.Cyan)
                                 Text(
-                                    "→ $cooledSpeed",
+                                    "$cooledSpeed",
                                     style = MaterialTheme.typography.bodySmall,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.Cyan
@@ -152,8 +155,9 @@ fun AttackerInfo(
 
                             // If frozen, show speed → 0 in turquoise
                             if (freezeEffect != null && cooledSpeed == null) {
+                                RightArrowIcon(size = 12.dp, tint = Color.Cyan)
                                 Text(
-                                    "→ 0",
+                                    "0",
                                     style = MaterialTheme.typography.bodySmall,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.Cyan
@@ -224,8 +228,9 @@ fun AttackerInfo(
                                 color = Color.Cyan,
                                 fontWeight = FontWeight.Bold
                             )
+                            RightArrowIcon(size = 12.dp, tint = Color.Cyan)
                             Text(
-                                "→ $cooledSpeed",
+                                "$cooledSpeed",
                                 style = MaterialTheme.typography.bodySmall,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.Cyan

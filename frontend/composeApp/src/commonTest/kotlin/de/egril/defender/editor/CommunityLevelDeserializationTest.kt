@@ -122,7 +122,7 @@ class CommunityLevelDeserializationTest {
         val map = EditorJsonSerializer.deserializeMap(json)
         assertNotNull(map)
         // The map has SPAWN_POINT → PATH → TARGET — it must pass validation
-        assertTrue(map.validateReadyToUse(), "Map with valid spawn→path→target should be ready to use")
+        assertTrue(map.validateReadyToUse(), "Map with valid spawn->path->target should be ready to use")
     }
 
     @Test

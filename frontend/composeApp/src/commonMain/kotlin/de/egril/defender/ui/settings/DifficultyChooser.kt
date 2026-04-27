@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.icon.TriangleDownIcon
+import de.egril.defender.ui.icon.TriangleUpIcon
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -45,13 +47,23 @@ fun DifficultyChooser(
         }
         
         // Dropdown arrow icon
-        Text(
-            text = if (expanded) "▲" else "▼",
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(end = 16.dp),
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        if (expanded) {
+            TriangleUpIcon(
+                size = 14.dp,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 16.dp)
+            )
+        } else {
+            TriangleDownIcon(
+                size = 14.dp,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 16.dp)
+            )
+        }
         
         DropdownMenu(
             expanded = expanded,
