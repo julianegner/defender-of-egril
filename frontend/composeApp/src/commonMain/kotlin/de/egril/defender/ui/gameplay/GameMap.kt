@@ -1110,12 +1110,22 @@ fun GridCell(
         maxOf(0, penalizedSpeed - 1) == 0
     }
 
-    // Suppress the red background on enemy tiles during attack animations (for survived enemies).
-    // When an attack is in progress (towerAttackEffect exists) and a live enemy is on the tile,
-    // remove the red background immediately and restore it once the projectile flight + impact
-    // flash has completed.  This provides visual feedback that the enemy was hit without
-    // permanently removing the background for enemies that survive the attack.
-    // AoE attacks (wizard fireball, alchemy acid) are also handled for surrounding tiles.
+    // True when ANY tower attack animation is currently running (regardless of which tile is targeted).
+    // Used to suppress the red background on ALL live enemy tiles during an attack, so only the
+    // tile being attacked stands out visually.
+    val anyTowerAttackActive = animate && (
+        gameState.towerAttackEffects.isNotEmpty() ||
+        gameState.arrowAttackEffects.isNotEmpty() ||
+        gameState.ballistaAttackEffects.isNotEmpty() ||
+        gameState.bowAttackEffects.isNotEmpty() ||
+        gameState.spearAttackEffects.isNotEmpty() ||
+        gameState.pikeAttackEffects.isNotEmpty() ||
+        gameState.wizardAttackEffects.isNotEmpty() ||
+        gameState.alchemyAttackEffects.isNotEmpty()
+    )
+
+    // Suppress the red background on the specific attacked enemy tile (for survived enemies).
+    // For non-targeted live enemies the global anyTowerAttackActive flag handles suppression.
     var suppressEnemyBackground by remember { mutableStateOf(false) }
     LaunchedEffect(
         towerAttackEffect?.turnNumber, towerAttackEffect?.targetPosition,
@@ -1148,6 +1158,34 @@ fun GridCell(
         }
     }
 
+    // For a KILLED enemy: keep red background showing on the tile throughout the projectile flight
+    // and impact flash so the player sees the enemy before it dies.  After the impact the flag
+    // resets so the normal ghost/death animation flow takes over.
+    // These helper vals are defined early so they can be used in the LaunchedEffect bodies above.
+    val enemyBgSuppressed = suppressEnemyBackground || anyTowerAttackActive
+    val isDeathEffectActive = deathEffect != null && attacker == null
+
+    var showDeathEnemyBackground by remember { mutableStateOf(false) }
+    LaunchedEffect(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
+        if (isDeathEffectActive && towerAttackEffect != null && animate) {
+            showDeathEnemyBackground = true
+            val flightDelay: Long = when {
+                isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                isBallistaTargetTile -> GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS
+                isBowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                isSpearTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
+                isPikeTargetTile -> GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS
+                isWizardTargetTile -> GamePlayConstants.AnimationTimings.WIZARD_FLIGHT_DELAY_MS
+                isAlchemyTargetTile -> GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS
+                else -> 0L
+            }
+            kotlinx.coroutines.delay(flightDelay + GamePlayConstants.AnimationTimings.ATTACK_IMPACT_DURATION_MS)
+            showDeathEnemyBackground = false
+        } else {
+            showDeathEnemyBackground = false
+        }
+    }
+
     // Apply slight tint for selection states, but keep base color visible
     // Override with red background for enemy units and colored background for defenders
     // During INITIAL_BUILDING phase, don't apply any selection tints
@@ -1155,7 +1193,12 @@ fun GridCell(
     // Special case: Keep river background visible for defenders on rafts
     val backgroundColor = when {
         attackerIsFrozen || coolingReducesAttackerToZero -> TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f)  // Turquoise background for frozen/cooled-to-zero enemies
-        attacker != null && !suppressEnemyBackground -> if (isDarkMode) GamePlayColors.ErrorDark else GamePlayColors.Error  // Darker red background for enemies in dark mode
+        // Killed enemy tile shows red background during attack animation so the enemy is still
+        // visible while the projectile is in flight / impact flash is playing.
+        isDeathEffectActive && showDeathEnemyBackground -> if (isDarkMode) GamePlayColors.ErrorDark else GamePlayColors.Error
+        // Live enemy tile: transparent during attack animation, red when no attack is happening.
+        attacker != null && enemyBgSuppressed -> Color.Transparent
+        attacker != null -> if (isDarkMode) GamePlayColors.ErrorDark else GamePlayColors.Error  // Darker red background for enemies in dark mode
         defender != null && isRiverTile -> {
             // Keep river blue background visible for defenders on rafts
             GamePlayColors.River
@@ -1262,7 +1305,8 @@ fun GridCell(
 
         isSpawnPoint -> GamePlayColors.WarningDark  // Darker orange border for spawn in dark mode
         isTarget -> GamePlayColors.Success  // Green border for target (adapts to dark mode automatically)
-        attacker != null && !suppressEnemyBackground -> GamePlayColors.ErrorDark  // Darker red border for enemies
+        isDeathEffectActive && showDeathEnemyBackground -> GamePlayColors.ErrorDark  // Red border for killed enemy during pre-death animation
+        attacker != null && !enemyBgSuppressed -> GamePlayColors.ErrorDark  // Darker red border for enemies
         defender != null -> if (defender.isReady) GamePlayColors.InfoDark else GamePlayColors.Building  // Darker blue/gray border for towers
         effectiveFieldEffect != null -> {
             when (effectiveFieldEffect.type) {
@@ -1289,6 +1333,7 @@ fun GridCell(
             spellTargeting?.activeSpell != SpellType.FEAR_SPELL &&
             spellTargeting?.activeSpell != SpellType.FEAR_SPELL_AREA -> 4.dp  // Thick purple border for valid spell targets
         isSpawnPoint || isTarget -> 3.dp
+        isDeathEffectActive && showDeathEnemyBackground -> 3.dp  // Border for killed enemy during pre-death animation
         attacker != null || defender != null -> 3.dp
         effectiveFieldEffect != null -> 3.dp  // Thick border for field effects
         trap != null -> 3.dp  // Thick border for trap
@@ -1425,7 +1470,9 @@ fun GridCell(
                 isInWizardAttackArea = isInWizardAttackArea,
                 isInAlchemyAttackArea = isInAlchemyAttackArea,
                 dragonIsTargetingMine = dragonIsTargetingMine,
-                suppressEnemyBackground = suppressEnemyBackground
+                suppressEnemyBackground = suppressEnemyBackground,
+                anyTowerAttackActive = anyTowerAttackActive,
+                showDeathEnemyBackground = showDeathEnemyBackground
             )
         }
     } else {
@@ -1490,7 +1537,9 @@ fun GridCell(
                 isInWizardAttackArea = isInWizardAttackArea,
                 isInAlchemyAttackArea = isInAlchemyAttackArea,
                 dragonIsTargetingMine = dragonIsTargetingMine,
-                suppressEnemyBackground = suppressEnemyBackground
+                suppressEnemyBackground = suppressEnemyBackground,
+                anyTowerAttackActive = anyTowerAttackActive,
+                showDeathEnemyBackground = showDeathEnemyBackground
             )
         }
     }
@@ -1552,7 +1601,9 @@ private fun BoxScope.GridCellContent(
     isInWizardAttackArea: Boolean = false,
     isInAlchemyAttackArea: Boolean = false,
     dragonIsTargetingMine: Boolean = false,
-    suppressEnemyBackground: Boolean = false
+    suppressEnemyBackground: Boolean = false,
+    anyTowerAttackActive: Boolean = false,
+    showDeathEnemyBackground: Boolean = false
 ) {
         // When animations are enabled, delay updating the enemy's displayed health value until
         // the attack animation (projectile flight + impact flash) has completed.
@@ -1563,6 +1614,9 @@ private fun BoxScope.GridCellContent(
         // For AoE attacks (wizard fireball, alchemy acid) we must also delay tiles that are in
         // the blast area but not the exact target position — those tiles have towerAttackEffect == null
         // but their enemy HP still changes as part of the AoE damage.
+        val isDeathEffectActive = deathEffect != null && attacker == null
+        // Combined flag matching the same condition computed in GridCell.
+        val enemyBgSuppressed = suppressEnemyBackground || anyTowerAttackActive
         val animationsEnabled = AppSettings.enableAnimations.value
         var displayedHealth by remember { mutableStateOf(attacker?.currentHealth?.value ?: 0) }
         LaunchedEffect(
@@ -1616,11 +1670,12 @@ private fun BoxScope.GridCellContent(
                         maxOf(0, barbsSpeed - 1) == 0
                     }
                     // Compute the actual tile background color so the icon can derive the correct outline color.
-                    // When the red background is suppressed during an attack animation, use the path color
-                    // so the enemy icon contrast remains correct against the revealed tile background.
+                    // When the red background is suppressed during an attack animation, pass null so
+                    // EnemyIcon uses the theme background color for contrast calculations (the tile
+                    // itself is transparent/see-through at this point).
                     val attackerTileBackground = when {
                         freezeEffect != null || coolingReducesToZero -> TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f)
-                        suppressEnemyBackground -> GamePlayColors.Path
+                        enemyBgSuppressed -> null
                         else -> GamePlayColors.Error
                     }
                     Box(
@@ -2092,20 +2147,20 @@ private fun BoxScope.GridCellContent(
         // that may have moved to this tile in the same turn.
         // When a tower attack was also recorded for this tile, delay the death animation until
         // after the impact animation plays (~670ms, plus ~900ms arrow flight for ranged attacks),
-        // so the sequence is: attack → impact → death.
+        // so the sequence is: pre-death icon with red bg → attack → impact → ghost → death anim.
         //
         // Ghost rendering: while the death effect is present (and before the death animation
         // finishes), show the enemy unit icon without a health bar so the player can see which
         // unit was killed.  The ghost disappears once the death animation has completed so that
-        // the coin-gain animation plays on a clean tile.  The tile background stays at the
-        // path/base colour (not red) because the attacker has already been removed from
-        // state.attackers — the red background therefore disappears at the exact moment the
-        // attack resolves.
+        // the coin-gain animation plays on a clean tile.
+        //
+        // Pre-death rendering: during showDeathEnemyBackground the tile background is red (set in
+        // GridCell) and the enemy icon is shown here; after the impact the ghost takes over.
         var showGhost by remember(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
-            mutableStateOf(deathEffect != null && attacker == null)
+            mutableStateOf(isDeathEffectActive)
         }
         LaunchedEffect(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
-            if (deathEffect != null && attacker == null) {
+            if (isDeathEffectActive) {
                 showGhost = true
                 val arrowDelay = when {
                     towerAttackEffect != null && isArrowTargetTile -> GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS
@@ -2124,7 +2179,31 @@ private fun BoxScope.GridCellContent(
                 showGhost = false
             }
         }
-        if (showGhost && deathEffect != null && attacker == null) {
+        // During the pre-death phase (showDeathEnemyBackground), show the enemy icon against the
+        // red tile background so the player still sees the enemy while the projectile is in flight.
+        // Once the impact has resolved, showDeathEnemyBackground becomes false and the regular
+        // ghost (without red background) takes over until the death animation finishes.
+        if (isDeathEffectActive && showDeathEnemyBackground) {
+            EnemyTypeIcon(
+                attackerType = deathEffect.attackerType,
+                modifier = Modifier.fillMaxSize().zIndex(15f)
+            )
+            if (deathEffect.attackerLevel > 1) {
+                Box(
+                    modifier = Modifier.fillMaxSize().zIndex(15f),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    Text(
+                        text = "${deathEffect.attackerLevel}",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 12.sp,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
+            }
+        } else if (showGhost && isDeathEffectActive) {
             EnemyTypeIcon(
                 attackerType = deathEffect.attackerType,
                 modifier = Modifier.fillMaxSize().zIndex(15f)
@@ -2151,7 +2230,7 @@ private fun BoxScope.GridCellContent(
             mutableStateOf(false)
         }
         LaunchedEffect(deathEffect?.turnNumber, deathEffect?.position, towerAttackEffect?.turnNumber) {
-            if (deathEffect != null && attacker == null) {
+            if (isDeathEffectActive) {
                 if (towerAttackEffect != null) {
                     // For ranged attacks, the hit animation is delayed; wait for both the
                     // projectile flight and the impact flash (~670ms) to finish first.
@@ -2172,7 +2251,7 @@ private fun BoxScope.GridCellContent(
                 showDeathAnimation = false
             }
         }
-        if (showDeathAnimation && deathEffect != null && attacker == null) {
+        if (showDeathAnimation && isDeathEffectActive) {
             EnemyDeathAnimation(
                 animate = AppSettings.enableAnimations.value,
                 modifier = Modifier.fillMaxSize().zIndex(18f)
