@@ -837,10 +837,12 @@ fun GridCell(
     }
     
     // Get tile background painter (will be null if images are disabled or not available)
-    // For ready towers on build areas, don't show tile background to make towers more visible - but only when
-    // unit backgrounds are enabled. When unit backgrounds are OFF (transparent), show the tile image so the
-    // tower blends into the terrain instead of exposing the page background color.
-    val shouldShowTileImage = !(defender != null && defender.isReady && isBuildArea && AppSettings.showUnitTowerBackground.value)
+    // Suppress tile image when unit backgrounds are ON so the colored background is visible:
+    // - For enemy tiles: the red background must not be covered by the tile texture.
+    // - For ready towers on build areas: use the colored tower background instead.
+    // When unit backgrounds are OFF (transparent), always show the tile image so units blend into terrain.
+    val shouldShowTileImage = !(AppSettings.showUnitTowerBackground.value &&
+        (attacker != null || (defender != null && defender.isReady && isBuildArea)))
     val tilePainter = if (shouldShowTileImage && (!useTransparentBackground || isMaelstrom)) {
         TileImageProvider.getTilePainter(tileType, isMaelstrom = isMaelstrom)
     } else {
@@ -1185,8 +1187,9 @@ fun GridCell(
         attacker != null && enemyBgSuppressed -> Color.Transparent
         attacker != null -> if (AppSettings.showUnitTowerBackground.value) GamePlayColors.Error else Color.Transparent
         defender != null && isRiverTile -> {
-            // Keep river blue background visible for defenders on rafts only when unit backgrounds are enabled
-            if (AppSettings.showUnitTowerBackground.value) GamePlayColors.River else Color.Transparent
+            // Keep river blue background visible for defenders on rafts only when unit backgrounds are enabled.
+            // When unit backgrounds are off: transparent if level map is shown (shows through), otherwise river color.
+            if (!AppSettings.showUnitTowerBackground.value && useTransparentBackground) Color.Transparent else GamePlayColors.River
         }
         defender != null -> if (AppSettings.showUnitTowerBackground.value) {
             when {
@@ -1195,7 +1198,10 @@ fun GridCell(
                 else -> GamePlayColors.InfoLight
             }
         } else {
-            Color.Transparent
+            // When unit backgrounds are off: transparent if level map is shown (level map visible through tile),
+            // otherwise use terrain color so the tower tile blends with its surroundings instead of showing
+            // the Material theme's white surface color.
+            if (useTransparentBackground) Color.Transparent else baseBackgroundColor
         }
 
         effectiveFieldEffect != null -> {
