@@ -1183,8 +1183,8 @@ fun GridCell(
         attacker != null && enemyBgSuppressed -> Color.Transparent
         attacker != null -> if (AppSettings.showUnitTowerBackground.value) GamePlayColors.Error else Color.Transparent
         defender != null && isRiverTile -> {
-            // Keep river blue background visible for defenders on rafts
-            GamePlayColors.River
+            // Keep river blue background visible for defenders on rafts only when unit backgrounds are enabled
+            if (AppSettings.showUnitTowerBackground.value) GamePlayColors.River else Color.Transparent
         }
         defender != null -> if (AppSettings.showUnitTowerBackground.value) {
             when {
