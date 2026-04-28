@@ -4,7 +4,7 @@
   "annotations": {
     "list": []
   },
-  "description": "Defender of Egril \u2013 events, users, and Hetzner server health",
+  "description": "Defender of Egril – events, users, and Hetzner server health",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -20,7 +20,7 @@
         "y": 0
       },
       "id": 100,
-      "title": "\ud83d\udcca Game Activity",
+      "title": "📊 Game Activity",
       "type": "row"
     },
     {
@@ -77,7 +77,7 @@
             "uid": "postgres-app"
           },
           "format": "table",
-          "rawSql": "SELECT COUNT(*) AS value FROM events",
+          "rawSql": "SELECT COUNT(*) AS value FROM events WHERE ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED')",
           "refId": "A"
         }
       ]
@@ -136,7 +136,7 @@
             "uid": "postgres-app"
           },
           "format": "table",
-          "rawSql": "SELECT COUNT(*) AS value FROM events WHERE created_at >= CURRENT_DATE",
+          "rawSql": "SELECT COUNT(*) AS value FROM events WHERE created_at >= CURRENT_DATE AND ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED')",
           "refId": "A"
         }
       ]
@@ -307,7 +307,7 @@
             "uid": "postgres-app"
           },
           "format": "table",
-          "rawSql": "SELECT event_type, COUNT(*) AS count FROM events GROUP BY event_type ORDER BY count DESC",
+          "rawSql": "SELECT event_type, COUNT(*) AS count FROM events WHERE ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') GROUP BY event_type ORDER BY count DESC",
           "refId": "A"
         }
       ]
@@ -356,7 +356,7 @@
             "uid": "postgres-app"
           },
           "format": "time_series",
-          "rawSql": "SELECT date_trunc('day', created_at) AS time, COUNT(*) AS \"Events\" FROM events WHERE created_at >= NOW() - INTERVAL '90 days' GROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT date_trunc('day', created_at) AS time, COUNT(*) AS \"Events\" FROM events WHERE created_at >= NOW() - INTERVAL '90 days' AND ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') GROUP BY 1 ORDER BY 1",
           "refId": "A"
         }
       ]
@@ -460,6 +460,30 @@
                 "value": 250
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "commit_hash"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "platform_long"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 250
+              }
+            ]
           }
         ]
       },
@@ -482,7 +506,7 @@
           }
         ]
       },
-      "title": "Recent Events (Last 100)",
+      "title": "Recent Events (Last 500)",
       "type": "table",
       "targets": [
         {
@@ -491,7 +515,7 @@
             "uid": "postgres-app"
           },
           "format": "table",
-          "rawSql": "SELECT id, event_type, platform, os_name, level_name, version_name, user_name, turn_number, platform_extended, created_at FROM events WHERE ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') ORDER BY created_at DESC LIMIT 100",
+          "rawSql": "SELECT id, event_type, platform, os_name, level_name, version_name, commit_hash, user_name, turn_number, platform_extended, platform_long, created_at FROM events WHERE ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') ORDER BY created_at DESC LIMIT 500",
           "refId": "A"
         }
       ]
@@ -505,7 +529,7 @@
         "y": 23
       },
       "id": 101,
-      "title": "\ud83d\udda5\ufe0f Hetzner Server Metrics",
+      "title": "🖥️ Hetzner Server Metrics",
       "type": "row"
     },
     {
@@ -1111,7 +1135,7 @@
         "y": 39
       },
       "id": 102,
-      "title": "\u26a0\ufe0f Backend Errors",
+      "title": "⚠️ Backend Errors",
       "type": "row"
     },
     {
@@ -1408,7 +1432,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Defender of Egril \u2013 Overview",
+  "title": "Defender of Egril – Overview",
   "uid": "defender-overview",
   "version": 2,
   "weekStart": "",
