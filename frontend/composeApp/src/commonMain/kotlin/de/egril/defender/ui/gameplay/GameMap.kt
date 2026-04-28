@@ -1667,6 +1667,16 @@ private fun BoxScope.GridCellContent(
                         !AppSettings.showUnitTowerBackground.value -> Color.White
                         else -> null
                     }
+                    // Derive health/level text color from effective background:
+                    // - Freeze/cooling (turquoise) or unit backgrounds ON (red) → dark enough for white text
+                    // - Unit backgrounds OFF in dark mode → dark terrain bg → white text
+                    // - Unit backgrounds OFF in light mode → light terrain bg → dark text
+                    val healthTextColor = when {
+                        freezeEffect != null || coolingReducesToZero -> Color.White
+                        AppSettings.showUnitTowerBackground.value -> Color.White
+                        AppSettings.isDarkMode.value -> Color.White
+                        else -> Color.Black
+                    }
                     Box(
                         contentAlignment = Alignment.Center,
                         modifier = if (freezeEffect != null || coolingReducesToZero)
@@ -1674,7 +1684,7 @@ private fun BoxScope.GridCellContent(
                         else
                             Modifier
                     ) {
-                        EnemyIcon(attacker = attacker, backgroundColor = attackerTileBackground, healthOverride = displayedHealth)
+                        EnemyIcon(attacker = attacker, backgroundColor = attackerTileBackground, healthTextColor = healthTextColor, healthOverride = displayedHealth)
                         // Show healing effect overlay if present
                         if (healingEffect != null) {
                             GreenWitchHealingAnimation(
