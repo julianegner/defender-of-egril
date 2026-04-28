@@ -77,7 +77,7 @@
             "uid": "postgres-app"
           },
           "format": "table",
-          "rawSql": "SELECT COUNT(*) AS value FROM events",
+          "rawSql": "SELECT COUNT(*) AS value FROM events WHERE ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED')",
           "refId": "A"
         }
       ]
@@ -136,7 +136,7 @@
             "uid": "postgres-app"
           },
           "format": "table",
-          "rawSql": "SELECT COUNT(*) AS value FROM events WHERE created_at >= CURRENT_DATE",
+          "rawSql": "SELECT COUNT(*) AS value FROM events WHERE created_at >= CURRENT_DATE AND ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED')",
           "refId": "A"
         }
       ]
@@ -307,7 +307,7 @@
             "uid": "postgres-app"
           },
           "format": "table",
-          "rawSql": "SELECT event_type, COUNT(*) AS count FROM events GROUP BY event_type ORDER BY count DESC",
+          "rawSql": "SELECT event_type, COUNT(*) AS count FROM events WHERE ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') GROUP BY event_type ORDER BY count DESC",
           "refId": "A"
         }
       ]
@@ -356,7 +356,7 @@
             "uid": "postgres-app"
           },
           "format": "time_series",
-          "rawSql": "SELECT date_trunc('day', created_at) AS time, COUNT(*) AS \"Events\" FROM events WHERE created_at >= NOW() - INTERVAL '90 days' GROUP BY 1 ORDER BY 1",
+          "rawSql": "SELECT date_trunc('day', created_at) AS time, COUNT(*) AS \"Events\" FROM events WHERE created_at >= NOW() - INTERVAL '90 days' AND ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') GROUP BY 1 ORDER BY 1",
           "refId": "A"
         }
       ]
@@ -460,6 +460,30 @@
                 "value": 250
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "commit_hash"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "platform_long"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 250
+              }
+            ]
           }
         ]
       },
@@ -482,7 +506,7 @@
           }
         ]
       },
-      "title": "Recent Events (Last 100)",
+      "title": "Recent Events (Last 500)",
       "type": "table",
       "targets": [
         {
@@ -491,7 +515,7 @@
             "uid": "postgres-app"
           },
           "format": "table",
-          "rawSql": "SELECT id, event_type, platform, os_name, level_name, version_name, user_name, turn_number, platform_extended, created_at FROM events WHERE ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') ORDER BY created_at DESC LIMIT 100",
+          "rawSql": "SELECT id, event_type, platform, os_name, level_name, version_name, commit_hash, user_name, turn_number, platform_extended, platform_long, created_at FROM events WHERE ('${with_app_started}' = 'true' OR event_type != 'APP_STARTED') ORDER BY created_at DESC LIMIT 500",
           "refId": "A"
         }
       ]
@@ -1417,7 +1441,7 @@
       {
         "name": "with_app_started",
         "label": "with APP_STARTED",
-        "type": "boolean",
+        "type": "custom",
         "current": {
           "selected": true,
           "text": "true",
@@ -1435,10 +1459,12 @@
             "value": "false"
           }
         ],
-        "query": "false,true",
+        "query": "true,false",
         "hide": 0,
         "skipUrlSync": false,
-        "description": "When unchecked, APP_STARTED events are hidden from the Recent Events list"
+        "description": "When set to false, APP_STARTED events are hidden from all panels",
+        "multi": false,
+        "includeAll": false
       }
     ]
   }
