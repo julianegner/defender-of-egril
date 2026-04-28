@@ -1180,20 +1180,14 @@ fun GridCell(
     // Special case: Keep river background visible for defenders on rafts
     val backgroundColor = when {
         attackerIsFrozen || coolingReducesAttackerToZero -> TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f)  // Turquoise background for frozen/cooled-to-zero enemies
-        // Live enemy tile: transparent during attack animation, red when no attack is happening.
+        // Live enemy tile: transparent during attack animation, use base tile color otherwise.
         attacker != null && enemyBgSuppressed -> Color.Transparent
-        attacker != null -> if (isDarkMode) GamePlayColors.ErrorDark else GamePlayColors.Error  // Darker red background for enemies in dark mode
+        attacker != null -> baseBackgroundColor
         defender != null && isRiverTile -> {
             // Keep river blue background visible for defenders on rafts
             GamePlayColors.River
         }
-        defender != null -> {
-            when {
-                !defender.isReady -> GamePlayColors.Building  // Gray for building
-                defender.actionsRemaining.value <= 0 -> if (isDarkMode) GamePlayColors.InfoDark else GamePlayColors.InfoLight  // Darker blue for used actions in dark mode
-                else -> if (isDarkMode) GamePlayColors.InfoDark else GamePlayColors.Info  // Darker blue for ready towers in dark mode
-            }
-        }
+        defender != null -> baseBackgroundColor
 
         effectiveFieldEffect != null -> {
             when (effectiveFieldEffect.type) {
@@ -1646,13 +1640,12 @@ private fun BoxScope.GridCellContent(
                         maxOf(0, barbsSpeed - 1) == 0
                     }
                     // Compute the actual tile background color so the icon can derive the correct outline color.
-                    // When the red background is suppressed during an attack animation, pass null so
-                    // EnemyIcon uses the theme background color for contrast calculations (the tile
-                    // itself is transparent/see-through at this point).
+                    // No colored background is used for enemy tiles, so pass null to let the icon
+                    // use the theme background color for contrast calculations, except when a
+                    // freeze/cooling effect is active.
                     val attackerTileBackground = when {
                         freezeEffect != null || coolingReducesToZero -> TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f)
-                        enemyBgSuppressed -> null
-                        else -> GamePlayColors.Error
+                        else -> null
                     }
                     Box(
                         contentAlignment = Alignment.Center,
