@@ -33,8 +33,10 @@ class CoinRewardTest {
         goblin.isDefeated.value = true
         combatSystem.processDefeatedAttackers()
         
+        // Coins are staged in pendingCoinGains until the coin animation plays.
         // Should get 5 coins (base reward × level 1)
-        assertEquals(initialCoins + 5, state.coins.value, "Level 1 goblin should give 5 coins")
+        assertEquals(5, state.pendingCoinGains.value, "Level 1 goblin should stage 5 coins in pendingCoinGains")
+        assertEquals(initialCoins, state.coins.value, "Coins should not yet be credited before animation")
     }
     
     @Test
@@ -60,8 +62,10 @@ class CoinRewardTest {
         ork.isDefeated.value = true
         combatSystem.processDefeatedAttackers()
         
+        // Coins are staged in pendingCoinGains until the coin animation plays.
         // Should get 30 coins (base reward 10 × level 3)
-        assertEquals(initialCoins + 30, state.coins.value, "Level 3 ork should give 30 coins")
+        assertEquals(30, state.pendingCoinGains.value, "Level 3 ork should stage 30 coins in pendingCoinGains")
+        assertEquals(initialCoins, state.coins.value, "Coins should not yet be credited before animation")
     }
     
     @Test
@@ -87,8 +91,10 @@ class CoinRewardTest {
         ogre.isDefeated.value = true
         combatSystem.processDefeatedAttackers()
         
+        // Coins are staged in pendingCoinGains until the coin animation plays.
         // Should get 100 coins (base reward 20 × level 5)
-        assertEquals(initialCoins + 100, state.coins.value, "Level 5 ogre should give 100 coins")
+        assertEquals(100, state.pendingCoinGains.value, "Level 5 ogre should stage 100 coins in pendingCoinGains")
+        assertEquals(initialCoins, state.coins.value, "Coins should not yet be credited before animation")
     }
     
     @Test
@@ -129,9 +135,11 @@ class CoinRewardTest {
         ork.isDefeated.value = true
         combatSystem.processDefeatedAttackers()
         
+        // Coins are staged in pendingCoinGains until the coin animation plays.
         // Should get 45 coins total (5 + 10 + 30)
-        assertEquals(initialCoins + 45, state.coins.value, 
-            "Multiple enemies should give sum of level-adjusted rewards")
+        assertEquals(45, state.pendingCoinGains.value, 
+            "Multiple enemies should stage sum of level-adjusted rewards in pendingCoinGains")
+        assertEquals(initialCoins, state.coins.value, "Coins should not yet be credited before animation")
     }
     
     @Test
@@ -157,8 +165,10 @@ class CoinRewardTest {
         ewhad.isDefeated.value = true
         combatSystem.processDefeatedAttackers()
         
+        // Coins are staged in pendingCoinGains until the coin animation plays.
         // Should get 200 coins (base reward 100 × level 2)
-        assertEquals(initialCoins + 200, state.coins.value, "Level 2 Ewhad should give 200 coins")
+        assertEquals(200, state.pendingCoinGains.value, "Level 2 Ewhad should stage 200 coins in pendingCoinGains")
+        assertEquals(initialCoins, state.coins.value, "Coins should not yet be credited before animation")
     }
     
     @Test
