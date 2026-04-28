@@ -9,6 +9,7 @@ package de.egril.defender.analytics
 enum class GameEventType(val apiValue: String) {
     APP_STARTED("APP_STARTED"),
     LEVEL_STARTED("LEVEL_STARTED"),
+    LEVEL_LOADED("LEVEL_LOADED"),
     LEVEL_WON("LEVEL_WON"),
     LEVEL_LOST("LEVEL_LOST"),
     LEVEL_LEFT("LEVEL_LEFT")

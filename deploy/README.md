@@ -200,8 +200,8 @@ The pre-provisioned **Defender of Egril – Overview** dashboard shows:
 | Backend Errors over Time | Time series of daily error counts for the past 30 days |
 | Recent Backend Errors | Table of the 50 most recent errors with status code, method, endpoint, message, and timestamp |
 
-Event types recorded by the frontend: `APP_STARTED`, `LEVEL_STARTED`,
-`LEVEL_WON`, `LEVEL_LOST`, `GAME_LEFT`.
+Event types recorded by the frontend: `APP_STARTED`, `LEVEL_STARTED`, `LEVEL_LOADED`,
+`LEVEL_WON`, `LEVEL_LOST`, `LEVEL_LEFT`.
 
 Backend errors are recorded automatically whenever the backend responds with an HTTP 5xx status code
 (e.g. `500 Internal Server Error` or `503 Service Unavailable`). Each error entry stores the HTTP

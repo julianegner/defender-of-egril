@@ -2059,6 +2059,7 @@ class GameViewModel {
                     initialGameStateSnapshot = createGameStateSnapshot(gameState)
                     lastSaveSnapshot = initialGameStateSnapshot
                     
+                    de.egril.defender.analytics.reportEvent(de.egril.defender.analytics.GameEventType.LEVEL_LOADED, levelWithCorrectMap.name, gameState.turnNumber.value)
                     // Start time tracking for reminders
                     startTimeTracking()
                     return
@@ -2082,6 +2083,7 @@ class GameViewModel {
             initialGameStateSnapshot = createGameStateSnapshot(gameState)
             lastSaveSnapshot = initialGameStateSnapshot
             
+            de.egril.defender.analytics.reportEvent(de.egril.defender.analytics.GameEventType.LEVEL_LOADED, level.name, gameState.turnNumber.value)
             // Start time tracking for reminders
             startTimeTracking()
         }
