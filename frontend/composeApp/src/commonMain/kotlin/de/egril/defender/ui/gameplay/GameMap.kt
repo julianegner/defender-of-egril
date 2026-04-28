@@ -837,8 +837,10 @@ fun GridCell(
     }
     
     // Get tile background painter (will be null if images are disabled or not available)
-    // For ready towers on build areas or islands, don't show tile background to make towers more visible
-    val shouldShowTileImage = !(defender != null && defender.isReady && isBuildArea)
+    // For ready towers on build areas, don't show tile background to make towers more visible - but only when
+    // unit backgrounds are enabled. When unit backgrounds are OFF (transparent), show the tile image so the
+    // tower blends into the terrain instead of exposing the page background color.
+    val shouldShowTileImage = !(defender != null && defender.isReady && isBuildArea && AppSettings.showUnitTowerBackground.value)
     val tilePainter = if (shouldShowTileImage && (!useTransparentBackground || isMaelstrom)) {
         TileImageProvider.getTilePainter(tileType, isMaelstrom = isMaelstrom)
     } else {
@@ -1651,11 +1653,12 @@ private fun BoxScope.GridCellContent(
                         maxOf(0, barbsSpeed - 1) == 0
                     }
                     // Compute the actual tile background color so the icon can derive the correct outline color.
-                    // No colored background is used for enemy tiles, so pass null to let the icon
-                    // use the theme background color for contrast calculations, except when a
-                    // freeze/cooling effect is active.
+                    // When unit backgrounds are OFF (transparent), pass Color.White so the icon always uses
+                    // dark outlines – matching the light-mode appearance regardless of the current theme.
+                    // When a freeze/cooling effect is active, that color takes priority.
                     val attackerTileBackground = when {
                         freezeEffect != null || coolingReducesToZero -> TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f)
+                        !AppSettings.showUnitTowerBackground.value -> Color.White
                         else -> null
                     }
                     Box(
