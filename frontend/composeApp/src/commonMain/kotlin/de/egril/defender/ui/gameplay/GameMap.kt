@@ -2242,6 +2242,15 @@ private fun BoxScope.GridCellContent(
                     GamePlayConstants.AnimationTimings.ENEMY_DEATH_ANIMATION_DURATION_MS +
                     GamePlayConstants.AnimationTimings.COIN_GAIN_DELAY_AFTER_DEATH_MS
                 )
+                // Add coins to the player's total in sync with the animation so the counter
+                // visually increases when the coin animation plays, not before the attack runs.
+                // Only transfer coins that are still pending (guard against the safety flush in
+                // completeEnemyTurn() having already credited them).
+                val toAdd = minOf(coinGainEffect.amount, gameState.pendingCoinGains.value)
+                if (toAdd > 0) {
+                    gameState.pendingCoinGains.value -= toAdd
+                    gameState.coins.value += toAdd
+                }
                 showCoinAnimation = true
             } else {
                 showCoinAnimation = false

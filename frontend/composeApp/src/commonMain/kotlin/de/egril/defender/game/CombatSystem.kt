@@ -589,10 +589,16 @@ class CombatSystem(
         
         // Calculate XP and coins for defeated enemies
         for (attacker in defeated) {
-            // Award coins (with income multiplier from player stats)
+            // Coin reward is calculated here and stored in CoinGainEffect.amount; the actual
+            // state.coins.value increment is performed by the UI (GameMap) when the coin gain
+            // animation plays, so the counter visually updates in sync with the animation.
+            // pendingCoinGains tracks the total not yet credited; completeEnemyTurn flushes it
+            // as a safety net in case the animation coroutine is cancelled before it fires.
             val baseCoins = attacker.type.reward * attacker.level.value
             val modifiedCoins = (baseCoins * state.incomeMultiplier).toInt()
-            state.coins.value += modifiedCoins
+            if (modifiedCoins > 0) {
+                state.pendingCoinGains.value += modifiedCoins
+            }
             
             // Record enemy death visual effect for animation
             state.defeatedEnemyEffects.add(

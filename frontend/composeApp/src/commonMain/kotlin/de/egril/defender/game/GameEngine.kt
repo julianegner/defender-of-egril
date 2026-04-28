@@ -1723,6 +1723,14 @@ class GameEngine(private val state: GameState) {
     fun completeEnemyTurn() {
         if (state.phase.value != GamePhase.ENEMY_TURN) return
         
+        // Safety flush: if any coin-gain animations hadn't fired by the time the turn ends
+        // (e.g., no enemy movements → very short enemy turn), credit the remaining pending
+        // coins now before the effects list is cleared.
+        if (state.pendingCoinGains.value > 0) {
+            state.coins.value += state.pendingCoinGains.value
+            state.pendingCoinGains.value = 0
+        }
+        
         // Clear all visual effects from the previous turn before adding new ones for this turn.
         // This ensures effects added during this call (traps, construction, spawns, deaths, coins)
         // persist through the following player turn and are cleaned up on the next enemy turn.
