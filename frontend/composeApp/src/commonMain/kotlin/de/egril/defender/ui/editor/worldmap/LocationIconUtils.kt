@@ -40,7 +40,8 @@ object LocationIconUtils {
         "woods",
         "fast_and_furious",
         "island",
-        "plains"
+        "plains",
+        "winding_path"
     )
     
     /**
@@ -74,6 +75,7 @@ object LocationIconUtils {
             "location_woods" -> Res.drawable.location_woods
             "location_island" -> Res.drawable.location_island
             "location_plains" -> Res.drawable.location_plains
+            "location_winding_path" -> Res.drawable.location_winding_path
             "fortress" -> Res.drawable.location_fortress
             "city" -> Res.drawable.location_city
             "creek" -> Res.drawable.location_creek
@@ -94,6 +96,7 @@ object LocationIconUtils {
             "fast_and_furious" -> Res.drawable.location_fast_and_furious
             "island" -> Res.drawable.location_island
             "plains" -> Res.drawable.location_plains
+            "winding_path" -> Res.drawable.location_winding_path
             else -> null // Icon doesn't exist or not in allowed list
         }
     }

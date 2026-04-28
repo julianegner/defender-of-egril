@@ -81,7 +81,8 @@
       "name": "The Winding Path",
       "nameKey": "location_the_winding_path_name",
       "position": {"x": 660, "y": 527},
-      "levelIds": ["the_winding_path"]
+      "levelIds": ["the_winding_path"],
+      "iconResourceName": "winding_path"
     },
     {
       "id": "the_fortress",
