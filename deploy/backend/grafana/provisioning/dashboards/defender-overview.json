@@ -4,7 +4,7 @@
   "annotations": {
     "list": []
   },
-  "description": "Defender of Egril – events, users, and Hetzner server health",
+  "description": "Defender of Egril \u2013 events, users, and Hetzner server health",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -20,7 +20,7 @@
         "y": 0
       },
       "id": 100,
-      "title": "📊 Game Activity",
+      "title": "\ud83d\udcca Game Activity",
       "type": "row"
     },
     {
@@ -529,7 +529,7 @@
         "y": 23
       },
       "id": 101,
-      "title": "🖥️ Hetzner Server Metrics",
+      "title": "\ud83d\udda5\ufe0f Hetzner Server Metrics",
       "type": "row"
     },
     {
@@ -1135,7 +1135,7 @@
         "y": 39
       },
       "id": 102,
-      "title": "⚠️ Backend Errors",
+      "title": "\u26a0\ufe0f Backend Errors",
       "type": "row"
     },
     {
@@ -1432,7 +1432,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Defender of Egril – Overview",
+  "title": "Defender of Egril \u2013 Overview",
   "uid": "defender-overview",
   "version": 2,
   "weekStart": "",
@@ -1441,7 +1441,7 @@
       {
         "name": "with_app_started",
         "label": "with APP_STARTED",
-        "type": "boolean",
+        "type": "custom",
         "current": {
           "selected": true,
           "text": "true",
@@ -1459,10 +1459,12 @@
             "value": "false"
           }
         ],
-        "query": "false,true",
+        "query": "true,false",
         "hide": 0,
         "skipUrlSync": false,
-        "description": "When unchecked, APP_STARTED events are hidden from the Recent Events list"
+        "description": "When set to false, APP_STARTED events are hidden from all panels",
+        "multi": false,
+        "includeAll": false
       }
     ]
   }
