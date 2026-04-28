@@ -167,7 +167,7 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
+        "w": 4,
         "x": 12,
         "y": 1
       },
@@ -203,6 +203,65 @@
     {
       "datasource": {
         "type": "postgres",
+        "uid": "postgres-app"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 1
+      },
+      "id": 200,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "Levels Loaded Today",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres-app"
+          },
+          "format": "table",
+          "rawSql": "SELECT COUNT(*) AS value FROM events WHERE event_type = 'LEVEL_LOADED' AND created_at >= CURRENT_DATE",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "postgres",
         "uid": "postgres-keycloak"
       },
       "fieldConfig": {
@@ -226,8 +285,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 18,
+        "w": 4,
+        "x": 20,
         "y": 1
       },
       "id": 4,

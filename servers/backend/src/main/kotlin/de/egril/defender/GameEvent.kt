@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 /**
  * Represents a game lifecycle event sent by the frontend.
  *
- * @param event One of: APP_STARTED, LEVEL_STARTED, LEVEL_WON, LEVEL_LOST, LEVEL_LEFT
+ * @param event One of: APP_STARTED, LEVEL_STARTED, LEVEL_LOADED, LEVEL_WON, LEVEL_LOST, LEVEL_LEFT
  * @param levelName Display name of the level, present for all events except APP_STARTED
  * @param platform The short frontend platform identifier (e.g. WEB, DESKTOP, ANDROID, IOS)
  * @param platformLong The full platform name including user agent for web (e.g. "Web with Kotlin/Wasm Mozilla/5.0 ..."), optional
@@ -14,7 +14,7 @@ import kotlinx.serialization.Serializable
  * @param versionName The version name of the frontend (e.g. "1.0"), optional
  * @param commitHash The short git commit hash of the frontend build, optional
  * @param username The Keycloak username of the authenticated player, optional (only present when logged in)
- * @param turnNumber The current game turn number at the time of the event, optional (present for LEVEL_WON, LEVEL_LOST, LEVEL_LEFT)
+ * @param turnNumber The current game turn number at the time of the event, optional (present for LEVEL_LOADED, LEVEL_WON, LEVEL_LOST, LEVEL_LEFT)
  */
 @Serializable
 data class GameEvent(
