@@ -1184,8 +1184,8 @@ fun GridCell(
     // Special case: Keep river background visible for defenders on rafts
     val backgroundColor = when {
         attackerIsFrozen || coolingReducesAttackerToZero -> TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f)  // Turquoise background for frozen/cooled-to-zero enemies
-        attacker != null && enemyBgSuppressed -> Color.Transparent
-        attacker != null -> if (AppSettings.showUnitTowerBackground.value) GamePlayColors.Error else Color.Transparent
+        attacker != null && enemyBgSuppressed -> if (useTransparentBackground) Color.Transparent else baseBackgroundColor
+        attacker != null -> if (AppSettings.showUnitTowerBackground.value) GamePlayColors.Error else if (useTransparentBackground) Color.Transparent else baseBackgroundColor
         defender != null && isRiverTile -> {
             // Keep river blue background visible for defenders on rafts only when unit backgrounds are enabled.
             // When unit backgrounds are off: transparent if level map is shown (shows through), otherwise river color.
