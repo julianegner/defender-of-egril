@@ -93,6 +93,9 @@ class CombatSystem(
         }
 
         // Record attack impact visual effect at the target position (deduplicated per tile per turn)
+        // Always increment the monotonic trigger counter so non-targeted tiles can detect
+        // each individual attack even when the same tile is targeted more than once.
+        state.attackTriggerCount.value++
         if (state.towerAttackEffects.none { it.targetPosition == target.position.value }) {
             state.towerAttackEffects.add(
                 TowerAttackEffect(
@@ -256,6 +259,9 @@ class CombatSystem(
         }
 
         // Record attack impact visual effect at the target position (deduplicated per tile per turn)
+        // Always increment the monotonic trigger counter so non-targeted tiles can detect
+        // each individual attack even when the same tile is targeted more than once.
+        state.attackTriggerCount.value++
         if (state.towerAttackEffects.none { it.targetPosition == targetPosition }) {
             state.towerAttackEffects.add(
                 TowerAttackEffect(

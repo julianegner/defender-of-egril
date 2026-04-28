@@ -1112,12 +1112,12 @@ fun GridCell(
         maxOf(0, penalizedSpeed - 1) == 0
     }
 
-    // Total count of accumulated tower attack effects this turn.
-    // Unlike the boolean anyTowerAttackActive (which stays true the entire player turn once any
-    // attack fires), this count increments by 1 for each new attack, so LaunchedEffects that use
-    // it as a key will re-fire on every individual attack rather than only the first one.
+    // Monotonic attack trigger counter: increments on every individual attack, even when the same
+    // tile is attacked multiple times in a turn (bypasses the per-tile deduplication in
+    // towerAttackEffects).  Using this as a LaunchedEffect key guarantees the suppression
+    // coroutine re-fires for every new attack, not just the first one per tile.
     val towerAttackCount = if (animate)
-        gameState.towerAttackEffects.size
+        gameState.attackTriggerCount.value
     else
         0
 

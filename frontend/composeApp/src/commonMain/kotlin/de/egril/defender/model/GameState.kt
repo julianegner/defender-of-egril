@@ -198,6 +198,7 @@ data class GameState(
     val defeatedEnemyEffects: SnapshotStateList<EnemyDeathEffect> = mutableStateListOf(),  // Track enemy death visual effects
     val coinGainEffects: SnapshotStateList<CoinGainEffect> = mutableStateListOf(),  // Track coin gain visual effects
     val towerAttackEffects: SnapshotStateList<TowerAttackEffect> = mutableStateListOf(),  // Track tower attack impact visual effects
+    val attackTriggerCount: MutableState<Int> = mutableStateOf(0),  // Monotonically-increasing counter, incremented on every attack (bypasses per-tile deduplication)
     val constructionCompleteEffects: SnapshotStateList<TowerConstructionEffect> = mutableStateListOf(),  // Track tower construction complete visual effects
     val enemySpawnEffects: SnapshotStateList<EnemySpawnEffect> = mutableStateListOf(),  // Track enemy spawn portal visual effects
     val trapTriggerEffects: SnapshotStateList<TrapTriggerEffect> = mutableStateListOf(),  // Track trap trigger visual effects
