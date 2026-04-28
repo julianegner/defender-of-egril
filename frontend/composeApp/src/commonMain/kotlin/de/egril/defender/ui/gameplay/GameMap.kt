@@ -1180,13 +1180,21 @@ fun GridCell(
     // Special case: Keep river background visible for defenders on rafts
     val backgroundColor = when {
         attackerIsFrozen || coolingReducesAttackerToZero -> TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f)  // Turquoise background for frozen/cooled-to-zero enemies
-        // Enemy/tower tiles: always transparent so the underlying tile image/map shows through.
-        attacker != null -> Color.Transparent
+        attacker != null && enemyBgSuppressed -> Color.Transparent
+        attacker != null -> if (AppSettings.showUnitTowerBackground.value) GamePlayColors.Error else Color.Transparent
         defender != null && isRiverTile -> {
             // Keep river blue background visible for defenders on rafts
             GamePlayColors.River
         }
-        defender != null -> Color.Transparent
+        defender != null -> if (AppSettings.showUnitTowerBackground.value) {
+            when {
+                !defender.isReady -> GamePlayColors.Building
+                defender.actionsRemaining.value > 0 -> GamePlayColors.Info
+                else -> GamePlayColors.InfoLight
+            }
+        } else {
+            Color.Transparent
+        }
 
         effectiveFieldEffect != null -> {
             when (effectiveFieldEffect.type) {
@@ -1282,8 +1290,12 @@ fun GridCell(
 
         isSpawnPoint -> GamePlayColors.WarningDark  // Darker orange border for spawn in dark mode
         isTarget -> GamePlayColors.Success  // Green border for target (adapts to dark mode automatically)
-        attacker != null && !enemyBgSuppressed -> GamePlayColors.ErrorDark  // Darker red border for enemies
-        defender != null -> if (defender.isReady) GamePlayColors.InfoDark else GamePlayColors.Building  // Darker blue/gray border for towers
+        attacker != null && !enemyBgSuppressed -> if (AppSettings.showUnitTowerBackground.value) GamePlayColors.ErrorDark else Color.Transparent  // Darker red border for enemies (only when background enabled)
+        defender != null -> if (AppSettings.showUnitTowerBackground.value) {
+            if (defender.isReady) GamePlayColors.InfoDark else GamePlayColors.Building
+        } else {
+            Color.Transparent
+        }  // Darker blue/gray border for towers (only when background enabled)
         effectiveFieldEffect != null -> {
             when (effectiveFieldEffect.type) {
                 FieldEffectType.FIREBALL -> GamePlayColors.WarningDeep  // Deep orange border for fireball
@@ -1309,7 +1321,7 @@ fun GridCell(
             spellTargeting?.activeSpell != SpellType.FEAR_SPELL &&
             spellTargeting?.activeSpell != SpellType.FEAR_SPELL_AREA -> 4.dp  // Thick purple border for valid spell targets
         isSpawnPoint || isTarget -> 3.dp
-        attacker != null || defender != null -> 3.dp
+        (attacker != null || defender != null) && AppSettings.showUnitTowerBackground.value -> 3.dp
         effectiveFieldEffect != null -> 3.dp  // Thick border for field effects
         trap != null -> 3.dp  // Thick border for trap
         barricade != null -> 3.dp  // Thick border for barricade
