@@ -837,8 +837,12 @@ fun GridCell(
     }
     
     // Get tile background painter (will be null if images are disabled or not available)
-    // For ready towers on build areas or islands, don't show tile background to make towers more visible
-    val shouldShowTileImage = !(defender != null && defender.isReady && isBuildArea)
+    // Suppress tile image when unit backgrounds are ON so the colored background is visible:
+    // - For enemy tiles: the red background must not be covered by the tile texture.
+    // - For ready towers on build areas: use the colored tower background instead.
+    // When unit backgrounds are OFF (transparent), always show the tile image so units blend into terrain.
+    val shouldShowTileImage = !(AppSettings.showUnitTowerBackground.value &&
+        (attacker != null || (defender != null && defender.isReady && isBuildArea)))
     val tilePainter = if (shouldShowTileImage && (!useTransparentBackground || isMaelstrom)) {
         TileImageProvider.getTilePainter(tileType, isMaelstrom = isMaelstrom)
     } else {
@@ -1180,19 +1184,24 @@ fun GridCell(
     // Special case: Keep river background visible for defenders on rafts
     val backgroundColor = when {
         attackerIsFrozen || coolingReducesAttackerToZero -> TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f)  // Turquoise background for frozen/cooled-to-zero enemies
-        // Live enemy tile: transparent during attack animation, red when no attack is happening.
-        attacker != null && enemyBgSuppressed -> Color.Transparent
-        attacker != null -> if (isDarkMode) GamePlayColors.ErrorDark else GamePlayColors.Error  // Darker red background for enemies in dark mode
+        attacker != null && enemyBgSuppressed -> if (useTransparentBackground) Color.Transparent else baseBackgroundColor
+        attacker != null -> if (AppSettings.showUnitTowerBackground.value) GamePlayColors.Error else if (useTransparentBackground) Color.Transparent else baseBackgroundColor
         defender != null && isRiverTile -> {
-            // Keep river blue background visible for defenders on rafts
-            GamePlayColors.River
+            // Keep river blue background visible for defenders on rafts only when unit backgrounds are enabled.
+            // When unit backgrounds are off: transparent if level map is shown (shows through), otherwise river color.
+            if (!AppSettings.showUnitTowerBackground.value && useTransparentBackground) Color.Transparent else GamePlayColors.River
         }
-        defender != null -> {
+        defender != null -> if (AppSettings.showUnitTowerBackground.value) {
             when {
-                !defender.isReady -> GamePlayColors.Building  // Gray for building
-                defender.actionsRemaining.value <= 0 -> if (isDarkMode) GamePlayColors.InfoDark else GamePlayColors.InfoLight  // Darker blue for used actions in dark mode
-                else -> if (isDarkMode) GamePlayColors.InfoDark else GamePlayColors.Info  // Darker blue for ready towers in dark mode
+                !defender.isReady -> GamePlayColors.Building
+                defender.actionsRemaining.value > 0 -> GamePlayColors.Info
+                else -> GamePlayColors.InfoLight
             }
+        } else {
+            // When unit backgrounds are off: transparent if level map is shown (level map visible through tile),
+            // otherwise use terrain color so the tower tile blends with its surroundings instead of showing
+            // the Material theme's white surface color.
+            if (useTransparentBackground) Color.Transparent else baseBackgroundColor
         }
 
         effectiveFieldEffect != null -> {
@@ -1289,8 +1298,12 @@ fun GridCell(
 
         isSpawnPoint -> GamePlayColors.WarningDark  // Darker orange border for spawn in dark mode
         isTarget -> GamePlayColors.Success  // Green border for target (adapts to dark mode automatically)
-        attacker != null && !enemyBgSuppressed -> GamePlayColors.ErrorDark  // Darker red border for enemies
-        defender != null -> if (defender.isReady) GamePlayColors.InfoDark else GamePlayColors.Building  // Darker blue/gray border for towers
+        attacker != null && !enemyBgSuppressed -> if (AppSettings.showUnitTowerBackground.value) GamePlayColors.ErrorDark else Color.Transparent  // Darker red border for enemies (only when background enabled)
+        defender != null -> if (AppSettings.showUnitTowerBackground.value) {
+            if (defender.isReady) GamePlayColors.InfoDark else GamePlayColors.Building
+        } else {
+            Color.Transparent
+        }  // Darker blue/gray border for towers (only when background enabled)
         effectiveFieldEffect != null -> {
             when (effectiveFieldEffect.type) {
                 FieldEffectType.FIREBALL -> GamePlayColors.WarningDeep  // Deep orange border for fireball
@@ -1316,7 +1329,7 @@ fun GridCell(
             spellTargeting?.activeSpell != SpellType.FEAR_SPELL &&
             spellTargeting?.activeSpell != SpellType.FEAR_SPELL_AREA -> 4.dp  // Thick purple border for valid spell targets
         isSpawnPoint || isTarget -> 3.dp
-        attacker != null || defender != null -> 3.dp
+        (attacker != null || defender != null) && AppSettings.showUnitTowerBackground.value -> 3.dp
         effectiveFieldEffect != null -> 3.dp  // Thick border for field effects
         trap != null -> 3.dp  // Thick border for trap
         barricade != null -> 3.dp  // Thick border for barricade
@@ -1646,13 +1659,23 @@ private fun BoxScope.GridCellContent(
                         maxOf(0, barbsSpeed - 1) == 0
                     }
                     // Compute the actual tile background color so the icon can derive the correct outline color.
-                    // When the red background is suppressed during an attack animation, pass null so
-                    // EnemyIcon uses the theme background color for contrast calculations (the tile
-                    // itself is transparent/see-through at this point).
+                    // When unit backgrounds are OFF (transparent), pass Color.White so the icon always uses
+                    // dark outlines – matching the light-mode appearance regardless of the current theme.
+                    // When a freeze/cooling effect is active, that color takes priority.
                     val attackerTileBackground = when {
                         freezeEffect != null || coolingReducesToZero -> TargetCircleConstants.COOLING_SPELL_COLOR.copy(alpha = 0.5f)
-                        enemyBgSuppressed -> null
-                        else -> GamePlayColors.Error
+                        !AppSettings.showUnitTowerBackground.value -> Color.White
+                        else -> null
+                    }
+                    // Derive health/level text color from effective background:
+                    // - Freeze/cooling (turquoise) or unit backgrounds ON (red) → dark enough for white text
+                    // - Unit backgrounds OFF in dark mode → dark terrain bg → white text
+                    // - Unit backgrounds OFF in light mode → light terrain bg → dark text
+                    val healthTextColor = when {
+                        freezeEffect != null || coolingReducesToZero -> Color.White
+                        AppSettings.showUnitTowerBackground.value -> Color.White
+                        AppSettings.isDarkMode.value -> Color.White
+                        else -> Color.Black
                     }
                     Box(
                         contentAlignment = Alignment.Center,
@@ -1661,7 +1684,7 @@ private fun BoxScope.GridCellContent(
                         else
                             Modifier
                     ) {
-                        EnemyIcon(attacker = attacker, backgroundColor = attackerTileBackground, healthOverride = displayedHealth)
+                        EnemyIcon(attacker = attacker, backgroundColor = attackerTileBackground, healthTextColor = healthTextColor, healthOverride = displayedHealth)
                         // Show healing effect overlay if present
                         if (healingEffect != null) {
                             GreenWitchHealingAnimation(

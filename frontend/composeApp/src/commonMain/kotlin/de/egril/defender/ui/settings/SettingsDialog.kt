@@ -325,6 +325,17 @@ private fun LevelTabContent() {
                 modifier = Modifier.fillMaxWidth()
             )
 
+            // Unit/tower background color switch
+            DualLabelSwitch(
+                state = AppSettings.showUnitTowerBackground,
+                leftText = stringResource(Res.string.unit_tower_background_off),
+                rightText = stringResource(Res.string.unit_tower_background_on),
+                onCheckedChange = { enabled ->
+                    AppSettings.saveShowUnitTowerBackground(enabled)
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+
             // Level header text size slider
             Row(
                 modifier = Modifier.fillMaxWidth(),

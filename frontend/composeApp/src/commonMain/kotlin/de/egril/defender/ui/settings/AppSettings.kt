@@ -68,6 +68,7 @@ object AppSettings {
     private const val KEY_ENABLE_ANIMATIONS = "enable_animations"
     private const val KEY_CHECK_FOR_UPDATES = "check_for_updates"
     private const val KEY_AUTO_JUMP_TO_NEXT_TOWER = "auto_jump_to_next_tower"
+    private const val KEY_SHOW_UNIT_TOWER_BACKGROUND = "show_unit_tower_background"
     
     private val settings: Settings = Settings()
 
@@ -237,6 +238,15 @@ object AppSettings {
      */
     val autoJumpToNextTower: MutableState<Boolean> = mutableStateOf(
         settings.getBoolean(KEY_AUTO_JUMP_TO_NEXT_TOWER, false)
+    )
+
+    /**
+     * Show unit/tower background color – when ON, enemy tiles get a red background and tower
+     * tiles get a blue/gray background (classic look). When OFF, tiles are see-through.
+     * Default is false (OFF = transparent).
+     */
+    val showUnitTowerBackground: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_SHOW_UNIT_TOWER_BACKGROUND, false)
     )
 
     // Session-only debug states (not persisted)
@@ -537,6 +547,15 @@ object AppSettings {
     }
 
     /**
+     * Save show unit/tower background color preference
+     */
+    fun saveShowUnitTowerBackground(enabled: Boolean) {
+        showUnitTowerBackground.value = enabled
+        settings.putBoolean(KEY_SHOW_UNIT_TOWER_BACKGROUND, enabled)
+        onPersist?.invoke()
+    }
+
+    /**
      * Serialize all relevant (non-debug, non-hint) settings into a flat map for remote storage.
      * Keys match the internal KEY_* constants; values are String representations.
      */
@@ -564,6 +583,7 @@ object AppSettings {
         put(KEY_ENABLE_ANIMATIONS, enableAnimations.value.toString())
         put(KEY_CHECK_FOR_UPDATES, checkForUpdates.value.toString())
         put(KEY_AUTO_JUMP_TO_NEXT_TOWER, autoJumpToNextTower.value.toString())
+        put(KEY_SHOW_UNIT_TOWER_BACKGROUND, showUnitTowerBackground.value.toString())
     }
 
     /**
@@ -604,6 +624,7 @@ object AppSettings {
             map[KEY_ENABLE_ANIMATIONS]?.toBooleanStrictOrNull()?.let { saveEnableAnimations(it) }
             map[KEY_CHECK_FOR_UPDATES]?.toBooleanStrictOrNull()?.let { saveCheckForUpdates(it) }
             map[KEY_AUTO_JUMP_TO_NEXT_TOWER]?.toBooleanStrictOrNull()?.let { saveAutoJumpToNextTower(it) }
+            map[KEY_SHOW_UNIT_TOWER_BACKGROUND]?.toBooleanStrictOrNull()?.let { saveShowUnitTowerBackground(it) }
         } finally {
             onPersist = savedCallback
         }
@@ -657,6 +678,9 @@ object AppSettings {
         
         // Reset check for updates to ON
         saveCheckForUpdates(true)
+
+        // Reset unit/tower background to OFF
+        saveShowUnitTowerBackground(false)
         
         // Note: Don't reset settings hint shown state when resetting settings
         // as user has already seen it once

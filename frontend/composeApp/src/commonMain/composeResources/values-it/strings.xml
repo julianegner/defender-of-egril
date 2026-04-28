@@ -1350,6 +1350,8 @@
 
     <!-- Map Image and Debug Options -->
     <string name="level_map_image">Immagine mappa</string>
+    <string name="unit_tower_background_on">Sfondi Unità Attivi</string>
+    <string name="unit_tower_background_off">Tessere Trasparenti</string>
     <string name="debug_options">Opzioni di debug</string>
     <string name="debug_display_tile_borders">Mostra bordi delle celle</string>
     <string name="debug_display_tile_positions">Mostra posizioni delle celle</string>
