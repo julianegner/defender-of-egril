@@ -7,3 +7,5 @@ package de.egril.defender.utils
 actual fun getCurrentPathname(): String? {
     return null
 }
+
+actual fun detectSupportedLanguage(): String = "en"
