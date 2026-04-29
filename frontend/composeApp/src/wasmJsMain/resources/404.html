@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defender of Egril</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Segoe UI Emoji', 'Noto Color Emoji', 'Apple Color Emoji', Arial, sans-serif;
+        }
+        
+        #root {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        
+        canvas {
+            outline: none;
+            max-width: 100%;
+            max-height: 100%;
+            display: none;
+        }
+        
+        canvas.loaded {
+            display: block;
+        }
+        
+        #loading {
+            color: white;
+            text-align: center;
+            position: absolute;
+        }
+        
+        #loading.hidden {
+            display: none;
+        }
+        
+        #loading h1 {
+            font-size: 2em;
+            margin-bottom: 1em;
+        }
+        
+        #loading .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Portrait mode overlay for mobile browsers */
+        #portrait-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: #1a1a1a;
+            color: white;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            gap: 24px;
+            text-align: center;
+            padding: 32px;
+            box-sizing: border-box;
+        }
+
+        /* Show the overlay only on touch devices in portrait mode */
+        @media (orientation: portrait) and (hover: none) and (pointer: coarse) {
+            #portrait-overlay {
+                display: flex;
+            }
+        }
+
+        #portrait-overlay .phone-icon {
+            animation: rotate-phone 2.5s ease-in-out infinite;
+        }
+
+        @keyframes rotate-phone {
+            0%, 20% { transform: rotate(0deg); }
+            60%, 80% { transform: rotate(90deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        #portrait-overlay h2 {
+            margin: 0;
+            font-size: 1.4em;
+            font-weight: bold;
+        }
+
+        #portrait-overlay p {
+            margin: 0;
+            font-size: 1em;
+            color: #aaaaaa;
+            max-width: 280px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Portrait mode overlay: shown only on touch devices in portrait orientation -->
+    <div id="portrait-overlay">
+        <div class="phone-icon">
+            <svg width="72" height="72" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Phone body -->
+                <rect x="5" y="1" width="14" height="22" rx="2" ry="2" stroke="white" stroke-width="1.5" fill="none"/>
+                <!-- Home button -->
+                <circle cx="12" cy="20" r="1" fill="white"/>
+                <!-- Speaker -->
+                <line x1="10" y1="3.5" x2="14" y2="3.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <h2 id="portrait-title">Please rotate your device</h2>
+        <p id="portrait-subtitle">This game works best in landscape mode</p>
+    </div>
+    <div id="root">
+        <div id="loading">
+            <h1>Defender of Egril</h1>
+            <div class="spinner"></div>
+            <p>Loading game...</p>
+        </div>
+        <canvas id="ComposeTarget"></canvas>
+    </div>
+    <script>
+        // ---------------------------------------------------------------------------
+        // IAM / Keycloak configuration
+        // Override window.keycloakConfig before this script to point at an external
+        // Keycloak instance, e.g.:
+        //   <script>window.keycloakConfig = { url: 'https://…', realm: 'egril', clientId: 'defender-of-egril' };<\/script>
+        // ---------------------------------------------------------------------------
+        window.keycloakConfig = window.keycloakConfig || {
+            url: 'https://sso.julianegner.de',
+            realm: 'egril',
+            clientId: 'defender-of-egril'
+        };
+
+        window._kcReady = false;
+        window._kcAuthenticated = false;
+        window._kcUsername = null;
+        window._kcToken = null;
+        window._kcEmail = null;
+        window._kcFirstName = null;
+        window._kcLastName = null;
+        window._keycloak = null;
+
+        (function initKeycloak() {
+            const cfg = window.keycloakConfig;
+            const script = document.createElement('script');
+            script.src = cfg.url + '/js/keycloak.min.js';
+            script.onload = function () {
+                try {
+                    const kc = new Keycloak({ url: cfg.url, realm: cfg.realm, clientId: cfg.clientId });
+                    window._keycloak = kc;
+                    function updateKcState() {
+                        window._kcToken = kc.token || null;
+                        window._kcAuthenticated = true;
+                        var tp = kc.tokenParsed || {};
+                        window._kcUsername = tp.preferred_username || null;
+                        window._kcEmail = tp.email || null;
+                        window._kcFirstName = tp.given_name || null;
+                        window._kcLastName = tp.family_name || null;
+                    }
+                    // checkLoginIframe: false avoids CSP/third-party-cookie issues in modern browsers.
+                    // Re-enable in production if your deployment environment allows same-site iframes.
+                    // Called automatically when the access token is refreshed successfully.
+                    kc.onAuthRefreshSuccess = function () {
+                        updateKcState();
+                    };
+
+                    // Called when the access token expires. Attempt a silent refresh;
+                    // if it fails the session has ended and we clear the auth state.
+                    kc.onTokenExpired = function () {
+                        kc.updateToken(30)
+                            .catch(function () {
+                                window._kcAuthenticated = false;
+                                window._kcToken = null;
+                                window._kcEmail = null;
+                                window._kcFirstName = null;
+                                window._kcLastName = null;
+                            });
+                    };
+
+                    kc.init({ onLoad: 'check-sso', checkLoginIframe: false, silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html' })
+                        .then(function (authenticated) {
+                            window._kcAuthenticated = authenticated === true;
+                            if (authenticated) {
+                                var tp = kc.tokenParsed || {};
+                                window._kcUsername = tp.preferred_username || null;
+                                window._kcToken = kc.token || null;
+                                window._kcEmail = tp.email || null;
+                                window._kcFirstName = tp.given_name || null;
+                                window._kcLastName = tp.family_name || null;
+                            }
+                        })
+                        .catch(function () { /* Keycloak server may not be available */ })
+                        .finally(function () { window._kcReady = true; });
+                } catch (e) {
+                    window._kcReady = true; // mark ready even on error so Kotlin doesn't wait forever
+                }
+            };
+            script.onerror = function () {
+                // Keycloak server not reachable – mark ready so the app starts normally
+                window._kcReady = true;
+            };
+            document.head.appendChild(script);
+        })();
+    </script>
+    <script src="/defenderOfEgril.js"></script>
+    <script>
+        // Hide loading screen when canvas is ready
+        const canvas = document.getElementById('ComposeTarget');
+        const loading = document.getElementById('loading');
+        
+        // Use MutationObserver to detect when canvas starts rendering
+        const observer = new MutationObserver(() => {
+            if (canvas.width > 0 && canvas.height > 0) {
+                canvas.classList.add('loaded');
+                loading.classList.add('hidden');
+                observer.disconnect();
+            }
+        });
+        
+        observer.observe(canvas, { 
+            attributes: true, 
+            attributeFilter: ['width', 'height'] 
+        });
+        
+        // Fallback: hide after 3 seconds even if observer doesn't trigger
+        setTimeout(() => {
+            canvas.classList.add('loaded');
+            loading.classList.add('hidden');
+        }, 3000);
+
+        // Fix for Android Firefox: WebGL context is discarded when the browser tab
+        // goes into the background and cannot be reused when it returns.
+        // Reloading the page is the most reliable way to restore the Skiko/Compose rendering pipeline.
+        canvas.addEventListener('webglcontextlost', function (event) {
+            // Allow the browser to restore the context rather than permanently losing it
+            event.preventDefault();
+        }, false);
+
+        canvas.addEventListener('webglcontextrestored', function () {
+            // Skiko's internal GL state cannot be restored incrementally; reload to reinitialize
+            window.location.reload();
+        }, false);
+
+        // Page Visibility API: reload when the tab becomes visible again if the WebGL
+        // context was lost while the page was hidden (common on Android Firefox)
+        document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'visible') {
+                var gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+                if (gl && gl.isContextLost()) {
+                    window.location.reload();
+                }
+            }
+        });
+    </script>
+    <script>
+        // Localize the portrait overlay message using the browser language.
+        // This runs immediately in HTML — before the Kotlin/WASM bundle is downloaded and
+        // initialized — so we cannot use the in-app localization system here. The translations
+        // are kept intentionally minimal (two short phrases) for easy maintenance.
+        (function localizePortraitOverlay() {
+            var messages = {
+                'de': {
+                    title: 'Bitte Gerät drehen',
+                    subtitle: 'Dieses Spiel funktioniert am besten im Querformat'
+                },
+                'es': {
+                    title: 'Por favor, gira tu dispositivo',
+                    subtitle: 'Este juego funciona mejor en modo horizontal'
+                },
+                'fr': {
+                    title: 'Veuillez tourner votre appareil',
+                    subtitle: 'Ce jeu fonctionne mieux en mode paysage'
+                },
+                'it': {
+                    title: 'Ruota il dispositivo',
+                    subtitle: 'Questo gioco funziona meglio in modalità orizzontale'
+                }
+            };
+            try {
+                var lang = (navigator.language || '').split('-')[0].toLowerCase();
+                var msg = messages[lang];
+                if (msg) {
+                    document.getElementById('portrait-title').textContent = msg.title;
+                    document.getElementById('portrait-subtitle').textContent = msg.subtitle;
+                }
+            } catch (e) { /* use default English text */ }
+        })();
+    </script>
+</body>
+</html>
