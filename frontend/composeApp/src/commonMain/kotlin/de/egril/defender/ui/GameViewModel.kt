@@ -25,6 +25,11 @@ import de.egril.defender.editor.EditorJsonSerializer
 import de.egril.defender.editor.OfficialContent
 import de.egril.defender.ui.infopage.NewVersionInfo
 import de.egril.defender.ui.infopage.checkForNewerVersion
+import de.egril.defender.utils.checkCurrentDeepLink
+import de.egril.defender.utils.DeepLink
+import com.hyperether.resources.currentLanguage
+
+
 
 /**
  * Represents the progress of loading repository data files (levels, maps, worldmap).
@@ -3391,6 +3396,25 @@ class GameViewModel {
 
         // Show confirmation dialog with target details (or warning for immune enemies)
         onSpellTargetSelected(target)
+    }
+
+    /**
+     * Handles deep link navigation for web/WASM variant.
+     * Called once during app startup to check for deep links like /data-privacy/en
+     */
+    fun handleDeepLink() {
+        val deepLink = checkCurrentDeepLink()
+        when (deepLink) {
+            is DeepLink.DataPrivacy -> {
+                // Set the language from the deep link
+                currentLanguage.value = deepLink.language
+                // Navigate to the backend info page (which is the data-privacy page)
+                navigateToBackendInfo()
+            }
+            DeepLink.None -> {
+                // No deep link, proceed normally
+            }
+        }
     }
 
     companion object {

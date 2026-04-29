@@ -14,6 +14,19 @@
 config.devServer = config.devServer || {};
 // Use port 8082 so it doesn't conflict with the Ktor backend on 8080.
 config.devServer.port = config.devServer.port || 8082;
+
+// Enable SPA routing: fall back to index.html for non-static routes
+// This allows deep links like /data-privacy/en to work by serving index.html,
+// which loads the Kotlin/Wasm app that then handles routing internally.
+config.devServer.historyApiFallback = {
+    rewrites: [
+        {
+            from: /^\/(?!api|\.)/,
+            to: '/index.html'
+        }
+    ]
+};
+
 config.devServer.proxy = [
     {
         context: ["/api"],

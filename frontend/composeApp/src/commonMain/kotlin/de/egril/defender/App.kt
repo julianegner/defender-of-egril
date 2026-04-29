@@ -122,6 +122,17 @@ fun App() {
             viewModel.onAuthStateChanged()
         }
 
+
+        LaunchedEffect(Unit) {
+            AppSettings.initialize()
+            de.egril.defender.audio.GlobalSoundManager.initialize()
+            de.egril.defender.audio.GlobalBackgroundMusicManager.initialize()
+            initPlatformIam()
+
+            // Handle deep links on app startup (web/WASM only)
+            viewModel.handleDeepLink()
+        }
+
         // "Always log in" is now a per-player preference stored in PlayerProfile.
         // Auto-login only fires when:
         //   1. the current player has alwaysLogin = true, AND
