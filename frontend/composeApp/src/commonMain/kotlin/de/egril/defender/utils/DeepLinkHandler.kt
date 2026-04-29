@@ -1,6 +1,8 @@
 package de.egril.defender.utils
 
 import com.hyperether.resources.AppLocale
+import com.hyperether.resources.currentLanguage
+import kotlinx.browser.window
 
 /**
  * Represents a deep link parsed from a URL.
@@ -57,7 +59,14 @@ fun parseDeepLink(path: String): DeepLink {
                 return DeepLink.DataPrivacy(locale)
             }
         }
-    }
+    } else
+        if (trimmedPath.startsWith("data-privacy")) {
+            val lang = detectSupportedLanguage()
+            val locale = parseLanguageFromCode(lang)
+            if (locale != null) {
+                return DeepLink.DataPrivacy(locale)
+            }
+        }
 
     return DeepLink.None
 }
@@ -69,4 +78,18 @@ fun parseDeepLink(path: String): DeepLink {
 fun checkCurrentDeepLink(): DeepLink {
     val pathname = getCurrentPathname() ?: return DeepLink.None
     return parseDeepLink(pathname)
+}
+
+@kotlin.js.ExperimentalWasmJsInterop
+fun detectSupportedLanguage(): String {
+    val supported = setOf("en", "de", "fr", "es", "it")
+    val browserLangs = window.navigator.languages
+    val lang = (0 until (browserLangs.length as Int))
+        .mapNotNull { idx ->
+            val value = browserLangs[idx]
+            if (value != null) value.toString() else null
+        }
+        .map { it.substringBefore('-').lowercase() }
+        .firstOrNull { it in supported }
+    return lang ?: "en"
 }
