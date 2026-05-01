@@ -299,7 +299,8 @@ fun MapEditorContent(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     if (isError) {
-                        Text(stringResource(Res.string.creating_map_error, creatingMapError ?: ""))
+                        val unknownError = stringResource(Res.string.error_unknown)
+                        Text(stringResource(Res.string.creating_map_error, creatingMapError ?: unknownError))
                     } else {
                         CircularProgressIndicator()
                         Text(stringResource(Res.string.creating_map_info))

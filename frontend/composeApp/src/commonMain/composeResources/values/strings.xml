@@ -405,6 +405,7 @@
     <string name="creating_map_title">Creating Map…</string>
     <string name="creating_map_info">Please wait while the map is being created.</string>
     <string name="creating_map_error">Failed to create map: %1$s</string>
+    <string name="error_unknown">Unknown error</string>
     <string name="add">Add</string>
     <string name="turn_x">Turn %d</string>
     <string name="x_enemies">(%d enemies)</string>
