@@ -56,8 +56,11 @@
     <string name="restore_game_data">Restore Game Data</string>
     <string name="restore_game_data_confirm_title">Restore Game Data?</string>
     <string name="restore_game_data_confirm_message">This will backup your current game data and restore the original levels from the repository. Your current data will be preserved in a backup folder. Are you sure?</string>
+    <string name="restore_game_data_confirm_message_web">This will clear the cached game data and reload the app. The game will restart with fresh data from the repository. Your save games will not be affected. Are you sure?</string>
     <string name="restore_game_data_success_title">Game Data Restored</string>
     <string name="restore_game_data_success_message">Game data has been restored from the repository. Your previous data was backed up to: %s</string>
+    <string name="restore_game_data_failure_title">Restore Failed</string>
+    <string name="restore_game_data_failure_message">Failed to restore game data. Please try again.</string>
     <string name="game_data">Game Data</string>
     <string name="close">Close</string>
     <string name="settings_hint_title">Settings Available</string>

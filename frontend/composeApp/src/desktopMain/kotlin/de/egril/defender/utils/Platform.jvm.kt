@@ -82,3 +82,7 @@ actual fun getCurrentUsername(): String {
         ""
     }
 }
+
+actual fun reloadApp() {
+    // No-op for desktop - restoration is handled by RepositoryManager
+}

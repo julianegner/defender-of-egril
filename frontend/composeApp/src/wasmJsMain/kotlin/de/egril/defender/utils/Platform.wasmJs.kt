@@ -74,3 +74,10 @@ actual fun getSystemLanguageCode(): String? {
 }
 
 actual fun getCurrentUsername(): String = ""
+
+@JsFun("() => { window.location.reload(); }")
+private external fun jsReloadApp()
+
+actual fun reloadApp() {
+    jsReloadApp()
+}

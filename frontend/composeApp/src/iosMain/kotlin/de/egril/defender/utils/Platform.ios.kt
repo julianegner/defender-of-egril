@@ -22,3 +22,7 @@ actual fun getSystemLanguageCode(): String? {
 }
 
 actual fun getCurrentUsername(): String = ""
+
+actual fun reloadApp() {
+    // No-op for iOS - restoration is handled by RepositoryManager
+}
