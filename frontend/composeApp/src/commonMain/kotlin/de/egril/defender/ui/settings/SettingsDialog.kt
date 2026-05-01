@@ -32,7 +32,7 @@ fun SettingsDialog(
         Surface(
             modifier = Modifier
                 .widthIn(min = 300.dp, max = 500.dp)
-                .wrapContentHeight()
+                .fillMaxHeight(fraction = 0.9f)
                 .heightIn(max = 680.dp)
                 .onPreviewKeyEvent { event ->
                     if (event.type == KeyEventType.KeyDown &&
@@ -52,6 +52,7 @@ fun SettingsDialog(
                 modifier = Modifier
                     .padding(24.dp)
                     .fillMaxWidth()
+                    .fillMaxHeight()
             ) {
                 // Title
                 SelectableText(
@@ -71,7 +72,10 @@ fun SettingsDialog(
                     stringResource(Res.string.sound)
                 )
 
-                PrimaryTabRow(selectedTabIndex = selectedTab) {
+                PrimaryScrollableTabRow(
+                    selectedTabIndex = selectedTab,
+                    edgePadding = 0.dp
+                ) {
                     tabs.forEachIndexed { index, title ->
                         Tab(
                             selected = selectedTab == index,
