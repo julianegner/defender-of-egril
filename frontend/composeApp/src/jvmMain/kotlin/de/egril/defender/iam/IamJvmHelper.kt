@@ -5,12 +5,12 @@ package de.egril.defender.iam
  * Resolution order:
  * 1. `iam.base.url` Java system property  (e.g. -Diam.base.url=https://…)
  * 2. `IAM_BASE_URL` environment variable
- * 3. `http://localhost:8081` (local development default)
+ * 3. `https://sso.julianegner.de` (production default)
  */
 internal fun readIamBaseUrlFromJvmEnv(): String =
     System.getProperty("iam.base.url")
         ?: System.getenv("IAM_BASE_URL")
-        ?: "http://localhost:8081"
+        ?: "https://sso.julianegner.de"
 
 /**
  * Parses the `preferred_username` (or `sub` as fallback) from a JWT access token

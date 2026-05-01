@@ -10,7 +10,7 @@ import org.publicvalue.multiplatform.oidc.types.CodeChallengeMethod
 import org.publicvalue.multiplatform.oidc.appsupport.IosCodeAuthFlowFactory
 import platform.Foundation.NSDate
 
-actual fun getIamBaseUrl(): String = "http://localhost:8081"
+actual fun getIamBaseUrl(): String = "https://sso.julianegner.de"
 
 // ---------------------------------------------------------------------------
 // OIDC redirect URI – must be a valid redirect URI registered in Keycloak.
