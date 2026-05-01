@@ -398,6 +398,9 @@
     <string name="map_image_generation_preview_label">Anteprima immagine mappa</string>
     <string name="map_image_compressing">Compressione immagine mappa…</string>
     <string name="map_image_compressed_size">Dimensione compressa: %1$s KB</string>
+    <string name="creating_map_title">Creazione della mappa…</string>
+    <string name="creating_map_info">Attendere la creazione della mappa.</string>
+    <string name="creating_map_error">Errore nella creazione della mappa: %1$s</string>
     <string name="add">Aggiungi</string>
     <string name="turn_x">Turno %d</string>
     <string name="x_enemies">(%d nemici)</string>
