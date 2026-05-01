@@ -15,6 +15,8 @@ import de.egril.defender.model.*
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.SwordIcon
+import de.egril.defender.ui.icon.SellTowerIcon
+import de.egril.defender.ui.icon.UpgradeTowerIcon
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -210,7 +212,7 @@ fun UpgradeButton(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(stringResource(Res.string.upgrade), fontSize = GamePlayConstants.TextSizes.Title, fontWeight = FontWeight.Bold)
+            UpgradeTowerIcon(size = 20.dp)
             Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Items))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 MoneyIcon(size = 14.dp)
@@ -283,7 +285,7 @@ fun UndoOrSellButton(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(stringResource(Res.string.sell), fontSize = GamePlayConstants.TextSizes.Title, fontWeight = FontWeight.Bold)
+                SellTowerIcon(size = 20.dp)
                 Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Items))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     MoneyIcon(size = 14.dp)
@@ -341,7 +343,7 @@ fun UndoOrSellButton(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(stringResource(Res.string.sell), fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                SellTowerIcon(size = 14.dp)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     stringResource(Res.string.not_enough_actions),

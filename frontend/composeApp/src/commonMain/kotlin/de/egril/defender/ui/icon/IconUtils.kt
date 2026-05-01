@@ -4,9 +4,11 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -1475,5 +1477,57 @@ fun KeyboardKeyIcon(
             cornerRadius = androidx.compose.ui.geometry.CornerRadius(innerCorner, innerCorner),
             style = Stroke(width = strokeWidth * 0.7f)
         )
+    }
+}
+
+/**
+ * Displays a sell-tower symbol: a tower with a diagonal strikethrough line
+ * from bottom-left to top-right, indicating demolition/sale.
+ */
+@Composable
+fun SellTowerIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 24.dp,
+    lineColor: Color = Color.White
+) {
+    Canvas(modifier = modifier.size(size)) {
+        val centerX = this.size.width / 2
+        val centerY = this.size.height / 2
+        val iconSize = minOf(this.size.width, this.size.height)
+
+        // Draw the tower base
+        drawTowerBase(centerX, centerY, iconSize * 0.8f, lineColor)
+
+        // Draw red diagonal strikethrough from bottom-left to top-right
+        drawLine(
+            color = Color.Red,
+            start = Offset(this.size.width * 0.1f, this.size.height * 0.9f),
+            end = Offset(this.size.width * 0.9f, this.size.height * 0.1f),
+            strokeWidth = iconSize * 0.1f,
+            cap = StrokeCap.Round
+        )
+    }
+}
+
+/**
+ * Displays an upgrade-tower symbol: a tower on the left with a red upward arrow on the right.
+ */
+@Composable
+fun UpgradeTowerIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 24.dp,
+    lineColor: Color = Color.White
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Canvas(modifier = Modifier.size(size)) {
+            val centerX = this.size.width / 2
+            val centerY = this.size.height / 2
+            val iconSize = minOf(this.size.width, this.size.height)
+            drawTowerBase(centerX, centerY, iconSize * 0.8f, lineColor)
+        }
+        UpArrowIcon(size = size, tint = Color.Red)
     }
 }
