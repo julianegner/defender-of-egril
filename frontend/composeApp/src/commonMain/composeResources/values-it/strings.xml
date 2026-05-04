@@ -56,8 +56,11 @@
     <string name="restore_game_data">Ripristina Dati di Gioco</string>
     <string name="restore_game_data_confirm_title">Ripristinare i Dati di Gioco?</string>
     <string name="restore_game_data_confirm_message">Questo eseguirà il backup dei dati di gioco correnti e ripristinerà i livelli originali dal repository. I dati correnti saranno conservati in una cartella di backup. Sei sicuro?</string>
+    <string name="restore_game_data_confirm_message_web">Questo cancellerà i dati di gioco memorizzati nella cache e ricaricherà l\'app. Il gioco si riavvierà con dati aggiornati dal repository. I tuoi salvataggi non saranno influenzati. Sei sicuro?</string>
     <string name="restore_game_data_success_title">Dati di Gioco Ripristinati</string>
     <string name="restore_game_data_success_message">I dati di gioco sono stati ripristinati dal repository. I dati precedenti sono stati salvati in: %s</string>
+    <string name="restore_game_data_failure_title">Ripristino Fallito</string>
+    <string name="restore_game_data_failure_message">Impossibile ripristinare i dati di gioco. Riprova.</string>
     <string name="game_data">Dati di Gioco</string>
     <string name="close">Chiudi</string>
     <string name="settings_hint_title">Impostazioni Disponibili</string>
@@ -398,6 +401,10 @@
     <string name="map_image_generation_preview_label">Anteprima immagine mappa</string>
     <string name="map_image_compressing">Compressione immagine mappa…</string>
     <string name="map_image_compressed_size">Dimensione compressa: %1$s KB</string>
+    <string name="creating_map_title">Creazione della mappa…</string>
+    <string name="creating_map_info">Attendere la creazione della mappa.</string>
+    <string name="creating_map_error">Errore nella creazione della mappa: %1$s</string>
+    <string name="error_unknown">Errore sconosciuto</string>
     <string name="add">Aggiungi</string>
     <string name="turn_x">Turno %d</string>
     <string name="x_enemies">(%d nemici)</string>

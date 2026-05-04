@@ -94,6 +94,17 @@
       "attributes": {}
     }
   ],
+  "requiredActions": [
+    {
+      "alias": "delete_account",
+      "name": "Delete Account",
+      "providerId": "delete_account",
+      "enabled": true,
+      "defaultAction": false,
+      "priority": 60,
+      "config": {}
+    }
+  ],
   "users": [
     {
       "username": "tester@test.org",
@@ -109,10 +120,28 @@
           "value": "test",
           "temporary": false
         }
-      ]
+      ],
+      "clientRoles": {
+        "account": ["delete-account"]
+      }
     }
   ],
   "roles": {
+    "realm": [
+      {
+        "name": "default-roles-egril",
+        "description": "${role_default-roles}",
+        "composite": true,
+        "composites": {
+          "realm": ["offline_access", "uma_authorization"],
+          "client": {
+            "account": ["manage-account", "view-profile", "delete-account"]
+          }
+        },
+        "clientRole": false,
+        "containerId": "egril"
+      }
+    ],
     "client": {
       "defender-of-egril": [
         {

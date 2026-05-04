@@ -927,4 +927,115 @@ class BackendIntegrationTest {
             assertEquals(HttpStatusCode.OK, status)
         }
     }
+
+    // -------------------------------------------------------------------------
+    // DELETE /api/account – self-service account data deletion
+    // -------------------------------------------------------------------------
+
+    @Test
+    fun `DELETE account requires authentication`() = withRealDatabase {
+        client.delete("/api/account").apply {
+            assertEquals(HttpStatusCode.Unauthorized, status)
+        }
+    }
+
+    @Test
+    fun `DELETE account deletes all backend data for the authenticated user`() = withRealDatabase {
+        val userId = "user-account-del-1"
+        val token = fakeToken(userId, "AccountDeleter")
+
+        // Upload a save file
+        client.post("/api/savefiles") {
+            contentType(ContentType.Application.Json)
+            header(HttpHeaders.Authorization, "Bearer $token")
+            setBody("""{"saveId":"save-to-delete","data":"{}"}""")
+        }.apply { assertEquals(HttpStatusCode.OK, status) }
+
+        // Upload user data
+        client.post("/api/userdata") {
+            contentType(ContentType.Application.Json)
+            header(HttpHeaders.Authorization, "Bearer $token")
+            setBody("""{"data":"\"some-data\""}""")
+        }.apply { assertEquals(HttpStatusCode.OK, status) }
+
+        // Upload player settings
+        client.post("/api/settings") {
+            contentType(ContentType.Application.Json)
+            header(HttpHeaders.Authorization, "Bearer $token")
+            setBody("""{"data":"{}"}""")
+        }.apply { assertEquals(HttpStatusCode.OK, status) }
+
+        // Delete account
+        client.delete("/api/account") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+
+        // Verify save files are gone
+        client.get("/api/savefiles") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+            assertEmptyJsonArray(bodyAsText())
+        }
+
+        // Verify user data is gone
+        client.get("/api/userdata") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }.apply {
+            assertEquals(HttpStatusCode.NotFound, status)
+        }
+
+        // Verify player settings are gone
+        client.get("/api/settings") {
+            header(HttpHeaders.Authorization, "Bearer $token")
+        }.apply {
+            assertEquals(HttpStatusCode.NotFound, status)
+        }
+    }
+
+    @Test
+    fun `DELETE account only deletes the authenticated user's data and not other users' data`() = withRealDatabase {
+        val userAId = "user-account-del-a"
+        val userBId = "user-account-del-b"
+        val tokenA = fakeToken(userAId, "UserA")
+        val tokenB = fakeToken(userBId, "UserB")
+
+        // Both users upload save files
+        client.post("/api/savefiles") {
+            contentType(ContentType.Application.Json)
+            header(HttpHeaders.Authorization, "Bearer $tokenA")
+            setBody("""{"saveId":"save-a","data":"{}"}""")
+        }.apply { assertEquals(HttpStatusCode.OK, status) }
+
+        client.post("/api/savefiles") {
+            contentType(ContentType.Application.Json)
+            header(HttpHeaders.Authorization, "Bearer $tokenB")
+            setBody("""{"saveId":"save-b","data":"{}"}""")
+        }.apply { assertEquals(HttpStatusCode.OK, status) }
+
+        // User A deletes their account
+        client.delete("/api/account") {
+            header(HttpHeaders.Authorization, "Bearer $tokenA")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+
+        // User A's save files are gone
+        client.get("/api/savefiles") {
+            header(HttpHeaders.Authorization, "Bearer $tokenA")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+            assertEmptyJsonArray(bodyAsText())
+        }
+
+        // User B's save files are untouched
+        client.get("/api/savefiles") {
+            header(HttpHeaders.Authorization, "Bearer $tokenB")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+            assertContains(bodyAsText(), "save-b")
+        }
+    }
 }

@@ -144,7 +144,10 @@ For a production deployment, set `window.keycloakConfig.url` to your external Ke
 The Keycloak URL for the desktop version is read from:
 1. Java system property: `-Diam.base.url=https://your-keycloak.example.com`
 2. Environment variable: `IAM_BASE_URL=https://your-keycloak.example.com`
-3. Default: `http://localhost:8081`
+3. Default: `https://sso.julianegner.de` (production server)
+
+For local development, override the default by setting the `IAM_BASE_URL` environment variable
+or the `iam.base.url` system property to point at the local Keycloak instance (`http://localhost:8081`).
 
 ### Backend (Server)
 

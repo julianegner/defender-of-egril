@@ -5,8 +5,8 @@ package de.egril.defender.iam
  *
  * The base URL is read from a platform-specific source:
  * - Web: `window.keycloakConfig.url` (set in index.html, overridable per deployment)
- * - Desktop: `iam.base.url` system property or `IAM_BASE_URL` environment variable
- * - Android/iOS: `IAM_BASE_URL` environment variable (default: localhost)
+ * - Desktop: `iam.base.url` system property or `IAM_BASE_URL` environment variable (default: https://sso.julianegner.de)
+ * - Android/iOS: `IAM_BASE_URL` environment variable (default: https://sso.julianegner.de)
  */
 object IamConfig {
     const val REALM = "egril"

@@ -15,6 +15,8 @@ import de.egril.defender.model.*
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.SwordIcon
+import de.egril.defender.ui.icon.SellTowerIcon
+import de.egril.defender.ui.icon.UpgradeTowerIcon
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -192,6 +194,50 @@ fun AttackButton(
     }
 }
 
+/**
+ * Reusable button content for tower action buttons (upgrade / sell / undo).
+ * Shows [icon] + [label] text + coin [amount] when [compact] is false, or [icon] only when [compact] is true.
+ */
+@Composable
+private fun TowerActionButtonContent(
+    compact: Boolean,
+    icon: @Composable () -> Unit,
+    label: String,
+    amount: Int,
+) {
+    if (compact) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            icon()
+        }
+    } else {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                icon()
+                Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+                Text(
+                    label,
+                    fontSize = GamePlayConstants.TextSizes.Medium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Items))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                MoneyIcon(size = 14.dp)
+                Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+                Text(
+                    "$amount",
+                    fontSize = GamePlayConstants.TextSizes.Large,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
 @Composable
 fun UpgradeButton(
     defender: Defender,
@@ -201,24 +247,24 @@ fun UpgradeButton(
         .height(GamePlayConstants.ButtonSizes.ActionHeight),
     onUpgradeDefender: (Int) -> Unit,
 ) {
-    Button(
-        onClick = { onUpgradeDefender(defender.id) },
-        enabled = gameState.canUpgradeDefender(defender),
-        modifier = modifier,
-        contentPadding = PaddingValues(horizontal = GamePlayConstants.Padding.Medium, vertical = GamePlayConstants.Padding.Small)
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(stringResource(Res.string.upgrade), fontSize = GamePlayConstants.TextSizes.Title, fontWeight = FontWeight.Bold)
-            Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Items))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                MoneyIcon(size = 14.dp)
-                Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
-                Text(
-                    "${defender.upgradeCost}",
-                    fontSize = GamePlayConstants.TextSizes.Large,
-                    fontWeight = FontWeight.Bold
+    val upgradeLabel = stringResource(Res.string.upgrade)
+    val coinsLabel = stringResource(Res.string.coins_label)
+    val tooltipText = "$upgradeLabel: ${defender.upgradeCost} $coinsLabel"
+
+    BoxWithConstraints(modifier = modifier) {
+        val compact = maxHeight < GamePlayConstants.ButtonSizes.ActionCompactThreshold
+        TooltipWrapper(text = if (compact) tooltipText else null) {
+            Button(
+                onClick = { onUpgradeDefender(defender.id) },
+                enabled = gameState.canUpgradeDefender(defender),
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(horizontal = GamePlayConstants.Padding.Medium, vertical = GamePlayConstants.Padding.Small)
+            ) {
+                TowerActionButtonContent(
+                    compact = compact,
+                    icon = { UpgradeTowerIcon(size = 20.dp) },
+                    label = upgradeLabel,
+                    amount = defender.upgradeCost
                 )
             }
         }
@@ -241,29 +287,29 @@ fun UndoOrSellButton(
     val canUndo = defender.placedOnTurn == gameState.turnNumber.value && !defender.hasBeenUsed.value
     val canSell = defender.isReady && defender.actionsRemaining.value > 0
 
+    val coinsLabel = stringResource(Res.string.coins_label)
+
     if (canUndo) {
         // Show Undo button (100% refund)
-        Button(
-            onClick = { onUndoTower(defender.id) },
-            enabled = true,
-            modifier = modifier,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = GamePlayColors.Success  // Green for undo
-            ),
-            contentPadding = PaddingValues(horizontal = GamePlayConstants.Padding.Medium, vertical = GamePlayConstants.Padding.Small)
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(stringResource(Res.string.undo), fontSize = GamePlayConstants.TextSizes.Title, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Items))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    MoneyIcon(size = 14.dp)
-                    Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
-                    Text(
-                        "${defender.totalCost}",
-                        fontSize = GamePlayConstants.TextSizes.Large,
-                        fontWeight = FontWeight.Bold
+        val undoLabel = stringResource(Res.string.undo)
+        val tooltipText = "$undoLabel: ${defender.totalCost} $coinsLabel"
+        BoxWithConstraints(modifier = modifier) {
+            val compact = maxHeight < GamePlayConstants.ButtonSizes.ActionCompactThreshold
+            TooltipWrapper(text = if (compact) tooltipText else null) {
+                Button(
+                    onClick = { onUndoTower(defender.id) },
+                    enabled = true,
+                    modifier = Modifier.fillMaxSize(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = GamePlayColors.Success  // Green for undo
+                    ),
+                    contentPadding = PaddingValues(horizontal = GamePlayConstants.Padding.Medium, vertical = GamePlayConstants.Padding.Small)
+                ) {
+                    TowerActionButtonContent(
+                        compact = compact,
+                        icon = { SellTowerIcon(size = 20.dp) },
+                        label = undoLabel,
+                        amount = defender.totalCost
                     )
                 }
             }
@@ -271,27 +317,25 @@ fun UndoOrSellButton(
     } else if (canSell) {
         // Show Sell button (75% refund)
         val sellAmount = (defender.totalCost * 0.75).toInt()
-        Button(
-            onClick = { showSellConfirmation = true },
-            enabled = true,
-            modifier = modifier,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = GamePlayColors.Warning  // Orange for sell
-            ),
-            contentPadding = PaddingValues(horizontal = GamePlayConstants.Padding.Medium, vertical = GamePlayConstants.Padding.Small)
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(stringResource(Res.string.sell), fontSize = GamePlayConstants.TextSizes.Title, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Items))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    MoneyIcon(size = 14.dp)
-                    Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
-                    Text(
-                        "$sellAmount",
-                        fontSize = GamePlayConstants.TextSizes.Large,
-                        fontWeight = FontWeight.Bold
+        val sellLabel = stringResource(Res.string.sell)
+        val tooltipText = "$sellLabel: $sellAmount $coinsLabel"
+        BoxWithConstraints(modifier = modifier) {
+            val compact = maxHeight < GamePlayConstants.ButtonSizes.ActionCompactThreshold
+            TooltipWrapper(text = if (compact) tooltipText else null) {
+                Button(
+                    onClick = { showSellConfirmation = true },
+                    enabled = true,
+                    modifier = Modifier.fillMaxSize(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = GamePlayColors.Warning  // Orange for sell
+                    ),
+                    contentPadding = PaddingValues(horizontal = GamePlayConstants.Padding.Medium, vertical = GamePlayConstants.Padding.Small)
+                ) {
+                    TowerActionButtonContent(
+                        compact = compact,
+                        icon = { SellTowerIcon(size = 20.dp) },
+                        label = sellLabel,
+                        amount = sellAmount
                     )
                 }
             }
@@ -305,7 +349,6 @@ fun UndoOrSellButton(
                 title = { Text(stringResource(Res.string.sell_tower_title)) },
                 text = {
                     val towerName = defender.type.getLocalizedName(locale)
-                    val coinsLabel = stringResource(Res.string.coins_label)
                     Text(stringResource(Res.string.sell_tower_message, towerName, sellAmount.toString(), coinsLabel))
                 },
                 confirmButton = {
@@ -341,7 +384,7 @@ fun UndoOrSellButton(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(stringResource(Res.string.sell), fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                SellTowerIcon(size = 14.dp)
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     stringResource(Res.string.not_enough_actions),

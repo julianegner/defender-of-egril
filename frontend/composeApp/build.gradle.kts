@@ -449,7 +449,7 @@ android {
             dimension = "env"
             buildConfigField(
                 "String", "IAM_BASE_URL",
-                "\"${productionProps.getProperty("iam.base.url") ?: "https://keycloak.your-server.com"}\""
+                "\"${productionProps.getProperty("iam.base.url") ?: "https://sso.julianegner.de"}\""
             )
             buildConfigField(
                 "String", "BACKEND_URL",
