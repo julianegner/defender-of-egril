@@ -83,6 +83,13 @@ object GamePlayConstants {
          * Buttons should not grow wider than this even when more space is available.
          */
         val DefenderButtonMaxWidth = 260.dp
+
+        /**
+         * Height threshold below which tower action buttons (upgrade/sell/undo) switch to
+         * icon-only mode. This occurs when the layout is scaled down (e.g. 0.5× on mobile),
+         * causing a nominal 60dp button to render at ~30dp.
+         */
+        val ActionCompactThreshold = 38.dp
     }
     
     /**

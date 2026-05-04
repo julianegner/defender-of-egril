@@ -1511,6 +1511,12 @@ fun SellTowerIcon(
 }
 
 /**
+ * Width multiplier for UpgradeTowerIcon: the canvas is 1.6× as wide as tall,
+ * leaving room for the tower on the left and the arrow on the right.
+ */
+private const val UPGRADE_ICON_WIDTH_RATIO = 1.6f
+
+/**
  * Displays an upgrade-tower symbol: a tower on the left with a red upward arrow directly adjacent.
  * Both elements are drawn in a single Canvas so there is no gap between them.
  */
@@ -1520,7 +1526,7 @@ fun UpgradeTowerIcon(
     size: Dp = 24.dp,
     lineColor: Color = Color.White
 ) {
-    Canvas(modifier = modifier.width(size * 1.6f).height(size)) {
+    Canvas(modifier = modifier.width(size * UPGRADE_ICON_WIDTH_RATIO).height(size)) {
         val s = size.toPx()
         val h = this.size.height
 
