@@ -758,6 +758,56 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                 }
             }
         }
+
+        // ---------------------------------------------------------------------------
+        // Account self-service deletion endpoint
+        // ---------------------------------------------------------------------------
+
+        /**
+         * Deletes all backend data for the authenticated user (savefiles, user data,
+         * and player settings). The user can only delete their own data – the user ID
+         * is taken exclusively from the Bearer token, so no other account can be targeted.
+         *
+         * Returns 200 on success, 401 if unauthenticated, 503 if the database is unavailable.
+         */
+        delete("/api/account") {
+            val authHeader = call.request.header(HttpHeaders.Authorization)
+            val userId = extractUserIdFromBearerToken(authHeader)
+            if (userId == null) {
+                call.respond(HttpStatusCode.Unauthorized, "Authentication required")
+                return@delete
+            }
+
+            val ds = dataSourceRef.get() ?: run {
+                call.respond(HttpStatusCode.ServiceUnavailable, "Database not available")
+                return@delete
+            }
+
+            ds.connection.use { conn ->
+                conn.autoCommit = false
+                try {
+                    conn.prepareStatement("DELETE FROM savefiles WHERE user_id = ?").use { stmt ->
+                        stmt.setString(1, userId)
+                        stmt.executeUpdate()
+                    }
+                    conn.prepareStatement("DELETE FROM userdata WHERE user_id = ?").use { stmt ->
+                        stmt.setString(1, userId)
+                        stmt.executeUpdate()
+                    }
+                    conn.prepareStatement("DELETE FROM player_settings WHERE user_id = ?").use { stmt ->
+                        stmt.setString(1, userId)
+                        stmt.executeUpdate()
+                    }
+                    conn.commit()
+                    iamLogger.info("Account data deleted for userId=$userId")
+                    call.respond(HttpStatusCode.OK)
+                } catch (e: Exception) {
+                    conn.rollback()
+                    iamLogger.error("Failed to delete account data for userId=$userId: ${e.message}", e)
+                    call.respond(HttpStatusCode.InternalServerError, "Failed to delete account data")
+                }
+            }
+        }
     }
 }
 
