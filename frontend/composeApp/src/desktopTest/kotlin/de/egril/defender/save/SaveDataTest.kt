@@ -486,10 +486,10 @@ class SaveDataTest {
         val deserialized = SaveJsonSerializer.deserializeSavedGame(json)
         assertNotNull(deserialized)
         assertNotNull(deserialized.worldMapSave)
-        assertEquals(3, deserialized.worldMapSave!!.levelStatuses.size)
-        assertEquals(LevelStatus.WON, deserialized.worldMapSave!!.levelStatuses["level_001"])
-        assertEquals(LevelStatus.UNLOCKED, deserialized.worldMapSave!!.levelStatuses["level_002"])
-        assertEquals(LevelStatus.LOCKED, deserialized.worldMapSave!!.levelStatuses["level_003"])
+        assertEquals(3, deserialized.worldMapSave.levelStatuses.size)
+        assertEquals(LevelStatus.WON, deserialized.worldMapSave.levelStatuses["level_001"])
+        assertEquals(LevelStatus.UNLOCKED, deserialized.worldMapSave.levelStatuses["level_002"])
+        assertEquals(LevelStatus.LOCKED, deserialized.worldMapSave.levelStatuses["level_003"])
     }
     
     // ==================== Metadata wrapper tests ====================

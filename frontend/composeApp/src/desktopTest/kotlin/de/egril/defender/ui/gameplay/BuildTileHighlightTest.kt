@@ -44,7 +44,7 @@ class BuildTileHighlightTest {
         assertTrue(buildAreaPosition != null, "Should have at least one empty build area tile")
         
         // Verify the tile is buildable
-        val isBuildArea = level.isBuildArea(buildAreaPosition!!)
+        val isBuildArea = level.isBuildArea(buildAreaPosition)
         val hasDefender = gameState.defenders.any { it.position.value == buildAreaPosition }
         val hasAttacker = gameState.attackers.any { it.position.value == buildAreaPosition && !it.isDefeated.value }
         
@@ -81,7 +81,7 @@ class BuildTileHighlightTest {
         val defender = Defender(
             id = gameState.nextDefenderId.value++,
             type = DefenderType.SPIKE_TOWER,
-            position = mutableStateOf(buildPosition!!),
+            position = mutableStateOf(buildPosition),
             level = mutableStateOf(1)
         )
         gameState.defenders.add(defender)
@@ -116,7 +116,7 @@ class BuildTileHighlightTest {
         assertTrue(pathPosition != null, "Should have at least one path tile")
         
         // Path tiles are NOT buildable for regular towers
-        val isBuildArea = level.isBuildArea(pathPosition!!)
+        val isBuildArea = level.isBuildArea(pathPosition)
         assertFalse(isBuildArea, "Path tile should not be a build area")
         
         // This tile should NOT be highlighted when a tower type is selected
@@ -137,7 +137,7 @@ class BuildTileHighlightTest {
             assertTrue(riverPosition != null, "Level should have river tiles")
             
             // River tiles ARE buildable (for rafts)
-            val isRiverTile = levelWithRiver.isRiverTile(riverPosition!!)
+            val isRiverTile = levelWithRiver.isRiverTile(riverPosition)
             assertTrue(isRiverTile, "Position should be a river tile")
             
             // This tile should be highlighted when a tower type is selected
@@ -215,7 +215,7 @@ class BuildTileHighlightTest {
         val defender = Defender(
             id = gameState.nextDefenderId.value++,
             type = DefenderType.SPIKE_TOWER,
-            position = mutableStateOf(buildPosition!!),
+            position = mutableStateOf(buildPosition),
             level = mutableStateOf(1)
         )
         gameState.defenders.add(defender)
