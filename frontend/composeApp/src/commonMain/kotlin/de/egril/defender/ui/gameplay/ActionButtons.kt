@@ -194,6 +194,41 @@ fun AttackButton(
     }
 }
 
+/**
+ * Reusable button content for tower action buttons (upgrade / sell / undo).
+ * Shows [icon] + coin [amount] when [compact] is false, or [icon] only when [compact] is true.
+ */
+@Composable
+private fun TowerActionButtonContent(
+    compact: Boolean,
+    icon: @Composable () -> Unit,
+    amount: Int,
+) {
+    if (compact) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            icon()
+        }
+    } else {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            icon()
+            Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Items))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                MoneyIcon(size = 14.dp)
+                Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+                Text(
+                    "$amount",
+                    fontSize = GamePlayConstants.TextSizes.Large,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
+}
+
 @Composable
 fun UpgradeButton(
     defender: Defender,
@@ -203,45 +238,24 @@ fun UpgradeButton(
         .height(GamePlayConstants.ButtonSizes.ActionHeight),
     onUpgradeDefender: (Int) -> Unit,
 ) {
-    var iconOnly by remember { mutableStateOf(false) }
     val upgradeLabel = stringResource(Res.string.upgrade)
     val coinsLabel = stringResource(Res.string.coins_label)
     val tooltipText = "$upgradeLabel: ${defender.upgradeCost} $coinsLabel"
 
-    TooltipWrapper(text = if (iconOnly) tooltipText else null) {
-        Button(
-            onClick = { onUpgradeDefender(defender.id) },
-            enabled = gameState.canUpgradeDefender(defender),
-            modifier = modifier,
-            contentPadding = PaddingValues(horizontal = GamePlayConstants.Padding.Medium, vertical = GamePlayConstants.Padding.Small)
-        ) {
-            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-                val compact = maxHeight < 38.dp
-                SideEffect { iconOnly = compact }
-                if (compact) {
-                    // Icon only when space is limited
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        UpgradeTowerIcon(size = 20.dp)
-                    }
-                } else {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        UpgradeTowerIcon(size = 20.dp)
-                        Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Items))
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            MoneyIcon(size = 14.dp)
-                            Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
-                            Text(
-                                "${defender.upgradeCost}",
-                                fontSize = GamePlayConstants.TextSizes.Large,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                }
+    BoxWithConstraints(modifier = modifier) {
+        val compact = maxHeight < 38.dp
+        TooltipWrapper(text = if (compact) tooltipText else null) {
+            Button(
+                onClick = { onUpgradeDefender(defender.id) },
+                enabled = gameState.canUpgradeDefender(defender),
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(horizontal = GamePlayConstants.Padding.Medium, vertical = GamePlayConstants.Padding.Small)
+            ) {
+                TowerActionButtonContent(
+                    compact = compact,
+                    icon = { UpgradeTowerIcon(size = 20.dp) },
+                    amount = defender.upgradeCost
+                )
             }
         }
     }
@@ -267,90 +281,50 @@ fun UndoOrSellButton(
 
     if (canUndo) {
         // Show Undo button (100% refund)
-        var iconOnly by remember { mutableStateOf(false) }
         val undoLabel = stringResource(Res.string.undo)
         val tooltipText = "$undoLabel: ${defender.totalCost} $coinsLabel"
-        TooltipWrapper(text = if (iconOnly) tooltipText else null) {
-            Button(
-                onClick = { onUndoTower(defender.id) },
-                enabled = true,
-                modifier = modifier,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = GamePlayColors.Success  // Green for undo
-                ),
-                contentPadding = PaddingValues(horizontal = GamePlayConstants.Padding.Medium, vertical = GamePlayConstants.Padding.Small)
-            ) {
-                BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-                    val compact = maxHeight < 38.dp
-                    SideEffect { iconOnly = compact }
-                    if (compact) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            SellTowerIcon(size = 20.dp)
-                        }
-                    } else {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            SellTowerIcon(size = 20.dp)
-                            Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Items))
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                MoneyIcon(size = 14.dp)
-                                Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
-                                Text(
-                                    "${defender.totalCost}",
-                                    fontSize = GamePlayConstants.TextSizes.Large,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
-                    }
+        BoxWithConstraints(modifier = modifier) {
+            val compact = maxHeight < 38.dp
+            TooltipWrapper(text = if (compact) tooltipText else null) {
+                Button(
+                    onClick = { onUndoTower(defender.id) },
+                    enabled = true,
+                    modifier = Modifier.fillMaxSize(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = GamePlayColors.Success  // Green for undo
+                    ),
+                    contentPadding = PaddingValues(horizontal = GamePlayConstants.Padding.Medium, vertical = GamePlayConstants.Padding.Small)
+                ) {
+                    TowerActionButtonContent(
+                        compact = compact,
+                        icon = { SellTowerIcon(size = 20.dp) },
+                        amount = defender.totalCost
+                    )
                 }
             }
         }
     } else if (canSell) {
         // Show Sell button (75% refund)
         val sellAmount = (defender.totalCost * 0.75).toInt()
-        var iconOnly by remember { mutableStateOf(false) }
         val sellLabel = stringResource(Res.string.sell)
         val tooltipText = "$sellLabel: $sellAmount $coinsLabel"
-        TooltipWrapper(text = if (iconOnly) tooltipText else null) {
-            Button(
-                onClick = { showSellConfirmation = true },
-                enabled = true,
-                modifier = modifier,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = GamePlayColors.Warning  // Orange for sell
-                ),
-                contentPadding = PaddingValues(horizontal = GamePlayConstants.Padding.Medium, vertical = GamePlayConstants.Padding.Small)
-            ) {
-                BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-                    val compact = maxHeight < 38.dp
-                    SideEffect { iconOnly = compact }
-                    if (compact) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            SellTowerIcon(size = 20.dp)
-                        }
-                    } else {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            SellTowerIcon(size = 20.dp)
-                            Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Items))
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                MoneyIcon(size = 14.dp)
-                                Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
-                                Text(
-                                    "$sellAmount",
-                                    fontSize = GamePlayConstants.TextSizes.Large,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
-                    }
+        BoxWithConstraints(modifier = modifier) {
+            val compact = maxHeight < 38.dp
+            TooltipWrapper(text = if (compact) tooltipText else null) {
+                Button(
+                    onClick = { showSellConfirmation = true },
+                    enabled = true,
+                    modifier = Modifier.fillMaxSize(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = GamePlayColors.Warning  // Orange for sell
+                    ),
+                    contentPadding = PaddingValues(horizontal = GamePlayConstants.Padding.Medium, vertical = GamePlayConstants.Padding.Small)
+                ) {
+                    TowerActionButtonContent(
+                        compact = compact,
+                        icon = { SellTowerIcon(size = 20.dp) },
+                        amount = sellAmount
+                    )
                 }
             }
         }
