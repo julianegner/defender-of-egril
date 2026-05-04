@@ -398,6 +398,10 @@
     <string name="map_image_generation_preview_label">Aperçu de l'image de carte</string>
     <string name="map_image_compressing">Compression de l'image de carte…</string>
     <string name="map_image_compressed_size">Taille compressée : %1$s Ko</string>
+    <string name="creating_map_title">Création de la carte…</string>
+    <string name="creating_map_info">Veuillez patienter pendant la création de la carte.</string>
+    <string name="creating_map_error">Échec de la création de la carte : %1$s</string>
+    <string name="error_unknown">Erreur inconnue</string>
     <string name="add">Ajouter</string>
     <string name="turn_x">Tour %d</string>
     <string name="x_enemies">(%d ennemis)</string>

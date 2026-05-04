@@ -57,6 +57,8 @@ fun MapEditorContent(
     val coroutineScope = rememberCoroutineScope()
     val iamState by IamService.state
 
+    var showCreatingMapDialog by remember { mutableStateOf(false) }
+    var creatingMapError by remember { mutableStateOf<String?>(null) }
     var showGenerationDialog by remember { mutableStateOf(false) }
     var generationRunning by remember { mutableStateOf(false) }
     var generationSuccess by remember { mutableStateOf<Boolean?>(null) }
@@ -266,10 +268,51 @@ fun MapEditorContent(
                     tiles = emptyMap(),
                     author = author
                 )
-                EditorStorage.saveMap(newMap)
-                maps.value = allMapsForEditor()
                 showCreateDialog = false
-                editingMap = newMap
+                showCreatingMapDialog = true
+                creatingMapError = null
+                coroutineScope.launch {
+                    try {
+                        withContext(Dispatchers.Default) {
+                            EditorStorage.saveMap(newMap)
+                        }
+                        maps.value = allMapsForEditor()
+                        showCreatingMapDialog = false
+                        editingMap = newMap
+                    } catch (e: Exception) {
+                        creatingMapError = e.message
+                    }
+                }
+            }
+        )
+    }
+
+    if (showCreatingMapDialog) {
+        val isError = creatingMapError != null
+        AlertDialog(
+            onDismissRequest = { if (isError) showCreatingMapDialog = false },
+            title = { Text(stringResource(Res.string.creating_map_title)) },
+            text = {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (isError) {
+                        val unknownError = stringResource(Res.string.error_unknown)
+                        Text(stringResource(Res.string.creating_map_error, creatingMapError ?: unknownError))
+                    } else {
+                        CircularProgressIndicator()
+                        Text(stringResource(Res.string.creating_map_info))
+                    }
+                }
+            },
+            confirmButton = {
+                if (isError) {
+                    TextButton(onClick = { showCreatingMapDialog = false }) {
+                        Text(stringResource(Res.string.map_image_generation_close))
+                    }
+                }
             }
         )
     }
