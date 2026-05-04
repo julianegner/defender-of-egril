@@ -6,6 +6,7 @@ import com.hyperether.resources.AppLocale
 import com.hyperether.resources.currentLanguage
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.InitialLanguageChooserDialog
+import kotlin.test.assertNotNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -83,6 +84,6 @@ class InitialLanguageChooserDialogTest {
         
         // Verify that a language is selected (either default or system language)
         val selectedLanguage = currentLanguage.value
-        assert(selectedLanguage != null) { "A language should be preselected" }
+        assertNotNull(selectedLanguage) { "A language should be preselected" }
     }
 }

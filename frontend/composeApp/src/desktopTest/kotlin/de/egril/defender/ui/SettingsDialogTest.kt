@@ -38,8 +38,8 @@ class SettingsDialogTest {
         composeTestRule.onNodeWithText("Language", substring = true, ignoreCase = true)
             .assertExists()
         
-        // Verify close button is displayed
-        composeTestRule.onNodeWithText("Close", substring = true, ignoreCase = true)
+        // Verify close button is displayed (icon button with content description)
+        composeTestRule.onNodeWithContentDescription("Close", substring = true, ignoreCase = true)
             .assertExists()
             .assertHasClickAction()
         
@@ -68,8 +68,8 @@ class SettingsDialogTest {
         
         composeTestRule.waitForIdle()
         
-        // Click close button
-        composeTestRule.onNodeWithText("Close", substring = true, ignoreCase = true)
+        // Click close button (icon button with content description)
+        composeTestRule.onNodeWithContentDescription("Close", substring = true, ignoreCase = true)
             .performClick()
         
         composeTestRule.waitForIdle()
