@@ -75,3 +75,5 @@ scripts/package.json
 servers/keycloak/theme/node_modules/
 servers/keycloak/theme/dist/
 servers/keycloak/theme/dist_keycloak/
+
+egril-realm-backup-*.json
