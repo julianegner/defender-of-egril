@@ -224,7 +224,7 @@ private fun TowerActionButtonContent(
                     fontWeight = FontWeight.Bold
                 )
             }
-            Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Small))
+            Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Items))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 MoneyIcon(size = 14.dp)
                 Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
