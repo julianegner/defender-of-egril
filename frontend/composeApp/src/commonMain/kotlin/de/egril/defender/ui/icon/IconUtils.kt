@@ -4,9 +4,12 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -1475,5 +1478,86 @@ fun KeyboardKeyIcon(
             cornerRadius = androidx.compose.ui.geometry.CornerRadius(innerCorner, innerCorner),
             style = Stroke(width = strokeWidth * 0.7f)
         )
+    }
+}
+
+/**
+ * Displays a sell-tower symbol: a tower with a diagonal strikethrough line
+ * from bottom-left to top-right, indicating demolition/sale.
+ */
+@Composable
+fun SellTowerIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 24.dp,
+    lineColor: Color = Color.White
+) {
+    Canvas(modifier = modifier.size(size)) {
+        val centerX = this.size.width / 2
+        val centerY = this.size.height / 2
+        val iconSize = minOf(this.size.width, this.size.height)
+
+        // Draw the tower base
+        drawTowerBase(centerX, centerY, iconSize * 0.8f, lineColor)
+
+        // Draw red diagonal strikethrough from bottom-left to top-right
+        drawLine(
+            color = Color.Red,
+            start = Offset(this.size.width * 0.1f, this.size.height * 0.9f),
+            end = Offset(this.size.width * 0.9f, this.size.height * 0.1f),
+            strokeWidth = iconSize * 0.1f,
+            cap = StrokeCap.Round
+        )
+    }
+}
+
+/**
+ * Width multiplier for UpgradeTowerIcon: the canvas is 1.6× as wide as tall,
+ * leaving room for the tower on the left and the arrow on the right.
+ */
+private const val UPGRADE_ICON_WIDTH_RATIO = 1.6f
+
+/**
+ * Displays an upgrade-tower symbol: a tower on the left with a red upward arrow directly adjacent.
+ * Both elements are drawn in a single Canvas so there is no gap between them.
+ */
+@Composable
+fun UpgradeTowerIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 24.dp,
+    lineColor: Color = Color.White
+) {
+    Canvas(modifier = modifier.width(size * UPGRADE_ICON_WIDTH_RATIO).height(size)) {
+        val s = size.toPx()
+        val h = this.size.height
+
+        // Draw tower in the left portion, centred vertically
+        val towerCenterX = s * 0.45f
+        val towerCenterY = h / 2
+        drawTowerBase(towerCenterX, towerCenterY, s * 0.75f, lineColor)
+
+        // Draw red upward arrow in the right portion, directly next to the tower
+        val arrowX = s * 0.95f
+        val arrowHeight = s * 0.78f
+        val arrowWidth = s * 0.32f
+        val arrowTop = towerCenterY - arrowHeight / 2f
+        val arrowBottom = towerCenterY + arrowHeight / 2f
+
+        // Arrow stem
+        drawLine(
+            color = Color.Red,
+            start = Offset(arrowX, arrowBottom),
+            end = Offset(arrowX, arrowTop + arrowWidth),
+            strokeWidth = s * 0.1f,
+            cap = StrokeCap.Round
+        )
+
+        // Arrow head (filled triangle pointing up)
+        val head = Path().apply {
+            moveTo(arrowX, arrowTop)
+            lineTo(arrowX - arrowWidth / 2f, arrowTop + arrowWidth)
+            lineTo(arrowX + arrowWidth / 2f, arrowTop + arrowWidth)
+            close()
+        }
+        drawPath(head, Color.Red)
     }
 }
