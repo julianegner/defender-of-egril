@@ -4,8 +4,9 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -1510,7 +1511,8 @@ fun SellTowerIcon(
 }
 
 /**
- * Displays an upgrade-tower symbol: a tower on the left with a red upward arrow on the right.
+ * Displays an upgrade-tower symbol: a tower on the left with a red upward arrow directly adjacent.
+ * Both elements are drawn in a single Canvas so there is no gap between them.
  */
 @Composable
 fun UpgradeTowerIcon(
@@ -1518,16 +1520,38 @@ fun UpgradeTowerIcon(
     size: Dp = 24.dp,
     lineColor: Color = Color.White
 ) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Canvas(modifier = Modifier.size(size)) {
-            val centerX = this.size.width / 2
-            val centerY = this.size.height / 2
-            val iconSize = minOf(this.size.width, this.size.height)
-            drawTowerBase(centerX, centerY, iconSize * 0.8f, lineColor)
+    Canvas(modifier = modifier.width(size * 1.6f).height(size)) {
+        val s = size.toPx()
+        val h = this.size.height
+
+        // Draw tower in the left portion, centred vertically
+        val towerCenterX = s * 0.45f
+        val towerCenterY = h / 2
+        drawTowerBase(towerCenterX, towerCenterY, s * 0.75f, lineColor)
+
+        // Draw red upward arrow in the right portion, directly next to the tower
+        val arrowX = s * 0.95f
+        val arrowHeight = s * 0.78f
+        val arrowWidth = s * 0.32f
+        val arrowTop = towerCenterY - arrowHeight / 2f
+        val arrowBottom = towerCenterY + arrowHeight / 2f
+
+        // Arrow stem
+        drawLine(
+            color = Color.Red,
+            start = Offset(arrowX, arrowBottom),
+            end = Offset(arrowX, arrowTop + arrowWidth),
+            strokeWidth = s * 0.1f,
+            cap = StrokeCap.Round
+        )
+
+        // Arrow head (filled triangle pointing up)
+        val head = Path().apply {
+            moveTo(arrowX, arrowTop)
+            lineTo(arrowX - arrowWidth / 2f, arrowTop + arrowWidth)
+            lineTo(arrowX + arrowWidth / 2f, arrowTop + arrowWidth)
+            close()
         }
-        UpArrowIcon(size = size, tint = Color.Red)
+        drawPath(head, Color.Red)
     }
 }
