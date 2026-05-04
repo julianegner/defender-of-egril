@@ -31,6 +31,8 @@ import de.egril.defender.iam.IamState
 import de.egril.defender.ui.infopage.ImpressumWrapper
 import de.egril.defender.ui.icon.LockIcon
 import de.egril.defender.ui.icon.UnlockIcon
+import de.egril.defender.ui.icon.InfoIcon
+import de.egril.defender.ui.icon.TrophyIcon
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.SettingsHintBox
@@ -42,7 +44,6 @@ import de.egril.defender.utils.isPlatformIos
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.emoji_sword
-import defender_of_egril.composeapp.generated.resources.emoji_crown
 import defender_of_egril.composeapp.generated.resources.emoji_skull
 import org.jetbrains.compose.resources.painterResource
 
@@ -154,11 +155,7 @@ fun MainMenuScreen(
                         onClick = onShowInstallationInfo,
                         modifier = Modifier.size(48.dp)
                     ) {
-                        Image(
-                            painter = painterResource(Res.drawable.emoji_info),
-                            contentDescription = stringResource(Res.string.installation_info),
-                            modifier = Modifier.size(32.dp)
-                        )
+                        InfoIcon(size = 32.dp)
                     }
                 }
                 
@@ -547,12 +544,6 @@ fun LevelCompleteScreen(
     }
 
     // Determine which image/icon and text to show
-    val imageResource = when {
-        won && isLastLevel -> Res.drawable.emoji_crown  // Crown for winning the game
-        won -> Res.drawable.emoji_sword  // Sword for winning a battle
-        else -> Res.drawable.emoji_skull  // Skull for defeat
-    }
-    
     val title = when {
         won && isLastLevel -> stringResource(Res.string.victory)
         won -> stringResource(Res.string.battle_won)
@@ -595,11 +586,11 @@ fun LevelCompleteScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 // Icon/Image
-                Image(
-                    painter = painterResource(imageResource),
-                    contentDescription = title,
-                    modifier = Modifier.size(64.dp)
-                )
+                when {
+                    won && isLastLevel -> TrophyIcon(size = 64.dp)
+                    won -> Image(painter = painterResource(Res.drawable.emoji_sword), contentDescription = title, modifier = Modifier.size(64.dp))
+                    else -> Image(painter = painterResource(Res.drawable.emoji_skull), contentDescription = title, modifier = Modifier.size(64.dp))
+                }
 
                 
                 Spacer(modifier = Modifier.height(16.dp))
