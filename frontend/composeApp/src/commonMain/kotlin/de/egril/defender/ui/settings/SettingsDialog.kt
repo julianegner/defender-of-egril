@@ -7,6 +7,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.RepositoryManager
+import de.egril.defender.ui.common.ScrollableTabRowWithHints
 import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.icon.SpeakerHighIcon
 import de.egril.defender.ui.icon.SpeakerLowIcon
@@ -37,7 +40,7 @@ fun SettingsDialog(
         Surface(
             modifier = Modifier
                 .widthIn(min = 300.dp, max = 500.dp)
-                .wrapContentHeight()
+                .fillMaxHeight(fraction = 0.9f)
                 .heightIn(max = 680.dp)
                 .onPreviewKeyEvent { event ->
                     if (event.type == KeyEventType.KeyDown &&
@@ -55,17 +58,29 @@ fun SettingsDialog(
         ) {
             Column(
                 modifier = Modifier
-                    .padding(24.dp)
+                    .padding(16.dp)
                     .fillMaxWidth()
+                    .fillMaxHeight()
             ) {
-                // Title
-                SelectableText(
-                    text = stringResource(Res.string.settings),
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
+                // Title row with close button
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    SelectableText(
+                        text = stringResource(Res.string.settings),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    IconButton(onClick = onDismiss) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = stringResource(Res.string.close),
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
 
                 // Tab row
                 var selectedTab by remember { mutableStateOf(0) }
@@ -76,7 +91,9 @@ fun SettingsDialog(
                     stringResource(Res.string.sound)
                 )
 
-                PrimaryTabRow(selectedTabIndex = selectedTab) {
+                ScrollableTabRowWithHints(
+                    selectedTabIndex = selectedTab
+                ) {
                     tabs.forEachIndexed { index, title ->
                         Tab(
                             selected = selectedTab == index,
@@ -105,21 +122,12 @@ fun SettingsDialog(
 
                 HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
 
-                // Action buttons
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                // Reset button
+                OutlinedButton(
+                    onClick = { AppSettings.resetToDefaults() },
+                    modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
                 ) {
-                    OutlinedButton(
-                        onClick = { AppSettings.resetToDefaults() }
-                    ) {
-                        Text(stringResource(Res.string.reset_settings))
-                    }
-
-                    Button(onClick = onDismiss) {
-                        Text(stringResource(Res.string.close))
-                    }
+                    Text(stringResource(Res.string.reset_settings))
                 }
             }
         }
