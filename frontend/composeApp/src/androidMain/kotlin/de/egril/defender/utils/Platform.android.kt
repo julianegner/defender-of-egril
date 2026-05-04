@@ -62,3 +62,7 @@ actual fun getSystemLanguageCode(): String? {
 }
 
 actual fun getCurrentUsername(): String = ""
+
+actual fun reloadApp() {
+    // No-op for Android - restoration is handled by RepositoryManager
+}

@@ -42,6 +42,12 @@ expect fun getSystemLanguageCode(): String?
  */
 expect fun getCurrentUsername(): String
 
+/**
+ * Reload/restart the app. On web (WASM) this triggers a browser page reload.
+ * On other platforms this is a no-op (restoration is handled by RepositoryManager).
+ */
+expect fun reloadApp()
+
 val isPlatformWasm = getPlatform().name.startsWith("Web with Kotlin/Wasm")
 val isPlatformAndroid = getPlatform().name.startsWith("Android")
 val isPlatformIos = getPlatform().name.startsWith("iOS")
