@@ -196,12 +196,13 @@ fun AttackButton(
 
 /**
  * Reusable button content for tower action buttons (upgrade / sell / undo).
- * Shows [icon] + coin [amount] when [compact] is false, or [icon] only when [compact] is true.
+ * Shows [icon] + [label] text + coin [amount] when [compact] is false, or [icon] only when [compact] is true.
  */
 @Composable
 private fun TowerActionButtonContent(
     compact: Boolean,
     icon: @Composable () -> Unit,
+    label: String,
     amount: Int,
 ) {
     if (compact) {
@@ -214,8 +215,16 @@ private fun TowerActionButtonContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            icon()
-            Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Items))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                icon()
+                Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+                Text(
+                    label,
+                    fontSize = GamePlayConstants.TextSizes.Medium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Small))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 MoneyIcon(size = 14.dp)
                 Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
@@ -254,6 +263,7 @@ fun UpgradeButton(
                 TowerActionButtonContent(
                     compact = compact,
                     icon = { UpgradeTowerIcon(size = 20.dp) },
+                    label = upgradeLabel,
                     amount = defender.upgradeCost
                 )
             }
@@ -298,6 +308,7 @@ fun UndoOrSellButton(
                     TowerActionButtonContent(
                         compact = compact,
                         icon = { SellTowerIcon(size = 20.dp) },
+                        label = undoLabel,
                         amount = defender.totalCost
                     )
                 }
@@ -323,6 +334,7 @@ fun UndoOrSellButton(
                     TowerActionButtonContent(
                         compact = compact,
                         icon = { SellTowerIcon(size = 20.dp) },
+                        label = sellLabel,
                         amount = sellAmount
                     )
                 }
