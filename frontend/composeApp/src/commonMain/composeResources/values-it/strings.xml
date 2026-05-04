@@ -1729,4 +1729,7 @@
     <!-- Settings tabs -->
     <string name="general">Generale</string>
     <string name="settings_tab_level">Level</string>
+    <!-- Scroll hint accessibility labels -->
+    <string name="scroll_hint_more_tabs_left">Scorri a sinistra per vedere altri tab</string>
+    <string name="scroll_hint_more_tabs_right">Scorri a destra per vedere altri tab</string>
 </resources>

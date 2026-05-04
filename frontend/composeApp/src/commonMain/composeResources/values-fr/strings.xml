@@ -1728,4 +1728,7 @@
     <!-- Settings tabs -->
     <string name="general">Général</string>
     <string name="settings_tab_level">Level</string>
+    <!-- Scroll hint accessibility labels -->
+    <string name="scroll_hint_more_tabs_left">Défiler à gauche pour voir plus d\'onglets</string>
+    <string name="scroll_hint_more_tabs_right">Défiler à droite pour voir plus d\'onglets</string>
 </resources>

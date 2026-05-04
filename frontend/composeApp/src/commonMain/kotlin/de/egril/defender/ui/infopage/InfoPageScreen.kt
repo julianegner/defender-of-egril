@@ -13,6 +13,7 @@ import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.WithImpressum
+import de.egril.defender.ui.common.ScrollableTabRowWithHints
 import de.egril.defender.ui.editor.EditorHowToContent
 import de.egril.defender.ui.isEditorAvailable
 import de.egril.defender.ui.settings.SettingsButton
@@ -83,7 +84,7 @@ fun InfoPageScreen(
                 Spacer(modifier = Modifier.height(48.dp))
                 
                 // Tab selector - horizontally scrollable so tabs don't get compressed on mobile
-                ScrollableTabRow(
+                ScrollableTabRowWithHints(
                     selectedTabIndex = selectedTabIndex,
                     modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
                 ) {

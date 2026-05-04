@@ -1727,4 +1727,7 @@
     <!-- Settings tabs -->
     <string name="general">General</string>
     <string name="settings_tab_level">Level</string>
+    <!-- Scroll hint accessibility labels -->
+    <string name="scroll_hint_more_tabs_left">Desplazar a la izquierda para ver más pestañas</string>
+    <string name="scroll_hint_more_tabs_right">Desplazar a la derecha para ver más pestañas</string>
 </resources>

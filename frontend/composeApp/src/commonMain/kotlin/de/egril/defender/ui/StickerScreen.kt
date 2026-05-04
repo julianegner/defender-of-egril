@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.ui.common.ScrollableTabRowWithHints
 import de.egril.defender.ui.icon.enemy.*
 import de.egril.defender.ui.icon.defender.*
 import de.egril.defender.ui.settings.SettingsButton
@@ -91,8 +92,8 @@ fun StickerScreen(
                     .padding(top = 70.dp)
                     .fillMaxSize()
             ) {
-                // Use PrimaryScrollableTabRow because there are many tabs
-                PrimaryScrollableTabRow(
+                // Use ScrollableTabRowWithHints because there are many tabs
+                ScrollableTabRowWithHints(
                     selectedTabIndex = selectedTab,
                     modifier = Modifier.fillMaxWidth()
                 ) {

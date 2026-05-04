@@ -16,6 +16,7 @@ import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.common.ScrollableTabRowWithHints
 import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.icon.SpeakerHighIcon
 import de.egril.defender.ui.icon.SpeakerLowIcon
@@ -85,9 +86,8 @@ fun SettingsDialog(
                     stringResource(Res.string.sound)
                 )
 
-                PrimaryScrollableTabRow(
-                    selectedTabIndex = selectedTab,
-                    edgePadding = 0.dp
+                ScrollableTabRowWithHints(
+                    selectedTabIndex = selectedTab
                 ) {
                     tabs.forEachIndexed { index, title ->
                         Tab(
