@@ -252,7 +252,8 @@ fun UpgradeButton(
     val tooltipText = "$upgradeLabel: ${defender.upgradeCost} $coinsLabel"
 
     BoxWithConstraints(modifier = modifier) {
-        val compact = maxHeight < GamePlayConstants.ButtonSizes.ActionCompactThreshold
+        val compact = maxHeight < GamePlayConstants.ButtonSizes.ActionCompactThreshold ||
+                maxWidth < GamePlayConstants.ButtonSizes.ActionCompactWidthThreshold
         TooltipWrapper(text = if (compact) tooltipText else null) {
             Button(
                 onClick = { onUpgradeDefender(defender.id) },
@@ -294,7 +295,8 @@ fun UndoOrSellButton(
         val undoLabel = stringResource(Res.string.undo)
         val tooltipText = "$undoLabel: ${defender.totalCost} $coinsLabel"
         BoxWithConstraints(modifier = modifier) {
-            val compact = maxHeight < GamePlayConstants.ButtonSizes.ActionCompactThreshold
+            val compact = maxHeight < GamePlayConstants.ButtonSizes.ActionCompactThreshold ||
+                    maxWidth < GamePlayConstants.ButtonSizes.ActionCompactWidthThreshold
             TooltipWrapper(text = if (compact) tooltipText else null) {
                 Button(
                     onClick = { onUndoTower(defender.id) },
@@ -320,7 +322,8 @@ fun UndoOrSellButton(
         val sellLabel = stringResource(Res.string.sell)
         val tooltipText = "$sellLabel: $sellAmount $coinsLabel"
         BoxWithConstraints(modifier = modifier) {
-            val compact = maxHeight < GamePlayConstants.ButtonSizes.ActionCompactThreshold
+            val compact = maxHeight < GamePlayConstants.ButtonSizes.ActionCompactThreshold ||
+                    maxWidth < GamePlayConstants.ButtonSizes.ActionCompactWidthThreshold
             TooltipWrapper(text = if (compact) tooltipText else null) {
                 Button(
                     onClick = { showSellConfirmation = true },

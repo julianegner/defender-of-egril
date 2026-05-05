@@ -300,6 +300,35 @@ fun DefenderInfo(
                             defender.actionsPerTurnCalculated
                         }
 
+                        // Determine whether any extra action button columns (attack, mana, trap,
+                        // barricade) will be rendered. Used to decide whether to fill the row with
+                        // a placeholder spacer or let the upgrade/sell buttons expand naturally.
+                        val hasAttackColumn = isPlayerTurn &&
+                            defender.type != DefenderType.DWARVEN_MINE &&
+                            defender.type != DefenderType.DRAGONS_LAIR &&
+                            onDefenderAttack != null &&
+                            onDefenderAttackPosition != null
+                        val hasManaColumn = isPlayerTurn &&
+                            defender.type == DefenderType.WIZARD_TOWER &&
+                            gameState.currentMana.value < gameState.maxMana.value &&
+                            onWizardAction != null
+                        val hasTrapColumn = isPlayerTurn &&
+                            defender.type == DefenderType.WIZARD_TOWER &&
+                            defender.level.value >= 10 &&
+                            onWizardAction != null
+                        val hasBarricadeColumn = isPlayerTurn && onBarricadeAction != null &&
+                            when (defender.type) {
+                                DefenderType.SPIKE_TOWER ->
+                                    defender.level.value >= 20 &&
+                                    gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_2
+                                DefenderType.SPEAR_TOWER ->
+                                    defender.level.value >= 10 &&
+                                    gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_1
+                                else -> false
+                            }
+                        val hasExtraButtonColumns = hasAttackColumn || hasManaColumn ||
+                            hasTrapColumn || hasBarricadeColumn
+
                         // Current stats column
                             Column(modifier = Modifier.weight(0.5f)) {
                                 Text(
@@ -459,7 +488,8 @@ fun DefenderInfo(
                                 selectedMineAction,
                                 compactBuyPanel,
                                 horizontalSpacing,
-                                buttonHeight
+                                buttonHeight,
+                                hasExtraButtonColumns
                             )
                         }
                     }
@@ -483,7 +513,8 @@ private fun RowScope.dwarvenMineActionButtonArea(
     selectedMineAction: MineAction? = null,  // Current trap placement mode
     compactBuyPanel: Boolean = false,
     horizontalSpacing: Dp = 8.dp,
-    buttonHeight: Dp = 60.dp
+    buttonHeight: Dp = 60.dp,
+    hasExtraButtonColumns: Boolean = false
 
 ) {
     if (type == DefenderType.DWARVEN_MINE) {
@@ -557,7 +588,12 @@ private fun RowScope.dwarvenMineActionButtonArea(
             Spacer(modifier = Modifier.weight(3f))
         }
     } else {
-        Spacer(modifier = Modifier.weight(if (compactBuyPanel) 1f else 4f))
+        // Only reserve placeholder space when there are additional button columns whose
+        // presence would otherwise make the upgrade/sell buttons disproportionately narrow.
+        // When no extra columns exist the upgrade/sell buttons can fill the available space.
+        if (hasExtraButtonColumns) {
+            Spacer(modifier = Modifier.weight(if (compactBuyPanel) 1f else 4f))
+        }
     }
 }
 

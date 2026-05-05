@@ -90,6 +90,13 @@ object GamePlayConstants {
          * causing a nominal 60dp button to render at ~30dp.
          */
         val ActionCompactThreshold = 38.dp
+
+        /**
+         * Width threshold below which tower action buttons (upgrade/sell/undo) switch to
+         * icon-only mode. This occurs when the button column is too narrow to display the
+         * label text without wrapping (e.g. when many buttons share the same row).
+         */
+        val ActionCompactWidthThreshold = 110.dp
     }
     
     /**
