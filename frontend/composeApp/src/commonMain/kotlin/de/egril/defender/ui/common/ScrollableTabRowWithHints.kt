@@ -4,18 +4,18 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import dev.vicart.compose.material.symbols.FilledSymbol
+import dev.vicart.compose.material.symbols.MaterialSymbols
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.scroll_hint_more_tabs_left
 import defender_of_egril.composeapp.generated.resources.scroll_hint_more_tabs_right
@@ -49,11 +49,12 @@ fun ScrollableTabRowWithHints(
         // Left hint – visible once the row has been scrolled past its start
         Box(modifier = Modifier.size(20.dp), contentAlignment = Alignment.Center) {
             if (scrollState.canScrollBackward) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = stringResource(Res.string.scroll_hint_more_tabs_left),
+                val label = stringResource(Res.string.scroll_hint_more_tabs_left)
+                FilledSymbol(
+                    icon = MaterialSymbols.KEYBOARD_ARROW_LEFT,
+                    size = 20.dp,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.semantics { contentDescription = label }
                 )
             }
         }
@@ -70,11 +71,12 @@ fun ScrollableTabRowWithHints(
         // Right hint – visible when more tabs are reachable by scrolling right
         Box(modifier = Modifier.size(20.dp), contentAlignment = Alignment.Center) {
             if (scrollState.canScrollForward) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = stringResource(Res.string.scroll_hint_more_tabs_right),
+                val label = stringResource(Res.string.scroll_hint_more_tabs_right)
+                FilledSymbol(
+                    icon = MaterialSymbols.KEYBOARD_ARROW_RIGHT,
+                    size = 20.dp,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.semantics { contentDescription = label }
                 )
             }
         }

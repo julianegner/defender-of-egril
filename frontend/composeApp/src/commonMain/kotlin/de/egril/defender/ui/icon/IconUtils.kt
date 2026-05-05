@@ -2,20 +2,18 @@ package de.egril.defender.ui.icon
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import dev.vicart.compose.material.symbols.FilledSymbol
+import dev.vicart.compose.material.symbols.MaterialSymbols
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -36,52 +34,29 @@ import defender_of_egril.composeapp.generated.resources.dig_outcome_gold
 import defender_of_egril.composeapp.generated.resources.dig_outcome_rubble
 import defender_of_egril.composeapp.generated.resources.dig_outcome_silver
 import defender_of_egril.composeapp.generated.resources.dragon_destroying_mine
-import defender_of_egril.composeapp.generated.resources.emoji_checkmark
-import defender_of_egril.composeapp.generated.resources.emoji_door
-import defender_of_egril.composeapp.generated.resources.emoji_down_arrow
+import defender_of_egril.composeapp.generated.resources.emoji_bed
+import defender_of_egril.composeapp.generated.resources.emoji_coffee
 import defender_of_egril.composeapp.generated.resources.emoji_explosion
-import defender_of_egril.composeapp.generated.resources.emoji_heart
 import defender_of_egril.composeapp.generated.resources.emoji_hole
 import defender_of_egril.composeapp.generated.resources.emoji_info
-import defender_of_egril.composeapp.generated.resources.emoji_left_arrow
 import defender_of_egril.composeapp.generated.resources.emoji_lightning
 import defender_of_egril.composeapp.generated.resources.emoji_lock
-import defender_of_egril.composeapp.generated.resources.emoji_magnifying_glass
 import defender_of_egril.composeapp.generated.resources.emoji_money
 import defender_of_egril.composeapp.generated.resources.emoji_pick
 import defender_of_egril.composeapp.generated.resources.emoji_pushpin
 import defender_of_egril.composeapp.generated.resources.emoji_reload
 import defender_of_egril.composeapp.generated.resources.emoji_save
+import defender_of_egril.composeapp.generated.resources.emoji_shield
+import defender_of_egril.composeapp.generated.resources.emoji_speech_bubble
 import defender_of_egril.composeapp.generated.resources.emoji_sword
 import defender_of_egril.composeapp.generated.resources.emoji_target
 import defender_of_egril.composeapp.generated.resources.emoji_test_tube
 import defender_of_egril.composeapp.generated.resources.emoji_timer
 import defender_of_egril.composeapp.generated.resources.emoji_tools
-import defender_of_egril.composeapp.generated.resources.emoji_trash
-import defender_of_egril.composeapp.generated.resources.emoji_triangle_down
-import defender_of_egril.composeapp.generated.resources.emoji_triangle_left
-import defender_of_egril.composeapp.generated.resources.emoji_triangle_right
-import defender_of_egril.composeapp.generated.resources.emoji_triangle_up
 import defender_of_egril.composeapp.generated.resources.emoji_unlock
-import defender_of_egril.composeapp.generated.resources.emoji_up_arrow
 import defender_of_egril.composeapp.generated.resources.emoji_warning
 import defender_of_egril.composeapp.generated.resources.barricade
 import defender_of_egril.composeapp.generated.resources.gate
-import defender_of_egril.composeapp.generated.resources.emoji_right_arrow
-import defender_of_egril.composeapp.generated.resources.emoji_red_circle
-import defender_of_egril.composeapp.generated.resources.emoji_map
-import defender_of_egril.composeapp.generated.resources.emoji_number_1
-import defender_of_egril.composeapp.generated.resources.emoji_number_2
-import defender_of_egril.composeapp.generated.resources.emoji_speaker_low
-import defender_of_egril.composeapp.generated.resources.emoji_speaker_high
-import defender_of_egril.composeapp.generated.resources.emoji_coffee
-import defender_of_egril.composeapp.generated.resources.emoji_bed
-import defender_of_egril.composeapp.generated.resources.emoji_plus
-import defender_of_egril.composeapp.generated.resources.emoji_cross
-import defender_of_egril.composeapp.generated.resources.emoji_pencil
-import defender_of_egril.composeapp.generated.resources.emoji_crown
-import defender_of_egril.composeapp.generated.resources.emoji_shield
-import defender_of_egril.composeapp.generated.resources.emoji_speech_bubble
 import defender_of_egril.composeapp.generated.resources.trap
 import org.jetbrains.compose.resources.painterResource
 import kotlin.math.PI
@@ -138,18 +113,18 @@ fun SwordIcon(
 }
 
 /**
- * Displays a heart emoji icon using Image for cross-platform compatibility
- * Source: Noto Emoji (U+2764)
+ * Displays a heart icon
  */
 @Composable
 fun HeartIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_heart),
-        contentDescription = "Heart",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.FAVORITE,
+        size = size,
+        tint = Color.Red,
+        modifier = modifier
     )
 }
 
@@ -281,7 +256,7 @@ fun PickIcon(
 }
 
 /**
- * Displays a money bag emoji icon using Image for cross-platform compatibility
+ * Displays a money/coin emoji icon using Image for cross-platform compatibility
  * Source: Noto Emoji (U+1F4B0)
  */
 @Composable
@@ -329,8 +304,7 @@ fun BedIcon(
 }
 
 /**
- * Displays a triangle up emoji icon using Image for cross-platform compatibility
- * Source: Unicode (U+25B2)
+ * Displays a triangle up icon
  */
 @Composable
 fun TriangleUpIcon(
@@ -338,17 +312,16 @@ fun TriangleUpIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_triangle_up),
-        contentDescription = "Triangle Up",
-        modifier = modifier.size(size),
-        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
+    FilledSymbol(
+        icon = MaterialSymbols.ARROW_DROP_UP,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
 /**
- * Displays a triangle right emoji icon using Image for cross-platform compatibility
- * Source: Noto Emoji (U+25B6)
+ * Displays a triangle right icon
  */
 @Composable
 fun TriangleRightIcon(
@@ -356,17 +329,16 @@ fun TriangleRightIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_triangle_right),
-        contentDescription = "Triangle Right",
-        modifier = modifier.size(size),
-        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
+    FilledSymbol(
+        icon = MaterialSymbols.ARROW_RIGHT,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
 /**
- * Displays a triangle left  emoji icon using Image for cross-platform compatibility
- * Source: Noto Emoji (U+25C0)
+ * Displays a triangle left icon
  */
 @Composable
 fun TriangleLeftIcon(
@@ -374,17 +346,16 @@ fun TriangleLeftIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_triangle_left),
-        contentDescription = "Triangle Left",
-        modifier = modifier.size(size),
-        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
+    FilledSymbol(
+        icon = MaterialSymbols.ARROW_LEFT,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
 /**
- * Displays a triangle down emoji icon using Image for cross-platform compatibility
- * Source: Unicode (U+25BC)
+ * Displays a triangle down icon
  */
 @Composable
 fun TriangleDownIcon(
@@ -392,27 +363,26 @@ fun TriangleDownIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_triangle_down),
-        contentDescription = "Triangle Down",
-        modifier = modifier.size(size),
-        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
+    FilledSymbol(
+        icon = MaterialSymbols.ARROW_DROP_DOWN,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
 /**
- * Displays a trash can emoji icon using Image for cross-platform compatibility
- * Source: Noto Emoji (U+1F5D1)
+ * Displays a trash icon
  */
 @Composable
 fun TrashIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 24.dp
 ) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_trash),
-        contentDescription = "Trash",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.DELETE,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -433,24 +403,8 @@ fun InfoIcon(
 }
 
 /**
- * Displays a door emoji icon using Image for cross-platform compatibility
- * Source: Noto Emoji (U+1F6AA)
- */
-@Composable
-fun DoorIcon(
-    modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
-) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_door),
-        contentDescription = "Door",
-        modifier = modifier.size(size)
-    )
-}
-
-/**
  * Displays a pushpin emoji icon using Image for cross-platform compatibility
- * Source: Noto Emoji (U+1F4CD)
+ * Source: Noto Emoji (U+1F4CC)
  */
 @Composable
 fun PushpinIcon(
@@ -465,8 +419,7 @@ fun PushpinIcon(
 }
 
 /**
- * Displays a left arrow icon using Image for cross-platform compatibility
- * Source: Unicode (U+2190)
+ * Displays a left arrow icon
  */
 @Composable
 fun LeftArrowIcon(
@@ -474,17 +427,16 @@ fun LeftArrowIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_left_arrow),
-        contentDescription = "Left Arrow",
-        colorFilter = tint?.let { ColorFilter.Companion.tint(it) },
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.ARROW_BACK,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
 /**
- * Displays an up arrow icon using Image for cross-platform compatibility
- * Source: Unicode (U+2191)
+ * Displays an up arrow icon
  */
 @Composable
 fun UpArrowIcon(
@@ -492,17 +444,16 @@ fun UpArrowIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_up_arrow),
-        contentDescription = "Up Arrow",
-        modifier = modifier.size(size),
-        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
+    FilledSymbol(
+        icon = MaterialSymbols.ARROW_UPWARD,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
 /**
- * Displays a down arrow icon using Image for cross-platform compatibility
- * Source: Unicode (U+2193)
+ * Displays a down arrow icon
  */
 @Composable
 fun DownArrowIcon(
@@ -510,17 +461,16 @@ fun DownArrowIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_down_arrow),
-        contentDescription = "Down Arrow",
-        modifier = modifier.size(size),
-        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
+    FilledSymbol(
+        icon = MaterialSymbols.ARROW_DOWNWARD,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
 /**
- * Displays a checkmark icon using Image for cross-platform compatibility
- * Source: Unicode (U+2713)
+ * Displays a checkmark icon
  */
 @Composable
 fun CheckmarkIcon(
@@ -528,16 +478,16 @@ fun CheckmarkIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_checkmark),
-        contentDescription = "Checkmark",
-        colorFilter = tint?.let { ColorFilter.Companion.tint(it) },
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.CHECK,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
 /**
- * Displays a tools/hammer and wrench emoji icon using Image for cross-platform compatibility
+ * Displays a tools emoji icon using Image for cross-platform compatibility
  * Source: Noto Emoji (U+1F6E0)
  */
 @Composable
@@ -585,8 +535,7 @@ fun UnlockIcon(
 }
 
 /**
- * Displays a magnifying glass icon using Image for cross-platform compatibility
- * Source: Generic SVG icon
+ * Displays a magnifying glass icon
  */
 @Composable
 fun MagnifyingGlassIcon(
@@ -594,17 +543,17 @@ fun MagnifyingGlassIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_magnifying_glass),
-        contentDescription = "Magnifying Glass",
-        modifier = modifier.size(size),
-        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
+    FilledSymbol(
+        icon = MaterialSymbols.SEARCH,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
 /**
- * Displays a floppy disk/save icon using Image for cross-platform compatibility
- * Source: Custom SVG icon (U+1F4BE floppy disk emoji equivalent)
+ * Displays a save emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+1F4BE)
  */
 @Composable
 fun SaveIcon(
@@ -661,8 +610,8 @@ fun DigOutcomeIcon(
 }
 
 /**
- * Displays a warning triangle icon using Image for cross-platform compatibility
- * Source: Custom icon (U+26A0)
+ * Displays a warning emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+26A0)
  */
 @Composable
 fun WarningIcon(
@@ -677,8 +626,7 @@ fun WarningIcon(
 }
 
 /**
- * Displays a right arrow icon using Image for cross-platform compatibility
- * Source: Custom icon (U+2192)
+ * Displays a right arrow icon
  */
 @Composable
 fun RightArrowIcon(
@@ -686,73 +634,27 @@ fun RightArrowIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_right_arrow),
-        contentDescription = "Right Arrow",
-        modifier = modifier.size(size),
-        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
+    FilledSymbol(
+        icon = MaterialSymbols.ARROW_FORWARD,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
 /**
- * Displays a red circle icon using Image for cross-platform compatibility
- * Used to indicate circular dependencies or errors
+ * Displays a red circle icon used to indicate errors
  */
 @Composable
 fun RedCircleIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 12.dp
 ) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_red_circle),
-        contentDescription = "Error",
-        modifier = modifier.size(size)
-    )
-}
-
-/**
- * Displays a map icon using Image for cross-platform compatibility
- * Source: Custom icon (U+1F5FA)
- */
-@Composable
-fun MapIcon(
-    modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
-) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_map),
-        contentDescription = "Map",
-        modifier = modifier.size(size)
-    )
-}
-
-/**
- * Displays a number 1 icon using Image for cross-platform compatibility
- */
-@Composable
-fun Number1Icon(
-    modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
-) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_number_1),
-        contentDescription = "1",
-        modifier = modifier.size(size)
-    )
-}
-
-/**
- * Displays a number 2 icon using Image for cross-platform compatibility
- */
-@Composable
-fun Number2Icon(
-    modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
-) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_number_2),
-        contentDescription = "2",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.CIRCLE,
+        size = size,
+        tint = Color.Red,
+        modifier = modifier
     )
 }
 
@@ -810,8 +712,7 @@ fun PentagramIcon(
 }
 
 /**
- * Displays a download icon (down arrow) using Image for cross-platform compatibility
- * Source: Noto Emoji down arrow
+ * Displays a download icon (down arrow)
  */
 @Composable
 fun DownloadIcon(
@@ -819,17 +720,16 @@ fun DownloadIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_down_arrow),
-        contentDescription = "Download",
-        modifier = modifier.size(size),
-        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
+    FilledSymbol(
+        icon = MaterialSymbols.ARROW_DOWNWARD,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
 /**
- * Displays an upload icon (up arrow) using Image for cross-platform compatibility
- * Source: Noto Emoji up arrow
+ * Displays an upload icon (up arrow)
  */
 @Composable
 fun UploadIcon(
@@ -837,43 +737,41 @@ fun UploadIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_up_arrow),
-        contentDescription = "Upload",
-        modifier = modifier.size(size),
-        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
+    FilledSymbol(
+        icon = MaterialSymbols.ARROW_UPWARD,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
 /**
- * Displays a low volume speaker icon using Image for cross-platform compatibility
- * Source: Custom icon (U+1F508 speaker low volume)
+ * Displays a low volume speaker icon
  */
 @Composable
 fun SpeakerLowIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_speaker_low),
-        contentDescription = "Speaker Low",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.VOLUME_DOWN,
+        size = size,
+        modifier = modifier
     )
 }
 
 /**
- * Displays a high volume speaker icon using Image for cross-platform compatibility
- * Source: Custom icon (U+1F50A speaker high volume)
+ * Displays a high volume speaker icon
  */
 @Composable
 fun SpeakerHighIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_speaker_high),
-        contentDescription = "Speaker High",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.VOLUME_UP,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -910,8 +808,7 @@ fun GateIcon(
 }
 
 /**
- * Displays a plus sign icon using Image for cross-platform compatibility
- * Source: Noto Emoji (U+2795)
+ * Displays a plus sign icon
  */
 @Composable
 fun PlusIcon(
@@ -919,17 +816,16 @@ fun PlusIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_plus),
-        contentDescription = "Plus",
-        modifier = modifier.size(size),
-        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
+    FilledSymbol(
+        icon = MaterialSymbols.ADD,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
 /**
- * Displays a cross/X mark icon using Image for cross-platform compatibility
- * Source: Noto Emoji (U+2716)
+ * Displays a cross/X mark icon
  */
 @Composable
 fun CrossIcon(
@@ -937,33 +833,31 @@ fun CrossIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_cross),
-        contentDescription = "Cross",
-        modifier = modifier.size(size),
-        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
+    FilledSymbol(
+        icon = MaterialSymbols.CLOSE,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
 /**
- * Displays a pencil icon using Image for cross-platform compatibility
- * Source: Noto Emoji (U+270F)
+ * Displays a pencil icon
  */
 @Composable
 fun PencilIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_pencil),
-        contentDescription = "Pencil",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.EDIT,
+        size = size,
+        modifier = modifier
     )
 }
 
 /**
- * Displays a trophy icon using crown emoji as substitute for cross-platform compatibility
- * Source: Noto Emoji (U+1F451)
+ * Displays a trophy icon
  */
 @Composable
 fun TrophyIcon(
@@ -971,11 +865,11 @@ fun TrophyIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Image(
-        painter = painterResource(Res.drawable.emoji_crown),
-        contentDescription = "Trophy/Achievement",
-        modifier = modifier.size(size),
-        colorFilter = tint?.let { ColorFilter.Companion.tint(it) }
+    FilledSymbol(
+        icon = MaterialSymbols.WORKSPACE_PREMIUM,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
@@ -1339,7 +1233,7 @@ fun FearSpellAreaIcon(
 }
 
 /**
- * Displays a shield icon using Image for cross-platform compatibility
+ * Displays a shield emoji icon using Image for cross-platform compatibility
  * Source: Noto Emoji (U+1F6E1)
  */
 @Composable
@@ -1355,7 +1249,7 @@ fun ShieldIcon(
 }
 
 /**
- * Displays a speech bubble icon using Image for cross-platform compatibility
+ * Displays a speech bubble emoji icon using Image for cross-platform compatibility
  * Source: Noto Emoji (U+1F4AC)
  */
 @Composable
@@ -1367,6 +1261,23 @@ fun SpeechBubbleIcon(
         painter = painterResource(Res.drawable.emoji_speech_bubble),
         contentDescription = "Speech Bubble",
         modifier = modifier.size(size)
+    )
+}
+
+/**
+ * Displays a question mark
+ */
+@Composable
+fun HelpIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp,
+    tint: Color? = null
+) {
+    FilledSymbol(
+        icon = MaterialSymbols.HELP,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 

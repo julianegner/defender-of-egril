@@ -281,9 +281,9 @@ fun GameHeader(
                         )
                     ) {
                         if (showOverlay) {
-                            TriangleRightIcon(size = buttonIconSize)
+                            TriangleRightIcon(size = buttonIconSize * 2)
                         } else {
-                            TriangleLeftIcon(size = buttonIconSize)
+                            TriangleLeftIcon(size = buttonIconSize * 2)
                         }
                     }
                 }
