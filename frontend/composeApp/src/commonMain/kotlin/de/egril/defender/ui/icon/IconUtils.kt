@@ -51,6 +51,7 @@ import defender_of_egril.composeapp.generated.resources.emoji_speech_bubble
 import defender_of_egril.composeapp.generated.resources.emoji_sword
 import defender_of_egril.composeapp.generated.resources.emoji_target
 import defender_of_egril.composeapp.generated.resources.emoji_test_tube
+import defender_of_egril.composeapp.generated.resources.emoji_timer
 import defender_of_egril.composeapp.generated.resources.emoji_tools
 import defender_of_egril.composeapp.generated.resources.emoji_unlock
 import defender_of_egril.composeapp.generated.resources.emoji_warning
@@ -80,17 +81,18 @@ fun LightningIcon(
 }
 
 /**
- * Displays a timer icon
+ * Displays a timer/stopwatch emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+23F1)
  */
 @Composable
 fun TimerIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 10.dp
 ) {
-    FilledSymbol(
-        icon = MaterialSymbols.TIMER,
-        size = size,
-        modifier = modifier
+    Image(
+        painter = painterResource(Res.drawable.emoji_timer),
+        contentDescription = "Timer",
+        modifier = modifier.size(size)
     )
 }
 
