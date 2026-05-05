@@ -9,6 +9,8 @@ import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
@@ -47,10 +49,12 @@ fun ScrollableTabRowWithHints(
         // Left hint – visible once the row has been scrolled past its start
         Box(modifier = Modifier.size(20.dp), contentAlignment = Alignment.Center) {
             if (scrollState.canScrollBackward) {
+                val label = stringResource(Res.string.scroll_hint_more_tabs_left)
                 FilledSymbol(
                     icon = MaterialSymbols.KEYBOARD_ARROW_LEFT,
                     size = 20.dp,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.semantics { contentDescription = label }
                 )
             }
         }
@@ -67,10 +71,12 @@ fun ScrollableTabRowWithHints(
         // Right hint – visible when more tabs are reachable by scrolling right
         Box(modifier = Modifier.size(20.dp), contentAlignment = Alignment.Center) {
             if (scrollState.canScrollForward) {
+                val label = stringResource(Res.string.scroll_hint_more_tabs_right)
                 FilledSymbol(
                     icon = MaterialSymbols.KEYBOARD_ARROW_RIGHT,
                     size = 20.dp,
-                    tint = MaterialTheme.colorScheme.primary
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.semantics { contentDescription = label }
                 )
             }
         }
