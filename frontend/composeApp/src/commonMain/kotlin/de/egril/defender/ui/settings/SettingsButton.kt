@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.TooltipWrapper
@@ -31,7 +33,8 @@ fun SettingsButton(
             FilledSymbol(
                 icon = MaterialSymbols.SETTINGS,
                 size = 32.dp,
-                tint = MaterialTheme.colorScheme.onSurface
+                tint = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.semantics { contentDescription = settingsLabel }
             )
         }
     }
