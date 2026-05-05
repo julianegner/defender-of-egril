@@ -31,8 +31,9 @@ import de.egril.defender.iam.IamState
 import de.egril.defender.ui.infopage.ImpressumWrapper
 import de.egril.defender.ui.icon.LockIcon
 import de.egril.defender.ui.icon.UnlockIcon
-import de.egril.defender.ui.icon.InfoIcon
 import de.egril.defender.ui.icon.TrophyIcon
+import dev.vicart.compose.material.symbols.FilledSymbol
+import dev.vicart.compose.material.symbols.MaterialSymbols
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.SettingsHintBox
@@ -155,7 +156,7 @@ fun MainMenuScreen(
                         onClick = onShowInstallationInfo,
                         modifier = Modifier.size(48.dp)
                     ) {
-                        InfoIcon(size = 32.dp)
+                        FilledSymbol(icon = MaterialSymbols.INFO, size = 32.dp)
                     }
                 }
                 

@@ -17,7 +17,6 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.ui.getLocalizedName
-import de.egril.defender.ui.icon.DoorIcon
 import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.TargetIcon
 import de.egril.defender.ui.icon.TimerIcon
@@ -117,7 +116,7 @@ fun HowToPlayContent() {
 
         // Grid Legend
         HowToPlaySectionTitle(stringResource(Res.string.grid_legend))
-        HowToPlayBulletPointWithIcon("Door icon", { DoorIcon(size = 16.dp) }, stringResource(Res.string.spawn_desc))
+        HowToPlayBulletPoint(stringResource(Res.string.spawn_desc))
         HowToPlayBulletPointWithIcon("Target icon", { TargetIcon(size = 16.dp) }, stringResource(Res.string.target_desc))
         HowToPlayBulletPoint(stringResource(Res.string.blue_towers))
         HowToPlayBulletPoint(stringResource(Res.string.gray_towers))

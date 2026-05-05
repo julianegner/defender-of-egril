@@ -34,11 +34,26 @@ import defender_of_egril.composeapp.generated.resources.dig_outcome_gold
 import defender_of_egril.composeapp.generated.resources.dig_outcome_rubble
 import defender_of_egril.composeapp.generated.resources.dig_outcome_silver
 import defender_of_egril.composeapp.generated.resources.dragon_destroying_mine
+import defender_of_egril.composeapp.generated.resources.emoji_bed
+import defender_of_egril.composeapp.generated.resources.emoji_coffee
 import defender_of_egril.composeapp.generated.resources.emoji_explosion
 import defender_of_egril.composeapp.generated.resources.emoji_hole
+import defender_of_egril.composeapp.generated.resources.emoji_info
+import defender_of_egril.composeapp.generated.resources.emoji_lightning
+import defender_of_egril.composeapp.generated.resources.emoji_lock
+import defender_of_egril.composeapp.generated.resources.emoji_money
 import defender_of_egril.composeapp.generated.resources.emoji_pick
+import defender_of_egril.composeapp.generated.resources.emoji_pushpin
+import defender_of_egril.composeapp.generated.resources.emoji_reload
+import defender_of_egril.composeapp.generated.resources.emoji_save
+import defender_of_egril.composeapp.generated.resources.emoji_shield
+import defender_of_egril.composeapp.generated.resources.emoji_speech_bubble
 import defender_of_egril.composeapp.generated.resources.emoji_sword
 import defender_of_egril.composeapp.generated.resources.emoji_target
+import defender_of_egril.composeapp.generated.resources.emoji_test_tube
+import defender_of_egril.composeapp.generated.resources.emoji_tools
+import defender_of_egril.composeapp.generated.resources.emoji_unlock
+import defender_of_egril.composeapp.generated.resources.emoji_warning
 import defender_of_egril.composeapp.generated.resources.barricade
 import defender_of_egril.composeapp.generated.resources.gate
 import defender_of_egril.composeapp.generated.resources.trap
@@ -49,17 +64,18 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 /**
- * Displays a lightning bolt icon
+ * Displays a lightning bolt emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+26A1)
  */
 @Composable
 fun LightningIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    FilledSymbol(
-        icon = MaterialSymbols.BOLT,
-        size = size,
-        modifier = modifier
+    Image(
+        painter = painterResource(Res.drawable.emoji_lightning),
+        contentDescription = "Lightning",
+        modifier = modifier.size(size)
     )
 }
 
@@ -111,17 +127,18 @@ fun HeartIcon(
 }
 
 /**
- * Displays a reload icon
+ * Displays a reload/cycle emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+1F504)
  */
 @Composable
 fun ReloadIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    FilledSymbol(
-        icon = MaterialSymbols.REFRESH,
-        size = size,
-        modifier = modifier
+    Image(
+        painter = painterResource(Res.drawable.emoji_reload),
+        contentDescription = "Reload",
+        modifier = modifier.size(size)
     )
 }
 
@@ -157,17 +174,18 @@ fun BombIcon(
 }
 
 /**
- * Displays a test tube icon
+ * Displays a test tube emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+1F9EA)
  */
 @Composable
 fun TestTubeIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    FilledSymbol(
-        icon = MaterialSymbols.SCIENCE,
-        size = size,
-        modifier = modifier
+    Image(
+        painter = painterResource(Res.drawable.emoji_test_tube),
+        contentDescription = "Test Tube",
+        modifier = modifier.size(size)
     )
 }
 
@@ -236,47 +254,50 @@ fun PickIcon(
 }
 
 /**
- * Displays a money icon
+ * Displays a money/coin emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+1F4B0)
  */
 @Composable
 fun MoneyIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    FilledSymbol(
-        icon = MaterialSymbols.MONETIZATION_ON,
-        size = size,
-        modifier = modifier
+    Image(
+        painter = painterResource(Res.drawable.emoji_money),
+        contentDescription = "Money",
+        modifier = modifier.size(size)
     )
 }
 
 /**
- * Displays a coffee icon
+ * Displays a coffee cup emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+2615)
  */
 @Composable
 fun CoffeeIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    FilledSymbol(
-        icon = MaterialSymbols.COFFEE,
-        size = size,
-        modifier = modifier
+    Image(
+        painter = painterResource(Res.drawable.emoji_coffee),
+        contentDescription = "Coffee",
+        modifier = modifier.size(size)
     )
 }
 
 /**
- * Displays a bed icon
+ * Displays a bed emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+1F6CF)
  */
 @Composable
 fun BedIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    FilledSymbol(
-        icon = MaterialSymbols.HOTEL,
-        size = size,
-        modifier = modifier
+    Image(
+        painter = painterResource(Res.drawable.emoji_bed),
+        contentDescription = "Bed",
+        modifier = modifier.size(size)
     )
 }
 
@@ -364,47 +385,34 @@ fun TrashIcon(
 }
 
 /**
- * Displays an info icon
+ * Displays an info emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+2139)
  */
 @Composable
 fun InfoIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    FilledSymbol(
-        icon = MaterialSymbols.INFO,
-        size = size,
-        modifier = modifier
+    Image(
+        painter = painterResource(Res.drawable.emoji_info),
+        contentDescription = "Info",
+        modifier = modifier.size(size)
     )
 }
 
 /**
- * Displays a door icon
- */
-@Composable
-fun DoorIcon(
-    modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
-) {
-    FilledSymbol(
-        icon = MaterialSymbols.MEETING_ROOM,
-        size = size,
-        modifier = modifier
-    )
-}
-
-/**
- * Displays a pushpin icon
+ * Displays a pushpin emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+1F4CC)
  */
 @Composable
 fun PushpinIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    FilledSymbol(
-        icon = MaterialSymbols.PUSH_PIN,
-        size = size,
-        modifier = modifier
+    Image(
+        painter = painterResource(Res.drawable.emoji_pushpin),
+        contentDescription = "Pushpin",
+        modifier = modifier.size(size)
     )
 }
 
@@ -477,47 +485,50 @@ fun CheckmarkIcon(
 }
 
 /**
- * Displays a tools icon
+ * Displays a tools emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+1F6E0)
  */
 @Composable
 fun ToolsIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 24.dp
 ) {
-    FilledSymbol(
-        icon = MaterialSymbols.HANDYMAN,
-        size = size,
-        modifier = modifier
+    Image(
+        painter = painterResource(Res.drawable.emoji_tools),
+        contentDescription = "Tools",
+        modifier = modifier.size(size)
     )
 }
 
 /**
- * Displays a lock icon
+ * Displays a lock emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+1F512)
  */
 @Composable
 fun LockIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    FilledSymbol(
-        icon = MaterialSymbols.LOCK,
-        size = size,
-        modifier = modifier
+    Image(
+        painter = painterResource(Res.drawable.emoji_lock),
+        contentDescription = "Lock",
+        modifier = modifier.size(size)
     )
 }
 
 /**
- * Displays an unlock icon
+ * Displays an unlock emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+1F513)
  */
 @Composable
 fun UnlockIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    FilledSymbol(
-        icon = MaterialSymbols.LOCK_OPEN,
-        size = size,
-        modifier = modifier
+    Image(
+        painter = painterResource(Res.drawable.emoji_unlock),
+        contentDescription = "Unlock",
+        modifier = modifier.size(size)
     )
 }
 
@@ -539,17 +550,18 @@ fun MagnifyingGlassIcon(
 }
 
 /**
- * Displays a save icon
+ * Displays a save emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+1F4BE)
  */
 @Composable
 fun SaveIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    FilledSymbol(
-        icon = MaterialSymbols.SAVE,
-        size = size,
-        modifier = modifier
+    Image(
+        painter = painterResource(Res.drawable.emoji_save),
+        contentDescription = "Save",
+        modifier = modifier.size(size)
     )
 }
 
@@ -596,17 +608,18 @@ fun DigOutcomeIcon(
 }
 
 /**
- * Displays a warning icon
+ * Displays a warning emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+26A0)
  */
 @Composable
 fun WarningIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    FilledSymbol(
-        icon = MaterialSymbols.WARNING,
-        size = size,
-        modifier = modifier
+    Image(
+        painter = painterResource(Res.drawable.emoji_warning),
+        contentDescription = "Warning",
+        modifier = modifier.size(size)
     )
 }
 
@@ -639,51 +652,6 @@ fun RedCircleIcon(
         icon = MaterialSymbols.CIRCLE,
         size = size,
         tint = Color.Red,
-        modifier = modifier
-    )
-}
-
-/**
- * Displays a map icon
- */
-@Composable
-fun MapIcon(
-    modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
-) {
-    FilledSymbol(
-        icon = MaterialSymbols.MAP,
-        size = size,
-        modifier = modifier
-    )
-}
-
-/**
- * Displays a number 1 icon
- */
-@Composable
-fun Number1Icon(
-    modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
-) {
-    FilledSymbol(
-        icon = MaterialSymbols.LOOKS_ONE,
-        size = size,
-        modifier = modifier
-    )
-}
-
-/**
- * Displays a number 2 icon
- */
-@Composable
-fun Number2Icon(
-    modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
-) {
-    FilledSymbol(
-        icon = MaterialSymbols.LOOKS_TWO,
-        size = size,
         modifier = modifier
     )
 }
@@ -1263,32 +1231,34 @@ fun FearSpellAreaIcon(
 }
 
 /**
- * Displays a shield icon
+ * Displays a shield emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+1F6E1)
  */
 @Composable
 fun ShieldIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    FilledSymbol(
-        icon = MaterialSymbols.SHIELD,
-        size = size,
-        modifier = modifier
+    Image(
+        painter = painterResource(Res.drawable.emoji_shield),
+        contentDescription = "Shield",
+        modifier = modifier.size(size)
     )
 }
 
 /**
- * Displays a speech bubble icon
+ * Displays a speech bubble emoji icon using Image for cross-platform compatibility
+ * Source: Noto Emoji (U+1F4AC)
  */
 @Composable
 fun SpeechBubbleIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    FilledSymbol(
-        icon = MaterialSymbols.CHAT,
-        size = size,
-        modifier = modifier
+    Image(
+        painter = painterResource(Res.drawable.emoji_speech_bubble),
+        contentDescription = "Speech Bubble",
+        modifier = modifier.size(size)
     )
 }
 
