@@ -7,8 +7,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,6 +16,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.RepositoryManager
+import dev.vicart.compose.material.symbols.FilledSymbol
+import dev.vicart.compose.material.symbols.MaterialSymbols
 import de.egril.defender.ui.common.ScrollableTabRowWithHints
 import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.icon.SpeakerHighIcon
@@ -74,9 +74,8 @@ fun SettingsDialog(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     IconButton(onClick = onDismiss) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = stringResource(Res.string.close),
+                        FilledSymbol(
+                            icon = MaterialSymbols.CLOSE,
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }

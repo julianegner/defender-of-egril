@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon Comparison: Old Emoji PNG vs New Material Symbols</title>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" rel="stylesheet" />
+    <style>
+        body { font-family: sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; }
+        h1 { color: #333; }
+        p { color: #666; }
+        table { border-collapse: collapse; width: 100%; }
+        th { background: #4A90D9; color: white; padding: 10px 14px; text-align: left; }
+        td { padding: 8px 14px; border-bottom: 1px solid #ddd; vertical-align: middle; }
+        tr:hover { background: #f5f5f5; }
+        .material-symbols-outlined { font-size: 32px; }
+        .old-icon { font-size: 28px; }
+        code { background: #eee; padding: 2px 6px; border-radius: 3px; font-size: 13px; }
+        .fn { color: #555; font-size: 13px; }
+    </style>
+</head>
+<body>
+<h1>Icon Comparison</h1>
+<p>
+    Comparing old Noto Emoji PNG icons with new
+    <a href="https://fonts.google.com/icons">Material Symbols</a> (Filled style).
+    Note: The Material Symbols column uses the web font — the app uses the same glyphs via the
+    <a href="https://github.com/ClementVicart/compose-material-symbols">compose-material-symbols</a> library.
+</p>
+<table>
+<thead>
+<tr>
+    <th>Function</th>
+    <th>Old (Noto Emoji PNG)</th>
+    <th>New (Material Symbol)</th>
+    <th>Symbol Name</th>
+</tr>
+</thead>
+<tbody>
+<tr><td class="fn">LightningIcon</td><td class="old-icon">⚡</td><td><span class="material-symbols-outlined">bolt</span></td><td><code>MaterialSymbols.BOLT</code></td></tr>
+<tr><td class="fn">TimerIcon</td><td class="old-icon">⏱</td><td><span class="material-symbols-outlined">timer</span></td><td><code>MaterialSymbols.TIMER</code></td></tr>
+<tr><td class="fn">HeartIcon</td><td class="old-icon" style="color:red">❤️</td><td><span class="material-symbols-outlined" style="color:red">favorite</span></td><td><code>MaterialSymbols.FAVORITE</code> (tint: red)</td></tr>
+<tr><td class="fn">ReloadIcon</td><td class="old-icon">🔄</td><td><span class="material-symbols-outlined">refresh</span></td><td><code>MaterialSymbols.REFRESH</code></td></tr>
+<tr><td class="fn">TestTubeIcon</td><td class="old-icon">🧪</td><td><span class="material-symbols-outlined">science</span></td><td><code>MaterialSymbols.SCIENCE</code></td></tr>
+<tr><td class="fn">MoneyIcon</td><td class="old-icon">💰</td><td><span class="material-symbols-outlined">monetization_on</span></td><td><code>MaterialSymbols.MONETIZATION_ON</code></td></tr>
+<tr><td class="fn">CoffeeIcon</td><td class="old-icon">☕</td><td><span class="material-symbols-outlined">coffee</span></td><td><code>MaterialSymbols.COFFEE</code></td></tr>
+<tr><td class="fn">BedIcon</td><td class="old-icon">🛏</td><td><span class="material-symbols-outlined">hotel</span></td><td><code>MaterialSymbols.HOTEL</code></td></tr>
+<tr><td class="fn">TrashIcon</td><td class="old-icon">🗑</td><td><span class="material-symbols-outlined">delete</span></td><td><code>MaterialSymbols.DELETE</code></td></tr>
+<tr><td class="fn">InfoIcon</td><td class="old-icon">ℹ️</td><td><span class="material-symbols-outlined">info</span></td><td><code>MaterialSymbols.INFO</code></td></tr>
+<tr><td class="fn">DoorIcon</td><td class="old-icon">🚪</td><td><span class="material-symbols-outlined">meeting_room</span></td><td><code>MaterialSymbols.MEETING_ROOM</code></td></tr>
+<tr><td class="fn">PushpinIcon</td><td class="old-icon">📌</td><td><span class="material-symbols-outlined">push_pin</span></td><td><code>MaterialSymbols.PUSH_PIN</code></td></tr>
+<tr><td class="fn">ToolsIcon</td><td class="old-icon">🔧</td><td><span class="material-symbols-outlined">handyman</span></td><td><code>MaterialSymbols.HANDYMAN</code></td></tr>
+<tr><td class="fn">LockIcon</td><td class="old-icon">🔒</td><td><span class="material-symbols-outlined">lock</span></td><td><code>MaterialSymbols.LOCK</code></td></tr>
+<tr><td class="fn">UnlockIcon</td><td class="old-icon">🔓</td><td><span class="material-symbols-outlined">lock_open</span></td><td><code>MaterialSymbols.LOCK_OPEN</code></td></tr>
+<tr><td class="fn">SaveIcon</td><td class="old-icon">💾</td><td><span class="material-symbols-outlined">save</span></td><td><code>MaterialSymbols.SAVE</code></td></tr>
+<tr><td class="fn">WarningIcon</td><td class="old-icon">⚠️</td><td><span class="material-symbols-outlined">warning</span></td><td><code>MaterialSymbols.WARNING</code></td></tr>
+<tr><td class="fn">RedCircleIcon</td><td class="old-icon" style="color:red">🔴</td><td><span class="material-symbols-outlined" style="color:red">circle</span></td><td><code>MaterialSymbols.CIRCLE</code> (tint: red)</td></tr>
+<tr><td class="fn">MapIcon</td><td class="old-icon">🗺</td><td><span class="material-symbols-outlined">map</span></td><td><code>MaterialSymbols.MAP</code></td></tr>
+<tr><td class="fn">Number1Icon</td><td class="old-icon">1️⃣</td><td><span class="material-symbols-outlined">looks_1</span></td><td><code>MaterialSymbols.LOOKS_ONE</code></td></tr>
+<tr><td class="fn">Number2Icon</td><td class="old-icon">2️⃣</td><td><span class="material-symbols-outlined">looks_2</span></td><td><code>MaterialSymbols.LOOKS_TWO</code></td></tr>
+<tr><td class="fn">SpeakerLowIcon</td><td class="old-icon">🔉</td><td><span class="material-symbols-outlined">volume_down</span></td><td><code>MaterialSymbols.VOLUME_DOWN</code></td></tr>
+<tr><td class="fn">SpeakerHighIcon</td><td class="old-icon">🔊</td><td><span class="material-symbols-outlined">volume_up</span></td><td><code>MaterialSymbols.VOLUME_UP</code></td></tr>
+<tr><td class="fn">PencilIcon</td><td class="old-icon">✏️</td><td><span class="material-symbols-outlined">edit</span></td><td><code>MaterialSymbols.EDIT</code></td></tr>
+<tr><td class="fn">ShieldIcon</td><td class="old-icon">🛡</td><td><span class="material-symbols-outlined">shield</span></td><td><code>MaterialSymbols.SHIELD</code></td></tr>
+<tr><td class="fn">SpeechBubbleIcon</td><td class="old-icon">💬</td><td><span class="material-symbols-outlined">chat</span></td><td><code>MaterialSymbols.CHAT</code></td></tr>
+<tr><td class="fn">TrophyIcon</td><td class="old-icon">👑</td><td><span class="material-symbols-outlined">workspace_premium</span></td><td><code>MaterialSymbols.WORKSPACE_PREMIUM</code></td></tr>
+<tr><td class="fn">TriangleUpIcon</td><td class="old-icon">🔺</td><td><span class="material-symbols-outlined">arrow_drop_up</span></td><td><code>MaterialSymbols.ARROW_DROP_UP</code></td></tr>
+<tr><td class="fn">TriangleDownIcon</td><td class="old-icon">🔻</td><td><span class="material-symbols-outlined">arrow_drop_down</span></td><td><code>MaterialSymbols.ARROW_DROP_DOWN</code></td></tr>
+<tr><td class="fn">TriangleRightIcon</td><td class="old-icon">▶️</td><td><span class="material-symbols-outlined">arrow_right</span></td><td><code>MaterialSymbols.ARROW_RIGHT</code></td></tr>
+<tr><td class="fn">TriangleLeftIcon</td><td class="old-icon">◀️</td><td><span class="material-symbols-outlined">arrow_left</span></td><td><code>MaterialSymbols.ARROW_LEFT</code></td></tr>
+<tr><td class="fn">UpArrowIcon / UploadIcon</td><td class="old-icon">⬆️</td><td><span class="material-symbols-outlined">arrow_upward</span></td><td><code>MaterialSymbols.ARROW_UPWARD</code></td></tr>
+<tr><td class="fn">DownArrowIcon / DownloadIcon</td><td class="old-icon">⬇️</td><td><span class="material-symbols-outlined">arrow_downward</span></td><td><code>MaterialSymbols.ARROW_DOWNWARD</code></td></tr>
+<tr><td class="fn">LeftArrowIcon</td><td class="old-icon">⬅️</td><td><span class="material-symbols-outlined">arrow_back</span></td><td><code>MaterialSymbols.ARROW_BACK</code></td></tr>
+<tr><td class="fn">RightArrowIcon</td><td class="old-icon">➡️</td><td><span class="material-symbols-outlined">arrow_forward</span></td><td><code>MaterialSymbols.ARROW_FORWARD</code></td></tr>
+<tr><td class="fn">CheckmarkIcon</td><td class="old-icon">✅</td><td><span class="material-symbols-outlined">check</span></td><td><code>MaterialSymbols.CHECK</code></td></tr>
+<tr><td class="fn">MagnifyingGlassIcon</td><td class="old-icon">🔍</td><td><span class="material-symbols-outlined">search</span></td><td><code>MaterialSymbols.SEARCH</code></td></tr>
+<tr><td class="fn">PlusIcon</td><td class="old-icon">➕</td><td><span class="material-symbols-outlined">add</span></td><td><code>MaterialSymbols.ADD</code></td></tr>
+<tr><td class="fn">CrossIcon</td><td class="old-icon">✖️</td><td><span class="material-symbols-outlined">close</span></td><td><code>MaterialSymbols.CLOSE</code></td></tr>
+<tr style="background:#f0f8ff"><td class="fn">SettingsButton (not in IconUtils)</td><td class="old-icon">⚙️</td><td><span class="material-symbols-outlined">settings</span></td><td><code>MaterialSymbols.SETTINGS</code></td></tr>
+<tr style="background:#f0f8ff"><td class="fn">ControlPad Up</td><td>—</td><td><span class="material-symbols-outlined">keyboard_arrow_up</span></td><td><code>MaterialSymbols.KEYBOARD_ARROW_UP</code></td></tr>
+<tr style="background:#f0f8ff"><td class="fn">ControlPad Down</td><td>—</td><td><span class="material-symbols-outlined">keyboard_arrow_down</span></td><td><code>MaterialSymbols.KEYBOARD_ARROW_DOWN</code></td></tr>
+<tr style="background:#f0f8ff"><td class="fn">ControlPad Left</td><td>—</td><td><span class="material-symbols-outlined">keyboard_arrow_left</span></td><td><code>MaterialSymbols.KEYBOARD_ARROW_LEFT</code></td></tr>
+<tr style="background:#f0f8ff"><td class="fn">ControlPad Right</td><td>—</td><td><span class="material-symbols-outlined">keyboard_arrow_right</span></td><td><code>MaterialSymbols.KEYBOARD_ARROW_RIGHT</code></td></tr>
+<tr style="background:#f0f8ff"><td class="fn">ZoomControls + (ZoomIn)</td><td>—</td><td><span class="material-symbols-outlined">add</span></td><td><code>MaterialSymbols.ADD</code></td></tr>
+<tr style="background:#f0f8ff"><td class="fn">ZoomControls - (ZoomOut)</td><td>—</td><td><span class="material-symbols-outlined">remove</span></td><td><code>MaterialSymbols.REMOVE</code></td></tr>
+<tr style="background:#f0f8ff"><td class="fn">ScrollableTabRow Left hint</td><td>—</td><td><span class="material-symbols-outlined">keyboard_arrow_left</span></td><td><code>MaterialSymbols.KEYBOARD_ARROW_LEFT</code></td></tr>
+<tr style="background:#f0f8ff"><td class="fn">ScrollableTabRow Right hint</td><td>—</td><td><span class="material-symbols-outlined">keyboard_arrow_right</span></td><td><code>MaterialSymbols.KEYBOARD_ARROW_RIGHT</code></td></tr>
+</tbody>
+</table>
+<p style="margin-top:20px;color:#999;font-size:12px">
+    Rows with blue background are non-IconUtils icons (SettingsButton, ControlPad, ScrollableTabRow).
+    The "Old" column for these shows "—" as they previously used Material Icons vectors, not PNG files.
+</p>
+</body>
+</html>

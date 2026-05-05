@@ -4,21 +4,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import dev.vicart.compose.material.symbols.FilledSymbol
+import dev.vicart.compose.material.symbols.MaterialSymbols
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.*
-import androidx.compose.material.icons.filled.*
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -45,7 +41,7 @@ fun ControlPad(
     ) {
         // Up button (top quadrant)
         DirectionalButton(
-            icon = Icons.Default.KeyboardArrowUp,
+            iconName = MaterialSymbols.KEYBOARD_ARROW_UP,
             contentDescription = "Up",
             onAction = onUp,
             modifier = Modifier.align(Alignment.TopCenter)
@@ -53,7 +49,7 @@ fun ControlPad(
         
         // Down button (bottom quadrant)
         DirectionalButton(
-            icon = Icons.Default.KeyboardArrowDown,
+            iconName = MaterialSymbols.KEYBOARD_ARROW_DOWN,
             contentDescription = "Down",
             onAction = onDown,
             modifier = Modifier.align(Alignment.BottomCenter)
@@ -61,7 +57,7 @@ fun ControlPad(
         
         // Left button (left quadrant)
         DirectionalButton(
-            icon = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+            iconName = MaterialSymbols.KEYBOARD_ARROW_LEFT,
             contentDescription = "Left",
             onAction = onLeft,
             modifier = Modifier.align(Alignment.CenterStart)
@@ -69,7 +65,7 @@ fun ControlPad(
         
         // Right button (right quadrant)
         DirectionalButton(
-            icon = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            iconName = MaterialSymbols.KEYBOARD_ARROW_RIGHT,
             contentDescription = "Right",
             onAction = onRight,
             modifier = Modifier.align(Alignment.CenterEnd)
@@ -90,7 +86,7 @@ fun ControlPad(
  */
 @Composable
 private fun DirectionalButton(
-    icon: ImageVector,
+    iconName: String,
     contentDescription: String,
     onAction: () -> Unit,
     modifier: Modifier = Modifier
@@ -101,11 +97,10 @@ private fun DirectionalButton(
         repeatDelay = 50,
         modifier = modifier.size(60.dp, 60.dp)
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = contentDescription,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(32.dp)
+        FilledSymbol(
+            icon = iconName,
+            size = 32.dp,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -131,7 +126,7 @@ fun ZoomControls(
     ) {
         // Zoom in button (+)
         ZoomButton(
-            icon = Icons.Default.Add,
+            iconName = MaterialSymbols.ADD,
             contentDescription = "Zoom In",
             onAction = onZoomIn
         )
@@ -146,7 +141,7 @@ fun ZoomControls(
         
         // Zoom out button (-)
         ZoomButton(
-            icon = Icons.Default.Remove,
+            iconName = MaterialSymbols.REMOVE,
             contentDescription = "Zoom Out",
             onAction = onZoomOut
         )
@@ -158,7 +153,7 @@ fun ZoomControls(
  */
 @Composable
 private fun ZoomButton(
-    icon: ImageVector,
+    iconName: String,
     contentDescription: String,
     onAction: () -> Unit
 ) {
@@ -170,11 +165,10 @@ private fun ZoomButton(
             .fillMaxWidth()
             .height(60.dp)
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = contentDescription,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(32.dp)
+        FilledSymbol(
+            icon = iconName,
+            size = 32.dp,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }

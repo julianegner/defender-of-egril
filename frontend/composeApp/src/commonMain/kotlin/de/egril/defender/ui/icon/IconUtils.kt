@@ -5,48 +5,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.automirrored.filled.ArrowLeft
-import androidx.compose.material.icons.automirrored.filled.ArrowRight
-import androidx.compose.material.icons.automirrored.filled.Chat
-import androidx.compose.material.icons.automirrored.filled.VolumeDown
-import androidx.compose.material.icons.automirrored.filled.VolumeUp
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Bolt
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Circle
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Coffee
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Handyman
-import androidx.compose.material.icons.filled.Hotel
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.LockOpen
-import androidx.compose.material.icons.filled.LooksOne
-import androidx.compose.material.icons.filled.LooksTwo
-import androidx.compose.material.icons.filled.Map
-import androidx.compose.material.icons.filled.MeetingRoom
-import androidx.compose.material.icons.filled.MonetizationOn
-import androidx.compose.material.icons.filled.PushPin
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Save
-import androidx.compose.material.icons.filled.Science
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Shield
-import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.filled.WorkspacePremium
-import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import dev.vicart.compose.material.symbols.FilledSymbol
+import dev.vicart.compose.material.symbols.MaterialSymbols
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -94,10 +56,10 @@ fun LightningIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Icon(
-        imageVector = Icons.Filled.Bolt,
-        contentDescription = "Lightning",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.BOLT,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -109,10 +71,10 @@ fun TimerIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 10.dp
 ) {
-    Icon(
-        imageVector = Icons.Filled.Timer,
-        contentDescription = "Timer",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.TIMER,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -140,11 +102,11 @@ fun HeartIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Icon(
-        imageVector = Icons.Filled.Favorite,
-        contentDescription = "Heart",
+    FilledSymbol(
+        icon = MaterialSymbols.FAVORITE,
+        size = size,
         tint = Color.Red,
-        modifier = modifier.size(size)
+        modifier = modifier
     )
 }
 
@@ -156,10 +118,10 @@ fun ReloadIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Icon(
-        imageVector = Icons.Filled.Refresh,
-        contentDescription = "Reload",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.REFRESH,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -202,10 +164,10 @@ fun TestTubeIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Icon(
-        imageVector = Icons.Filled.Science,
-        contentDescription = "Test Tube",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.SCIENCE,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -281,10 +243,10 @@ fun MoneyIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Icon(
-        imageVector = Icons.Filled.MonetizationOn,
-        contentDescription = "Money",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.MONETIZATION_ON,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -296,10 +258,10 @@ fun CoffeeIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Icon(
-        imageVector = Icons.Filled.Coffee,
-        contentDescription = "Coffee",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.COFFEE,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -311,10 +273,10 @@ fun BedIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Icon(
-        imageVector = Icons.Filled.Hotel,
-        contentDescription = "Bed",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.HOTEL,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -327,11 +289,11 @@ fun TriangleUpIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Icon(
-        imageVector = Icons.Filled.ArrowDropUp,
-        contentDescription = "Triangle Up",
-        tint = tint ?: Color.Unspecified,
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.ARROW_DROP_UP,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
@@ -344,11 +306,11 @@ fun TriangleRightIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Icon(
-        imageVector = Icons.AutoMirrored.Filled.ArrowRight,
-        contentDescription = "Triangle Right",
-        tint = tint ?: Color.Unspecified,
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.ARROW_RIGHT,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
@@ -361,11 +323,11 @@ fun TriangleLeftIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Icon(
-        imageVector = Icons.AutoMirrored.Filled.ArrowLeft,
-        contentDescription = "Triangle Left",
-        tint = tint ?: Color.Unspecified,
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.ARROW_LEFT,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
@@ -378,11 +340,11 @@ fun TriangleDownIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Icon(
-        imageVector = Icons.Filled.ArrowDropDown,
-        contentDescription = "Triangle Down",
-        tint = tint ?: Color.Unspecified,
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.ARROW_DROP_DOWN,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
@@ -394,10 +356,10 @@ fun TrashIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 24.dp
 ) {
-    Icon(
-        imageVector = Icons.Filled.Delete,
-        contentDescription = "Trash",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.DELETE,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -409,10 +371,10 @@ fun InfoIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Icon(
-        imageVector = Icons.Filled.Info,
-        contentDescription = "Info",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.INFO,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -424,10 +386,10 @@ fun DoorIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Icon(
-        imageVector = Icons.Filled.MeetingRoom,
-        contentDescription = "Door",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.MEETING_ROOM,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -439,10 +401,10 @@ fun PushpinIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Icon(
-        imageVector = Icons.Filled.PushPin,
-        contentDescription = "Pushpin",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.PUSH_PIN,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -455,11 +417,11 @@ fun LeftArrowIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Icon(
-        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-        contentDescription = "Left Arrow",
-        tint = tint ?: Color.Unspecified,
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.ARROW_BACK,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
@@ -472,11 +434,11 @@ fun UpArrowIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Icon(
-        imageVector = Icons.Filled.ArrowUpward,
-        contentDescription = "Up Arrow",
-        tint = tint ?: Color.Unspecified,
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.ARROW_UPWARD,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
@@ -489,11 +451,11 @@ fun DownArrowIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Icon(
-        imageVector = Icons.Filled.ArrowDownward,
-        contentDescription = "Down Arrow",
-        tint = tint ?: Color.Unspecified,
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.ARROW_DOWNWARD,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
@@ -506,11 +468,11 @@ fun CheckmarkIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Icon(
-        imageVector = Icons.Filled.Check,
-        contentDescription = "Checkmark",
-        tint = tint ?: Color.Unspecified,
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.CHECK,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
@@ -522,10 +484,10 @@ fun ToolsIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 24.dp
 ) {
-    Icon(
-        imageVector = Icons.Filled.Handyman,
-        contentDescription = "Tools",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.HANDYMAN,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -537,10 +499,10 @@ fun LockIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Icon(
-        imageVector = Icons.Filled.Lock,
-        contentDescription = "Lock",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.LOCK,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -552,10 +514,10 @@ fun UnlockIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Icon(
-        imageVector = Icons.Filled.LockOpen,
-        contentDescription = "Unlock",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.LOCK_OPEN,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -568,11 +530,11 @@ fun MagnifyingGlassIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Icon(
-        imageVector = Icons.Filled.Search,
-        contentDescription = "Magnifying Glass",
-        tint = tint ?: Color.Unspecified,
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.SEARCH,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
@@ -584,10 +546,10 @@ fun SaveIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Icon(
-        imageVector = Icons.Filled.Save,
-        contentDescription = "Save",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.SAVE,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -641,10 +603,10 @@ fun WarningIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Icon(
-        imageVector = Icons.Filled.Warning,
-        contentDescription = "Warning",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.WARNING,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -657,11 +619,11 @@ fun RightArrowIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Icon(
-        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-        contentDescription = "Right Arrow",
-        tint = tint ?: Color.Unspecified,
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.ARROW_FORWARD,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
@@ -673,11 +635,11 @@ fun RedCircleIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 12.dp
 ) {
-    Icon(
-        imageVector = Icons.Filled.Circle,
-        contentDescription = "Error",
+    FilledSymbol(
+        icon = MaterialSymbols.CIRCLE,
+        size = size,
         tint = Color.Red,
-        modifier = modifier.size(size)
+        modifier = modifier
     )
 }
 
@@ -689,10 +651,10 @@ fun MapIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Icon(
-        imageVector = Icons.Filled.Map,
-        contentDescription = "Map",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.MAP,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -704,10 +666,10 @@ fun Number1Icon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Icon(
-        imageVector = Icons.Filled.LooksOne,
-        contentDescription = "1",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.LOOKS_ONE,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -719,10 +681,10 @@ fun Number2Icon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Icon(
-        imageVector = Icons.Filled.LooksTwo,
-        contentDescription = "2",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.LOOKS_TWO,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -788,11 +750,11 @@ fun DownloadIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Icon(
-        imageVector = Icons.Filled.ArrowDownward,
-        contentDescription = "Download",
-        tint = tint ?: Color.Unspecified,
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.ARROW_DOWNWARD,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
@@ -805,11 +767,11 @@ fun UploadIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Icon(
-        imageVector = Icons.Filled.ArrowUpward,
-        contentDescription = "Upload",
-        tint = tint ?: Color.Unspecified,
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.ARROW_UPWARD,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
@@ -821,10 +783,10 @@ fun SpeakerLowIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Icon(
-        imageVector = Icons.AutoMirrored.Filled.VolumeDown,
-        contentDescription = "Speaker Low",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.VOLUME_DOWN,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -836,10 +798,10 @@ fun SpeakerHighIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Icon(
-        imageVector = Icons.AutoMirrored.Filled.VolumeUp,
-        contentDescription = "Speaker High",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.VOLUME_UP,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -884,11 +846,11 @@ fun PlusIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Icon(
-        imageVector = Icons.Filled.Add,
-        contentDescription = "Plus",
-        tint = tint ?: Color.Unspecified,
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.ADD,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
@@ -901,11 +863,11 @@ fun CrossIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Icon(
-        imageVector = Icons.Filled.Close,
-        contentDescription = "Cross",
-        tint = tint ?: Color.Unspecified,
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.CLOSE,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
@@ -917,10 +879,10 @@ fun PencilIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Icon(
-        imageVector = Icons.Filled.Edit,
-        contentDescription = "Pencil",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.EDIT,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -933,11 +895,11 @@ fun TrophyIcon(
     size: Dp = 16.dp,
     tint: Color? = null
 ) {
-    Icon(
-        imageVector = Icons.Filled.WorkspacePremium,
-        contentDescription = "Trophy/Achievement",
-        tint = tint ?: Color.Unspecified,
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.WORKSPACE_PREMIUM,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
     )
 }
 
@@ -1308,10 +1270,10 @@ fun ShieldIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Icon(
-        imageVector = Icons.Filled.Shield,
-        contentDescription = "Shield",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.SHIELD,
+        size = size,
+        modifier = modifier
     )
 }
 
@@ -1323,10 +1285,10 @@ fun SpeechBubbleIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp
 ) {
-    Icon(
-        imageVector = Icons.AutoMirrored.Filled.Chat,
-        contentDescription = "Speech Bubble",
-        modifier = modifier.size(size)
+    FilledSymbol(
+        icon = MaterialSymbols.CHAT,
+        size = size,
+        modifier = modifier
     )
 }
 
