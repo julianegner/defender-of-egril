@@ -499,13 +499,26 @@ fun GameGrid(
     // On large maps (e.g. 80×80 = 6 400 tiles) replacing O(n) list scans with O(1) map
     // lookups gives a significant speedup when all cells recompose (e.g. after clicking a
     // tower-buy button or placing a tower).
-    val defendersByPosition = gameState.defenders.associateBy { it.position.value }
-    val activeAttackersByPosition = gameState.attackers
-        .filter { !it.isDefeated.value }
-        .associateBy { it.position.value }
+    //
+    // Use derivedStateOf so that these maps are only rebuilt when the defenders/attackers
+    // data actually changes — not on every unrelated state change (e.g. coins updating).
+    // This avoids redundant map rebuilds when GameGrid recomposes due to other state changes.
+    val defendersByPosition by remember(gameState) {
+        derivedStateOf { gameState.defenders.associateBy { it.position.value } }
+    }
+    val activeAttackersByPosition by remember(gameState) {
+        derivedStateOf {
+            gameState.attackers
+                .filter { !it.isDefeated.value }
+                .associateBy { it.position.value }
+        }
+    }
 
     // Pre-compute the selected defender once (replaces 6+ O(n) searches per GridCell).
-    val selectedDefenderForGrid = selectedDefenderId?.let { id -> gameState.defenders.find { it.id == id } }
+    // Also wrapped in derivedStateOf so it only recomputes when defenders or the selection changes.
+    val selectedDefenderForGrid by remember(gameState, selectedDefenderId) {
+        derivedStateOf { selectedDefenderId?.let { id -> gameState.defenders.find { it.id == id } } }
+    }
 
     // Pre-compute whether the hovered position is buildable.
     // This value is identical for every GridCell, so computing it once here and passing it
