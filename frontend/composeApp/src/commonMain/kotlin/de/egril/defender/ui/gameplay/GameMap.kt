@@ -1346,7 +1346,7 @@ fun GridCell(
     // path/range cells are skipped when only a buy-button (selectedDefenderType) changes.
     val selectedDefenderId: Int? = if (selectedDefender != null) LocalSelectedDefenderId.current else null
     val showRange = if (selectedDefenderId != null) {
-        selectedDefender?.isReady == true && selectedDefender?.actionsRemaining?.value ?: 0 > 0
+        selectedDefender?.isReady == true && (selectedDefender?.actionsRemaining?.value ?: 0) > 0
     } else false
 
     // When placing trap, don't show green border on tiles with enemies.
@@ -1360,7 +1360,8 @@ fun GridCell(
 
     // Check if defender has area attack capability
     val hasAreaAttack = selectedDefender?.let { sel ->
-        sel.type.attackType == AttackType.AREA || sel.type.attackType == AttackType.LASTING
+        val attackType = sel.type.attackType
+        attackType == AttackType.AREA || attackType == AttackType.LASTING
     } ?: false
 
     // Enemy-occupiable tiles are valid targets for area attacks; enemy-traversable for single-target
