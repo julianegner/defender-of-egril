@@ -41,6 +41,9 @@ import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.utils.isPlatformWasm
 import de.egril.defender.ui.isMobileWebBrowser
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.icon.HeartIcon
+import de.egril.defender.ui.icon.HelpIcon
+import de.egril.defender.ui.settings.AppSettings.isDarkMode
 import de.egril.defender.utils.isPlatformIos
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
@@ -274,21 +277,10 @@ fun MainMenuScreen(
                         IconButton(
                             onClick = onShowBackendInfo,
                             modifier = Modifier
-                                .size(28.dp)
+                                .size(34.dp)
                                 .semantics { contentDescription = backendInfoDesc }
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .background(Color(0xFFB3E5FC), CircleShape),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "?",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
+                            HelpIcon(size = 34.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
                         }
                     }
                 }

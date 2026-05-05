@@ -1265,6 +1265,23 @@ fun SpeechBubbleIcon(
 }
 
 /**
+ * Displays a question mark
+ */
+@Composable
+fun HelpIcon(
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp,
+    tint: Color? = null
+) {
+    FilledSymbol(
+        icon = MaterialSymbols.HELP,
+        size = size,
+        tint = tint ?: LocalContentColor.current,
+        modifier = modifier
+    )
+}
+
+/**
  * Displays a snowflake icon using Canvas for cross-platform compatibility
  */
 @Composable
