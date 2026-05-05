@@ -501,12 +501,13 @@ fun GameGrid(
     // tower-buy button or placing a tower).
     //
     // Use derivedStateOf so that these maps are only rebuilt when the defenders/attackers
-    // data actually changes — not on every unrelated state change (e.g. coins updating).
-    // This avoids redundant map rebuilds when GameGrid recomposes due to other state changes.
-    val defendersByPosition by remember(gameState) {
+    // SnapshotStateLists actually change — not on every unrelated state change (e.g. coins
+    // updating).  derivedStateOf tracks the State reads inside its lambda automatically, so
+    // no explicit remember key is needed for the list-based maps.
+    val defendersByPosition by remember {
         derivedStateOf { gameState.defenders.associateBy { it.position.value } }
     }
-    val activeAttackersByPosition by remember(gameState) {
+    val activeAttackersByPosition by remember {
         derivedStateOf {
             gameState.attackers
                 .filter { !it.isDefeated.value }
@@ -515,8 +516,10 @@ fun GameGrid(
     }
 
     // Pre-compute the selected defender once (replaces 6+ O(n) searches per GridCell).
-    // Also wrapped in derivedStateOf so it only recomputes when defenders or the selection changes.
-    val selectedDefenderForGrid by remember(gameState, selectedDefenderId) {
+    // selectedDefenderId is a plain Int? parameter (not a State), so derivedStateOf cannot
+    // track it automatically — include it as a remember key so the derived state is
+    // recreated when the selection changes.
+    val selectedDefenderForGrid by remember(selectedDefenderId) {
         derivedStateOf { selectedDefenderId?.let { id -> gameState.defenders.find { it.id == id } } }
     }
 
