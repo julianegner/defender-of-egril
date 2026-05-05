@@ -495,6 +495,35 @@ fun GameGrid(
         widthPx.roundToInt() to heightPx.roundToInt()
     }
 
+    // Pre-compute position lookup maps for O(1) per-cell lookups.
+    // On large maps (e.g. 80×80 = 6 400 tiles) replacing O(n) list scans with O(1) map
+    // lookups gives a significant speedup when all cells recompose (e.g. after clicking a
+    // tower-buy button or placing a tower).
+    val defendersByPosition = gameState.defenders.associateBy { it.position.value }
+    val activeAttackersByPosition = gameState.attackers
+        .filter { !it.isDefeated.value }
+        .associateBy { it.position.value }
+
+    // Pre-compute the selected defender once (replaces 6+ O(n) searches per GridCell).
+    val selectedDefenderForGrid = selectedDefenderId?.let { id -> gameState.defenders.find { it.id == id } }
+
+    // Pre-compute whether the hovered position is buildable.
+    // This value is identical for every GridCell, so computing it once here and passing it
+    // down eliminates thousands of redundant computations on large maps.
+    val hoveredPositionIsBuildableForGrid = if (hoveredPosition != null && selectedDefenderType != null) {
+        val hoveredIsBuildArea = gameState.level.isBuildArea(hoveredPosition)
+        val hoveredIsRiver = gameState.level.isRiverTile(hoveredPosition)
+        val hoveredIsFlowingRiver = hoveredIsRiver && run {
+            val rt = gameState.level.getRiverTile(hoveredPosition)
+            rt != null && rt.flowDirection != RiverFlow.NONE && rt.flowDirection != RiverFlow.MAELSTROM
+        }
+        val hoveredHasDefender = defendersByPosition.containsKey(hoveredPosition)
+        val hoveredHasAttacker = activeAttackersByPosition.containsKey(hoveredPosition)
+        (hoveredIsBuildArea || hoveredIsFlowingRiver) && !hoveredHasDefender && !hoveredHasAttacker
+    } else {
+        false
+    }
+
     Box(modifier = modifier
         .onSizeChanged { containerSize = it }
     ) {
@@ -598,11 +627,13 @@ fun GameGrid(
             GridCell(
                 position = position,
                 gameState = gameState,
+                defender = defendersByPosition[position],
+                attacker = activeAttackersByPosition[position],
+                selectedDefender = selectedDefenderForGrid,
+                hoveredPositionIsBuildable = hoveredPositionIsBuildableForGrid,
                 isSelected = selectedDefenderType != null,
-                isDefenderSelected = selectedDefenderId?.let { selId ->
-                    gameState.defenders.find { it.position.value == position }?.id == selId
-                } ?: false,
-                isTargetSelected = gameState.attackers.find { it.position.value == position }?.id == selectedTargetId,
+                isDefenderSelected = defendersByPosition[position]?.id == selectedDefenderId,
+                isTargetSelected = activeAttackersByPosition[position]?.id == selectedTargetId,
                 selectedDefenderId = selectedDefenderId,
                 selectedTargetPosition = selectedTargetPosition,
                 selectedMineAction = selectedMineAction,
@@ -726,6 +757,10 @@ fun GameGrid(
 fun GridCell(
     position: Position,
     gameState: GameState,
+    defender: Defender?,
+    attacker: Attacker?,
+    selectedDefender: Defender?,
+    hoveredPositionIsBuildable: Boolean,
     isSelected: Boolean,
     isDefenderSelected: Boolean,
     isTargetSelected: Boolean,
@@ -752,8 +787,7 @@ fun GridCell(
     // Shorthand combinations used for attack targeting and spell area checks
     val isEnemyTraversable = isOnPath || isSpawnPoint
     val isEnemyOccupiable = isOnPath || isSpawnPoint || isRiverTile
-    val defender = gameState.defenders.find { it.position.value == position }
-    val attacker = gameState.attackers.find { it.position.value == position && !it.isDefeated.value }
+    // defender and attacker are now passed as parameters (pre-computed in GameGrid)
     
     // Check for healing effects at this position
     val healingEffect = gameState.healingEffects.find { it.position == position }
@@ -943,7 +977,7 @@ fun GridCell(
             else -> false
         }
     } else false
-    val selectedDefenderForRange = selectedDefenderId?.let { id -> gameState.defenders.find { it.id == id } }
+    val selectedDefenderForRange = selectedDefender
     val hasDoubleReachBuff = selectedDefenderForRange?.let { sel ->
         gameState.activeSpellEffects.any { it.spell == SpellType.DOUBLE_TOWER_REACH && it.defenderId == sel.id }
     } ?: false
@@ -982,7 +1016,6 @@ fun GridCell(
     
     // Check if this tile is valid for trap placement (on path, in range, no enemy, no existing trap, no field effects)
     val isValidTrapPlacement = if (isTrapPlacementMode && isHoveringForTrapPreview && selectedDefenderId != null) {
-        val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
         selectedDefender?.let { sel ->
             val distance = sel.position.value.distanceTo(position)
             val hasEnemy = attacker != null
@@ -996,21 +1029,8 @@ fun GridCell(
     
     val showTrapPreview = isValidTrapPlacement
     
-    // Check if hovered position is buildable (needed for range preview calculation)
-    // Include only flowing river tiles as buildable (for rafts) - exclude NONE and MAELSTROM
-    val hoveredPositionIsBuildable = if (hoveredPosition != null && selectedDefenderType != null) {
-        val hoveredIsBuildArea = gameState.level.isBuildArea(hoveredPosition)
-        val hoveredIsRiver = gameState.level.isRiverTile(hoveredPosition)
-        val hoveredIsFlowingRiver = hoveredIsRiver && run {
-            val rt = gameState.level.getRiverTile(hoveredPosition)
-            rt != null && rt.flowDirection != RiverFlow.NONE && rt.flowDirection != RiverFlow.MAELSTROM
-        }
-        val hoveredHasDefender = gameState.defenders.any { it.position.value == hoveredPosition }
-        val hoveredHasAttacker = gameState.attackers.any { it.position.value == hoveredPosition && !it.isDefeated.value }
-        (hoveredIsBuildArea || hoveredIsFlowingRiver) && !hoveredHasDefender && !hoveredHasAttacker
-    } else {
-        false
-    }
+    // hoveredPositionIsBuildable is pre-computed in GameGrid and passed as a parameter
+    // (eliminates thousands of redundant identical computations on large maps)
     
     // Calculate range preview tiles when hovering over a buildable tile with a tower type selected
     // Reuse the same logic as for existing towers (cellIsInRange)
@@ -1040,7 +1060,6 @@ fun GridCell(
     // Barricade placement range detection (3 tiles, yellow borders for empty path tiles)
     val isBarricadePlacement = selectedBarricadeAction == BarricadeAction.BUILD_BARRICADE
     val cellIsInBarricadeRange = if (isBarricadePlacement && selectedDefenderId != null) {
-        val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
         selectedDefender?.let { sel ->
             // Check if within 3 tiles range
             val distance = sel.position.value.distanceTo(position)
@@ -1059,7 +1078,6 @@ fun GridCell(
     // Mine trap placement range detection (path tiles within range of selected mine)
     val isMineTrapPlacement = selectedMineAction == MineAction.BUILD_TRAP
     val cellIsValidForMineTrapPlacement = if (isMineTrapPlacement && selectedDefenderId != null) {
-        val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
         selectedDefender?.let { sel ->
             val distance = sel.position.value.distanceTo(position)
             val isInRange = distance > 0 && distance <= sel.range
@@ -1073,7 +1091,6 @@ fun GridCell(
     // Magical trap placement range detection (path tiles within range of selected wizard)
     val isMagicalTrapPlacement = selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP
     val cellIsValidForMagicalTrapPlacement = if (isMagicalTrapPlacement && selectedDefenderId != null) {
-        val selectedDefender = gameState.defenders.find { it.id == selectedDefenderId }
         selectedDefender?.let { sel ->
             val distance = sel.position.value.distanceTo(position)
             val isInRange = distance > 0 && distance <= sel.range
@@ -1247,10 +1264,9 @@ fun GridCell(
 
     // Border color - use borders to indicate entities instead of background
     // For range visualization, show green border on path tiles OR river tiles in range (only if tower has actions)
-    val showRange = selectedDefenderId?.let { defenderId ->
-        val selectedDefender = gameState.defenders.find { it.id == defenderId }
+    val showRange = if (selectedDefenderId != null) {
         selectedDefender?.isReady == true && selectedDefender.actionsRemaining.value > 0
-    } ?: false
+    } else false
 
     // When placing trap, don't show green border on tiles with enemies
     val isTrapPlacement = selectedMineAction == MineAction.BUILD_TRAP || selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP
@@ -1258,10 +1274,9 @@ fun GridCell(
     val canPlaceTrapHere = !hasEnemy || !isTrapPlacement
 
     // Check if defender has area attack capability
-    val hasAreaAttack = selectedDefenderId?.let { defenderId ->
-        val selectedDefender = gameState.defenders.find { it.id == defenderId }
+    val hasAreaAttack = if (selectedDefenderId != null) {
         selectedDefender?.type?.attackType == AttackType.AREA || selectedDefender?.type?.attackType == AttackType.LASTING
-    } ?: false
+    } else false
 
     // Enemy-occupiable tiles are valid targets for area attacks; enemy-traversable for single-target
     val isValidTargetTile = if (hasAreaAttack) {
