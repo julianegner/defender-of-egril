@@ -768,8 +768,15 @@ fun GameGrid(
                 isBuildableAndEmpty = isBuildableAndEmpty,
                 canBeUsedAsTowerBase = canBeUsedAsTowerBase,
                 previewDefenderType = previewDefenderType,
-                isDefenderSelected = defendersByPosition[position]?.id == selectedDefenderId,
-                isTargetSelected = activeAttackersByPosition[position]?.id == selectedTargetId,
+                // NOTE: the null guard on selectedDefenderId/selectedTargetId is critical for
+                // correctness AND performance.  Without it, `null?.id == null` evaluates to
+                // `null == null = true`, so every cell without a defender/attacker becomes
+                // "selected" (yellow borders + diagonal stripes on 6,000+ tiles) and any
+                // transition from null→id triggers a mass recomposition of all 6,000+ cells.
+                isDefenderSelected = selectedDefenderId != null &&
+                    defendersByPosition[position]?.id == selectedDefenderId,
+                isTargetSelected = selectedTargetId != null &&
+                    activeAttackersByPosition[position]?.id == selectedTargetId,
                 selectedDefenderId = selectedDefenderId,
                 selectedMineAction = selectedMineAction,
                 selectedWizardAction = selectedWizardAction,
