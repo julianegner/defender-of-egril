@@ -2,6 +2,7 @@
 package de.egril.defender.audio
 
 import kotlinx.browser.window
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlin.math.PI
@@ -56,6 +57,7 @@ actual fun createSoundManager(): SoundManager = FileSoundManager()
  */
 actual fun playToneImpl(frequency: Int, durationMs: Int, volume: Float) {
     // Play tone asynchronously using Web Audio API
+    @OptIn(DelicateCoroutinesApi::class)
     GlobalScope.launch {
         try {
             // Create audio context

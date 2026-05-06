@@ -694,8 +694,7 @@ fun GameGrid(
             // hoveredPositionIsBuildableForGrid is true (i.e. a tower type is selected AND
             // the cursor is over a valid placement tile), keeping the common case cheap.
             val isInPreviewRange: Boolean = if (
-                !isHovering && hoveredPositionIsBuildableForGrid &&
-                hoveredPosition != null && selectedDefenderType != null
+                !isHovering && hoveredPositionIsBuildableForGrid
             ) {
                 val dist = hoveredPosition.distanceTo(position)
                 val minRange = selectedDefenderType.minRange
