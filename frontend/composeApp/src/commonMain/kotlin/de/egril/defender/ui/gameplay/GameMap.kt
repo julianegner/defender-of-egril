@@ -97,30 +97,6 @@ import kotlin.math.sqrt
 import kotlin.math.atan2
 import de.egril.defender.config.LogConfig
 
-// ---------------------------------------------------------------------------
-// CompositionLocals for grid interaction / selection state.
-//
-// Using CompositionLocals instead of parameters prevents ALL 6,400 GridCells
-// from being marked for recomposition when global interaction state changes.
-// Only cells that actually READ a given local will be re-run when that local
-// changes; cells that short-circuit before the read are completely skipped.
-//
-// Pattern used in GridCell body:
-//   if (<static-condition>) LocalSelectedDefenderType.current else null
-//
-// Example: isBuildableAndEmpty = isBuildableTile && LocalSelectedDefenderType.current != null
-//   - For path/no-play tiles: isBuildableTile = false → short-circuit → LocalSelectedDefenderType
-//     is never read → Compose does not track it for this cell → the cell is SKIPPED when
-//     selectedDefenderType changes (buy-button click).
-//   - For build-area tiles: isBuildableTile = true → CompositionLocal is read → cell recomposes
-//     only when selectedDefenderType actually changes. This is exactly the desired behaviour.
-// ---------------------------------------------------------------------------
-private val LocalSelectedDefenderType = compositionLocalOf<DefenderType?> { null }
-private val LocalSelectedDefenderId   = compositionLocalOf<Int?> { null }
-private val LocalSelectedMineAction    = compositionLocalOf<MineAction?> { null }
-private val LocalSelectedWizardAction  = compositionLocalOf<WizardAction?> { null }
-private val LocalSelectedBarricadeAction = compositionLocalOf<BarricadeAction?> { null }
-
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun GameGrid(
@@ -570,17 +546,6 @@ fun GameGrid(
         if (useLevelMapImage && isLoadingMapImage) {
             LevelLoadingScreen(modifier = Modifier.fillMaxSize())
         } else {
-        // Provide interaction/selection state via CompositionLocals so that GridCell can
-        // short-circuit reads: cells whose static tile type means the selection can never
-        // affect their appearance will never read the local and will therefore be skipped
-        // by Compose's strong-skipping pass when the selection changes.
-        CompositionLocalProvider(
-            LocalSelectedDefenderType   provides selectedDefenderType,
-            LocalSelectedDefenderId     provides selectedDefenderId,
-            LocalSelectedMineAction     provides selectedMineAction,
-            LocalSelectedWizardAction   provides selectedWizardAction,
-            LocalSelectedBarricadeAction provides selectedBarricadeAction,
-        ) {
         HexagonalMapView(
             gridWidth = gameState.level.gridWidth,
             gridHeight = gameState.level.gridHeight,
@@ -675,14 +640,21 @@ fun GameGrid(
                 }
             }
         ) { position ->
-            // Per-cell booleans that change for at most 1-2 cells when hover moves, replacing
-            // the global Position parameter.  This avoids recomposing all 6,400 cells on every
-            // mouse-move event.
+            // Pre-compute the two hover-position-dependent booleans per cell.
+            //
+            // Why Boolean parameters instead of Position:
+            //   When `hoveredPosition` changes (every mouse-move), passing it as a Position
+            //   parameter to GridCell causes ALL 6,400 cells to recompose because their
+            //   `hoveredPosition` parameter changed.  By pre-computing per-cell Booleans here
+            //   and passing those instead, only the 1-2 cells whose Boolean value actually
+            //   changed need to recompose — all others see the same `false` value as before
+            //   and are skipped by Compose's strong-skipping pass.
             val isHovering = hoveredPosition == position
 
-            // Pre-compute isInPreviewRange here because it requires hoveredPosition (which is
-            // no longer a GridCell parameter).  Only ~range_size cells get a non-false value, so
-            // only those cells recompose when the hover or selected tower type changes.
+            // Pre-compute isInPreviewRange here because it depends on hoveredPosition (which
+            // is no longer a GridCell parameter).  The expensive path runs only when
+            // hoveredPositionIsBuildableForGrid is true (i.e. a tower type is selected AND
+            // the cursor is over a valid placement tile), keeping the common case cheap.
             val isInPreviewRange: Boolean = if (
                 !isHovering && hoveredPositionIsBuildableForGrid &&
                 hoveredPosition != null && selectedDefenderType != null
@@ -692,11 +664,11 @@ fun GameGrid(
                 val maxRange = selectedDefenderType.maxRange
                     ?.let { minOf(selectedDefenderType.baseRange, it) }
                     ?: selectedDefenderType.baseRange
-                val onPathPrev   = gameState.level.isOnPath(position)
-                val spawnPrev    = gameState.level.isSpawnPoint(position)
-                val riverPrev    = gameState.level.isRiverTile(position)
-                val traversable  = onPathPrev || spawnPrev
-                val occupiable   = onPathPrev || spawnPrev || riverPrev
+                val onPathHere   = gameState.level.isOnPath(position)
+                val spawnHere    = gameState.level.isSpawnPoint(position)
+                val riverHere    = gameState.level.isRiverTile(position)
+                val traversable  = onPathHere || spawnHere
+                val occupiable   = onPathHere || spawnHere || riverHere
                 val areaAttack   = selectedDefenderType.attackType == AttackType.AREA ||
                                    selectedDefenderType.attackType == AttackType.LASTING
                 val validTarget  = if (areaAttack) occupiable else traversable
@@ -711,11 +683,18 @@ fun GameGrid(
                 selectedDefender = selectedDefenderForGrid,
                 isHovering = isHovering,
                 isInPreviewRange = isInPreviewRange,
+                isSelected = selectedDefenderType != null,
                 isDefenderSelected = defendersByPosition[position]?.id == selectedDefenderId,
                 isTargetSelected = activeAttackersByPosition[position]?.id == selectedTargetId,
+                selectedDefenderId = selectedDefenderId,
+                selectedTargetPosition = selectedTargetPosition,
+                selectedMineAction = selectedMineAction,
+                selectedWizardAction = selectedWizardAction,
+                selectedBarricadeAction = selectedBarricadeAction,
                 targetCircleInfo = spellAreaCircleMap[position] ?: targetCircleMap[position] ?: placedBombCircleMap[position],
                 onClick = { onCellClick(position) },
                 hexSize = hexSize,
+                selectedDefenderType = selectedDefenderType,
                 onHoverChange = { isHoveringChange ->
                     localHoveredPosition = if (isHoveringChange) position else null
                 },
@@ -821,7 +800,6 @@ fun GameGrid(
                 }
             }
         }
-        } // end CompositionLocalProvider
         } // end else !isLoadingMapImage
     }
 }
@@ -833,17 +811,24 @@ fun GridCell(
     defender: Defender?,
     attacker: Attacker?,
     selectedDefender: Defender?,
-    // isHovering and isInPreviewRange are pre-computed per-cell in GameGrid so that they
-    // only change for the specific cell(s) affected by a hover / selection change.
-    // This replaces the old global hoveredPosition / hoveredPositionIsBuildable parameters,
-    // whose change would previously force all 6,400 cells to recompose.
+    // isHovering and isInPreviewRange replace the old hoveredPosition: Position? and
+    // hoveredPositionIsBuildable: Boolean parameters.  Passing per-cell Booleans means only
+    // the 1-2 cells whose hover state actually changed receive a different value and need to
+    // recompose; the remaining 6,398 cells keep the same `false` value and are skipped.
     isHovering: Boolean,
     isInPreviewRange: Boolean,
+    isSelected: Boolean,
     isDefenderSelected: Boolean,
     isTargetSelected: Boolean,
+    selectedDefenderId: Int?,
+    selectedTargetPosition: Position?,
+    selectedMineAction: MineAction?,
+    selectedWizardAction: WizardAction? = null,
+    selectedBarricadeAction: BarricadeAction? = null,
     targetCircleInfo: TargetCircleInfo?,
     onClick: () -> Unit,
     hexSize: androidx.compose.ui.unit.Dp = 48.dp,
+    selectedDefenderType: DefenderType? = null,
     onHoverChange: ((Boolean) -> Unit)? = null,
     useTransparentBackground: Boolean = false
 ) {
@@ -1070,12 +1055,9 @@ fun GridCell(
         }
     } else false
     
-    // Calculate hover preview for tower placement.
-    // isHovering is a per-cell parameter (pre-computed in GameGrid) so it changes for at most
-    // 1-2 cells on every hover event rather than forcing all 6,400 cells to recompose.
-    // isHoveringForPreview reads LocalSelectedDefenderType only when isHovering is true, so
-    // non-hovered cells (the vast majority) never subscribe to that local.
-    val isHoveringForPreview = isHovering && LocalSelectedDefenderType.current != null
+    // Calculate hover preview for tower placement
+    // isHovering is a pre-computed Boolean parameter (see GameGrid content lambda).
+    val isHoveringForPreview = isHovering && selectedDefenderType != null
     // Include only flowing river tiles as buildable (for rafts) - exclude NONE and MAELSTROM
     val isFlowingRiverTile = isRiverTile && run {
         val rt = gameState.level.getRiverTile(position)
@@ -1086,54 +1068,38 @@ fun GridCell(
     
     // Calculate hover preview for trap placement
     val isHoveringForTrapPreview = isHovering
-    // Read mine/wizard actions only for path tiles — non-path cells short-circuit here and do
-    // not subscribe to LocalSelectedMineAction / LocalSelectedWizardAction.
-    val isTrapPlacementMode = isOnPath && (
-        LocalSelectedMineAction.current == MineAction.BUILD_TRAP ||
-        LocalSelectedWizardAction.current == WizardAction.PLACE_MAGICAL_TRAP
-    )
+    val isTrapPlacementMode = selectedMineAction == MineAction.BUILD_TRAP || selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP
     
     // Check if this tile is valid for trap placement (on path, in range, no enemy, no existing trap, no field effects)
-    // Read LocalSelectedDefenderId only when in trap-placement mode AND hovering this tile
-    // (at most 1 cell at a time), so the subscription is extremely narrow.
-    val isValidTrapPlacement = if (isTrapPlacementMode && isHoveringForTrapPreview) {
-        val sdId = LocalSelectedDefenderId.current
-        if (sdId != null) {
-            selectedDefender?.let { sel ->
-                val distance = sel.position.value.distanceTo(position)
-                val hasEnemy = attacker != null
-                val hasTrap = trap != null
-                val hasFieldEffect = fieldEffect != null
-                isOnPath && distance <= sel.range && !hasEnemy && !hasTrap && !hasFieldEffect
-            } ?: false
-        } else false
+    val isValidTrapPlacement = if (isTrapPlacementMode && isHoveringForTrapPreview && selectedDefenderId != null) {
+        selectedDefender?.let { sel ->
+            val distance = sel.position.value.distanceTo(position)
+            val hasEnemy = attacker != null
+            val hasTrap = trap != null
+            val hasFieldEffect = fieldEffect != null
+            isOnPath && distance <= sel.range && !hasEnemy && !hasTrap && !hasFieldEffect
+        } ?: false
     } else {
         false
     }
     
     val showTrapPreview = isValidTrapPlacement
     
-    // isInPreviewRange is now a per-cell parameter pre-computed in GameGrid (see above).
-    // It replaces the old computation that needed hoveredPosition and selectedDefenderType
-    // as parameters, whose changes would recompose all 6,400 cells.
+    // isInPreviewRange is pre-computed in GameGrid's content lambda and passed as a parameter
+    // (see the { position -> } block in GameGrid).  This avoids re-running the distance +
+    // tile-type computation inside every GridCell on every hover event.
     
     // Barricade placement range detection (3 tiles, yellow borders for empty path tiles)
-    // Read LocalSelectedBarricadeAction only for path tiles; all other tiles short-circuit.
-    val isBarricadePlacement = isOnPath &&
-        LocalSelectedBarricadeAction.current == BarricadeAction.BUILD_BARRICADE
-    // Read LocalSelectedDefenderId only when in barricade-placement mode.
-    val cellIsInBarricadeRange = if (isBarricadePlacement) {
-        val sdId = LocalSelectedDefenderId.current
-        if (sdId != null) {
-            selectedDefender?.let { sel ->
-                // Check if within 3 tiles range
-                val distance = sel.position.value.distanceTo(position)
-                val isInRange = distance > 0 && distance <= 3
-                // Check if empty path tile (no defender, no attacker, can have existing barricade for reinforcement)
-                val isEmptyPath = isOnPath && defender == null && attacker == null
-                isInRange && isEmptyPath
-            } ?: false
-        } else false
+    val isBarricadePlacement = selectedBarricadeAction == BarricadeAction.BUILD_BARRICADE
+    val cellIsInBarricadeRange = if (isBarricadePlacement && selectedDefenderId != null) {
+        selectedDefender?.let { sel ->
+            // Check if within 3 tiles range
+            val distance = sel.position.value.distanceTo(position)
+            val isInRange = distance > 0 && distance <= 3
+            // Check if empty path tile (no defender, no attacker, can have existing barricade for reinforcement)
+            val isEmptyPath = isOnPath && defender == null && attacker == null
+            isInRange && isEmptyPath
+        } ?: false
     } else {
         false
     }
@@ -1141,54 +1107,43 @@ fun GridCell(
     // Show barricade preview when hovering over valid barricade placement tile
     val showBarricadePreview = isBarricadePlacement && isHovering && cellIsInBarricadeRange
     
-    // Mine trap placement range detection (path tiles within range of selected mine).
-    // Reads LocalSelectedMineAction only for path tiles (already established by isTrapPlacementMode).
-    val isMineTrapPlacement = isOnPath &&
-        LocalSelectedMineAction.current == MineAction.BUILD_TRAP
-    val cellIsValidForMineTrapPlacement = if (isMineTrapPlacement) {
-        val sdId = LocalSelectedDefenderId.current
-        if (sdId != null) {
-            selectedDefender?.let { sel ->
-                val distance = sel.position.value.distanceTo(position)
-                val isInRange = distance > 0 && distance <= sel.range
-                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null
-                isInRange && isEmptyPath
-            } ?: false
-        } else false
+    // Mine trap placement range detection (path tiles within range of selected mine)
+    val isMineTrapPlacement = selectedMineAction == MineAction.BUILD_TRAP
+    val cellIsValidForMineTrapPlacement = if (isMineTrapPlacement && selectedDefenderId != null) {
+        selectedDefender?.let { sel ->
+            val distance = sel.position.value.distanceTo(position)
+            val isInRange = distance > 0 && distance <= sel.range
+            val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null
+            isInRange && isEmptyPath
+        } ?: false
     } else {
         false
     }
 
-    // Magical trap placement range detection (path tiles within range of selected wizard).
-    // Reads LocalSelectedWizardAction only for path tiles.
-    val isMagicalTrapPlacement = isOnPath &&
-        LocalSelectedWizardAction.current == WizardAction.PLACE_MAGICAL_TRAP
-    val cellIsValidForMagicalTrapPlacement = if (isMagicalTrapPlacement) {
-        val sdId = LocalSelectedDefenderId.current
-        if (sdId != null) {
-            selectedDefender?.let { sel ->
-                val distance = sel.position.value.distanceTo(position)
-                val isInRange = distance > 0 && distance <= sel.range
-                val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null
-                isInRange && isEmptyPath
-            } ?: false
-        } else false
+    // Magical trap placement range detection (path tiles within range of selected wizard)
+    val isMagicalTrapPlacement = selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP
+    val cellIsValidForMagicalTrapPlacement = if (isMagicalTrapPlacement && selectedDefenderId != null) {
+        selectedDefender?.let { sel ->
+            val distance = sel.position.value.distanceTo(position)
+            val isInRange = distance > 0 && distance <= sel.range
+            val isEmptyPath = isOnPath && attacker == null && trap == null && fieldEffect == null
+            isInRange && isEmptyPath
+        } ?: false
     } else {
         false
     }
 
-    // Check if this tile should be highlighted as buildable when a tower type is selected.
-    // Short-circuit: check isBuildableTile (static) first; non-buildable tiles never read
-    // LocalSelectedDefenderType and are therefore not subscribed to it.  When the user clicks
-    // a buy button only the ~10 % of buildable tiles on a large map will recompose.
-    val isBuildableAndEmpty = isBuildableTile && !showPlacementPreview &&
-        LocalSelectedDefenderType.current != null
+    // Check if this tile should be highlighted as buildable when a tower type is selected
+    val isBuildableAndEmpty = selectedDefenderType != null && 
+                              isBuildableTile && 
+                              !showPlacementPreview  // Don't double-highlight the hovered tile
     
-    // Check if this tile has a barricade that can be used as tower base (HP >= 100).
-    // Gate on barricade != null (cheap param check) before reading the CompositionLocal.
-    val canBeUsedAsTowerBase = barricade != null &&
-        barricade.canSupportTower() && !barricade.hasTower() && !showPlacementPreview &&
-        LocalSelectedDefenderType.current != null
+    // Check if this tile has a barricade that can be used as tower base (HP >= 100)
+    val canBeUsedAsTowerBase = selectedDefenderType != null && 
+                               barricade != null && 
+                               barricade.canSupportTower() && 
+                               !barricade.hasTower() &&
+                               !showPlacementPreview  // Don't double-highlight the hovered tile
 
     // Base background color based on area type - ALWAYS visible
     // Build areas adjacent to path allow tower placement
@@ -1341,28 +1296,19 @@ fun GridCell(
 
     // Border color - use borders to indicate entities instead of background
     // For range visualization, show green border on path tiles OR river tiles in range (only if tower has actions)
-    // Gate on selectedDefender != null (stable parameter) before reading LocalSelectedDefenderId.
-    // When no defender is selected the short-circuit avoids subscribing to the local, so all
-    // path/range cells are skipped when only a buy-button (selectedDefenderType) changes.
-    val selectedDefenderId: Int? = if (selectedDefender != null) LocalSelectedDefenderId.current else null
     val showRange = if (selectedDefenderId != null) {
-        selectedDefender?.isReady == true && (selectedDefender?.actionsRemaining?.value ?: 0) > 0
+        selectedDefender?.isReady == true && selectedDefender.actionsRemaining.value > 0
     } else false
 
-    // When placing trap, don't show green border on tiles with enemies.
-    // Gate on isOnPath so non-path cells never read the mine/wizard action locals.
-    val isTrapPlacement = isOnPath && (
-        LocalSelectedMineAction.current == MineAction.BUILD_TRAP ||
-        LocalSelectedWizardAction.current == WizardAction.PLACE_MAGICAL_TRAP
-    )
+    // When placing trap, don't show green border on tiles with enemies
+    val isTrapPlacement = selectedMineAction == MineAction.BUILD_TRAP || selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP
     val hasEnemy = attacker != null
     val canPlaceTrapHere = !hasEnemy || !isTrapPlacement
 
     // Check if defender has area attack capability
-    val hasAreaAttack = selectedDefender?.let { sel ->
-        val attackType = sel.type.attackType
-        attackType == AttackType.AREA || attackType == AttackType.LASTING
-    } ?: false
+    val hasAreaAttack = if (selectedDefenderId != null) {
+        selectedDefender?.type?.attackType == AttackType.AREA || selectedDefender?.type?.attackType == AttackType.LASTING
+    } else false
 
     // Enemy-occupiable tiles are valid targets for area attacks; enemy-traversable for single-target
     val isValidTargetTile = if (hasAreaAttack) {
@@ -1500,16 +1446,6 @@ fun GridCell(
         }
     }
 
-    // Derive the actual enum values for GridCellContent from the CompositionLocals.
-    // Cells that short-circuited above (non-buildable, non-path) already have null from the
-    // condition checks, so they do NOT subscribe to these locals here either.
-    val selectedDefenderTypeForContent: DefenderType? =
-        if (showPlacementPreview || isBuildableAndEmpty || canBeUsedAsTowerBase) LocalSelectedDefenderType.current else null
-    val selectedMineActionForContent: MineAction? =
-        if (isTrapPlacementMode || isMineTrapPlacement) LocalSelectedMineAction.current else null
-    val selectedWizardActionForContent: WizardAction? =
-        if (isTrapPlacementMode || isMagicalTrapPlacement) LocalSelectedWizardAction.current else null
-
     if (shouldUseGradientBlending) {
         GradientBlendedTileCell(
             hexSize = hexSize,
@@ -1539,15 +1475,15 @@ fun GridCell(
                 isRiverTile = isRiverTile,
                 showPlacementPreview = showPlacementPreview,
                 showBarricadePreview = showBarricadePreview,
-                selectedDefenderType = selectedDefenderTypeForContent,
+                selectedDefenderType = selectedDefenderType,
                 targetCircleInfo = targetCircleInfo,
                 useDashedBorder = useDashedBorder,
                 borderColor = borderColor,
                 borderWidth = borderWidth,
                 hexSize = hexSize,
                 showTrapPreview = showTrapPreview,
-                selectedMineAction = selectedMineActionForContent,
-                selectedWizardAction = selectedWizardActionForContent,
+                selectedMineAction = selectedMineAction,
+                selectedWizardAction = selectedWizardAction,
                 isBuildableAndEmpty = isBuildableAndEmpty,
                 canBeUsedAsTowerBase = canBeUsedAsTowerBase,
                 showDiagonalStripes = showDiagonalStripes,
@@ -1604,15 +1540,15 @@ fun GridCell(
                 isRiverTile = isRiverTile,
                 showPlacementPreview = showPlacementPreview,
                 showBarricadePreview = showBarricadePreview,
-                selectedDefenderType = selectedDefenderTypeForContent,
+                selectedDefenderType = selectedDefenderType,
                 targetCircleInfo = targetCircleInfo,
                 useDashedBorder = useDashedBorder,
                 borderColor = borderColor,
                 borderWidth = borderWidth,
                 hexSize = hexSize,
                 showTrapPreview = showTrapPreview,
-                selectedMineAction = selectedMineActionForContent,
-                selectedWizardAction = selectedWizardActionForContent,
+                selectedMineAction = selectedMineAction,
+                selectedWizardAction = selectedWizardAction,
                 isBuildableAndEmpty = isBuildableAndEmpty,
                 canBeUsedAsTowerBase = canBeUsedAsTowerBase,
                 showDiagonalStripes = showDiagonalStripes,
