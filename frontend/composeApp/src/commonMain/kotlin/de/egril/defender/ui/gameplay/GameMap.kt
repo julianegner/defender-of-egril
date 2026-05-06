@@ -523,22 +523,47 @@ fun GameGrid(
         derivedStateOf { selectedDefenderId?.let { id -> gameState.defenders.find { it.id == id } } }
     }
 
-    // Pre-compute whether the hovered position is buildable.
-    // This value is identical for every GridCell, so computing it once here and passing it
-    // down eliminates thousands of redundant computations on large maps.
-    val hoveredPositionIsBuildableForGrid = if (hoveredPosition != null && selectedDefenderType != null) {
-        val hoveredIsBuildArea = gameState.level.isBuildArea(hoveredPosition)
-        val hoveredIsRiver = gameState.level.isRiverTile(hoveredPosition)
-        val hoveredIsFlowingRiver = hoveredIsRiver && run {
-            val rt = gameState.level.getRiverTile(hoveredPosition)
-            rt != null && rt.flowDirection != RiverFlow.NONE && rt.flowDirection != RiverFlow.MAELSTROM
-        }
-        val hoveredHasDefender = defendersByPosition.containsKey(hoveredPosition)
-        val hoveredHasAttacker = activeAttackersByPosition.containsKey(hoveredPosition)
-        (hoveredIsBuildArea || hoveredIsFlowingRiver) && !hoveredHasDefender && !hoveredHasAttacker
-    } else {
-        false
+    // Pre-compute the set of positions that are structurally buildable (build areas or flowing
+    // river tiles). This is static for a given level — it never changes during gameplay.
+    // Level.buildAreas is already a Set<Position>, so the union is O(|riverTiles|) at most.
+    val structurallyBuildablePositions = remember(gameState.level) {
+        val flowingRiver = gameState.level.riverTiles.entries
+            .filter { (_, rt) -> rt.flowDirection != RiverFlow.NONE && rt.flowDirection != RiverFlow.MAELSTROM }
+            .mapTo(mutableSetOf()) { (pos, _) -> pos }
+        gameState.level.buildAreas + flowingRiver
     }
+
+    // Subset of structurally buildable positions that are currently unoccupied (no defender,
+    // no active attacker). derivedStateOf re-evaluates when defendersByPosition or
+    // activeAttackersByPosition change. remember(gameState.level) re-creates the derived
+    // state when the level changes (so the new structurallyBuildablePositions is captured).
+    val buildableEmptyPositions by remember(gameState.level) {
+        derivedStateOf {
+            structurallyBuildablePositions.filterTo(mutableSetOf()) { pos ->
+                !defendersByPosition.containsKey(pos) && !activeAttackersByPosition.containsKey(pos)
+            }
+        }
+    }
+
+    // Set of positions where a barricade currently supports tower placement
+    // (healthPoints >= 100 AND no tower already placed on it).
+    // derivedStateOf reads barricade.canSupportTower() and barricade.hasTower(), which
+    // read MutableState values — so this re-evaluates when barricade HP or tower status changes.
+    // remember(gameState.level) re-creates on level change for consistency with the other sets.
+    val barricadeTowerBasePositions by remember(gameState.level) {
+        derivedStateOf {
+            gameState.barricades
+                .filter { b -> b.canSupportTower() && !b.hasTower() }
+                .mapTo(mutableSetOf()) { it.position }
+        }
+    }
+
+    // Pre-compute whether the hovered position is buildable. Uses buildableEmptyPositions
+    // (O(1) Set.contains) instead of the previous 5-step manual check.
+    val hoveredPositionIsBuildableForGrid =
+        selectedDefenderType != null &&
+        hoveredPosition != null &&
+        buildableEmptyPositions.contains(hoveredPosition)
 
     Box(modifier = modifier
         .onSizeChanged { containerSize = it }
@@ -650,6 +675,7 @@ fun GameGrid(
             //   changed need to recompose — all others see the same `false` value as before
             //   and are skipped by Compose's strong-skipping pass.
             val isHovering = hoveredPosition == position
+            val isBuildingMode = selectedDefenderType != null
 
             // Pre-compute isInPreviewRange here because it depends on hoveredPosition (which
             // is no longer a GridCell parameter).  The expensive path runs only when
@@ -675,6 +701,28 @@ fun GameGrid(
                 dist >= minRange && dist <= maxRange && validTarget
             } else false
 
+            // Per-cell booleans that replace selectedDefenderType: only ~640 buildable cells
+            // see a change when the buy button is clicked; the other ~5,760 stay at false → SKIPPED.
+
+            // showPlacementPreview: only the 1 hovered buildable cell can be true.
+            val showPlacementPreview = isHovering && isBuildingMode &&
+                buildableEmptyPositions.contains(position)
+
+            // Green-bordered buildable highlight — excludes the hovered cell (shows preview instead).
+            val isBuildableAndEmpty = isBuildingMode &&
+                buildableEmptyPositions.contains(position) &&
+                !showPlacementPreview
+
+            // Barricade tower-base highlight — only for barricade cells with HP >= 100 and no tower.
+            val canBeUsedAsTowerBase = isBuildingMode &&
+                barricadeTowerBasePositions.contains(position) &&
+                !showPlacementPreview
+
+            // previewDefenderType: non-null only for the 1 cell showing the placement preview.
+            // All other cells get null → their parameter is null both before and after a buy-button
+            // click → those cells are not marked for recomposition due to this parameter.
+            val previewDefenderType: DefenderType? = if (showPlacementPreview) selectedDefenderType else null
+
             GridCell(
                 position = position,
                 gameState = gameState,
@@ -683,18 +731,19 @@ fun GameGrid(
                 selectedDefender = selectedDefenderForGrid,
                 isHovering = isHovering,
                 isInPreviewRange = isInPreviewRange,
-                isSelected = selectedDefenderType != null,
+                showPlacementPreview = showPlacementPreview,
+                isBuildableAndEmpty = isBuildableAndEmpty,
+                canBeUsedAsTowerBase = canBeUsedAsTowerBase,
+                previewDefenderType = previewDefenderType,
                 isDefenderSelected = defendersByPosition[position]?.id == selectedDefenderId,
                 isTargetSelected = activeAttackersByPosition[position]?.id == selectedTargetId,
                 selectedDefenderId = selectedDefenderId,
-                selectedTargetPosition = selectedTargetPosition,
                 selectedMineAction = selectedMineAction,
                 selectedWizardAction = selectedWizardAction,
                 selectedBarricadeAction = selectedBarricadeAction,
                 targetCircleInfo = spellAreaCircleMap[position] ?: targetCircleMap[position] ?: placedBombCircleMap[position],
                 onClick = { onCellClick(position) },
                 hexSize = hexSize,
-                selectedDefenderType = selectedDefenderType,
                 onHoverChange = { isHoveringChange ->
                     localHoveredPosition = if (isHoveringChange) position else null
                 },
@@ -817,18 +866,25 @@ fun GridCell(
     // recompose; the remaining 6,398 cells keep the same `false` value and are skipped.
     isHovering: Boolean,
     isInPreviewRange: Boolean,
-    isSelected: Boolean,
+    // showPlacementPreview, isBuildableAndEmpty, canBeUsedAsTowerBase, and previewDefenderType
+    // replace selectedDefenderType: DefenderType?.  Pre-computing per-cell Booleans in GameGrid's
+    // content lambda means non-buildable cells (which stay `false`) are skipped by Compose when
+    // selectedDefenderType changes (buy button click) — only ~10 % of cells recompose.
+    showPlacementPreview: Boolean,
+    isBuildableAndEmpty: Boolean,
+    canBeUsedAsTowerBase: Boolean,
+    // previewDefenderType is non-null only for the 1 cell showing the placement preview icon.
+    // All other cells receive null and are not marked for recomposition when the selection changes.
+    previewDefenderType: DefenderType?,
     isDefenderSelected: Boolean,
     isTargetSelected: Boolean,
     selectedDefenderId: Int?,
-    selectedTargetPosition: Position?,
     selectedMineAction: MineAction?,
     selectedWizardAction: WizardAction? = null,
     selectedBarricadeAction: BarricadeAction? = null,
     targetCircleInfo: TargetCircleInfo?,
     onClick: () -> Unit,
     hexSize: androidx.compose.ui.unit.Dp = 48.dp,
-    selectedDefenderType: DefenderType? = null,
     onHoverChange: ((Boolean) -> Unit)? = null,
     useTransparentBackground: Boolean = false
 ) {
@@ -1055,17 +1111,6 @@ fun GridCell(
         }
     } else false
     
-    // Calculate hover preview for tower placement
-    // isHovering is a pre-computed Boolean parameter (see GameGrid content lambda).
-    val isHoveringForPreview = isHovering && selectedDefenderType != null
-    // Include only flowing river tiles as buildable (for rafts) - exclude NONE and MAELSTROM
-    val isFlowingRiverTile = isRiverTile && run {
-        val rt = gameState.level.getRiverTile(position)
-        rt != null && rt.flowDirection != RiverFlow.NONE && rt.flowDirection != RiverFlow.MAELSTROM
-    }
-    val isBuildableTile = (isBuildArea || isFlowingRiverTile) && defender == null && attacker == null
-    val showPlacementPreview = isHoveringForPreview && isBuildableTile
-    
     // Calculate hover preview for trap placement
     val isHoveringForTrapPreview = isHovering
     val isTrapPlacementMode = selectedMineAction == MineAction.BUILD_TRAP || selectedWizardAction == WizardAction.PLACE_MAGICAL_TRAP
@@ -1085,10 +1130,9 @@ fun GridCell(
     
     val showTrapPreview = isValidTrapPlacement
     
-    // isInPreviewRange is pre-computed in GameGrid's content lambda and passed as a parameter
-    // (see the { position -> } block in GameGrid).  This avoids re-running the distance +
-    // tile-type computation inside every GridCell on every hover event.
-    
+    // showPlacementPreview, isBuildableAndEmpty, and canBeUsedAsTowerBase are pre-computed
+    // in GameGrid's content lambda and passed as parameters (see GameGrid { position -> } block).
+
     // Barricade placement range detection (3 tiles, yellow borders for empty path tiles)
     val isBarricadePlacement = selectedBarricadeAction == BarricadeAction.BUILD_BARRICADE
     val cellIsInBarricadeRange = if (isBarricadePlacement && selectedDefenderId != null) {
@@ -1132,18 +1176,6 @@ fun GridCell(
     } else {
         false
     }
-
-    // Check if this tile should be highlighted as buildable when a tower type is selected
-    val isBuildableAndEmpty = selectedDefenderType != null && 
-                              isBuildableTile && 
-                              !showPlacementPreview  // Don't double-highlight the hovered tile
-    
-    // Check if this tile has a barricade that can be used as tower base (HP >= 100)
-    val canBeUsedAsTowerBase = selectedDefenderType != null && 
-                               barricade != null && 
-                               barricade.canSupportTower() && 
-                               !barricade.hasTower() &&
-                               !showPlacementPreview  // Don't double-highlight the hovered tile
 
     // Base background color based on area type - ALWAYS visible
     // Build areas adjacent to path allow tower placement
@@ -1475,7 +1507,7 @@ fun GridCell(
                 isRiverTile = isRiverTile,
                 showPlacementPreview = showPlacementPreview,
                 showBarricadePreview = showBarricadePreview,
-                selectedDefenderType = selectedDefenderType,
+                previewDefenderType = previewDefenderType,
                 targetCircleInfo = targetCircleInfo,
                 useDashedBorder = useDashedBorder,
                 borderColor = borderColor,
@@ -1540,7 +1572,7 @@ fun GridCell(
                 isRiverTile = isRiverTile,
                 showPlacementPreview = showPlacementPreview,
                 showBarricadePreview = showBarricadePreview,
-                selectedDefenderType = selectedDefenderType,
+                previewDefenderType = previewDefenderType,
                 targetCircleInfo = targetCircleInfo,
                 useDashedBorder = useDashedBorder,
                 borderColor = borderColor,
@@ -1602,7 +1634,9 @@ private fun BoxScope.GridCellContent(
     isRiverTile: Boolean,
     showPlacementPreview: Boolean,
     showBarricadePreview: Boolean,
-    selectedDefenderType: DefenderType?,
+    // previewDefenderType replaces selectedDefenderType: non-null only for the 1 cell showing
+    // the placement preview icon, so buy-button clicks don't cascade to all GridCellContent instances.
+    previewDefenderType: DefenderType?,
     targetCircleInfo: TargetCircleInfo?,
     useDashedBorder: Boolean,
     borderColor: Color,
@@ -2143,8 +2177,10 @@ private fun BoxScope.GridCellContent(
             }
         }
 
-        // Show half-transparent tower icon on hovered build tile
-        if (showPlacementPreview && selectedDefenderType != null) {
+        // Show half-transparent tower icon on hovered build tile.
+        // previewDefenderType is non-null only for the 1 cell showing the placement preview
+        // (pre-computed in GameGrid to avoid passing selectedDefenderType to all cells).
+        if (previewDefenderType != null) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -2152,7 +2188,7 @@ private fun BoxScope.GridCellContent(
                 contentAlignment = Alignment.Center
             ) {
                 TowerTypeIcon(
-                    defenderType = selectedDefenderType,
+                    defenderType = previewDefenderType,
                     modifier = Modifier.fillMaxSize()
                 )
             }
