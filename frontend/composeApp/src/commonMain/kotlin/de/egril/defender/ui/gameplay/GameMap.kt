@@ -565,6 +565,18 @@ fun GameGrid(
         hoveredPosition != null &&
         buildableEmptyPositions.contains(hoveredPosition)
 
+    // Stable reference to onCellClick via rememberUpdatedState.
+    //
+    // Why this matters for performance:
+    //   HexagonalMapView calls `content(position)` in a plain for-loop — a @Composable lambda.
+    //   Inside that lambda, `onClick = { onCellClick(position) }` creates a NEW Function0 object
+    //   on every invocation.  Compose's strong-skipping compares GridCell parameters by identity;
+    //   a new lambda object always differs → GridCell is NEVER skipped → all 6,400 bodies run.
+    //
+    //   By using rememberUpdatedState we get a stable State<> reference that can be captured
+    //   once (inside remember(position)) and read at call-time without becoming stale.
+    val onCellClickState = rememberUpdatedState(onCellClick)
+
     Box(modifier = modifier
         .onSizeChanged { containerSize = it }
     ) {
@@ -723,6 +735,27 @@ fun GameGrid(
             // click → those cells are not marked for recomposition due to this parameter.
             val previewDefenderType: DefenderType? = if (showPlacementPreview) selectedDefenderType else null
 
+            // Memoize the event-handler lambdas so Compose's strong-skipping can work correctly.
+            //
+            // Without memoization, `{ onCellClick(position) }` and `{ localHoveredPosition = ... }`
+            // create NEW Function0/Function1 objects on every content-lambda invocation (6,400 per
+            // GameGrid recomposition).  Compose compares GridCell parameters by identity for
+            // function types, so new objects always differ → GridCell body runs for all 6,400 cells.
+            //
+            // With remember(position):
+            //   • The same lambda object is returned on every subsequent recomposition (same position).
+            //   • All other per-cell parameters are already stable (Booleans, enums, or stable data).
+            //   • Result: Compose correctly skips GridCells whose parameters didn't change.
+            //
+            // onCellClickState (rememberUpdatedState) gives a stable State<> reference captured once;
+            // reading .value inside the lambda avoids stale-closure issues if onCellClick ever changes.
+            val cellOnClick = remember(position) { { onCellClickState.value(position) } }
+            val cellOnHoverChange = remember(position) {
+                { isHoveringChange: Boolean ->
+                    localHoveredPosition = if (isHoveringChange) position else null
+                }
+            }
+
             GridCell(
                 position = position,
                 gameState = gameState,
@@ -742,11 +775,9 @@ fun GameGrid(
                 selectedWizardAction = selectedWizardAction,
                 selectedBarricadeAction = selectedBarricadeAction,
                 targetCircleInfo = spellAreaCircleMap[position] ?: targetCircleMap[position] ?: placedBombCircleMap[position],
-                onClick = { onCellClick(position) },
+                onClick = cellOnClick,
                 hexSize = hexSize,
-                onHoverChange = { isHoveringChange ->
-                    localHoveredPosition = if (isHoveringChange) position else null
-                },
+                onHoverChange = cellOnHoverChange,
                 useTransparentBackground = hasMapImage
             )
         }
