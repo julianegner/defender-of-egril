@@ -3,6 +3,7 @@ package de.egril.defender.audio
 
 import defender_of_egril.composeapp.generated.resources.Res
 import kotlinx.browser.window
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -44,6 +45,7 @@ actual fun initializeAudioSystem() {
 }
 
 actual fun playSoundFile(fileName: String, volume: Float) {
+    @OptIn(DelicateCoroutinesApi::class)
     GlobalScope.launch {
         try {
             // Get or create data URL for this sound

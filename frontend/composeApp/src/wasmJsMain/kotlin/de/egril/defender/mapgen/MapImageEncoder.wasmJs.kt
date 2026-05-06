@@ -31,7 +31,7 @@ actual object MapImageEncoder {
         }
 
             ctx.putImageData(ImageData(data, width), 0.0, 0.0)
-            val dataUrl = canvas.toDataURL("image/png") ?: return null
+            val dataUrl = canvas.toDataURL("image/png")
             val commaIndex = dataUrl.indexOf(',')
             if (commaIndex < 0) return null
             val base64 = dataUrl.substring(commaIndex + 1)

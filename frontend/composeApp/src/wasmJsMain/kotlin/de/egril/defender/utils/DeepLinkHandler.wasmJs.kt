@@ -1,3 +1,4 @@
+@file:OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
 package de.egril.defender.utils
 
 import kotlinx.browser.window
@@ -16,7 +17,7 @@ actual fun getCurrentPathname(): String? {
 actual fun detectSupportedLanguage(): String {
     val supported = setOf("en", "de", "fr", "es", "it")
     val browserLangs = window.navigator.languages
-    val lang = (0 until (browserLangs.length as Int))
+    val lang = (0 until browserLangs.length)
         .mapNotNull { idx ->
             val value = browserLangs[idx]
             if (value != null) value.toString() else null
