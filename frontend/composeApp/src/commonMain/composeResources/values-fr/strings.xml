@@ -1718,6 +1718,7 @@
     <string name="download_info_loading">Chargement des liens de téléchargement…</string>
     <string name="download_info_error">Impossible de charger les liens de téléchargement depuis GitHub. Visitez la page des versions pour trouver tous les téléchargements.</string>
     <string name="download_info_goto_installation">Voir les instructions d\'installation</string>
+    <string name="download_info_latest_version">Dernière version : %1$s</string>
     <string name="new_version_available_title">Nouvelle version disponible</string>
     <string name="new_version_available_message">La version %1$s est disponible en téléchargement.</string>
     <string name="new_version_go_to_releases">Aller au téléchargement</string>

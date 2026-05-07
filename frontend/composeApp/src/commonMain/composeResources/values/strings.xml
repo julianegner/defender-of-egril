@@ -1723,6 +1723,7 @@
     <string name="download_info_loading">Loading download links…</string>
     <string name="download_info_error">Could not load download links from GitHub. Visit the releases page to find all downloads.</string>
     <string name="download_info_goto_installation">View Installation Instructions</string>
+    <string name="download_info_latest_version">Latest version: %1$s</string>
     <string name="new_version_available_title">New Version Available</string>
     <string name="new_version_available_message">Version %1$s is available for download.</string>
     <string name="new_version_go_to_releases">Go to Download</string>

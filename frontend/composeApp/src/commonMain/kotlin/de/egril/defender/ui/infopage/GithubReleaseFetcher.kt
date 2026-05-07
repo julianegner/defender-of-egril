@@ -25,11 +25,11 @@ data class GithubRelease(
 )
 
 /**
- * Fetches the list of assets from the latest GitHub release.
+ * Fetches the latest GitHub release including its tag name (version) and downloadable assets.
  * Returns null when the API is unreachable or the response cannot be parsed.
  * Only the wasmJs platform provides a real implementation; all other platforms return null.
  */
-expect suspend fun fetchLatestReleaseAssets(): List<GithubReleaseAsset>?
+expect suspend fun fetchLatestRelease(): GithubRelease?
 
 /**
  * Fetches the list of recent GitHub releases (newest first) for version checking.

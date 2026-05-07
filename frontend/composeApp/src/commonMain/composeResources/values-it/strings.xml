@@ -1719,6 +1719,7 @@
     <string name="download_info_loading">Caricamento dei link di download…</string>
     <string name="download_info_error">Impossibile caricare i link di download da GitHub. Visita la pagina delle versioni per trovare tutti i download.</string>
     <string name="download_info_goto_installation">Visualizza le istruzioni di installazione</string>
+    <string name="download_info_latest_version">Ultima versione: %1$s</string>
     <string name="new_version_available_title">Nuova versione disponibile</string>
     <string name="new_version_available_message">La versione %1$s è disponibile per il download.</string>
     <string name="new_version_go_to_releases">Vai al download</string>
