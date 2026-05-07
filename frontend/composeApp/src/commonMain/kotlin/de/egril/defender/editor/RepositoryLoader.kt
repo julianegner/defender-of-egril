@@ -146,7 +146,7 @@ object RepositoryLoader {
     
     /**
      * Load all repository files and save them to file storage.
-     * Skips the full reload if the stored version already matches the bundled version.
+     * Always reloads official content so installed apps pick up updated bundled maps/levels.
      * @param storage File storage to save to
      * @param onProgress Optional progress callback invoked as (loaded, total, currentFilename)
      * @return true if repository files were successfully loaded and saved (or already up to date)
@@ -160,30 +160,10 @@ object RepositoryLoader {
             println("Loading repository files...")
             }
 
-            // Fast path: skip full reload if stored version matches bundled version
             val bundledVersion = loadVersion()
             val storedVersion = storage.readFile("gamedata/version.txt")?.trim()
-            if (bundledVersion != null && bundledVersion == storedVersion) {
-                // Also verify that official maps are actually present in persistent storage.
-                // If a previous sync wrote maps only to the in-memory fallback (due to a
-                // localStorage quota overflow), they will be absent after a page reload even
-                // though the version file is still intact.  In that case we must re-sync so
-                // the maps end up in the in-memory store for the current session.
-                val officialMapFiles = storage.listFiles("gamedata/official/maps")
-                if (officialMapFiles.isNotEmpty()) {
-                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                    println("Repository data is up to date (version $storedVersion), skipping reload")
-                    }
-                    return true
-                }
-                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                println("Version matches ($storedVersion) but official maps are missing - performing full sync to restore data")
-                }
-                // Fall through to full sync below
-            }
-
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Repository version changed (stored: $storedVersion, bundled: $bundledVersion) - reloading all official data")
+            println("Reloading official repository data (stored: $storedVersion, bundled: $bundledVersion)")
             }
 
             // Load sequence first

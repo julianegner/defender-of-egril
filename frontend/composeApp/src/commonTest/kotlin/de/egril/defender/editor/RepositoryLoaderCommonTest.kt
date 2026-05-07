@@ -12,6 +12,54 @@ import kotlin.test.assertTrue
  * for testing suspend functions across JVM, JS, and Native platforms.
  */
 class RepositoryLoaderCommonTest {
+    private class CountingFileStorage : FileStorage {
+        private val textFiles = mutableMapOf<String, String>()
+        private val binaryFiles = mutableMapOf<String, ByteArray>()
+        val writtenPaths = mutableListOf<String>()
+
+        fun seedTextFile(path: String, content: String) {
+            textFiles[path] = content
+        }
+
+        override fun writeFile(path: String, content: String) {
+            writtenPaths += path
+            textFiles[path] = content
+        }
+
+        override fun readFile(path: String): String? = textFiles[path]
+
+        override fun listFiles(directory: String): List<String> {
+            val prefix = "$directory/"
+            return textFiles.keys.asSequence()
+                .filter { it.startsWith(prefix) }
+                .map { it.removePrefix(prefix) }
+                .filter { !it.contains("/") }
+                .toList()
+        }
+
+        override fun fileExists(path: String): Boolean {
+            val normalized = "$path/"
+            return textFiles.containsKey(path) ||
+                binaryFiles.containsKey(path) ||
+                textFiles.keys.any { it.startsWith(normalized) } ||
+                binaryFiles.keys.any { it.startsWith(normalized) }
+        }
+
+        override fun createDirectory(path: String) = Unit
+        override fun deleteFile(path: String) {
+            textFiles.remove(path)
+            binaryFiles.remove(path)
+        }
+        override fun renameDirectory(oldPath: String, newPath: String): Boolean = false
+        override fun copyDirectory(sourcePath: String, targetPath: String): Boolean = false
+        override fun deleteDirectory(path: String): Boolean = false
+        override fun getAbsolutePath(path: String): String = path
+        override fun writeBinaryFile(path: String, content: ByteArray) {
+            binaryFiles[path] = content
+        }
+        override fun readBinaryFile(path: String): ByteArray? = binaryFiles[path]
+    }
+
     
     @Test
     fun testLoadSequenceFromRepository() = runTest {
@@ -98,5 +146,29 @@ class RepositoryLoaderCommonTest {
             // All dragon names should be non-blank strings
             assertTrue(dragonNames.all { it.isNotBlank() }, "All dragon names should be non-blank")
         }
+    }
+
+    @Test
+    fun testLoadAndSaveRepositoryFilesReloadsEvenWhenVersionMatches() = runTest {
+        // Skip in environments where bundled repository resources are unavailable.
+        if (!RepositoryLoader.hasRepositoryFiles()) return@runTest
+
+        val bundledVersion = RepositoryLoader.loadVersion() ?: return@runTest
+        val storage = CountingFileStorage().apply {
+            seedTextFile("gamedata/version.txt", bundledVersion)
+            seedTextFile("gamedata/official/maps/existing_map.json", "{}")
+        }
+
+        val success = RepositoryLoader.loadAndSaveRepositoryFiles(storage)
+
+        assertTrue(success, "Repository sync should succeed")
+        assertTrue(
+            storage.writtenPaths.any { it.startsWith("gamedata/official/levels/") },
+            "Official levels should be rewritten even when stored and bundled versions match"
+        )
+        assertTrue(
+            storage.writtenPaths.contains("gamedata/official/sequence.json"),
+            "Official sequence should be rewritten during reload"
+        )
     }
 }
