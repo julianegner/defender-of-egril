@@ -1572,10 +1572,10 @@
     <string name="ewhad_defeated_title">Ewhad is defeated</string>
     <string name="ewhad_defeated_text">You defeated Ewhad! Now finish off the other Enemies and Win the Game!</string>
     <!-- Story intro messages shown at the start of each level -->
-    <string name="story_the_first_wave">There are Goblins attacking a remote rural area. This is not uncommon, but rumors tell us that this time more brutes than usual are wandering into our realm.</string>
+    <string name="story_the_first_wave">There are Goblins attacking a remote rural area. This is not uncommon, but rumors tell us that this time more monsters than usual are wandering into our realm.</string>
     <string name="story_mixed_forces">The same area faces more attacks, Rumors even talk about dead rising from the graves and attacking the villagers.</string>
     <string name="story_the_ork_invasion">A large pack of Goblins and Orks are on their Way! You have to defend the area!</string>
-    <string name="story_dark_magic_rises">Now the evil nobility is coming to you! We heard of Witches and evil Wizards coming. Be careful, Witches can use magic to heal brutes and disable your Towers, and the evil Wizards can summon Demons straight from Hell!</string>
+    <string name="story_dark_magic_rises">Now the evil nobility is coming to you! We heard of Witches and evil Wizards coming. Be careful, Witches can use magic to heal monsters and disable your Towers, and the evil Wizards can summon Demons straight from Hell!</string>
     <string name="story_prison_break">We captured a group of Goblins, but they managed to break from their cells and are now trying to escape from the prison.</string>
     <string name="story_defend_the_city">A large group of Orks try to invade the City! You have to defend the neuralgic points of the City - The Townhall, the Storehouse, the Marketplace and the Guildhouse. If any of these are captured, the Monsters will attack the other locations and if they are all captured, the City is lost.</string>
     <string name="story_the_plains">We are in the center of the plains with only a few places where we can place defensive Towers and the enemy can come towards us with nothing stopping them.</string>

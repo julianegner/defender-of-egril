@@ -1568,10 +1568,10 @@
     <string name="ewhad_defeated_title">Ewhad est vaincu</string>
     <string name="ewhad_defeated_text">Vous avez vaincu Ewhad ! Terminez maintenant les autres Ennemis et gagnez le jeu !</string>
     <!-- Story intro messages shown at the start of each level -->
-    <string name="story_the_first_wave">Des Gobelins attaquent une zone rurale isolée. Cela n\'est pas rare, mais les rumeurs nous disent que cette fois, plus de brutes que d\'habitude errent dans notre royaume.</string>
+    <string name="story_the_first_wave">Des Gobelins attaquent une zone rurale isolée. Cela n\'est pas rare, mais les rumeurs nous disent que cette fois, plus de monstres que d\'habitude errent dans notre royaume.</string>
     <string name="story_mixed_forces">La même zone subit davantage d\'attaques. Les rumeurs parlent même de morts se levant de leurs tombes pour attaquer les villageois.</string>
     <string name="story_the_ork_invasion">Une grande horde de Gobelins et d\'Orques est en route ! Vous devez défendre la zone !</string>
-    <string name="story_dark_magic_rises">Maintenant la noblesse maléfique arrive vers vous ! Nous avons entendu parler de Sorcières et de Mages maléfiques qui approchent. Soyez prudents : les Sorcières peuvent utiliser la magie pour soigner les brutes et désactiver vos Tours, et les Mages maléfiques peuvent invoquer des Démons directement depuis l\'Enfer !</string>
+    <string name="story_dark_magic_rises">Maintenant la noblesse maléfique arrive vers vous ! Nous avons entendu parler de Sorcières et de Mages maléfiques qui approchent. Soyez prudents : les Sorcières peuvent utiliser la magie pour soigner les monstres et désactiver vos Tours, et les Mages maléfiques peuvent invoquer des Démons directement depuis l\'Enfer !</string>
     <string name="story_prison_break">Nous avons capturé un groupe de Gobelins, mais ils ont réussi à s\'évader de leurs cellules et tentent maintenant de s\'échapper de la prison.</string>
     <string name="story_defend_the_city">Un grand groupe d\'Orques tente d\'envahir la Cité ! Vous devez défendre les points névralgiques de la Cité : l\'Hôtel de Ville, l\'Entrepôt, le Marché et la Maison des Guildes. Si l\'un d\'eux est capturé, les Monstres attaqueront les autres lieux, et si tous sont capturés, la Cité est perdue.</string>
     <string name="story_the_plains">Nous sommes au centre des plaines avec seulement quelques endroits où nous pouvons placer des Tours défensives, et l\'ennemi peut avancer vers nous sans rien pour l\'arrêter.</string>

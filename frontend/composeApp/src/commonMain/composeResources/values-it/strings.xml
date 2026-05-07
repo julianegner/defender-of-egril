@@ -1569,10 +1569,10 @@
     <string name="ewhad_defeated_title">Ewhad è sconfitto</string>
     <string name="ewhad_defeated_text">Hai sconfitto Ewhad! Ora elimina gli altri Nemici e vinci il gioco!</string>
     <!-- Story intro messages shown at the start of each level -->
-    <string name="story_the_first_wave">Dei Goblin stanno attaccando una zona rurale remota. Non è insolito, ma le voci ci dicono che questa volta più bruti del solito stanno vagando nel nostro regno.</string>
+    <string name="story_the_first_wave">Dei Goblin stanno attaccando una zona rurale remota. Non è insolito, ma le voci ci dicono che questa volta più mostri del solito stanno vagando nel nostro regno.</string>
     <string name="story_mixed_forces">La stessa zona subisce altri attacchi. Le voci parlano addirittura di morti che si alzano dalle tombe e attaccano i villici.</string>
     <string name="story_the_ork_invasion">Un grande branco di Goblin e Orchi è in arrivo! Devi difendere la zona!</string>
-    <string name="story_dark_magic_rises">Ora la nobiltà malvagia sta venendo verso di te! Abbiamo sentito parlare di Streghe e Maghi malvagi in arrivo. Fai attenzione: le Streghe possono usare la magia per guarire i bruti e disattivare le tue Torri, e i Maghi malvagi possono evocare Demoni direttamente dall\'Inferno!</string>
+    <string name="story_dark_magic_rises">Ora la nobiltà malvagia sta venendo verso di te! Abbiamo sentito parlare di Streghe e Maghi malvagi in arrivo. Fai attenzione: le Streghe possono usare la magia per guarire i mostri e disattivare le tue Torri, e i Maghi malvagi possono evocare Demoni direttamente dall\'Inferno!</string>
     <string name="story_prison_break">Abbiamo catturato un gruppo di Goblin, ma sono riusciti a evadere dalle loro celle e ora stanno cercando di fuggire dalla prigione.</string>
     <string name="story_defend_the_city">Un grande gruppo di Orchi cerca di invadere la Città! Devi difendere i punti nevralgici della Città: il Municipio, il Magazzino, il Mercato e la Casa delle Gilde. Se uno di questi viene catturato, i Mostri attaccheranno le altre location, e se vengono tutti catturati, la Città è perduta.</string>
     <string name="story_the_plains">Siamo al centro delle pianure con solo pochi punti dove possiamo piazzare le Torri difensive, e il nemico può avanzare verso di noi senza nulla che lo fermi.</string>
