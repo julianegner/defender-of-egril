@@ -513,15 +513,17 @@ tasks.matching { it.name.startsWith("copyNonXmlValueResourcesFor") }.configureEa
 //     directory is populated before AGP packages the asset pack.  These tasks are
 //     chosen over the broader `bundle*` pattern to avoid adding the 220 MB file-sync
 //     as a dependency of Kotlin class-bundling tasks (e.g. `bundleXxxClassesToCompileJar`).
-//  2. A `doFirst` action on every `build*PreBundle` task removes the `composeResources/`
-//     tree from the base-module merged-assets directory before the base module is
-//     assembled.  The `build<Variant>PreBundle` task reads the merged-assets output
-//     and packages it into the base module proto; deleting here ensures the assets
-//     are gone before that packaging step.  Using doFirst (rather than doLast on the
-//     merge task) guarantees the deletion always runs even when merge*Assets is
-//     UP-TO-DATE – which happens when a prior APK build already executed the merge
-//     task in the same Gradle user-home cache.
-//     This keeps the base module under Google Play's 200 MB limit.
+//  2. A `doFirst` action on every `build*PreBundle` task removes only this app's
+//     package subtree (`composeResources/defender_of_egril.composeapp.generated.resources`)
+//     from the base-module merged-assets directory before the base module is assembled.
+//     Third-party Compose resource packages (for example icon/font libraries) stay in the
+//     base split so their runtime assets remain available in AAB installs.
+//     The `build<Variant>PreBundle` task reads the merged-assets output and packages it
+//     into the base module proto; deleting here ensures the large app assets are gone
+//     before that packaging step. Using doFirst (rather than doLast on the merge task)
+//     guarantees the deletion always runs even when merge*Assets is UP-TO-DATE – which
+//     happens when a prior APK build already executed the merge task in the same Gradle
+//     user-home cache. This keeps the base module under Google Play's 200 MB limit.
 //
 // For plain APK builds (`assemble*`) the deletion step is never triggered because
 // the `build*PreBundle` task is not part of the task graph, so the APK remains
@@ -535,8 +537,8 @@ afterEvaluate {
         dependsOn(":assetPack:syncComposeResources")
     }
 
-    // 2. Remove composeResources from the base module's merged-assets output
-    //    immediately before the base module is assembled.  doFirst on
+    // 2. Remove only this app's composeResources package from the base module's
+    //    merged-assets output immediately before the base module is assembled. doFirst on
     //    build*PreBundle runs even when the upstream merge*Assets task was
     //    UP-TO-DATE, which is the common case when an APK build has already
     //    executed merge*Assets in the same Gradle cache (e.g. in CI where APK
@@ -552,12 +554,15 @@ afterEvaluate {
         tasks.matching { it.name == "build${variantNameCapped}PreBundle" }.configureEach {
             doFirst {
                 mergeAssetsTask.get().outputs.files.files.forEach { mergeOutputDir ->
-                    val composeResDir = File(mergeOutputDir, "composeResources")
+                    val composeResDir = File(
+                        mergeOutputDir,
+                        "composeResources/defender_of_egril.composeapp.generated.resources"
+                    )
                     if (composeResDir.exists()) {
                         composeResDir.deleteRecursively()
                         logger.lifecycle(
-                            "Asset-pack split: removed composeResources from base AAB " +
-                                "module (resources are served from the install-time asset pack)"
+                            "Asset-pack split: removed app composeResources package from base AAB " +
+                                "module (app resources are served from the install-time asset pack)"
                         )
                     }
                 }
