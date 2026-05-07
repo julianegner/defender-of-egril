@@ -967,6 +967,9 @@
     <string name="map_the_single_tower_name">La Torre Solitaria</string>
     <string name="map_the_barricades_name">Las Barricadas</string>
     <string name="map_the_labyrinth_name">El Laberinto</string>
+    <string name="map_back_and_forth_path_name">Camino de Ida y Vuelta</string>
+    <string name="map_curved_path_name">Camino Curvo</string>
+    <string name="map_obstacle_path_name">Camino con Obstáculos</string>
     
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutorial</string>

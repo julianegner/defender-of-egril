@@ -966,6 +966,9 @@
     <string name="map_the_single_tower_name">Der Einzelturm</string>
     <string name="map_the_barricades_name">Die Barrikaden</string>
     <string name="map_the_labyrinth_name">Das Labyrinth</string>
+    <string name="map_back_and_forth_path_name">Hin-und-Her-Pfad</string>
+    <string name="map_curved_path_name">Kurvenreicher Pfad</string>
+    <string name="map_obstacle_path_name">Hindernispfad</string>
     
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutorial</string>
