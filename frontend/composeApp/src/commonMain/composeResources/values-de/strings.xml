@@ -1566,10 +1566,10 @@
     <string name="ewhad_defeated_title">Ewhad ist besiegt</string>
     <string name="ewhad_defeated_text">Du hast Ewhad besiegt! Beende jetzt die anderen Feinde und gewinne das Spiel!</string>
     <!-- Story intro messages shown at the start of each level -->
-    <string name="story_the_first_wave">In einem abgelegenen ländlichen Gebiet greifen Goblins an. Das ist nicht ungewöhnlich, aber Gerüchten zufolge wandern diesmal mehr Rüpel als sonst in unser Reich.</string>
+    <string name="story_the_first_wave">In einem abgelegenen ländlichen Gebiet greifen Goblins an. Das ist nicht ungewöhnlich, aber Gerüchten zufolge wandern diesmal mehr Monster als sonst in unser Reich.</string>
     <string name="story_mixed_forces">Dasselbe Gebiet ist weiteren Angriffen ausgesetzt. Gerüchte sprechen sogar davon, dass Tote aus ihren Gräbern auferstehen und die Dorfbewohner angreifen.</string>
     <string name="story_the_ork_invasion">Eine große Horde Goblins und Orks ist auf dem Weg! Ihr müsst das Gebiet verteidigen!</string>
-    <string name="story_dark_magic_rises">Nun kommt der böse Adel auf euch zu! Wir haben von Hexen und bösen Zauberern gehört. Seid vorsichtig: Hexen können Magie einsetzen, um Rüpel zu heilen und eure Türme zu deaktivieren, und die bösen Zauberer können Dämonen direkt aus der Hölle beschwören!</string>
+    <string name="story_dark_magic_rises">Nun kommt der böse Adel auf euch zu! Wir haben von Hexen und bösen Zauberern gehört. Seid vorsichtig: Hexen können Magie einsetzen, um Monster zu heilen und eure Türme zu deaktivieren, und die bösen Zauberer können Dämonen direkt aus der Hölle beschwören!</string>
     <string name="story_prison_break">Wir haben eine Gruppe Goblins gefangen genommen, doch sie haben es geschafft, aus ihren Zellen auszubrechen, und versuchen nun, aus dem Gefängnis zu fliehen.</string>
     <string name="story_defend_the_city">Eine große Gruppe Orks versucht, die Stadt zu überfallen! Ihr müsst die neuralgischen Punkte der Stadt verteidigen – das Rathaus, das Lagerhaus, den Marktplatz und das Gildenhaus. Wenn einer davon eingenommen wird, greifen die Monster die anderen Orte an, und wenn alle eingenommen werden, ist die Stadt verloren.</string>
     <string name="story_the_plains">Wir befinden uns im Zentrum der Ebene mit nur wenigen Plätzen für Verteidigungstürme, und der Feind kann ungehindert auf uns zukommen.</string>
