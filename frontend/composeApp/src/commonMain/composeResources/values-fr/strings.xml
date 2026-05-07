@@ -967,6 +967,9 @@
     <string name="map_the_single_tower_name">La Tour Solitaire</string>
     <string name="map_the_barricades_name">Les Barricades</string>
     <string name="map_the_labyrinth_name">Le Labyrinthe</string>
+    <string name="map_back_and_forth_path_name">Chemin Aller-Retour</string>
+    <string name="map_curved_path_name">Chemin Courbé</string>
+    <string name="map_obstacle_path_name">Chemin avec Obstacles</string>
     
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutoriel</string>

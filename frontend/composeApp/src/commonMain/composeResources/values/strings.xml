@@ -969,6 +969,9 @@
     <string name="map_the_single_tower_name">The Single Tower</string>
     <string name="map_the_barricades_name">The Barricades</string>
     <string name="map_the_labyrinth_name">The Labyrinth</string>
+    <string name="map_back_and_forth_path_name">Back and Forth Path</string>
+    <string name="map_curved_path_name">Curved Path</string>
+    <string name="map_obstacle_path_name">Obstacle Path</string>
     
     <!-- World Map Location Names -->
     <string name="location_tutorial_name">Tutorial</string>
