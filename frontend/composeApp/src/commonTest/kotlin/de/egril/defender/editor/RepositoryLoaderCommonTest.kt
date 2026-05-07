@@ -12,7 +12,7 @@ import kotlin.test.assertTrue
  * for testing suspend functions across JVM, JS, and Native platforms.
  */
 class RepositoryLoaderCommonTest {
-    private class CountingFileStorage : FileStorage {
+    private class TrackingFileStorage : FileStorage {
         private val textFiles = mutableMapOf<String, String>()
         private val binaryFiles = mutableMapOf<String, ByteArray>()
         val writtenPaths = mutableListOf<String>()
@@ -149,12 +149,12 @@ class RepositoryLoaderCommonTest {
     }
 
     @Test
-    fun testLoadAndSaveRepositoryFilesReloadsEvenWhenVersionMatches() = runTest {
+    fun testLoadAndSaveRepositoryFilesReloadsWhenVersionMatches() = runTest {
         // Skip in environments where bundled repository resources are unavailable.
         if (!RepositoryLoader.hasRepositoryFiles()) return@runTest
 
         val bundledVersion = RepositoryLoader.loadVersion() ?: return@runTest
-        val storage = CountingFileStorage().apply {
+        val storage = TrackingFileStorage().apply {
             seedTextFile("gamedata/version.txt", bundledVersion)
             seedTextFile("gamedata/official/maps/existing_map.json", "{}")
         }

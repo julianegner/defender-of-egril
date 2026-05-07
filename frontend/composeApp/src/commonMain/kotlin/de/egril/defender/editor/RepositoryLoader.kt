@@ -163,7 +163,8 @@ object RepositoryLoader {
             val bundledVersion = loadVersion()
             val storedVersion = storage.readFile("gamedata/version.txt")?.trim()
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Reloading official repository data (stored: $storedVersion, bundled: $bundledVersion)")
+            val action = if (storedVersion == null) "Loading" else "Reloading"
+            println("$action official repository data (stored: $storedVersion, bundled: $bundledVersion)")
             }
 
             // Load sequence first
