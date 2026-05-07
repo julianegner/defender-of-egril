@@ -32,7 +32,19 @@ private const val GITHUB_API_URL =
 """)
 private external fun extractAssetsFromJson(json: String): String
 
-actual suspend fun fetchLatestReleaseAssets(): List<GithubReleaseAsset>? =
+@JsFun("""
+    (json) => {
+        try {
+            const data = JSON.parse(json);
+            return data.tag_name || "";
+        } catch(e) {
+            return "";
+        }
+    }
+""")
+private external fun extractTagNameFromJson(json: String): String
+
+actual suspend fun fetchLatestRelease(): GithubRelease? =
     suspendCancellableCoroutine { continuation ->
         try {
             val xhr = XMLHttpRequest()
@@ -40,11 +52,12 @@ actual suspend fun fetchLatestReleaseAssets(): List<GithubReleaseAsset>? =
             xhr.setRequestHeader("Accept", "application/vnd.github.v3+json")
             xhr.onload = {
                 if (xhr.status.toInt() in 200..299) {
-                    val raw = extractAssetsFromJson(xhr.responseText)
-                    val assets = if (raw.isEmpty()) {
+                    val rawAssets = extractAssetsFromJson(xhr.responseText)
+                    val tagName = extractTagNameFromJson(xhr.responseText)
+                    val assets = if (rawAssets.isEmpty()) {
                         emptyList()
                     } else {
-                        raw.split("\u0001").mapNotNull { entry ->
+                        rawAssets.split("\u0001").mapNotNull { entry ->
                             val parts = entry.split("\u0000")
                             if (parts.size == 2) {
                                 GithubReleaseAsset(name = parts[0], downloadUrl = parts[1])
@@ -53,7 +66,7 @@ actual suspend fun fetchLatestReleaseAssets(): List<GithubReleaseAsset>? =
                             }
                         }
                     }
-                    continuation.resume(assets)
+                    continuation.resume(GithubRelease(tagName = tagName, assets = assets))
                 } else {
                     continuation.resume(null)
                 }

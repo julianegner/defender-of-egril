@@ -30,13 +30,13 @@ private const val GITHUB_RELEASES_PAGE =
  */
 @Composable
 fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}) {
-    var assets by remember { mutableStateOf<List<GithubReleaseAsset>?>(null) }
+    var release by remember { mutableStateOf<GithubRelease?>(null) }
     var loadError by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        val result = fetchLatestReleaseAssets()
+        val result = fetchLatestRelease()
         if (result != null) {
-            assets = result
+            release = result
         } else {
             loadError = true
         }
@@ -49,9 +49,24 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}) {
             text = stringResource(Res.string.download_info_title),
             style = MaterialTheme.typography.headlineLarge,
             textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
             color = MaterialTheme.colorScheme.onBackground
         )
+
+        // Version badge – shown as soon as the release data is available
+        val tagName = release?.tagName?.takeIf { it.isNotEmpty() }
+        if (tagName != null) {
+            Text(
+                text = stringResource(Res.string.download_info_latest_version, tagName),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+            )
+        } else {
+            Spacer(modifier = Modifier.height(16.dp))
+        }
 
         Column(
             modifier = Modifier
@@ -85,7 +100,7 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}) {
 
             when {
                 // Still loading
-                assets == null && !loadError -> {
+                release == null && !loadError -> {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(vertical = 8.dp)
@@ -104,7 +119,7 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}) {
                 }
 
                 // API unavailable – show fallback message
-                loadError || assets?.isEmpty() == true -> {                    Card(
+                loadError || release?.assets?.isEmpty() == true -> {                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
@@ -123,7 +138,7 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}) {
 
                 // Assets loaded – show per-file table
                 else -> {
-                    assets?.forEach { asset ->
+                    release?.assets?.forEach { asset ->
                         AssetListItem(asset = asset)
                     }
                 }
