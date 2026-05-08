@@ -14,6 +14,10 @@ import kotlin.test.assertTrue
  * for testing suspend functions across JVM, JS, and Native platforms.
  */
 class RepositoryLoaderCommonTest {
+    /**
+     * Minimal in-memory FileStorage used by repository sync tests.
+     * It only implements the behaviors these tests need and is not a full filesystem simulation.
+     */
     private class TestFileStorage : FileStorage {
         private val textFiles = mutableMapOf<String, String>()
         private val binaryFiles = mutableMapOf<String, ByteArray>()

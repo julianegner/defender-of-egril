@@ -27,6 +27,11 @@ object RepositoryLoader {
         }
     }
 
+    /**
+     * Builds a stable repository fingerprint using FNV-1a over each file path and file payload.
+     * Zero and 0xFF separator bytes are inserted between the path, payload, and file boundary so
+     * different path/content combinations cannot collapse into the same byte stream.
+     */
     private class RepositoryFingerprintBuilder {
         // Standard FNV-1a 64-bit offset basis.
         private var hash = 1469598103934665603UL
@@ -50,6 +55,8 @@ object RepositoryLoader {
 
     suspend fun loadFingerprint(): String? {
         return try {
+            // Keep this file order stable so identical repository content always produces the same
+            // fingerprint across app launches and updates.
             val sequenceBytes = readRepositoryBytes("sequence.json")
             val sequence = EditorJsonSerializer.deserializeSequence(sequenceBytes.decodeToString()) ?: return null
             val builder = RepositoryFingerprintBuilder()
