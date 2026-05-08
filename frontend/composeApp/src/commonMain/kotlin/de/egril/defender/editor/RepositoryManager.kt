@@ -65,7 +65,13 @@ object RepositoryManager {
                 }
                 return null
             }
-            
+
+            // Copy user and community data from backup back to new gamedata so that
+            // player-created and downloaded content is preserved after the update.
+            if (fileStorage.fileExists(backupFolderName)) {
+                copyUserDataFromBackup(backupFolderName)
+            }
+
             // Return the absolute path to the backup folder
             return fileStorage.getAbsolutePath(backupFolderName)
         } catch (e: Exception) {
@@ -87,6 +93,28 @@ object RepositoryManager {
         }
     }
     
+    /**
+     * Copy user and community subdirectories from a backup folder to the current gamedata
+     * directory. This preserves player-created maps/levels and community-downloaded content
+     * after a repository restore replaces the official content.
+     */
+    private fun copyUserDataFromBackup(backupFolderName: String) {
+        for (subDir in listOf("community", "user")) {
+            val sourceDir = "$backupFolderName/$subDir"
+            val targetDir = "$GAMEDATA_DIR/$subDir"
+            if (fileStorage.fileExists(sourceDir)) {
+                val copied = fileStorage.copyDirectory(sourceDir, targetDir)
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                    if (copied) {
+                        println("Copied $subDir data from $backupFolderName to $targetDir")
+                    } else {
+                        println("Failed to copy $subDir data from $backupFolderName to $targetDir")
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Find the next available backup folder name (gamedata-1, gamedata-2, etc.)
      */
