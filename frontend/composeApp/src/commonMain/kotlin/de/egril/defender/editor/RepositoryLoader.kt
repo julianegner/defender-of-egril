@@ -10,6 +10,8 @@ import de.egril.defender.config.LogConfig
  */
 object RepositoryLoader {
     private const val STORED_FINGERPRINT_FILE = "gamedata/repository_fingerprint.txt"
+    private const val FNV1A_64_OFFSET_BASIS = 1469598103934665603UL
+    private const val FNV1A_64_PRIME = 1099511628211UL
 
     private suspend fun readRepositoryBytes(path: String): ByteArray {
         return try {
@@ -30,11 +32,12 @@ object RepositoryLoader {
     /**
      * Builds a stable repository fingerprint using FNV-1a over each file path and file payload.
      * Zero and 0xFF separator bytes are inserted between the path, payload, and file boundary so
-     * different path/content combinations cannot collapse into the same byte stream.
+     * different path/content combinations cannot collapse into the same byte stream. 0xFF is used
+     * for the file boundary because UTF-8 path bytes cannot contain it, which keeps boundaries
+     * unambiguous even when file contents contain arbitrary binary data.
      */
     private class RepositoryFingerprintBuilder {
-        // Standard FNV-1a 64-bit offset basis.
-        private var hash = 1469598103934665603UL
+        private var hash = FNV1A_64_OFFSET_BASIS
 
         fun addFile(path: String, bytes: ByteArray) {
             update(path.encodeToByteArray())
@@ -47,8 +50,7 @@ object RepositoryLoader {
 
         private fun update(bytes: ByteArray) {
             for (byte in bytes) {
-                // Standard FNV-1a 64-bit prime.
-                hash = (hash xor byte.toUByte().toULong()) * 1099511628211UL
+                hash = (hash xor byte.toUByte().toULong()) * FNV1A_64_PRIME
             }
         }
     }

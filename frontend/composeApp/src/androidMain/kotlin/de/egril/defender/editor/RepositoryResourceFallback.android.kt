@@ -2,6 +2,8 @@ package de.egril.defender.editor
 
 import de.egril.defender.AndroidContextProvider
 
+// Must match the Compose Multiplatform asset-pack path configured for this module's generated
+// resources package in the Android AAB asset-pack build setup.
 private const val REPOSITORY_ASSET_PREFIX =
     "composeResources/defender_of_egril.composeapp.generated.resources/files/repository/"
 
