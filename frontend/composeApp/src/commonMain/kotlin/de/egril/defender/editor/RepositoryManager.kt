@@ -106,9 +106,9 @@ object RepositoryManager {
                 val copied = fileStorage.copyDirectory(sourceDir, targetDir)
                 if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     if (copied) {
-                        println("Copied $subDir data from $backupFolderName to $GAMEDATA_DIR")
+                        println("Copied $subDir data from $backupFolderName to $targetDir")
                     } else {
-                        println("Failed to copy $subDir data from $backupFolderName to $GAMEDATA_DIR")
+                        println("Failed to copy $subDir data from $backupFolderName to $targetDir")
                     }
                 }
             }

@@ -45,7 +45,7 @@ class RepositoryManagerTest {
      */
     @Test
     fun testUserAndCommunityDataCopiedFromBackupAfterRestore() {
-        val tempDir = Files.createTempDirectory("repo_manager_test").toFile()
+        val tempDir = Files.createTempDirectory("defender_of_egril_repo_test").toFile()
         try {
             // Create a JvmFileStorage-like structure in the temp dir for testing.
             val backupCommunityMaps = File(tempDir, "gamedata-1/community/maps")
@@ -71,6 +71,8 @@ class RepositoryManagerTest {
             freshGamedata.mkdirs()
 
             // Now replicate what copyUserDataFromBackup does: copy community and user dirs.
+            // JvmFileStorage.copyDirectory internally calls File.copyRecursively(overwrite = false),
+            // so this test faithfully reflects the production behaviour.
             for (subDir in listOf("community", "user")) {
                 val sourceDir = File(tempDir, "gamedata-1/$subDir")
                 val targetDir = File(tempDir, "gamedata/$subDir")
