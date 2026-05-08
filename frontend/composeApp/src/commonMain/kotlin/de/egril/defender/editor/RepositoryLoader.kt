@@ -9,6 +9,108 @@ import de.egril.defender.config.LogConfig
  * Repository files are stored in composeResources/files/repository/
  */
 object RepositoryLoader {
+    private const val STORED_FINGERPRINT_FILE = "gamedata/repository_fingerprint.txt"
+    private const val FNV1A_64_OFFSET_BASIS = 1469598103934665603UL
+    private const val FNV1A_64_PRIME = 1099511628211UL
+
+    private suspend fun readRepositoryBytes(path: String): ByteArray {
+        return try {
+            Res.readBytes("files/repository/$path")
+        } catch (primaryException: Exception) {
+            val fallbackBytes = readPlatformRepositoryBytes(path)
+            if (fallbackBytes != null) {
+                fallbackBytes
+            } else {
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                    println("Platform repository fallback could not load $path: ${primaryException.message}")
+                }
+                throw primaryException
+            }
+        }
+    }
+
+    private suspend fun readRepositoryBytesOrNull(path: String): ByteArray? {
+        return try {
+            readRepositoryBytes(path)
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    /**
+     * Builds a stable repository fingerprint using FNV-1a over each file path and file payload.
+     * Zero and 0xFF separator bytes are inserted between the path, payload, and file boundary so
+     * different path/content combinations cannot collapse into the same byte stream. 0xFF is used
+     * for the file boundary because UTF-8 path bytes cannot contain it, which keeps boundaries
+     * unambiguous even when file contents contain arbitrary binary data.
+     */
+    private class RepositoryFingerprintBuilder {
+        private var hash = FNV1A_64_OFFSET_BASIS
+
+        fun addFile(path: String, bytes: ByteArray) {
+            update(path.encodeToByteArray())
+            update(byteArrayOf(0))
+            update(bytes)
+            update(byteArrayOf(0xFF.toByte()))
+        }
+
+        /** Returns the 64-bit FNV-1a hash as a zero-padded 16-character hexadecimal string. */
+        fun build(): String = hash.toString(16).padStart(16, '0')
+
+        private fun update(bytes: ByteArray) {
+            for (byte in bytes) {
+                hash = (hash xor byte.toUByte().toULong()) * FNV1A_64_PRIME
+            }
+        }
+    }
+
+    suspend fun loadFingerprint(): String? {
+        return try {
+            // Keep this file order stable so identical repository content always produces the same
+            // fingerprint across app launches and updates.
+            val sequenceBytes = readRepositoryBytes("sequence.json")
+            val sequence = EditorJsonSerializer.deserializeSequence(sequenceBytes.decodeToString()) ?: run {
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                    println("Could not deserialize repository sequence while building fingerprint")
+                }
+                return null
+            }
+            val builder = RepositoryFingerprintBuilder()
+            builder.addFile("sequence.json", sequenceBytes)
+
+            readRepositoryBytesOrNull("version.txt")?.let { builder.addFile("version.txt", it) }
+            readRepositoryBytesOrNull("dragon_names.json")?.let { builder.addFile("dragon_names.json", it) }
+            readRepositoryBytesOrNull("worldmap.json")?.let { builder.addFile("worldmap.json", it) }
+
+            val mapIds = linkedSetOf<String>()
+            for (levelId in sequence.sequence) {
+                val levelPath = "levels/$levelId.json"
+                val levelBytes = readRepositoryBytes(levelPath)
+                builder.addFile(levelPath, levelBytes)
+                val level = EditorJsonSerializer.deserializeLevel(levelBytes.decodeToString()) ?: run {
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                        println("Could not deserialize repository level $levelId while building fingerprint")
+                    }
+                    return null
+                }
+                mapIds.add(level.mapId)
+            }
+
+            for (mapId in mapIds.sorted()) { // Sorting keeps the fingerprint stable across launches.
+                val mapPath = "maps/$mapId.json"
+                val mapBytes = readRepositoryBytes(mapPath)
+                builder.addFile(mapPath, mapBytes)
+                readRepositoryBytesOrNull("maps/$mapId.png")?.let { builder.addFile("maps/$mapId.png", it) }
+            }
+
+            builder.build()
+        } catch (e: Exception) {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                println("Could not load repository fingerprint: ${e.message}")
+            }
+            null
+        }
+    }
     
     /**
      * Check if repository files exist in resources
@@ -16,7 +118,7 @@ object RepositoryLoader {
     suspend fun hasRepositoryFiles(): Boolean {
         return try {
             // Try to read the sequence file to see if repository exists
-            val bytes = Res.readBytes("files/repository/sequence.json")
+            val bytes = readRepositoryBytes("sequence.json")
             bytes.isNotEmpty()
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
@@ -31,7 +133,7 @@ object RepositoryLoader {
      */
     suspend fun loadVersion(): String? {
         return try {
-            val bytes = Res.readBytes("files/repository/version.txt")
+            val bytes = readRepositoryBytes("version.txt")
             bytes.decodeToString().trim()
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
@@ -46,7 +148,7 @@ object RepositoryLoader {
      */
     suspend fun loadSequence(): LevelSequence? {
         return try {
-            val bytes = Res.readBytes("files/repository/sequence.json")
+            val bytes = readRepositoryBytes("sequence.json")
             val json = bytes.decodeToString()
             EditorJsonSerializer.deserializeSequence(json)
         } catch (e: Exception) {
@@ -62,7 +164,7 @@ object RepositoryLoader {
      */
     suspend fun loadMap(mapId: String): EditorMap? {
         return try {
-            val bytes = Res.readBytes("files/repository/maps/$mapId.json")
+            val bytes = readRepositoryBytes("maps/$mapId.json")
             val json = bytes.decodeToString()
             EditorJsonSerializer.deserializeMap(json)
         } catch (e: Exception) {
@@ -78,7 +180,7 @@ object RepositoryLoader {
      */
     suspend fun loadLevel(levelId: String): EditorLevel? {
         return try {
-            val bytes = Res.readBytes("files/repository/levels/$levelId.json")
+            val bytes = readRepositoryBytes("levels/$levelId.json")
             val json = bytes.decodeToString()
             EditorJsonSerializer.deserializeLevel(json)
         } catch (e: Exception) {
@@ -94,7 +196,7 @@ object RepositoryLoader {
      */
     suspend fun loadDragonNames(): List<String>? {
         return try {
-            val bytes = Res.readBytes("files/repository/dragon_names.json")
+            val bytes = readRepositoryBytes("dragon_names.json")
             val json = bytes.decodeToString()
             parseDragonNames(json)
         } catch (e: Exception) {
@@ -110,7 +212,7 @@ object RepositoryLoader {
      */
     suspend fun loadWorldMapData(): WorldMapData? {
         return try {
-            val bytes = Res.readBytes("files/repository/worldmap.json")
+            val bytes = readRepositoryBytes("worldmap.json")
             val json = bytes.decodeToString()
             EditorJsonSerializer.deserializeWorldMapData(json)
         } catch (e: Exception) {
@@ -162,8 +264,15 @@ object RepositoryLoader {
 
             // Fast path: skip full reload if stored version matches bundled version
             val bundledVersion = loadVersion()
+            val bundledFingerprint = loadFingerprint()
             val storedVersion = storage.readFile("gamedata/version.txt")?.trim()
-            if (bundledVersion != null && bundledVersion == storedVersion) {
+            val storedFingerprint = storage.readFile(STORED_FINGERPRINT_FILE)?.trim()
+            if (
+                bundledVersion != null &&
+                bundledVersion == storedVersion &&
+                bundledFingerprint != null &&
+                bundledFingerprint == storedFingerprint
+            ) {
                 // Also verify that official maps are actually present in persistent storage.
                 // If a previous sync wrote maps only to the in-memory fallback (due to a
                 // localStorage quota overflow), they will be absent after a page reload even
@@ -183,7 +292,11 @@ object RepositoryLoader {
             }
 
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Repository version changed (stored: $storedVersion, bundled: $bundledVersion) - reloading all official data")
+            println(
+                "Repository data changed (stored version: $storedVersion, bundled version: $bundledVersion, " +
+                    "stored fingerprint: $storedFingerprint, bundled fingerprint: $bundledFingerprint) - " +
+                    "reloading all official data"
+            )
             }
 
             // Load sequence first
@@ -247,7 +360,7 @@ object RepositoryLoader {
                     }
                     // Also copy the map image PNG if available
                     try {
-                        val pngBytes = Res.readBytes("files/repository/maps/$mapId.png")
+                        val pngBytes = readRepositoryBytes("maps/$mapId.png")
                         storage.writeBinaryFile("gamedata/official/maps/$mapId.png", pngBytes)
                         if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                         println("Loaded and saved official map image: $mapId.png")
@@ -290,6 +403,9 @@ object RepositoryLoader {
             
             // Save version file (use bundledVersion if available, otherwise fall back to hardcoded)
             storage.writeFile("gamedata/version.txt", bundledVersion ?: "10")
+            if (bundledFingerprint != null) {
+                storage.writeFile(STORED_FINGERPRINT_FILE, bundledFingerprint)
+            }
             
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Repository files loaded successfully: $successCount levels, $mapCount maps")

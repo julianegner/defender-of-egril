@@ -125,8 +125,15 @@ object RepositoryManager {
 
             // Fast path: if version matches, no changes needed
             val bundledVersion = RepositoryLoader.loadVersion()
+            val bundledFingerprint = RepositoryLoader.loadFingerprint()
             val storedVersion = fileStorage.readFile("$GAMEDATA_DIR/version.txt")?.trim()
-            if (bundledVersion != null && bundledVersion == storedVersion) {
+            val storedFingerprint = fileStorage.readFile("$GAMEDATA_DIR/repository_fingerprint.txt")?.trim()
+            if (
+                bundledVersion != null &&
+                bundledVersion == storedVersion &&
+                bundledFingerprint != null &&
+                bundledFingerprint == storedFingerprint
+            ) {
                 // Also verify that official maps are actually present in persistent storage.
                 // If a previous sync wrote maps only to the in-memory fallback (due to a
                 // localStorage quota overflow), they will be absent after a page reload even
@@ -146,7 +153,11 @@ object RepositoryManager {
             }
 
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-            println("Repository version changed (stored: $storedVersion, bundled: $bundledVersion) - checking for updates")
+            println(
+                "Repository data changed (stored version: $storedVersion, bundled version: $bundledVersion, " +
+                    "stored fingerprint: $storedFingerprint, bundled fingerprint: $bundledFingerprint) - " +
+                    "checking for updates"
+            )
             }
             
             // Check if official gamedata exists

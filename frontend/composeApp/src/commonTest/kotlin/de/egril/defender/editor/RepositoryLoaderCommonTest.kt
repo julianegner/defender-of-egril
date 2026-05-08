@@ -2,6 +2,8 @@ package de.egril.defender.editor
 
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 /**
@@ -12,6 +14,56 @@ import kotlin.test.assertTrue
  * for testing suspend functions across JVM, JS, and Native platforms.
  */
 class RepositoryLoaderCommonTest {
+    /**
+     * Minimal in-memory FileStorage used by repository sync tests.
+     * It only implements the behaviors these tests need and is not a full filesystem simulation.
+     */
+    private class TestFileStorage : FileStorage {
+        private val textFiles = mutableMapOf<String, String>()
+        private val binaryFiles = mutableMapOf<String, ByteArray>()
+        var textWriteCount = 0
+            private set
+
+        override fun writeFile(path: String, content: String) {
+            textFiles[path] = content
+            textWriteCount++
+        }
+
+        override fun readFile(path: String): String? = textFiles[path]
+
+        override fun listFiles(directory: String): List<String> {
+            return textFiles.keys
+                .filter { it.startsWith("$directory/") }
+                .map { it.removePrefix("$directory/").substringBefore("/") }
+                .distinct()
+        }
+
+        override fun fileExists(path: String): Boolean {
+            return textFiles.containsKey(path) || binaryFiles.containsKey(path)
+        }
+
+        override fun createDirectory(path: String) = Unit
+
+        override fun deleteFile(path: String) {
+            textFiles.remove(path)
+            binaryFiles.remove(path)
+        }
+
+        override fun renameDirectory(oldPath: String, newPath: String): Boolean = false
+
+        override fun copyDirectory(sourcePath: String, targetPath: String): Boolean = false
+
+        override fun deleteDirectory(path: String): Boolean = true
+
+        override fun getAbsolutePath(path: String): String = path
+
+        override fun writeBinaryFile(path: String, content: ByteArray) {
+            binaryFiles[path] = content
+        }
+
+        override fun readBinaryFile(path: String): ByteArray? = binaryFiles[path]
+    }
+
     
     @Test
     fun testLoadSequenceFromRepository() = runTest {
@@ -97,6 +149,55 @@ class RepositoryLoaderCommonTest {
             assertTrue(dragonNames.isNotEmpty(), "Dragon names list should not be empty")
             // All dragon names should be non-blank strings
             assertTrue(dragonNames.all { it.isNotBlank() }, "All dragon names should be non-blank")
+        }
+    }
+
+    @Test
+    fun testRepositorySyncRefreshesWhenFingerprintDiffers() = runTest {
+        val bundledVersion = RepositoryLoader.loadVersion()
+        val bundledFingerprint = RepositoryLoader.loadFingerprint()
+
+        if (bundledVersion != null && bundledFingerprint != null) {
+            val storage = TestFileStorage().apply {
+                writeFile("gamedata/version.txt", bundledVersion)
+                writeFile("gamedata/repository_fingerprint.txt", "test-mismatch-fingerprint")
+                writeFile("gamedata/official/maps/existing.json", "{}")
+            }
+
+            val success = RepositoryLoader.loadAndSaveRepositoryFiles(storage)
+
+            assertTrue(success, "Repository sync should succeed when bundled resources are available")
+            assertEquals(
+                bundledFingerprint,
+                storage.readFile("gamedata/repository_fingerprint.txt"),
+                "Repository fingerprint should be refreshed after sync"
+            )
+            assertNotNull(storage.readFile("gamedata/official/sequence.json"))
+            assertNotNull(storage.readFile("gamedata/official/worldmap.json"))
+        }
+    }
+
+    @Test
+    fun testRepositorySyncSkipsWhenFingerprintMatches() = runTest {
+        val bundledVersion = RepositoryLoader.loadVersion()
+        val bundledFingerprint = RepositoryLoader.loadFingerprint()
+
+        if (bundledVersion != null && bundledFingerprint != null) {
+            val storage = TestFileStorage().apply {
+                writeFile("gamedata/version.txt", bundledVersion)
+                writeFile("gamedata/repository_fingerprint.txt", bundledFingerprint)
+                writeFile("gamedata/official/maps/existing.json", "{}")
+            }
+            val writesBeforeSync = storage.textWriteCount
+
+            val success = RepositoryLoader.loadAndSaveRepositoryFiles(storage)
+
+            assertTrue(success, "Repository sync fast path should still report success")
+            assertEquals(
+                writesBeforeSync,
+                storage.textWriteCount,
+                "Repository sync should skip rewriting files when the fingerprint already matches"
+            )
         }
     }
 }
