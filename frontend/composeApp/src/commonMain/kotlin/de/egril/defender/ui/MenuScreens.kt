@@ -301,7 +301,7 @@ fun MainMenuScreen(
             ) {
                 // Add top spacer on mobile/mobile-web to position banner in the upper third of the screen
                 if (isMobileUI) {
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
                 }
                 
                 // Application banner with logo and styled text
@@ -318,7 +318,7 @@ fun MainMenuScreen(
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(if (isMobileUI) 16.dp else 24.dp))
                 
                 // On mobile, buttons are in a single row; on mobile web, same row layout but smaller; on desktop, in a row/column layout
                 if (isPlatformMobile) {
@@ -431,26 +431,43 @@ fun MainMenuScreen(
                     }
                 }
                 
-                // Add bottom spacer for mobile/mobile-web
                 if (isMobileUI) {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 4.dp)
+                    ) {
+                        TooltipWrapper(text = stringResource(Res.string.commit_info_title)) {
+                            Text(
+                                text = "v${AppBuildInfo.VERSION_NAME} (${AppBuildInfo.COMMIT_HASH})",
+                                style = MaterialTheme.typography.bodySmall,
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.clickable { showCommitInfo = true }
+                            )
+                        }
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }
             
-            // Version info at the bottom - clickable to show commit info
-            TooltipWrapper(
-                text = stringResource(Res.string.commit_info_title),
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(bottom = 8.dp)
-            ) {
-                Text(
-                    text = "v${AppBuildInfo.VERSION_NAME} (${AppBuildInfo.COMMIT_HASH})",
-                    style = MaterialTheme.typography.bodySmall,
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.clickable { showCommitInfo = true }
-                )
+            // Version info at the bottom on desktop - clickable to show commit info
+            if (!isMobileUI) {
+                TooltipWrapper(
+                    text = stringResource(Res.string.commit_info_title),
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(bottom = 8.dp)
+                ) {
+                    Text(
+                        text = "v${AppBuildInfo.VERSION_NAME} (${AppBuildInfo.COMMIT_HASH})",
+                        style = MaterialTheme.typography.bodySmall,
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.clickable { showCommitInfo = true }
+                    )
+                }
             }
             
             // Impressum at bottom center (WASM only, when flag is enabled)
