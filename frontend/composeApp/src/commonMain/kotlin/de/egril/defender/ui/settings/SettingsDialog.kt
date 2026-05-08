@@ -116,7 +116,7 @@ fun SettingsDialog(
                         .verticalScroll(rememberScrollState())
                 ) {
                     when (selectedTab) {
-                        0 -> GeneralTabContent()
+                        0 -> GeneralTabContent(onDismissSettings = onDismiss)
                         1 -> WorldmapTabContent()
                         2 -> LevelTabContent()
                         3 -> SoundTabContent()
@@ -141,7 +141,7 @@ fun SettingsDialog(
  * General tab: Language, Difficulty, Dark mode, Check for updates, Debug options.
  */
 @Composable
-private fun GeneralTabContent() {
+private fun GeneralTabContent(onDismissSettings: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -242,17 +242,17 @@ private fun GeneralTabContent() {
         HorizontalDivider()
 
         // Restore game data section
-        RestoreGameDataSection()
+        RestoreGameDataSection(onDismissSettings = onDismissSettings)
     }
 }
 
 /**
  * Section with a "Restore Game Data" button that clears cached game data and reloads
  * from the bundled repository. On web it reloads the browser; on other platforms it
- * performs a backup-and-restore via RepositoryManager.
+ * performs a backup-and-restore via RepositoryManager and reloads the world map data.
  */
 @Composable
-private fun RestoreGameDataSection() {
+private fun RestoreGameDataSection(onDismissSettings: () -> Unit) {
     val coroutineScope = rememberCoroutineScope()
     var showConfirmDialog by remember { mutableStateOf(false) }
     var showResultDialog by remember { mutableStateOf<Pair<Boolean, String?>?>(null) }
@@ -332,7 +332,13 @@ private fun RestoreGameDataSection() {
             title = { Text(title) },
             text = { SelectionContainer { Text(message) } },
             confirmButton = {
-                Button(onClick = { showResultDialog = null }) {
+                Button(onClick = {
+                    showResultDialog = null
+                    if (resultSuccess) {
+                        RepositoryManager.onDataRestored?.invoke()
+                        onDismissSettings()
+                    }
+                }) {
                     Text(stringResource(Res.string.close))
                 }
             }

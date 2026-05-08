@@ -58,7 +58,7 @@
     <string name="restore_game_data_confirm_message">Esto hará una copia de seguridad de sus datos actuales del juego y restaurará los niveles originales del repositorio. Sus datos actuales se conservarán en una carpeta de respaldo. ¿Está seguro?</string>
     <string name="restore_game_data_confirm_message_web">Esto borrará los datos del juego en caché y recargará la aplicación. El juego se reiniciará con datos actualizados del repositorio. Sus partidas guardadas no se verán afectadas. ¿Está seguro?</string>
     <string name="restore_game_data_success_title">Datos del Juego Restaurados</string>
-    <string name="restore_game_data_success_message">Los datos del juego se han restaurado desde el repositorio. Sus datos anteriores se respaldaron en: %s</string>
+    <string name="restore_game_data_success_message">Los datos del juego se han restaurado desde el repositorio. Sus datos anteriores se respaldaron en: %s\nLos datos de la aplicación han sido recargados.</string>
     <string name="restore_game_data_failure_title">Error al Restaurar</string>
     <string name="restore_game_data_failure_message">No se pudieron restaurar los datos del juego. Por favor, inténtelo de nuevo.</string>
     <string name="game_data">Datos del Juego</string>
