@@ -16,8 +16,8 @@ object RepositoryLoader {
     private suspend fun readRepositoryBytes(path: String): ByteArray {
         return try {
             Res.readBytes("files/repository/$path")
-        } catch (composeException: Exception) {
-            readPlatformRepositoryBytes(path) ?: throw composeException
+        } catch (primaryException: Exception) {
+            readPlatformRepositoryBytes(path) ?: throw primaryException
         }
     }
 
@@ -60,7 +60,12 @@ object RepositoryLoader {
             // Keep this file order stable so identical repository content always produces the same
             // fingerprint across app launches and updates.
             val sequenceBytes = readRepositoryBytes("sequence.json")
-            val sequence = EditorJsonSerializer.deserializeSequence(sequenceBytes.decodeToString()) ?: return null
+            val sequence = EditorJsonSerializer.deserializeSequence(sequenceBytes.decodeToString()) ?: run {
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                    println("Could not deserialize repository sequence while building fingerprint")
+                }
+                return null
+            }
             val builder = RepositoryFingerprintBuilder()
             builder.addFile("sequence.json", sequenceBytes)
 
@@ -73,7 +78,12 @@ object RepositoryLoader {
                 val levelPath = "levels/$levelId.json"
                 val levelBytes = readRepositoryBytes(levelPath)
                 builder.addFile(levelPath, levelBytes)
-                val level = EditorJsonSerializer.deserializeLevel(levelBytes.decodeToString()) ?: return null
+                val level = EditorJsonSerializer.deserializeLevel(levelBytes.decodeToString()) ?: run {
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                        println("Could not deserialize repository level $levelId while building fingerprint")
+                    }
+                    return null
+                }
                 mapIds.add(level.mapId)
             }
 
