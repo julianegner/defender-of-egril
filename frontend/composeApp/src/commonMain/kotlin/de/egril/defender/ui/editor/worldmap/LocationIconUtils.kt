@@ -41,7 +41,8 @@ object LocationIconUtils {
         "fast_and_furious",
         "island",
         "plains",
-        "winding_path"
+        "winding_path",
+        "start"
     )
     
     /**
@@ -97,6 +98,7 @@ object LocationIconUtils {
             "island" -> Res.drawable.location_island
             "plains" -> Res.drawable.location_plains
             "winding_path" -> Res.drawable.location_winding_path
+            "start" -> Res.drawable.location_start
             else -> null // Icon doesn't exist or not in allowed list
         }
     }

@@ -114,6 +114,7 @@ private fun drawableResourceByName(name: String): DrawableResource? = when (name
     "location_river" -> Res.drawable.location_river
     "location_spiral" -> Res.drawable.location_spiral
     "location_woods" -> Res.drawable.location_woods
+    "location_start" -> Res.drawable.location_start
     "gate" -> Res.drawable.gate
     "barricade" -> Res.drawable.barricade
     "trap" -> Res.drawable.trap
