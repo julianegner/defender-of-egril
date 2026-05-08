@@ -54,6 +54,7 @@ object RepositoryLoader {
             update(byteArrayOf(0xFF.toByte()))
         }
 
+        /** Returns the 64-bit FNV-1a hash as a zero-padded 16-character hexadecimal string. */
         fun build(): String = hash.toString(16).padStart(16, '0')
 
         private fun update(bytes: ByteArray) {
@@ -95,7 +96,7 @@ object RepositoryLoader {
                 mapIds.add(level.mapId)
             }
 
-            for (mapId in mapIds.sorted()) {
+            for (mapId in mapIds.sorted()) { // Sorting keeps the fingerprint stable across launches.
                 val mapPath = "maps/$mapId.json"
                 val mapBytes = readRepositoryBytes(mapPath)
                 builder.addFile(mapPath, mapBytes)

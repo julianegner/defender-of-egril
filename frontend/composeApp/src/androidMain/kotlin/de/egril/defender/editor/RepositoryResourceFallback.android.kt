@@ -9,9 +9,11 @@ import de.egril.defender.config.LogConfig
 private const val REPOSITORY_ASSET_PREFIX =
     "composeResources/defender_of_egril.composeapp.generated.resources/files/repository/"
 
+private fun buildAssetPath(path: String): String = "$REPOSITORY_ASSET_PREFIX$path"
+
 actual fun readPlatformRepositoryBytes(path: String): ByteArray? {
     return try {
-        AndroidContextProvider.getContext().assets.open("$REPOSITORY_ASSET_PREFIX$path").use { it.readBytes() }
+        AndroidContextProvider.getContext().assets.open(buildAssetPath(path)).use { it.readBytes() }
     } catch (e: Exception) {
         if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Android AssetManager fallback could not load repository file $path: ${e.message}")

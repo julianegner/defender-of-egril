@@ -160,7 +160,7 @@ class RepositoryLoaderCommonTest {
         if (bundledVersion != null && bundledFingerprint != null) {
             val storage = TestFileStorage().apply {
                 writeFile("gamedata/version.txt", bundledVersion)
-                writeFile("gamedata/repository_fingerprint.txt", "stale-fingerprint")
+                writeFile("gamedata/repository_fingerprint.txt", "test-mismatch-fingerprint")
                 writeFile("gamedata/official/maps/existing.json", "{}")
             }
 
