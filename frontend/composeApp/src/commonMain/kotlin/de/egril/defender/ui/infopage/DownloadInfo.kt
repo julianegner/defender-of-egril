@@ -146,6 +146,8 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}) {
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            PlayStorePrereleaseInfo()
+
             // Android sideloading instructions
             Text(
                 text = stringResource(Res.string.download_info_sideload_title),
@@ -297,4 +299,3 @@ private fun GithubReleaseAsset.fileType(): String = when {
     name.endsWith(".ipa", ignoreCase = true) -> "IPA"
     else -> name.substringAfterLast(".").uppercase().ifEmpty { "File" }
 }
-

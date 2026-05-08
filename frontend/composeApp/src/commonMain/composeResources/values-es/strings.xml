@@ -1721,6 +1721,12 @@
     <string name="download_info_error">No se pudieron cargar los enlaces de descarga desde GitHub. Visita la página de versiones para encontrar todas las descargas.</string>
     <string name="download_info_goto_installation">Ver instrucciones de instalación</string>
     <string name="download_info_latest_version">Última versión: %1$s</string>
+    <string name="play_store_test_info_title">Prueba de prelanzamiento en Google Play</string>
+    <string name="play_store_test_info_register_step">Para obtener el juego desde Google Play Store, primero tienes que registrarte en la lista de correo de Google.</string>
+    <string name="play_store_test_info_mailing_list_label">Lista de correo de Google:</string>
+    <string name="play_store_test_info_after_registration">Después de hacerlo (!), usa este enlace:</string>
+    <string name="play_store_test_info_play_store_label">Enlace de Google Play Store:</string>
+    <string name="play_store_test_info_search_hint">O busca "de.egril.defender" en Play Store.</string>
     <string name="new_version_available_title">Nueva versión disponible</string>
     <string name="new_version_available_message">La versión %1$s está disponible para descargar.</string>
     <string name="new_version_go_to_releases">Ir a la descarga</string>
