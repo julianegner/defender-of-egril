@@ -58,7 +58,7 @@
     <string name="restore_game_data_confirm_message">Questo eseguirà il backup dei dati di gioco correnti e ripristinerà i livelli originali dal repository. I dati correnti saranno conservati in una cartella di backup. Sei sicuro?</string>
     <string name="restore_game_data_confirm_message_web">Questo cancellerà i dati di gioco memorizzati nella cache e ricaricherà l\'app. Il gioco si riavvierà con dati aggiornati dal repository. I tuoi salvataggi non saranno influenzati. Sei sicuro?</string>
     <string name="restore_game_data_success_title">Dati di Gioco Ripristinati</string>
-    <string name="restore_game_data_success_message">I dati di gioco sono stati ripristinati dal repository. I dati precedenti sono stati salvati in: %s</string>
+    <string name="restore_game_data_success_message">I dati di gioco sono stati ripristinati dal repository. I dati precedenti sono stati salvati in: %s\nI dati dell\'app sono stati ricaricati.</string>
     <string name="restore_game_data_failure_title">Ripristino Fallito</string>
     <string name="restore_game_data_failure_message">Impossibile ripristinare i dati di gioco. Riprova.</string>
     <string name="game_data">Dati di Gioco</string>

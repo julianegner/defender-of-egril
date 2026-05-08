@@ -58,7 +58,7 @@
     <string name="restore_game_data_confirm_message">Dies wird Ihre aktuellen Spieldaten sichern und die ursprünglichen Level aus dem Repository wiederherstellen. Ihre aktuellen Daten werden in einem Backup-Ordner gespeichert. Sind Sie sicher?</string>
     <string name="restore_game_data_confirm_message_web">Dies löscht die zwischengespeicherten Spieldaten und lädt die App neu. Das Spiel startet neu mit aktuellen Daten aus dem Repository. Ihre Spielstände sind nicht betroffen. Sind Sie sicher?</string>
     <string name="restore_game_data_success_title">Spieldaten wiederhergestellt</string>
-    <string name="restore_game_data_success_message">Spieldaten wurden aus dem Repository wiederhergestellt. Ihre vorherigen Daten wurden gesichert in: %s</string>
+    <string name="restore_game_data_success_message">Spieldaten wurden aus dem Repository wiederhergestellt. Ihre vorherigen Daten wurden gesichert in: %s\nDie App-Daten wurden neu geladen.</string>
     <string name="restore_game_data_failure_title">Wiederherstellung fehlgeschlagen</string>
     <string name="restore_game_data_failure_message">Spieldaten konnten nicht wiederhergestellt werden. Bitte versuchen Sie es erneut.</string>
     <string name="game_data">Spieldaten</string>

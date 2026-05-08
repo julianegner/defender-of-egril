@@ -10,6 +10,12 @@ object RepositoryManager {
     private val fileStorage = getFileStorage()
     private const val GAMEDATA_DIR = "gamedata"
     private const val GAMEDATA_BACKUP_PREFIX = "gamedata-"
+
+    /**
+     * Callback invoked after a successful restore from repository on non-WASM platforms.
+     * Set by GameViewModel to reload world map data after the user acknowledges the result.
+     */
+    var onDataRestored: (() -> Unit)? = null
     
     /**
      * Restore game data from repository.

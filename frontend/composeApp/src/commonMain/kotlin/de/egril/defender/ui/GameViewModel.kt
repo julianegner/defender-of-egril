@@ -222,6 +222,9 @@ class GameViewModel {
         // and the user is authenticated.
         de.egril.defender.ui.settings.AppSettings.onPersist = { uploadSettingsToBackend() }
 
+        // Reload world map data after a successful restore from repository.
+        de.egril.defender.editor.RepositoryManager.onDataRestored = { reloadWorldMap() }
+
         if (isPlatformWasm) {
             // On WASM, repository files are loaded asynchronously. Initialize with progress
             // tracking and only start the world map after all data is ready.
