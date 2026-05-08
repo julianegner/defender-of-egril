@@ -17,7 +17,15 @@ object RepositoryLoader {
         return try {
             Res.readBytes("files/repository/$path")
         } catch (primaryException: Exception) {
-            readPlatformRepositoryBytes(path) ?: throw primaryException
+            val fallbackBytes = readPlatformRepositoryBytes(path)
+            if (fallbackBytes != null) {
+                fallbackBytes
+            } else {
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                    println("Platform repository fallback could not load $path: ${primaryException.message}")
+                }
+                throw primaryException
+            }
         }
     }
 

@@ -153,7 +153,7 @@ class RepositoryLoaderCommonTest {
     }
 
     @Test
-    fun testLoadAndSaveRepositoryFilesRefreshesWhenFingerprintDiffers() = runTest {
+    fun testRepositorySyncRefreshesWhenFingerprintDiffers() = runTest {
         val bundledVersion = RepositoryLoader.loadVersion()
         val bundledFingerprint = RepositoryLoader.loadFingerprint()
 
@@ -178,7 +178,7 @@ class RepositoryLoaderCommonTest {
     }
 
     @Test
-    fun testLoadAndSaveRepositoryFilesSkipsWhenFingerprintMatches() = runTest {
+    fun testRepositorySyncSkipsWhenFingerprintMatches() = runTest {
         val bundledVersion = RepositoryLoader.loadVersion()
         val bundledFingerprint = RepositoryLoader.loadFingerprint()
 

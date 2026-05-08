@@ -1,6 +1,7 @@
 package de.egril.defender.editor
 
 import de.egril.defender.AndroidContextProvider
+import de.egril.defender.config.LogConfig
 
 // Must match the Compose Multiplatform asset-pack path configured for this module's generated
 // resources package in frontend/assetPack/build.gradle.kts and the compose-app CMP package wiring
@@ -11,7 +12,10 @@ private const val REPOSITORY_ASSET_PREFIX =
 actual fun readPlatformRepositoryBytes(path: String): ByteArray? {
     return try {
         AndroidContextProvider.getContext().assets.open("$REPOSITORY_ASSET_PREFIX$path").use { it.readBytes() }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("Android AssetManager fallback could not load repository file $path: ${e.message}")
+        }
         null
     }
 }
