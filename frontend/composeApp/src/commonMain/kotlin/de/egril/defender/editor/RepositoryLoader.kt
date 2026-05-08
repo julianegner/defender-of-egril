@@ -28,6 +28,7 @@ object RepositoryLoader {
     }
 
     private class RepositoryFingerprintBuilder {
+        // Standard FNV-1a 64-bit offset basis.
         private var hash = 1469598103934665603UL
 
         fun addFile(path: String, bytes: ByteArray) {
@@ -41,6 +42,7 @@ object RepositoryLoader {
 
         private fun update(bytes: ByteArray) {
             for (byte in bytes) {
+                // Standard FNV-1a 64-bit prime.
                 hash = (hash xor byte.toUByte().toULong()) * 1099511628211UL
             }
         }

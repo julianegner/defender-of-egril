@@ -17,9 +17,12 @@ class RepositoryLoaderCommonTest {
     private class TestFileStorage : FileStorage {
         private val textFiles = mutableMapOf<String, String>()
         private val binaryFiles = mutableMapOf<String, ByteArray>()
+        var textWriteCount = 0
+            private set
 
         override fun writeFile(path: String, content: String) {
             textFiles[path] = content
+            textWriteCount++
         }
 
         override fun readFile(path: String): String? = textFiles[path]
@@ -167,6 +170,30 @@ class RepositoryLoaderCommonTest {
             )
             assertNotNull(storage.readFile("gamedata/official/sequence.json"))
             assertNotNull(storage.readFile("gamedata/official/worldmap.json"))
+        }
+    }
+
+    @Test
+    fun testLoadAndSaveRepositoryFilesSkipsWhenFingerprintMatches() = runTest {
+        val bundledVersion = RepositoryLoader.loadVersion()
+        val bundledFingerprint = RepositoryLoader.loadFingerprint()
+
+        if (bundledVersion != null && bundledFingerprint != null) {
+            val storage = TestFileStorage().apply {
+                writeFile("gamedata/version.txt", bundledVersion)
+                writeFile("gamedata/repository_fingerprint.txt", bundledFingerprint)
+                writeFile("gamedata/official/maps/existing.json", "{}")
+            }
+            val writesBeforeSync = storage.textWriteCount
+
+            val success = RepositoryLoader.loadAndSaveRepositoryFiles(storage)
+
+            assertTrue(success, "Repository sync fast path should still report success")
+            assertEquals(
+                writesBeforeSync,
+                storage.textWriteCount,
+                "Repository sync should skip rewriting files when the fingerprint already matches"
+            )
         }
     }
 }
