@@ -984,7 +984,10 @@ class GameViewModel {
             val incomeMultiplier = playerStats.getIncomeMultiplier()
             val constructionLevel = playerStats.constructionAbility
 
-            // Use coins and mana from the handoff
+            // Use coins and mana from the handoff.
+            // If the previous level had no mana (maxMana == 0), fall back to the player's current
+            // mana capacity so the connected level still functions correctly (e.g., a new campaign
+            // stage that introduces mana for the first time).
             val startCoins = handoff.coins
             val startMana = handoff.currentMana.coerceAtMost(handoff.maxMana)
             val maxMana = handoff.maxMana.takeIf { it > 0 } ?: playerStats.getMaxMana()

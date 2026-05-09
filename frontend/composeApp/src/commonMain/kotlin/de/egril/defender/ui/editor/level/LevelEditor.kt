@@ -871,7 +871,8 @@ fun LevelEditorView(
                     waypoints = waypointsState.toList(),
                     testingOnly = testingOnly,
                     allowAutoAttack = allowAutoAttack,
-                    connectedToPreviousLevel = connectedToPreviousLevel
+                    connectedToPreviousLevel = connectedToPreviousLevel,
+                    initialData = initialDataState
                 )
                 onSave(newLevel)
                 showSaveAsDialog = false

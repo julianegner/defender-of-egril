@@ -754,6 +754,10 @@ object SaveJsonSerializer {
             val nextRaftId = try { JsonUtils.extractValue(dataJson, "nextRaftId").toInt() } catch (e: Exception) { 1 }
             val mapId = try { JsonUtils.extractValue(dataJson, "mapId") } catch (e: Exception) { "" }
 
+            // Parse array fields using substringBefore("],") pattern.
+            // This requires each array to be followed by a comma (not be the last JSON field).
+            // The serializer ensures this by placing "version": 1 after all arrays.
+            
             // Parse defenders
             val defenders = mutableListOf<SavedDefender>()
             val defendersSection = dataJson.substringAfter("\"defenders\": [").substringBefore("],")
