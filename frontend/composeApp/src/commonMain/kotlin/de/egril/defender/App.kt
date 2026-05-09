@@ -533,7 +533,7 @@ fun App() {
                     xpEarned = screen.xpEarned,
                     onRestart = { viewModel.restartLevel() },
                     onBackToMap = { viewModel.navigateToWorldMap() },
-                    onNextLevel = if (screen.won && !screen.isLastLevel && screen.nextLevelId != null && screen.nextLevelName != null) {
+                    onNextLevel = if (screen.nextLevelId != null && screen.nextLevelName != null) {
                         { viewModel.navigateToNextLevel(screen.nextLevelId, screen.nextLevelName) }
                     } else {
                         null

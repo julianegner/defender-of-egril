@@ -1326,19 +1326,18 @@ class GameViewModel {
         
         val isLastLevel = _worldLevels.value.firstOrNull { it.level.id == levelId }?.level?.editorLevelId == OfficialContent.FINAL_LEVEL_ID
         
+        // Find the current level's index once; reused for both next-level computation and status update below
+        val currentLevelIndex = _worldLevels.value.indexOfFirst { it.level.id == levelId }
+        
         // Compute next level: the level immediately following the current one in the world levels list (only when won and not the final level)
-        val nextLevel: WorldLevel? = if (won && !isLastLevel) {
-            val currentIndex = _worldLevels.value.indexOfFirst { it.level.id == levelId }
-            if (currentIndex >= 0 && currentIndex + 1 < _worldLevels.value.size) {
-                _worldLevels.value[currentIndex + 1]
-            } else null
+        val nextLevel: WorldLevel? = if (won && !isLastLevel && currentLevelIndex >= 0 && currentLevelIndex + 1 < _worldLevels.value.size) {
+            _worldLevels.value[currentLevelIndex + 1]
         } else null
         
         if (won) {
             val updatedLevels = _worldLevels.value.toMutableList()
-            val currentIndex = updatedLevels.indexOfFirst { it.level.id == levelId }
-            if (currentIndex >= 0) {
-                updatedLevels[currentIndex] = updatedLevels[currentIndex].copy(status = LevelStatus.WON)
+            if (currentLevelIndex >= 0) {
+                updatedLevels[currentLevelIndex] = updatedLevels[currentLevelIndex].copy(status = LevelStatus.WON)
                 
                 // Get the set of all won level IDs (including the just-won level)
                 val wonLevelIds = updatedLevels
