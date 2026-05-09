@@ -1038,8 +1038,18 @@
     <string name="show_testing_levels">Test-Level anzeigen</string>
     <string name="test_level">Test-Level</string>
     <string name="allow_auto_attack">Auto-Angriff erlauben</string>
+    <string name="connected_to_previous_level">Mit vorherigem Level verbinden</string>
     <string name="auto_attack_info_title">Auto-Angriff-Funktion</string>
     <string name="auto_attack_info_message">Sie können nun die Auto-Angriff-Funktion verwenden. Wenn Sie "Zug beenden" wählen und noch verwendbare Aktionspunkte übrig sind, bietet der Dialog die Option "Auto-Angriff und Zug beenden". Dann greifen Türme mit verbleibenden Aktionspunkten automatisch Feinde an. Greift Feinde nach Priorität an (zuerst Bosse, dann spezielle Feinde). Wenn noch Aktionen übrig sind (Minen, Fallen, Säureangriffe ohne Feind in Reichweite), erhalten Sie eine Nachricht, welche Art von Aktion noch verwendbar ist, andernfalls endet der Zug.</string>
+
+    <!-- Level Handoff (verbundene Level) -->
+    <string name="level_handoff_title">Wie möchten Sie beginnen?</string>
+    <string name="level_handoff_continue">Vom vorherigen Level fortfahren</string>
+    <string name="level_handoff_fresh_start">Neu beginnen</string>
+    <string name="level_handoff_towers">Türme: %1$s</string>
+    <string name="level_handoff_barricades">Barrikaden: %1$s</string>
+    <string name="level_handoff_traps">Fallen: %1$s</string>
+    <string name="level_handoff_no_towers">Keine Türme</string>
 
     <!-- Platform Information Dialog -->
     <string name="platform_information_title">Plattforminformationen</string>

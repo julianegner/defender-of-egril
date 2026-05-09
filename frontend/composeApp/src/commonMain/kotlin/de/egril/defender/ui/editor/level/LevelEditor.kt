@@ -384,6 +384,7 @@ fun LevelEditorView(
     var initialDataState by remember { mutableStateOf(level.getEffectiveInitialData()) }
     var testingOnly by remember { mutableStateOf(level.testingOnly) }
     var allowAutoAttack by remember { mutableStateOf(level.allowAutoAttack) }
+    var connectedToPreviousLevel by remember { mutableStateOf(level.connectedToPreviousLevel) }
     
     // Update state when level changes (e.g., after reload from disk)
     LaunchedEffect(level.id, level.initialData, level.hashCode()) {
@@ -598,6 +599,8 @@ fun LevelEditorView(
                     onTestingOnlyChange = { testingOnly = it },
                     allowAutoAttack = allowAutoAttack,
                     onAllowAutoAttackChange = { allowAutoAttack = it },
+                    connectedToPreviousLevel = connectedToPreviousLevel,
+                    onConnectedToPreviousLevelChange = { connectedToPreviousLevel = it },
                     isOfficial = level.isOfficial
                 )
                 1 -> EnemySpawnsTab(
@@ -656,6 +659,7 @@ fun LevelEditorView(
                             waypoints = waypointsState.toList(),
                             testingOnly = testingOnly,
                             allowAutoAttack = allowAutoAttack,
+                            connectedToPreviousLevel = connectedToPreviousLevel,
                             initialData = initialDataState
                         )
                         
@@ -865,7 +869,9 @@ fun LevelEditorView(
                     enemySpawns = enemySpawns.toList(),
                     availableTowers = availableTowersState,
                     waypoints = waypointsState.toList(),
-                    testingOnly = testingOnly
+                    testingOnly = testingOnly,
+                    allowAutoAttack = allowAutoAttack,
+                    connectedToPreviousLevel = connectedToPreviousLevel
                 )
                 onSave(newLevel)
                 showSaveAsDialog = false

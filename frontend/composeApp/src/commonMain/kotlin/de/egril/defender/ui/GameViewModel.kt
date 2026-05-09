@@ -124,6 +124,12 @@ class GameViewModel {
     private val _worldMapConflict = MutableStateFlow<WorldMapConflict?>(null)
     val worldMapConflict: StateFlow<WorldMapConflict?> = _worldMapConflict.asStateFlow()
     
+    // Level handoff state (connected levels) - shows dialog when starting a connected level
+    private val _pendingLevelHandoff = MutableStateFlow<de.egril.defender.save.LevelHandoffSave?>(null)
+    val pendingLevelHandoff: StateFlow<de.egril.defender.save.LevelHandoffSave?> = _pendingLevelHandoff.asStateFlow()
+    // The level ID to start when the handoff dialog is resolved
+    private var pendingLevelIdForHandoff: Int? = null
+    
     // Special actions remaining after auto-attack
     private val _specialActionsRemaining = MutableStateFlow<List<DefenderType>>(emptyList())
     val specialActionsRemaining: StateFlow<List<DefenderType>> = _specialActionsRemaining.asStateFlow()
@@ -791,6 +797,60 @@ class GameViewModel {
         _pendingGameMessage.value = null
         val worldLevel = _worldLevels.value.find { it.level.id == levelId }
         if (worldLevel != null && worldLevel.status != LevelStatus.LOCKED) {
+            val level = worldLevel.level
+            val editorLevelId = level.editorLevelId
+
+            // Check if this level is connected to the previous level and a handoff exists
+            if (level.connectedToPreviousLevel && editorLevelId != null &&
+                de.egril.defender.save.SaveFileStorage.hasLevelHandoff(editorLevelId)
+            ) {
+                val handoff = de.egril.defender.save.SaveFileStorage.loadLevelHandoff(editorLevelId)
+                if (handoff != null && handoff.mapId == level.mapId) {
+                    // Show the handoff choice dialog
+                    _pendingLevelHandoff.value = handoff
+                    pendingLevelIdForHandoff = levelId
+                    return
+                }
+            }
+
+            // No handoff – start the level normally
+            startLevelInternal(levelId)
+        }
+    }
+
+    /** Dismiss the level handoff dialog without starting the level */
+    fun dismissLevelHandoff() {
+        _pendingLevelHandoff.value = null
+        pendingLevelIdForHandoff = null
+    }
+
+    /** Start the pending level fresh (ignore handoff state) */
+    fun startLevelFresh() {
+        val levelId = pendingLevelIdForHandoff ?: return
+        val editorLevelId = _worldLevels.value.find { it.level.id == levelId }?.level?.editorLevelId
+        _pendingLevelHandoff.value = null
+        pendingLevelIdForHandoff = null
+        // Delete the handoff so it doesn't show up again
+        if (editorLevelId != null) {
+            de.egril.defender.save.SaveFileStorage.deleteLevelHandoff(editorLevelId)
+        }
+        startLevelInternal(levelId)
+    }
+
+    /** Start the pending level using the handoff state (carry-over from previous level) */
+    fun startLevelWithHandoff() {
+        val levelId = pendingLevelIdForHandoff ?: return
+        val handoff = _pendingLevelHandoff.value ?: return
+        _pendingLevelHandoff.value = null
+        pendingLevelIdForHandoff = null
+        startLevelInternalWithHandoff(levelId, handoff)
+    }
+
+    private fun startLevelInternal(levelId: Int) {
+        // Clear any pending message from a previous level
+        _pendingGameMessage.value = null
+        val worldLevel = _worldLevels.value.find { it.level.id == levelId }
+        if (worldLevel != null && worldLevel.status != LevelStatus.LOCKED) {
             val difficulty = AppSettings.difficulty.value
             val level = worldLevel.level
             val playerStats = _currentPlayer.value?.abilities ?: PlayerAbilities()
@@ -893,6 +953,166 @@ class GameViewModel {
             }
             
             // Start time tracking for reminders
+            startTimeTracking()
+        }
+    }
+
+    /**
+     * Start a level using the carry-over state from the previous connected level.
+     * Restores defenders, barricades, traps, rafts, coins, and mana from [handoff].
+     */
+    private fun startLevelInternalWithHandoff(levelId: Int, handoff: de.egril.defender.save.LevelHandoffSave) {
+        _pendingGameMessage.value = null
+        val worldLevel = _worldLevels.value.find { it.level.id == levelId }
+        if (worldLevel != null && worldLevel.status != LevelStatus.LOCKED) {
+            val difficulty = AppSettings.difficulty.value
+            val level = worldLevel.level
+            val playerStats = _currentPlayer.value?.abilities ?: PlayerAbilities()
+
+            // Apply difficulty modifiers to spawn plan
+            val modifiedSpawnPlan = if (level.directSpawnPlan != null) {
+                DifficultyModifiers.applySpawnPlanModifier(level.directSpawnPlan, difficulty)
+            } else {
+                val basePlan = generateSpawnPlan(level.attackerWaves)
+                DifficultyModifiers.applySpawnPlanModifier(basePlan, difficulty)
+            }
+
+            val baseHealth = DifficultyModifiers.applyHealthPointsModifier(level.healthPoints, difficulty)
+            val bonusHealth = playerStats.getBonusHealth()
+            val totalHealth = baseHealth + bonusHealth
+
+            val incomeMultiplier = playerStats.getIncomeMultiplier()
+            val constructionLevel = playerStats.constructionAbility
+
+            // Use coins and mana from the handoff
+            val startCoins = handoff.coins
+            val startMana = handoff.currentMana.coerceAtMost(handoff.maxMana)
+            val maxMana = handoff.maxMana.takeIf { it > 0 } ?: playerStats.getMaxMana()
+
+            val newGameState = GameState(
+                level = level,
+                difficulty = difficulty,
+                coins = mutableStateOf(startCoins),
+                healthPoints = mutableStateOf(totalHealth),
+                spawnPlan = modifiedSpawnPlan,
+                maxMana = mutableStateOf(maxMana),
+                currentMana = mutableStateOf(startMana),
+                incomeMultiplier = incomeMultiplier,
+                constructionLevel = constructionLevel
+            )
+
+            // Restore defenders from handoff (reset actionsRemaining; build time is already 0)
+            newGameState.nextDefenderId.value = handoff.nextDefenderId
+            newGameState.nextRaftId.value = handoff.nextRaftId
+            for (savedDefender in handoff.defenders) {
+                val defender = de.egril.defender.model.Defender(
+                    id = savedDefender.id,
+                    type = savedDefender.type,
+                    position = mutableStateOf(savedDefender.position),
+                    placedOnTurn = savedDefender.placedOnTurn,
+                    dragonName = savedDefender.dragonName
+                )
+                defender.level.value = savedDefender.level
+                defender.buildTimeRemaining.value = 0  // Always fully built
+                defender.actionsRemaining.value = savedDefender.type.actionsPerTurn
+                defender.raftId.value = savedDefender.raftId
+                defender.towerBaseBarricadeId.value = savedDefender.towerBaseBarricadeId
+                newGameState.defenders.add(defender)
+            }
+
+            // Restore rafts
+            for (savedRaft in handoff.rafts) {
+                val raft = de.egril.defender.model.Raft(
+                    id = savedRaft.id,
+                    defenderId = savedRaft.defenderId,
+                    currentPosition = mutableStateOf(savedRaft.position)
+                )
+                newGameState.rafts.add(raft)
+            }
+
+            // Restore barricades
+            for (savedBarricade in handoff.barricades) {
+                val barricade = de.egril.defender.model.Barricade(
+                    id = savedBarricade.id,
+                    position = savedBarricade.position,
+                    healthPoints = mutableStateOf(savedBarricade.healthPoints),
+                    defenderId = savedBarricade.defenderId,
+                    supportedTowerId = mutableStateOf(savedBarricade.supportedTowerId)
+                )
+                newGameState.barricades.add(barricade)
+            }
+
+            // Restore traps
+            for (savedTrap in handoff.traps) {
+                val trapType = try {
+                    de.egril.defender.model.TrapType.valueOf(savedTrap.type)
+                } catch (e: Exception) {
+                    de.egril.defender.model.TrapType.DWARVEN
+                }
+                val trap = de.egril.defender.model.Trap(
+                    position = savedTrap.position,
+                    damage = savedTrap.damage,
+                    defenderId = savedTrap.defenderId,
+                    type = trapType
+                )
+                newGameState.traps.add(trap)
+            }
+
+            // Also initialize any pre-placed elements from the level definition
+            newGameState.initializePrePlacedElements()
+
+            // Delete the handoff file now that it has been used
+            level.editorLevelId?.let { de.egril.defender.save.SaveFileStorage.deleteLevelHandoff(it) }
+
+            _gameState.value = newGameState
+            gameEngine = GameEngine(newGameState)
+            _currentScreen.value = Screen.GamePlay(levelId)
+
+            val editorLevelId = level.editorLevelId
+            if (editorLevelId != null && editorLevelId != "welcome_to_defender_of_egril") {
+                _pendingGameMessage.value = de.egril.defender.model.GameMessage(
+                    type = de.egril.defender.model.GameMessageType.STORY_INTRO,
+                    name = editorLevelId
+                )
+            }
+
+            initialGameStateSnapshot = createGameStateSnapshot(newGameState)
+            lastSaveSnapshot = initialGameStateSnapshot
+
+            de.egril.defender.analytics.reportEvent(de.egril.defender.analytics.GameEventType.LEVEL_STARTED, level.name)
+
+            val playerId = _currentPlayer.value?.id
+            if (playerId != null) {
+                achievementManager = de.egril.defender.game.AchievementManager(playerId).apply {
+                    onAchievementEarned = { achievement ->
+                        _newAchievement.value = achievement
+                        refreshCurrentPlayer()
+                    }
+                    startLevel(newGameState.healthPoints.value)
+                }
+                gameEngine?.setCombatResultCallback { result ->
+                    result.killedEnemyTypes.forEach { enemyType ->
+                        achievementManager?.onEnemyKilled(enemyType, result.killsThisAttack)
+                    }
+                }
+                gameEngine?.setRaftLossCallback { reason ->
+                    when (reason) {
+                        de.egril.defender.game.RaftLossReason.MAP_EDGE ->
+                            achievementManager?.onRaftLostToMapEdge()
+                        de.egril.defender.game.RaftLossReason.MAELSTROM ->
+                            achievementManager?.onRaftLostToMaelstrom()
+                        de.egril.defender.game.RaftLossReason.OTHER -> {}
+                    }
+                }
+                gameEngine?.setDragonLevelChangeCallback { oldLevel, newLevel ->
+                    if (newLevel > oldLevel) {
+                        achievementManager?.onIncreaseDragonLevel()
+                    } else if (newLevel < oldLevel) {
+                        achievementManager?.onReduceDragonLevel()
+                    }
+                }
+            }
+
             startTimeTracking()
         }
     }
@@ -1338,6 +1558,13 @@ class GameViewModel {
                 _worldLevels.value = updatedLevels
                 // Save world map status
                 saveWorldMapStatus()
+
+                // Save level handoff for any connected level on the same map
+                val wonEditorLevelId = updatedLevels[currentIndex].level.editorLevelId
+                val wonMapId = updatedLevels[currentIndex].level.mapId
+                if (wonEditorLevelId != null && wonMapId != null) {
+                    saveHandoffForConnectedLevels(wonEditorLevelId, wonMapId, updatedLevels)
+                }
             }
             // Sync updated abilities (XP awarded) and level progress to backend
             uploadUserDataToBackend()
@@ -1365,6 +1592,87 @@ class GameViewModel {
             ?: (_currentScreen.value as? Screen.GamePlay)?.levelId
             ?: return
         startLevel(levelId)
+    }
+
+    /**
+     * Saves the current game state as a level handoff for any connected level
+     * on the same map that lists [wonEditorLevelId] as a prerequisite.
+     */
+    private fun saveHandoffForConnectedLevels(
+        wonEditorLevelId: String,
+        wonMapId: String,
+        allLevels: List<WorldLevel>
+    ) {
+        val gameState = _gameState.value ?: return
+
+        // Find all connected levels that use the same map and have the won level as a prerequisite
+        val connectedLevels = allLevels.filter { wl ->
+            wl.level.connectedToPreviousLevel &&
+                wl.level.mapId == wonMapId &&
+                wl.level.editorLevelId != null &&
+                wl.level.editorLevelId != wonEditorLevelId
+        }
+
+        if (connectedLevels.isEmpty()) return
+
+        // Build handoff from current game state
+        val handoffDefenders = gameState.defenders.map { d ->
+            de.egril.defender.save.SavedDefender(
+                id = d.id,
+                type = d.type,
+                position = d.position.value,
+                level = d.level.value,
+                buildTimeRemaining = 0,  // Always fully built on carry-over
+                placedOnTurn = d.placedOnTurn,
+                actionsRemaining = d.actionsRemaining.value,
+                dragonName = d.dragonName,
+                raftId = d.raftId.value,
+                towerBaseBarricadeId = d.towerBaseBarricadeId.value
+            )
+        }
+        val handoffBarricades = gameState.barricades.map { b ->
+            de.egril.defender.save.SavedBarricade(
+                position = b.position,
+                healthPoints = b.healthPoints.value,
+                defenderId = b.defenderId,
+                id = b.id,
+                supportedTowerId = b.supportedTowerId.value
+            )
+        }
+        val handoffTraps = gameState.traps.map { t ->
+            de.egril.defender.save.SavedTrap(
+                position = t.position,
+                damage = t.damage,
+                defenderId = t.defenderId,
+                type = t.type.name
+            )
+        }
+        val handoffRafts = gameState.rafts.map { r ->
+            de.egril.defender.save.SavedRaft(
+                id = r.id,
+                defenderId = r.defenderId,
+                position = r.currentPosition.value
+            )
+        }
+
+        for (connectedLevel in connectedLevels) {
+            val toEditorId = connectedLevel.level.editorLevelId ?: continue
+            val handoff = de.egril.defender.save.LevelHandoffSave(
+                fromLevelEditorId = wonEditorLevelId,
+                toLevelEditorId = toEditorId,
+                coins = gameState.coins.value,
+                currentMana = gameState.currentMana.value,
+                maxMana = gameState.maxMana.value,
+                defenders = handoffDefenders,
+                barricades = handoffBarricades,
+                traps = handoffTraps,
+                rafts = handoffRafts,
+                nextDefenderId = gameState.nextDefenderId.value,
+                nextRaftId = gameState.nextRaftId.value,
+                mapId = wonMapId
+            )
+            de.egril.defender.save.SaveFileStorage.saveLevelHandoff(handoff)
+        }
     }
 
     // -------------------------------------------------------------------------

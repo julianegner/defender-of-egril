@@ -1427,6 +1427,7 @@ object EditorStorage {
             isCommunity = editorLevel.isCommunity,  // Propagate community flag so UI can filter correctly
             riverTiles = map.getRiverTilesMap(),  // Add river tiles with flow direction and speed
             allowAutoAttack = editorLevel.allowAutoAttack,  // Allow auto-attack option
+            connectedToPreviousLevel = editorLevel.connectedToPreviousLevel,  // Connected level flag
             targetInfoMap = gameTargetInfoMap,  // Named / SINGLE_HIT target metadata
             initialData = editorLevel.getEffectiveInitialData()  // Pre-placed elements using new structure
         )

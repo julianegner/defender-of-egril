@@ -305,6 +305,7 @@ data class EditorLevel(
     val requiredPrerequisiteCount: Int? = null,  // Number of prerequisites needed (null = all required)
     val testingOnly: Boolean = false,  // If true, level is only shown when "show testing levels" setting is enabled
     val allowAutoAttack: Boolean = false,  // If true, shows auto-attack button in end turn confirmation dialog
+    val connectedToPreviousLevel: Boolean = false,  // If true, player can carry over towers/coins from the previous level (must be on the same map)
     val isOfficial: Boolean = false,  // True if level is from official repository (read-only in editor)
     val author: String = "",  // Optional author name
     val isCommunity: Boolean = false,  // True if level is a community-shared level from the backend

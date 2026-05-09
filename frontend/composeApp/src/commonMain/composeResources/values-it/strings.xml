@@ -1039,8 +1039,18 @@
     <string name="show_testing_levels">Mostra livelli di test</string>
     <string name="test_level">Livello di test</string>
     <string name="allow_auto_attack">Consenti Attacco Automatico</string>
+    <string name="connected_to_previous_level">Collegato al livello precedente</string>
     <string name="auto_attack_info_title">Funzione Attacco Automatico</string>
     <string name="auto_attack_info_message">Ora puoi usare la funzione Attacco Auto. Quando selezioni "Termina Turno" e ci sono punti azione utilizzabili rimasti, il dialogo offre l'opzione "Attacco Auto e Termina Turno". Quindi, le torri con punti azione rimasti attaccano automaticamente i nemici. Colpisce i nemici per priorità (prima i boss, poi i nemici speciali). Se rimangono azioni (miniere, trappole, attacchi acidi senza nemici a portata), ricevi un messaggio che indica quale tipo di azione è ancora utilizzabile, altrimenti il turno termina.</string>
+
+    <!-- Level Handoff (livelli collegati) -->
+    <string name="level_handoff_title">Come vuoi iniziare?</string>
+    <string name="level_handoff_continue">Continua dal livello precedente</string>
+    <string name="level_handoff_fresh_start">Ricomincia da capo</string>
+    <string name="level_handoff_towers">Torri: %1$s</string>
+    <string name="level_handoff_barricades">Barricate: %1$s</string>
+    <string name="level_handoff_traps">Trappole: %1$s</string>
+    <string name="level_handoff_no_towers">Nessuna torre</string>
 
     <!-- Platform Information Dialog -->
     <string name="platform_information_title">Informazioni sulla piattaforma</string>

@@ -285,6 +285,23 @@ fun App() {
                 onCancel = { viewModel.cancelWorldMapConflict() }
             )
         }
+
+        // Level handoff dialog (connected levels)
+        val pendingLevelHandoff by viewModel.pendingLevelHandoff.collectAsState()
+        pendingLevelHandoff?.let { handoff ->
+            val handoffWorldLevel = worldLevels.find { it.level.editorLevelId == handoff.toLevelEditorId }
+            if (handoffWorldLevel != null) {
+                de.egril.defender.ui.worldmap.LevelHandoffDialog(
+                    worldLevel = handoffWorldLevel,
+                    handoff = handoff,
+                    onStartFresh = { viewModel.startLevelFresh() },
+                    onStartWithHandoff = { viewModel.startLevelWithHandoff() },
+                    onDismiss = { viewModel.dismissLevelHandoff() }
+                )
+            } else {
+                viewModel.dismissLevelHandoff()
+            }
+        }
         
         // Achievement notification dialog
         AchievementNotificationDialog(
