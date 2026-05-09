@@ -538,6 +538,7 @@ fun LevelCompleteScreen(
     xpEarned: Int = 0,
     onRestart: () -> Unit,
     onBackToMap: () -> Unit,
+    onNextLevel: (() -> Unit)? = null,
     onShowFinalCredits: (() -> Unit)? = null,
     isDemoMode: Boolean = false,
     onStopDemoMode: (() -> Unit)? = null
@@ -692,6 +693,15 @@ fun LevelCompleteScreen(
                         modifier = Modifier.width(150.dp).height(50.dp)
                     ) {
                         Text(stringResource(Res.string.world_map))
+                    }
+                    
+                    if (won && onNextLevel != null) {
+                        Button(
+                            onClick = onNextLevel,
+                            modifier = Modifier.width(150.dp).height(50.dp)
+                        ) {
+                            Text(stringResource(Res.string.next_level))
+                        }
                     }
                 }
                 }

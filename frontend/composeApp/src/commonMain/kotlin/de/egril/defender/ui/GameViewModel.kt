@@ -52,7 +52,8 @@ sealed class Screen {
     object Sticker : Screen()
     object PlayerProfile : Screen()
     object LoadingSpinnerDemo : Screen()
-    object StatsUpgrade : Screen()  // New screen for stats/spells upgrade
+    object StatsUpgrade : Screen()  // New screen for stats/spells upgrade (from PlayerProfile)
+    data class StatsUpgradeWithNextLevel(val nextLevelId: Int, val nextLevelName: String) : Screen()  // Stats/spells upgrade before continuing to next level
     object FinalCredits : Screen()
     object AnimationTest : Screen()  // Developer cheat: animation test/preview screen
     data class GamePlay(val levelId: Int) : Screen()
@@ -60,7 +61,9 @@ sealed class Screen {
         val levelId: Int,
         val won: Boolean,
         val isLastLevel: Boolean,
-        val xpEarned: Int = 0
+        val xpEarned: Int = 0,
+        val nextLevelId: Int? = null,
+        val nextLevelName: String? = null
     ) : Screen()
 }
 
@@ -717,6 +720,15 @@ class GameViewModel {
         _currentScreen.value = Screen.StatsUpgrade
     }
 
+    fun navigateToNextLevel(nextLevelId: Int, nextLevelName: String) {
+        val availableAbilityPoints = _currentPlayer.value?.abilities?.availableAbilityPoints ?: 0
+        if (availableAbilityPoints > 0) {
+            _currentScreen.value = Screen.StatsUpgradeWithNextLevel(nextLevelId, nextLevelName)
+        } else {
+            startLevel(nextLevelId)
+        }
+    }
+
     fun navigateToFinalCredits() {
         _currentScreen.value = Screen.FinalCredits
     }
@@ -1313,6 +1325,15 @@ class GameViewModel {
         }
         
         val isLastLevel = _worldLevels.value.firstOrNull { it.level.id == levelId }?.level?.editorLevelId == OfficialContent.FINAL_LEVEL_ID
+        
+        // Compute next level: the level immediately following the current one in the world levels list (only when won and not the final level)
+        val nextLevel: WorldLevel? = if (won && !isLastLevel) {
+            val currentIndex = _worldLevels.value.indexOfFirst { it.level.id == levelId }
+            if (currentIndex >= 0 && currentIndex + 1 < _worldLevels.value.size) {
+                _worldLevels.value[currentIndex + 1]
+            } else null
+        } else null
+        
         if (won) {
             val updatedLevels = _worldLevels.value.toMutableList()
             val currentIndex = updatedLevels.indexOfFirst { it.level.id == levelId }
@@ -1357,7 +1378,14 @@ class GameViewModel {
         }
         // Level ended – remove any background save so it is not restored on the next cold start.
         deleteBackgroundSave()
-        _currentScreen.value = Screen.LevelComplete(levelId, won, isLastLevel, xpEarned)
+        _currentScreen.value = Screen.LevelComplete(
+            levelId = levelId,
+            won = won,
+            isLastLevel = isLastLevel,
+            xpEarned = xpEarned,
+            nextLevelId = nextLevel?.level?.id,
+            nextLevelName = nextLevel?.level?.name
+        )
     }
     
     fun restartLevel() {

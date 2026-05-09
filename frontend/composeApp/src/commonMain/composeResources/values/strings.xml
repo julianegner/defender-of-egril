@@ -26,6 +26,8 @@
     <string name="defeat_message">The enemies have breached your defenses...</string>
     <string name="retry">Retry</string>
     <string name="world_map">World Map</string>
+    <string name="next_level">Next Level</string>
+    <string name="continue_with_level">Continue with Level: %1$s</string>
     
     <!-- Settings -->
     <string name="settings">Settings</string>

@@ -37,6 +37,8 @@ fun AbilitiesUpgradeScreen(
     onUpgradeAbility: (AbilityType) -> Unit,
     onUnlockSpell: (SpellType) -> Unit,
     onBack: () -> Unit,
+    onContinueToNextLevel: (() -> Unit)? = null,
+    nextLevelName: String? = null,
     onCheatCode: ((String) -> Boolean)? = null
 ) {
     val abilities = playerProfile.abilities
@@ -235,13 +237,25 @@ fun AbilitiesUpgradeScreen(
                     }
                 }
                 
-                // Back button
+                // Back button and optional "Continue with Next Level" button
                 Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = onBack,
-                    modifier = Modifier.width(200.dp).height(50.dp)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(stringResource(Res.string.back))
+                    Button(
+                        onClick = onBack,
+                        modifier = Modifier.width(200.dp).height(50.dp)
+                    ) {
+                        Text(stringResource(Res.string.back))
+                    }
+                    if (onContinueToNextLevel != null && nextLevelName != null) {
+                        Button(
+                            onClick = onContinueToNextLevel,
+                            modifier = Modifier.height(50.dp)
+                        ) {
+                            Text(stringResource(Res.string.continue_with_level, nextLevelName))
+                        }
+                    }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
             }
