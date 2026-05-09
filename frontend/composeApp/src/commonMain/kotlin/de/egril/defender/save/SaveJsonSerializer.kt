@@ -730,7 +730,8 @@ object SaveJsonSerializer {
   ],
   "rafts": [
     $raftsJson
-  ]
+  ],
+  "version": 1
 }"""
         return """{
   "metadata": {

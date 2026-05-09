@@ -1058,8 +1058,10 @@ class GameViewModel {
                 newGameState.traps.add(trap)
             }
 
-            // Also initialize any pre-placed elements from the level definition
-            newGameState.initializePrePlacedElements()
+            // Skip initializePrePlacedElements: the handoff already includes all defenders,
+            // barricades, traps, and rafts carried over from the previous level.
+            // Pre-placed elements from the level definition would create duplicates at the
+            // same positions, so we intentionally omit them here.
 
             // Delete the handoff file now that it has been used
             level.editorLevelId?.let { de.egril.defender.save.SaveFileStorage.deleteLevelHandoff(it) }

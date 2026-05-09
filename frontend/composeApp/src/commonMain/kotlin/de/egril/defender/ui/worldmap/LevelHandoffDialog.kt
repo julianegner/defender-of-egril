@@ -199,7 +199,7 @@ private fun HandoffContinueCardContent(
     isDarkMode: Boolean
 ) {
     val textColor = if (isDarkMode) Color.LightGray else Color.DarkGray
-    val towerCount = handoff.defenders.count { it.buildTimeRemaining == 0 }
+    val towerCount = handoff.defenders.size
     val barricadeCount = handoff.barricades.size
     val trapCount = handoff.traps.size
 
