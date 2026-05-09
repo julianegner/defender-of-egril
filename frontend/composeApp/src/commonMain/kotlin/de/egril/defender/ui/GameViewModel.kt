@@ -800,8 +800,11 @@ class GameViewModel {
             val level = worldLevel.level
             val editorLevelId = level.editorLevelId
 
-            // Check if this level is connected to the previous level and a handoff exists
-            if (level.connectedToPreviousLevel && editorLevelId != null &&
+            // Check if this level is connected to the previous level and a handoff exists.
+            // Only show the dialog for official levels (not community / user-created).
+            val isOfficialLevel = !level.isCommunity && editorLevelId != null &&
+                de.egril.defender.editor.EditorStorage.getLevel(editorLevelId)?.isOfficial == true
+            if (level.connectedToPreviousLevel && isOfficialLevel && editorLevelId != null &&
                 de.egril.defender.save.SaveFileStorage.hasLevelHandoff(editorLevelId)
             ) {
                 val handoff = de.egril.defender.save.SaveFileStorage.loadLevelHandoff(editorLevelId)
@@ -1600,8 +1603,17 @@ class GameViewModel {
     }
 
     /**
-     * Saves the current game state as a level handoff for any connected level
-     * on the same map that lists [wonEditorLevelId] as a prerequisite.
+     * Saves the current game state as a level handoff for any connected level that is "next"
+     * on the world map path from the won level.
+     *
+     * "Next on the path" means:
+     *  1. Another level at the SAME world map location that directly lists [wonEditorLevelId]
+     *     as a prerequisite (within-location chain, e.g., fortress_1 → fortress_2).
+     *  2. A level at a DESTINATION location reachable via an outgoing path from the won level's
+     *     location (cross-location step).
+     *
+     * Handoffs are only saved for official levels (not community / user-created) that
+     * also have [connectedToPreviousLevel] = true and share the same map as the won level.
      */
     private fun saveHandoffForConnectedLevels(
         wonEditorLevelId: String,
@@ -1610,12 +1622,50 @@ class GameViewModel {
     ) {
         val gameState = _gameState.value ?: return
 
-        // Find all connected levels that use the same map and have the won level as a prerequisite
+        // Don't generate handoffs for community or non-official (user-created) levels.
+        val wonWorldLevel = allLevels.find { it.level.editorLevelId == wonEditorLevelId }
+        if (wonWorldLevel?.level?.isCommunity == true) return
+        // isOfficial == false means user-created; skip those too
+        val wonEditorLevel = de.egril.defender.editor.EditorStorage.getLevel(wonEditorLevelId)
+        if (wonEditorLevel != null && !wonEditorLevel.isOfficial) return
+
+        // Use world map data to determine which levels are "next on the path".
+        val worldMapData = de.egril.defender.editor.EditorStorage.getWorldMapData()
+        val wonLocation = worldMapData.findLocationByLevelId(wonEditorLevelId)
+
+        // Collect the set of candidate editor-level IDs that may receive the handoff.
+        val candidateLevelIds = mutableSetOf<String>()
+        if (wonLocation != null) {
+            // Within-location: levels at the same world map node that list wonEditorLevelId as a prerequisite
+            candidateLevelIds += wonLocation.levelIds.filter { it != wonEditorLevelId }
+
+            // Cross-location: levels at destination locations of outgoing paths from wonLocation
+            worldMapData.paths
+                .filter { it.fromLocationId == wonLocation.id }
+                .forEach { path ->
+                    worldMapData.findLocation(path.toLocationId)?.levelIds?.let {
+                        candidateLevelIds += it
+                    }
+                }
+        }
+
+        if (candidateLevelIds.isEmpty()) return  // hermit tower and other dead-ends have no candidates
+
+        // Among candidates, only keep levels that:
+        //  - have connectedToPreviousLevel = true
+        //  - are on the same map
+        //  - are official (not community, not user-created)
+        //  - directly list wonEditorLevelId as a prerequisite (ensures strict ordering)
         val connectedLevels = allLevels.filter { wl ->
             wl.level.connectedToPreviousLevel &&
+                !wl.level.isCommunity &&
                 wl.level.mapId == wonMapId &&
                 wl.level.editorLevelId != null &&
-                wl.level.editorLevelId != wonEditorLevelId
+                wl.level.editorLevelId in candidateLevelIds
+        }.filter { wl ->
+            // Verify the won level is a direct prerequisite (strict path ordering)
+            val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(wl.level.editorLevelId!!)
+            editorLevel != null && wonEditorLevelId in editorLevel.prerequisites
         }
 
         if (connectedLevels.isEmpty()) return
