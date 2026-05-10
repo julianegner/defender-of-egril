@@ -27,6 +27,7 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.utils.isPlatformMobile
 
 /**
@@ -51,7 +52,7 @@ fun TooltipWrapper(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     var isHovered by remember { mutableStateOf(false) }
-    val isTooltipEnabled = !isPlatformMobile && !isMobileWebBrowser()
+    val isHoverTooltipEnabled = !isPlatformMobile && !isMobileWebBrowser()
     val density = LocalDensity.current
     val windowInfo = LocalWindowInfo.current
 
@@ -72,7 +73,7 @@ fun TooltipWrapper(
     Box(
         modifier = modifier
             .then(
-                if (isTooltipEnabled) {
+                if (isHoverTooltipEnabled) {
                     Modifier.hoverable(interactionSource = interactionSource)
                 } else {
                     Modifier
@@ -85,7 +86,7 @@ fun TooltipWrapper(
                 elementBottomPx = posInWindow.y + coordinates.size.height
             }
     ) {
-        if (isTooltipEnabled && isHovered && !text.isNullOrEmpty()) {
+        if (isHoverTooltipEnabled && isHovered && !text.isNullOrEmpty()) {
             val windowHeightPx = windowInfo.containerSize.height.toFloat()
             val windowWidthPx = windowInfo.containerSize.width.toFloat()
             val spaceBelowPx = windowHeightPx - elementBottomPx

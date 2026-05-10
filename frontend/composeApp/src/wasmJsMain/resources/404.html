@@ -15,6 +15,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            /* The last supported declaration wins: 100vh (legacy), 100dvh (modern), then --app-height when JS sets it */
             height: 100vh;
             height: 100dvh;
             height: var(--app-height, 100dvh);
@@ -147,8 +148,13 @@
     <script>
         // Use the actual visible viewport height on mobile browsers where 100vh includes URL bars.
         (function syncAppHeight() {
+            let lastViewportHeight = -1;
             function setHeight() {
-                var viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+                const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+                if (viewportHeight === lastViewportHeight) {
+                    return;
+                }
+                lastViewportHeight = viewportHeight;
                 document.documentElement.style.setProperty('--app-height', viewportHeight + 'px');
             }
             setHeight();
