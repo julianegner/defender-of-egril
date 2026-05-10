@@ -1371,6 +1371,8 @@
 
     <!-- XP System -->
     <string name="xp_earned">XP Earned: %d</string>
+    <string name="level_up_reached">Level Up! Reached Level %d</string>
+    <string name="ability_points_gained">Ability Points Gained: +%d</string>
     <string name="xp_info_brief">Earn XP by defeating enemies.\nLevel up to gain ability points and unlock powerful abilities!</string>
     <string name="xp_system_unlocked">XP System Unlocked!</string>
     <string name="xp_system_unlock_message">You can now use XP to upgrade your abilities and unlock powerful abilities!\n\nAccess the upgrade screen from the Player Profile.</string>
