@@ -152,6 +152,41 @@ class LevelCompleteScreenTest {
             height = 800
         )
     }
+
+    @Test
+    fun testLevelCompleteScreenDefeatShowsXpAndLevelProgress() {
+        composeTestRule.setContent {
+            LevelCompleteScreen(
+                levelId = 2,
+                won = false,
+                isLastLevel = false,
+                xpEarned = 24,
+                newPlayerLevel = 4,
+                playerLevelGained = 1,
+                abilityPointsGained = 1,
+                onRestart = {},
+                onBackToMap = {}
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("XP Earned", substring = true, ignoreCase = true)
+            .assertExists()
+
+        composeTestRule.onNodeWithText("Reached Level", substring = true, ignoreCase = true)
+            .assertExists()
+
+        composeTestRule.onNodeWithText("Ability Points Gained", substring = true, ignoreCase = true)
+            .assertExists()
+
+        ScreenshotTestUtils.captureScreenshot(
+            composeTestRule,
+            "level-complete-defeat-with-xp",
+            width = 1200,
+            height = 800
+        )
+    }
     
     @Test
     fun testLevelCompleteScreenFinalVictoryState() {
@@ -245,7 +280,7 @@ class LevelCompleteScreenTest {
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("Level Up", substring = true, ignoreCase = true)
+        composeTestRule.onNodeWithText("Reached Level", substring = true, ignoreCase = true)
             .assertExists()
 
         ScreenshotTestUtils.captureScreenshot(

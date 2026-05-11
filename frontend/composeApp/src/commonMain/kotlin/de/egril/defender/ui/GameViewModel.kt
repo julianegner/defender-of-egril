@@ -1305,33 +1305,36 @@ class GameViewModel {
 
     private fun completeLevel(levelId: Int, won: Boolean) {
         val currentHP = _gameState.value?.healthPoints?.value ?: 0
-        val xpEarned = _gameState.value?.xpEarnedThisLevel?.value ?: 0
+        val rawXpEarned = _gameState.value?.xpEarnedThisLevel?.value ?: 0
+        val xpEarned = calculateAwardedXpForLevelCompletion(rawXpEarned, won)
         val levelName = _gameState.value?.level?.name ?: "unknown"
         val turnNumber = _gameState.value?.turnNumber?.value
         var newPlayerLevel = 0
         var playerLevelGained = 0
         var abilityPointsGained = 0
+        var hasUpdatedPlayerProfile = false
 
         de.egril.defender.analytics.reportEvent(if (won) de.egril.defender.analytics.GameEventType.LEVEL_WON else de.egril.defender.analytics.GameEventType.LEVEL_LOST, levelName, turnNumber)
 
         // Track achievement for level completion
         if (won) {
             achievementManager?.onWinLevel(currentHP)
-
-            // Award XP to player profile
-            val currentPlayer = _currentPlayer.value
-            if (currentPlayer != null) {
-                val previousAbilities = currentPlayer.abilities
-                val updatedStats = currentPlayer.abilities.addXP(xpEarned)
-                newPlayerLevel = updatedStats.level
-                playerLevelGained = (updatedStats.level - previousAbilities.level).coerceAtLeast(0)
-                abilityPointsGained = (updatedStats.availableAbilityPoints - previousAbilities.availableAbilityPoints).coerceAtLeast(0)
-                val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
-                _currentPlayer.value = updatedPlayer
-                de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
-            }
         } else {
             achievementManager?.onLoseLevel()
+        }
+
+        // Award XP to player profile (full XP on win, 20% on loss)
+        val currentPlayer = _currentPlayer.value
+        if (currentPlayer != null && xpEarned > 0) {
+            val previousAbilities = currentPlayer.abilities
+            val updatedStats = currentPlayer.abilities.addXP(xpEarned)
+            newPlayerLevel = updatedStats.level
+            playerLevelGained = (updatedStats.level - previousAbilities.level).coerceAtLeast(0)
+            abilityPointsGained = (updatedStats.availableAbilityPoints - previousAbilities.availableAbilityPoints).coerceAtLeast(0)
+            val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
+            _currentPlayer.value = updatedPlayer
+            de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
+            hasUpdatedPlayerProfile = true
         }
         
         val isLastLevel = _worldLevels.value.firstOrNull { it.level.id == levelId }?.level?.editorLevelId == OfficialContent.FINAL_LEVEL_ID
@@ -1370,6 +1373,9 @@ class GameViewModel {
                 saveWorldMapStatus()
             }
             // Sync updated abilities (XP awarded) and level progress to backend
+            uploadUserDataToBackend()
+        } else if (hasUpdatedPlayerProfile) {
+            // Sync profile when XP is awarded on a lost level.
             uploadUserDataToBackend()
         }
 
@@ -3466,5 +3472,15 @@ class GameViewModel {
 
         /** Fixed save ID used for the background save (overwritten on every onPause). */
         private const val BACKGROUND_SAVE_ID = "background_save"
+
+        private const val LOST_LEVEL_XP_DIVISOR = 5
+
+        internal fun calculateAwardedXpForLevelCompletion(rawXpEarned: Int, won: Boolean): Int {
+            return if (won) {
+                rawXpEarned
+            } else {
+                rawXpEarned / LOST_LEVEL_XP_DIVISOR
+            }
+        }
     }
 }
