@@ -555,8 +555,12 @@ fun LevelCompleteScreen(
     won: Boolean,
     isLastLevel: Boolean,
     xpEarned: Int = 0,
+    newPlayerLevel: Int = 0,
+    playerLevelGained: Int = 0,
+    abilityPointsGained: Int = 0,
     onRestart: () -> Unit,
     onBackToMap: () -> Unit,
+    onNextLevel: (() -> Unit)? = null,
     onShowFinalCredits: (() -> Unit)? = null,
     isDemoMode: Boolean = false,
     onStopDemoMode: (() -> Unit)? = null
@@ -650,6 +654,29 @@ fun LevelCompleteScreen(
                         textAlign = TextAlign.Center,
                         color = Color.Gray
                     )
+
+                    if (playerLevelGained > 0) {
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = stringResource(Res.string.level_up_reached, newPlayerLevel),
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    if (abilityPointsGained > 0) {
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Text(
+                            text = stringResource(Res.string.ability_points_gained, abilityPointsGained),
+                            style = MaterialTheme.typography.bodySmall,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
                     
                     Spacer(modifier = Modifier.height(8.dp))
                     
@@ -711,6 +738,15 @@ fun LevelCompleteScreen(
                         modifier = Modifier.width(150.dp).height(50.dp)
                     ) {
                         Text(stringResource(Res.string.world_map))
+                    }
+                    
+                    if (won && onNextLevel != null) {
+                        Button(
+                            onClick = onNextLevel,
+                            modifier = Modifier.width(150.dp).height(50.dp)
+                        ) {
+                            Text(stringResource(Res.string.next_level))
+                        }
                     }
                 }
                 }

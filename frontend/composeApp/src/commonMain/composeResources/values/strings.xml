@@ -26,6 +26,8 @@
     <string name="defeat_message">The enemies have breached your defenses...</string>
     <string name="retry">Retry</string>
     <string name="world_map">World Map</string>
+    <string name="next_level">Next Level</string>
+    <string name="continue_with_level">Continue with Level: %1$s</string>
     
     <!-- Settings -->
     <string name="settings">Settings</string>
@@ -1371,6 +1373,8 @@
 
     <!-- XP System -->
     <string name="xp_earned">XP Earned: %d</string>
+    <string name="level_up_reached">Level Up! Reached Level %d</string>
+    <string name="ability_points_gained">Ability Points Gained: +%d</string>
     <string name="xp_info_brief">Earn XP by defeating enemies.\nLevel up to gain ability points and unlock powerful abilities!</string>
     <string name="xp_system_unlocked">XP System Unlocked!</string>
     <string name="xp_system_unlock_message">You can now use XP to upgrade your abilities and unlock powerful abilities!\n\nAccess the upgrade screen from the Player Profile.</string>
