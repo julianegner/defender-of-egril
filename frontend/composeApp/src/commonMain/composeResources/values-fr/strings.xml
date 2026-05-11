@@ -1371,6 +1371,8 @@
 
     <!-- XP System -->
     <string name="xp_earned">XP Gagnée: %d</string>
+    <string name="level_up_reached">Niveau supérieur ! Niveau %d atteint</string>
+    <string name="ability_points_gained">Points de capacité gagnés : +%d</string>
     <string name="xp_info_brief">Gagnez de l\'XP en battant des ennemis.\nMontez de niveau pour obtenir des points de capacités et débloquer des capacités puissantes!</string>
     <string name="xp_system_unlocked">Système d\'XP Débloqué!</string>
     <string name="xp_system_unlock_message">Vous pouvez maintenant utiliser l\'XP pour améliorer vos capacités et débloquer des capacités puissantes!\n\nAccédez à l\'écran d\'amélioration depuis le Profil du Joueur.</string>

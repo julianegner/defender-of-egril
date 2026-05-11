@@ -62,6 +62,9 @@ sealed class Screen {
         val won: Boolean,
         val isLastLevel: Boolean,
         val xpEarned: Int = 0,
+        val newPlayerLevel: Int = 0,
+        val playerLevelGained: Int = 0,
+        val abilityPointsGained: Int = 0,
         val nextLevelId: Int? = null,
         val nextLevelName: String? = null
     ) : Screen()
@@ -1305,6 +1308,9 @@ class GameViewModel {
         val xpEarned = _gameState.value?.xpEarnedThisLevel?.value ?: 0
         val levelName = _gameState.value?.level?.name ?: "unknown"
         val turnNumber = _gameState.value?.turnNumber?.value
+        var newPlayerLevel = 0
+        var playerLevelGained = 0
+        var abilityPointsGained = 0
 
         de.egril.defender.analytics.reportEvent(if (won) de.egril.defender.analytics.GameEventType.LEVEL_WON else de.egril.defender.analytics.GameEventType.LEVEL_LOST, levelName, turnNumber)
 
@@ -1315,7 +1321,11 @@ class GameViewModel {
             // Award XP to player profile
             val currentPlayer = _currentPlayer.value
             if (currentPlayer != null) {
+                val previousAbilities = currentPlayer.abilities
                 val updatedStats = currentPlayer.abilities.addXP(xpEarned)
+                newPlayerLevel = updatedStats.level
+                playerLevelGained = (updatedStats.level - previousAbilities.level).coerceAtLeast(0)
+                abilityPointsGained = (updatedStats.availableAbilityPoints - previousAbilities.availableAbilityPoints).coerceAtLeast(0)
                 val updatedPlayer = currentPlayer.copy(abilities = updatedStats)
                 _currentPlayer.value = updatedPlayer
                 de.egril.defender.save.PlayerProfileStorage.updateProfile(updatedPlayer)
@@ -1325,15 +1335,15 @@ class GameViewModel {
         }
         
         val isLastLevel = _worldLevels.value.firstOrNull { it.level.id == levelId }?.level?.editorLevelId == OfficialContent.FINAL_LEVEL_ID
-        
+
         // Find the current level's index once; reused for both next-level computation and status update below
         val currentLevelIndex = _worldLevels.value.indexOfFirst { it.level.id == levelId }
-        
+
         // Compute next level: the level immediately following the current one in the world levels list (only when won and not the final level)
         val nextLevel: WorldLevel? = if (won && !isLastLevel && currentLevelIndex >= 0 && currentLevelIndex + 1 < _worldLevels.value.size) {
             _worldLevels.value[currentLevelIndex + 1]
         } else null
-        
+
         if (won) {
             val updatedLevels = _worldLevels.value.toMutableList()
             if (currentLevelIndex >= 0) {
@@ -1365,7 +1375,7 @@ class GameViewModel {
 
         if (_isDemoMode.value) {
             // In demo mode: show the Level Won/Lost screen for 4 seconds, then load the next level
-            _currentScreen.value = Screen.LevelComplete(levelId, won, isLastLevel, xpEarned)
+            _currentScreen.value = Screen.LevelComplete(levelId, won, isLastLevel, xpEarned, newPlayerLevel, playerLevelGained, abilityPointsGained)
             viewModelScope.launch {
                 delay(4000L)
                 if (_isDemoMode.value) {
@@ -1382,6 +1392,9 @@ class GameViewModel {
             won = won,
             isLastLevel = isLastLevel,
             xpEarned = xpEarned,
+            newPlayerLevel = newPlayerLevel,
+            playerLevelGained = playerLevelGained,
+            abilityPointsGained = abilityPointsGained,
             nextLevelId = nextLevel?.level?.id,
             nextLevelName = nextLevel?.level?.name
         )

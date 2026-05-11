@@ -226,4 +226,33 @@ class LevelCompleteScreenTest {
         composeTestRule.waitForIdle()
         assert(backToMapClicked) { "World Map button should trigger callback" }
     }
+
+    @Test
+    fun testLevelCompleteScreenShowsLevelAndAbilityPointGains() {
+        composeTestRule.setContent {
+            LevelCompleteScreen(
+                levelId = 2,
+                won = true,
+                isLastLevel = false,
+                xpEarned = 120,
+                newPlayerLevel = 3,
+                playerLevelGained = 1,
+                abilityPointsGained = 1,
+                onRestart = {},
+                onBackToMap = {}
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Level Up", substring = true, ignoreCase = true)
+            .assertExists()
+
+        ScreenshotTestUtils.captureScreenshot(
+            composeTestRule,
+            "level-complete-level-up-and-ability-points",
+            width = 1200,
+            height = 800
+        )
+    }
 }
