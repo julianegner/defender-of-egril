@@ -146,11 +146,26 @@ fun MainMenuScreen(
         Box(
             modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
-            // Settings and Info buttons in top-right corner
+            val isMobileWeb = isMobileWebBrowser()
+            val isMobileUI = isPlatformMobile || isMobileWeb
+
+            // Settings and Info buttons in top-right corner (or below player area on mobile web)
             Row(
                 modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(8.dp),
+                    .then(
+                        if (isMobileWeb) {
+                            Modifier
+                                .align(Alignment.TopStart)
+                                .padding(
+                                    start = 8.dp,
+                                    top = if (currentPlayerName != null) 96.dp else 44.dp
+                                )
+                        } else {
+                            Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(8.dp)
+                        }
+                    ),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 // Info button (all platforms)
@@ -288,13 +303,17 @@ fun MainMenuScreen(
             
             // On mobile and mobile-web browsers, add enough top padding to clear the player area and exit button.
             // If a player name is shown (incl. IAM login/logout button), use a larger offset.
-            val mobileTopPadding = if (currentPlayerName != null) MobileTopPaddingWithPlayer else MobileTopPaddingWithoutPlayer
-            val isMobileUI = isPlatformMobile || isMobileWebBrowser()
+            val mobileTopPadding = when {
+                isMobileWeb && currentPlayerName != null -> 160.dp
+                isMobileWeb -> 96.dp
+                currentPlayerName != null -> MobileTopPaddingWithPlayer
+                else -> MobileTopPaddingWithoutPlayer
+            }
             val scrollState = rememberScrollState()
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .then(if (isPlatformMobile) Modifier.padding(top = mobileTopPadding) else Modifier)
+                    .then(if (isMobileUI) Modifier.padding(top = mobileTopPadding) else Modifier)
                     .then(if (isMobileUI) Modifier.verticalScroll(scrollState) else Modifier),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = if (isMobileUI) Arrangement.Top else Arrangement.Center
