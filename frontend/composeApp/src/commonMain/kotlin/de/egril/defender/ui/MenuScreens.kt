@@ -56,6 +56,12 @@ private val MobileTopPaddingWithPlayer = 110.dp
 /** Top padding for the main content column on mobile when no player area is shown (only exit button). */
 private val MobileTopPaddingWithoutPlayer = 56.dp
 
+internal fun shouldUseStackedMainMenuLayout(
+    isNativeMobile: Boolean,
+    isMobileWeb: Boolean,
+    isPortrait: Boolean
+): Boolean = isNativeMobile || (isMobileWeb && isPortrait)
+
 /**
  * Compact row of main menu action buttons for mobile and mobile-web layouts.
  * @param buttonHeight Height of each button (40.dp for native mobile, 30.dp for mobile web)
@@ -143,14 +149,35 @@ fun MainMenuScreen(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Box(
+        BoxWithConstraints(
             modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
-            // Settings and Info buttons in top-right corner
+            val isMobileWeb = isMobileWebBrowser()
+            val isPortrait = maxHeight > maxWidth
+            val usesStackedLayout = shouldUseStackedMainMenuLayout(
+                isNativeMobile = isPlatformMobile,
+                isMobileWeb = isMobileWeb,
+                isPortrait = isPortrait
+            )
+            val usesPortraitMobileWebLayout = isMobileWeb && usesStackedLayout
+
+            // Settings and Info buttons in top-right corner (or below player area on mobile web)
             Row(
                 modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(8.dp),
+                    .then(
+                        if (usesPortraitMobileWebLayout) {
+                            Modifier
+                                .align(Alignment.TopStart)
+                                .padding(
+                                    start = 8.dp,
+                                    top = if (currentPlayerName != null) 96.dp else 44.dp
+                                )
+                        } else {
+                            Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(8.dp)
+                        }
+                    ),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 // Info button (all platforms)
@@ -288,37 +315,41 @@ fun MainMenuScreen(
             
             // On mobile and mobile-web browsers, add enough top padding to clear the player area and exit button.
             // If a player name is shown (incl. IAM login/logout button), use a larger offset.
-            val mobileTopPadding = if (currentPlayerName != null) MobileTopPaddingWithPlayer else MobileTopPaddingWithoutPlayer
-            val isMobileUI = isPlatformMobile || isMobileWebBrowser()
+            val mobileTopPadding = when {
+                usesPortraitMobileWebLayout && currentPlayerName != null -> 160.dp
+                usesPortraitMobileWebLayout -> 96.dp
+                currentPlayerName != null -> MobileTopPaddingWithPlayer
+                else -> MobileTopPaddingWithoutPlayer
+            }
             val scrollState = rememberScrollState()
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .then(if (isPlatformMobile) Modifier.padding(top = mobileTopPadding) else Modifier)
-                    .then(if (isMobileUI) Modifier.verticalScroll(scrollState) else Modifier),
+                    .then(if (usesStackedLayout) Modifier.padding(top = mobileTopPadding) else Modifier)
+                    .then(if (usesStackedLayout) Modifier.verticalScroll(scrollState) else Modifier),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = if (isMobileUI) Arrangement.Top else Arrangement.Center
+                verticalArrangement = if (usesStackedLayout) Arrangement.Top else Arrangement.Center
             ) {
                 // Add top spacer on mobile/mobile-web to position banner in the upper third of the screen
-                if (isMobileUI) {
+                if (usesStackedLayout) {
                     Spacer(modifier = Modifier.height(4.dp))
                 }
                 
                 // Application banner with logo and styled text
                 ApplicationBannerImage(
-                    modifier = if (isMobileUI) Modifier.height(120.dp) else Modifier
+                    modifier = if (usesStackedLayout) Modifier.height(120.dp) else Modifier
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 Text(
                     text = stringResource(Res.string.app_subtitle),
-                    style = if (isMobileUI) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodyLarge,
+                    style = if (usesStackedLayout) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 
-                Spacer(modifier = Modifier.height(if (isMobileUI) 16.dp else 24.dp))
+                Spacer(modifier = Modifier.height(if (usesStackedLayout) 16.dp else 24.dp))
                 
                 // On mobile, buttons are in a single row; on mobile web, same row layout but smaller; on desktop, in a row/column layout
                 if (isPlatformMobile) {
@@ -331,7 +362,7 @@ fun MainMenuScreen(
                         buttonHeight = 40.dp,
                         textStyle = MaterialTheme.typography.bodySmall
                     )
-                } else if (isMobileWebBrowser()) {
+                } else if (usesPortraitMobileWebLayout) {
                     // Mobile web browser: compact row layout at 50% button size
                     MainMenuButtonRow(
                         onStartGame = onStartGame,
@@ -387,14 +418,14 @@ fun MainMenuScreen(
 
                     Button(
                         onClick = onShowDownloadInfo,
-                        modifier = Modifier.width(200.dp).height(if (isMobileWebBrowser()) 30.dp else 60.dp),
+                        modifier = Modifier.width(200.dp).height(if (usesPortraitMobileWebLayout) 30.dp else 60.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.tertiary
                         )
                     ) {
                         Text(
                             stringResource(Res.string.download_button),
-                            style = if (isMobileWebBrowser()) MaterialTheme.typography.labelSmall else MaterialTheme.typography.titleMedium
+                            style = if (usesPortraitMobileWebLayout) MaterialTheme.typography.labelSmall else MaterialTheme.typography.titleMedium
                         )
                     }
                 }
@@ -431,7 +462,7 @@ fun MainMenuScreen(
                     }
                 }
                 
-                if (isMobileUI) {
+                if (usesStackedLayout) {
                     Spacer(modifier = Modifier.height(12.dp))
                     Box(
                         modifier = Modifier
@@ -453,7 +484,7 @@ fun MainMenuScreen(
             }
             
             // Version info at the bottom on desktop - clickable to show commit info
-            if (!isMobileUI) {
+            if (!usesStackedLayout) {
                 TooltipWrapper(
                     text = stringResource(Res.string.commit_info_title),
                     modifier = Modifier
