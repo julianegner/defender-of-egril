@@ -517,6 +517,9 @@ fun App() {
                     won = screen.won,
                     isLastLevel = screen.isLastLevel,
                     xpEarned = screen.xpEarned,
+                    newPlayerLevel = screen.newPlayerLevel,
+                    playerLevelGained = screen.playerLevelGained,
+                    abilityPointsGained = screen.abilityPointsGained,
                     onRestart = { viewModel.restartLevel() },
                     onBackToMap = { viewModel.navigateToWorldMap() },
                     onShowFinalCredits = if (screen.isLastLevel && screen.won) {
