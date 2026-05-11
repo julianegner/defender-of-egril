@@ -36,6 +36,7 @@ import defender_of_egril.composeapp.generated.resources.auto_attack_info_message
 import defender_of_egril.composeapp.generated.resources.auto_attack_info_title
 import defender_of_egril.composeapp.generated.resources.author_optional
 import defender_of_egril.composeapp.generated.resources.community_description_optional
+import defender_of_egril.composeapp.generated.resources.connected_to_previous_level
 import defender_of_egril.composeapp.generated.resources.level_title
 import defender_of_egril.composeapp.generated.resources.map_label
 import defender_of_egril.composeapp.generated.resources.ok
@@ -73,7 +74,10 @@ fun LevelInfoTab(
     onTestingOnlyChange: (Boolean) -> Unit,
     allowAutoAttack: Boolean,
     onAllowAutoAttackChange: (Boolean) -> Unit,
-    isOfficial: Boolean = false
+    connectedToPreviousLevel: Boolean,
+    onConnectedToPreviousLevelChange: (Boolean) -> Unit,
+    isOfficial: Boolean = false,
+    canEnableConnectedToPreviousLevel: Boolean = true
 ) {
     var showAutoAttackInfo by remember { mutableStateOf(false) }
     var showUserMapNotAllowedDialog by remember { mutableStateOf(false) }
@@ -175,6 +179,27 @@ fun LevelInfoTab(
                                 }
                                 onAllowAutoAttackChange(newValue)
                             }
+                        )
+                    }
+                    
+                    // Connected to previous level toggle
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.connected_to_previous_level),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (canEnableConnectedToPreviousLevel) {
+                                MaterialTheme.colorScheme.onSurface
+                            } else {
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                            }
+                        )
+                        Switch(
+                            checked = connectedToPreviousLevel,
+                            onCheckedChange = onConnectedToPreviousLevelChange,
+                            enabled = canEnableConnectedToPreviousLevel
                         )
                     }
                 }

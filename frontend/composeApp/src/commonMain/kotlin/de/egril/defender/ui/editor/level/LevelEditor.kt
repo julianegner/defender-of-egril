@@ -384,6 +384,7 @@ fun LevelEditorView(
     var initialDataState by remember { mutableStateOf(level.getEffectiveInitialData()) }
     var testingOnly by remember { mutableStateOf(level.testingOnly) }
     var allowAutoAttack by remember { mutableStateOf(level.allowAutoAttack) }
+    var connectedToPreviousLevel by remember { mutableStateOf(level.connectedToPreviousLevel) }
     
     // Update state when level changes (e.g., after reload from disk)
     LaunchedEffect(level.id, level.initialData, level.hashCode()) {
@@ -418,7 +419,21 @@ fun LevelEditorView(
     
     // Get only ready-to-use maps for selection
     val maps = remember { EditorStorage.getAllMaps().filter { it.readyToUse } }
-    
+
+    // Get all levels (excluding the current one) to check if any share the same map.
+    // Used to enable/disable the "Connected to Previous Level" toggle.
+    val allLevels = remember { EditorStorage.getAllLevels() }
+    val hasOtherLevelsOnSameMap = remember(selectedMapId, level.id) {
+        allLevels.any { it.id != level.id && it.mapId == selectedMapId }
+    }
+
+    // When the map changes and no other levels share it, reset the toggle.
+    LaunchedEffect(hasOtherLevelsOnSameMap) {
+        if (!hasOtherLevelsOnSameMap) {
+            connectedToPreviousLevel = false
+        }
+    }
+
     // Get current map to access waypoint tiles and target
     val currentMap = remember(selectedMapId) { EditorStorage.getMap(selectedMapId) }
     
@@ -598,7 +613,10 @@ fun LevelEditorView(
                     onTestingOnlyChange = { testingOnly = it },
                     allowAutoAttack = allowAutoAttack,
                     onAllowAutoAttackChange = { allowAutoAttack = it },
-                    isOfficial = level.isOfficial
+                    connectedToPreviousLevel = connectedToPreviousLevel,
+                    onConnectedToPreviousLevelChange = { connectedToPreviousLevel = it },
+                    isOfficial = level.isOfficial,
+                    canEnableConnectedToPreviousLevel = hasOtherLevelsOnSameMap
                 )
                 1 -> EnemySpawnsTab(
                     enemySpawns = enemySpawns,
@@ -656,6 +674,7 @@ fun LevelEditorView(
                             waypoints = waypointsState.toList(),
                             testingOnly = testingOnly,
                             allowAutoAttack = allowAutoAttack,
+                            connectedToPreviousLevel = connectedToPreviousLevel,
                             initialData = initialDataState
                         )
                         
@@ -865,7 +884,10 @@ fun LevelEditorView(
                     enemySpawns = enemySpawns.toList(),
                     availableTowers = availableTowersState,
                     waypoints = waypointsState.toList(),
-                    testingOnly = testingOnly
+                    testingOnly = testingOnly,
+                    allowAutoAttack = allowAutoAttack,
+                    connectedToPreviousLevel = connectedToPreviousLevel,
+                    initialData = initialDataState
                 )
                 onSave(newLevel)
                 showSaveAsDialog = false

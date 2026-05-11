@@ -569,4 +569,45 @@ object SaveFileStorage {
         saveWorldMapStatus(updatedWorldLevels)
         return updatedWorldLevels
     }
+
+    // -------------------------------------------------------------------------
+    // Level Handoff (connected levels)
+    // -------------------------------------------------------------------------
+
+    private fun getHandoffFilePath(toLevelEditorId: String): String {
+        return "${getSavefilesDir()}/handoff_${toLevelEditorId}.json"
+    }
+
+    /**
+     * Save a level handoff state so the player can carry it into the next connected level.
+     */
+    fun saveLevelHandoff(handoff: LevelHandoffSave) {
+        val json = SaveJsonSerializer.serializeLevelHandoffSave(handoff)
+        fileStorage.writeFile(getHandoffFilePath(handoff.toLevelEditorId), json)
+        if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+            println("Saved level handoff: ${handoff.fromLevelEditorId} -> ${handoff.toLevelEditorId}")
+        }
+    }
+
+    /**
+     * Load the handoff state for a connected level, if it exists.
+     */
+    fun loadLevelHandoff(toLevelEditorId: String): LevelHandoffSave? {
+        val json = fileStorage.readFile(getHandoffFilePath(toLevelEditorId)) ?: return null
+        return SaveJsonSerializer.deserializeLevelHandoffSave(json)
+    }
+
+    /**
+     * Delete the handoff state for a level (e.g. after the player has made their choice).
+     */
+    fun deleteLevelHandoff(toLevelEditorId: String) {
+        fileStorage.deleteFile(getHandoffFilePath(toLevelEditorId))
+    }
+
+    /**
+     * Check whether a handoff save exists for the given level.
+     */
+    fun hasLevelHandoff(toLevelEditorId: String): Boolean {
+        return fileStorage.fileExists(getHandoffFilePath(toLevelEditorId))
+    }
 }

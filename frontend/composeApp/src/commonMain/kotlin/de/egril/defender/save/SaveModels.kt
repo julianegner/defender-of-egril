@@ -3,6 +3,26 @@ package de.egril.defender.save
 import de.egril.defender.model.*
 
 /**
+ * State transferred between connected levels.
+ * When a player wins a level that has a connected next level (on the same map),
+ * this data is saved and offered to the player when starting the next level.
+ */
+data class LevelHandoffSave(
+    val fromLevelEditorId: String,   // The level this handoff is from
+    val toLevelEditorId: String,     // The level this handoff is for
+    val coins: Int,
+    val currentMana: Int,
+    val maxMana: Int,
+    val defenders: List<SavedDefender>,
+    val barricades: List<SavedBarricade>,
+    val traps: List<SavedTrap>,
+    val rafts: List<SavedRaft>,
+    val nextDefenderId: Int,
+    val nextRaftId: Int,
+    val mapId: String
+)
+
+/**
  * World map save data
  * Stores the status of each level (locked, unlocked, or won)
  */

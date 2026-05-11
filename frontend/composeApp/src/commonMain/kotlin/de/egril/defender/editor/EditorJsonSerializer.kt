@@ -285,6 +285,12 @@ object EditorJsonSerializer {
             ""
         }
         
+        val connectedToPreviousLevelJson = if (level.connectedToPreviousLevel) {
+            ",\n  \"connectedToPreviousLevel\": true"
+        } else {
+            ""
+        }
+        
         val isOfficialJson = if (level.isOfficial) {
             ",\n  \"isOfficial\": true"
         } else {
@@ -393,7 +399,7 @@ object EditorJsonSerializer {
   "waypoints": [
     $waypointsJson
   ],
-  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$isOfficialJson$authorJson$communityDescriptionJson$initialDataJson
+  "prerequisites": [$prerequisitesJson]$requiredCountJson$testingOnlyJson$allowAutoAttackJson$connectedToPreviousLevelJson$isOfficialJson$authorJson$communityDescriptionJson$initialDataJson
 }"""
         return """{
   "metadata": {
@@ -597,6 +603,17 @@ object EditorJsonSerializer {
             val allowAutoAttack = if (dataJson.contains("\"allowAutoAttack\"")) {
                 try {
                     JsonUtils.extractValue(dataJson, "allowAutoAttack").toBoolean()
+                } catch (e: Exception) {
+                    false
+                }
+            } else {
+                false
+            }
+            
+            // Parse connectedToPreviousLevel (optional, defaults to false)
+            val connectedToPreviousLevel = if (dataJson.contains("\"connectedToPreviousLevel\"")) {
+                try {
+                    JsonUtils.extractValue(dataJson, "connectedToPreviousLevel").toBoolean()
                 } catch (e: Exception) {
                     false
                 }
@@ -1089,7 +1106,7 @@ object EditorJsonSerializer {
                 id, mapId, title, titleKey, subtitle, subtitleKey, 
                 startCoins, startHealthPoints, spawns, towers, waypoints, 
                 prerequisites, requiredPrerequisiteCount, testingOnly, 
-                allowAutoAttack, isOfficial,
+                allowAutoAttack, connectedToPreviousLevel, isOfficial,
                 author = author,
                 communityDescription = communityDescription,
                 initialData = initialData
