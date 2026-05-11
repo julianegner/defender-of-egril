@@ -419,7 +419,21 @@ fun LevelEditorView(
     
     // Get only ready-to-use maps for selection
     val maps = remember { EditorStorage.getAllMaps().filter { it.readyToUse } }
-    
+
+    // Get all levels (excluding the current one) to check if any share the same map.
+    // Used to enable/disable the "Connected to Previous Level" toggle.
+    val allLevels = remember { EditorStorage.getAllLevels() }
+    val hasOtherLevelsOnSameMap = remember(selectedMapId, level.id) {
+        allLevels.any { it.id != level.id && it.mapId == selectedMapId }
+    }
+
+    // When the map changes and no other levels share it, reset the toggle.
+    LaunchedEffect(hasOtherLevelsOnSameMap) {
+        if (!hasOtherLevelsOnSameMap) {
+            connectedToPreviousLevel = false
+        }
+    }
+
     // Get current map to access waypoint tiles and target
     val currentMap = remember(selectedMapId) { EditorStorage.getMap(selectedMapId) }
     
@@ -601,7 +615,8 @@ fun LevelEditorView(
                     onAllowAutoAttackChange = { allowAutoAttack = it },
                     connectedToPreviousLevel = connectedToPreviousLevel,
                     onConnectedToPreviousLevelChange = { connectedToPreviousLevel = it },
-                    isOfficial = level.isOfficial
+                    isOfficial = level.isOfficial,
+                    canEnableConnectedToPreviousLevel = hasOtherLevelsOnSameMap
                 )
                 1 -> EnemySpawnsTab(
                     enemySpawns = enemySpawns,

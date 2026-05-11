@@ -76,7 +76,8 @@ fun LevelInfoTab(
     onAllowAutoAttackChange: (Boolean) -> Unit,
     connectedToPreviousLevel: Boolean,
     onConnectedToPreviousLevelChange: (Boolean) -> Unit,
-    isOfficial: Boolean = false
+    isOfficial: Boolean = false,
+    canEnableConnectedToPreviousLevel: Boolean = true
 ) {
     var showAutoAttackInfo by remember { mutableStateOf(false) }
     var showUserMapNotAllowedDialog by remember { mutableStateOf(false) }
@@ -188,11 +189,17 @@ fun LevelInfoTab(
                     ) {
                         Text(
                             text = stringResource(Res.string.connected_to_previous_level),
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (canEnableConnectedToPreviousLevel) {
+                                MaterialTheme.colorScheme.onSurface
+                            } else {
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                            }
                         )
                         Switch(
                             checked = connectedToPreviousLevel,
-                            onCheckedChange = onConnectedToPreviousLevelChange
+                            onCheckedChange = onConnectedToPreviousLevelChange,
+                            enabled = canEnableConnectedToPreviousLevel
                         )
                     }
                 }
