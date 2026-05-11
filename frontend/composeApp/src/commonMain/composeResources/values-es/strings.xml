@@ -26,6 +26,8 @@
     <string name="defeat_message">Los enemigos han atravesado tus defensas...</string>
     <string name="retry">Reintentar</string>
     <string name="world_map">Mapa del mundo</string>
+    <string name="next_level">Siguiente nivel</string>
+    <string name="continue_with_level">Continuar con el nivel: %1$s</string>
     
     <!-- Settings -->
     <string name="settings">Configuración</string>

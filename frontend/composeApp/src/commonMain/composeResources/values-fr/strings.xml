@@ -26,6 +26,8 @@
     <string name="defeat_message">Les ennemis ont percé vos défenses...</string>
     <string name="retry">Réessayer</string>
     <string name="world_map">Carte du monde</string>
+    <string name="next_level">Niveau suivant</string>
+    <string name="continue_with_level">Continuer avec le niveau : %1$s</string>
     
     <!-- Settings -->
     <string name="settings">Paramètres</string>

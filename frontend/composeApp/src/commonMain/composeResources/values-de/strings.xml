@@ -26,6 +26,8 @@
     <string name="defeat_message">Die Feinde haben deine Verteidigung durchbrochen...</string>
     <string name="retry">Wiederholen</string>
     <string name="world_map">Weltkarte</string>
+    <string name="next_level">Nächstes Level</string>
+    <string name="continue_with_level">Weiter mit Level: %1$s</string>
     
     <!-- Settings -->
     <string name="settings">Einstellungen</string>

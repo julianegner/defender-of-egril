@@ -7,6 +7,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.font.FontWeight
@@ -37,6 +39,8 @@ fun AbilitiesUpgradeScreen(
     onUpgradeAbility: (AbilityType) -> Unit,
     onUnlockSpell: (SpellType) -> Unit,
     onBack: () -> Unit,
+    onContinueToNextLevel: (() -> Unit)? = null,
+    nextLevelName: String? = null,
     onCheatCode: ((String) -> Boolean)? = null
 ) {
     val abilities = playerProfile.abilities
@@ -235,13 +239,41 @@ fun AbilitiesUpgradeScreen(
                     }
                 }
                 
-                // Back button
+                // Back button and optional "Continue with Next Level" button
                 Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    onClick = onBack,
-                    modifier = Modifier.width(200.dp).height(50.dp)
-                ) {
-                    Text(stringResource(Res.string.back))
+                if (onContinueToNextLevel != null && nextLevelName != null) {
+                    // Next-level flow: "Back to World Map" on the left, "Continue with Level" on the right (default focus)
+                    val continueFocusRequester = remember { FocusRequester() }
+                    LaunchedEffect(Unit) {
+                        continueFocusRequester.requestFocus()
+                    }
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = onBack,
+                            modifier = Modifier.width(200.dp).height(50.dp)
+                        ) {
+                            Text(stringResource(Res.string.back_to_world_map))
+                        }
+                        Button(
+                            onClick = onContinueToNextLevel,
+                            modifier = Modifier.height(50.dp).focusRequester(continueFocusRequester)
+                        ) {
+                            Text(stringResource(Res.string.continue_with_level, nextLevelName))
+                        }
+                    }
+                } else {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Button(
+                            onClick = onBack,
+                            modifier = Modifier.width(200.dp).height(50.dp)
+                        ) {
+                            Text(stringResource(Res.string.back))
+                        }
+                    }
                 }
                 Spacer(modifier = Modifier.height(8.dp))
             }
