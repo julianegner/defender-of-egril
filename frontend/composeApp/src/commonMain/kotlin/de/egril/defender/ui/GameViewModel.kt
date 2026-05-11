@@ -1543,9 +1543,10 @@ class GameViewModel {
         val isLastLevel = _worldLevels.value.firstOrNull { it.level.id == levelId }?.level?.editorLevelId == OfficialContent.FINAL_LEVEL_ID
         if (won) {
             val updatedLevels = _worldLevels.value.toMutableList()
-            val currentIndex = updatedLevels.indexOfFirst { it.level.id == levelId }
-            if (currentIndex >= 0) {
-                updatedLevels[currentIndex] = updatedLevels[currentIndex].copy(status = LevelStatus.WON)
+            val wonWorldLevel = updatedLevels.find { it.level.id == levelId }
+            if (wonWorldLevel != null) {
+                val wonIndex = updatedLevels.indexOf(wonWorldLevel)
+                updatedLevels[wonIndex] = wonWorldLevel.copy(status = LevelStatus.WON)
                 
                 // Get the set of all won level IDs (including the just-won level)
                 val wonLevelIds = updatedLevels
@@ -1568,8 +1569,8 @@ class GameViewModel {
                 saveWorldMapStatus()
 
                 // Save level handoff for any connected level on the same map
-                val wonEditorLevelId = updatedLevels[currentIndex].level.editorLevelId
-                val wonMapId = updatedLevels[currentIndex].level.mapId
+                val wonEditorLevelId = wonWorldLevel.level.editorLevelId
+                val wonMapId = wonWorldLevel.level.mapId
                 if (wonEditorLevelId != null && wonMapId != null) {
                     saveHandoffForConnectedLevels(wonEditorLevelId, wonMapId, updatedLevels)
                 }
