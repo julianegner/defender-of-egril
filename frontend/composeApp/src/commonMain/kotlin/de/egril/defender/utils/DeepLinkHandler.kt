@@ -49,6 +49,7 @@ fun InfoTab.toUrlSlug(): String = when (this) {
 
 /**
  * Parses a URL slug back into an InfoTab, or returns null for unknown slugs.
+ * "data-privacy" is accepted as an alias for the backend/account-privacy tab.
  */
 fun infoTabFromSlug(slug: String): InfoTab? = when (slug.lowercase()) {
     "installation" -> InfoTab.INSTALLATION
@@ -56,7 +57,7 @@ fun infoTabFromSlug(slug: String): InfoTab? = when (slug.lowercase()) {
     "audio-licenses" -> InfoTab.AUDIO_LICENSES
     "license" -> InfoTab.LICENSE
     "keyboard-shortcuts" -> InfoTab.KEYBOARD_SHORTCUTS
-    "backend" -> InfoTab.BACKEND
+    "backend", "data-privacy" -> InfoTab.BACKEND
     "editor-howto" -> InfoTab.EDITOR_HOWTO
     "download" -> InfoTab.DOWNLOAD
     else -> null
