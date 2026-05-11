@@ -18,6 +18,9 @@ import de.egril.defender.ui.editor.EditorHowToContent
 import de.egril.defender.ui.isEditorAvailable
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.utils.isPlatformWasm
+import de.egril.defender.utils.setInfoPageActive
+import de.egril.defender.utils.toUrlSlug
+import de.egril.defender.utils.updateBrowserUrl
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -50,6 +53,19 @@ fun InfoPageScreen(
     }
 
     val selectedTabIndex = visibleTabs.indexOf(selectedTab).coerceAtLeast(0)
+
+    // Suppress the HTML portrait-rotation overlay while on the info page and update the URL.
+    DisposableEffect(Unit) {
+        setInfoPageActive(true)
+        onDispose {
+            setInfoPageActive(false)
+            updateBrowserUrl("/")
+        }
+    }
+    // Keep the browser URL in sync with the selected tab.
+    LaunchedEffect(selectedTab) {
+        updateBrowserUrl("/info/${selectedTab.toUrlSlug()}")
+    }
     
     Surface(
         modifier = Modifier

@@ -92,6 +92,11 @@
             }
         }
 
+        /* Suppress the overlay when an info page is active (set by Kotlin/WASM via JS) */
+        body.info-page-active #portrait-overlay {
+            display: none !important;
+        }
+
         #portrait-overlay .phone-icon {
             animation: rotate-phone 2.5s ease-in-out infinite;
         }
@@ -306,6 +311,18 @@
                     document.getElementById('portrait-subtitle').textContent = msg.subtitle;
                 }
             } catch (e) { /* use default English text */ }
+        })();
+
+        // Suppress the portrait overlay immediately when the user navigates directly to an info page.
+        // The Kotlin/WASM app will call setInfoPageActive(true) once loaded, but this prevents
+        // the overlay from flickering in the meantime.
+        (function suppressPortraitOverlayOnInfoPage() {
+            try {
+                var p = window.location.pathname;
+                if (p === '/info' || p.indexOf('/info/') === 0) {
+                    document.body.classList.add('info-page-active');
+                }
+            } catch (e) { /* ignore */ }
         })();
     </script>
 </body>

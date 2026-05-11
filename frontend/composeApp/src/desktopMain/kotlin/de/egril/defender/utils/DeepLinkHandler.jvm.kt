@@ -8,4 +8,12 @@ actual fun getCurrentPathname(): String? {
     return null
 }
 
+actual fun updateBrowserUrl(path: String) {
+    // No-op on JVM/Desktop
+}
+
+actual fun setInfoPageActive(active: Boolean) {
+    // No-op on JVM/Desktop
+}
+
 actual fun detectSupportedLanguage(): String = "en"

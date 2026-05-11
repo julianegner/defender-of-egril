@@ -3443,7 +3443,7 @@ class GameViewModel {
 
     /**
      * Handles deep link navigation for web/WASM variant.
-     * Called once during app startup to check for deep links like /data-privacy/en
+     * Called once during app startup to check for deep links like /data-privacy/en or /info/installation
      */
     fun handleDeepLink() {
         val deepLink = checkCurrentDeepLink()
@@ -3453,6 +3453,10 @@ class GameViewModel {
                 currentLanguage.value = deepLink.language
                 // Navigate to the backend info page (which is the data-privacy page)
                 navigateToBackendInfo()
+            }
+            is DeepLink.InfoPage -> {
+                // Navigate directly to the requested info tab
+                _currentScreen.value = Screen.InstallationInfoAtTab(deepLink.tab)
             }
             DeepLink.None -> {
                 // No deep link, proceed normally
