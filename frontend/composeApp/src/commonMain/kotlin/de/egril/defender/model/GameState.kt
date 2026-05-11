@@ -225,7 +225,7 @@ data class GameState(
     val infoState: MutableState<InfoState> = mutableStateOf(InfoState()),  // Single tutorial infos system
     val destroyedMinePositions: SnapshotStateList<Position> = mutableStateListOf(),  // Positions where mines have been destroyed
     val mineWarnings: SnapshotStateList<Int> = mutableStateListOf(),  // Mine IDs with active warnings (dragon about to destroy)
-    val xpEarnedThisLevel: MutableState<Int> = mutableStateOf(0),  // XP earned during this level (awarded on win)
+    val xpEarnedThisLevel: MutableState<Int> = mutableStateOf(0),  // XP earned during this level (awarded on completion; 20% on loss)
     val currentMana: MutableState<Int> = mutableStateOf(0),  // Current mana (for spellcasting)
     val maxMana: MutableState<Int> = mutableStateOf(0),  // Maximum mana (based on player stats)
     val activeSpellEffects: SnapshotStateList<ActiveSpellEffect> = mutableStateListOf(),  // Active spell effects

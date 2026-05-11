@@ -26,6 +26,8 @@
     <string name="defeat_message">Les ennemis ont percé vos défenses...</string>
     <string name="retry">Réessayer</string>
     <string name="world_map">Carte du monde</string>
+    <string name="next_level">Niveau suivant</string>
+    <string name="continue_with_level">Continuer avec le niveau : %1$s</string>
     
     <!-- Settings -->
     <string name="settings">Paramètres</string>
@@ -1379,6 +1381,8 @@
 
     <!-- XP System -->
     <string name="xp_earned">XP Gagnée: %d</string>
+    <string name="level_up_reached">Niveau supérieur ! Niveau %d atteint</string>
+    <string name="ability_points_gained">Points de capacité gagnés : +%d</string>
     <string name="xp_info_brief">Gagnez de l\'XP en battant des ennemis.\nMontez de niveau pour obtenir des points de capacités et débloquer des capacités puissantes!</string>
     <string name="xp_system_unlocked">Système d\'XP Débloqué!</string>
     <string name="xp_system_unlock_message">Vous pouvez maintenant utiliser l\'XP pour améliorer vos capacités et débloquer des capacités puissantes!\n\nAccédez à l\'écran d\'amélioration depuis le Profil du Joueur.</string>

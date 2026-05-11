@@ -58,10 +58,55 @@ class LevelCompleteScreenTest {
             .assertExists()
             .assertHasClickAction()
         
+        // "Next Level" button should NOT appear when onNextLevel is null
+        composeTestRule.onNodeWithText("Next Level", substring = true, ignoreCase = true)
+            .assertDoesNotExist()
+        
         // Capture screenshot
         ScreenshotTestUtils.captureScreenshot(
             composeTestRule,
             "level-complete-victory",
+            width = 1200,
+            height = 800
+        )
+    }
+
+    @Test
+    fun testLevelCompleteScreenVictoryWithNextLevel() {
+        var restartClicked = false
+        var backToMapClicked = false
+        var nextLevelClicked = false
+
+        // Set up victory state with a next level available
+        composeTestRule.setContent {
+            LevelCompleteScreen(
+                levelId = 1,
+                won = true,
+                isLastLevel = false,
+                onRestart = { restartClicked = true },
+                onBackToMap = { backToMapClicked = true },
+                onNextLevel = { nextLevelClicked = true }
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        // "Next Level" button should appear
+        composeTestRule.onNodeWithText("Next Level", substring = true, ignoreCase = true)
+            .assertExists()
+            .assertHasClickAction()
+
+        // Test clicking the next level button
+        composeTestRule.onNodeWithText("Next Level", substring = true, ignoreCase = true)
+            .performClick()
+
+        composeTestRule.waitForIdle()
+        assert(nextLevelClicked) { "Next Level button should trigger callback" }
+
+        // Capture screenshot
+        ScreenshotTestUtils.captureScreenshot(
+            composeTestRule,
+            "level-complete-victory-with-next-level",
             width = 1200,
             height = 800
         )
@@ -107,6 +152,41 @@ class LevelCompleteScreenTest {
             height = 800
         )
     }
+
+    @Test
+    fun testLevelCompleteScreenDefeatShowsXpAndLevelProgress() {
+        composeTestRule.setContent {
+            LevelCompleteScreen(
+                levelId = 2,
+                won = false,
+                isLastLevel = false,
+                xpEarned = 24,
+                newPlayerLevel = 4,
+                playerLevelGained = 1,
+                abilityPointsGained = 1,
+                onRestart = {},
+                onBackToMap = {}
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("XP Earned", substring = true, ignoreCase = true)
+            .assertExists()
+
+        composeTestRule.onNodeWithText("Reached Level", substring = true, ignoreCase = true)
+            .assertExists()
+
+        composeTestRule.onNodeWithText("Ability Points Gained", substring = true, ignoreCase = true)
+            .assertExists()
+
+        ScreenshotTestUtils.captureScreenshot(
+            composeTestRule,
+            "level-complete-defeat-with-xp",
+            width = 1200,
+            height = 800
+        )
+    }
     
     @Test
     fun testLevelCompleteScreenFinalVictoryState() {
@@ -136,6 +216,10 @@ class LevelCompleteScreenTest {
         
         composeTestRule.onNodeWithText("World Map", substring = true, ignoreCase = true)
             .assertExists()
+        
+        // "Next Level" button should NOT appear when it's the last level
+        composeTestRule.onNodeWithText("Next Level", substring = true, ignoreCase = true)
+            .assertDoesNotExist()
         
         // Capture screenshot
         ScreenshotTestUtils.captureScreenshot(
@@ -176,5 +260,34 @@ class LevelCompleteScreenTest {
         
         composeTestRule.waitForIdle()
         assert(backToMapClicked) { "World Map button should trigger callback" }
+    }
+
+    @Test
+    fun testLevelCompleteScreenShowsLevelAndAbilityPointGains() {
+        composeTestRule.setContent {
+            LevelCompleteScreen(
+                levelId = 2,
+                won = true,
+                isLastLevel = false,
+                xpEarned = 120,
+                newPlayerLevel = 3,
+                playerLevelGained = 1,
+                abilityPointsGained = 1,
+                onRestart = {},
+                onBackToMap = {}
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Reached Level", substring = true, ignoreCase = true)
+            .assertExists()
+
+        ScreenshotTestUtils.captureScreenshot(
+            composeTestRule,
+            "level-complete-level-up-and-ability-points",
+            width = 1200,
+            height = 800
+        )
     }
 }

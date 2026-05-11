@@ -424,6 +424,20 @@ fun App() {
                     )
                 }
             }
+
+            is Screen.StatsUpgradeWithNextLevel -> {
+                currentPlayer?.let { profile ->
+                    AbilitiesUpgradeScreen(
+                        playerProfile = profile,
+                        onUpgradeAbility = { abilityType -> viewModel.upgradeAbility(abilityType) },
+                        onUnlockSpell = { spell -> viewModel.unlockSpell(spell) },
+                        onBack = { viewModel.navigateToWorldMap() },
+                        onContinueToNextLevel = { viewModel.startLevel(screen.nextLevelId) },
+                        nextLevelName = screen.nextLevelName,
+                        onCheatCode = { code -> viewModel.applyWorldMapCheatCode(code) }
+                    )
+                }
+            }
             
             is Screen.LevelEditor -> {
                 LevelEditorScreen(
@@ -534,8 +548,16 @@ fun App() {
                     won = screen.won,
                     isLastLevel = screen.isLastLevel,
                     xpEarned = screen.xpEarned,
+                    newPlayerLevel = screen.newPlayerLevel,
+                    playerLevelGained = screen.playerLevelGained,
+                    abilityPointsGained = screen.abilityPointsGained,
                     onRestart = { viewModel.restartLevel() },
                     onBackToMap = { viewModel.navigateToWorldMap() },
+                    onNextLevel = if (screen.nextLevelId != null && screen.nextLevelName != null) {
+                        { viewModel.navigateToNextLevel(screen.nextLevelId, screen.nextLevelName) }
+                    } else {
+                        null
+                    },
                     onShowFinalCredits = if (screen.isLastLevel && screen.won) {
                         { viewModel.navigateToFinalCredits() }
                     } else {

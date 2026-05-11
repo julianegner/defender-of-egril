@@ -26,6 +26,8 @@
     <string name="defeat_message">Die Feinde haben deine Verteidigung durchbrochen...</string>
     <string name="retry">Wiederholen</string>
     <string name="world_map">Weltkarte</string>
+    <string name="next_level">Nächstes Level</string>
+    <string name="continue_with_level">Weiter mit Level: %1$s</string>
     
     <!-- Settings -->
     <string name="settings">Einstellungen</string>
@@ -1377,6 +1379,8 @@
 
     <!-- XP System -->
     <string name="xp_earned">Verdiente XP: %d</string>
+    <string name="level_up_reached">Levelaufstieg! Level %d erreicht</string>
+    <string name="ability_points_gained">Erhaltene Fähigkeitspunkte: +%d</string>
     <string name="xp_info_brief">Verdienen Sie XP durch das Besiegen von Feinden.\nLeveln Sie auf, um Fähigkeitspunkte zu erhalten und mächtige Fähigkeiten freizuschalten!</string>
     <string name="xp_system_unlocked">XP-System freigeschaltet!</string>
     <string name="xp_system_unlock_message">Sie können jetzt XP verwenden, um Ihre Fähigkeiten zu verbessern und mächtige Fähigkeiten freizuschalten!\n\nGreifen Sie auf den Upgrade-Bildschirm über das Spielerprofil zu.</string>
