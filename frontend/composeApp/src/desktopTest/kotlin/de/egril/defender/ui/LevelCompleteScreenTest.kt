@@ -245,7 +245,7 @@ class LevelCompleteScreenTest {
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("Level Up", substring = true, ignoreCase = true)
+        composeTestRule.onNodeWithText("Level Up!", substring = true, ignoreCase = true)
             .assertExists()
 
         ScreenshotTestUtils.captureScreenshot(
