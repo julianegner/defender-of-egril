@@ -38,4 +38,24 @@ class MainMenuLayoutDecisionTest {
             )
         )
     }
+
+    @Test
+    fun mobileWebUsesCompactMainMenuLayoutInLandscape() {
+        assertTrue(
+            shouldUseCompactMainMenuLayout(
+                isNativeMobile = false,
+                isMobileWeb = true
+            )
+        )
+    }
+
+    @Test
+    fun desktopDoesNotUseCompactMainMenuLayout() {
+        assertFalse(
+            shouldUseCompactMainMenuLayout(
+                isNativeMobile = false,
+                isMobileWeb = false
+            )
+        )
+    }
 }
