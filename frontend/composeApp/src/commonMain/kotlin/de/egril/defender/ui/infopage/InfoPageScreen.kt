@@ -15,6 +15,7 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.WithImpressum
 import de.egril.defender.ui.common.ScrollableTabRowWithHints
 import de.egril.defender.ui.editor.EditorHowToContent
+import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.isEditorAvailable
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.utils.isPlatformWasm
@@ -27,6 +28,11 @@ import defender_of_egril.composeapp.generated.resources.*
  * Main info page screen that combines installation info, audio licenses, and backend info.
  * This screen is accessible via the info button on the main menu (all platforms).
  */
+internal fun shouldUseCompactInfoHeaderLayout(
+    isMobileWeb: Boolean,
+    isLandscape: Boolean
+): Boolean = isMobileWeb && isLandscape
+
 @Composable
 fun InfoPageScreen(
     onBack: () -> Unit,
@@ -82,15 +88,38 @@ fun InfoPageScreen(
             },
         color = MaterialTheme.colorScheme.background
     ) {
-        Box(
+        BoxWithConstraints(
             modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
-            // Settings button in top-right corner
-            SettingsButton(
+            val isMobileWeb = isMobileWebBrowser()
+            val isLandscapeMobileWeb = shouldUseCompactInfoHeaderLayout(
+                isMobileWeb = isMobileWeb,
+                isLandscape = maxWidth > maxHeight
+            )
+            Row(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(8.dp)
-            )
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (isLandscapeMobileWeb) {
+                    OutlinedButton(
+                        onClick = onBack,
+                        modifier = Modifier.height(32.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp)
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.back),
+                            style = MaterialTheme.typography.bodySmall,
+                            maxLines = 1
+                        )
+                    }
+                }
+
+                // Settings button in top-right corner
+                SettingsButton()
+            }
             
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -144,14 +173,16 @@ fun InfoPageScreen(
                     }
                 }
                 
-                // Back button
-                Button(
-                    onClick = onBack,
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .widthIn(min = 200.dp)
-                ) {
-                    Text(stringResource(Res.string.back))
+                if (!isLandscapeMobileWeb) {
+                    // Back button
+                    Button(
+                        onClick = onBack,
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .widthIn(min = 200.dp)
+                    ) {
+                        Text(stringResource(Res.string.back))
+                    }
                 }
             }
         }

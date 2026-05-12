@@ -62,6 +62,11 @@ internal fun shouldUseStackedMainMenuLayout(
     isPortrait: Boolean
 ): Boolean = isNativeMobile || (isMobileWeb && isPortrait)
 
+internal fun shouldUseCompactMainMenuLayout(
+    isNativeMobile: Boolean,
+    isMobileWeb: Boolean
+): Boolean = isNativeMobile || isMobileWeb
+
 /**
  * Compact row of main menu action buttons for mobile and mobile-web layouts.
  * @param buttonHeight Height of each button (40.dp for native mobile, 30.dp for mobile web)
@@ -158,6 +163,10 @@ fun MainMenuScreen(
                 isNativeMobile = isPlatformMobile,
                 isMobileWeb = isMobileWeb,
                 isPortrait = isPortrait
+            )
+            val usesCompactLayout = shouldUseCompactMainMenuLayout(
+                isNativeMobile = isPlatformMobile,
+                isMobileWeb = isMobileWeb
             )
             val usesPortraitMobileWebLayout = isMobileWeb && usesStackedLayout
 
@@ -316,8 +325,8 @@ fun MainMenuScreen(
             // On mobile and mobile-web browsers, add enough top padding to clear the player area and exit button.
             // If a player name is shown (incl. IAM login/logout button), use a larger offset.
             val mobileTopPadding = when {
-                usesPortraitMobileWebLayout && currentPlayerName != null -> 160.dp
-                usesPortraitMobileWebLayout -> 96.dp
+                isMobileWeb && currentPlayerName != null -> 160.dp
+                isMobileWeb -> 96.dp
                 currentPlayerName != null -> MobileTopPaddingWithPlayer
                 else -> MobileTopPaddingWithoutPlayer
             }
@@ -325,53 +334,42 @@ fun MainMenuScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .then(if (usesStackedLayout) Modifier.padding(top = mobileTopPadding) else Modifier)
-                    .then(if (usesStackedLayout) Modifier.verticalScroll(scrollState) else Modifier),
+                    .then(if (usesCompactLayout) Modifier.padding(top = mobileTopPadding) else Modifier)
+                    .then(if (usesCompactLayout) Modifier.verticalScroll(scrollState) else Modifier),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = if (usesStackedLayout) Arrangement.Top else Arrangement.Center
+                verticalArrangement = if (usesCompactLayout) Arrangement.Top else Arrangement.Center
             ) {
                 // Add top spacer on mobile/mobile-web to position banner in the upper third of the screen
-                if (usesStackedLayout) {
+                if (usesCompactLayout) {
                     Spacer(modifier = Modifier.height(4.dp))
                 }
                 
                 // Application banner with logo and styled text
                 ApplicationBannerImage(
-                    modifier = if (usesStackedLayout) Modifier.height(120.dp) else Modifier
+                    modifier = if (usesCompactLayout) Modifier.height(120.dp) else Modifier
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 Text(
                     text = stringResource(Res.string.app_subtitle),
-                    style = if (usesStackedLayout) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodyLarge,
+                    style = if (usesCompactLayout) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 
-                Spacer(modifier = Modifier.height(if (usesStackedLayout) 16.dp else 24.dp))
+                Spacer(modifier = Modifier.height(if (usesCompactLayout) 16.dp else 24.dp))
                 
                 // On mobile, buttons are in a single row; on mobile web, same row layout but smaller; on desktop, in a row/column layout
-                if (isPlatformMobile) {
+                if (isPlatformMobile || isMobileWeb) {
                     MainMenuButtonRow(
                         onStartGame = onStartGame,
                         onContinueGame = onContinueGame,
                         hasAutosave = hasAutosave,
                         isDataLoaded = isDataLoaded,
                         onShowRules = onShowRules,
-                        buttonHeight = 40.dp,
-                        textStyle = MaterialTheme.typography.bodySmall
-                    )
-                } else if (usesPortraitMobileWebLayout) {
-                    // Mobile web browser: compact row layout at 50% button size
-                    MainMenuButtonRow(
-                        onStartGame = onStartGame,
-                        onContinueGame = onContinueGame,
-                        hasAutosave = hasAutosave,
-                        isDataLoaded = isDataLoaded,
-                        onShowRules = onShowRules,
-                        buttonHeight = 30.dp,
-                        textStyle = MaterialTheme.typography.labelSmall
+                        buttonHeight = if (isPlatformMobile) 40.dp else 34.dp,
+                        textStyle = if (isPlatformMobile) MaterialTheme.typography.bodySmall else MaterialTheme.typography.labelSmall
                     )
                 } else {
                     Row(
@@ -418,14 +416,14 @@ fun MainMenuScreen(
 
                     Button(
                         onClick = onShowDownloadInfo,
-                        modifier = Modifier.width(200.dp).height(if (usesPortraitMobileWebLayout) 30.dp else 60.dp),
+                        modifier = Modifier.width(200.dp).height(if (isMobileWeb) 34.dp else 60.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.tertiary
                         )
                     ) {
                         Text(
                             stringResource(Res.string.download_button),
-                            style = if (usesPortraitMobileWebLayout) MaterialTheme.typography.labelSmall else MaterialTheme.typography.titleMedium
+                            style = if (isMobileWeb) MaterialTheme.typography.labelSmall else MaterialTheme.typography.titleMedium
                         )
                     }
                 }
