@@ -123,6 +123,7 @@
     
   ],
   "prerequisites": ["the_ork_invasion"],
-  "isOfficial": true
+  "isOfficial": true,
+  "allowAutoAttack": true
 }
 }

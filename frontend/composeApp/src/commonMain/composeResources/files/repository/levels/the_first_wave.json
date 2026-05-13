@@ -289,6 +289,8 @@
       "BOW_TOWER"
     ],
     "waypoints": [],
-    "prerequisites": []
+    "prerequisites": [],
+    "isOfficial": true,
+    "allowAutoAttack": true
   }
 }

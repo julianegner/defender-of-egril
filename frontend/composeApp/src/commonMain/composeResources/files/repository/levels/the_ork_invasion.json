@@ -133,6 +133,7 @@
     
   ],
   "prerequisites": ["mixed_forces"],
-  "isOfficial": true
+  "isOfficial": true,
+  "allowAutoAttack": true
 }
 }
