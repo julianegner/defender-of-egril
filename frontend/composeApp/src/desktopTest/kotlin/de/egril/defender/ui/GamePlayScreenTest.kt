@@ -106,6 +106,39 @@ class GamePlayScreenTest {
             height = 900
         )
     }
+
+    @Test
+    fun testGamePlayScreenShowsAutoAttackInfoOnLevelStart() {
+        val level = LevelData.createLevels().first { it.id == 1 }.copy(allowAutoAttack = true)
+        val gameState = GameState(level)
+
+        composeTestRule.setContent {
+            GamePlayScreen(
+                gameState = gameState,
+                onPlaceDefender = { _, _ -> true },
+                onUpgradeDefender = { true },
+                onUndoTower = { true },
+                onSellTower = { true },
+                onStartFirstPlayerTurn = {},
+                onDefenderAttack = { _, _ -> true },
+                onDefenderAttackPosition = { _, _ -> true },
+                onEndPlayerTurn = {},
+                onAutoAttackAndEndTurn = {},
+                onBackToMap = {}
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText("Auto-Attack Feature").assertExists()
+
+        ScreenshotTestUtils.captureScreenshot(
+            composeTestRule,
+            "gameplay-screen-auto-attack-info-on-start",
+            width = 1400,
+            height = 900
+        )
+    }
     
     @Test
     fun testGamePlayScreenInitialBuildingPhase() {

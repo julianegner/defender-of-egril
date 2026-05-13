@@ -467,6 +467,20 @@ private fun GamePlayScreenContent(
         }
     }
 
+    // Show auto-attack feature info when starting a level that has auto-attack enabled (first time only)
+    LaunchedEffect(gameState.level.allowAutoAttack, gameState.infoState.value) {
+        val infoState = gameState.infoState.value
+
+        // Skip if already showing an info
+        if (infoState.currentInfo != InfoType.NONE) {
+            return@LaunchedEffect
+        }
+
+        if (gameState.level.allowAutoAttack && !infoState.hasSeen(InfoType.AUTO_ATTACK_INFO)) {
+            gameState.infoState.value = infoState.showInfo(InfoType.AUTO_ATTACK_INFO)
+        }
+    }
+
     // Helper: select the next (or previous if reversed) actionable tower, scroll to it, and
     // pre-select its best auto-attack target. If no actionable tower exists, visually highlight
     // the End Turn button (do NOT actually end the turn).
@@ -1288,13 +1302,7 @@ private fun GamePlayScreenContent(
                         selectedDefenderId = null  // Clear defender selection when starting battle
                         selectedAttackerId = null  // Clear attacker selection when starting battle
                         onStartFirstPlayerTurn()
-                        
-                        // Show first-time auto-attack info at the start of the level if allowed and not seen
-                        if (gameState.level.allowAutoAttack && 
-                            !gameState.infoState.value.hasSeen(InfoType.AUTO_ATTACK_INFO)) {
-                            gameState.infoState.value = gameState.infoState.value.showInfo(InfoType.AUTO_ATTACK_INFO)
-                        }
-                        
+
                         // Track tutorial progress and auto-advance START_COMBAT step
                         if (gameState.tutorialState.value.isActive) {
                             if (!gameState.tutorialState.value.hasStartedFirstTurn) {
