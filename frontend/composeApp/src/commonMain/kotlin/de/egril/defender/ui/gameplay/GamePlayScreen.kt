@@ -468,7 +468,11 @@ private fun GamePlayScreenContent(
     }
 
     // Show auto-attack feature info when starting a level that has auto-attack enabled (first time only)
-    LaunchedEffect(gameState.level.allowAutoAttack, gameState.infoState.value) {
+    LaunchedEffect(
+        gameState.level.allowAutoAttack,
+        gameState.infoState.value.currentInfo,
+        gameState.infoState.value.hasSeen(InfoType.AUTO_ATTACK_INFO)
+    ) {
         val infoState = gameState.infoState.value
 
         // Skip if already showing an info
