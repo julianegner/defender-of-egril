@@ -468,17 +468,21 @@ private fun GamePlayScreenContent(
     }
 
     // Show auto-attack feature info when starting a level that has auto-attack enabled (first time only)
-    LaunchedEffect(
-        gameState.level.allowAutoAttack,
-        gameState.infoState.value.currentInfo == InfoType.NONE,
-        gameState.infoState.value.hasSeen(InfoType.AUTO_ATTACK_INFO)
-    ) {
-        val infoState = gameState.infoState.value
-        val shouldShowAutoAttackInfo = gameState.level.allowAutoAttack &&
-            infoState.currentInfo == InfoType.NONE &&
-            !infoState.hasSeen(InfoType.AUTO_ATTACK_INFO)
-        if (shouldShowAutoAttackInfo) {
-            gameState.infoState.value = infoState.showInfo(InfoType.AUTO_ATTACK_INFO)
+    LaunchedEffect(gameState.level.id, gameState.level.allowAutoAttack) {
+        if (!gameState.level.allowAutoAttack) {
+            return@LaunchedEffect
+        }
+
+        while (true) {
+            val infoState = gameState.infoState.value
+            if (infoState.hasSeen(InfoType.AUTO_ATTACK_INFO)) {
+                return@LaunchedEffect
+            }
+            if (infoState.currentInfo == InfoType.NONE) {
+                gameState.infoState.value = infoState.showInfo(InfoType.AUTO_ATTACK_INFO)
+                return@LaunchedEffect
+            }
+            kotlinx.coroutines.delay(100L)
         }
     }
 
