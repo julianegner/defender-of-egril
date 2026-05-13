@@ -56,6 +56,7 @@ sealed class Screen {
     data class StatsUpgradeWithNextLevel(val nextLevelId: Int, val nextLevelName: String) : Screen()  // Stats/spells upgrade before continuing to next level
     object FinalCredits : Screen()
     object AnimationTest : Screen()  // Developer cheat: animation test/preview screen
+    object TutorialDeepLink : Screen()  // Web-only: /tutorial URL shows loading while data/player are prepared
     data class GamePlay(val levelId: Int) : Screen()
     data class LevelComplete(
         val levelId: Int,
@@ -115,6 +116,10 @@ class GameViewModel {
 
     private val _loadingProgress = MutableStateFlow<LoadingProgress?>(null)
     val loadingProgress: StateFlow<LoadingProgress?> = _loadingProgress.asStateFlow()
+
+    // Tutorial deep link state – set when the user visits /tutorial on the web version
+    private val _pendingTutorialDeepLink = MutableStateFlow(false)
+    val pendingTutorialDeepLink: StateFlow<Boolean> = _pendingTutorialDeepLink.asStateFlow()
 
     // Player profile state
     private val _currentPlayer = MutableStateFlow<de.egril.defender.save.PlayerProfile?>(null)
@@ -3814,7 +3819,7 @@ class GameViewModel {
 
     /**
      * Handles deep link navigation for web/WASM variant.
-     * Called once during app startup to check for deep links like /data-privacy/en or /info/installation
+     * Called once during app startup to check for deep links like /data-privacy/en, /info/installation, or /tutorial
      */
     fun handleDeepLink() {
         val deepLink = checkCurrentDeepLink()
@@ -3829,10 +3834,24 @@ class GameViewModel {
                 // Navigate directly to the requested info tab
                 _currentScreen.value = Screen.InstallationInfoAtTab(deepLink.tab)
             }
+            DeepLink.Tutorial -> {
+                // Show a loading screen; App.kt will start the tutorial once data + player are ready
+                _currentScreen.value = Screen.TutorialDeepLink
+                _pendingTutorialDeepLink.value = true
+            }
             DeepLink.None -> {
                 // No deep link, proceed normally
             }
         }
+    }
+
+    /**
+     * Starts the tutorial (first) level. Called when the user visits /tutorial on web.
+     * Resets the pending tutorial flag and starts level 1.
+     */
+    fun startTutorialLevel() {
+        _pendingTutorialDeepLink.value = false
+        startLevel(TUTORIAL_LEVEL_ID)
     }
 
     companion object {
@@ -3843,6 +3862,9 @@ class GameViewModel {
         private const val BACKGROUND_SAVE_ID = "background_save"
 
         private const val LOST_LEVEL_XP_DIVISOR = 5
+
+        /** Level ID of the tutorial level ("Welcome to Defender of Egril"). */
+        const val TUTORIAL_LEVEL_ID = 1
 
         internal fun calculateAwardedXpForLevelCompletion(rawXpEarned: Int, won: Boolean): Int {
             return if (won) {
