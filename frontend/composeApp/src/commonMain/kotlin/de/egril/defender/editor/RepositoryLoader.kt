@@ -419,4 +419,212 @@ object RepositoryLoader {
             false
         }
     }
+
+    /**
+     * Loads the first level in the sequence and its map first, calls [onFirstLevelReady] once that
+     * minimal data is available, then continues loading the remaining levels and maps in the
+     * background (within the same coroutine).
+     *
+     * This is used when the user arrives via the /tutorial deep link so the tutorial level becomes
+     * playable as soon as possible, while the rest of the game data loads in the background.
+     *
+     * If the stored data is already up to date [onFirstLevelReady] is called immediately and the
+     * full load is skipped (same fast-path behaviour as [loadAndSaveRepositoryFiles]).
+     *
+     * @param storage        File storage to write to.
+     * @param onFirstLevelReady Callback invoked once the first level + its map are in storage.
+     * @param onProgress     Optional progress callback (loaded, total, currentFilename).
+     * @return true if the load succeeded.
+     */
+    suspend fun loadAndSaveRepositoryFilesWithPriority(
+        storage: FileStorage,
+        onFirstLevelReady: suspend () -> Unit,
+        onProgress: ((loaded: Int, total: Int, filename: String) -> Unit)? = null
+    ): Boolean {
+        return try {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("Loading repository files with priority for first level...")
+            }
+
+            // Fast path: if data is already up to date, signal ready immediately.
+            val bundledVersion = loadVersion()
+            val bundledFingerprint = loadFingerprint()
+            val storedVersion = storage.readFile("gamedata/version.txt")?.trim()
+            val storedFingerprint = storage.readFile(STORED_FINGERPRINT_FILE)?.trim()
+            if (
+                bundledVersion != null &&
+                bundledVersion == storedVersion &&
+                bundledFingerprint != null &&
+                bundledFingerprint == storedFingerprint
+            ) {
+                val officialMapFiles = storage.listFiles("gamedata/official/maps")
+                if (officialMapFiles.isNotEmpty()) {
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                    println("Repository data is up to date (version $storedVersion), signalling ready immediately")
+                    }
+                    onFirstLevelReady()
+                    return true
+                }
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                println("Version matches ($storedVersion) but official maps are missing - performing full sync to restore data")
+                }
+                // Fall through to full sync below
+            }
+
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println(
+                "Repository data changed (stored version: $storedVersion, bundled version: $bundledVersion, " +
+                    "stored fingerprint: $storedFingerprint, bundled fingerprint: $bundledFingerprint) - " +
+                    "priority load for first level then loading remaining data"
+            )
+            }
+
+            val sequence = loadSequence()
+            if (sequence == null || sequence.sequence.isEmpty()) {
+                println("Repository sequence is empty or invalid")
+                return false
+            }
+
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("Found ${sequence.sequence.size} levels in repository sequence (priority mode)")
+            }
+
+            // Save sequence and worldmap first so they are available after onFirstLevelReady().
+            val sequenceJson = EditorJsonSerializer.serializeSequence(sequence)
+            storage.writeFile("gamedata/official/sequence.json", sequenceJson)
+
+            val worldMapData = loadWorldMapData()
+            if (worldMapData != null) {
+                val worldMapJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
+                storage.writeFile("gamedata/official/worldmap.json", worldMapJson)
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                println("Saved official worldmap.json (priority phase)")
+                }
+            }
+
+            // Estimated total: levels (N) + maps upper-bound (N) + 1 worldmap
+            val estimatedTotal = sequence.sequence.size * 2 + 1
+            var loaded = 0
+
+            // --- Priority phase: load the first level and its map ---
+            val priorityLevelId = sequence.sequence.first()
+            val priorityLevel = loadLevel(priorityLevelId)
+            var priorityMapId: String? = null
+            if (priorityLevel != null) {
+                val officialLevel = priorityLevel.copy(isOfficial = true)
+                storage.writeFile(
+                    "gamedata/official/levels/$priorityLevelId.json",
+                    EditorJsonSerializer.serializeLevel(officialLevel)
+                )
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                println("Loaded and saved priority level: $priorityLevelId")
+                }
+                priorityMapId = priorityLevel.mapId
+                val map = loadMap(priorityMapId)
+                if (map != null) {
+                    val officialMap = map.copy(isOfficial = true)
+                    storage.writeFile(
+                        "gamedata/official/maps/$priorityMapId.json",
+                        EditorJsonSerializer.serializeMap(officialMap)
+                    )
+                    try {
+                        val pngBytes = readRepositoryBytes("maps/$priorityMapId.png")
+                        storage.writeBinaryFile("gamedata/official/maps/$priorityMapId.png", pngBytes)
+                    } catch (_: Exception) {
+                        // PNG might not exist, that's OK
+                    }
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                    println("Loaded and saved priority map: $priorityMapId")
+                    }
+                }
+            }
+            loaded += 2
+            onProgress?.invoke(loaded, estimatedTotal, "$priorityLevelId.json")
+
+            // Priority data is ready – notify the caller so the tutorial can start.
+            onFirstLevelReady()
+
+            // --- Background phase: load the remaining levels and maps ---
+            val mapsToLoad = mutableSetOf<String>()
+            if (priorityMapId != null) mapsToLoad.add(priorityMapId)
+
+            var successCount = if (priorityLevel != null) 1 else 0
+            for (levelId in sequence.sequence.drop(1)) {
+                val level = loadLevel(levelId)
+                if (level != null) {
+                    val officialLevel = level.copy(isOfficial = true)
+                    storage.writeFile(
+                        "gamedata/official/levels/$levelId.json",
+                        EditorJsonSerializer.serializeLevel(officialLevel)
+                    )
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                    println("Loaded and saved official level: $levelId")
+                    }
+                    mapsToLoad.add(level.mapId)
+                    successCount++
+                } else {
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                    println("WARNING: Could not load level $levelId from repository")
+                    }
+                }
+                loaded++
+                onProgress?.invoke(loaded, estimatedTotal, "$levelId.json")
+            }
+
+            val actualTotal = sequence.sequence.size + mapsToLoad.size + 1
+            var mapCount = if (priorityMapId != null) 1 else 0
+            for (mapId in mapsToLoad) {
+                if (mapId == priorityMapId) {
+                    // Already loaded in the priority phase – advance the counter to keep progress accurate.
+                    loaded++
+                    onProgress?.invoke(loaded, actualTotal, "$mapId.json")
+                    continue
+                }
+                val map = loadMap(mapId)
+                if (map != null) {
+                    val officialMap = map.copy(isOfficial = true)
+                    storage.writeFile(
+                        "gamedata/official/maps/$mapId.json",
+                        EditorJsonSerializer.serializeMap(officialMap)
+                    )
+                    try {
+                        val pngBytes = readRepositoryBytes("maps/$mapId.png")
+                        storage.writeBinaryFile("gamedata/official/maps/$mapId.png", pngBytes)
+                        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                        println("Loaded and saved official map image: $mapId.png")
+                        }
+                    } catch (_: Exception) {
+                        // PNG might not exist, that's OK
+                    }
+                    mapCount++
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                    println("Loaded and saved official map: $mapId")
+                    }
+                } else {
+                    if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                    println("WARNING: Could not load map $mapId from repository")
+                    }
+                }
+                loaded++
+                onProgress?.invoke(loaded, actualTotal, "$mapId.json")
+            }
+
+            // Save version/fingerprint now that everything is loaded.
+            storage.writeFile("gamedata/version.txt", bundledVersion ?: "10")
+            if (bundledFingerprint != null) {
+                storage.writeFile(STORED_FINGERPRINT_FILE, bundledFingerprint)
+            }
+
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("Repository files loaded successfully (priority mode): $successCount levels, $mapCount maps")
+            }
+            successCount > 0
+        } catch (e: Exception) {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("Error loading repository files (priority mode): ${e.message}")
+            }
+            e.printStackTrace()
+            false
+        }
+    }
 }

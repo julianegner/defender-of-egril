@@ -246,13 +246,37 @@ class GameViewModel {
             // On WASM, repository files are loaded asynchronously. Initialize with progress
             // tracking and only start the world map after all data is ready.
             initializePlayerProfile()
+            val isTutorialDeepLink = checkCurrentDeepLink() is DeepLink.Tutorial
             viewModelScope.launch {
-                de.egril.defender.editor.EditorStorage.ensureInitializedAsync { loaded, total, filename ->
-                    _loadingProgress.value = LoadingProgress(loaded, total, filename)
+                if (isTutorialDeepLink) {
+                    // Priority path: load only the first (tutorial) level and its map first so
+                    // the tutorial can start immediately. The remaining levels are loaded in the
+                    // background within the same coroutine after the callback returns.
+                    // Note: _isDataLoaded is set to true inside onFirstLevelReady once the minimum
+                    // data required to start the tutorial level is available. The full repository
+                    // continues loading in the background and initializeWorldMap() is called again
+                    // afterwards to make all levels available on the world map.
+                    de.egril.defender.editor.EditorStorage.ensureInitializedAsyncWithPriority(
+                        onFirstLevelReady = {
+                            _loadingProgress.value = null
+                            _isDataLoaded.value = true
+                            initializeWorldMap()
+                        },
+                        onProgress = { loaded, total, filename ->
+                            _loadingProgress.value = LoadingProgress(loaded, total, filename)
+                        }
+                    )
+                    // Full load finished – refresh world map so all levels become available.
+                    _loadingProgress.value = null
+                    initializeWorldMap()
+                } else {
+                    de.egril.defender.editor.EditorStorage.ensureInitializedAsync { loaded, total, filename ->
+                        _loadingProgress.value = LoadingProgress(loaded, total, filename)
+                    }
+                    _loadingProgress.value = null
+                    _isDataLoaded.value = true
+                    initializeWorldMap()
                 }
-                _loadingProgress.value = null
-                _isDataLoaded.value = true
-                initializeWorldMap()
                 // Note: background save restore is intentionally skipped on WASM because the
                 // platform does not have a persistent process lifecycle the same way Android does.
             }
