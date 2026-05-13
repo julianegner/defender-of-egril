@@ -128,6 +128,57 @@ object EditorStorage {
     }
 
     /**
+     * Async initialization that loads the first level in the sequence and its map first, then
+     * invokes [onFirstLevelReady] before loading the rest of the repository in the background.
+     *
+     * Use this when the player arrives via a deep link that targets the first level (e.g. /tutorial)
+     * so they can start playing immediately while the remaining game data loads.
+     *
+     * If storage is already up-to-date [onFirstLevelReady] is called right away (fast path).
+     * After the full load completes [initialized] is set to true so subsequent calls are no-ops.
+     */
+    suspend fun ensureInitializedAsyncWithPriority(
+        onFirstLevelReady: suspend () -> Unit,
+        onProgress: ((loaded: Int, total: Int, filename: String) -> Unit)? = null
+    ) {
+        if (initialized) {
+            // Already fully initialised - signal ready immediately.
+            onFirstLevelReady()
+            return
+        }
+
+        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+        println("Initializing EditorStorage asynchronously (priority mode) - loading first level first...")
+        }
+        val repositoryLoaded = RepositoryLoader.loadAndSaveRepositoryFilesWithPriority(
+            storage = fileStorage,
+            onFirstLevelReady = onFirstLevelReady,
+            onProgress = onProgress
+        )
+
+        if (!repositoryLoaded) {
+            println("Repository files could not be loaded (async priority) - this may be a test environment")
+        }
+
+        val missingCategories = validateRepositoryData()
+        if (missingCategories.isNotEmpty()) {
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("Missing data categories: $missingCategories - continuing anyway (test environment)")
+            }
+        }
+
+        val sequence = getLevelSequence()
+        if (sequence.sequence.isEmpty()) {
+            println("Level sequence is empty - continuing anyway (test environment)")
+        }
+
+        initialized = true
+        if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+        println("EditorStorage initialized asynchronously (priority mode). Repository loaded: $repositoryLoaded")
+        }
+    }
+
+    /**
      * Validate that all required repository data exists and is not empty
      * @return List of missing or empty categories
      */
