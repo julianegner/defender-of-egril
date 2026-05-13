@@ -26,6 +26,7 @@ import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
+import kotlinx.coroutines.flow.first
 
 @Composable
 fun GamePlayScreen(
@@ -473,16 +474,23 @@ private fun GamePlayScreenContent(
             return@LaunchedEffect
         }
 
-        while (true) {
-            val infoState = gameState.infoState.value
-            if (infoState.hasSeen(InfoType.AUTO_ATTACK_INFO)) {
-                return@LaunchedEffect
+        val initialInfoState = gameState.infoState.value
+        if (initialInfoState.hasSeen(InfoType.AUTO_ATTACK_INFO)) {
+            return@LaunchedEffect
+        }
+
+        if (initialInfoState.currentInfo == InfoType.NONE) {
+            gameState.infoState.value = initialInfoState.showInfo(InfoType.AUTO_ATTACK_INFO)
+            return@LaunchedEffect
+        }
+
+        val nextInfoState = snapshotFlow { gameState.infoState.value }
+            .first { state ->
+                state.currentInfo == InfoType.NONE || state.hasSeen(InfoType.AUTO_ATTACK_INFO)
             }
-            if (infoState.currentInfo == InfoType.NONE) {
-                gameState.infoState.value = infoState.showInfo(InfoType.AUTO_ATTACK_INFO)
-                return@LaunchedEffect
-            }
-            kotlinx.coroutines.delay(100L)
+
+        if (nextInfoState.currentInfo == InfoType.NONE && !nextInfoState.hasSeen(InfoType.AUTO_ATTACK_INFO)) {
+            gameState.infoState.value = nextInfoState.showInfo(InfoType.AUTO_ATTACK_INFO)
         }
     }
 
