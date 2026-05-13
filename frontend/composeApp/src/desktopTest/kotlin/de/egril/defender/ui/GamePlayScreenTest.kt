@@ -11,6 +11,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import com.hyperether.resources.AppLocale
+import com.hyperether.resources.LocalizedStrings
 import com.hyperether.resources.currentLanguage
 
 /**
@@ -130,7 +131,8 @@ class GamePlayScreenTest {
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("Auto-Attack Feature").assertExists()
+        val autoAttackInfoTitle = LocalizedStrings.get("auto_attack_info_title", currentLanguage.value)
+        composeTestRule.onNodeWithText(autoAttackInfoTitle).assertExists()
 
         ScreenshotTestUtils.captureScreenshot(
             composeTestRule,
