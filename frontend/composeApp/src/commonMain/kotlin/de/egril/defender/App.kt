@@ -99,6 +99,7 @@ fun App() {
         val newVersionAvailable by viewModel.newVersionAvailable.collectAsState()
         val isDataLoaded by viewModel.isDataLoaded.collectAsState()
         val loadingProgress by viewModel.loadingProgress.collectAsState()
+        val pendingTutorialDeepLink by viewModel.pendingTutorialDeepLink.collectAsState()
 
         val remoteCommunityLevelsMeta by viewModel.remoteCommunityLevelsMeta.collectAsState()
         val remoteCommunityMapsMeta by viewModel.remoteCommunityMapsMeta.collectAsState()
@@ -169,6 +170,20 @@ fun App() {
                 } else {
                     // Language already chosen - auto-create a default player
                     viewModel.createDefaultPlayer()
+                }
+            }
+        }
+
+        // When arriving via /tutorial deep link, start the tutorial level as soon as
+        // data is loaded and a player profile exists (player created by the flow above).
+        LaunchedEffect(pendingTutorialDeepLink, isDataLoaded, needsPlayerSelection) {
+            if (pendingTutorialDeepLink && isDataLoaded && !needsPlayerSelection) {
+                if (!AppSettings.hasChosenLanguage()) {
+                    // Language not chosen yet – show the chooser; tutorial will start
+                    // after the player is created by the language-chooser callback.
+                    showInitialLanguageChooser = true
+                } else {
+                    viewModel.startTutorialLevel()
                 }
             }
         }
@@ -585,6 +600,12 @@ fun App() {
                     delay(30_000L)
                     viewModel.navigateToWorldMap()
                 }
+                LevelLoadingScreen(modifier = Modifier.fillMaxSize())
+            }
+
+            is Screen.TutorialDeepLink -> {
+                // Show the loading screen while data is loading / player is being set up.
+                // The LaunchedEffect above will call startTutorialLevel() once everything is ready.
                 LevelLoadingScreen(modifier = Modifier.fillMaxSize())
             }
 
