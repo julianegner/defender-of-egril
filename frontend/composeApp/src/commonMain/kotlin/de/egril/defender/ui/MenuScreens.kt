@@ -626,12 +626,11 @@ fun LevelCompleteScreen(
         BoxWithConstraints(
             modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
-            val isMobileWeb = isMobileWebBrowser()
-            val isPortrait = maxHeight > maxWidth
-            val isMobileLayout = shouldUseMobileLevelCompleteLayout(
+            val isMobileLayout = remember { shouldUseMobileLevelCompleteLayout(
                 isNativeMobile = isPlatformMobile,
-                isMobileWeb = isMobileWeb
-            )
+                isMobileWeb = isMobileWebBrowser()
+            ) }
+            val isPortrait = maxHeight > maxWidth
             val stackButtons = shouldStackLevelCompleteButtons(
                 isMobileLayout = isMobileLayout,
                 isPortrait = isPortrait
