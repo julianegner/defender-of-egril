@@ -67,6 +67,18 @@ internal fun shouldUseCompactMainMenuLayout(
     isMobileWeb: Boolean
 ): Boolean = isNativeMobile || isMobileWeb
 
+/** Returns true when LevelComplete screen should use a compact, scrollable mobile layout. */
+internal fun shouldUseMobileLevelCompleteLayout(
+    isNativeMobile: Boolean,
+    isMobileWeb: Boolean
+): Boolean = isNativeMobile || isMobileWeb
+
+/** Returns true when LevelComplete screen buttons should be stacked vertically (portrait phone or narrow mobile web). */
+internal fun shouldStackLevelCompleteButtons(
+    isMobileLayout: Boolean,
+    isPortrait: Boolean
+): Boolean = isMobileLayout && isPortrait
+
 /**
  * Compact row of main menu action buttons for mobile and mobile-web layouts.
  * @param buttonHeight Height of each button (40.dp for native mobile, 30.dp for mobile web)
@@ -611,9 +623,20 @@ fun LevelCompleteScreen(
             ),
         color = MaterialTheme.colorScheme.background
     ) {
-        Box(
+        BoxWithConstraints(
             modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
+            val isMobileWeb = isMobileWebBrowser()
+            val isPortrait = maxHeight > maxWidth
+            val isMobileLayout = shouldUseMobileLevelCompleteLayout(
+                isNativeMobile = isPlatformMobile,
+                isMobileWeb = isMobileWeb
+            )
+            val stackButtons = shouldStackLevelCompleteButtons(
+                isMobileLayout = isMobileLayout,
+                isPortrait = isPortrait
+            )
+
             // Settings button in top-right corner (hidden in demo mode to keep UI clean)
             if (!isDemoMode) {
             SettingsButton(
@@ -624,32 +647,37 @@ fun LevelCompleteScreen(
             }
             
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .then(if (isMobileLayout) Modifier.verticalScroll(rememberScrollState()) else Modifier),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = if (isMobileLayout) Arrangement.Top else Arrangement.Center
             ) {
+                if (isMobileLayout) Spacer(modifier = Modifier.height(8.dp))
+
                 // Icon/Image
+                val iconSize = if (isMobileLayout) 40.dp else 64.dp
                 when {
-                    won && isLastLevel -> TrophyIcon(size = 64.dp)
-                    won -> Image(painter = painterResource(Res.drawable.emoji_sword), contentDescription = title, modifier = Modifier.size(64.dp))
-                    else -> Image(painter = painterResource(Res.drawable.emoji_skull), contentDescription = title, modifier = Modifier.size(64.dp))
+                    won && isLastLevel -> TrophyIcon(size = iconSize)
+                    won -> Image(painter = painterResource(Res.drawable.emoji_sword), contentDescription = title, modifier = Modifier.size(iconSize))
+                    else -> Image(painter = painterResource(Res.drawable.emoji_skull), contentDescription = title, modifier = Modifier.size(iconSize))
                 }
 
                 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(if (isMobileLayout) 8.dp else 16.dp))
                 
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.displayLarge,
+                    style = if (isMobileLayout) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.displayLarge,
                     textAlign = TextAlign.Center,
                     color = if (won) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                 )
                 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(if (isMobileLayout) 8.dp else 16.dp))
                 
                 Text(
                     text = message,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = if (isMobileLayout) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -666,7 +694,7 @@ fun LevelCompleteScreen(
                 // Check if this is level 5 (Dark Magic Rises) to show XP system unlock message
                 val isDarkMagicRisesLevel = levelId == 5  // Assuming level 5 ID
                 if (won && isDarkMagicRisesLevel) {
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(if (isMobileLayout) 8.dp else 16.dp))
                     
                     Text(
                         text = stringResource(Res.string.xp_system_unlocked),
@@ -686,7 +714,7 @@ fun LevelCompleteScreen(
                     )
                 }
                 
-                Spacer(modifier = Modifier.height(48.dp))
+                Spacer(modifier = Modifier.height(if (isMobileLayout) 16.dp else 48.dp))
                 
                 if (isDemoMode) {
                     // In demo mode, show a hint that the user can click to stop
@@ -696,20 +724,38 @@ fun LevelCompleteScreen(
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
                     )
+                } else if (stackButtons) {
+                    // Mobile portrait: stack buttons vertically for better fit
+                    val buttonModifier = Modifier.fillMaxWidth().height(44.dp)
+                    Button(onClick = onRestart, modifier = buttonModifier) {
+                        Text(stringResource(Res.string.retry))
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(onClick = onBackToMap, modifier = buttonModifier) {
+                        Text(stringResource(Res.string.world_map))
+                    }
+                    if (won && onNextLevel != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(onClick = onNextLevel, modifier = buttonModifier) {
+                            Text(stringResource(Res.string.next_level))
+                        }
+                    }
                 } else {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    val btnHeight = if (isMobileLayout) 44.dp else 50.dp
+                    val btnWidth = if (isMobileLayout) 120.dp else 150.dp
                     Button(
                         onClick = onRestart,
-                        modifier = Modifier.width(150.dp).height(50.dp)
+                        modifier = Modifier.width(btnWidth).height(btnHeight)
                     ) {
                         Text(stringResource(Res.string.retry))
                     }
                     
                     Button(
                         onClick = onBackToMap,
-                        modifier = Modifier.width(150.dp).height(50.dp)
+                        modifier = Modifier.width(btnWidth).height(btnHeight)
                     ) {
                         Text(stringResource(Res.string.world_map))
                     }
@@ -717,13 +763,15 @@ fun LevelCompleteScreen(
                     if (won && onNextLevel != null) {
                         Button(
                             onClick = onNextLevel,
-                            modifier = Modifier.width(150.dp).height(50.dp)
+                            modifier = Modifier.width(btnWidth).height(btnHeight)
                         ) {
                             Text(stringResource(Res.string.next_level))
                         }
                     }
                 }
                 }
+
+                if (isMobileLayout) Spacer(modifier = Modifier.height(8.dp))
             }
         }
 

@@ -19,6 +19,7 @@ import de.egril.defender.model.Achievement
 import de.egril.defender.model.AchievementDefinitions
 import de.egril.defender.ui.icon.TrophyIcon
 import de.egril.defender.utils.isPlatformMobile
+import de.egril.defender.ui.isMobileWebBrowser
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.achievement_unlocked
 import defender_of_egril.composeapp.generated.resources.close
@@ -48,23 +49,24 @@ fun AchievementNotificationDialog(
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
         ) {
             SelectionContainer {
+            val isMobileUI = isPlatformMobile || isMobileWebBrowser()
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(if (isPlatformMobile) 12.dp else 24.dp),
+                    .padding(if (isMobileUI) 12.dp else 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(if (isPlatformMobile) 4.dp else 16.dp)
+                verticalArrangement = Arrangement.spacedBy(if (isMobileUI) 4.dp else 16.dp)
             ) {
                 // Large trophy icon
                 TrophyIcon(
-                    size = if (isPlatformMobile) 28.dp else 64.dp,
+                    size = if (isMobileUI) 28.dp else 64.dp,
                     tint = MaterialTheme.colorScheme.tertiary
                 )
                 
                 // Achievement unlocked text
                 Text(
                     text = stringResource(Res.string.achievement_unlocked),
-                    style = if (isPlatformMobile) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.headlineSmall,
+                    style = if (isMobileUI) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
@@ -72,7 +74,7 @@ fun AchievementNotificationDialog(
                 // Achievement name
                 Text(
                     text = achievement.id.getLocalizedName(),
-                    style = if (isPlatformMobile) MaterialTheme.typography.bodySmall else MaterialTheme.typography.titleLarge,
+                    style = if (isMobileUI) MaterialTheme.typography.bodySmall else MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
@@ -80,7 +82,7 @@ fun AchievementNotificationDialog(
                 // Achievement description
                 Text(
                     text = achievement.id.getLocalizedDescription(),
-                    style = if (isPlatformMobile) MaterialTheme.typography.labelMedium else MaterialTheme.typography.bodyMedium,
+                    style = if (isMobileUI) MaterialTheme.typography.labelMedium else MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
                 
