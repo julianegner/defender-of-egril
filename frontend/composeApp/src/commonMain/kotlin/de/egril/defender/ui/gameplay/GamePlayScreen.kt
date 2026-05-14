@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import de.egril.defender.model.*
 import de.egril.defender.ui.CheatCodeDialog
 import de.egril.defender.ui.getGameplayUIScale
+import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.ReminderMessage
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
@@ -730,6 +731,8 @@ private fun GamePlayScreenContent(
                     }
                 )
         ) {
+            val availableWindowWidth = maxWidth
+            val availableWindowHeight = maxHeight
             val windowSize = remember(maxWidth, maxHeight) {
                 "Window: ${maxWidth.value.toInt()} x ${maxHeight.value.toInt()} dp"
             }
@@ -1094,6 +1097,12 @@ private fun GamePlayScreenContent(
                 }
                 
                 // Position tutorial card to the left of the overlay panel when it's showing
+                val tutorialLayout = calculateTutorialOverlayLayout(
+                    availableWidth = availableWindowWidth,
+                    availableHeight = availableWindowHeight,
+                    isMobileWeb = isMobileWebBrowser(),
+                    isSideOverlayVisible = isOverlayVisible
+                )
                 val tutorialAlignment = if (isOverlayVisible) {
                     Alignment.TopEnd
                 } else {
@@ -1158,7 +1167,8 @@ private fun GamePlayScreenContent(
                                 if (currentInfoState.currentInfo == InfoType.MINE_WARNING) {
                                     currentInfoState.mineWarningId?.let { gameState.mineWarnings.remove(it) }
                                 }
-                            }
+                            },
+                            layout = tutorialLayout
                         )
                     }
                 }

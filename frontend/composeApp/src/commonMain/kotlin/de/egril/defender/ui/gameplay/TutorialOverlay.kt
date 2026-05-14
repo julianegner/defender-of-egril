@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -18,24 +19,76 @@ import androidx.compose.ui.unit.sp
 import de.egril.defender.model.TutorialStep
 import de.egril.defender.model.InfoType
 import de.egril.defender.model.DefenderType
+import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.icon.WoodIcon
 import de.egril.defender.utils.isPlatformMobile
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import androidx.compose.foundation.text.selection.SelectionContainer
 
+internal data class TutorialOverlayLayout(
+    val width: Dp,
+    val minHeight: Dp,
+    val maxHeight: Dp,
+    val compactTypography: Boolean
+)
+
+internal fun calculateTutorialOverlayLayout(
+    availableWidth: Dp,
+    availableHeight: Dp,
+    isMobileWeb: Boolean,
+    isSideOverlayVisible: Boolean
+): TutorialOverlayLayout {
+    val compactLayout = isMobileWeb || availableWidth < 1100.dp || availableHeight < 760.dp
+    val preferredWidth = when {
+        isMobileWeb && isSideOverlayVisible -> 220.dp
+        isMobileWeb -> 240.dp
+        isSideOverlayVisible -> 280.dp
+        else -> 300.dp
+    }
+
+    return when {
+        isMobileWeb -> TutorialOverlayLayout(
+            width = preferredWidth.coerceAtMost(availableWidth * 0.42f).coerceAtLeast(200.dp),
+            minHeight = (availableHeight * 0.5f).coerceIn(180.dp, 320.dp),
+            maxHeight = (availableHeight * 0.78f).coerceIn(260.dp, 520.dp),
+            compactTypography = true
+        )
+
+        compactLayout -> TutorialOverlayLayout(
+            width = preferredWidth.coerceAtMost(availableWidth * 0.38f).coerceAtLeast(220.dp),
+            minHeight = (availableHeight * 0.4f).coerceIn(160.dp, 280.dp),
+            maxHeight = (availableHeight * 0.62f).coerceIn(220.dp, 420.dp),
+            compactTypography = true
+        )
+
+        else -> TutorialOverlayLayout(
+            width = preferredWidth,
+            minHeight = 0.dp,
+            maxHeight = 400.dp,
+            compactTypography = false
+        )
+    }
+}
+
 /**
  * Tutorial card that shows step-by-step instructions in the upper right corner
  * Can also show single tutorial info dialogs (dragon info, greed info, etc.)
  */
 @Composable
-fun TutorialOverlay(
+internal fun TutorialOverlay(
     currentStep: TutorialStep,
     isNextEnabled: Boolean,
     onNext: () -> Unit,
     onSkip: () -> Unit,
     currentInfo: InfoType = InfoType.NONE,
-    onDismissInfo: (() -> Unit)? = null
+    onDismissInfo: (() -> Unit)? = null,
+    layout: TutorialOverlayLayout = calculateTutorialOverlayLayout(
+        availableWidth = 1200.dp,
+        availableHeight = 900.dp,
+        isMobileWeb = isMobileWebBrowser(),
+        isSideOverlayVisible = false
+    )
 ) {
     // Priority: Single info > Tutorial
     // Handle info system
@@ -50,50 +103,57 @@ fun TutorialOverlay(
     
     Card(
         modifier = Modifier
-            .width(300.dp)
-            .heightIn(max = 400.dp)
-            .padding(8.dp),
+            .width(layout.width)
+            .heightIn(min = layout.minHeight, max = layout.maxHeight)
+            .padding(8.dp)
+            .testTag("tutorialOverlayCard"),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
-        SelectionContainer {
         Column(
             modifier = Modifier
+                .fillMaxHeight()
                 .padding(16.dp)
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Title
-            Text(
-                text = getTutorialTitle(currentStep),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-            
-            // Scrollable content area
-            Column(
-                modifier = Modifier
-                    .weight(1f, fill = false)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+            SelectionContainer {
                 Text(
-                    text = getTutorialContent(currentStep),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    text = getTutorialTitle(currentStep),
+                    style = if (layout.compactTypography) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
-            
-            // Buttons (always visible at the bottom)
+
+            Box(
+                modifier = Modifier
+                    .weight(1f, fill = false)
+                    .fillMaxWidth()
+            ) {
+                SelectionContainer {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = getTutorialContent(currentStep),
+                            style = if (layout.compactTypography) MaterialTheme.typography.bodySmall else MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Skip button (only on first few steps)
                 if (shouldShowSkipButton(currentStep)) {
                     OutlinedButton(
                         onClick = onSkip,
@@ -105,8 +165,7 @@ fun TutorialOverlay(
                         )
                     }
                 }
-                
-                // Next/Got it button
+
                 Button(
                     onClick = onNext,
                     enabled = isNextEnabled,
@@ -118,7 +177,6 @@ fun TutorialOverlay(
                     )
                 }
             }
-        }
         }
     }
 }
@@ -152,7 +210,7 @@ private fun getTutorialContent(step: TutorialStep): String {
     return when (step) {
         TutorialStep.WELCOME -> stringResource(Res.string.tutorial_welcome)
         TutorialStep.MAP_NAVIGATION -> {
-            if (isPlatformMobile) {
+            if (isPlatformMobile || isMobileWebBrowser()) {
                 stringResource(Res.string.tutorial_map_navigation_mobile)
             } else {
                 stringResource(Res.string.tutorial_map_navigation_desktop)
