@@ -181,7 +181,7 @@ fun MainMenuScreen(
                 // Banner is in the top header row, between the player area (left) and info/settings (right).
                 // Login and help buttons are moved below the player name for a cleaner horizontal layout.
                 Column(modifier = Modifier.fillMaxSize()) {
-                    // Top header row
+                    // Top controls row: left (exit + player + login/help) and right (info + settings)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.Top
@@ -284,13 +284,7 @@ fun MainMenuScreen(
                             }
                         }
 
-                        // Center: application banner — fill available width, let aspect ratio dictate height
-                        Box(
-                            modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            ApplicationBannerImage()
-                        }
+                        Spacer(modifier = Modifier.weight(1f))
 
                         // Right column: info + settings buttons
                         Column(verticalArrangement = Arrangement.Top, horizontalAlignment = Alignment.End) {
@@ -302,6 +296,9 @@ fun MainMenuScreen(
                             SettingsButton()
                         }
                     }
+
+                    // Banner row: full-width application banner below the controls
+                    ApplicationBannerImage(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp))
 
                     // Scrollable content: subtitle + action buttons
                     val scrollState = rememberScrollState()
