@@ -284,12 +284,12 @@ fun MainMenuScreen(
                             }
                         }
 
-                        // Center: application banner
+                        // Center: application banner — fill available width, let aspect ratio dictate height
                         Box(
                             modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            ApplicationBannerImage(modifier = Modifier.heightIn(max = 80.dp))
+                            ApplicationBannerImage()
                         }
 
                         // Right column: info + settings buttons
