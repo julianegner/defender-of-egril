@@ -472,34 +472,14 @@ fun MainMenuScreen(
                     }
                 }
                 
-                if (usesStackedLayout || isMobileWeb) {
+                if (usesStackedLayout) {
                     Spacer(modifier = Modifier.height(12.dp))
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 4.dp)
-                    ) {
-                        TooltipWrapper(text = stringResource(Res.string.commit_info_title)) {
-                            Text(
-                                text = "v${AppBuildInfo.VERSION_NAME} (${AppBuildInfo.COMMIT_HASH})",
-                                style = MaterialTheme.typography.bodySmall,
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.clickable { showCommitInfo = true }
-                            )
-                        }
-                    }
-                    if (isPlatformWasm && isMobileWeb) {
-                        ImpressumWrapper(
-                            rowModifier = Modifier.padding(top = 4.dp)
-                        )
-                    }
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }
             
-            // Version info at the bottom on desktop - clickable to show commit info
-            if (!usesStackedLayout && !isMobileWeb) {
+            // Version info at the bottom on desktop/mobile-web - clickable to show commit info
+            if (!usesStackedLayout || isMobileWeb) {
                 TooltipWrapper(
                     text = stringResource(Res.string.commit_info_title),
                     modifier = Modifier
@@ -516,8 +496,8 @@ fun MainMenuScreen(
                 }
             }
             
-            // Impressum at bottom center (WASM only, when flag is enabled; not on mobile web since it's in the scroll column)
-            if (isPlatformWasm && !isMobileWeb) {
+            // Impressum at bottom center (WASM only, when flag is enabled)
+            if (isPlatformWasm) {
                 ImpressumWrapper(
                     rowModifier = Modifier
                         .align(Alignment.BottomCenter)

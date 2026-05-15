@@ -22,6 +22,7 @@ import de.egril.defender.model.DefenderType
 import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.icon.WoodIcon
 import de.egril.defender.ui.icon.DownArrowIcon
+import de.egril.defender.ui.icon.UpArrowIcon
 import de.egril.defender.utils.isPlatformMobile
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
@@ -150,6 +151,14 @@ internal fun TutorialOverlay(
                             color = MaterialTheme.colorScheme.onSurface
                         )
                     }
+                }
+                // Show a subtle up-arrow when the user has scrolled down
+                if (scrollState.canScrollBackward) {
+                    UpArrowIcon(
+                        size = 16.dp,
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f),
+                        modifier = Modifier.align(Alignment.TopCenter)
+                    )
                 }
                 // Show a subtle down-arrow when there is more content below
                 if (scrollState.canScrollForward) {
