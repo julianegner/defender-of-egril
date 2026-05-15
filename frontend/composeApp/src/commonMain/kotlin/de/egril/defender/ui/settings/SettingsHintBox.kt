@@ -2,7 +2,9 @@ package de.egril.defender.ui.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -48,26 +50,33 @@ fun SettingsHintBox(
                 color = MaterialTheme.colorScheme.onPrimaryContainer
             )
             
-            // Message
-            Text(
-                text = stringResource(Res.string.settings_hint_message),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-            
-            // List of settings
+            // Scrollable area bounded to 140.dp: wraps content when short, scrolls when long
             Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 140.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                SettingsHintItem(stringResource(Res.string.appearance))
-                SettingsHintItem(stringResource(Res.string.sound))
-                SettingsHintItem(stringResource(Res.string.controls))
-                SettingsHintItem(stringResource(Res.string.language))
-                SettingsHintItem(stringResource(Res.string.difficulty))
+                Text(
+                    text = stringResource(Res.string.settings_hint_message),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+                
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    SettingsHintItem(stringResource(Res.string.appearance))
+                    SettingsHintItem(stringResource(Res.string.sound))
+                    SettingsHintItem(stringResource(Res.string.controls))
+                    SettingsHintItem(stringResource(Res.string.language))
+                    SettingsHintItem(stringResource(Res.string.difficulty))
+                }
             }
             
-            // Dismiss button
+            // Dismiss button — always visible below the bounded content area
             Button(
                 onClick = onDismiss,
                 modifier = Modifier.fillMaxWidth(),

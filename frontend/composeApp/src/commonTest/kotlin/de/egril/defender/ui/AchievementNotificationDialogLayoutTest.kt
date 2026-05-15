@@ -23,6 +23,20 @@ class AchievementNotificationDialogLayoutTest {
     }
 
     @Test
+    fun mobileWebPortraitUsesCompactDialog() {
+        val layout = calculateAchievementNotificationLayout(
+            availableWidth = 400.dp,
+            availableHeight = 700.dp,
+            isPlatformMobileDevice = false,
+            isMobileWeb = true
+        )
+
+        assertEquals(AchievementNotificationTypographyMode.COMPACT, layout.typographyMode)
+        assertTrue(layout.iconSize <= 40.dp)
+        assertTrue(layout.maxHeight < 700.dp * 0.6f)
+    }
+
+    @Test
     fun desktopKeepsLargerDialogLayout() {
         val layout = calculateAchievementNotificationLayout(
             availableWidth = 1200.dp,

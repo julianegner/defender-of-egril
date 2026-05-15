@@ -21,6 +21,7 @@ import de.egril.defender.model.InfoType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.icon.WoodIcon
+import de.egril.defender.ui.icon.DownArrowIcon
 import de.egril.defender.utils.isPlatformMobile
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
@@ -41,23 +42,24 @@ internal fun calculateTutorialOverlayLayout(
 ): TutorialOverlayLayout {
     val compactLayout = isMobileWeb || availableWidth < 1100.dp || availableHeight < 760.dp
     val preferredWidth = when {
-        isMobileWeb && isSideOverlayVisible -> 220.dp
-        isMobileWeb -> 240.dp
+        // Wider on mobile web so buttons fit on a single line without word-wrapping
+        isMobileWeb && isSideOverlayVisible -> 260.dp
+        isMobileWeb -> 300.dp
         isSideOverlayVisible -> 280.dp
         else -> 300.dp
     }
 
     return when {
         isMobileWeb -> TutorialOverlayLayout(
-            width = preferredWidth.coerceAtMost(availableWidth * 0.42f).coerceAtLeast(200.dp),
-            minHeight = (availableHeight * 0.5f).coerceIn(180.dp, 320.dp),
+            width = preferredWidth.coerceAtMost(availableWidth * 0.50f).coerceAtLeast(240.dp),
+            minHeight = 0.dp,
             maxHeight = (availableHeight * 0.78f).coerceIn(260.dp, 520.dp),
             compactTypography = true
         )
 
         compactLayout -> TutorialOverlayLayout(
             width = preferredWidth.coerceAtMost(availableWidth * 0.38f).coerceAtLeast(220.dp),
-            minHeight = (availableHeight * 0.4f).coerceIn(160.dp, 280.dp),
+            minHeight = 0.dp,
             maxHeight = (availableHeight * 0.62f).coerceIn(220.dp, 420.dp),
             compactTypography = true
         )
@@ -134,11 +136,12 @@ internal fun TutorialOverlay(
                     .weight(1f, fill = false)
                     .fillMaxWidth()
             ) {
+                val scrollState = rememberScrollState()
                 SelectionContainer {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .verticalScroll(rememberScrollState()),
+                            .verticalScroll(scrollState),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
@@ -147,6 +150,15 @@ internal fun TutorialOverlay(
                             color = MaterialTheme.colorScheme.onSurface
                         )
                     }
+                }
+                // Show a subtle down-arrow when there is more content below
+                if (scrollState.canScrollForward) {
+                    DownArrowIcon(
+                        size = 16.dp,
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f),
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                    )
                 }
             }
 

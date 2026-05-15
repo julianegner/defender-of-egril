@@ -53,17 +53,28 @@ internal fun calculateAchievementNotificationLayout(
 ): AchievementNotificationLayout {
     val isLandscape = availableWidth > availableHeight
     val useCompactMobileWebLayout = isMobileWeb && isLandscape
+    val usePortraitMobileWebLayout = isMobileWeb && !isLandscape
     val useCompactLayout = useCompactMobileWebLayout || (!isPlatformMobileDevice && availableWidth < 900.dp && availableHeight < 600.dp)
 
     return when {
         useCompactMobileWebLayout -> AchievementNotificationLayout(
             cardWidth = (availableWidth * 0.5f).coerceIn(220.dp, 320.dp),
             maxHeight = (availableHeight * 0.5f).coerceIn(180.dp, 260.dp),
-            contentPadding = 12.dp,
-            contentSpacing = 8.dp,
-            iconSize = 36.dp,
+            contentPadding = 10.dp,
+            contentSpacing = 6.dp,
+            iconSize = 28.dp,
             typographyMode = AchievementNotificationTypographyMode.VERY_COMPACT,
             buttonFillFraction = 0.72f
+        )
+
+        usePortraitMobileWebLayout -> AchievementNotificationLayout(
+            cardWidth = (availableWidth * 0.85f).coerceIn(220.dp, 340.dp),
+            maxHeight = (availableHeight * 0.55f).coerceIn(200.dp, 340.dp),
+            contentPadding = 12.dp,
+            contentSpacing = 8.dp,
+            iconSize = 32.dp,
+            typographyMode = AchievementNotificationTypographyMode.COMPACT,
+            buttonFillFraction = 0.9f
         )
 
         isPlatformMobileDevice || useCompactLayout -> AchievementNotificationLayout(
@@ -114,12 +125,12 @@ fun AchievementNotificationDialog(
             val titleStyle = when (layout.typographyMode) {
                 AchievementNotificationTypographyMode.DESKTOP -> MaterialTheme.typography.headlineSmall
                 AchievementNotificationTypographyMode.COMPACT -> MaterialTheme.typography.titleMedium
-                AchievementNotificationTypographyMode.VERY_COMPACT -> MaterialTheme.typography.titleLarge
+                AchievementNotificationTypographyMode.VERY_COMPACT -> MaterialTheme.typography.titleSmall
             }
             val nameStyle = when (layout.typographyMode) {
                 AchievementNotificationTypographyMode.DESKTOP -> MaterialTheme.typography.titleLarge
                 AchievementNotificationTypographyMode.COMPACT -> MaterialTheme.typography.bodyLarge
-                AchievementNotificationTypographyMode.VERY_COMPACT -> MaterialTheme.typography.titleMedium
+                AchievementNotificationTypographyMode.VERY_COMPACT -> MaterialTheme.typography.bodyMedium
             }
             val descriptionStyle = when (layout.typographyMode) {
                 AchievementNotificationTypographyMode.DESKTOP -> MaterialTheme.typography.bodyMedium

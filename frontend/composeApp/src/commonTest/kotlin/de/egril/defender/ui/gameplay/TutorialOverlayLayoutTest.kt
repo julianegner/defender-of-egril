@@ -16,8 +16,9 @@ class TutorialOverlayLayoutTest {
             isSideOverlayVisible = false
         )
 
-        assertTrue(layout.minHeight >= 180.dp)
-        assertTrue(layout.maxHeight > layout.minHeight)
+        // minHeight is 0 so the card wraps its content (no forced white space)
+        assertEquals(0.dp, layout.minHeight)
+        assertTrue(layout.maxHeight > 0.dp)
         assertTrue(layout.compactTypography)
     }
 

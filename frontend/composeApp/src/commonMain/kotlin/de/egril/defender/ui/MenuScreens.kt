@@ -337,8 +337,8 @@ fun MainMenuScreen(
             // On mobile and mobile-web browsers, add enough top padding to clear the player area and exit button.
             // If a player name is shown (incl. IAM login/logout button), use a larger offset.
             val mobileTopPadding = when {
-                isMobileWeb && currentPlayerName != null -> 160.dp
-                isMobileWeb -> 96.dp
+                isMobileWeb && currentPlayerName != null -> 96.dp
+                isMobileWeb -> 56.dp
                 currentPlayerName != null -> MobileTopPaddingWithPlayer
                 else -> MobileTopPaddingWithoutPlayer
             }
@@ -472,7 +472,7 @@ fun MainMenuScreen(
                     }
                 }
                 
-                if (usesStackedLayout) {
+                if (usesStackedLayout || isMobileWeb) {
                     Spacer(modifier = Modifier.height(12.dp))
                     Box(
                         modifier = Modifier
@@ -489,12 +489,17 @@ fun MainMenuScreen(
                             )
                         }
                     }
+                    if (isPlatformWasm && isMobileWeb) {
+                        ImpressumWrapper(
+                            rowModifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }
             
             // Version info at the bottom on desktop - clickable to show commit info
-            if (!usesStackedLayout) {
+            if (!usesStackedLayout && !isMobileWeb) {
                 TooltipWrapper(
                     text = stringResource(Res.string.commit_info_title),
                     modifier = Modifier
@@ -511,8 +516,8 @@ fun MainMenuScreen(
                 }
             }
             
-            // Impressum at bottom center (WASM only, when flag is enabled)
-            if (isPlatformWasm) {
+            // Impressum at bottom center (WASM only, when flag is enabled; not on mobile web since it's in the scroll column)
+            if (isPlatformWasm && !isMobileWeb) {
                 ImpressumWrapper(
                     rowModifier = Modifier
                         .align(Alignment.BottomCenter)
@@ -530,7 +535,8 @@ fun MainMenuScreen(
                     },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(top = 60.dp, end = 8.dp)  // Position below settings button
+                        .padding(top = 56.dp, end = 8.dp)
+                        .heightIn(max = (maxHeight - 56.dp).coerceAtLeast(140.dp))
                 )
             }
         }
