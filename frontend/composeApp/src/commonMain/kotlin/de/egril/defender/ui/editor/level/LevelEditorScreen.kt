@@ -19,6 +19,7 @@ import de.egril.defender.ui.editor.EditorHowToContent
 import de.egril.defender.ui.editor.map.MapEditorContent
 import de.egril.defender.ui.editor.worldmap.WorldMapPositionEditorContent
 import de.egril.defender.ui.settings.SettingsButton
+import de.egril.defender.ui.feedback.FeedbackButton
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -91,6 +92,7 @@ fun LevelEditorScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        FeedbackButton()
                         SettingsButton()
                         
                         Button(

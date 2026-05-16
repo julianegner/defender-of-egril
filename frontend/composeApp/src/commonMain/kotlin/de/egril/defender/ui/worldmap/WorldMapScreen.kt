@@ -19,6 +19,7 @@ import de.egril.defender.ui.CheatCodeDialog
 import de.egril.defender.ui.isEditorAvailable
 import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.settings.SettingsButton
+import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.ui.settings.DifficultyDisplay
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.editor.RepositoryManager
@@ -435,6 +436,9 @@ fun WorldMapScreen(
                         modifier = Modifier
                     )
                     
+                    // Feedback button
+                    FeedbackButton()
+
                     // Settings button
                     SettingsButton()
                 }

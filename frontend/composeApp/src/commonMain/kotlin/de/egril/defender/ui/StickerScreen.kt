@@ -22,6 +22,7 @@ import de.egril.defender.ui.common.ScrollableTabRowWithHints
 import de.egril.defender.ui.icon.enemy.*
 import de.egril.defender.ui.icon.defender.*
 import de.egril.defender.ui.settings.SettingsButton
+import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.Font
@@ -67,12 +68,16 @@ fun StickerScreen(
             modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
 
-            // Settings button in top-right corner
-            SettingsButton(
+            // Settings and Feedback buttons in top-right corner
+            Row(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(8.dp)
-            )
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                FeedbackButton()
+                SettingsButton()
+            }
 
             // Back button
             Button(

@@ -1254,6 +1254,7 @@
     <string name="info_tab_license">Licenza</string>
     <string name="info_tab_keyboard_shortcuts">Scorciatoie da Tastiera</string>
     <string name="info_tab_backend">Account e Privacy</string>
+    <string name="info_tab_feedback">Feedback</string>
 
     <!-- Backend Info -->
     <string name="backend_info_title">Account e Privacy</string>
@@ -1722,6 +1723,7 @@
     <string name="tooltip_enemies_on_map_and_planned">Nemici sulla mappa e pianificati</string>
     <string name="tooltip_return_to_worldmap">Torna alla mappa del mondo</string>
     <string name="tooltip_shortcuts">Scorciatoie</string>
+    <string name="tooltip_feedback">Invia feedback</string>
 
     <!-- Download Installables tab (WASM + Impressum only) -->
     <string name="download_button">Scarica</string>

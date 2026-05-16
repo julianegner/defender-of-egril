@@ -44,6 +44,7 @@ fun InfoTab.toUrlSlug(): String = when (this) {
     InfoTab.LICENSE -> "license"
     InfoTab.KEYBOARD_SHORTCUTS -> "keyboard-shortcuts"
     InfoTab.BACKEND -> "backend"
+    InfoTab.FEEDBACK -> "feedback"
     InfoTab.EDITOR_HOWTO -> "editor-howto"
     InfoTab.DOWNLOAD -> "download"
 }
@@ -59,6 +60,7 @@ fun infoTabFromSlug(slug: String): InfoTab? = when (slug.lowercase()) {
     "license" -> InfoTab.LICENSE
     "keyboard-shortcuts" -> InfoTab.KEYBOARD_SHORTCUTS
     "backend", "data-privacy" -> InfoTab.BACKEND
+    "feedback" -> InfoTab.FEEDBACK
     "editor-howto" -> InfoTab.EDITOR_HOWTO
     "download" -> InfoTab.DOWNLOAD
     else -> null

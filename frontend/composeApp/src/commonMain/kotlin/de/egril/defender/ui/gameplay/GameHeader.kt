@@ -26,6 +26,7 @@ import de.egril.defender.ui.icon.TriangleRightIcon
 import de.egril.defender.ui.infopage.KeyboardShortcutsInfo
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
+import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.ui.settings.DifficultyDisplay
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
@@ -236,6 +237,11 @@ fun GameHeader(
                         }
                     }
                 }
+
+                // Feedback button (icon only to save space)
+                FeedbackButton(
+                    modifier = Modifier.size(buttonHeight)
+                )
 
                 // Settings button (icon only to save space)
                 SettingsButton(

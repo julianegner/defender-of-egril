@@ -25,6 +25,7 @@ import de.egril.defender.ui.icon.ToolsIcon
 import de.egril.defender.ui.icon.TrophyIcon
 import de.egril.defender.ui.icon.UnlockIcon
 import de.egril.defender.ui.settings.SettingsButton
+import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.utils.formatTimestamp
 import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.*
@@ -57,12 +58,16 @@ fun PlayerProfileScreen(
         Box(
             modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
-            // Settings button in top-right corner
-            SettingsButton(
+            // Settings and Feedback buttons in top-right corner
+            Row(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(8.dp)
-            )
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                FeedbackButton()
+                SettingsButton()
+            }
             
             Column(
                 modifier = Modifier.fillMaxSize(),

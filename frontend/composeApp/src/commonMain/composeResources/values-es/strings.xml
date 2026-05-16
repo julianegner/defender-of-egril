@@ -1254,6 +1254,7 @@
     <string name="info_tab_license">Licencia</string>
     <string name="info_tab_keyboard_shortcuts">Atajos de Teclado</string>
     <string name="info_tab_backend">Cuenta y Privacidad</string>
+    <string name="info_tab_feedback">Comentarios</string>
 
     <!-- Backend Info -->
     <string name="backend_info_title">Cuenta y Privacidad</string>
@@ -1720,6 +1721,7 @@
     <string name="tooltip_enemies_on_map_and_planned">Enemigos en el mapa y planificados</string>
     <string name="tooltip_return_to_worldmap">Volver al mapa del mundo</string>
     <string name="tooltip_shortcuts">Atajos de teclado</string>
+    <string name="tooltip_feedback">Enviar comentarios</string>
 
     <!-- Download Installables tab (WASM + Impressum only) -->
     <string name="download_button">Descargar</string>

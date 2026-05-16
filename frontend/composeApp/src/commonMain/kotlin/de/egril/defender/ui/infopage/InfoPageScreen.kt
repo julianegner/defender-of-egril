@@ -15,6 +15,8 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.WithImpressum
 import de.egril.defender.ui.common.ScrollableTabRowWithHints
 import de.egril.defender.ui.editor.EditorHowToContent
+import de.egril.defender.ui.feedback.FeedbackButton
+import de.egril.defender.ui.feedback.FeedbackFormContent
 import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.isEditorAvailable
 import de.egril.defender.ui.settings.SettingsButton
@@ -49,6 +51,7 @@ fun InfoPageScreen(
             add(InfoTab.AUDIO_LICENSES)
             add(InfoTab.LICENSE)
             add(InfoTab.BACKEND)
+            add(InfoTab.FEEDBACK)
             if (isEditorAvailable()) add(InfoTab.EDITOR_HOWTO)
         }
     }
@@ -146,6 +149,7 @@ fun InfoPageScreen(
                                         InfoTab.LICENSE -> stringResource(Res.string.info_tab_license)
                                         InfoTab.KEYBOARD_SHORTCUTS -> stringResource(Res.string.info_tab_keyboard_shortcuts)
                                         InfoTab.BACKEND -> stringResource(Res.string.info_tab_backend)
+                                        InfoTab.FEEDBACK -> stringResource(Res.string.info_tab_feedback)
                                         InfoTab.EDITOR_HOWTO -> stringResource(Res.string.info_tab_editor_howto)
                                         InfoTab.DOWNLOAD -> stringResource(Res.string.info_tab_download)
                                     }
@@ -168,6 +172,7 @@ fun InfoPageScreen(
                         InfoTab.LICENSE -> LicenseInfo()
                         InfoTab.KEYBOARD_SHORTCUTS -> KeyboardShortcutsInfo()
                         InfoTab.BACKEND -> BackendInfo()
+                        InfoTab.FEEDBACK -> FeedbackInfo()
                         InfoTab.EDITOR_HOWTO -> EditorHowToContent()
                         InfoTab.DOWNLOAD -> DownloadInfo(onNavigateToInstallation = { selectedTab = InfoTab.INSTALLATION })
                     }
@@ -199,6 +204,23 @@ enum class InfoTab {
     LICENSE,
     KEYBOARD_SHORTCUTS,
     BACKEND,
+    FEEDBACK,
     EDITOR_HOWTO,
     DOWNLOAD
+}
+
+/**
+ * Standalone feedback tab content: wraps the shared FeedbackFormContent in a scrollable column.
+ */
+@Composable
+private fun FeedbackInfo() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        FeedbackFormContent()
+        Spacer(modifier = Modifier.height(8.dp))
+    }
 }

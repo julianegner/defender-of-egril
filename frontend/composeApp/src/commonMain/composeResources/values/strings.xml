@@ -1256,6 +1256,7 @@
     <string name="info_tab_license">License</string>
     <string name="info_tab_keyboard_shortcuts">Keyboard Shortcuts</string>
     <string name="info_tab_backend">Account &amp; Privacy</string>
+    <string name="info_tab_feedback">Feedback</string>
 
     <!-- Backend Info -->
     <string name="backend_info_title">Account &amp; Privacy</string>
@@ -1726,6 +1727,7 @@
     <string name="tooltip_enemies_on_map_and_planned">Enemies on map and planned</string>
     <string name="tooltip_return_to_worldmap">Return to the worldmap</string>
     <string name="tooltip_shortcuts">Shortcuts</string>
+    <string name="tooltip_feedback">Send feedback</string>
 
     <!-- Download Installables tab (WASM + Impressum only) -->
     <string name="download_button">Download</string>

@@ -12,6 +12,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import de.egril.defender.ui.infopage.HowToPlayContent
 import de.egril.defender.ui.settings.SettingsButton
+import de.egril.defender.ui.feedback.FeedbackButton
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
@@ -38,12 +39,16 @@ fun RulesScreen(
         Box(
             modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
-            // Settings button in top-right corner
-            SettingsButton(
+            // Settings and Feedback buttons in top-right corner
+            Row(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(8.dp)
-            )
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                FeedbackButton()
+                SettingsButton()
+            }
 
             Column(
                 modifier = Modifier.fillMaxSize(),
