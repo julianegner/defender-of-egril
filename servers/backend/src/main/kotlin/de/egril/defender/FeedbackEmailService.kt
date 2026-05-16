@@ -96,9 +96,13 @@ internal object FeedbackEmailService {
         val startTlsEnabled = (System.getenv("FEEDBACK_SMTP_STARTTLS") ?: "true").equals("true", ignoreCase = true)
 
         if (host.isBlank() || portStr.isBlank() || username.isBlank() || password.isBlank() || from.isBlank() || to.isBlank()) {
+            feedbackEmailLogger.info("Feedback email config incomplete; email notification is disabled")
             return null
         }
-        val port = portStr.toIntOrNull() ?: return null
+        val port = portStr.toIntOrNull() ?: run {
+            feedbackEmailLogger.warn("Feedback email config invalid: FEEDBACK_SMTP_PORT is not a valid integer")
+            return null
+        }
         return FeedbackEmailConfig(
             host = host,
             port = port,

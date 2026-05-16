@@ -222,7 +222,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
             val userName = extractUsernameFromBearerToken(authHeader)
             ds.connection.use { conn ->
                 try {
-                    val insertedRows = conn.prepareStatement(
+                    val affectedRows = conn.prepareStatement(
                         """
                         INSERT INTO player_feedback (
                             feedback_uuid, feedback_type, bug_types, message, contact_email, source_context,
@@ -254,7 +254,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                         stmt.executeUpdate()
                     }
 
-                    if (insertedRows == 0) {
+                    if (affectedRows == 0) {
                         call.respond(HttpStatusCode.OK, FeedbackSubmissionResponse(accepted = true, duplicate = true))
                     } else {
                         feedbackRoutingLogger.info("Feedback stored: feedbackId=${request.feedbackId} feedbackType=${feedbackType.name}")
