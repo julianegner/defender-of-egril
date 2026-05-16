@@ -683,7 +683,7 @@ class BackendIntegrationTest {
                 {
                   "feedbackId":"44444444-4444-4444-8444-444444444444",
                   "feedbackType":"BUG_REPORT",
-                  "bugTypes":["UI","PERFORMANCE"],
+                  "bugTypes":["UI","GAMEPLAY"],
                   "message":"Game map stutters when zooming with minimap visible",
                   "platform":"WEB",
                   "gameLog":"turn=42; selectedDefender=wizard",

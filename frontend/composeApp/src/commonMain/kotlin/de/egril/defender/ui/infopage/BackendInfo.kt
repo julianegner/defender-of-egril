@@ -76,12 +76,14 @@ fun BackendInfo() {
 
 private data class FeedbackTypeOption(
     val apiValue: String,
-    val label: String
+    val label: String,
+    val description: String
 )
 
 private data class BugTypeOption(
     val apiValue: String,
-    val label: String
+    val label: String,
+    val description: String
 )
 
 @Composable
@@ -114,20 +116,21 @@ private fun FeedbackFormSection() {
     val scope = rememberCoroutineScope()
     var feedbackId by remember { mutableStateOf(generateFeedbackUuid()) }
     val feedbackTypes = listOf(
-        FeedbackTypeOption("BUG_REPORT", stringResource(Res.string.feedback_type_bug_report)),
-        FeedbackTypeOption("TYPO_TRANSLATION_TEXT", stringResource(Res.string.feedback_type_typo_translation_text)),
-        FeedbackTypeOption("FEATURE_REQUEST", stringResource(Res.string.feedback_type_feature_request)),
-        FeedbackTypeOption("ADDITIONAL_LANGUAGE_REQUEST", stringResource(Res.string.feedback_type_additional_language_request)),
-        FeedbackTypeOption("INFO_REQUEST", stringResource(Res.string.feedback_type_info_request)),
-        FeedbackTypeOption("LEGAL_PROBLEM", stringResource(Res.string.feedback_type_legal_problem)),
-        FeedbackTypeOption("OTHER", stringResource(Res.string.feedback_type_other))
+        FeedbackTypeOption("BUG_REPORT", stringResource(Res.string.feedback_type_bug_report), stringResource(Res.string.feedback_type_bug_report_desc)),
+        FeedbackTypeOption("TYPO_TRANSLATION_TEXT", stringResource(Res.string.feedback_type_typo_translation_text), stringResource(Res.string.feedback_type_typo_translation_text_desc)),
+        FeedbackTypeOption("FEATURE_REQUEST", stringResource(Res.string.feedback_type_feature_request), stringResource(Res.string.feedback_type_feature_request_desc)),
+        FeedbackTypeOption("ADDITIONAL_LANGUAGE_REQUEST", stringResource(Res.string.feedback_type_additional_language_request), stringResource(Res.string.feedback_type_additional_language_request_desc)),
+        FeedbackTypeOption("INFO_REQUEST", stringResource(Res.string.feedback_type_info_request), stringResource(Res.string.feedback_type_info_request_desc)),
+        FeedbackTypeOption("LEGAL_PROBLEM", stringResource(Res.string.feedback_type_legal_problem), stringResource(Res.string.feedback_type_legal_problem_desc)),
+        FeedbackTypeOption("OTHER", stringResource(Res.string.feedback_type_other), stringResource(Res.string.feedback_type_other_desc))
     )
     val bugTypeOptions = listOf(
-        BugTypeOption("GRAPHIC", stringResource(Res.string.feedback_bug_type_graphic)),
-        BugTypeOption("UI", stringResource(Res.string.feedback_bug_type_ui)),
-        BugTypeOption("BEHAVIOUR", stringResource(Res.string.feedback_bug_type_behaviour)),
-        BugTypeOption("PERFORMANCE", stringResource(Res.string.feedback_bug_type_performance)),
-        BugTypeOption("SOUND", stringResource(Res.string.feedback_bug_type_sound))
+        BugTypeOption("VISUAL", stringResource(Res.string.feedback_bug_type_visual), stringResource(Res.string.feedback_bug_type_visual_desc)),
+        BugTypeOption("UI", stringResource(Res.string.feedback_bug_type_ui), stringResource(Res.string.feedback_bug_type_ui_desc)),
+        BugTypeOption("GAMEPLAY", stringResource(Res.string.feedback_bug_type_gameplay), stringResource(Res.string.feedback_bug_type_gameplay_desc)),
+        BugTypeOption("PERFORMANCE", stringResource(Res.string.feedback_bug_type_performance), stringResource(Res.string.feedback_bug_type_performance_desc)),
+        BugTypeOption("SOUND", stringResource(Res.string.feedback_bug_type_sound), stringResource(Res.string.feedback_bug_type_sound_desc)),
+        BugTypeOption("CRASH", stringResource(Res.string.feedback_bug_type_crash), stringResource(Res.string.feedback_bug_type_crash_desc))
     )
     var selectedType by remember { mutableStateOf(feedbackTypes.first()) }
     var expanded by remember { mutableStateOf(false) }
@@ -175,7 +178,16 @@ private fun FeedbackFormSection() {
             ) {
                 feedbackTypes.forEach { option ->
                     DropdownMenuItem(
-                        text = { Text(option.label) },
+                        text = {
+                            Column {
+                                Text(option.label, fontWeight = FontWeight.Bold)
+                                Text(
+                                    option.description,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        },
                         onClick = {
                             selectedType = option
                             if (selectedType.apiValue != "BUG_REPORT") {
@@ -187,6 +199,12 @@ private fun FeedbackFormSection() {
                 }
             }
         }
+
+        Text(
+            text = selectedType.description,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
 
         if (isBugReport) {
             Text(
@@ -206,7 +224,14 @@ private fun FeedbackFormSection() {
                             }
                         }
                     )
-                    Text(option.label, modifier = Modifier.padding(top = 12.dp))
+                    Column(modifier = Modifier.padding(top = 8.dp)) {
+                        Text(option.label, fontWeight = FontWeight.Bold)
+                        Text(
+                            option.description,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
         }

@@ -1777,16 +1777,30 @@
     <string name="feedback_form_submit_success">Comentario enviado correctamente (ID: %1$s)</string>
     <string name="feedback_form_submit_error">No se pudo enviar el comentario. Inténtalo de nuevo.</string>
     <string name="feedback_type_bug_report">Informe de error</string>
-    <string name="feedback_type_typo_translation_text">Error tipográfico/de traducción/texto incorrecto</string>
+    <string name="feedback_type_bug_report_desc">Algo está roto o no funciona como se esperaba en el juego.</string>
+    <string name="feedback_type_typo_translation_text">Error tipográfico / de traducción / texto incorrecto</string>
+    <string name="feedback_type_typo_translation_text_desc">Un error ortográfico, una traducción incorrecta o un texto poco claro en el juego.</string>
     <string name="feedback_type_feature_request">Solicitud de función</string>
+    <string name="feedback_type_feature_request_desc">Sugerir una nueva función o mejora para el juego.</string>
     <string name="feedback_type_additional_language_request">Solicitud de idioma adicional</string>
+    <string name="feedback_type_additional_language_request_desc">Solicitar soporte para un idioma que aún no está disponible.</string>
     <string name="feedback_type_info_request">Solicitud de información</string>
+    <string name="feedback_type_info_request_desc">Hacer una pregunta sobre cómo funciona el juego o sobre los detalles del proyecto.</string>
     <string name="feedback_type_legal_problem">Problema legal</string>
+    <string name="feedback_type_legal_problem_desc">Informar sobre un problema legal como derechos de autor, privacidad o licencias.</string>
     <string name="feedback_type_other">Otro</string>
-    <string name="feedback_bug_type_graphic">Gráfico</string>
-    <string name="feedback_bug_type_ui">UI</string>
-    <string name="feedback_bug_type_behaviour">Comportamiento</string>
+    <string name="feedback_type_other_desc">Cualquier cosa que no encaje en las otras categorías.</string>
+    <string name="feedback_bug_type_visual">Visual / Renderizado</string>
+    <string name="feedback_bug_type_visual_desc">Errores gráficos, sprites incorrectos, imágenes faltantes o problemas de color.</string>
+    <string name="feedback_bug_type_ui">UI / Diseño</string>
+    <string name="feedback_bug_type_ui_desc">Botones que no funcionan, elementos mal ubicados, texto desbordado o problemas de navegación.</string>
+    <string name="feedback_bug_type_gameplay">Jugabilidad / Lógica</string>
+    <string name="feedback_bug_type_gameplay_desc">Daño incorrecto, búsqueda de ruta rota, problemas con torres o enemigos.</string>
     <string name="feedback_bug_type_performance">Rendimiento</string>
-    <string name="feedback_bug_type_sound">Sonido</string>
+    <string name="feedback_bug_type_performance_desc">Retraso, tartamudeo, carga lenta o alto consumo de memoria.</string>
+    <string name="feedback_bug_type_sound">Sonido / Audio</string>
+    <string name="feedback_bug_type_sound_desc">Sonidos faltantes, audio incorrecto o problemas de volumen.</string>
+    <string name="feedback_bug_type_crash">Bloqueo / Congelamiento</string>
+    <string name="feedback_bug_type_crash_desc">El juego se bloquea, se congela o deja de responder completamente.</string>
 
 </resources>

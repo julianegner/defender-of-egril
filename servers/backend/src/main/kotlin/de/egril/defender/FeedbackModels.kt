@@ -40,9 +40,10 @@ internal enum class FeedbackType {
 }
 
 internal enum class BugType {
-    GRAPHIC,
+    VISUAL,
     UI,
-    BEHAVIOUR,
+    GAMEPLAY,
     PERFORMANCE,
-    SOUND
+    SOUND,
+    CRASH
 }
