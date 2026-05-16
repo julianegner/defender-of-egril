@@ -16,12 +16,20 @@ internal val backendBaseUrl: String
  * or -1 if a network/IO error occurs.
  */
 internal fun jvmHttpPost(path: String, body: String, token: String): Int {
+    return jvmHttpPostOptionalAuth(path, body, token)
+}
+
+/**
+ * Synchronously POSTs [body] to [path] on the backend and optionally attaches
+ * [token] as Bearer auth. Returns the HTTP status code, or -1 on network/IO errors.
+ */
+internal fun jvmHttpPostOptionalAuth(path: String, body: String, token: String?): Int {
     return try {
         val connection = URI.create("$backendBaseUrl$path").toURL().openConnection() as HttpURLConnection
         connection.requestMethod = "POST"
         connection.doOutput = true
         connection.setRequestProperty("Content-Type", "application/json")
-        connection.setRequestProperty("Authorization", "Bearer $token")
+        if (token != null) connection.setRequestProperty("Authorization", "Bearer $token")
         connection.connectTimeout = 10_000
         connection.readTimeout = 10_000
         connection.outputStream.use { it.write(body.toByteArray(Charsets.UTF_8)) }

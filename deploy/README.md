@@ -39,6 +39,13 @@ Add the following secrets to the repository
 | `PROD_DB_PASSWORD` | Password for the `defender` PostgreSQL user. Used by all three services. |
 | `PROD_KEYCLOAK_ADMIN_PASSWORD` | Password for the Keycloak `admin` account. |
 | `GRAFANA_ADMIN_PASSWORD` | Password for the Grafana `admin` account on the backend server. Choose a strong password — this is the only way to access the Grafana dashboard. |
+| `FEEDBACK_SMTP_HOST` | Optional SMTP host for feedback notification mails. |
+| `FEEDBACK_SMTP_PORT` | Optional SMTP port for feedback notification mails. |
+| `FEEDBACK_SMTP_USERNAME` | Optional SMTP username for feedback notification mails. |
+| `FEEDBACK_SMTP_PASSWORD` | Optional SMTP password for feedback notification mails. |
+| `FEEDBACK_EMAIL_FROM` | Optional sender address for feedback notification mails. |
+| `FEEDBACK_EMAIL_TO` | Optional recipient address for feedback notification mails. |
+| `FEEDBACK_SMTP_STARTTLS` | Optional `true`/`false` flag for SMTP STARTTLS (defaults to `true`). |
 
 All server IPs and inter-service URLs are hardcoded in the workflows and are
 not required as secrets.
@@ -190,7 +197,10 @@ The pre-provisioned **Defender of Egril – Overview** dashboard shows:
 | Total Events | All-time count of events recorded in the `events` table |
 | Events Today | Events recorded since midnight (UTC) |
 | Levels Started Today | `LEVEL_STARTED` events since midnight (UTC) |
-| Keycloak Users | Number of user accounts in Keycloak |
+| Keycloak Users (Selected Realm) | Number of Keycloak user accounts filtered by selected realm |
+| Keycloak Users by Realm | Table of Keycloak user counts grouped by realm |
+| Total Feedback | All-time count of rows in the `player_feedback` table |
+| Feedback Today | Feedback entries created since midnight (UTC) |
 | Events by Type | Bar chart of event counts grouped by `event_type` (all time) |
 | Events per Day | Time series of daily event volume for the past 90 days |
 | Recent Events | Table of the 100 most recent events with all fields |
@@ -338,4 +348,3 @@ chmod 600 ~/.ssh/authorized_keys
 # Check SSH daemon logs for the exact rejection reason:
 journalctl -u ssh --since "10 minutes ago" | tail -30
 ```
-

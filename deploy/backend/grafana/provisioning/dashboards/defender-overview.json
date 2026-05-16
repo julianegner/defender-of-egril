@@ -304,7 +304,7 @@
         },
         "textMode": "auto"
       },
-      "title": "Keycloak Users",
+      "title": "Keycloak Users (Selected Realm)",
       "type": "stat",
       "targets": [
         {
@@ -313,7 +313,7 @@
             "uid": "postgres-keycloak"
           },
           "format": "table",
-          "rawSql": "SELECT COUNT(*) AS value FROM user_entity",
+          "rawSql": "SELECT COUNT(*) AS value FROM user_entity ue JOIN realm r ON ue.realm_id = r.id WHERE ('${keycloak_realm}' = '__all' OR r.name = '${keycloak_realm}')",
           "refId": "A"
         }
       ]
@@ -1478,6 +1478,189 @@
           "refId": "A"
         }
       ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 62
+      },
+      "id": 103,
+      "title": "\ud83d\udcdd Player Feedback",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres-app"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "teal",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 63
+      },
+      "id": 301,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "Total Feedback",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres-app"
+          },
+          "format": "table",
+          "rawSql": "SELECT COUNT(*) AS value FROM player_feedback",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres-app"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 63
+      },
+      "id": 302,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "Feedback Today",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres-app"
+          },
+          "format": "table",
+          "rawSql": "SELECT COUNT(*) AS value FROM player_feedback WHERE created_at >= CURRENT_DATE",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres-keycloak"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 63
+      },
+      "id": 303,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "users"
+          }
+        ]
+      },
+      "title": "Keycloak Users by Realm",
+      "type": "table",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres-keycloak"
+          },
+          "format": "table",
+          "rawSql": "SELECT r.name AS realm, COUNT(*) AS users FROM user_entity ue JOIN realm r ON ue.realm_id = r.id GROUP BY r.name ORDER BY users DESC",
+          "refId": "A"
+        }
+      ]
     }
   ],
   "refresh": "5m",
@@ -1493,7 +1676,7 @@
   "timezone": "browser",
   "title": "Defender of Egril \u2013 Overview",
   "uid": "defender-overview",
-  "version": 2,
+  "version": 3,
   "weekStart": "",
   "templating": {
     "list": [
@@ -1524,6 +1707,28 @@
         "description": "When set to false, APP_STARTED events are hidden from all panels",
         "multi": false,
         "includeAll": false
+      },
+      {
+        "name": "keycloak_realm",
+        "label": "Keycloak Realm",
+        "type": "query",
+        "datasource": {
+          "type": "postgres",
+          "uid": "postgres-keycloak"
+        },
+        "query": "SELECT name AS __text, name AS __value FROM realm ORDER BY name",
+        "refresh": 1,
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
+        "multi": false,
+        "includeAll": true,
+        "allValue": "__all",
+        "hide": 0,
+        "skipUrlSync": false,
+        "description": "Filter Keycloak user panels by realm"
       }
     ]
   }

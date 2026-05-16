@@ -9,7 +9,10 @@ import io.ktor.server.testing.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import liquibase.Liquibase
 import liquibase.database.DatabaseFactory
 import liquibase.database.jvm.JdbcConnection
@@ -116,6 +119,16 @@ class BackendIntegrationTest {
         private fun assertEmptyJsonArray(body: String) {
             assertEquals(0, Json.parseToJsonElement(body).jsonArray.size, "Expected an empty JSON array")
         }
+
+        private fun countFeedbackRows(feedbackId: String): Int =
+            testDataSource.connection.use { conn ->
+                conn.prepareStatement("SELECT COUNT(*) FROM player_feedback WHERE feedback_uuid = ?::uuid").use { stmt ->
+                    stmt.setString(1, feedbackId)
+                    stmt.executeQuery().use { rs ->
+                        if (rs.next()) rs.getInt(1) else 0
+                    }
+                }
+            }
     }
 
     // -------------------------------------------------------------------------
@@ -622,6 +635,65 @@ class BackendIntegrationTest {
             setBody("""{"event":"LEVEL_STARTED","levelName":"Tutorial","platform":"WEB","username":"player_two"}""")
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
+        }
+    }
+
+    @Test
+    fun `POST feedback stores once and deduplicates by feedback UUID`() = withRealDatabase {
+        val feedbackId = "33333333-3333-4333-8333-333333333333"
+        val payload = """
+            {
+              "feedbackId":"$feedbackId",
+              "feedbackType":"FEATURE_REQUEST",
+              "message":"Please add cloud save conflict resolution UI",
+              "platform":"WEB",
+              "sourceContext":"INFO_PAGE"
+            }
+        """.trimIndent()
+
+        client.post("/api/feedback") {
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+            val body = Json.parseToJsonElement(bodyAsText()).jsonObject
+            assertEquals("true", body["accepted"]?.jsonPrimitive?.contentOrNull)
+            assertEquals(null, body["duplicate"]?.jsonPrimitive?.contentOrNull)
+        }
+
+        client.post("/api/feedback") {
+            contentType(ContentType.Application.Json)
+            setBody(payload)
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+            val duplicate = Json.parseToJsonElement(bodyAsText()).jsonObject["duplicate"]?.jsonPrimitive?.contentOrNull
+            assertEquals("true", duplicate)
+        }
+
+        assertEquals(1, countFeedbackRows(feedbackId))
+    }
+
+    @Test
+    fun `POST feedback bug report accepts screenshot and game log`() = withRealDatabase {
+        val screenshotBase64 = "iVBORw0KGgo="
+        client.post("/api/feedback") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                """
+                {
+                  "feedbackId":"44444444-4444-4444-8444-444444444444",
+                  "feedbackType":"BUG_REPORT",
+                  "bugTypes":["UI","PERFORMANCE"],
+                  "message":"Game map stutters when zooming with minimap visible",
+                  "platform":"WEB",
+                  "gameLog":"turn=42; selectedDefender=wizard",
+                  "screenshotBase64":"$screenshotBase64"
+                }
+                """.trimIndent()
+            )
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+            assertContains(bodyAsText(), "\"accepted\": true")
         }
     }
 

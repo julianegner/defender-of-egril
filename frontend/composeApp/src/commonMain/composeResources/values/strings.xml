@@ -1767,4 +1767,32 @@
     <!-- Scroll hint accessibility labels -->
     <string name="scroll_hint_more_tabs_left">Scroll left to see more tabs</string>
     <string name="scroll_hint_more_tabs_right">Scroll right to see more tabs</string>
+
+    <!-- Feedback form and backend feedback section -->
+    <string name="backend_info_feedback_heading">Send Feedback</string>
+    <string name="backend_info_feedback_body">You can report issues on GitHub or send feedback directly using the form below. For bug reports, include a game log and screenshot data.</string>
+    <string name="feedback_form_title">Feedback Form</string>
+    <string name="feedback_form_github_hint">GitHub issues: https://github.com/julianegner/defender-of-egril/issues</string>
+    <string name="feedback_form_type_label">Feedback Type</string>
+    <string name="feedback_form_bug_types_label">Bug Types (multiple choice)</string>
+    <string name="feedback_form_message_label">Message</string>
+    <string name="feedback_form_contact_email_label">Contact Email (optional)</string>
+    <string name="feedback_form_game_log_label">Game Log (required for bug reports)</string>
+    <string name="feedback_form_screenshot_base64_label">Screenshot Base64 (required for bug reports)</string>
+    <string name="feedback_form_submit">Send Feedback</string>
+    <string name="feedback_form_submit_success">Feedback submitted successfully (ID: %1$s)</string>
+    <string name="feedback_form_submit_error">Could not submit feedback. Please try again.</string>
+    <string name="feedback_type_bug_report">Bug Report</string>
+    <string name="feedback_type_typo_translation_text">Typo/translation error/bad text</string>
+    <string name="feedback_type_feature_request">Feature Request</string>
+    <string name="feedback_type_additional_language_request">Additional Language Request</string>
+    <string name="feedback_type_info_request">Info Request</string>
+    <string name="feedback_type_legal_problem">Legal Problem</string>
+    <string name="feedback_type_other">Other</string>
+    <string name="feedback_bug_type_graphic">Graphic</string>
+    <string name="feedback_bug_type_ui">UI</string>
+    <string name="feedback_bug_type_behaviour">Behaviour</string>
+    <string name="feedback_bug_type_performance">Performance</string>
+    <string name="feedback_bug_type_sound">Sound</string>
+
 </resources>
