@@ -301,11 +301,16 @@ private fun FeedbackFormSection() {
 }
 
 private fun generateFeedbackUuid(): String {
-    val random = Random.Default
-    fun nextHex(len: Int): String = buildString {
-        repeat(len) {
-            append("0123456789abcdef"[random.nextInt(16)])
+    val bytes = ByteArray(16) { Random.Default.nextInt(256).toByte() }
+    bytes[6] = ((bytes[6].toInt() and 0x0F) or 0x40).toByte() // version 4
+    bytes[8] = ((bytes[8].toInt() and 0x3F) or 0x80).toByte() // variant 10xx
+    val hexChars = "0123456789abcdef"
+    return buildString {
+        bytes.forEachIndexed { index, byte ->
+            val value = byte.toInt() and 0xFF
+            append(hexChars[value ushr 4])
+            append(hexChars[value and 0x0F])
+            if (index == 3 || index == 5 || index == 7 || index == 9) append('-')
         }
     }
-    return "${nextHex(8)}-${nextHex(4)}-4${nextHex(3)}-${"89ab"[random.nextInt(4)]}${nextHex(3)}-${nextHex(12)}"
 }

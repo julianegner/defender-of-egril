@@ -19,7 +19,7 @@ private data class FeedbackEmailConfig(
     val password: String,
     val from: String,
     val to: String,
-    val startTls: Boolean
+    val startTlsEnabled: Boolean
 )
 
 internal object FeedbackEmailService {
@@ -37,7 +37,7 @@ internal object FeedbackEmailService {
             put("mail.smtp.host", config.host)
             put("mail.smtp.port", config.port.toString())
             put("mail.smtp.auth", "true")
-            put("mail.smtp.starttls.enable", config.startTls.toString())
+            put("mail.smtp.starttls.enable", config.startTlsEnabled.toString())
         }
         val session = Session.getInstance(
             properties,
@@ -93,7 +93,7 @@ internal object FeedbackEmailService {
         val password = System.getenv("FEEDBACK_SMTP_PASSWORD").orEmpty().trim()
         val from = System.getenv("FEEDBACK_EMAIL_FROM").orEmpty().trim()
         val to = System.getenv("FEEDBACK_EMAIL_TO").orEmpty().trim()
-        val startTls = (System.getenv("FEEDBACK_SMTP_STARTTLS") ?: "true").equals("true", ignoreCase = true)
+        val startTlsEnabled = (System.getenv("FEEDBACK_SMTP_STARTTLS") ?: "true").equals("true", ignoreCase = true)
 
         if (host.isBlank() || portStr.isBlank() || username.isBlank() || password.isBlank() || from.isBlank() || to.isBlank()) {
             return null
@@ -106,7 +106,7 @@ internal object FeedbackEmailService {
             password = password,
             from = from,
             to = to,
-            startTls = startTls
+            startTlsEnabled = startTlsEnabled
         )
     }
 }

@@ -35,11 +35,8 @@ internal fun buildFeedbackUploadJson(request: FeedbackSubmitRequest): String = b
     append(',')
     appendNullableString("gameLevelName", request.gameLevelName)
     append(',')
-    if (request.gameTurnNumber != null) {
-        append("\"gameTurnNumber\":${request.gameTurnNumber},")
-    } else {
-        append("\"gameTurnNumber\":null,")
-    }
+    appendNullableInt("gameTurnNumber", request.gameTurnNumber)
+    append(',')
     appendNullableString("gameStateJson", request.gameStateJson)
     append(',')
     appendNullableString("gameLog", request.gameLog)
@@ -55,5 +52,13 @@ private fun StringBuilder.appendNullableString(key: String, value: String?) {
         append("\"$key\":null")
     } else {
         append("\"$key\":\"${escapeJsonString(value)}\"")
+    }
+}
+
+private fun StringBuilder.appendNullableInt(key: String, value: Int?) {
+    if (value == null) {
+        append("\"$key\":null")
+    } else {
+        append("\"$key\":$value")
     }
 }

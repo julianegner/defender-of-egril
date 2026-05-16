@@ -17,7 +17,7 @@ private val communityLogger = LoggerFactory.getLogger("Community")
 private val userDataLogger = LoggerFactory.getLogger("UserData")
 private val settingsLogger = LoggerFactory.getLogger("Settings")
 private val iamLogger = LoggerFactory.getLogger("IAM")
-private val feedbackLogger = LoggerFactory.getLogger("Feedback")
+private val feedbackRoutingLogger = LoggerFactory.getLogger("FeedbackRouting")
 
 fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
     routing {
@@ -204,10 +204,10 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                 }
             }
 
-            val screenshotBytes = request.screenshotBase64
-                ?.takeIf { it.isNotBlank() }
+            val normalizedScreenshotBase64 = request.screenshotBase64?.trim()?.ifBlank { null }
+            val screenshotBytes = normalizedScreenshotBase64
                 ?.let { decodeBase64OrNull(it) }
-            if (request.screenshotBase64 != null && screenshotBytes == null) {
+            if (normalizedScreenshotBase64 != null && screenshotBytes == null) {
                 call.respond(HttpStatusCode.BadRequest, "screenshotBase64 is not valid Base64")
                 return@post
             }
@@ -257,7 +257,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                     if (insertedRows == 0) {
                         call.respond(HttpStatusCode.OK, FeedbackSubmissionResponse(accepted = true, duplicate = true))
                     } else {
-                        feedbackLogger.info("Feedback stored: feedbackId=${request.feedbackId} feedbackType=${feedbackType.name}")
+                        feedbackRoutingLogger.info("Feedback stored: feedbackId=${request.feedbackId} feedbackType=${feedbackType.name}")
                         FeedbackEmailService.sendFeedbackNotification(
                             request = request,
                             feedbackType = feedbackType,
@@ -268,7 +268,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                         call.respond(HttpStatusCode.OK, FeedbackSubmissionResponse(accepted = true, duplicate = false))
                     }
                 } catch (e: Exception) {
-                    feedbackLogger.error("Failed to store feedback: ${e.message}", e)
+                    feedbackRoutingLogger.error("Failed to store feedback: ${e.message}", e)
                     call.respond(HttpStatusCode.InternalServerError, "Failed to store feedback")
                 }
             }
