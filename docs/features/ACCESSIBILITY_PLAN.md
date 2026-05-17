@@ -71,12 +71,19 @@ Known gaps (addressed below):
   enemy/defender status overlays, river flow).
 - No **high‑contrast theme** option (only light/dark).
 - No **color‑blind‑friendly palettes** (Deuteranopia/Protanopia/Tritanopia).
-- No **reduced‑motion** option (some animations always play).
+- An **Animations** toggle already exists in `SettingsDialog`
+  (`animations` / `animations_on` / `animations_off` strings), but it needs
+  to be audited to confirm that turning it **OFF disables every animation**
+  in the app (tile transitions, attack flashes, banner fades, icon idle
+  loops, dialog open/close). Any animation that still runs when the toggle
+  is OFF is a bug that this plan covers.
 - No **subtitles / captions** or visual indicators for sound effects (the game
   has sound effects and music but no captions); no separate volume sliders
   per channel verified across all screens.
-- **Turn‑timer / time pressure** (e.g. dragon warning timers) cannot be
-  extended or disabled.
+- The game is **fully turn‑based with no real‑time pressure** (the player
+  can leave at any time and resume with the same state), so no "extend /
+  disable timer" assist is needed — but the audit must make sure no
+  future feature introduces real‑time pressure.
 - **Difficulty / assist** options beyond the existing difficulty setting are
   limited; no "skip puzzle" / "auto‑play turn" assist for cognitive load.
 - No documented **focus order** and no guaranteed **tab‑navigation** through
@@ -127,12 +134,19 @@ should, P2 = nice‑to‑have) and a rough **scope hint**.
 
 | # | Item | Priority | Scope hint |
 |---|------|----------|------------|
-| C1 | Add a **reduced‑motion** setting that disables non‑essential animations (tile transitions, attack flashes, banner fades). Respect platform settings where available (`Animatable`, `MotionDurationScale`). | P0 | `ui/theme/`, animations |
-| C2 | Make all **time‑pressure mechanics** optional or extendable (e.g. dragon warning timer, auto‑attack countdown). Add a "no time limit" / "double time" setting. | P1 | `model/`, `game/` |
-| C3 | Re‑opening of tutorials is already supported — surface a **Tutorials & Help** entry in the main menu and in‑game pause so players can re‑read them at any time. | P1 | `ui/MenuScreens.kt`, info pages |
-| C4 | Provide a **simple language / plain text** review of all tutorial strings (≤ Flesch reading ease guidance). | P2 | `strings.xml` |
-| C5 | Add an **objective indicator** that is always visible (current objective, lives, turn) in a fixed HUD spot. (Mostly present — verify on all layouts.) | P1 | `ui/gameplay/GameHeader.kt` |
-| C6 | Ensure **autosave** is on by default and visible; the existing save system already supports this — confirm in settings. | P1 | `save/` |
+| C1 | Audit the existing **Animations** toggle in `SettingsDialog` (`animations` / `animations_on` / `animations_off` strings): when OFF, **no** animations should play anywhere (tile transitions, attack flashes, banner fades, icon idle loops, dialog open/close). Add tests that assert animation‑producing composables short‑circuit when the toggle is OFF. Surface the toggle in the *Accessibility* settings section as well. | P0 | `ui/settings/SettingsDialog.kt`, animation call sites |
+| C2 | Re‑opening of tutorials is already supported — surface a **Tutorials & Help** entry in the main menu and in‑game pause so players can re‑read them at any time. | P1 | `ui/MenuScreens.kt`, info pages |
+| C3 | Provide a **simple language / plain text** review of all tutorial strings (≤ Flesch reading ease guidance). | P2 | `strings.xml` |
+| C4 | Add an **objective indicator** that is always visible (current objective, lives, turn) in a fixed HUD spot. (Mostly present — verify on all layouts.) | P1 | `ui/gameplay/GameHeader.kt` |
+| C5 | Ensure **autosave** is on by default and visible; the existing save system already supports this — confirm in settings. | P1 | `save/` |
+
+> **Note — no time pressure.** Defender of Egril is fully turn‑based. The
+> player can leave the game at any time and resume with the exact same
+> state, so there is no real‑time pressure on decisions. Accordingly this
+> plan does **not** propose any "extend / disable timers" assist — there
+> are no timers to extend. The audit must, however, confirm that no
+> future feature accidentally introduces real‑time pressure (e.g.
+> auto‑advancing turns, real‑time countdowns).
 
 ### 4.5 Speech
 
@@ -152,7 +166,8 @@ only input method).
   - `AccessibilityPreferences` (data class) wired into existing settings.
 - **Settings UI**: add an *Accessibility* section to `SettingsDialog`
   collecting: high‑contrast theme, color‑blind palette, reduce motion,
-  text scale, captions, time‑limit assist, hold‑to‑confirm.
+  text scale, captions, hold‑to‑confirm, and the existing **Animations**
+  toggle (mirrored here for discoverability).
 - **Localization**: every new user‑facing string lands in `values/strings.xml`
   and in each `values-{lang}/strings.xml`, validated by
   `TranslationCoverageTest`.
@@ -188,7 +203,8 @@ Each phase is intended as one or more small PRs so reviews stay focused.
    - Add `ContentDescriptionCoverageTest` (test for V1).
    - Composite‑widget semantics (V2).
    - Keyboard‑only navigation pass (M1).
-   - Reduced‑motion setting (C1).
+   - Animations‑toggle audit (C1): verify the existing toggle disables
+     every animation; fix any animation that ignores it.
    - Hearing audit & visual indicators for critical sounds (H1, H4).
 2. **Phase 2 — Visual variety (P1)**
    - High‑contrast theme (V3).
@@ -196,12 +212,11 @@ Each phase is intended as one or more small PRs so reviews stay focused.
    - Text/icon scale verification (V5, V6).
 3. **Phase 3 — Motor & cognitive comfort (P1)**
    - Hold‑to‑confirm (M3).
-   - Time‑limit assists (C2).
-   - Tutorials & Help entry point (C3).
+   - Tutorials & Help entry point (C2).
 4. **Phase 4 — Polish (P2)**
    - Pan/zoom assists (M4).
    - Remappable shortcuts (M5).
-   - Plain‑language tutorial review (C4).
+   - Plain‑language tutorial review (C3).
 
 ## 8. Definition of Done
 
