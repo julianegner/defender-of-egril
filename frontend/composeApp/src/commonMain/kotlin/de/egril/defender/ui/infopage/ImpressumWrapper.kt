@@ -8,13 +8,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import com.hyperether.resources.stringResource
 import de.egril.defender.ui.ImpressumConstants
 import de.egril.defender.WithImpressum
 import androidx.compose.foundation.text.selection.SelectionContainer
 import de.egril.defender.ui.icon.CrossIcon
+import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.close
 
 /**
  * Clickable text that looks like a link
@@ -116,7 +121,11 @@ fun ImpressumWrapper(rowModifier: Modifier = Modifier) {
                             style = MaterialTheme.typography.titleMedium,
                             fontStyle = FontStyle.Italic
                         )
-                        IconButton(onClick = { displayImpressum = false }) {
+                        val closeLabel = stringResource(Res.string.close)
+                        IconButton(
+                            onClick = { displayImpressum = false },
+                            modifier = Modifier.semantics { contentDescription = closeLabel }
+                        ) {
                             CrossIcon(size = 16.dp)
                         }
                     }

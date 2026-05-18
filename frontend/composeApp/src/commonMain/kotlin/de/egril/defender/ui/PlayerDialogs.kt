@@ -7,6 +7,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -280,9 +282,11 @@ private fun PlayerProfileCard(
                         Text(stringResource(Res.string.select))
                     }
                 }
-                
+
+                val deleteLabel = stringResource(Res.string.delete)
                 IconButton(
-                    onClick = { showDeleteConfirm = true }
+                    onClick = { showDeleteConfirm = true },
+                    modifier = Modifier.semantics { contentDescription = deleteLabel }
                 ) {
                     TrashIcon(size = 20.dp)
                 }

@@ -28,13 +28,12 @@ fun SettingsButton(
     TooltipWrapper(text = settingsLabel) {
         IconButton(
             onClick = { showSettings = true },
-            modifier = modifier
+            modifier = modifier.semantics { contentDescription = settingsLabel }
         ) {
             FilledSymbol(
                 icon = MaterialSymbols.SETTINGS,
                 size = 32.dp,
-                tint = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.semantics { contentDescription = settingsLabel }
+                tint = MaterialTheme.colorScheme.onSurface
             )
         }
     }

@@ -301,8 +301,12 @@ fun MainMenuScreen(
 
                             // Right column: info + settings buttons
                             Column(verticalArrangement = Arrangement.Top, horizontalAlignment = Alignment.End) {
-                                TooltipWrapper(text = stringResource(Res.string.tooltip_info_installation)) {
-                                    IconButton(onClick = onShowInstallationInfo, modifier = Modifier.size(40.dp)) {
+                                val installationInfoLabel = stringResource(Res.string.tooltip_info_installation)
+                                TooltipWrapper(text = installationInfoLabel) {
+                                    IconButton(
+                                        onClick = onShowInstallationInfo,
+                                        modifier = Modifier.size(40.dp).semantics { contentDescription = installationInfoLabel }
+                                    ) {
                                         FilledSymbol(icon = MaterialSymbols.INFO, size = 28.dp)
                                     }
                                 }
@@ -417,8 +421,12 @@ fun MainMenuScreen(
 
                             // Right column: info + settings buttons
                             Column(verticalArrangement = Arrangement.Top, horizontalAlignment = Alignment.End) {
-                                TooltipWrapper(text = stringResource(Res.string.tooltip_info_installation)) {
-                                    IconButton(onClick = onShowInstallationInfo, modifier = Modifier.size(40.dp)) {
+                                val installationInfoLabel = stringResource(Res.string.tooltip_info_installation)
+                                TooltipWrapper(text = installationInfoLabel) {
+                                    IconButton(
+                                        onClick = onShowInstallationInfo,
+                                        modifier = Modifier.size(40.dp).semantics { contentDescription = installationInfoLabel }
+                                    ) {
                                         FilledSymbol(icon = MaterialSymbols.INFO, size = 28.dp)
                                     }
                                 }
@@ -497,8 +505,12 @@ fun MainMenuScreen(
                     modifier = Modifier.align(Alignment.TopEnd).padding(8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    TooltipWrapper(text = stringResource(Res.string.tooltip_info_installation)) {
-                        IconButton(onClick = onShowInstallationInfo, modifier = Modifier.size(48.dp)) {
+                    val installationInfoLabel = stringResource(Res.string.tooltip_info_installation)
+                    TooltipWrapper(text = installationInfoLabel) {
+                        IconButton(
+                            onClick = onShowInstallationInfo,
+                            modifier = Modifier.size(48.dp).semantics { contentDescription = installationInfoLabel }
+                        ) {
                             FilledSymbol(icon = MaterialSymbols.INFO, size = 32.dp)
                         }
                     }

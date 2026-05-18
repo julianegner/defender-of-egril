@@ -13,6 +13,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.editor.EditorMap
@@ -513,18 +515,20 @@ private fun CollapsedMapEditorHeader(
 
             // Show target properties button when TARGET is already selected
             if (selectedTileType == TileType.TARGET) {
+                val editLabel = stringResource(Res.string.edit)
                 IconButton(
                     onClick = { showTargetPropertiesDialog = true },
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(32.dp).semantics { contentDescription = editLabel }
                 ) {
                     de.egril.defender.ui.icon.PencilIcon(size = 16.dp)
                 }
             }
             
             // Expand button - just icon, no text
+            val expandLabel = stringResource(Res.string.expand)
             IconButton(
                 onClick = onExpand,
-                modifier = Modifier.size(32.dp)
+                modifier = Modifier.size(32.dp).semantics { contentDescription = expandLabel }
             ) {
                 de.egril.defender.ui.icon.LeftArrowIcon(size = 16.dp)
             }

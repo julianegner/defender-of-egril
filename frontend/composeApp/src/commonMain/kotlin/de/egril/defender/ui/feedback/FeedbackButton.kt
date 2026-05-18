@@ -43,13 +43,12 @@ fun FeedbackButton(
     TooltipWrapper(text = feedbackLabel) {
         IconButton(
             onClick = { showFeedback = true },
-            modifier = modifier
+            modifier = modifier.semantics { contentDescription = feedbackLabel }
         ) {
             FilledSymbol(
                 icon = MaterialSymbols.RATE_REVIEW,
                 size = 32.dp,
-                tint = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.semantics { contentDescription = feedbackLabel }
+                tint = MaterialTheme.colorScheme.onSurface
             )
         }
     }
@@ -104,12 +103,14 @@ private fun FeedbackDialog(
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    IconButton(onClick = onDismiss) {
-                        val closeLabel = stringResource(Res.string.close)
+                    val closeLabel = stringResource(Res.string.close)
+                    IconButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.semantics { contentDescription = closeLabel }
+                    ) {
                         FilledSymbol(
                             icon = MaterialSymbols.CLOSE,
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.semantics { contentDescription = closeLabel }
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }

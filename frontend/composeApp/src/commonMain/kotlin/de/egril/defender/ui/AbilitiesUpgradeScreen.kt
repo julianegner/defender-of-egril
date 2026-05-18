@@ -11,6 +11,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -446,9 +448,10 @@ internal fun AbilityCardWithInfo(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     // Info icon button
+                    val infoLabel = stringResource(Res.string.info)
                     IconButton(
                         onClick = onShowInfo,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(24.dp).semantics { contentDescription = infoLabel }
                     ) {
                         InfoIcon(size = 16.dp)
                     }
@@ -718,7 +721,11 @@ internal fun AbilityCardWithInfoGrid(
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
                 )
-                IconButton(onClick = onShowInfo, modifier = Modifier.size(20.dp)) {
+                val infoLabel = stringResource(Res.string.info)
+                IconButton(
+                    onClick = onShowInfo,
+                    modifier = Modifier.size(20.dp).semantics { contentDescription = infoLabel }
+                ) {
                     InfoIcon(size = 12.dp)
                 }
             }

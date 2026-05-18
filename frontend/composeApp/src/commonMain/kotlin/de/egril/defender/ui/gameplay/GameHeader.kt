@@ -9,6 +9,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -161,9 +163,10 @@ fun GameHeader(
                 // Debug options button (only visible when debug options enabled)
                 if (showDebugOptions) {
                     Box {
+                        val debugOptionsLabel = stringResource(Res.string.debug_options)
                         IconButton(
                             onClick = { showDebugMenu = !showDebugMenu },
-                            modifier = Modifier.size(buttonHeight)
+                            modifier = Modifier.size(buttonHeight).semantics { contentDescription = debugOptionsLabel }
                         ) {
                             ToolsIcon(size = buttonIconSize)
                         }
@@ -228,10 +231,11 @@ fun GameHeader(
 
                 // Shortcuts button (not shown on mobile platforms or mobile web browsers)
                 if (!isPlatformMobile && !isLimitedInputDevice && !isMobileWebBrowser()) {
-                    TooltipWrapper(text = stringResource(Res.string.tooltip_shortcuts)) {
+                    val shortcutsLabel = stringResource(Res.string.tooltip_shortcuts)
+                    TooltipWrapper(text = shortcutsLabel) {
                         IconButton(
                             onClick = { showShortcutsDialog = true },
-                            modifier = Modifier.size(buttonHeight)
+                            modifier = Modifier.size(buttonHeight).semantics { contentDescription = shortcutsLabel }
                         ) {
                             KeyboardKeyIcon(size = buttonIconSize)
                         }
