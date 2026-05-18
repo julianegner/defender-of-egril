@@ -110,15 +110,15 @@ fun SavedGameCard(
             append(displayName)
             append(", ")
             append(turnLabel)
-            append(" ")
+            append(": ")
             append(saveGame.turnNumber)
             append(", ")
             append(coinsLabel)
-            append(" ")
+            append(": ")
             append(saveGame.coins)
             append(", ")
             append(healthLabel)
-            append(" ")
+            append(": ")
             append(saveGame.healthPoints)
         }
         

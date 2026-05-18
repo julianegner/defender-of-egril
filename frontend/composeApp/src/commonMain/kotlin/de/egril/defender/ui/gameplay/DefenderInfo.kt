@@ -80,15 +80,15 @@ fun DefenderInfo(
         append(defenderDisplayName)
         append(", ")
         append(levelLabel)
-        append(" ")
+        append(": ")
         append(defender.level.value)
         append(", ")
         append(damageLabel)
-        append(" ")
+        append(": ")
         append(defender.damage)
         append(", ")
         append(rangeLabel)
-        append(" ")
+        append(": ")
         append(defender.range)
     }
     // Use key to force recomposition when defender stats change

@@ -16,7 +16,7 @@ class CompositeWidgetSemanticsCoverageTest {
     }
 
     @Test
-    fun testCompositeWidgetsUseA11ySemanticsSummaries() {
+    fun testCompositeWidgetsUseAccessibilitySemanticsSummaries() {
         assertFileContains(
             relativePath = "composeApp/src/commonMain/kotlin/de/egril/defender/ui/worldmap/LevelCard.kt",
             requiredTokens = listOf("levelCardLabel", "a11ySemantics(")

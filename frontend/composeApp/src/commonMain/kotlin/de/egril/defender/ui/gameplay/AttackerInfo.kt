@@ -41,19 +41,22 @@ fun AttackerInfo(
     } else {
         attacker.type.getLocalizedName(locale)
     }
-    val hpLabel = stringResource(Res.string.hp_short)
+    val healthLabel = stringResource(Res.string.health)
+    val healthPointsLabel = stringResource(Res.string.health_points)
     val speedLabel = stringResource(Res.string.speed_label)
     val attackerCardLabel = buildString {
         append(attackerDisplayName)
         append(", ")
-        append(hpLabel)
-        append(" ")
+        append(healthLabel)
+        append(": ")
         append(attacker.currentHealth.value)
-        append("/")
+        append(", ")
+        append(healthPointsLabel)
+        append(": ")
         append(attacker.maxHealth)
         append(", ")
         append(speedLabel)
-        append(" ")
+        append(": ")
         append(attacker.type.speed)
     }
     

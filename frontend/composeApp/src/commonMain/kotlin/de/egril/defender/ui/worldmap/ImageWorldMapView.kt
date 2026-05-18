@@ -43,7 +43,7 @@ import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.available
 import defender_of_egril.composeapp.generated.resources.completed
-import defender_of_egril.composeapp.generated.resources.levels_at_location
+import defender_of_egril.composeapp.generated.resources.levels
 import defender_of_egril.composeapp.generated.resources.locked
 import defender_of_egril.composeapp.generated.resources.world_map_background
 
@@ -433,10 +433,13 @@ private fun BoxScope.LocationMarkersOverlay(
             hasUnlockedLevel -> stringResource(Res.string.available)
             else -> stringResource(Res.string.locked)
         }
+        val levelsLabel = stringResource(Res.string.levels)
         val locationMarkerLabel = buildString {
             append(localizedName)
             append(", ")
-            append(stringResource(Res.string.levels_at_location, levelsAtLocation.size.toString()))
+            append(levelsLabel)
+            append(": ")
+            append(levelsAtLocation.size)
             append(", ")
             append(locationStatusText)
         }
