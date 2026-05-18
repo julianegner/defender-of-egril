@@ -204,7 +204,7 @@ fun ImageWorldMapView(
                 )
             }
             .then(
-                if (isPlatformMobile) {
+                if (isPlatformMobile || isMobileWebBrowser()) {
                     Modifier.pointerInput(Unit) {
                         detectTransformGestures { _, pan, zoom, _ ->
                             val newScale = (scale * zoom).coerceIn(0.5f, 3f)

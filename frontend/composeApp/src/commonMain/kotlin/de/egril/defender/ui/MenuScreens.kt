@@ -52,10 +52,6 @@ import defender_of_egril.composeapp.generated.resources.emoji_sword
 import defender_of_egril.composeapp.generated.resources.emoji_skull
 import org.jetbrains.compose.resources.painterResource
 
-/** Top padding for the main content column on mobile when a player area is visible. */
-private val MobileTopPaddingWithPlayer = 110.dp
-/** Top padding for the main content column on mobile when no player area is shown (only exit button). */
-private val MobileTopPaddingWithoutPlayer = 56.dp
 
 internal fun shouldUseStackedMainMenuLayout(
     isNativeMobile: Boolean,
@@ -67,6 +63,18 @@ internal fun shouldUseCompactMainMenuLayout(
     isNativeMobile: Boolean,
     isMobileWeb: Boolean
 ): Boolean = isNativeMobile || isMobileWeb
+
+/** Returns true when LevelComplete screen should use a compact, scrollable mobile layout. */
+internal fun shouldUseMobileLevelCompleteLayout(
+    isNativeMobile: Boolean,
+    isMobileWeb: Boolean
+): Boolean = isNativeMobile || isMobileWeb
+
+/** Returns true when LevelComplete screen buttons should be stacked vertically (portrait phone or narrow mobile web). */
+internal fun shouldStackLevelCompleteButtons(
+    isMobileLayout: Boolean,
+    isPortrait: Boolean
+): Boolean = isMobileLayout && isPortrait
 
 /**
  * Compact row of main menu action buttons for mobile and mobile-web layouts.
@@ -169,322 +177,460 @@ fun MainMenuScreen(
                 isNativeMobile = isPlatformMobile,
                 isMobileWeb = isMobileWeb
             )
-            val usesPortraitMobileWebLayout = isMobileWeb && usesStackedLayout
-
-            // Settings and Info buttons in top-right corner (or below player area on mobile web)
-            Row(
-                modifier = Modifier
-                    .then(
-                        if (usesPortraitMobileWebLayout) {
-                            Modifier
-                                .align(Alignment.TopStart)
-                                .padding(
-                                    start = 8.dp,
-                                    top = if (currentPlayerName != null) 96.dp else 44.dp
-                                )
-                        } else {
-                            Modifier
-                                .align(Alignment.TopEnd)
-                                .padding(8.dp)
-                        }
-                    ),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                // Info button (all platforms)
-                TooltipWrapper(text = stringResource(Res.string.tooltip_info_installation)) {
-                    IconButton(
-                        onClick = onShowInstallationInfo,
-                        modifier = Modifier.size(48.dp)
-                    ) {
-                        FilledSymbol(icon = MaterialSymbols.INFO, size = 32.dp)
-                    }
-                }
-                
-                FeedbackButton()
-                SettingsButton()
-            }
-            
-            // Exit button in top-left corner (above player name if present)
-            // iOS does not support exiting the app programmatically
-            if (!isPlatformIos) {
-                Button(
-                    onClick = { showExitConfirmation = true },
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(8.dp)
-                        .height(32.dp)
-                        .widthIn(min = 80.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error
-                    )
-                ) {
-                    Text(
-                        text = stringResource(Res.string.exit_game),
-                        style = MaterialTheme.typography.bodySmall,
-                        fontSize = 12.sp
-                    )
-                }
-            }
-            
-            // Player name and selection button below exit button
-            if (currentPlayerName != null) {
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(start = 8.dp, top = 48.dp, end = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.clickable { onEditPlayerName() }
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.player_name),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = currentPlayerName,
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        // Show Keycloak username below the local player name when logged in
-                        if (iamState.isAuthenticated && iamState.username != null) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(2.dp)
-                            ) {
-                                UnlockIcon(size = 12.dp)
-                                Text(
-                                    text = iamState.username,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.secondary
-                                )
-                            }
-                        }
-                    }
-                    
-                    // IAM login / logout button
-                    if (iamState.isAuthenticated) {
-                        TooltipWrapper(text = stringResource(Res.string.tooltip_log_out_from_remote)) {
-                            OutlinedButton(
-                                onClick = onIamLogout,
-                                modifier = Modifier.height(36.dp)
-                            ) {
-                                LockIcon(size = 14.dp)
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = stringResource(Res.string.iam_logout),
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
-                        }
-                    } else if (iamLoginInProgress) {
-                        OutlinedButton(
-                            onClick = onIamLoginCancel,
-                            modifier = Modifier.height(36.dp)
+            // Pre-compute at BoxWithConstraints scope where maxHeight/maxWidth are in scope
+            val mobileLandscapeBannerHeight = (maxHeight * 0.40f).coerceAtLeast(72.dp).coerceAtMost(140.dp)
+            // Desktop banner: height = available width / (aspect-ratio × 1.5) — 2/3 of the full-width size.
+            // Capped at 200dp so very wide monitors don't get an oversized banner.
+            val desktopBannerHeight = (maxWidth / 4.44f).coerceAtLeast(67.dp).coerceAtMost(200.dp)
+            if (usesCompactLayout) {
+                // ===== MOBILE / MOBILE-WEB LAYOUT =====
+                // Landscape: 3-column Row (left controls | center banner | right controls).
+                // Portrait: controls row at top, then full-width banner below.
+                // In both cases the banner height is capped so the scrollable content gets adequate room.
+                Column(modifier = Modifier.fillMaxSize()) {
+                    if (!isPortrait) {
+                        // LANDSCAPE: banner sits in the center column, height derived from available space
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.Top
                         ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(14.dp),
-                                strokeWidth = 2.dp
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = stringResource(Res.string.iam_login_waiting),
-                                style = MaterialTheme.typography.bodySmall
-                            )
+                            // Left column: exit button, player name, IAM login + help buttons
+                            Column(
+                                modifier = Modifier.padding(end = 4.dp),
+                                verticalArrangement = Arrangement.Top
+                            ) {
+                                if (!isPlatformIos) {
+                                    Button(
+                                        onClick = { showExitConfirmation = true },
+                                        modifier = Modifier.height(32.dp).widthIn(min = 80.dp),
+                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                                    ) {
+                                        Text(
+                                            text = stringResource(Res.string.exit_game),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            fontSize = 12.sp
+                                        )
+                                    }
+                                }
+                                if (currentPlayerName != null) {
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Column(modifier = Modifier.clickable { onEditPlayerName() }) {
+                                        Text(
+                                            text = stringResource(Res.string.player_name),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        Text(
+                                            text = currentPlayerName,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        if (iamState.isAuthenticated && iamState.username != null) {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                            ) {
+                                                UnlockIcon(size = 12.dp)
+                                                Text(
+                                                    text = iamState.username,
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    color = MaterialTheme.colorScheme.secondary
+                                                )
+                                            }
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        if (iamState.isAuthenticated) {
+                                            TooltipWrapper(text = stringResource(Res.string.tooltip_log_out_from_remote)) {
+                                                OutlinedButton(
+                                                    onClick = onIamLogout,
+                                                    modifier = Modifier.height(30.dp),
+                                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                                                ) {
+                                                    LockIcon(size = 12.dp)
+                                                    Spacer(modifier = Modifier.width(2.dp))
+                                                    Text(text = stringResource(Res.string.iam_logout), style = MaterialTheme.typography.labelSmall)
+                                                }
+                                            }
+                                        } else if (iamLoginInProgress) {
+                                            OutlinedButton(
+                                                onClick = onIamLoginCancel,
+                                                modifier = Modifier.height(30.dp),
+                                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                                            ) {
+                                                CircularProgressIndicator(modifier = Modifier.size(12.dp), strokeWidth = 2.dp)
+                                                Spacer(modifier = Modifier.width(2.dp))
+                                                Text(text = stringResource(Res.string.iam_login_waiting), style = MaterialTheme.typography.labelSmall)
+                                            }
+                                        } else {
+                                            OutlinedButton(
+                                                onClick = onIamLogin,
+                                                modifier = Modifier.height(30.dp),
+                                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                                            ) {
+                                                UnlockIcon(size = 12.dp)
+                                                Spacer(modifier = Modifier.width(2.dp))
+                                                Text(text = stringResource(Res.string.iam_login), style = MaterialTheme.typography.labelSmall)
+                                            }
+                                        }
+                                        val backendInfoDesc = stringResource(Res.string.backend_info_title)
+                                        TooltipWrapper(text = backendInfoDesc) {
+                                            IconButton(
+                                                onClick = onShowBackendInfo,
+                                                modifier = Modifier.size(28.dp).semantics { contentDescription = backendInfoDesc }
+                                            ) {
+                                                HelpIcon(size = 28.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Center: banner scales to fill the available width within the fixed height
+                            Box(
+                                modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                ApplicationBannerImage(modifier = Modifier.height(mobileLandscapeBannerHeight))
+                            }
+
+                            // Right column: info + settings buttons
+                            Column(verticalArrangement = Arrangement.Top, horizontalAlignment = Alignment.End) {
+                                TooltipWrapper(text = stringResource(Res.string.tooltip_info_installation)) {
+                                    IconButton(onClick = onShowInstallationInfo, modifier = Modifier.size(40.dp)) {
+                                        FilledSymbol(icon = MaterialSymbols.INFO, size = 28.dp)
+                                    }
+                                }
+                                FeedbackButton()
+                                SettingsButton()
+                            }
                         }
                     } else {
-                        OutlinedButton(
-                            onClick = onIamLogin,
-                            modifier = Modifier.height(36.dp)
+                        // PORTRAIT: controls row at top, then full-width banner below
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.Top
                         ) {
-                            UnlockIcon(size = 14.dp)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                text = stringResource(Res.string.iam_login),
-                                style = MaterialTheme.typography.bodySmall
-                            )
+                            // Left column: exit button, player name, IAM login + help buttons
+                            Column(
+                                modifier = Modifier.padding(end = 4.dp),
+                                verticalArrangement = Arrangement.Top
+                            ) {
+                                if (!isPlatformIos) {
+                                    Button(
+                                        onClick = { showExitConfirmation = true },
+                                        modifier = Modifier.height(32.dp).widthIn(min = 80.dp),
+                                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                                    ) {
+                                        Text(
+                                            text = stringResource(Res.string.exit_game),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            fontSize = 12.sp
+                                        )
+                                    }
+                                }
+                                if (currentPlayerName != null) {
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Column(modifier = Modifier.clickable { onEditPlayerName() }) {
+                                        Text(
+                                            text = stringResource(Res.string.player_name),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        Text(
+                                            text = currentPlayerName,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                        if (iamState.isAuthenticated && iamState.username != null) {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                            ) {
+                                                UnlockIcon(size = 12.dp)
+                                                Text(
+                                                    text = iamState.username,
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    color = MaterialTheme.colorScheme.secondary
+                                                )
+                                            }
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        if (iamState.isAuthenticated) {
+                                            TooltipWrapper(text = stringResource(Res.string.tooltip_log_out_from_remote)) {
+                                                OutlinedButton(
+                                                    onClick = onIamLogout,
+                                                    modifier = Modifier.height(30.dp),
+                                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                                                ) {
+                                                    LockIcon(size = 12.dp)
+                                                    Spacer(modifier = Modifier.width(2.dp))
+                                                    Text(text = stringResource(Res.string.iam_logout), style = MaterialTheme.typography.labelSmall)
+                                                }
+                                            }
+                                        } else if (iamLoginInProgress) {
+                                            OutlinedButton(
+                                                onClick = onIamLoginCancel,
+                                                modifier = Modifier.height(30.dp),
+                                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                                            ) {
+                                                CircularProgressIndicator(modifier = Modifier.size(12.dp), strokeWidth = 2.dp)
+                                                Spacer(modifier = Modifier.width(2.dp))
+                                                Text(text = stringResource(Res.string.iam_login_waiting), style = MaterialTheme.typography.labelSmall)
+                                            }
+                                        } else {
+                                            OutlinedButton(
+                                                onClick = onIamLogin,
+                                                modifier = Modifier.height(30.dp),
+                                                contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                                            ) {
+                                                UnlockIcon(size = 12.dp)
+                                                Spacer(modifier = Modifier.width(2.dp))
+                                                Text(text = stringResource(Res.string.iam_login), style = MaterialTheme.typography.labelSmall)
+                                            }
+                                        }
+                                        val backendInfoDesc = stringResource(Res.string.backend_info_title)
+                                        TooltipWrapper(text = backendInfoDesc) {
+                                            IconButton(
+                                                onClick = onShowBackendInfo,
+                                                modifier = Modifier.size(28.dp).semantics { contentDescription = backendInfoDesc }
+                                            ) {
+                                                HelpIcon(size = 28.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.weight(1f))
+
+                            // Right column: info + settings buttons
+                            Column(verticalArrangement = Arrangement.Top, horizontalAlignment = Alignment.End) {
+                                TooltipWrapper(text = stringResource(Res.string.tooltip_info_installation)) {
+                                    IconButton(onClick = onShowInstallationInfo, modifier = Modifier.size(40.dp)) {
+                                        FilledSymbol(icon = MaterialSymbols.INFO, size = 28.dp)
+                                    }
+                                }
+                                FeedbackButton()
+                                SettingsButton()
+                            }
                         }
+                        // Full-width banner (aspect ratio ~3:1, so height ≈ width/3; natural fit)
+                        ApplicationBannerImage(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp))
                     }
 
-                    // "?" info button about backend/account
-                    val backendInfoDesc = stringResource(Res.string.backend_info_title)
-                    TooltipWrapper(text = backendInfoDesc) {
-                        IconButton(
-                            onClick = onShowBackendInfo,
-                            modifier = Modifier
-                                .size(34.dp)
-                                .semantics { contentDescription = backendInfoDesc }
-                        ) {
-                            HelpIcon(size = 34.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
-                        }
-                    }
-                }
-            }
-            
-            // On mobile and mobile-web browsers, add enough top padding to clear the player area and exit button.
-            // If a player name is shown (incl. IAM login/logout button), use a larger offset.
-            val mobileTopPadding = when {
-                isMobileWeb && currentPlayerName != null -> 160.dp
-                isMobileWeb -> 96.dp
-                currentPlayerName != null -> MobileTopPaddingWithPlayer
-                else -> MobileTopPaddingWithoutPlayer
-            }
-            val scrollState = rememberScrollState()
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .then(if (usesCompactLayout) Modifier.padding(top = mobileTopPadding) else Modifier)
-                    .then(if (usesCompactLayout) Modifier.verticalScroll(scrollState) else Modifier),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = if (usesCompactLayout) Arrangement.Top else Arrangement.Center
-            ) {
-                // Add top spacer on mobile/mobile-web to position banner in the upper third of the screen
-                if (usesCompactLayout) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                }
-                
-                // Application banner with logo and styled text
-                ApplicationBannerImage(
-                    modifier = if (usesCompactLayout) Modifier.height(120.dp) else Modifier
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                Text(
-                    text = stringResource(Res.string.app_subtitle),
-                    style = if (usesCompactLayout) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                
-                Spacer(modifier = Modifier.height(if (usesCompactLayout) 16.dp else 24.dp))
-                
-                // On mobile, buttons are in a single row; on mobile web, same row layout but smaller; on desktop, in a row/column layout
-                if (isPlatformMobile || isMobileWeb) {
-                    MainMenuButtonRow(
-                        onStartGame = onStartGame,
-                        onContinueGame = onContinueGame,
-                        hasAutosave = hasAutosave,
-                        isDataLoaded = isDataLoaded,
-                        onShowRules = onShowRules,
-                        buttonHeight = if (isPlatformMobile) 40.dp else 34.dp,
-                        textStyle = if (isPlatformMobile) MaterialTheme.typography.bodySmall else MaterialTheme.typography.labelSmall
-                    )
-                } else {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    // Scrollable content: subtitle + action buttons
+                    val scrollState = rememberScrollState()
+                    Column(
+                        modifier = Modifier.weight(1f).fillMaxWidth().verticalScroll(scrollState),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Top
                     ) {
-                        Button(
-                            onClick = onStartGame,
-                            enabled = isDataLoaded,
-                            modifier = Modifier.width(200.dp).height(60.dp)
-                        ) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = stringResource(Res.string.app_subtitle),
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        MainMenuButtonRow(
+                            onStartGame = onStartGame,
+                            onContinueGame = onContinueGame,
+                            hasAutosave = hasAutosave,
+                            isDataLoaded = isDataLoaded,
+                            onShowRules = onShowRules,
+                            buttonHeight = if (isPlatformMobile) 40.dp else 34.dp,
+                            textStyle = if (isPlatformMobile) MaterialTheme.typography.bodySmall else MaterialTheme.typography.labelSmall
+                        )
+                        if (isPlatformWasm && WithImpressum.withImpressum) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(
+                                onClick = onShowDownloadInfo,
+                                modifier = Modifier.width(200.dp).height(34.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
+                            ) {
+                                Text(stringResource(Res.string.download_button), style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                        if (!isDataLoaded) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.primary)
+                                    Text(text = stringResource(Res.string.loading_data), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
+                                }
+                                if (loadingProgress != null) {
+                                    Text(
+                                        text = "${loadingProgress.loadedCount}/${loadingProgress.totalCount}: ${loadingProgress.currentFile}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                        // Bottom spacer for version/impressum overlay clearance
+                        Spacer(modifier = Modifier.height(28.dp))
+                    }
+                }
+            } else {
+                // ===== DESKTOP LAYOUT =====
+                // Settings and Info buttons in top-right corner
+                Row(
+                    modifier = Modifier.align(Alignment.TopEnd).padding(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    TooltipWrapper(text = stringResource(Res.string.tooltip_info_installation)) {
+                        IconButton(onClick = onShowInstallationInfo, modifier = Modifier.size(48.dp)) {
+                            FilledSymbol(icon = MaterialSymbols.INFO, size = 32.dp)
+                        }
+                    }
+                    FeedbackButton()
+                    SettingsButton()
+                }
+
+                // Exit button in top-left corner
+                if (!isPlatformIos) {
+                    Button(
+                        onClick = { showExitConfirmation = true },
+                        modifier = Modifier.align(Alignment.TopStart).padding(8.dp).height(32.dp).widthIn(min = 80.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                    ) {
+                        Text(text = stringResource(Res.string.exit_game), style = MaterialTheme.typography.bodySmall, fontSize = 12.sp)
+                    }
+                }
+
+                // Player name and IAM login button below exit button
+                if (currentPlayerName != null) {
+                    Row(
+                        modifier = Modifier.align(Alignment.TopStart).padding(start = 8.dp, top = 48.dp, end = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Column(modifier = Modifier.clickable { onEditPlayerName() }) {
+                            Text(text = stringResource(Res.string.player_name), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(text = currentPlayerName, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                            if (iamState.isAuthenticated && iamState.username != null) {
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                                    UnlockIcon(size = 12.dp)
+                                    Text(text = iamState.username, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.secondary)
+                                }
+                            }
+                        }
+                        if (iamState.isAuthenticated) {
+                            TooltipWrapper(text = stringResource(Res.string.tooltip_log_out_from_remote)) {
+                                OutlinedButton(onClick = onIamLogout, modifier = Modifier.height(36.dp)) {
+                                    LockIcon(size = 14.dp)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(text = stringResource(Res.string.iam_logout), style = MaterialTheme.typography.bodySmall)
+                                }
+                            }
+                        } else if (iamLoginInProgress) {
+                            OutlinedButton(onClick = onIamLoginCancel, modifier = Modifier.height(36.dp)) {
+                                CircularProgressIndicator(modifier = Modifier.size(14.dp), strokeWidth = 2.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(text = stringResource(Res.string.iam_login_waiting), style = MaterialTheme.typography.bodySmall)
+                            }
+                        } else {
+                            OutlinedButton(onClick = onIamLogin, modifier = Modifier.height(36.dp)) {
+                                UnlockIcon(size = 14.dp)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(text = stringResource(Res.string.iam_login), style = MaterialTheme.typography.bodySmall)
+                            }
+                        }
+                        val backendInfoDesc = stringResource(Res.string.backend_info_title)
+                        TooltipWrapper(text = backendInfoDesc) {
+                            IconButton(onClick = onShowBackendInfo, modifier = Modifier.size(34.dp).semantics { contentDescription = backendInfoDesc }) {
+                                HelpIcon(size = 34.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
+                            }
+                        }
+                    }
+                }
+
+                // Desktop centered column with banner + subtitle + buttons
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    ApplicationBannerImage(modifier = Modifier.height(desktopBannerHeight))
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = stringResource(Res.string.app_subtitle),
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Button(onClick = onStartGame, enabled = isDataLoaded, modifier = Modifier.width(200.dp).height(60.dp)) {
                             Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
                         }
-
-                        // Continue Game button (only visible if autosave exists)
                         if (hasAutosave) {
                             Button(
                                 onClick = onContinueGame,
                                 modifier = Modifier.width(200.dp).height(60.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.secondary
-                                )
+                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
                             ) {
+                                Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.titleMedium)
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = onShowRules, modifier = Modifier.width(200.dp).height(60.dp)) {
+                        Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
+                    }
+                    if (isPlatformWasm && WithImpressum.withImpressum) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = onShowDownloadInfo,
+                            modifier = Modifier.width(200.dp).height(60.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
+                        ) {
+                            Text(stringResource(Res.string.download_button), style = MaterialTheme.typography.titleMedium)
+                        }
+                    }
+                    if (!isDataLoaded) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = MaterialTheme.colorScheme.primary)
+                                Text(text = stringResource(Res.string.loading_data), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onBackground)
+                            }
+                            if (loadingProgress != null) {
                                 Text(
-                                    stringResource(Res.string.continue_game),
-                                    style = MaterialTheme.typography.titleMedium
+                                    text = "${loadingProgress.loadedCount}/${loadingProgress.totalCount}: ${loadingProgress.currentFile}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
                     }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Button(
-                        onClick = onShowRules,
-                        modifier = Modifier.width(200.dp).height(60.dp)
-                    ) {
-                        Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
-                    }
-                }
-
-                // Download button (only for WASM with impressum)
-                if (isPlatformWasm && WithImpressum.withImpressum) {
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Button(
-                        onClick = onShowDownloadInfo,
-                        modifier = Modifier.width(200.dp).height(if (isMobileWeb) 34.dp else 60.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.tertiary
-                        )
-                    ) {
-                        Text(
-                            stringResource(Res.string.download_button),
-                            style = if (isMobileWeb) MaterialTheme.typography.labelSmall else MaterialTheme.typography.titleMedium
-                        )
-                    }
-                }
-
-                // Loading progress indicator (shown on WASM while repository files are loading)
-                if (!isDataLoaded) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(16.dp),
-                                strokeWidth = 2.dp,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            Text(
-                                text = stringResource(Res.string.loading_data),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                        }
-                        if (loadingProgress != null) {
-                            Text(
-                                text = "${loadingProgress.loadedCount}/${loadingProgress.totalCount}: ${loadingProgress.currentFile}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                }
-                
-                if (usesStackedLayout) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 4.dp)
-                    ) {
-                        TooltipWrapper(text = stringResource(Res.string.commit_info_title)) {
-                            Text(
-                                text = "v${AppBuildInfo.VERSION_NAME} (${AppBuildInfo.COMMIT_HASH})",
-                                style = MaterialTheme.typography.bodySmall,
-                                fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.clickable { showCommitInfo = true }
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
             
-            // Version info at the bottom on desktop - clickable to show commit info
-            if (!usesStackedLayout) {
+            // Version info at the bottom on desktop/mobile-web - clickable to show commit info
+            if (!usesStackedLayout || isMobileWeb) {
                 TooltipWrapper(
                     text = stringResource(Res.string.commit_info_title),
                     modifier = Modifier
@@ -520,7 +666,8 @@ fun MainMenuScreen(
                     },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(top = 60.dp, end = 8.dp)  // Position below settings button
+                        .padding(top = 56.dp, end = 8.dp)
+                        .heightIn(max = (maxHeight - 56.dp).coerceAtLeast(140.dp))
                 )
             }
         }
@@ -613,9 +760,19 @@ fun LevelCompleteScreen(
             ),
         color = MaterialTheme.colorScheme.background
     ) {
-        Box(
+        BoxWithConstraints(
             modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
+            val isMobileLayout = remember { shouldUseMobileLevelCompleteLayout(
+                isNativeMobile = isPlatformMobile,
+                isMobileWeb = isMobileWebBrowser()
+            ) }
+            val isPortrait = maxHeight > maxWidth
+            val stackButtons = shouldStackLevelCompleteButtons(
+                isMobileLayout = isMobileLayout,
+                isPortrait = isPortrait
+            )
+
             // Settings and Feedback buttons in top-right corner (hidden in demo mode to keep UI clean)
             if (!isDemoMode) {
             Row(
@@ -630,32 +787,37 @@ fun LevelCompleteScreen(
             }
             
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .then(if (isMobileLayout) Modifier.verticalScroll(rememberScrollState()) else Modifier),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = if (isMobileLayout) Arrangement.Top else Arrangement.Center
             ) {
+                if (isMobileLayout) Spacer(modifier = Modifier.height(8.dp))
+
                 // Icon/Image
+                val iconSize = if (isMobileLayout) 40.dp else 64.dp
                 when {
-                    won && isLastLevel -> TrophyIcon(size = 64.dp)
-                    won -> Image(painter = painterResource(Res.drawable.emoji_sword), contentDescription = title, modifier = Modifier.size(64.dp))
-                    else -> Image(painter = painterResource(Res.drawable.emoji_skull), contentDescription = title, modifier = Modifier.size(64.dp))
+                    won && isLastLevel -> TrophyIcon(size = iconSize)
+                    won -> Image(painter = painterResource(Res.drawable.emoji_sword), contentDescription = title, modifier = Modifier.size(iconSize))
+                    else -> Image(painter = painterResource(Res.drawable.emoji_skull), contentDescription = title, modifier = Modifier.size(iconSize))
                 }
 
                 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(if (isMobileLayout) 8.dp else 16.dp))
                 
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.displayLarge,
+                    style = if (isMobileLayout) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.displayLarge,
                     textAlign = TextAlign.Center,
                     color = if (won) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                 )
                 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(if (isMobileLayout) 8.dp else 16.dp))
                 
                 Text(
                     text = message,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = if (isMobileLayout) MaterialTheme.typography.bodyMedium else MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -672,7 +834,7 @@ fun LevelCompleteScreen(
                 // Check if this is level 5 (Dark Magic Rises) to show XP system unlock message
                 val isDarkMagicRisesLevel = levelId == 5  // Assuming level 5 ID
                 if (won && isDarkMagicRisesLevel) {
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(if (isMobileLayout) 8.dp else 16.dp))
                     
                     Text(
                         text = stringResource(Res.string.xp_system_unlocked),
@@ -692,7 +854,7 @@ fun LevelCompleteScreen(
                     )
                 }
                 
-                Spacer(modifier = Modifier.height(48.dp))
+                Spacer(modifier = Modifier.height(if (isMobileLayout) 16.dp else 48.dp))
                 
                 if (isDemoMode) {
                     // In demo mode, show a hint that the user can click to stop
@@ -702,20 +864,38 @@ fun LevelCompleteScreen(
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
                     )
+                } else if (stackButtons) {
+                    // Mobile portrait: stack buttons vertically for better fit
+                    val buttonModifier = Modifier.fillMaxWidth().height(44.dp)
+                    Button(onClick = onRestart, modifier = buttonModifier) {
+                        Text(stringResource(Res.string.retry))
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(onClick = onBackToMap, modifier = buttonModifier) {
+                        Text(stringResource(Res.string.world_map))
+                    }
+                    if (won && onNextLevel != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(onClick = onNextLevel, modifier = buttonModifier) {
+                            Text(stringResource(Res.string.next_level))
+                        }
+                    }
                 } else {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    val btnHeight = if (isMobileLayout) 44.dp else 50.dp
+                    val btnWidth = if (isMobileLayout) 120.dp else 150.dp
                     Button(
                         onClick = onRestart,
-                        modifier = Modifier.width(150.dp).height(50.dp)
+                        modifier = Modifier.width(btnWidth).height(btnHeight)
                     ) {
                         Text(stringResource(Res.string.retry))
                     }
                     
                     Button(
                         onClick = onBackToMap,
-                        modifier = Modifier.width(150.dp).height(50.dp)
+                        modifier = Modifier.width(btnWidth).height(btnHeight)
                     ) {
                         Text(stringResource(Res.string.world_map))
                     }
@@ -723,13 +903,15 @@ fun LevelCompleteScreen(
                     if (won && onNextLevel != null) {
                         Button(
                             onClick = onNextLevel,
-                            modifier = Modifier.width(150.dp).height(50.dp)
+                            modifier = Modifier.width(btnWidth).height(btnHeight)
                         ) {
                             Text(stringResource(Res.string.next_level))
                         }
                     }
                 }
                 }
+
+                if (isMobileLayout) Spacer(modifier = Modifier.height(8.dp))
             }
         }
 

@@ -25,10 +25,12 @@ import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.HammerIcon
 import de.egril.defender.ui.icon.StarIcon
 import de.egril.defender.ui.icon.InfoIcon
+import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.ui.gameplay.ScrollableInfoCard
 import de.egril.defender.ui.gameplay.SpellTargetIcon
+import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -69,6 +71,7 @@ fun AbilitiesUpgradeScreen(
             },
         color = MaterialTheme.colorScheme.background
     ) {
+        val isMobileUI = isPlatformMobile || isMobileWebBrowser()
         Box(
             modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
@@ -90,17 +93,17 @@ fun AbilitiesUpgradeScreen(
                 // Header
                 Text(
                     text = stringResource(Res.string.abilities),
-                    style = MaterialTheme.typography.displayMedium,
+                    style = if (isMobileUI) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.displayMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(if (isMobileUI) 8.dp else 16.dp))
                 
                 // XP and Level Info
                 PlayerLevelInfo(abilities)
                 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(if (isMobileUI) 12.dp else 24.dp))
                 
                 // Scrollable content
                 Column(
@@ -257,13 +260,13 @@ fun AbilitiesUpgradeScreen(
                     ) {
                         OutlinedButton(
                             onClick = onBack,
-                            modifier = Modifier.width(200.dp).height(50.dp)
+                            modifier = Modifier.width(if (isMobileUI) 140.dp else 200.dp).height(if (isMobileUI) 44.dp else 50.dp)
                         ) {
                             Text(stringResource(Res.string.back_to_world_map))
                         }
                         Button(
                             onClick = onContinueToNextLevel,
-                            modifier = Modifier.height(50.dp).focusRequester(continueFocusRequester)
+                            modifier = Modifier.height(if (isMobileUI) 44.dp else 50.dp).focusRequester(continueFocusRequester)
                         ) {
                             Text(stringResource(Res.string.continue_with_level, nextLevelName))
                         }
@@ -274,7 +277,7 @@ fun AbilitiesUpgradeScreen(
                     ) {
                         Button(
                             onClick = onBack,
-                            modifier = Modifier.width(200.dp).height(50.dp)
+                            modifier = Modifier.width(if (isMobileUI) 140.dp else 200.dp).height(if (isMobileUI) 44.dp else 50.dp)
                         ) {
                             Text(stringResource(Res.string.back))
                         }
