@@ -496,11 +496,17 @@ fun FeedbackFormContent(
                 color = MaterialTheme.colorScheme.errorContainer,
                 tonalElevation = 2.dp
             ) {
-                Text(
-                    text = stringResource(Res.string.feedback_form_submit_error),
-                    color = MaterialTheme.colorScheme.onErrorContainer,
-                    modifier = Modifier.padding(12.dp)
-                )
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text(
+                        text = stringResource(Res.string.feedback_form_submit_error),
+                        color = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                    Text(
+                        text = stringResource(Res.string.feedback_form_submit_error_contact),
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
             }
         }
     }
