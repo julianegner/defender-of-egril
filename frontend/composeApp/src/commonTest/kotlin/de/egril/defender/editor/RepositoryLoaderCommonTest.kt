@@ -193,11 +193,23 @@ class RepositoryLoaderCommonTest {
             val success = RepositoryLoader.loadAndSaveRepositoryFiles(storage)
 
             assertTrue(success, "Repository sync fast path should still report success")
-            assertEquals(
-                writesBeforeSync,
-                storage.textWriteCount,
-                "Repository sync should skip rewriting files when the fingerprint already matches"
-            )
+            // Fast path now always refreshes worldmap.json from the bundled repository to
+            // prevent stale data from being shown (e.g. after the Level Editor modified it
+            // or after a storage quota overflow lost the file). Exactly 1 write is expected.
+            val worldmapWritten = storage.readFile("gamedata/official/worldmap.json") != null
+            if (worldmapWritten) {
+                assertEquals(
+                    writesBeforeSync + 1,
+                    storage.textWriteCount,
+                    "Repository sync fast path should write exactly worldmap.json and nothing else"
+                )
+            } else {
+                assertEquals(
+                    writesBeforeSync,
+                    storage.textWriteCount,
+                    "Repository sync should skip rewriting files when the fingerprint already matches"
+                )
+            }
         }
     }
 }
