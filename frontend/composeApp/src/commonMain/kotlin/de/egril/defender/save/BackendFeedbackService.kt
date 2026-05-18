@@ -11,7 +11,6 @@ data class FeedbackSubmitRequest(
     val gameTurnNumber: Int?,
     val gameStateJson: String?,
     val gameLog: String?,
-    val screenshotBase64: String?,
     val attachments: List<FeedbackAttachmentData> = emptyList()
 )
 
@@ -47,8 +46,6 @@ internal fun buildFeedbackUploadJson(request: FeedbackSubmitRequest): String = b
     appendNullableString("gameStateJson", request.gameStateJson)
     append(',')
     appendNullableString("gameLog", request.gameLog)
-    append(',')
-    appendNullableString("screenshotBase64", request.screenshotBase64)
     append(',')
     append("\"attachments\":[")
     request.attachments.forEachIndexed { index, attachment ->

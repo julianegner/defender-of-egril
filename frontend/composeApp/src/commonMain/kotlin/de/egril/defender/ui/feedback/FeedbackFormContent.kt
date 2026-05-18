@@ -105,12 +105,16 @@ internal val ALL_REQUESTABLE_LANGUAGES = listOf(
  * Files such as screenshots or game saves can be attached manually.
  *
  * For additional language requests: a searchable language list with flags is shown.
+ *
+ * @param gameContext Optional game context (level name, turn, state summary) populated when the
+ *   form is opened from within an active game session.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedbackFormContent(
     modifier: Modifier = Modifier,
-    showTitle: Boolean = true
+    showTitle: Boolean = true,
+    gameContext: GameFeedbackContext? = null
 ) {
     val scope = rememberCoroutineScope()
     var feedbackId by remember { mutableStateOf(generateFeedbackUuid()) }
@@ -404,12 +408,11 @@ fun FeedbackFormContent(
                             bugTypes = selectedBugTypes.toList(),
                             message = finalMessage,
                             contactEmail = contactEmail.trim().ifBlank { null },
-                            sourceContext = "INFO_PAGE",
-                            gameLevelName = null,
-                            gameTurnNumber = null,
-                            gameStateJson = null,
+                            sourceContext = gameContext?.sourceContext ?: "INFO_PAGE",
+                            gameLevelName = gameContext?.levelName,
+                            gameTurnNumber = gameContext?.turnNumber,
+                            gameStateJson = gameContext?.gameStateJson,
                             gameLog = collectedGameLog,
-                            screenshotBase64 = null,
                             attachments = attachmentDataList
                         ),
                         token = IamService.getToken()

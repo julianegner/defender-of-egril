@@ -28,10 +28,14 @@ import defender_of_egril.composeapp.generated.resources.close
  * Feedback button with chat/feedback icon that opens a dialog containing the feedback form.
  * Can be placed on any screen to provide quick access to the feedback form.
  * Modeled after SettingsButton for consistent UX.
+ *
+ * @param gameContext Optional game context (level name, turn, state) passed when the button is
+ *   placed on the gameplay screen; null on menu/info screens.
  */
 @Composable
 fun FeedbackButton(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    gameContext: GameFeedbackContext? = null
 ) {
     var showFeedback by remember { mutableStateOf(false) }
     val feedbackLabel = stringResource(Res.string.tooltip_feedback)
@@ -51,7 +55,7 @@ fun FeedbackButton(
     }
 
     if (showFeedback) {
-        FeedbackDialog(onDismiss = { showFeedback = false })
+        FeedbackDialog(onDismiss = { showFeedback = false }, gameContext = gameContext)
     }
 }
 
@@ -61,7 +65,8 @@ fun FeedbackButton(
  */
 @Composable
 private fun FeedbackDialog(
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    gameContext: GameFeedbackContext? = null
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -117,7 +122,8 @@ private fun FeedbackDialog(
                         .verticalScroll(rememberScrollState())
                 ) {
                     FeedbackFormContent(
-                        showTitle = false
+                        showTitle = false,
+                        gameContext = gameContext
                     )
                 }
             }
