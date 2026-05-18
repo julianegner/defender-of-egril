@@ -178,6 +178,9 @@ fun MainMenuScreen(
             )
             // Pre-compute at BoxWithConstraints scope where maxHeight/maxWidth are in scope
             val mobileLandscapeBannerHeight = (maxHeight * 0.40f).coerceAtLeast(72.dp).coerceAtMost(140.dp)
+            // Desktop banner: height = available width / banner aspect-ratio so the image always fills
+            // the composable edge-to-edge. Capped at 300dp so very wide monitors don't get a huge banner.
+            val desktopBannerHeight = (maxWidth / 2.96f).coerceAtLeast(100.dp).coerceAtMost(300.dp)
             if (usesCompactLayout) {
                 // ===== MOBILE / MOBILE-WEB LAYOUT =====
                 // Landscape: 3-column Row (left controls | center banner | right controls).
@@ -563,7 +566,7 @@ fun MainMenuScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    ApplicationBannerImage()
+                    ApplicationBannerImage(modifier = Modifier.height(desktopBannerHeight))
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = stringResource(Res.string.app_subtitle),
