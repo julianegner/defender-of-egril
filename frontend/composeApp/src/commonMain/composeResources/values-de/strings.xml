@@ -1770,6 +1770,7 @@
     <string name="accessibility_hold_to_confirm">Gedrückt halten zum Bestätigen</string>
     <string name="accessibility_reduce_motion_on">Weniger Bewegung ist aktiv (Animationen sind aus).</string>
     <string name="accessibility_reduce_motion_off">Weniger Bewegung ist inaktiv (Animationen sind an).</string>
+    <string name="accessibility_reduce_motion_note">Diese Steuerung spiegelt dieselbe Animationseinstellung im Level-Tab wider.</string>
     <!-- Scroll hint accessibility labels -->
     <string name="scroll_hint_more_tabs_left">Nach links scrollen für mehr Tabs</string>
     <string name="scroll_hint_more_tabs_right">Nach rechts scrollen für mehr Tabs</string>

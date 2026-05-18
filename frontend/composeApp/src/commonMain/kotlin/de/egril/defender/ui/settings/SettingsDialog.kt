@@ -320,6 +320,12 @@ private fun AccessibilitySection() {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+
+        SelectableText(
+            text = stringResource(Res.string.accessibility_reduce_motion_note),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 

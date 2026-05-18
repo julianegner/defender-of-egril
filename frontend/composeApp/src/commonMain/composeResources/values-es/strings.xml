@@ -1771,6 +1771,7 @@
     <string name="accessibility_hold_to_confirm">Mantener pulsado para confirmar</string>
     <string name="accessibility_reduce_motion_on">Reducir movimiento está activo (las animaciones están desactivadas).</string>
     <string name="accessibility_reduce_motion_off">Reducir movimiento está inactivo (las animaciones están activadas).</string>
+    <string name="accessibility_reduce_motion_note">Este control refleja el mismo ajuste de animaciones de la pestaña Nivel.</string>
     <!-- Scroll hint accessibility labels -->
     <string name="scroll_hint_more_tabs_left">Desplazar a la izquierda para ver más pestañas</string>
     <string name="scroll_hint_more_tabs_right">Desplazar a la derecha para ver más pestañas</string>

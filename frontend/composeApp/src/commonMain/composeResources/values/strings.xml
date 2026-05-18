@@ -1777,6 +1777,7 @@
     <string name="accessibility_hold_to_confirm">Hold to Confirm</string>
     <string name="accessibility_reduce_motion_on">Reduce motion is active (animations are off).</string>
     <string name="accessibility_reduce_motion_off">Reduce motion is inactive (animations are on).</string>
+    <string name="accessibility_reduce_motion_note">This control mirrors the same Animations setting in the Level tab.</string>
     <!-- Scroll hint accessibility labels -->
     <string name="scroll_hint_more_tabs_left">Scroll left to see more tabs</string>
     <string name="scroll_hint_more_tabs_right">Scroll right to see more tabs</string>

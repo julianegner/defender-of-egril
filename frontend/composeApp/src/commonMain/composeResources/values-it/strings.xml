@@ -1773,6 +1773,7 @@
     <string name="accessibility_hold_to_confirm">Tieni premuto per confermare</string>
     <string name="accessibility_reduce_motion_on">Riduzione movimento attiva (animazioni disattivate).</string>
     <string name="accessibility_reduce_motion_off">Riduzione movimento non attiva (animazioni attive).</string>
+    <string name="accessibility_reduce_motion_note">Questo controllo rispecchia la stessa impostazione Animazioni nella scheda Livello.</string>
     <!-- Scroll hint accessibility labels -->
     <string name="scroll_hint_more_tabs_left">Scorri a sinistra per vedere altri tab</string>
     <string name="scroll_hint_more_tabs_right">Scorri a destra per vedere altri tab</string>

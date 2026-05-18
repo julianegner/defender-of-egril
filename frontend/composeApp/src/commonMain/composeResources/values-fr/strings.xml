@@ -1772,6 +1772,7 @@
     <string name="accessibility_hold_to_confirm">Maintenir pour confirmer</string>
     <string name="accessibility_reduce_motion_on">Réduire les mouvements est actif (les animations sont désactivées).</string>
     <string name="accessibility_reduce_motion_off">Réduire les mouvements est inactif (les animations sont activées).</string>
+    <string name="accessibility_reduce_motion_note">Ce contrôle reflète le même réglage d’animations dans l’onglet Niveau.</string>
     <!-- Scroll hint accessibility labels -->
     <string name="scroll_hint_more_tabs_left">Défiler à gauche pour voir plus d\'onglets</string>
     <string name="scroll_hint_more_tabs_right">Défiler à droite pour voir plus d\'onglets</string>

@@ -33,6 +33,7 @@ fun Modifier.requireContentDescription(
     contentDescription: String?,
     decorative: Boolean = false
 ): Modifier {
+    // Intentionally debug-only: `assert` is enabled in test/debug runs and disabled in release builds.
     assert(decorative || !contentDescription.isNullOrBlank()) {
         "A non-decorative image/icon is missing a contentDescription."
     }
