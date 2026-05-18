@@ -247,6 +247,23 @@ object RepositoryLoader {
     }
     
     /**
+     * Refreshes the official worldmap.json in [storage] from the bundled repository resources.
+     * This is called in the fast path to ensure the worldmap stays current even when a full
+     * sync is skipped — for example, if it was modified via the Level Editor or lost due to
+     * a storage quota overflow.
+     */
+    private suspend fun refreshWorldMapInStorage(storage: FileStorage) {
+        val worldMapData = loadWorldMapData()
+        if (worldMapData != null) {
+            val worldMapJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
+            storage.writeFile("gamedata/official/worldmap.json", worldMapJson)
+            if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+            println("Refreshed official worldmap.json from repository (fast path)")
+            }
+        }
+    }
+
+    /**
      * Load all repository files and save them to file storage.
      * Skips the full reload if the stored version already matches the bundled version.
      * @param storage File storage to save to
@@ -283,6 +300,10 @@ object RepositoryLoader {
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("Repository data is up to date (version $storedVersion), skipping reload")
                     }
+                    // Always refresh worldmap.json from the bundled repository to ensure it stays
+                    // current. It may have been lost due to a storage quota overflow, or modified
+                    // via the Level Editor, so we overwrite it here regardless of the fast path.
+                    refreshWorldMapInStorage(storage)
                     return true
                 }
                 if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
@@ -462,6 +483,10 @@ object RepositoryLoader {
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("Repository data is up to date (version $storedVersion), signalling ready immediately")
                     }
+                    // Always refresh worldmap.json from the bundled repository to ensure it stays
+                    // current. It may have been lost due to a storage quota overflow, or modified
+                    // via the Level Editor, so we overwrite it here regardless of the fast path.
+                    refreshWorldMapInStorage(storage)
                     onFirstLevelReady()
                     return true
                 }

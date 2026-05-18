@@ -168,20 +168,25 @@ object RepositoryManager {
                 bundledFingerprint != null &&
                 bundledFingerprint == storedFingerprint
             ) {
-                // Also verify that official maps are actually present in persistent storage.
-                // If a previous sync wrote maps only to the in-memory fallback (due to a
-                // localStorage quota overflow), they will be absent after a page reload even
-                // though the version file is still intact.  In that case we must fall through
-                // so the sync is performed and maps are restored into the in-memory store.
+                // Also verify that official maps and worldmap.json are actually present in
+                // persistent storage. If a previous sync wrote files only to the in-memory
+                // fallback (due to a localStorage quota overflow), they will be absent after a
+                // page reload even though the version file is still intact. In that case we must
+                // fall through so the sync is performed and the files are restored.
                 val officialMapFiles = fileStorage.listFiles("$GAMEDATA_DIR/official/maps")
-                if (officialMapFiles.isNotEmpty()) {
+                val worldMapExists = fileStorage.readFile("$GAMEDATA_DIR/official/worldmap.json") != null
+                if (officialMapFiles.isNotEmpty() && worldMapExists) {
                     if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("Repository data is up to date (version $storedVersion), no sync needed")
                     }
                     return null
                 }
                 if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                println("Version matches ($storedVersion) but official maps are missing - checking for updates")
+                if (officialMapFiles.isEmpty()) {
+                    println("Version matches ($storedVersion) but official maps are missing - checking for updates")
+                } else {
+                    println("Version matches ($storedVersion) but worldmap.json is missing - checking for updates")
+                }
                 }
                 // Fall through to the full update check below
             }
