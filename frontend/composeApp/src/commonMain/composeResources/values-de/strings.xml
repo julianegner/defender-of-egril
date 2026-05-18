@@ -1774,6 +1774,7 @@
     <string name="feedback_form_message_label">Nachricht</string>
     <string name="feedback_form_contact_email_label">Kontakt-E-Mail (optional)</string>
     <string name="feedback_form_contact_email_label_required">Kontakt-E-Mail</string>
+    <string name="feedback_form_mandatory_hint">* Pflichtfeld</string>
     <string name="feedback_form_include_game_log">Spielprotokoll einschließen</string>
     <string name="feedback_form_attachments_label">Anhänge (automatisch erfasst)</string>
     <string name="feedback_form_auto_collect_hint">Spielprotokolle werden bei Aktivierung automatisch erfasst.</string>

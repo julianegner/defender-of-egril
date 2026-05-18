@@ -1775,6 +1775,7 @@
     <string name="feedback_form_message_label">Mensaje</string>
     <string name="feedback_form_contact_email_label">Correo de contacto (opcional)</string>
     <string name="feedback_form_contact_email_label_required">Correo de contacto</string>
+    <string name="feedback_form_mandatory_hint">* campo obligatorio</string>
     <string name="feedback_form_include_game_log">Incluir registro del juego</string>
     <string name="feedback_form_attachments_label">Adjuntos (recopilados automáticamente)</string>
     <string name="feedback_form_auto_collect_hint">Los registros se recopilan automáticamente al marcar.</string>

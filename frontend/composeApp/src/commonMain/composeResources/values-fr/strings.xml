@@ -1776,6 +1776,7 @@
     <string name="feedback_form_message_label">Message</string>
     <string name="feedback_form_contact_email_label">E-mail de contact (optionnel)</string>
     <string name="feedback_form_contact_email_label_required">E-mail de contact</string>
+    <string name="feedback_form_mandatory_hint">* champ obligatoire</string>
     <string name="feedback_form_include_game_log">Inclure le journal de jeu</string>
     <string name="feedback_form_attachments_label">Pièces jointes (collectées automatiquement)</string>
     <string name="feedback_form_auto_collect_hint">Les journaux sont collectés automatiquement si cochés.</string>

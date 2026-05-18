@@ -1781,6 +1781,7 @@
     <string name="feedback_form_message_label">Message</string>
     <string name="feedback_form_contact_email_label">Contact Email (optional)</string>
     <string name="feedback_form_contact_email_label_required">Contact Email</string>
+    <string name="feedback_form_mandatory_hint">* mandatory field</string>
     <string name="feedback_form_include_game_log">Include game logs</string>
     <string name="feedback_form_attachments_label">Attachments (auto-collected)</string>
     <string name="feedback_form_auto_collect_hint">Game logs are collected automatically when checked.</string>

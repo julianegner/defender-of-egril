@@ -153,6 +153,7 @@ fun FeedbackFormContent(
     val isBugReport = selectedType.apiValue == "BUG_REPORT"
     val isLanguageRequest = selectedType.apiValue == "ADDITIONAL_LANGUAGE_REQUEST"
     val isInfoRequest = selectedType.apiValue == "INFO_REQUEST"
+    val isMessageMandatory = !isLanguageRequest
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -188,7 +189,7 @@ fun FeedbackFormContent(
             OutlinedTextField(
                 value = selectedType.label,
                 onValueChange = {},
-                label = { Text(stringResource(Res.string.feedback_form_type_label)) },
+                label = { Text("${stringResource(Res.string.feedback_form_type_label)} *") },
                 readOnly = true,
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                 modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
@@ -232,7 +233,7 @@ fun FeedbackFormContent(
         // Bug type checkboxes (only for bug reports)
         if (isBugReport) {
             Text(
-                text = stringResource(Res.string.feedback_form_bug_types_label),
+                text = "${stringResource(Res.string.feedback_form_bug_types_label)} *",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -274,7 +275,12 @@ fun FeedbackFormContent(
         OutlinedTextField(
             value = message,
             onValueChange = { message = it },
-            label = { Text(stringResource(Res.string.feedback_form_message_label)) },
+            label = {
+                Text(
+                    if (isMessageMandatory) "${stringResource(Res.string.feedback_form_message_label)} *"
+                    else stringResource(Res.string.feedback_form_message_label)
+                )
+            },
             minLines = 4,
             modifier = Modifier.fillMaxWidth()
         )
@@ -283,7 +289,7 @@ fun FeedbackFormContent(
             onValueChange = { contactEmail = it },
             label = {
                 Text(
-                    if (isInfoRequest) stringResource(Res.string.feedback_form_contact_email_label_required)
+                    if (isInfoRequest) "${stringResource(Res.string.feedback_form_contact_email_label_required)} *"
                     else stringResource(Res.string.feedback_form_contact_email_label)
                 )
             },
@@ -384,6 +390,12 @@ fun FeedbackFormContent(
         } else {
             message.isNotBlank()
         }
+
+        Text(
+            text = stringResource(Res.string.feedback_form_mandatory_hint),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
 
         Button(
             onClick = {
