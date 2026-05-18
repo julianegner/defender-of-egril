@@ -1787,6 +1787,7 @@
     <string name="feedback_form_language_search_hint">Search languages…</string>
     <string name="feedback_form_language_no_results">No matching languages found</string>
     <string name="feedback_form_language_clear">Clear</string>
+    <string name="feedback_form_language_not_listed_hint">Language not listed? Write its name in the message field below.</string>
     <string name="feedback_form_submit">Send Feedback</string>
     <string name="feedback_form_submit_success">Feedback submitted successfully (ID: %1$s)</string>
     <string name="feedback_form_submit_error">Could not submit feedback. Please try again.</string>

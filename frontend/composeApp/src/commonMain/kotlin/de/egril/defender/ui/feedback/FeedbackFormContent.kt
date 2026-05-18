@@ -7,7 +7,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -451,14 +453,14 @@ private fun LanguageSelector(
             }
         }
 
-        // Display the language list (multi-row, not a dropdown)
+        // Display the language list (multi-row, scrollable, not a dropdown)
         Surface(
             shape = RoundedCornerShape(8.dp),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
             modifier = Modifier.fillMaxWidth().heightIn(max = 200.dp)
         ) {
             Column(
-                modifier = Modifier.padding(4.dp)
+                modifier = Modifier.padding(4.dp).verticalScroll(rememberScrollState())
             ) {
                 if (filteredLanguages.isEmpty()) {
                     Text(
@@ -500,6 +502,13 @@ private fun LanguageSelector(
                 }
             }
         }
+
+        // Hint: languages not in the list can be written in the message field
+        Text(
+            text = stringResource(Res.string.feedback_form_language_not_listed_hint),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 

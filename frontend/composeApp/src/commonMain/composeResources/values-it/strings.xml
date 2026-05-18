@@ -1783,6 +1783,7 @@
     <string name="feedback_form_language_search_hint">Cerca lingue…</string>
     <string name="feedback_form_language_no_results">Nessuna lingua trovata</string>
     <string name="feedback_form_language_clear">Cancella</string>
+    <string name="feedback_form_language_not_listed_hint">Lingua non elencata? Scrivi il nome nel campo messaggio qui sotto.</string>
     <string name="feedback_form_submit">Invia feedback</string>
     <string name="feedback_form_submit_success">Feedback inviato con successo (ID: %1$s)</string>
     <string name="feedback_form_submit_error">Impossibile inviare il feedback. Riprova.</string>

@@ -1782,6 +1782,7 @@
     <string name="feedback_form_language_search_hint">Rechercher des langues…</string>
     <string name="feedback_form_language_no_results">Aucune langue trouvée</string>
     <string name="feedback_form_language_clear">Effacer</string>
+    <string name="feedback_form_language_not_listed_hint">Langue non listée ? Écrivez son nom dans le champ de message ci-dessous.</string>
     <string name="feedback_form_submit">Envoyer le retour</string>
     <string name="feedback_form_submit_success">Retour envoyé avec succès (ID : %1$s)</string>
     <string name="feedback_form_submit_error">Impossible d\'envoyer le retour. Veuillez réessayer.</string>
