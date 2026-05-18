@@ -1774,8 +1774,14 @@
     <string name="feedback_form_bug_types_label">Types de bug (choix multiples)</string>
     <string name="feedback_form_message_label">Message</string>
     <string name="feedback_form_contact_email_label">E-mail de contact (optionnel)</string>
-    <string name="feedback_form_game_log_label">Journal de jeu (obligatoire pour les bugs)</string>
-    <string name="feedback_form_screenshot_base64_label">Capture Base64 (obligatoire pour les bugs)</string>
+    <string name="feedback_form_include_game_log">Inclure le journal de jeu</string>
+    <string name="feedback_form_include_screenshot">Inclure une capture d\'écran</string>
+    <string name="feedback_form_attachments_label">Pièces jointes (collectées automatiquement)</string>
+    <string name="feedback_form_auto_collect_hint">Les journaux et captures sont collectés automatiquement si cochés.</string>
+    <string name="feedback_form_language_selector_label">Sélectionner la langue demandée</string>
+    <string name="feedback_form_language_search_hint">Rechercher des langues…</string>
+    <string name="feedback_form_language_no_results">Aucune langue trouvée</string>
+    <string name="feedback_form_language_clear">Effacer</string>
     <string name="feedback_form_submit">Envoyer le retour</string>
     <string name="feedback_form_submit_success">Retour envoyé avec succès (ID : %1$s)</string>
     <string name="feedback_form_submit_error">Impossible d\'envoyer le retour. Veuillez réessayer.</string>

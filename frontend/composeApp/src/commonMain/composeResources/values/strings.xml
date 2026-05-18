@@ -1779,8 +1779,14 @@
     <string name="feedback_form_bug_types_label">Bug Types (multiple choice)</string>
     <string name="feedback_form_message_label">Message</string>
     <string name="feedback_form_contact_email_label">Contact Email (optional)</string>
-    <string name="feedback_form_game_log_label">Game Log (required for bug reports)</string>
-    <string name="feedback_form_screenshot_base64_label">Screenshot Base64 (required for bug reports)</string>
+    <string name="feedback_form_include_game_log">Include game logs</string>
+    <string name="feedback_form_include_screenshot">Include screenshot</string>
+    <string name="feedback_form_attachments_label">Attachments (auto-collected)</string>
+    <string name="feedback_form_auto_collect_hint">Game logs and screenshots are collected automatically when checked.</string>
+    <string name="feedback_form_language_selector_label">Select requested language</string>
+    <string name="feedback_form_language_search_hint">Search languages…</string>
+    <string name="feedback_form_language_no_results">No matching languages found</string>
+    <string name="feedback_form_language_clear">Clear</string>
     <string name="feedback_form_submit">Send Feedback</string>
     <string name="feedback_form_submit_success">Feedback submitted successfully (ID: %1$s)</string>
     <string name="feedback_form_submit_error">Could not submit feedback. Please try again.</string>

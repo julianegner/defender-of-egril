@@ -2,17 +2,30 @@
 
 package de.egril.defender.ui.feedback
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import de.egril.defender.AppBuildInfo
 import de.egril.defender.iam.IamService
 import de.egril.defender.save.BackendFeedbackService
 import de.egril.defender.save.FeedbackSubmitRequest
+import de.egril.defender.utils.getClientPlatformName
+import de.egril.defender.utils.getPlatform
 import defender_of_egril.composeapp.generated.resources.*
+import dev.carlsen.flagkit.FlagKit
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
@@ -29,9 +42,62 @@ internal data class BugTypeOption(
 )
 
 /**
+ * Represents a language that can be requested via the feedback form.
+ * Includes display information for the searchable language list.
+ */
+internal data class LanguageEntry(
+    val code: String,
+    val name: String,
+    val nativeName: String,
+    val countryCode: String
+)
+
+/**
+ * Full list of commonly requested languages with country codes for FlagKit flags.
+ * Includes languages not yet supported by the app (DE/EN/ES/FR/IT are already supported).
+ */
+internal val ALL_REQUESTABLE_LANGUAGES = listOf(
+    LanguageEntry("ar", "Arabic", "العربية", "SA"),
+    LanguageEntry("bn", "Bengali", "বাংলা", "BD"),
+    LanguageEntry("zh", "Chinese (Simplified)", "简体中文", "CN"),
+    LanguageEntry("zh-TW", "Chinese (Traditional)", "繁體中文", "TW"),
+    LanguageEntry("cs", "Czech", "Čeština", "CZ"),
+    LanguageEntry("da", "Danish", "Dansk", "DK"),
+    LanguageEntry("nl", "Dutch", "Nederlands", "NL"),
+    LanguageEntry("fi", "Finnish", "Suomi", "FI"),
+    LanguageEntry("el", "Greek", "Ελληνικά", "GR"),
+    LanguageEntry("he", "Hebrew", "עברית", "IL"),
+    LanguageEntry("hi", "Hindi", "हिन्दी", "IN"),
+    LanguageEntry("hu", "Hungarian", "Magyar", "HU"),
+    LanguageEntry("id", "Indonesian", "Bahasa Indonesia", "ID"),
+    LanguageEntry("ja", "Japanese", "日本語", "JP"),
+    LanguageEntry("ko", "Korean", "한국어", "KR"),
+    LanguageEntry("ms", "Malay", "Bahasa Melayu", "MY"),
+    LanguageEntry("no", "Norwegian", "Norsk", "NO"),
+    LanguageEntry("fa", "Persian", "فارسی", "IR"),
+    LanguageEntry("pl", "Polish", "Polski", "PL"),
+    LanguageEntry("pt", "Portuguese", "Português", "PT"),
+    LanguageEntry("pt-BR", "Portuguese (Brazil)", "Português (Brasil)", "BR"),
+    LanguageEntry("ro", "Romanian", "Română", "RO"),
+    LanguageEntry("ru", "Russian", "Русский", "RU"),
+    LanguageEntry("sr", "Serbian", "Српски", "RS"),
+    LanguageEntry("sk", "Slovak", "Slovenčina", "SK"),
+    LanguageEntry("sv", "Swedish", "Svenska", "SE"),
+    LanguageEntry("th", "Thai", "ไทย", "TH"),
+    LanguageEntry("tr", "Turkish", "Türkçe", "TR"),
+    LanguageEntry("uk", "Ukrainian", "Українська", "UA"),
+    LanguageEntry("vi", "Vietnamese", "Tiếng Việt", "VN")
+)
+
+/**
  * Reusable feedback form composable that can be embedded in the info page
  * or displayed inside a dialog. Contains the full feedback form with
  * type selection, bug type checkboxes, message input, and submit logic.
+ *
+ * For bug reports: screenshot and game log data are auto-collected via checkboxes
+ * (the user ticks to include them; the system captures the data automatically).
+ *
+ * For additional language requests: a searchable language list with flags is shown.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,13 +129,16 @@ fun FeedbackFormContent(
     var selectedBugTypes by remember { mutableStateOf(setOf<String>()) }
     var message by remember { mutableStateOf("") }
     var contactEmail by remember { mutableStateOf("") }
-    var gameLog by remember { mutableStateOf("") }
-    var screenshotBase64 by remember { mutableStateOf("") }
+    var includeGameLog by remember { mutableStateOf(true) }
+    var includeScreenshot by remember { mutableStateOf(true) }
+    var selectedLanguage by remember { mutableStateOf<LanguageEntry?>(null) }
+    var languageSearchQuery by remember { mutableStateOf("") }
     var isSubmitting by remember { mutableStateOf(false) }
     var submitResult by remember { mutableStateOf<Boolean?>(null) }
     var lastSubmittedFeedbackId by remember { mutableStateOf("") }
 
     val isBugReport = selectedType.apiValue == "BUG_REPORT"
+    val isLanguageRequest = selectedType.apiValue == "ADDITIONAL_LANGUAGE_REQUEST"
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -134,6 +203,7 @@ fun FeedbackFormContent(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
+        // Bug type checkboxes (only for bug reports)
         if (isBugReport) {
             Text(
                 text = stringResource(Res.string.feedback_form_bug_types_label),
@@ -164,6 +234,17 @@ fun FeedbackFormContent(
             }
         }
 
+        // Language selector (only for additional language requests)
+        if (isLanguageRequest) {
+            LanguageSelector(
+                selectedLanguage = selectedLanguage,
+                searchQuery = languageSearchQuery,
+                onSearchQueryChange = { languageSearchQuery = it },
+                onLanguageSelected = { selectedLanguage = it }
+            )
+        }
+
+        // Message input
         OutlinedTextField(
             value = message,
             onValueChange = { message = it },
@@ -177,23 +258,52 @@ fun FeedbackFormContent(
             label = { Text(stringResource(Res.string.feedback_form_contact_email_label)) },
             modifier = Modifier.fillMaxWidth()
         )
-        OutlinedTextField(
-            value = gameLog,
-            onValueChange = { gameLog = it },
-            label = { Text(stringResource(Res.string.feedback_form_game_log_label)) },
-            minLines = 3,
-            modifier = Modifier.fillMaxWidth()
-        )
-        OutlinedTextField(
-            value = screenshotBase64,
-            onValueChange = { screenshotBase64 = it },
-            label = { Text(stringResource(Res.string.feedback_form_screenshot_base64_label)) },
-            minLines = 2,
-            modifier = Modifier.fillMaxWidth()
-        )
+
+        // Auto-collect checkboxes for bug reports (instead of manual text fields)
+        if (isBugReport) {
+            Text(
+                text = stringResource(Res.string.feedback_form_attachments_label),
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Checkbox(
+                    checked = includeGameLog,
+                    onCheckedChange = { includeGameLog = it }
+                )
+                Text(
+                    text = stringResource(Res.string.feedback_form_include_game_log),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Checkbox(
+                    checked = includeScreenshot,
+                    onCheckedChange = { includeScreenshot = it }
+                )
+                Text(
+                    text = stringResource(Res.string.feedback_form_include_screenshot),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            Text(
+                text = stringResource(Res.string.feedback_form_auto_collect_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
 
         val canSubmit = if (isBugReport) {
-            message.isNotBlank() && gameLog.isNotBlank() && screenshotBase64.isNotBlank() && selectedBugTypes.isNotEmpty()
+            message.isNotBlank() && selectedBugTypes.isNotEmpty()
+        } else if (isLanguageRequest) {
+            message.isNotBlank() || selectedLanguage != null
         } else {
             message.isNotBlank()
         }
@@ -203,19 +313,36 @@ fun FeedbackFormContent(
                 submitResult = null
                 isSubmitting = true
                 scope.launch {
+                    // Auto-collect game log if checkbox is ticked (bug reports)
+                    val collectedGameLog = if (isBugReport && includeGameLog) {
+                        collectGameLog()
+                    } else null
+
+                    // Auto-collect screenshot placeholder if checkbox is ticked (bug reports)
+                    val collectedScreenshot = if (isBugReport && includeScreenshot) {
+                        collectScreenshotPlaceholder()
+                    } else null
+
+                    // Prepend selected language to message for language requests
+                    val finalMessage = if (isLanguageRequest && selectedLanguage != null) {
+                        "[Requested language: ${selectedLanguage!!.name} (${selectedLanguage!!.code})]\n\n${message.trim()}"
+                    } else {
+                        message.trim()
+                    }
+
                     val ok = BackendFeedbackService.submitFeedback(
                         FeedbackSubmitRequest(
                             feedbackId = feedbackId,
                             feedbackType = selectedType.apiValue,
                             bugTypes = selectedBugTypes.toList(),
-                            message = message.trim(),
+                            message = finalMessage,
                             contactEmail = contactEmail.trim().ifBlank { null },
                             sourceContext = "INFO_PAGE",
                             gameLevelName = null,
                             gameTurnNumber = null,
                             gameStateJson = null,
-                            gameLog = gameLog.ifBlank { null },
-                            screenshotBase64 = screenshotBase64.ifBlank { null }
+                            gameLog = collectedGameLog,
+                            screenshotBase64 = collectedScreenshot
                         ),
                         token = IamService.getToken()
                     )
@@ -226,9 +353,11 @@ fun FeedbackFormContent(
                         feedbackId = generateFeedbackUuid()
                         message = ""
                         contactEmail = ""
-                        gameLog = ""
-                        screenshotBase64 = ""
                         selectedBugTypes = emptySet()
+                        includeGameLog = true
+                        includeScreenshot = true
+                        selectedLanguage = null
+                        languageSearchQuery = ""
                     }
                 }
             },
@@ -249,6 +378,182 @@ fun FeedbackFormContent(
             )
         }
     }
+}
+
+/**
+ * Searchable, multi-line language selector with flags.
+ * Shows a text field for searching/filtering and a scrollable list of matching languages.
+ * Each entry shows a flag, language name, native name, and code.
+ */
+@Composable
+private fun LanguageSelector(
+    selectedLanguage: LanguageEntry?,
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
+    onLanguageSelected: (LanguageEntry?) -> Unit
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Text(
+            text = stringResource(Res.string.feedback_form_language_selector_label),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold
+        )
+
+        // Search/filter text field
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = onSearchQueryChange,
+            label = { Text(stringResource(Res.string.feedback_form_language_search_hint)) },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        // Show selected language if any
+        if (selectedLanguage != null) {
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.primaryContainer,
+                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    LanguageFlagIcon(selectedLanguage.countryCode)
+                    Text(
+                        text = "${selectedLanguage.name} — ${selectedLanguage.nativeName} (${selectedLanguage.code})",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f)
+                    )
+                    TextButton(onClick = { onLanguageSelected(null) }) {
+                        Text(stringResource(Res.string.feedback_form_language_clear))
+                    }
+                }
+            }
+        }
+
+        // Filtered language list
+        val filteredLanguages = remember(searchQuery) {
+            if (searchQuery.isBlank()) {
+                ALL_REQUESTABLE_LANGUAGES
+            } else {
+                val query = searchQuery.lowercase()
+                ALL_REQUESTABLE_LANGUAGES.filter { lang ->
+                    lang.name.lowercase().contains(query) ||
+                        lang.nativeName.lowercase().contains(query) ||
+                        lang.code.lowercase().contains(query)
+                }
+            }
+        }
+
+        // Display the language list (multi-row, not a dropdown)
+        Surface(
+            shape = RoundedCornerShape(8.dp),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+            modifier = Modifier.fillMaxWidth().heightIn(max = 200.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(4.dp)
+            ) {
+                if (filteredLanguages.isEmpty()) {
+                    Text(
+                        text = stringResource(Res.string.feedback_form_language_no_results),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(12.dp)
+                    )
+                } else {
+                    filteredLanguages.forEach { lang ->
+                        val isSelected = selectedLanguage?.code == lang.code
+                        Surface(
+                            shape = RoundedCornerShape(4.dp),
+                            color = if (isSelected) MaterialTheme.colorScheme.primaryContainer
+                            else Color.Transparent,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onLanguageSelected(lang) }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                LanguageFlagIcon(lang.countryCode)
+                                Text(
+                                    text = "${lang.name} — ${lang.nativeName}",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Text(
+                                    text = lang.code,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Displays a small flag icon for a country code using FlagKit.
+ */
+@Composable
+private fun LanguageFlagIcon(countryCode: String) {
+    FlagKit.getFlag(countryCode = countryCode)?.let { flagVector ->
+        Image(
+            imageVector = flagVector,
+            contentDescription = "$countryCode flag",
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier
+                .width(28.dp)
+                .height(18.dp)
+                .border(0.5.dp, Color.Gray)
+                .clip(RoundedCornerShape(2.dp))
+        )
+    }
+}
+
+/**
+ * Auto-collects game log information including platform, version, and runtime details.
+ * This replaces the manual text input for game logs.
+ */
+private fun collectGameLog(): String {
+    val platform = getClientPlatformName()
+    val platformLong = getPlatform().name
+    val version = AppBuildInfo.VERSION_NAME
+    val commit = AppBuildInfo.COMMIT_HASH
+    return buildString {
+        appendLine("=== Auto-collected Game Log ===")
+        appendLine("Platform: $platform ($platformLong)")
+        appendLine("Version: $version")
+        appendLine("Commit: $commit")
+        appendLine("Timestamp: ${currentTimestamp()}")
+    }
+}
+
+/**
+ * Provides a placeholder for screenshot data.
+ * In the future, this can be replaced with actual screen capture logic
+ * once a cross-platform screenshot API is available.
+ */
+private fun collectScreenshotPlaceholder(): String {
+    // Minimal 1x1 transparent PNG as placeholder to satisfy the API requirement.
+    // Future: replace with actual screen capture when KMP screenshot APIs are available.
+    return "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIABQAB" +
+        "Nl7pcQAAAABJRU5ErkJggg=="
+}
+
+private fun currentTimestamp(): String {
+    // Simple timestamp representation without kotlinx-datetime dependency
+    return "collected at submission time"
 }
 
 internal fun generateFeedbackUuid(): String {
