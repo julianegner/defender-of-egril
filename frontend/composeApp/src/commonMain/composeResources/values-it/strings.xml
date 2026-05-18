@@ -1762,6 +1762,17 @@
     <!-- Settings tabs -->
     <string name="general">Generale</string>
     <string name="settings_tab_level">Level</string>
+    <string name="accessibility">Accessibilità</string>
+    <string name="accessibility_high_contrast">Alto contrasto</string>
+    <string name="accessibility_color_blind_palette">Palette daltonismo</string>
+    <string name="accessibility_color_blind_off">Disattivato</string>
+    <string name="accessibility_color_blind_deuteranopia">Deuteranopia</string>
+    <string name="accessibility_color_blind_protanopia">Protanopia</string>
+    <string name="accessibility_color_blind_tritanopia">Tritanopia</string>
+    <string name="accessibility_captions">Sottotitoli</string>
+    <string name="accessibility_hold_to_confirm">Tieni premuto per confermare</string>
+    <string name="accessibility_reduce_motion_on">Riduzione movimento attiva (animazioni disattivate).</string>
+    <string name="accessibility_reduce_motion_off">Riduzione movimento non attiva (animazioni attive).</string>
     <!-- Scroll hint accessibility labels -->
     <string name="scroll_hint_more_tabs_left">Scorri a sinistra per vedere altri tab</string>
     <string name="scroll_hint_more_tabs_right">Scorri a destra per vedere altri tab</string>

@@ -7,6 +7,8 @@ import com.hyperether.resources.currentLanguage
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.get
 import com.russhwolf.settings.set
+import de.egril.defender.ui.a11y.AccessibilityPreferences
+import de.egril.defender.ui.a11y.ColorBlindPalette
 import de.egril.defender.utils.isPlatformMobile
 
 /**
@@ -69,6 +71,10 @@ object AppSettings {
     private const val KEY_CHECK_FOR_UPDATES = "check_for_updates"
     private const val KEY_AUTO_JUMP_TO_NEXT_TOWER = "auto_jump_to_next_tower"
     private const val KEY_SHOW_UNIT_TOWER_BACKGROUND = "show_unit_tower_background"
+    private const val KEY_HIGH_CONTRAST = "high_contrast"
+    private const val KEY_COLOR_BLIND_PALETTE = "color_blind_palette"
+    private const val KEY_CAPTIONS_ENABLED = "captions_enabled"
+    private const val KEY_HOLD_TO_CONFIRM = "hold_to_confirm"
     
     private val settings: Settings = Settings()
 
@@ -247,6 +253,38 @@ object AppSettings {
      */
     val showUnitTowerBackground: MutableState<Boolean> = mutableStateOf(
         settings.getBoolean(KEY_SHOW_UNIT_TOWER_BACKGROUND, false)
+    )
+
+    /**
+     * Accessibility: high contrast color mode.
+     */
+    val highContrastEnabled: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_HIGH_CONTRAST, false)
+    )
+
+    /**
+     * Accessibility: color blind palette.
+     */
+    val colorBlindPalette: MutableState<ColorBlindPalette> = mutableStateOf(
+        try {
+            ColorBlindPalette.valueOf(settings[KEY_COLOR_BLIND_PALETTE, ColorBlindPalette.OFF.name])
+        } catch (_: Exception) {
+            ColorBlindPalette.OFF
+        }
+    )
+
+    /**
+     * Accessibility: show captions for sound-related events.
+     */
+    val captionsEnabled: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_CAPTIONS_ENABLED, false)
+    )
+
+    /**
+     * Accessibility: require hold-to-confirm for destructive actions.
+     */
+    val holdToConfirmEnabled: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_HOLD_TO_CONFIRM, false)
     )
 
     // Session-only debug states (not persisted)
@@ -555,6 +593,40 @@ object AppSettings {
         onPersist?.invoke()
     }
 
+    fun saveHighContrastEnabled(enabled: Boolean) {
+        highContrastEnabled.value = enabled
+        settings.putBoolean(KEY_HIGH_CONTRAST, enabled)
+        onPersist?.invoke()
+    }
+
+    fun saveColorBlindPalette(palette: ColorBlindPalette) {
+        colorBlindPalette.value = palette
+        settings[KEY_COLOR_BLIND_PALETTE] = palette.name
+        onPersist?.invoke()
+    }
+
+    fun saveCaptionsEnabled(enabled: Boolean) {
+        captionsEnabled.value = enabled
+        settings.putBoolean(KEY_CAPTIONS_ENABLED, enabled)
+        onPersist?.invoke()
+    }
+
+    fun saveHoldToConfirmEnabled(enabled: Boolean) {
+        holdToConfirmEnabled.value = enabled
+        settings.putBoolean(KEY_HOLD_TO_CONFIRM, enabled)
+        onPersist?.invoke()
+    }
+
+    fun getAccessibilityPreferences(): AccessibilityPreferences {
+        return AccessibilityPreferences(
+            highContrastEnabled = highContrastEnabled.value,
+            colorBlindPalette = colorBlindPalette.value,
+            captionsEnabled = captionsEnabled.value,
+            holdToConfirmEnabled = holdToConfirmEnabled.value,
+            reduceMotionEnabled = !enableAnimations.value
+        )
+    }
+
     /**
      * Serialize all relevant (non-debug, non-hint) settings into a flat map for remote storage.
      * Keys match the internal KEY_* constants; values are String representations.
@@ -584,6 +656,10 @@ object AppSettings {
         put(KEY_CHECK_FOR_UPDATES, checkForUpdates.value.toString())
         put(KEY_AUTO_JUMP_TO_NEXT_TOWER, autoJumpToNextTower.value.toString())
         put(KEY_SHOW_UNIT_TOWER_BACKGROUND, showUnitTowerBackground.value.toString())
+        put(KEY_HIGH_CONTRAST, highContrastEnabled.value.toString())
+        put(KEY_COLOR_BLIND_PALETTE, colorBlindPalette.value.name)
+        put(KEY_CAPTIONS_ENABLED, captionsEnabled.value.toString())
+        put(KEY_HOLD_TO_CONFIRM, holdToConfirmEnabled.value.toString())
     }
 
     /**
@@ -625,6 +701,12 @@ object AppSettings {
             map[KEY_CHECK_FOR_UPDATES]?.toBooleanStrictOrNull()?.let { saveCheckForUpdates(it) }
             map[KEY_AUTO_JUMP_TO_NEXT_TOWER]?.toBooleanStrictOrNull()?.let { saveAutoJumpToNextTower(it) }
             map[KEY_SHOW_UNIT_TOWER_BACKGROUND]?.toBooleanStrictOrNull()?.let { saveShowUnitTowerBackground(it) }
+            map[KEY_HIGH_CONTRAST]?.toBooleanStrictOrNull()?.let { saveHighContrastEnabled(it) }
+            map[KEY_COLOR_BLIND_PALETTE]?.let { name ->
+                try { saveColorBlindPalette(ColorBlindPalette.valueOf(name)) } catch (_: Exception) {}
+            }
+            map[KEY_CAPTIONS_ENABLED]?.toBooleanStrictOrNull()?.let { saveCaptionsEnabled(it) }
+            map[KEY_HOLD_TO_CONFIRM]?.toBooleanStrictOrNull()?.let { saveHoldToConfirmEnabled(it) }
         } finally {
             onPersist = savedCallback
         }
@@ -681,6 +763,12 @@ object AppSettings {
 
         // Reset unit/tower background to OFF
         saveShowUnitTowerBackground(false)
+
+        // Reset accessibility preferences
+        saveHighContrastEnabled(false)
+        saveColorBlindPalette(ColorBlindPalette.OFF)
+        saveCaptionsEnabled(false)
+        saveHoldToConfirmEnabled(false)
         
         // Note: Don't reset settings hint shown state when resetting settings
         // as user has already seen it once

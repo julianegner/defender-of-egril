@@ -12,12 +12,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.RepositoryManager
+import de.egril.defender.ui.a11y.ColorBlindPalette
+import de.egril.defender.ui.a11y.a11ySemantics
 import dev.vicart.compose.material.symbols.FilledSymbol
 import dev.vicart.compose.material.symbols.MaterialSymbols
 import de.egril.defender.ui.common.ScrollableTabRowWithHints
@@ -75,12 +76,17 @@ fun SettingsDialog(
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    IconButton(onClick = onDismiss) {
-                        val closeLabel = stringResource(Res.string.close)
+                    val closeLabel = stringResource(Res.string.close)
+                    IconButton(
+                        onClick = onDismiss,
+                        modifier = Modifier.a11ySemantics(
+                            role = Role.Button,
+                            label = closeLabel
+                        )
+                    ) {
                         FilledSymbol(
                             icon = MaterialSymbols.CLOSE,
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.semantics { contentDescription = closeLabel }
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -241,8 +247,129 @@ private fun GeneralTabContent(onDismissSettings: () -> Unit) {
 
         HorizontalDivider()
 
+        AccessibilitySection()
+
+        HorizontalDivider()
+
         // Restore game data section
         RestoreGameDataSection(onDismissSettings = onDismissSettings)
+    }
+}
+
+@Composable
+private fun AccessibilitySection() {
+    val accessibilityPreferences = AppSettings.getAccessibilityPreferences()
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        SelectableText(
+            text = stringResource(Res.string.accessibility),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+
+        GenericSwitch(
+            state = AppSettings.highContrastEnabled,
+            checkedText = stringResource(Res.string.accessibility_high_contrast),
+            uncheckedText = stringResource(Res.string.accessibility_high_contrast),
+            onCheckedChange = { enabled ->
+                AppSettings.saveHighContrastEnabled(enabled)
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        GenericSwitch(
+            state = AppSettings.captionsEnabled,
+            checkedText = stringResource(Res.string.accessibility_captions),
+            uncheckedText = stringResource(Res.string.accessibility_captions),
+            onCheckedChange = { enabled ->
+                AppSettings.saveCaptionsEnabled(enabled)
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        GenericSwitch(
+            state = AppSettings.holdToConfirmEnabled,
+            checkedText = stringResource(Res.string.accessibility_hold_to_confirm),
+            uncheckedText = stringResource(Res.string.accessibility_hold_to_confirm),
+            onCheckedChange = { enabled ->
+                AppSettings.saveHoldToConfirmEnabled(enabled)
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        DualLabelSwitch(
+            state = AppSettings.enableAnimations,
+            leftText = stringResource(Res.string.animations_off),
+            rightText = stringResource(Res.string.animations_on),
+            onCheckedChange = { enabled ->
+                AppSettings.saveEnableAnimations(enabled)
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        ColorBlindPaletteChooser(
+            selected = AppSettings.colorBlindPalette.value,
+            onSelected = { AppSettings.saveColorBlindPalette(it) }
+        )
+
+        SelectableText(
+            text = if (accessibilityPreferences.reduceMotionEnabled) {
+                stringResource(Res.string.accessibility_reduce_motion_on)
+            } else {
+                stringResource(Res.string.accessibility_reduce_motion_off)
+            },
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun ColorBlindPaletteChooser(
+    selected: ColorBlindPalette,
+    onSelected: (ColorBlindPalette) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    val selectedLabel = when (selected) {
+        ColorBlindPalette.OFF -> stringResource(Res.string.accessibility_color_blind_off)
+        ColorBlindPalette.DEUTERANOPIA -> stringResource(Res.string.accessibility_color_blind_deuteranopia)
+        ColorBlindPalette.PROTANOPIA -> stringResource(Res.string.accessibility_color_blind_protanopia)
+        ColorBlindPalette.TRITANOPIA -> stringResource(Res.string.accessibility_color_blind_tritanopia)
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        SelectableText(
+            text = stringResource(Res.string.accessibility_color_blind_palette),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Box {
+            OutlinedButton(
+                onClick = { expanded = true },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(selectedLabel)
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                listOf(
+                    ColorBlindPalette.OFF to stringResource(Res.string.accessibility_color_blind_off),
+                    ColorBlindPalette.DEUTERANOPIA to stringResource(Res.string.accessibility_color_blind_deuteranopia),
+                    ColorBlindPalette.PROTANOPIA to stringResource(Res.string.accessibility_color_blind_protanopia),
+                    ColorBlindPalette.TRITANOPIA to stringResource(Res.string.accessibility_color_blind_tritanopia)
+                ).forEach { (palette, label) ->
+                    DropdownMenuItem(
+                        text = { Text(label) },
+                        onClick = {
+                            onSelected(palette)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
     }
 }
 

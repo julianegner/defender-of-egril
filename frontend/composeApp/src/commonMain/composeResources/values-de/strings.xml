@@ -1759,6 +1759,17 @@
     <!-- Settings tabs -->
     <string name="general">Allgemein</string>
     <string name="settings_tab_level">Level</string>
+    <string name="accessibility">Barrierefreiheit</string>
+    <string name="accessibility_high_contrast">Hoher Kontrast</string>
+    <string name="accessibility_color_blind_palette">Farbenblind-Palette</string>
+    <string name="accessibility_color_blind_off">Aus</string>
+    <string name="accessibility_color_blind_deuteranopia">Deuteranopie</string>
+    <string name="accessibility_color_blind_protanopia">Protanopie</string>
+    <string name="accessibility_color_blind_tritanopia">Tritanopie</string>
+    <string name="accessibility_captions">Untertitel</string>
+    <string name="accessibility_hold_to_confirm">Gedrückt halten zum Bestätigen</string>
+    <string name="accessibility_reduce_motion_on">Weniger Bewegung ist aktiv (Animationen sind aus).</string>
+    <string name="accessibility_reduce_motion_off">Weniger Bewegung ist inaktiv (Animationen sind an).</string>
     <!-- Scroll hint accessibility labels -->
     <string name="scroll_hint_more_tabs_left">Nach links scrollen für mehr Tabs</string>
     <string name="scroll_hint_more_tabs_right">Nach rechts scrollen für mehr Tabs</string>

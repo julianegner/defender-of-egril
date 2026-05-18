@@ -1760,6 +1760,17 @@
     <!-- Settings tabs -->
     <string name="general">General</string>
     <string name="settings_tab_level">Level</string>
+    <string name="accessibility">Accesibilidad</string>
+    <string name="accessibility_high_contrast">Alto contraste</string>
+    <string name="accessibility_color_blind_palette">Paleta para daltonismo</string>
+    <string name="accessibility_color_blind_off">Desactivado</string>
+    <string name="accessibility_color_blind_deuteranopia">Deuteranopía</string>
+    <string name="accessibility_color_blind_protanopia">Protanopía</string>
+    <string name="accessibility_color_blind_tritanopia">Tritanopía</string>
+    <string name="accessibility_captions">Subtítulos</string>
+    <string name="accessibility_hold_to_confirm">Mantener pulsado para confirmar</string>
+    <string name="accessibility_reduce_motion_on">Reducir movimiento está activo (las animaciones están desactivadas).</string>
+    <string name="accessibility_reduce_motion_off">Reducir movimiento está inactivo (las animaciones están activadas).</string>
     <!-- Scroll hint accessibility labels -->
     <string name="scroll_hint_more_tabs_left">Desplazar a la izquierda para ver más pestañas</string>
     <string name="scroll_hint_more_tabs_right">Desplazar a la derecha para ver más pestañas</string>
