@@ -26,6 +26,7 @@ import de.egril.defender.ui.icon.TimerIcon
 import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
 import de.egril.defender.ui.icon.WarningIcon
+import de.egril.defender.ui.a11y.a11ySemantics
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.gameplay.defenderButtons.TowerStats
 import defender_of_egril.composeapp.generated.resources.*
@@ -54,6 +55,42 @@ fun DefenderInfo(
 ) {
     val locale = com.hyperether.resources.currentLanguage.value
     val buttonHeight = if (isMobile) 100.dp else 60.dp
+    val defenderDisplayName = if (defender.type == DefenderType.DRAGONS_LAIR) {
+        val dragonAlive = defender.dragonId.value?.let { dragonId ->
+            gameState.attackers.any { it.id == dragonId && !it.isDefeated.value }
+        } ?: false
+        if (dragonAlive) {
+            if (defender.dragonName != null) {
+                "${stringResource(Res.string.lair_of_the_dragon)} ${defender.dragonName}"
+            } else {
+                stringResource(Res.string.dragons_lair)
+            }
+        } else {
+            stringResource(Res.string.empty_dragons_lair)
+        }
+    } else if (defender.raftId.value != null) {
+        "${defender.type.getLocalizedShortName(locale)} ${stringResource(Res.string.raft)}"
+    } else {
+        defender.type.getLocalizedName(locale)
+    }
+    val levelLabel = stringResource(Res.string.level)
+    val damageLabel = stringResource(Res.string.damage)
+    val rangeLabel = stringResource(Res.string.range)
+    val defenderCardLabel = buildString {
+        append(defenderDisplayName)
+        append(", ")
+        append(levelLabel)
+        append(" ")
+        append(defender.level.value)
+        append(", ")
+        append(damageLabel)
+        append(" ")
+        append(defender.damage)
+        append(", ")
+        append(rangeLabel)
+        append(" ")
+        append(defender.range)
+    }
     // Use key to force recomposition when defender stats change
     key(
         defender.id,
@@ -68,6 +105,7 @@ fun DefenderInfo(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(if (isMobile) 4.dp else 8.dp)
+                .a11ySemantics(label = defenderCardLabel)
         ) {
                 // Compute active spell effects once for use throughout the card
                 val doubleLevelEffect = gameState.activeSpellEffects.find {
@@ -98,33 +136,8 @@ fun DefenderInfo(
                     // Tower name and level
                     Column(modifier = Modifier.weight(1f)
                     ) {
-                        val displayName = if (defender.type == DefenderType.DRAGONS_LAIR) {
-                            // Check if the specific dragon from this lair is still alive
-                            val dragonAlive = defender.dragonId.value?.let { dragonId ->
-                                gameState.attackers.any {
-                                    it.id == dragonId && !it.isDefeated.value
-                                }
-                            } ?: false
-                            if (dragonAlive) {
-                                // Show "Lair of the Dragon [name]" in normal text above the italic desc
-                                if (defender.dragonName != null) {
-                                    "${stringResource(Res.string.lair_of_the_dragon)} ${defender.dragonName}"
-                                } else {
-                                    stringResource(Res.string.dragons_lair)
-                                }
-                            } else {
-                                stringResource(Res.string.empty_dragons_lair)
-                            }
-                        } else if (defender.raftId.value != null) {
-                            // If defender is on a raft, show localized "Type Raft" with space separator
-                            // Use getLocalizedShortName() to get just the type (e.g., "Bow" instead of "Bow Tower")
-                            "${defender.type.getLocalizedShortName(locale)} ${stringResource(Res.string.raft)}"
-                        } else {
-                            // Regular tower - use localized name
-                            defender.type.getLocalizedName(locale)
-                        }
                         Text(
-                            displayName,
+                            defenderDisplayName,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             maxLines = 1,

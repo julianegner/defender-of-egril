@@ -23,11 +23,13 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.LevelStatus
 import de.egril.defender.model.WorldLevel
+import de.egril.defender.ui.a11y.a11ySemantics
 import de.egril.defender.ui.mouseWheelZoom
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.utils.isPlatformAndroid
@@ -37,7 +39,12 @@ import de.egril.defender.editor.EditorStorage
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.icon.LockIcon
 import org.jetbrains.compose.resources.painterResource
+import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.available
+import defender_of_egril.composeapp.generated.resources.completed
+import defender_of_egril.composeapp.generated.resources.levels_at_location
+import defender_of_egril.composeapp.generated.resources.locked
 import defender_of_egril.composeapp.generated.resources.world_map_background
 
 import de.egril.defender.editor.WorldMapData
@@ -419,6 +426,20 @@ private fun BoxScope.LocationMarkersOverlay(
             allLocked -> if (isDarkMode) Color(0xFF7F8C8D) else Color(0xFF95A5A6)  // Grey
             else -> if (isDarkMode) Color(0xFF3498DB) else Color(0xFF2196F3)  // Blue default
         }
+        val locale = com.hyperether.resources.currentLanguage.value
+        val localizedName = location.locationData?.getLocalizedName(locale) ?: location.name
+        val locationStatusText = when {
+            hasWonLevel -> stringResource(Res.string.completed)
+            hasUnlockedLevel -> stringResource(Res.string.available)
+            else -> stringResource(Res.string.locked)
+        }
+        val locationMarkerLabel = buildString {
+            append(localizedName)
+            append(", ")
+            append(stringResource(Res.string.levels_at_location, levelsAtLocation.size.toString()))
+            append(", ")
+            append(locationStatusText)
+        }
         
         // Calculate marker position accounting for image bounds within container
         // Use smaller sizes on Android (scaled down for better fit on mobile screens)
@@ -467,8 +488,6 @@ private fun BoxScope.LocationMarkersOverlay(
                     color = Color(0xB3404040),  // Semi-transparent dark gray (70% opacity)
                     shadowElevation = labelElevation
                 ) {
-                    val locale = com.hyperether.resources.currentLanguage.value
-                    val localizedName = location.locationData?.getLocalizedName(locale) ?: location.name
                     Text(
                         text = localizedName,
                         style = MaterialTheme.typography.labelSmall.copy(fontSize = labelFontSize),
@@ -486,6 +505,7 @@ private fun BoxScope.LocationMarkersOverlay(
                         modifier = Modifier
                             .size(iconMarkerSize)
                             .offset(y = (-10).dp)
+                            .a11ySemantics(role = Role.Button, label = locationMarkerLabel)
                             .clickable {
                                 onLocationClicked(location, levelsAtLocation)
                             },
@@ -544,6 +564,7 @@ private fun BoxScope.LocationMarkersOverlay(
                     Surface(
                         modifier = Modifier
                             .size(markerSize)
+                            .a11ySemantics(role = Role.Button, label = locationMarkerLabel)
                             .clickable {
                                 onLocationClicked(location, levelsAtLocation)
                             },
