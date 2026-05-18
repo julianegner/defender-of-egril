@@ -22,6 +22,7 @@ import de.egril.defender.AppBuildInfo
 import de.egril.defender.iam.IamService
 import de.egril.defender.save.BackendFeedbackService
 import de.egril.defender.save.FeedbackSubmitRequest
+import de.egril.defender.utils.currentTimeMillis
 import de.egril.defender.utils.getClientPlatformName
 import de.egril.defender.utils.getPlatform
 import defender_of_egril.composeapp.generated.resources.*
@@ -324,11 +325,11 @@ fun FeedbackFormContent(
                     } else null
 
                     // Prepend selected language to message for language requests
-                    val finalMessage = if (isLanguageRequest && selectedLanguage != null) {
-                        "[Requested language: ${selectedLanguage!!.name} (${selectedLanguage!!.code})]\n\n${message.trim()}"
-                    } else {
-                        message.trim()
-                    }
+                    val finalMessage = selectedLanguage?.let { lang ->
+                        if (isLanguageRequest) {
+                            "[Requested language: ${lang.name} (${lang.code})]\n\n${message.trim()}"
+                        } else null
+                    } ?: message.trim()
 
                     val ok = BackendFeedbackService.submitFeedback(
                         FeedbackSubmitRequest(
@@ -527,34 +528,29 @@ private fun LanguageFlagIcon(countryCode: String) {
  */
 private fun collectGameLog(): String {
     val platform = getClientPlatformName()
-    val platformLong = getPlatform().name
+    val platformFullName = getPlatform().name
     val version = AppBuildInfo.VERSION_NAME
     val commit = AppBuildInfo.COMMIT_HASH
     return buildString {
         appendLine("=== Auto-collected Game Log ===")
-        appendLine("Platform: $platform ($platformLong)")
+        appendLine("Platform: $platform ($platformFullName)")
         appendLine("Version: $version")
         appendLine("Commit: $commit")
-        appendLine("Timestamp: ${currentTimestamp()}")
+        appendLine("Timestamp: ${currentTimeMillis()}")
     }
 }
+
+/** Minimal 1x1 transparent PNG encoded as Base64, used as screenshot placeholder. */
+private const val PLACEHOLDER_SCREENSHOT_BASE64 =
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIABQAB" +
+        "Nl7pcQAAAABJRU5ErkJggg=="
 
 /**
  * Provides a placeholder for screenshot data.
  * In the future, this can be replaced with actual screen capture logic
  * once a cross-platform screenshot API is available.
  */
-private fun collectScreenshotPlaceholder(): String {
-    // Minimal 1x1 transparent PNG as placeholder to satisfy the API requirement.
-    // Future: replace with actual screen capture when KMP screenshot APIs are available.
-    return "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIABQAB" +
-        "Nl7pcQAAAABJRU5ErkJggg=="
-}
-
-private fun currentTimestamp(): String {
-    // Simple timestamp representation without kotlinx-datetime dependency
-    return "collected at submission time"
-}
+private fun collectScreenshotPlaceholder(): String = PLACEHOLDER_SCREENSHOT_BASE64
 
 internal fun generateFeedbackUuid(): String {
     val bytes = ByteArray(16) { Random.Default.nextInt(256).toByte() }
