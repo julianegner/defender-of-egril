@@ -8,6 +8,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -20,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
@@ -29,6 +31,7 @@ import de.egril.defender.ui.DrawRaft
 import de.egril.defender.ui.TowerTypeIcon
 import de.egril.defender.ui.hexagon.HexagonShape
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
+import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.loading_level
 import kotlin.math.cos
@@ -43,7 +46,10 @@ import kotlin.math.PI
  * and 2 barge icons.
  */
 @Composable
-fun LevelLoadingScreen(modifier: Modifier = Modifier) {
+fun LevelLoadingScreen(
+    modifier: Modifier = Modifier,
+    animationsEnabled: Boolean = AppSettings.enableAnimations.value
+) {
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -54,7 +60,7 @@ fun LevelLoadingScreen(modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            LoadingCircleWithIcons()
+            LoadingCircleWithIcons(animationsEnabled = animationsEnabled)
             Spacer(modifier = Modifier.height(20.dp))
             Text(
                 text = stringResource(Res.string.loading_level),
@@ -72,21 +78,26 @@ fun LevelLoadingScreen(modifier: Modifier = Modifier) {
  * The ring of icons rotates continuously, and the CircularProgressIndicator spins at the centre.
  */
 @Composable
-private fun LoadingCircleWithIcons() {
+private fun LoadingCircleWithIcons(animationsEnabled: Boolean) {
     val circleRadius = 90.dp
     val iconSize = 44.dp
     val totalSize = circleRadius * 2 + iconSize
 
-    val infiniteTransition = rememberInfiniteTransition(label = "loadingRotation")
-    val rotationDeg by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 8000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "iconRingRotation"
-    )
+    val rotationDeg = if (animationsEnabled) {
+        val infiniteTransition = rememberInfiniteTransition(label = "loadingRotation")
+        val animatedRotationDeg by infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 360f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 8000, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "iconRingRotation"
+        )
+        animatedRotationDeg
+    } else {
+        0f
+    }
 
     // Items arranged clockwise starting from the top:
     // index 0 = top (0°), each step is 45°
@@ -133,11 +144,26 @@ private fun LoadingCircleWithIcons() {
             }
         }
 
-        CircularProgressIndicator(
-            modifier = Modifier.size(56.dp),
-            color = MaterialTheme.colorScheme.primary,
-            strokeWidth = 5.dp
-        )
+        if (animationsEnabled) {
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .size(56.dp)
+                    .testTag("levelLoadingSpinner"),
+                color = MaterialTheme.colorScheme.primary,
+                strokeWidth = 5.dp
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .testTag("levelLoadingStaticCenter"),
+                contentAlignment = Alignment.Center
+            ) {
+                TowerTypeIcon(defenderType = DefenderType.SPIKE_TOWER)
+            }
+        }
     }
 }
 
