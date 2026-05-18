@@ -1776,6 +1776,7 @@
     <string name="feedback_form_bug_types_label">Tipi di bug (scelta multipla)</string>
     <string name="feedback_form_message_label">Messaggio</string>
     <string name="feedback_form_contact_email_label">Email di contatto (opzionale)</string>
+    <string name="feedback_form_contact_email_label_required">Email di contatto</string>
     <string name="feedback_form_include_game_log">Includi registro di gioco</string>
     <string name="feedback_form_attachments_label">Allegati (raccolti automaticamente)</string>
     <string name="feedback_form_auto_collect_hint">I registri vengono raccolti automaticamente se selezionati.</string>
@@ -1791,7 +1792,8 @@
     <string name="feedback_form_submit_success">Feedback inviato con successo (ID: %1$s)</string>
     <string name="feedback_form_submit_error">Impossibile inviare il feedback. Riprova.</string>
     <string name="feedback_form_submit_error_network">Errore di rete. Controlla la tua connessione.</string>
-    <string name="feedback_form_submit_error_contact">In alternativa, contatta: admin@egril.de</string>
+    <string name="feedback_form_submit_error_contact">In alternativa, contatta:</string>
+    <string name="feedback_admin_email">admin@egril.de</string>
     <string name="feedback_type_bug_report">Segnalazione bug</string>
     <string name="feedback_type_bug_report_desc">Qualcosa è rotto o non funziona come previsto nel gioco.</string>
     <string name="feedback_type_typo_translation_text">Refuso / errore di traduzione / testo non corretto</string>

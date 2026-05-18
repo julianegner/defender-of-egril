@@ -17,6 +17,7 @@ data class FeedbackSubmissionRequest(
     val message: String,
     val contactEmail: String? = null,
     val sourceContext: String? = null,
+    val userLanguage: String? = null,
     val platform: String,
     val platformLong: String? = null,
     val platformExtended: String? = null,

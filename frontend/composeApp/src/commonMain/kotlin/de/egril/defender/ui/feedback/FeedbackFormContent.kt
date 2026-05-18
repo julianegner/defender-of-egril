@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import com.hyperether.resources.currentLanguage
 import com.hyperether.resources.stringResource
 import de.egril.defender.AppBuildInfo
 import de.egril.defender.config.GameLogBuffer
@@ -151,6 +152,7 @@ fun FeedbackFormContent(
 
     val isBugReport = selectedType.apiValue == "BUG_REPORT"
     val isLanguageRequest = selectedType.apiValue == "ADDITIONAL_LANGUAGE_REQUEST"
+    val isInfoRequest = selectedType.apiValue == "INFO_REQUEST"
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -209,6 +211,8 @@ fun FeedbackFormContent(
                         },
                         onClick = {
                             selectedType = option
+                            submitSuccess = false
+                            submitErrorCode = null
                             if (selectedType.apiValue != "BUG_REPORT") {
                                 selectedBugTypes = emptySet()
                             }
@@ -277,7 +281,12 @@ fun FeedbackFormContent(
         OutlinedTextField(
             value = contactEmail,
             onValueChange = { contactEmail = it },
-            label = { Text(stringResource(Res.string.feedback_form_contact_email_label)) },
+            label = {
+                Text(
+                    if (isInfoRequest) stringResource(Res.string.feedback_form_contact_email_label_required)
+                    else stringResource(Res.string.feedback_form_contact_email_label)
+                )
+            },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -370,6 +379,8 @@ fun FeedbackFormContent(
             message.isNotBlank() && selectedBugTypes.isNotEmpty()
         } else if (isLanguageRequest) {
             message.isNotBlank() || selectedLanguage != null
+        } else if (isInfoRequest) {
+            message.isNotBlank() && contactEmail.trim().isNotBlank()
         } else {
             message.isNotBlank()
         }
@@ -409,6 +420,7 @@ fun FeedbackFormContent(
                             message = finalMessage,
                             contactEmail = contactEmail.trim().ifBlank { null },
                             sourceContext = gameContext?.sourceContext ?: "INFO_PAGE",
+                            userLanguage = currentLanguage.value.name,
                             gameLevelName = gameContext?.levelName,
                             gameTurnNumber = gameContext?.turnNumber,
                             gameStateJson = gameContext?.gameStateJson,
@@ -481,6 +493,16 @@ fun FeedbackFormContent(
                         text = stringResource(Res.string.feedback_form_submit_error_contact),
                         color = MaterialTheme.colorScheme.onErrorContainer,
                         style = MaterialTheme.typography.bodySmall
+                    )
+                    val adminEmail = stringResource(Res.string.feedback_admin_email)
+                    Text(
+                        text = adminEmail,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        style = MaterialTheme.typography.bodySmall,
+                        textDecoration = TextDecoration.Underline,
+                        modifier = Modifier.clickable {
+                            uriHandler.openUri("mailto:$adminEmail")
+                        }
                     )
                 }
             }

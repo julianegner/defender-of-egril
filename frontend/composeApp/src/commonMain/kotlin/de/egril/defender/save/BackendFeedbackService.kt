@@ -7,6 +7,7 @@ data class FeedbackSubmitRequest(
     val message: String,
     val contactEmail: String?,
     val sourceContext: String?,
+    val userLanguage: String?,
     val gameLevelName: String?,
     val gameTurnNumber: Int?,
     val gameStateJson: String?,
@@ -38,6 +39,8 @@ internal fun buildFeedbackUploadJson(request: FeedbackSubmitRequest): String = b
     appendNullableString("contactEmail", request.contactEmail)
     append(',')
     appendNullableString("sourceContext", request.sourceContext)
+    append(',')
+    appendNullableString("userLanguage", request.userLanguage)
     append(',')
     appendNullableString("gameLevelName", request.gameLevelName)
     append(',')

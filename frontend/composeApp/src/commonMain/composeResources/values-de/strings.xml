@@ -1773,6 +1773,7 @@
     <string name="feedback_form_bug_types_label">Fehlertypen (Mehrfachauswahl)</string>
     <string name="feedback_form_message_label">Nachricht</string>
     <string name="feedback_form_contact_email_label">Kontakt-E-Mail (optional)</string>
+    <string name="feedback_form_contact_email_label_required">Kontakt-E-Mail</string>
     <string name="feedback_form_include_game_log">Spielprotokoll einschließen</string>
     <string name="feedback_form_attachments_label">Anhänge (automatisch erfasst)</string>
     <string name="feedback_form_auto_collect_hint">Spielprotokolle werden bei Aktivierung automatisch erfasst.</string>
@@ -1788,7 +1789,8 @@
     <string name="feedback_form_submit_success">Feedback erfolgreich gesendet (ID: %1$s)</string>
     <string name="feedback_form_submit_error">Feedback konnte nicht gesendet werden. Bitte versuche es erneut.</string>
     <string name="feedback_form_submit_error_network">Netzwerkfehler. Bitte überprüfe deine Verbindung.</string>
-    <string name="feedback_form_submit_error_contact">Alternativ kontaktiere: admin@egril.de</string>
+    <string name="feedback_form_submit_error_contact">Alternativ kontaktiere:</string>
+    <string name="feedback_admin_email">admin@egril.de</string>
     <string name="feedback_type_bug_report">Fehlermeldung</string>
     <string name="feedback_type_bug_report_desc">Etwas ist kaputt oder funktioniert nicht wie erwartet.</string>
     <string name="feedback_type_typo_translation_text">Tippfehler / Übersetzungsfehler / schlechter Text</string>
