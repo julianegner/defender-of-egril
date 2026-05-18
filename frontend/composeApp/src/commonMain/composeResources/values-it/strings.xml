@@ -1792,7 +1792,7 @@
     <string name="feedback_form_submit">Invia feedback</string>
     <string name="feedback_form_submit_success">Feedback inviato con successo (ID: %1$s)</string>
     <string name="feedback_form_submit_error">Impossibile inviare il feedback. Riprova.</string>
-    <string name="feedback_form_submit_error_contact">In alternativa, contatta: admin@defender-of-egril.de</string>
+    <string name="feedback_form_submit_error_contact">In alternativa, contatta: admin@egril.de</string>
     <string name="feedback_type_bug_report">Segnalazione bug</string>
     <string name="feedback_type_bug_report_desc">Qualcosa è rotto o non funziona come previsto nel gioco.</string>
     <string name="feedback_type_typo_translation_text">Refuso / errore di traduzione / testo non corretto</string>

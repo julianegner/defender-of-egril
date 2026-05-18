@@ -1790,7 +1790,7 @@
     <string name="feedback_form_submit">Enviar comentario</string>
     <string name="feedback_form_submit_success">Comentario enviado correctamente (ID: %1$s)</string>
     <string name="feedback_form_submit_error">No se pudo enviar el comentario. Inténtalo de nuevo.</string>
-    <string name="feedback_form_submit_error_contact">Como alternativa, contacta: admin@defender-of-egril.de</string>
+    <string name="feedback_form_submit_error_contact">Como alternativa, contacta: admin@egril.de</string>
     <string name="feedback_type_bug_report">Informe de error</string>
     <string name="feedback_type_bug_report_desc">Algo está roto o no funciona como se esperaba en el juego.</string>
     <string name="feedback_type_typo_translation_text">Error tipográfico / de traducción / texto incorrecto</string>

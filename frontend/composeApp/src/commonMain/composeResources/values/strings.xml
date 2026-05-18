@@ -1796,7 +1796,7 @@
     <string name="feedback_form_submit">Send Feedback</string>
     <string name="feedback_form_submit_success">Feedback submitted successfully (ID: %1$s)</string>
     <string name="feedback_form_submit_error">Could not submit feedback. Please try again.</string>
-    <string name="feedback_form_submit_error_contact">Alternatively, contact: admin@defender-of-egril.de</string>
+    <string name="feedback_form_submit_error_contact">Alternatively, contact: admin@egril.de</string>
     <string name="feedback_type_bug_report">Bug Report</string>
     <string name="feedback_type_bug_report_desc">Something is broken or not working as expected in the game.</string>
     <string name="feedback_type_typo_translation_text">Typo / Translation Error / Bad Text</string>
