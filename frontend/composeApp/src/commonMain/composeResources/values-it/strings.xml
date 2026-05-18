@@ -1779,6 +1779,11 @@
     <string name="feedback_form_include_screenshot">Includi screenshot</string>
     <string name="feedback_form_attachments_label">Allegati (raccolti automaticamente)</string>
     <string name="feedback_form_auto_collect_hint">I registri e gli screenshot vengono raccolti automaticamente se selezionati.</string>
+    <string name="feedback_form_show_preview">Mostra anteprima</string>
+    <string name="feedback_form_hide_preview">Nascondi anteprima</string>
+    <string name="feedback_form_screenshot_captured">Screenshot acquisito: %1$s</string>
+    <string name="feedback_form_additional_files_label">File aggiuntivi</string>
+    <string name="feedback_form_attach_files">Allega file…</string>
     <string name="feedback_form_language_selector_label">Seleziona la lingua richiesta</string>
     <string name="feedback_form_language_search_hint">Cerca lingue…</string>
     <string name="feedback_form_language_no_results">Nessuna lingua trovata</string>

@@ -1778,6 +1778,11 @@
     <string name="feedback_form_include_screenshot">Inclure une capture d\'écran</string>
     <string name="feedback_form_attachments_label">Pièces jointes (collectées automatiquement)</string>
     <string name="feedback_form_auto_collect_hint">Les journaux et captures sont collectés automatiquement si cochés.</string>
+    <string name="feedback_form_show_preview">Afficher l\'aperçu</string>
+    <string name="feedback_form_hide_preview">Masquer l\'aperçu</string>
+    <string name="feedback_form_screenshot_captured">Capture d\'écran prise : %1$s</string>
+    <string name="feedback_form_additional_files_label">Fichiers supplémentaires</string>
+    <string name="feedback_form_attach_files">Joindre des fichiers…</string>
     <string name="feedback_form_language_selector_label">Sélectionner la langue demandée</string>
     <string name="feedback_form_language_search_hint">Rechercher des langues…</string>
     <string name="feedback_form_language_no_results">Aucune langue trouvée</string>

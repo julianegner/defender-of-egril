@@ -11,7 +11,14 @@ data class FeedbackSubmitRequest(
     val gameTurnNumber: Int?,
     val gameStateJson: String?,
     val gameLog: String?,
-    val screenshotBase64: String?
+    val screenshotBase64: String?,
+    val attachments: List<FeedbackAttachmentData> = emptyList()
+)
+
+data class FeedbackAttachmentData(
+    val filename: String,
+    val mimeType: String,
+    val base64Content: String
 )
 
 expect object BackendFeedbackService {
@@ -43,6 +50,16 @@ internal fun buildFeedbackUploadJson(request: FeedbackSubmitRequest): String = b
     append(',')
     appendNullableString("screenshotBase64", request.screenshotBase64)
     append(',')
+    append("\"attachments\":[")
+    request.attachments.forEachIndexed { index, attachment ->
+        if (index > 0) append(',')
+        append("{")
+        append("\"filename\":\"${escapeJsonString(attachment.filename)}\",")
+        append("\"mimeType\":\"${escapeJsonString(attachment.mimeType)}\",")
+        append("\"base64Content\":\"${escapeJsonString(attachment.base64Content)}\"")
+        append("}")
+    }
+    append("],")
     appendClientInfo(platform, platformLong, versionName, commitHash)
     append("}")
 }

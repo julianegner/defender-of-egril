@@ -1783,6 +1783,11 @@
     <string name="feedback_form_include_screenshot">Include screenshot</string>
     <string name="feedback_form_attachments_label">Attachments (auto-collected)</string>
     <string name="feedback_form_auto_collect_hint">Game logs and screenshots are collected automatically when checked.</string>
+    <string name="feedback_form_show_preview">Show preview</string>
+    <string name="feedback_form_hide_preview">Hide preview</string>
+    <string name="feedback_form_screenshot_captured">Screenshot captured: %1$s</string>
+    <string name="feedback_form_additional_files_label">Additional files</string>
+    <string name="feedback_form_attach_files">Attach files…</string>
     <string name="feedback_form_language_selector_label">Select requested language</string>
     <string name="feedback_form_language_search_hint">Search languages…</string>
     <string name="feedback_form_language_no_results">No matching languages found</string>

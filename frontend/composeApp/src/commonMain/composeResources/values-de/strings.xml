@@ -1776,6 +1776,11 @@
     <string name="feedback_form_include_screenshot">Screenshot einschließen</string>
     <string name="feedback_form_attachments_label">Anhänge (automatisch erfasst)</string>
     <string name="feedback_form_auto_collect_hint">Spielprotokolle und Screenshots werden bei Aktivierung automatisch erfasst.</string>
+    <string name="feedback_form_show_preview">Vorschau anzeigen</string>
+    <string name="feedback_form_hide_preview">Vorschau ausblenden</string>
+    <string name="feedback_form_screenshot_captured">Screenshot aufgenommen: %1$s</string>
+    <string name="feedback_form_additional_files_label">Zusätzliche Dateien</string>
+    <string name="feedback_form_attach_files">Dateien anhängen…</string>
     <string name="feedback_form_language_selector_label">Gewünschte Sprache auswählen</string>
     <string name="feedback_form_language_search_hint">Sprachen suchen…</string>
     <string name="feedback_form_language_no_results">Keine passenden Sprachen gefunden</string>

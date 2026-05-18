@@ -3,6 +3,13 @@ package de.egril.defender
 import kotlinx.serialization.Serializable
 
 @Serializable
+data class FeedbackAttachmentDto(
+    val filename: String,
+    val mimeType: String,
+    val base64Content: String
+)
+
+@Serializable
 data class FeedbackSubmissionRequest(
     val feedbackId: String,
     val feedbackType: String,
@@ -20,7 +27,8 @@ data class FeedbackSubmissionRequest(
     val gameTurnNumber: Int? = null,
     val gameStateJson: String? = null,
     val gameLog: String? = null,
-    val screenshotBase64: String? = null
+    val screenshotBase64: String? = null,
+    val attachments: List<FeedbackAttachmentDto> = emptyList()
 )
 
 @Serializable

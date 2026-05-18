@@ -1777,6 +1777,11 @@
     <string name="feedback_form_include_screenshot">Incluir captura de pantalla</string>
     <string name="feedback_form_attachments_label">Adjuntos (recopilados automáticamente)</string>
     <string name="feedback_form_auto_collect_hint">Los registros y capturas se recopilan automáticamente al marcar.</string>
+    <string name="feedback_form_show_preview">Mostrar vista previa</string>
+    <string name="feedback_form_hide_preview">Ocultar vista previa</string>
+    <string name="feedback_form_screenshot_captured">Captura tomada: %1$s</string>
+    <string name="feedback_form_additional_files_label">Archivos adicionales</string>
+    <string name="feedback_form_attach_files">Adjuntar archivos…</string>
     <string name="feedback_form_language_selector_label">Seleccionar idioma solicitado</string>
     <string name="feedback_form_language_search_hint">Buscar idiomas…</string>
     <string name="feedback_form_language_no_results">No se encontraron idiomas</string>

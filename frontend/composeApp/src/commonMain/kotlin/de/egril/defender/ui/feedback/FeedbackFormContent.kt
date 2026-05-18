@@ -24,6 +24,7 @@ import de.egril.defender.AppBuildInfo
 import de.egril.defender.config.GameLogBuffer
 import de.egril.defender.iam.IamService
 import de.egril.defender.save.BackendFeedbackService
+import de.egril.defender.save.FeedbackAttachmentData
 import de.egril.defender.save.FeedbackSubmitRequest
 import de.egril.defender.utils.currentTimeMillis
 import de.egril.defender.utils.getClientPlatformName
@@ -100,14 +101,18 @@ internal val ALL_REQUESTABLE_LANGUAGES = listOf(
  *
  * For bug reports: screenshot and game log data are auto-collected via checkboxes
  * (the user ticks to include them; the system captures the data automatically).
+ * A pre-captured screenshot (taken before the dialog opened) can be provided.
  *
  * For additional language requests: a searchable language list with flags is shown.
+ *
+ * @param capturedScreenshot A screenshot captured BEFORE the feedback dialog was shown (no popup visible)
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedbackFormContent(
     modifier: Modifier = Modifier,
-    showTitle: Boolean = true
+    showTitle: Boolean = true,
+    capturedScreenshot: FeedbackAttachment? = null
 ) {
     val scope = rememberCoroutineScope()
     var feedbackId by remember { mutableStateOf(generateFeedbackUuid()) }
@@ -134,12 +139,14 @@ fun FeedbackFormContent(
     var message by remember { mutableStateOf("") }
     var contactEmail by remember { mutableStateOf("") }
     var includeGameLog by remember { mutableStateOf(true) }
-    var includeScreenshot by remember { mutableStateOf(true) }
+    var includeScreenshot by remember { mutableStateOf(capturedScreenshot != null) }
     var selectedLanguage by remember { mutableStateOf<LanguageEntry?>(null) }
     var languageSearchQuery by remember { mutableStateOf("") }
     var isSubmitting by remember { mutableStateOf(false) }
     var submitResult by remember { mutableStateOf<Boolean?>(null) }
     var lastSubmittedFeedbackId by remember { mutableStateOf("") }
+    var additionalAttachments by remember { mutableStateOf(listOf<FeedbackAttachment>()) }
+    var showScreenshotPreview by remember { mutableStateOf(false) }
 
     val isBugReport = selectedType.apiValue == "BUG_REPORT"
     val isLanguageRequest = selectedType.apiValue == "ADDITIONAL_LANGUAGE_REQUEST"
@@ -284,24 +291,110 @@ fun FeedbackFormContent(
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Checkbox(
-                    checked = includeScreenshot,
-                    onCheckedChange = { includeScreenshot = it }
-                )
-                Text(
-                    text = stringResource(Res.string.feedback_form_include_screenshot),
-                    style = MaterialTheme.typography.bodyMedium
-                )
+            // Screenshot checkbox (only if a screenshot was actually captured)
+            if (capturedScreenshot != null) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Checkbox(
+                        checked = includeScreenshot,
+                        onCheckedChange = { includeScreenshot = it }
+                    )
+                    Text(
+                        text = stringResource(Res.string.feedback_form_include_screenshot),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    // Preview link for captured screenshot
+                    TextButton(
+                        onClick = { showScreenshotPreview = !showScreenshotPreview },
+                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
+                    ) {
+                        Text(
+                            text = if (showScreenshotPreview)
+                                stringResource(Res.string.feedback_form_hide_preview)
+                            else
+                                stringResource(Res.string.feedback_form_show_preview),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+                // Show screenshot preview when toggled
+                if (showScreenshotPreview && includeScreenshot) {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 200.dp)
+                            .clip(RoundedCornerShape(8.dp)),
+                        tonalElevation = 1.dp
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.feedback_form_screenshot_captured,
+                                capturedScreenshot.filename),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    }
+                }
             }
             Text(
                 text = stringResource(Res.string.feedback_form_auto_collect_hint),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+        }
+
+        // Additional file attachments section (available for all feedback types)
+        Text(
+            text = stringResource(Res.string.feedback_form_additional_files_label),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(top = 4.dp)
+        )
+        OutlinedButton(
+            onClick = {
+                scope.launch {
+                    val picked = pickFeedbackFiles()
+                    if (picked.isNotEmpty()) {
+                        additionalAttachments = additionalAttachments + picked
+                    }
+                }
+            }
+        ) {
+            Text(stringResource(Res.string.feedback_form_attach_files))
+        }
+        // List attached files
+        if (additionalAttachments.isNotEmpty()) {
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                additionalAttachments.forEachIndexed { index, attachment ->
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = attachment.filename,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.weight(1f)
+                        )
+                        TextButton(
+                            onClick = {
+                                additionalAttachments = additionalAttachments.toMutableList().also {
+                                    it.removeAt(index)
+                                }
+                            },
+                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
+                        ) {
+                            Text(
+                                text = "✕",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
+                }
+            }
         }
 
         val canSubmit = if (isBugReport) {
@@ -322,10 +415,19 @@ fun FeedbackFormContent(
                         collectGameLog()
                     } else null
 
-                    // Auto-collect screenshot placeholder if checkbox is ticked (bug reports)
-                    val collectedScreenshot = if (isBugReport && includeScreenshot) {
-                        collectScreenshotPlaceholder()
+                    // Use real captured screenshot if checkbox is ticked (bug reports)
+                    val screenshotData = if (isBugReport && includeScreenshot && capturedScreenshot != null) {
+                        capturedScreenshot.base64Content
                     } else null
+
+                    // Build attachments list from additional files
+                    val attachmentDataList = additionalAttachments.map { att ->
+                        FeedbackAttachmentData(
+                            filename = att.filename,
+                            mimeType = att.mimeType,
+                            base64Content = att.base64Content
+                        )
+                    }
 
                     // Prepend selected language to message for language requests
                     val finalMessage = selectedLanguage?.let { lang ->
@@ -346,7 +448,8 @@ fun FeedbackFormContent(
                             gameTurnNumber = null,
                             gameStateJson = null,
                             gameLog = collectedGameLog,
-                            screenshotBase64 = collectedScreenshot
+                            screenshotBase64 = screenshotData,
+                            attachments = attachmentDataList
                         ),
                         token = IamService.getToken()
                     )
@@ -359,9 +462,10 @@ fun FeedbackFormContent(
                         contactEmail = ""
                         selectedBugTypes = emptySet()
                         includeGameLog = true
-                        includeScreenshot = true
+                        includeScreenshot = capturedScreenshot != null
                         selectedLanguage = null
                         languageSearchQuery = ""
+                        additionalAttachments = emptyList()
                     }
                 }
             },
@@ -570,18 +674,6 @@ private fun collectGameLog(): String {
         append(GameLogBuffer.getFormattedLogs())
     }
 }
-
-/** Minimal 1x1 transparent PNG encoded as Base64, used as screenshot placeholder. */
-private const val PLACEHOLDER_SCREENSHOT_BASE64 =
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIABQAB" +
-        "Nl7pcQAAAABJRU5ErkJggg=="
-
-/**
- * Provides a placeholder for screenshot data.
- * In the future, this can be replaced with actual screen capture logic
- * once a cross-platform screenshot API is available.
- */
-private fun collectScreenshotPlaceholder(): String = PLACEHOLDER_SCREENSHOT_BASE64
 
 internal fun generateFeedbackUuid(): String {
     val bytes = ByteArray(16) { Random.Default.nextInt(256).toByte() }
