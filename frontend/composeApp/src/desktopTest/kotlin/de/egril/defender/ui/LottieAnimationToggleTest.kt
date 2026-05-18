@@ -31,7 +31,7 @@ class LottieAnimationToggleTest {
     }
 
     @Test
-    fun lottieAnimationIsNotRenderedWhenAnimationsDisabled() {
+    fun lottieAnimationDoesNotRenderWhenAnimationsDisabled() {
         AppSettings.saveEnableAnimations(false)
 
         composeTestRule.setContent {

@@ -67,6 +67,7 @@ fun LottieAnimation(
     speed: Float = 1f,   // Playback speed multiplier (1f = normal, 2f = double speed)
     contentScale: ContentScale = ContentScale.Fit
 ) {
+    // Accessibility: global reduce-motion/animations setting must short-circuit all Lottie rendering.
     if (!AppSettings.enableAnimations.value) {
         return
     }
