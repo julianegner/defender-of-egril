@@ -20,8 +20,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
@@ -82,22 +84,16 @@ private fun LoadingCircleWithIcons(animationsEnabled: Boolean) {
     val circleRadius = 90.dp
     val iconSize = 44.dp
     val totalSize = circleRadius * 2 + iconSize
-
-    val rotationDeg = if (animationsEnabled) {
-        val infiniteTransition = rememberInfiniteTransition(label = "loadingRotation")
-        val animatedRotationDeg by infiniteTransition.animateFloat(
-            initialValue = 0f,
-            targetValue = 360f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = 8000, easing = LinearEasing),
-                repeatMode = RepeatMode.Restart
-            ),
-            label = "iconRingRotation"
-        )
-        animatedRotationDeg
-    } else {
-        0f
-    }
+    val infiniteTransition = rememberInfiniteTransition(label = "loadingRotation")
+    val rotationDeg by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = if (animationsEnabled) 360f else 0f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 8000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "iconRingRotation"
+    )
 
     // Items arranged clockwise starting from the top:
     // index 0 = top (0°), each step is 45°
@@ -117,6 +113,8 @@ private fun LoadingCircleWithIcons(animationsEnabled: Boolean) {
         modifier = Modifier.size(totalSize),
         contentAlignment = Alignment.Center
     ) {
+        val loadingDescription = stringResource(Res.string.loading_level)
+
         // Rotating ring of icons
         Box(
             modifier = Modifier
@@ -148,6 +146,7 @@ private fun LoadingCircleWithIcons(animationsEnabled: Boolean) {
             CircularProgressIndicator(
                 modifier = Modifier
                     .size(56.dp)
+                    .semantics { contentDescription = loadingDescription }
                     .testTag("levelLoadingSpinner"),
                 color = MaterialTheme.colorScheme.primary,
                 strokeWidth = 5.dp
@@ -158,10 +157,15 @@ private fun LoadingCircleWithIcons(animationsEnabled: Boolean) {
                     .size(56.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primaryContainer)
+                    .semantics { contentDescription = loadingDescription }
                     .testTag("levelLoadingStaticCenter"),
                 contentAlignment = Alignment.Center
             ) {
-                TowerTypeIcon(defenderType = DefenderType.SPIKE_TOWER)
+                // SPIKE_TOWER is used as a recognizable, neutral in-game icon for the static loading state.
+                TowerTypeIcon(
+                    defenderType = DefenderType.SPIKE_TOWER,
+                    modifier = Modifier.size(36.dp)
+                )
             }
         }
     }
