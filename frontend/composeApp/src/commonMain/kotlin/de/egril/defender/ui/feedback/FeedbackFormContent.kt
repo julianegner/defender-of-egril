@@ -154,6 +154,15 @@ fun FeedbackFormContent(
     val isLanguageRequest = selectedType.apiValue == "ADDITIONAL_LANGUAGE_REQUEST"
     val isInfoRequest = selectedType.apiValue == "INFO_REQUEST"
     val isMessageMandatory = !isLanguageRequest
+    val canSubmit = if (isBugReport) {
+        message.isNotBlank() && selectedBugTypes.isNotEmpty()
+    } else if (isLanguageRequest) {
+        message.isNotBlank() || selectedLanguage != null
+    } else if (isInfoRequest) {
+        message.isNotBlank() && contactEmail.trim().isNotBlank()
+    } else {
+        message.isNotBlank()
+    }
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -379,16 +388,6 @@ fun FeedbackFormContent(
                     }
                 }
             }
-        }
-
-        val canSubmit = if (isBugReport) {
-            message.isNotBlank() && selectedBugTypes.isNotEmpty()
-        } else if (isLanguageRequest) {
-            message.isNotBlank() || selectedLanguage != null
-        } else if (isInfoRequest) {
-            message.isNotBlank() && contactEmail.trim().isNotBlank()
-        } else {
-            message.isNotBlank()
         }
 
         Text(
