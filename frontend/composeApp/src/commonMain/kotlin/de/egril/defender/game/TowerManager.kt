@@ -5,6 +5,7 @@ import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.model.*
 import de.egril.defender.model.DifficultyModifiers
+import de.egril.defender.config.GameLogBuffer
 import de.egril.defender.config.LogConfig
 
 /**
@@ -73,6 +74,7 @@ class TowerManager(private val state: GameState) {
         
         state.defenders.add(defender)
         state.coins.value -= type.baseCost
+        GameLogBuffer.log("TOWER", "Placed ${type.name} at $position (cost: ${type.baseCost}, coins left: ${state.coins.value})")
         
         // Create a raft if placed on river tile (and not on tower base)
         if (isRiverPlacement && !isOnTowerBase) {
@@ -98,6 +100,7 @@ class TowerManager(private val state: GameState) {
         
         state.coins.value -= defender.upgradeCost
         defender.level.value++
+        GameLogBuffer.log("TOWER", "Upgraded ${defender.type.name} to Lv${defender.level.value} (cost: ${defender.upgradeCost})")
         
         // Play tower upgraded sound
         GlobalSoundManager.playSound(SoundEvent.TOWER_UPGRADED)

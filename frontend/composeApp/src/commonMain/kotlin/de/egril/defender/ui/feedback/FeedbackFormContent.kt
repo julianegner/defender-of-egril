@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.AppBuildInfo
+import de.egril.defender.config.GameLogBuffer
 import de.egril.defender.iam.IamService
 import de.egril.defender.save.BackendFeedbackService
 import de.egril.defender.save.FeedbackSubmitRequest
@@ -370,15 +371,33 @@ fun FeedbackFormContent(
         }
 
         if (submitResult == true) {
-            Text(
-                text = stringResource(Res.string.feedback_form_submit_success, lastSubmittedFeedbackId),
-                color = MaterialTheme.colorScheme.primary
-            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.primaryContainer,
+                tonalElevation = 2.dp
+            ) {
+                Text(
+                    text = stringResource(Res.string.feedback_form_submit_success, lastSubmittedFeedbackId),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
         } else if (submitResult == false) {
-            Text(
-                text = stringResource(Res.string.feedback_form_submit_error),
-                color = MaterialTheme.colorScheme.error
-            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.errorContainer,
+                tonalElevation = 2.dp
+            ) {
+                Text(
+                    text = stringResource(Res.string.feedback_form_submit_error),
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
         }
     }
 }
@@ -532,8 +551,8 @@ private fun LanguageFlagIcon(countryCode: String) {
 }
 
 /**
- * Auto-collects game log information including platform, version, and runtime details.
- * This replaces the manual text input for game logs.
+ * Auto-collects game log information including platform, version, runtime details,
+ * and the real in-memory game log buffer with recent gameplay events.
  */
 private fun collectGameLog(): String {
     val platform = getClientPlatformName()
@@ -541,11 +560,14 @@ private fun collectGameLog(): String {
     val version = AppBuildInfo.VERSION_NAME
     val commit = AppBuildInfo.COMMIT_HASH
     return buildString {
-        appendLine("=== Auto-collected Game Log ===")
+        appendLine("=== System Info ===")
         appendLine("Platform: $platform ($platformFullName)")
         appendLine("Version: $version")
         appendLine("Commit: $commit")
         appendLine("Timestamp: ${currentTimeMillis()}")
+        appendLine()
+        appendLine("=== Game Log (last ${GameLogBuffer.size()} entries) ===")
+        append(GameLogBuffer.getFormattedLogs())
     }
 }
 

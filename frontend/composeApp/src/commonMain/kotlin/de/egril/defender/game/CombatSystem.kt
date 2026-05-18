@@ -2,6 +2,7 @@ package de.egril.defender.game
 
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
+import de.egril.defender.config.GameLogBuffer
 import de.egril.defender.model.*
 
 /**
@@ -572,6 +573,10 @@ class CombatSystem(
         // Track kills for this attack
         val killsThisAttack = defeated.size
         val killedTypes = defeated.map { it.type }
+        
+        if (killsThisAttack > 0) {
+            GameLogBuffer.log("COMBAT", "Defeated $killsThisAttack enemies: ${killedTypes.joinToString()}")
+        }
         
         // Update turn totals
         killsThisTurn += killsThisAttack

@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.model.*
+import de.egril.defender.config.GameLogBuffer
 import de.egril.defender.config.LogConfig
 
 /**
@@ -106,6 +107,7 @@ class EnemyMovementSystem(
                 currentTarget = mutableStateOf(initialTarget)
             )
             state.attackers.add(attacker)
+            GameLogBuffer.log("SPAWN", "${attacker.type} Lv${attacker.level.value} spawned at $spawnPos (turn $currentTurn)")
             
             // Record enemy spawn visual effect for animation.
             // Always use the designated spawn point tile (preferredSpawnPoint), not the actual
