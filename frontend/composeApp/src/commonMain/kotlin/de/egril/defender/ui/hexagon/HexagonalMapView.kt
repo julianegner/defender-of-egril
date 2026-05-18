@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.Position
 import de.egril.defender.ui.mouseWheelZoom
+import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.utils.isPlatformMobile
 import kotlin.math.sqrt
 
@@ -280,7 +281,7 @@ fun HexagonalMapView(
                 }
             )
             .then(
-                if (isPlatformMobile) {
+                if (isPlatformMobile || isMobileWebBrowser()) {
                     Modifier.pointerInput(Unit) {
                         detectTransformGestures { _, _, zoom, _ ->
                             if (zoom != 1f) {

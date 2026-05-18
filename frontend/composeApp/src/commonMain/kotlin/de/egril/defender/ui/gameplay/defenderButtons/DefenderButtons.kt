@@ -49,6 +49,7 @@ import de.egril.defender.ui.icon.TimerIcon
 import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.stringResource
 import de.egril.defender.utils.isPlatformMobile
+import de.egril.defender.ui.isMobileWebBrowser
 import defender_of_egril.composeapp.generated.resources.*
 
 @Composable
@@ -73,7 +74,7 @@ fun DefenderButton(
         "${stringResource(Res.string.coins_label)}: ${type.baseCost}" +
         if (isSelected) ", ${stringResource(Res.string.selected)}" else ""
 
-    val buttonHeight = if (isPlatformMobile) 80.dp else 70.dp
+    val buttonHeight = if (isPlatformMobile || isMobileWebBrowser()) 80.dp else 70.dp
     val buttonModifier = modifier
         .height(buttonHeight)
         .androidTVModifier(isSelected = isSelected, description = description)

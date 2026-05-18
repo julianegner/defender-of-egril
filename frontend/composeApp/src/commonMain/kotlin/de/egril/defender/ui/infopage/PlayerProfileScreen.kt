@@ -27,6 +27,7 @@ import de.egril.defender.ui.icon.UnlockIcon
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.utils.formatTimestamp
 import de.egril.defender.utils.isPlatformMobile
+import de.egril.defender.ui.isMobileWebBrowser
 import defender_of_egril.composeapp.generated.resources.*
 import androidx.compose.foundation.text.selection.SelectionContainer
 
@@ -161,8 +162,9 @@ fun PlayerProfileScreen(
                     }
                 } else {
                     // Full header with player name title, switch player button, and collapse button
-                    val headerBottomPadding = if (isPlatformMobile) 8.dp else 24.dp
-                    val headerButtonHeight = if (isPlatformMobile) 28.dp else 36.dp
+                    val isMobileUI = isPlatformMobile || isMobileWebBrowser()
+                    val headerBottomPadding = if (isMobileUI) 8.dp else 24.dp
+                    val headerButtonHeight = if (isMobileUI) 28.dp else 36.dp
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -174,7 +176,7 @@ fun PlayerProfileScreen(
                         // Title on the LEFT, centered in remaining space
                         Text(
                             text = stringResource(Res.string.player_profile),
-                            style = if (isPlatformMobile) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.displayMedium,
+                            style = if (isMobileUI) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.displayMedium,
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.onBackground,
                             modifier = Modifier.weight(1f)
