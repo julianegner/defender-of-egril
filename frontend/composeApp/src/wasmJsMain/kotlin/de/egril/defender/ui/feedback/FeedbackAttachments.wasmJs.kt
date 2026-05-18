@@ -43,7 +43,7 @@ actual suspend fun pickFeedbackFiles(): List<FeedbackAttachment> = suspendCancel
         val input = document.createElement("input") as HTMLInputElement
         input.type = "file"
         input.multiple = true
-        input.accept = "image/png,image/jpeg,image/gif,text/plain,application/json,.json,.txt,.png,.jpg,.jpeg,.gif"
+        input.accept = "image/png,image/jpeg,image/gif,text/plain,application/json"
         input.style.display = "none"
 
         input.onchange = {
