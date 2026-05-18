@@ -6,12 +6,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.feedback.FeedbackFormContent
 import defender_of_egril.composeapp.generated.resources.*
 import androidx.compose.foundation.text.selection.SelectionContainer
 
@@ -55,6 +56,13 @@ fun BackendInfo() {
                 heading = stringResource(Res.string.backend_info_account_how_heading),
                 body = stringResource(Res.string.backend_info_account_how_body)
             )
+
+            BackendInfoSection(
+                heading = stringResource(Res.string.backend_info_feedback_heading),
+                body = stringResource(Res.string.backend_info_feedback_body)
+            )
+
+            FeedbackFormContent()
 
             Spacer(modifier = Modifier.height(8.dp))
         }

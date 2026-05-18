@@ -27,6 +27,7 @@ import de.egril.defender.ui.icon.StarIcon
 import de.egril.defender.ui.icon.InfoIcon
 import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.settings.SettingsButton
+import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.ui.gameplay.ScrollableInfoCard
 import de.egril.defender.ui.gameplay.SpellTargetIcon
 import de.egril.defender.utils.isPlatformMobile
@@ -74,12 +75,16 @@ fun AbilitiesUpgradeScreen(
         Box(
             modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
-            // Settings button in top-right corner
-            SettingsButton(
+            // Settings and Feedback buttons in top-right corner
+            Row(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(8.dp)
-            )
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                FeedbackButton()
+                SettingsButton()
+            }
             
             Column(
                 modifier = Modifier.fillMaxSize(),

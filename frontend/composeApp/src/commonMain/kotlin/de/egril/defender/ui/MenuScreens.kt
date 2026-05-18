@@ -37,6 +37,7 @@ import dev.vicart.compose.material.symbols.MaterialSymbols
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.SettingsHintBox
+import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.utils.isPlatformWasm
 import de.egril.defender.ui.isMobileWebBrowser
@@ -305,6 +306,7 @@ fun MainMenuScreen(
                                         FilledSymbol(icon = MaterialSymbols.INFO, size = 28.dp)
                                     }
                                 }
+                                FeedbackButton()
                                 SettingsButton()
                             }
                         }
@@ -420,6 +422,7 @@ fun MainMenuScreen(
                                         FilledSymbol(icon = MaterialSymbols.INFO, size = 28.dp)
                                     }
                                 }
+                                FeedbackButton()
                                 SettingsButton()
                             }
                         }
@@ -499,6 +502,7 @@ fun MainMenuScreen(
                             FilledSymbol(icon = MaterialSymbols.INFO, size = 32.dp)
                         }
                     }
+                    FeedbackButton()
                     SettingsButton()
                 }
 
@@ -769,13 +773,17 @@ fun LevelCompleteScreen(
                 isPortrait = isPortrait
             )
 
-            // Settings button in top-right corner (hidden in demo mode to keep UI clean)
+            // Settings and Feedback buttons in top-right corner (hidden in demo mode to keep UI clean)
             if (!isDemoMode) {
-            SettingsButton(
+            Row(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(8.dp)
-            )
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                FeedbackButton()
+                SettingsButton()
+            }
             }
             
             Column(

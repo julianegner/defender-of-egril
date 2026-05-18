@@ -18,6 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import de.egril.defender.config.GameLogBuffer
 import de.egril.defender.config.LogConfig
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
@@ -1570,6 +1571,8 @@ class GameViewModel {
         var playerLevelGained = 0
         var abilityPointsGained = 0
         var hasUpdatedPlayerProfile = false
+
+        GameLogBuffer.log("GAME", "Level '$levelName' ${if (won) "WON" else "LOST"} — HP: $currentHP, Turn: $turnNumber, XP: $xpEarned")
 
         de.egril.defender.analytics.reportEvent(if (won) de.egril.defender.analytics.GameEventType.LEVEL_WON else de.egril.defender.analytics.GameEventType.LEVEL_LOST, levelName, turnNumber)
 

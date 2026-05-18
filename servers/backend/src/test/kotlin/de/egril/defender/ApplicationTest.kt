@@ -111,6 +111,69 @@ class ApplicationTest {
         }
     }
 
+    @Test
+    fun testPostFeedbackNoDatabaseReturns503() = testApplication {
+        application { module() }
+        client.post("/api/feedback") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                """
+                {
+                  "feedbackId":"11111111-1111-4111-8111-111111111111",
+                  "feedbackType":"FEATURE_REQUEST",
+                  "message":"Please add endless mode",
+                  "platform":"WEB"
+                }
+                """.trimIndent()
+            )
+        }.apply {
+            assertEquals(HttpStatusCode.ServiceUnavailable, status)
+        }
+    }
+
+    @Test
+    fun testPostFeedbackInvalidUuidReturns400() = testApplication {
+        application { module() }
+        client.post("/api/feedback") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                """
+                {
+                  "feedbackId":"not-a-uuid",
+                  "feedbackType":"FEATURE_REQUEST",
+                  "message":"Please add endless mode",
+                  "platform":"WEB"
+                }
+                """.trimIndent()
+            )
+        }.apply {
+            assertEquals(HttpStatusCode.BadRequest, status)
+            assertContains(bodyAsText(), "UUID")
+        }
+    }
+
+    @Test
+    fun testPostFeedbackBugReportRequiresScreenshotAndLog() = testApplication {
+        application { module() }
+        client.post("/api/feedback") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                """
+                {
+                  "feedbackId":"22222222-2222-4222-8222-222222222222",
+                  "feedbackType":"BUG_REPORT",
+                  "bugTypes":["UI"],
+                  "message":"Tower tooltip overlaps controls",
+                  "platform":"WEB"
+                }
+                """.trimIndent()
+            )
+        }.apply {
+            assertEquals(HttpStatusCode.BadRequest, status)
+            assertContains(bodyAsText(), "screenshotBase64")
+        }
+    }
+
     // ---------------------------------------------------------------------------
     // Savefile endpoint tests
     // ---------------------------------------------------------------------------

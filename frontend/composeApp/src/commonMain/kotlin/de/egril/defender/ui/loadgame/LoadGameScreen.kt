@@ -16,6 +16,7 @@ import de.egril.defender.save.getFileExportImport
 import de.egril.defender.save.SaveFileStorage
 import de.egril.defender.editor.getFileStorage
 import de.egril.defender.ui.settings.SettingsButton
+import de.egril.defender.ui.feedback.FeedbackButton
 import com.hyperether.resources.stringResource
 import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.*
@@ -234,12 +235,16 @@ private fun LoadGameScreenDesktop(
         Box(
             modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
-            // Settings button in top-right corner
-            SettingsButton(
+            // Settings and Feedback buttons in top-right corner
+            Row(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(8.dp)
-            )
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                FeedbackButton()
+                SettingsButton()
+            }
             
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -598,8 +603,10 @@ private fun LoadGameScreenMobile(
                         .align(Alignment.End)
                         .padding(bottom = 8.dp)
                 ) {
-                    // Settings button in top-right corner
-                    SettingsButton()
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FeedbackButton()
+                        SettingsButton()
+                    }
                 }
                 
                 if (savedGames.isEmpty() && !isLoadingRemoteSaves) {

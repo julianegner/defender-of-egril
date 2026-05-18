@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
 import de.egril.defender.model.*
+import de.egril.defender.config.GameLogBuffer
 import de.egril.defender.config.LogConfig
 
 /**
@@ -546,6 +547,8 @@ class GameEngine(private val state: GameState) {
     fun startFirstPlayerTurn() {
         if (state.phase.value != GamePhase.INITIAL_BUILDING) return
         
+        GameLogBuffer.log("GAME", "Game started — Turn 1, ${state.defenders.size} towers placed")
+        
         // Play battle start sound
         GlobalSoundManager.playSound(SoundEvent.BATTLE_START)
         
@@ -606,6 +609,7 @@ class GameEngine(private val state: GameState) {
                 currentTarget = mutableStateOf(initialTarget)
             )
             state.attackers.add(attacker)
+            GameLogBuffer.log("SPAWN", "${attacker.type} Lv${attacker.level.value} spawned at $spawnPos")
             if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
             println("Spawned attacker ${attacker.id} at $spawnPos (preferred: $preferredSpawnPoint) with initial target: $initialTarget")
             }
@@ -1125,6 +1129,7 @@ class GameEngine(private val state: GameState) {
             if (!state.takenTargets.contains(position)) {
                 state.takenTargets.add(position)
                 val name = targetInfo.name.takeIf { it.isNotBlank() }
+                GameLogBuffer.log("DAMAGE", "Target '${name ?: position}' taken by ${attacker.type} Lv${attacker.level.value}")
                 state.pendingMessages.add(
                     de.egril.defender.model.GameMessage(
                         type = de.egril.defender.model.GameMessageType.TARGET_TAKEN,
@@ -1143,6 +1148,7 @@ class GameEngine(private val state: GameState) {
             if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
                 println("!!! ENEMY ENTERED TARGET !!! Turn ${state.turnNumber.value}: ${attacker.type} (ID ${attacker.id}) at $position dealt $damage damage. HP: ${state.healthPoints.value} -> ${state.healthPoints.value - damage}")
             }
+            GameLogBuffer.log("DAMAGE", "${attacker.type} Lv${attacker.level.value} reached target — dealt $damage damage (HP: ${state.healthPoints.value} -> ${state.healthPoints.value - damage})")
             state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
         }
         attacker.isDefeated.value = true
@@ -1407,6 +1413,8 @@ class GameEngine(private val state: GameState) {
         
         state.turnNumber.value++
         state.phase.value = GamePhase.ENEMY_TURN
+        
+        GameLogBuffer.log("TURN", "Enemy turn ${state.turnNumber.value} — HP: ${state.healthPoints.value}, Coins: ${state.coins.value}, Enemies alive: ${state.attackers.count { !it.isDefeated.value }}")
         if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
         println("GameEngine.startEnemyTurn: Changed phase to ENEMY_TURN, turn=${state.turnNumber.value}")
         }

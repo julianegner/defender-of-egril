@@ -25,6 +25,13 @@
 #   IAM_BASE_URL           – base URL of the Keycloak server as seen by the backend
 #                            (e.g. http://<keycloak-private-ip>:8080 or public URL)
 #   GRAFANA_ADMIN_PASSWORD – password for the Grafana 'admin' account
+#   FEEDBACK_SMTP_HOST     – SMTP host for optional feedback notification emails
+#   FEEDBACK_SMTP_PORT     – SMTP port for optional feedback notification emails
+#   FEEDBACK_SMTP_USERNAME – SMTP username for optional feedback notification emails
+#   FEEDBACK_SMTP_PASSWORD – SMTP password for optional feedback notification emails
+#   FEEDBACK_EMAIL_FROM    – sender email for feedback notifications
+#   FEEDBACK_EMAIL_TO      – recipient email for feedback notifications
+#   FEEDBACK_SMTP_STARTTLS – optional, true/false (default: true)
 #
 # First-time setup on the server:
 #   mkdir -p /opt/defender-of-egril/backend
@@ -66,6 +73,14 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       # Keycloak IAM.
       IAM_BASE_URL: ${IAM_BASE_URL}
+      # Optional feedback notification email settings.
+      FEEDBACK_SMTP_HOST: ${FEEDBACK_SMTP_HOST}
+      FEEDBACK_SMTP_PORT: ${FEEDBACK_SMTP_PORT}
+      FEEDBACK_SMTP_USERNAME: ${FEEDBACK_SMTP_USERNAME}
+      FEEDBACK_SMTP_PASSWORD: ${FEEDBACK_SMTP_PASSWORD}
+      FEEDBACK_EMAIL_FROM: ${FEEDBACK_EMAIL_FROM}
+      FEEDBACK_EMAIL_TO: ${FEEDBACK_EMAIL_TO}
+      FEEDBACK_SMTP_STARTTLS: ${FEEDBACK_SMTP_STARTTLS}
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health | grep -q '\"UP\"' || exit 1"]
       interval: 15s

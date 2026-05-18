@@ -1251,6 +1251,7 @@
     <string name="info_tab_license">Lizenz</string>
     <string name="info_tab_keyboard_shortcuts">Tastenkürzel</string>
     <string name="info_tab_backend">Konto &amp; Datenschutz</string>
+    <string name="info_tab_feedback">Feedback</string>
 
     <!-- Backend Info -->
     <string name="backend_info_title">Konto &amp; Datenschutz</string>
@@ -1719,6 +1720,7 @@
     <string name="tooltip_enemies_on_map_and_planned">Feinde auf der Karte und geplante</string>
     <string name="tooltip_return_to_worldmap">Zur Weltkarte zurückkehren</string>
     <string name="tooltip_shortcuts">Tastenkürzel</string>
+    <string name="tooltip_feedback">Feedback senden</string>
 
     <!-- Download Installables tab (WASM + Impressum only) -->
     <string name="download_button">Herunterladen</string>
@@ -1760,4 +1762,61 @@
     <!-- Scroll hint accessibility labels -->
     <string name="scroll_hint_more_tabs_left">Nach links scrollen für mehr Tabs</string>
     <string name="scroll_hint_more_tabs_right">Nach rechts scrollen für mehr Tabs</string>
+
+    <!-- Feedback form and backend feedback section -->
+    <string name="backend_info_feedback_heading">Feedback senden</string>
+    <string name="backend_info_feedback_body">Du kannst Probleme auf GitHub melden oder direkt über das folgende Formular Feedback senden. Für Fehlermeldungen füge ein Spiellog und Screenshot-Daten hinzu.</string>
+    <string name="feedback_form_title">Feedback-Formular</string>
+    <string name="feedback_form_github_issues_pre_text">Bestehende Issues findest du auf GitHub. Bitte prüfe, ob für dein Feedback bereits ein Issue existiert, bevor du ein neues erstellst.</string>
+    <string name="feedback_form_github_issues_link_label">GitHub Issues: https://github.com/julianegner/defender-of-egril/issues</string>
+    <string name="feedback_form_type_label">Feedback-Typ</string>
+    <string name="feedback_form_bug_types_label">Fehlertypen (Mehrfachauswahl)</string>
+    <string name="feedback_form_message_label">Nachricht</string>
+    <string name="feedback_form_contact_email_label">Kontakt-E-Mail (optional)</string>
+    <string name="feedback_form_contact_email_label_required">Kontakt-E-Mail</string>
+    <string name="feedback_form_mandatory_hint">* Pflichtfeld</string>
+    <string name="feedback_form_include_game_log">Spielprotokoll einschließen</string>
+    <string name="feedback_form_attachments_label">Anhänge (automatisch erfasst)</string>
+    <string name="feedback_form_auto_collect_hint">Spielprotokolle werden bei Aktivierung automatisch erfasst.</string>
+    <string name="feedback_form_additional_files_label">Zusätzliche Dateien</string>
+    <string name="feedback_form_files_hint">Du kannst Screenshots, Spielstanddateien oder andere relevante Dateien anhängen.</string>
+    <string name="feedback_form_attach_files">Dateien anhängen…</string>
+    <string name="feedback_form_language_selector_label">Gewünschte Sprache auswählen</string>
+    <string name="feedback_form_language_search_hint">Sprachen suchen…</string>
+    <string name="feedback_form_language_no_results">Keine passenden Sprachen gefunden</string>
+    <string name="feedback_form_language_clear">Löschen</string>
+    <string name="feedback_form_language_not_listed_hint">Sprache nicht aufgeführt? Schreibe den Namen unten ins Nachrichtenfeld.</string>
+    <string name="feedback_form_submit">Feedback senden</string>
+    <string name="feedback_form_submit_success">Feedback erfolgreich gesendet (ID: %1$s)</string>
+    <string name="feedback_form_submit_error">Feedback konnte nicht gesendet werden. Bitte versuche es erneut.</string>
+    <string name="feedback_form_submit_error_network">Netzwerkfehler. Bitte überprüfe deine Verbindung.</string>
+    <string name="feedback_form_submit_error_contact">Alternativ kontaktiere:</string>
+    <string name="feedback_admin_email">admin@egril.de</string>
+    <string name="feedback_type_bug_report">Fehlermeldung</string>
+    <string name="feedback_type_bug_report_desc">Etwas ist kaputt oder funktioniert nicht wie erwartet.</string>
+    <string name="feedback_type_typo_translation_text">Tippfehler / Übersetzungsfehler / schlechter Text</string>
+    <string name="feedback_type_typo_translation_text_desc">Ein Schreibfehler, eine falsche Übersetzung oder ein unklarer/falscher Text im Spiel.</string>
+    <string name="feedback_type_feature_request">Funktionswunsch</string>
+    <string name="feedback_type_feature_request_desc">Schlage eine neue Funktion oder Verbesserung für das Spiel vor.</string>
+    <string name="feedback_type_additional_language_request">Anfrage für zusätzliche Sprache</string>
+    <string name="feedback_type_additional_language_request_desc">Unterstützung für eine noch nicht verfügbare Sprache anfordern.</string>
+    <string name="feedback_type_info_request">Informationsanfrage</string>
+    <string name="feedback_type_info_request_desc">Stelle eine Frage zur Spielmechanik oder zu Projektdetails.</string>
+    <string name="feedback_type_legal_problem">Rechtliches Problem</string>
+    <string name="feedback_type_legal_problem_desc">Melde ein rechtliches Anliegen wie Urheberrecht, Datenschutz oder Lizenzfragen.</string>
+    <string name="feedback_type_other">Sonstiges</string>
+    <string name="feedback_type_other_desc">Alles, was nicht in die anderen Kategorien passt.</string>
+    <string name="feedback_bug_type_visual">Visuell / Darstellung</string>
+    <string name="feedback_bug_type_visual_desc">Grafikfehler, falsche Sprites, fehlende Bilder oder Farbprobleme.</string>
+    <string name="feedback_bug_type_ui">UI / Layout</string>
+    <string name="feedback_bug_type_ui_desc">Schaltflächen funktionieren nicht, Elemente falsch platziert, Textüberlauf oder Navigationsprobleme.</string>
+    <string name="feedback_bug_type_gameplay">Spielmechanik / Logik</string>
+    <string name="feedback_bug_type_gameplay_desc">Falscher Schaden, fehlerhafte Wegfindung, Turm- oder Gegnerverhalten.</string>
+    <string name="feedback_bug_type_performance">Leistung</string>
+    <string name="feedback_bug_type_performance_desc">Verzögerungen, Ruckeln, langsames Laden oder hoher Speicherverbrauch.</string>
+    <string name="feedback_bug_type_sound">Sound / Audio</string>
+    <string name="feedback_bug_type_sound_desc">Fehlende Töne, falsches Audio oder Lautstärkeprobleme.</string>
+    <string name="feedback_bug_type_crash">Absturz / Einfrieren</string>
+    <string name="feedback_bug_type_crash_desc">Das Spiel stürzt ab, friert ein oder reagiert nicht mehr.</string>
+
 </resources>

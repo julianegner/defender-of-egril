@@ -6,6 +6,8 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.slf4j.LoggerFactory
+import java.util.Base64
+import java.util.UUID
 import java.util.concurrent.atomic.AtomicReference
 import javax.sql.DataSource
 
@@ -15,6 +17,7 @@ private val communityLogger = LoggerFactory.getLogger("Community")
 private val userDataLogger = LoggerFactory.getLogger("UserData")
 private val settingsLogger = LoggerFactory.getLogger("Settings")
 private val iamLogger = LoggerFactory.getLogger("IAM")
+private val feedbackRoutingLogger = LoggerFactory.getLogger("FeedbackRouting")
 
 fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
     routing {
@@ -161,6 +164,114 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
             }
 
             call.respond(HttpStatusCode.OK)
+        }
+
+        post("/api/feedback") {
+            val request = try {
+                call.receive<FeedbackSubmissionRequest>()
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid feedback payload: ${e.message}")
+                return@post
+            }
+
+            val feedbackType = parseFeedbackType(request.feedbackType)
+            if (feedbackType == null) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid feedbackType")
+                return@post
+            }
+            if (!isValidFeedbackId(request.feedbackId)) {
+                call.respond(HttpStatusCode.BadRequest, "feedbackId must be a valid UUID")
+                return@post
+            }
+            if (request.message.isBlank()) {
+                call.respond(HttpStatusCode.BadRequest, "message must not be blank")
+                return@post
+            }
+
+            val bugTypes = request.bugTypes.mapNotNull(::parseBugType).distinct()
+            if (feedbackType == FeedbackType.BUG_REPORT) {
+                if (bugTypes.isEmpty()) {
+                    call.respond(HttpStatusCode.BadRequest, "bugTypes must not be empty for bug reports")
+                    return@post
+                }
+                if (request.screenshotBase64.isNullOrBlank()) {
+                    call.respond(HttpStatusCode.BadRequest, "screenshotBase64 is required for bug reports")
+                    return@post
+                }
+                if (request.gameLog.isNullOrBlank()) {
+                    call.respond(HttpStatusCode.BadRequest, "gameLog is required for bug reports")
+                    return@post
+                }
+            }
+
+            val normalizedScreenshotBase64 = request.screenshotBase64?.trim()?.ifBlank { null }
+            val screenshotBytes = normalizedScreenshotBase64
+                ?.let { decodeBase64OrNull(it) }
+            if (normalizedScreenshotBase64 != null && screenshotBytes == null) {
+                call.respond(HttpStatusCode.BadRequest, "screenshotBase64 is not valid Base64")
+                return@post
+            }
+
+            val ds = dataSourceRef.get() ?: run {
+                call.respond(HttpStatusCode.ServiceUnavailable, "Database not available")
+                return@post
+            }
+
+            val authHeader = call.request.header(HttpHeaders.Authorization)
+            val userId = extractUserIdFromBearerToken(authHeader)
+            val userName = extractUsernameFromBearerToken(authHeader)
+            ds.connection.use { conn ->
+                try {
+                    val affectedRows = conn.prepareStatement(
+                        """
+                        INSERT INTO player_feedback (
+                            feedback_uuid, feedback_type, bug_types, message, contact_email, source_context,
+                            platform, platform_long, platform_extended, os_name, version_name, commit_hash,
+                            user_id, user_name, game_level_name, game_turn_number, game_state_json, game_log, screenshot_png
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ON CONFLICT (feedback_uuid) DO NOTHING
+                        """.trimIndent()
+                    ).use { stmt ->
+                        stmt.setObject(1, UUID.fromString(request.feedbackId))
+                        stmt.setString(2, feedbackType.name)
+                        stmt.setArray(3, conn.createArrayOf("text", bugTypes.map { it.name }.toTypedArray()))
+                        stmt.setString(4, request.message)
+                        stmt.setString(5, request.contactEmail)
+                        stmt.setString(6, request.sourceContext)
+                        stmt.setString(7, request.platform)
+                        stmt.setString(8, request.platformLong)
+                        stmt.setString(9, request.platformExtended)
+                        stmt.setString(10, request.osName)
+                        stmt.setString(11, request.versionName)
+                        stmt.setString(12, request.commitHash)
+                        stmt.setString(13, userId)
+                        stmt.setString(14, userName)
+                        stmt.setString(15, request.gameLevelName)
+                        if (request.gameTurnNumber != null) stmt.setInt(16, request.gameTurnNumber) else stmt.setNull(16, java.sql.Types.INTEGER)
+                        stmt.setString(17, request.gameStateJson)
+                        stmt.setString(18, request.gameLog)
+                        if (screenshotBytes != null) stmt.setBytes(19, screenshotBytes) else stmt.setNull(19, java.sql.Types.BINARY)
+                        stmt.executeUpdate()
+                    }
+
+                    if (affectedRows == 0) {
+                        call.respond(HttpStatusCode.OK, FeedbackSubmissionResponse(accepted = true, duplicate = true))
+                    } else {
+                        feedbackRoutingLogger.info("Feedback stored: feedbackId=${request.feedbackId} feedbackType=${feedbackType.name}")
+                        FeedbackEmailService.sendFeedbackNotification(
+                            request = request,
+                            feedbackType = feedbackType,
+                            userId = userId,
+                            userName = userName,
+                            hasScreenshot = screenshotBytes != null
+                        )
+                        call.respond(HttpStatusCode.OK, FeedbackSubmissionResponse(accepted = true, duplicate = false))
+                    }
+                } catch (e: Exception) {
+                    feedbackRoutingLogger.error("Failed to store feedback: ${e.message}", e)
+                    call.respond(HttpStatusCode.InternalServerError, "Failed to store feedback")
+                }
+            }
         }
 
         // ---------------------------------------------------------------------------
@@ -880,3 +991,15 @@ internal fun hasClientRole(authHeader: String?, clientId: String, role: String):
 
 internal fun extractJsonStringValue(json: String, key: String): String? =
     Regex("\"${Regex.escape(key)}\"\\s*:\\s*\"([^\"]+)\"").find(json)?.groupValues?.get(1)
+
+private fun isValidFeedbackId(value: String): Boolean =
+    runCatching { UUID.fromString(value) }.isSuccess
+
+private fun parseFeedbackType(value: String): FeedbackType? =
+    runCatching { FeedbackType.valueOf(value.trim().uppercase()) }.getOrNull()
+
+private fun parseBugType(value: String): BugType? =
+    runCatching { BugType.valueOf(value.trim().uppercase()) }.getOrNull()
+
+private fun decodeBase64OrNull(value: String): ByteArray? =
+    runCatching { Base64.getDecoder().decode(value) }.getOrNull()

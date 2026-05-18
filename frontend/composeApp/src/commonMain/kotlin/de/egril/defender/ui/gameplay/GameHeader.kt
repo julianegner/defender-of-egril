@@ -26,6 +26,7 @@ import de.egril.defender.ui.icon.TriangleRightIcon
 import de.egril.defender.ui.infopage.KeyboardShortcutsInfo
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
+import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.ui.settings.DifficultyDisplay
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
@@ -236,6 +237,29 @@ fun GameHeader(
                         }
                     }
                 }
+
+                // Feedback button (icon only to save space)
+                val levelTitle = gameState.level.getLocalizedTitle(locale)
+                FeedbackButton(
+                    modifier = Modifier.size(buttonHeight),
+                    gameContext = de.egril.defender.ui.feedback.GameFeedbackContext(
+                        levelName = levelTitle,
+                        turnNumber = gameState.turnNumber.value,
+                        gameStateJson = buildString {
+                            val escapedTitle = de.egril.defender.ui.feedback.escapeForJson(levelTitle)
+                            append("{")
+                            append("\"levelId\":${gameState.level.id},")
+                            append("\"levelName\":\"$escapedTitle\",")
+                            append("\"turn\":${gameState.turnNumber.value},")
+                            append("\"hp\":${gameState.healthPoints.value},")
+                            append("\"coins\":${gameState.coins.value},")
+                            append("\"defenders\":${gameState.defenders.size},")
+                            append("\"attackers\":${gameState.attackers.size},")
+                            append("\"phase\":\"${gameState.phase.value.name}\"")
+                            append("}")
+                        }
+                    )
+                )
 
                 // Settings button (icon only to save space)
                 SettingsButton(

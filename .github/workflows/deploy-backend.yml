@@ -19,6 +19,13 @@
 #   PROD_SSH_KEY_PASSPHRASE – Passphrase protecting the SSH private key
 #                             (leave the secret empty if the key has no passphrase)
 #   PROD_DB_PASSWORD      – Password for the 'defender' PostgreSQL user
+#   FEEDBACK_SMTP_HOST    – Optional SMTP host for feedback notification mails
+#   FEEDBACK_SMTP_PORT    – Optional SMTP port for feedback notification mails
+#   FEEDBACK_SMTP_USERNAME – Optional SMTP username for feedback notification mails
+#   FEEDBACK_SMTP_PASSWORD – Optional SMTP password for feedback notification mails
+#   FEEDBACK_EMAIL_FROM   – Optional sender address for feedback notification mails
+#   FEEDBACK_EMAIL_TO     – Optional recipient address for feedback notification mails
+#   FEEDBACK_SMTP_STARTTLS – Optional true/false flag (default true)
 name: Deploy Backend
 
 on:
@@ -136,6 +143,13 @@ jobs:
             DB_PASSWORD=${{ secrets.PROD_DB_PASSWORD }}
             IAM_BASE_URL=https://sso.julianegner.de
             GRAFANA_ADMIN_PASSWORD=${{ secrets.GRAFANA_ADMIN_PASSWORD }}
+            FEEDBACK_SMTP_HOST=${{ secrets.FEEDBACK_SMTP_HOST }}
+            FEEDBACK_SMTP_PORT=${{ secrets.FEEDBACK_SMTP_PORT }}
+            FEEDBACK_SMTP_USERNAME=${{ secrets.FEEDBACK_SMTP_USERNAME }}
+            FEEDBACK_SMTP_PASSWORD=${{ secrets.FEEDBACK_SMTP_PASSWORD }}
+            FEEDBACK_EMAIL_FROM=${{ secrets.FEEDBACK_EMAIL_FROM }}
+            FEEDBACK_EMAIL_TO=${{ secrets.FEEDBACK_EMAIL_TO }}
+            FEEDBACK_SMTP_STARTTLS=${{ secrets.FEEDBACK_SMTP_STARTTLS }}
             EOF
 
             # Ensure Docker Compose V2 plugin is available (docker.io on Ubuntu
