@@ -17,11 +17,11 @@ private val feedbackBackendUrl: String
         ?: "http://localhost:8080"
 
 actual object BackendFeedbackService {
-    actual suspend fun submitFeedback(request: FeedbackSubmitRequest, token: String?): Boolean =
+    actual suspend fun submitFeedback(request: FeedbackSubmitRequest, token: String?): Int? =
         suspendCancellableCoroutine { continuation ->
             val url = NSURL.URLWithString("$feedbackBackendUrl/api/feedback")
             if (url == null) {
-                continuation.resume(false)
+                continuation.resume(-1)
                 return@suspendCancellableCoroutine
             }
             val httpRequest = NSMutableURLRequest.requestWithURL(url)
@@ -34,8 +34,8 @@ actual object BackendFeedbackService {
                 .dataUsingEncoding(NSUTF8StringEncoding)
 
             NSURLSession.sharedSession.dataTaskWithRequest(httpRequest) { _, response, _ ->
-                val httpResponse = response as? NSHTTPURLResponse
-                continuation.resume(httpResponse?.statusCode?.toInt() in 200..299)
+                val statusCode = (response as? NSHTTPURLResponse)?.statusCode?.toInt()
+                continuation.resume(if (statusCode != null && statusCode in 200..299) null else (statusCode ?: -1))
             }.resume()
         }
 }

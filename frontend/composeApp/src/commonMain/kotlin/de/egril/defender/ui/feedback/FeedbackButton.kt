@@ -23,34 +23,22 @@ import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.tooltip_feedback
 import defender_of_egril.composeapp.generated.resources.feedback_form_title
 import defender_of_egril.composeapp.generated.resources.close
-import kotlinx.coroutines.launch
 
 /**
  * Feedback button with chat/feedback icon that opens a dialog containing the feedback form.
  * Can be placed on any screen to provide quick access to the feedback form.
  * Modeled after SettingsButton for consistent UX.
- *
- * Captures a screenshot of the current screen BEFORE opening the dialog,
- * so the screenshot does not include the feedback popup itself.
  */
 @Composable
 fun FeedbackButton(
     modifier: Modifier = Modifier
 ) {
     var showFeedback by remember { mutableStateOf(false) }
-    var capturedScreenshot by remember { mutableStateOf<FeedbackAttachment?>(null) }
     val feedbackLabel = stringResource(Res.string.tooltip_feedback)
-    val scope = rememberCoroutineScope()
 
     TooltipWrapper(text = feedbackLabel) {
         IconButton(
-            onClick = {
-                // Capture screenshot BEFORE showing the dialog
-                scope.launch {
-                    capturedScreenshot = captureScreenshot()
-                    showFeedback = true
-                }
-            },
+            onClick = { showFeedback = true },
             modifier = modifier
         ) {
             FilledSymbol(
@@ -63,13 +51,7 @@ fun FeedbackButton(
     }
 
     if (showFeedback) {
-        FeedbackDialog(
-            onDismiss = {
-                showFeedback = false
-                capturedScreenshot = null
-            },
-            capturedScreenshot = capturedScreenshot
-        )
+        FeedbackDialog(onDismiss = { showFeedback = false })
     }
 }
 
@@ -79,8 +61,7 @@ fun FeedbackButton(
  */
 @Composable
 private fun FeedbackDialog(
-    onDismiss: () -> Unit,
-    capturedScreenshot: FeedbackAttachment? = null
+    onDismiss: () -> Unit
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -136,8 +117,7 @@ private fun FeedbackDialog(
                         .verticalScroll(rememberScrollState())
                 ) {
                     FeedbackFormContent(
-                        showTitle = false,
-                        capturedScreenshot = capturedScreenshot
+                        showTitle = false
                     )
                 }
             }

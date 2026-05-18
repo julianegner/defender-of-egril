@@ -17,7 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.AppBuildInfo
@@ -99,20 +101,16 @@ internal val ALL_REQUESTABLE_LANGUAGES = listOf(
  * or displayed inside a dialog. Contains the full feedback form with
  * type selection, bug type checkboxes, message input, and submit logic.
  *
- * For bug reports: screenshot and game log data are auto-collected via checkboxes
- * (the user ticks to include them; the system captures the data automatically).
- * A pre-captured screenshot (taken before the dialog opened) can be provided.
+ * For bug reports: game log data is auto-collected via checkbox.
+ * Files such as screenshots or game saves can be attached manually.
  *
  * For additional language requests: a searchable language list with flags is shown.
- *
- * @param capturedScreenshot A screenshot captured BEFORE the feedback dialog was shown (no popup visible)
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FeedbackFormContent(
     modifier: Modifier = Modifier,
-    showTitle: Boolean = true,
-    capturedScreenshot: FeedbackAttachment? = null
+    showTitle: Boolean = true
 ) {
     val scope = rememberCoroutineScope()
     var feedbackId by remember { mutableStateOf(generateFeedbackUuid()) }
@@ -139,14 +137,13 @@ fun FeedbackFormContent(
     var message by remember { mutableStateOf("") }
     var contactEmail by remember { mutableStateOf("") }
     var includeGameLog by remember { mutableStateOf(true) }
-    var includeScreenshot by remember { mutableStateOf(capturedScreenshot != null) }
     var selectedLanguage by remember { mutableStateOf<LanguageEntry?>(null) }
     var languageSearchQuery by remember { mutableStateOf("") }
     var isSubmitting by remember { mutableStateOf(false) }
-    var submitResult by remember { mutableStateOf<Boolean?>(null) }
+    var submitErrorCode by remember { mutableStateOf<Int?>(null) }
+    var submitSuccess by remember { mutableStateOf(false) }
     var lastSubmittedFeedbackId by remember { mutableStateOf("") }
     var additionalAttachments by remember { mutableStateOf(listOf<FeedbackAttachment>()) }
-    var showScreenshotPreview by remember { mutableStateOf(false) }
 
     val isBugReport = selectedType.apiValue == "BUG_REPORT"
     val isLanguageRequest = selectedType.apiValue == "ADDITIONAL_LANGUAGE_REQUEST"
@@ -164,8 +161,18 @@ fun FeedbackFormContent(
             )
         }
         Text(
-            text = stringResource(Res.string.feedback_form_github_hint),
+            text = stringResource(Res.string.feedback_form_github_issues_pre_text),
             style = MaterialTheme.typography.bodyMedium
+        )
+        val uriHandler = LocalUriHandler.current
+        Text(
+            text = stringResource(Res.string.feedback_form_github_issues_link_label),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary,
+            textDecoration = TextDecoration.Underline,
+            modifier = Modifier.clickable {
+                uriHandler.openUri("https://github.com/julianegner/defender-of-egril/issues")
+            }
         )
 
         ExposedDropdownMenuBox(
@@ -292,52 +299,6 @@ fun FeedbackFormContent(
                 )
             }
             // Screenshot checkbox (only if a screenshot was actually captured)
-            if (capturedScreenshot != null) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Checkbox(
-                        checked = includeScreenshot,
-                        onCheckedChange = { includeScreenshot = it }
-                    )
-                    Text(
-                        text = stringResource(Res.string.feedback_form_include_screenshot),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    // Preview link for captured screenshot
-                    TextButton(
-                        onClick = { showScreenshotPreview = !showScreenshotPreview },
-                        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
-                    ) {
-                        Text(
-                            text = if (showScreenshotPreview)
-                                stringResource(Res.string.feedback_form_hide_preview)
-                            else
-                                stringResource(Res.string.feedback_form_show_preview),
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-                }
-                // Show screenshot preview when toggled
-                if (showScreenshotPreview && includeScreenshot) {
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 200.dp)
-                            .clip(RoundedCornerShape(8.dp)),
-                        tonalElevation = 1.dp
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.feedback_form_screenshot_captured,
-                                capturedScreenshot.filename),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(8.dp)
-                        )
-                    }
-                }
-            }
             Text(
                 text = stringResource(Res.string.feedback_form_auto_collect_hint),
                 style = MaterialTheme.typography.bodySmall,
@@ -351,6 +312,11 @@ fun FeedbackFormContent(
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(top = 4.dp)
+        )
+        Text(
+            text = stringResource(Res.string.feedback_form_files_hint),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         OutlinedButton(
             onClick = {
@@ -386,10 +352,9 @@ fun FeedbackFormContent(
                             },
                             contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
                         ) {
-                            Text(
-                                text = "✕",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.error
+                            de.egril.defender.ui.icon.CrossIcon(
+                                size = 14.dp,
+                                tint = MaterialTheme.colorScheme.error
                             )
                         }
                     }
@@ -407,17 +372,13 @@ fun FeedbackFormContent(
 
         Button(
             onClick = {
-                submitResult = null
+                submitSuccess = false
+                submitErrorCode = null
                 isSubmitting = true
                 scope.launch {
                     // Auto-collect game log if checkbox is ticked (bug reports)
                     val collectedGameLog = if (isBugReport && includeGameLog) {
                         collectGameLog()
-                    } else null
-
-                    // Use real captured screenshot if checkbox is ticked (bug reports)
-                    val screenshotData = if (isBugReport && includeScreenshot && capturedScreenshot != null) {
-                        capturedScreenshot.base64Content
                     } else null
 
                     // Build attachments list from additional files
@@ -436,7 +397,7 @@ fun FeedbackFormContent(
                         } else null
                     } ?: message.trim()
 
-                    val ok = BackendFeedbackService.submitFeedback(
+                    val errorCode = BackendFeedbackService.submitFeedback(
                         FeedbackSubmitRequest(
                             feedbackId = feedbackId,
                             feedbackType = selectedType.apiValue,
@@ -448,24 +409,25 @@ fun FeedbackFormContent(
                             gameTurnNumber = null,
                             gameStateJson = null,
                             gameLog = collectedGameLog,
-                            screenshotBase64 = screenshotData,
+                            screenshotBase64 = null,
                             attachments = attachmentDataList
                         ),
                         token = IamService.getToken()
                     )
-                    submitResult = ok
                     isSubmitting = false
-                    if (ok) {
+                    if (errorCode == null) {
+                        submitSuccess = true
                         lastSubmittedFeedbackId = feedbackId
                         feedbackId = generateFeedbackUuid()
                         message = ""
                         contactEmail = ""
                         selectedBugTypes = emptySet()
                         includeGameLog = true
-                        includeScreenshot = capturedScreenshot != null
                         selectedLanguage = null
                         languageSearchQuery = ""
                         additionalAttachments = emptyList()
+                    } else {
+                        submitErrorCode = errorCode
                     }
                 }
             },
@@ -474,7 +436,7 @@ fun FeedbackFormContent(
             Text(stringResource(Res.string.feedback_form_submit))
         }
 
-        if (submitResult == true) {
+        if (submitSuccess) {
             Spacer(modifier = Modifier.height(8.dp))
             Surface(
                 modifier = Modifier.fillMaxWidth(),
@@ -488,7 +450,7 @@ fun FeedbackFormContent(
                     modifier = Modifier.padding(12.dp)
                 )
             }
-        } else if (submitResult == false) {
+        } else if (submitErrorCode != null) {
             Spacer(modifier = Modifier.height(8.dp))
             Surface(
                 modifier = Modifier.fillMaxWidth(),
@@ -500,6 +462,17 @@ fun FeedbackFormContent(
                     Text(
                         text = stringResource(Res.string.feedback_form_submit_error),
                         color = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                    val code = submitErrorCode ?: -1
+                    val errorDetail = if (code == -1) {
+                        stringResource(Res.string.feedback_form_submit_error_network)
+                    } else {
+                        "HTTP $code ${httpStatusText(code)}"
+                    }
+                    Text(
+                        text = errorDetail,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        style = MaterialTheme.typography.bodySmall
                     )
                     Text(
                         text = stringResource(Res.string.feedback_form_submit_error_contact),
@@ -694,4 +667,23 @@ internal fun generateFeedbackUuid(): String {
             if (index == 3 || index == 5 || index == 7 || index == 9) append('-')
         }
     }
+}
+
+internal fun httpStatusText(code: Int): String = when (code) {
+    400 -> "BAD REQUEST"
+    401 -> "UNAUTHORIZED"
+    403 -> "FORBIDDEN"
+    404 -> "NOT FOUND"
+    405 -> "METHOD NOT ALLOWED"
+    408 -> "REQUEST TIMEOUT"
+    409 -> "CONFLICT"
+    413 -> "PAYLOAD TOO LARGE"
+    422 -> "UNPROCESSABLE ENTITY"
+    429 -> "TOO MANY REQUESTS"
+    500 -> "INTERNAL SERVER ERROR"
+    501 -> "NOT IMPLEMENTED"
+    502 -> "BAD GATEWAY"
+    503 -> "SERVICE UNAVAILABLE"
+    504 -> "GATEWAY TIMEOUT"
+    else -> "ERROR"
 }

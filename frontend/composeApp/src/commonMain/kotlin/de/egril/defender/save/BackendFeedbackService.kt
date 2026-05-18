@@ -22,7 +22,7 @@ data class FeedbackAttachmentData(
 )
 
 expect object BackendFeedbackService {
-    suspend fun submitFeedback(request: FeedbackSubmitRequest, token: String?): Boolean
+    suspend fun submitFeedback(request: FeedbackSubmitRequest, token: String?): Int?
 }
 
 internal fun buildFeedbackUploadJson(request: FeedbackSubmitRequest): String = buildString {

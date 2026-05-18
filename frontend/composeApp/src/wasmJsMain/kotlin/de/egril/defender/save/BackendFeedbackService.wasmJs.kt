@@ -8,7 +8,7 @@ import org.w3c.xhr.XMLHttpRequest
 import kotlin.coroutines.resume
 
 actual object BackendFeedbackService {
-    actual suspend fun submitFeedback(request: FeedbackSubmitRequest, token: String?): Boolean =
+    actual suspend fun submitFeedback(request: FeedbackSubmitRequest, token: String?): Int? =
         suspendCancellableCoroutine { continuation ->
             try {
                 val xhr = XMLHttpRequest()
@@ -18,14 +18,15 @@ actual object BackendFeedbackService {
                     xhr.setRequestHeader("Authorization", "Bearer $token")
                 }
                 xhr.onload = {
-                    continuation.resume(xhr.status.toInt() in 200..299)
+                    val status = xhr.status.toInt()
+                    continuation.resume(if (status in 200..299) null else status)
                 }
                 xhr.onerror = {
-                    continuation.resume(false)
+                    continuation.resume(-1)
                 }
                 xhr.send(buildFeedbackUploadJson(request))
             } catch (_: Exception) {
-                continuation.resume(false)
+                continuation.resume(-1)
             }
         }
 }
