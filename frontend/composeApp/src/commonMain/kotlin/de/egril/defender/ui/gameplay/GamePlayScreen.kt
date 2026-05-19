@@ -31,6 +31,8 @@ import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
+private const val SOUND_CAPTION_DISPLAY_DURATION_MS = 2000L
+
 @Composable
 fun GamePlayScreen(
     gameState: GameState,
@@ -319,25 +321,13 @@ private fun GamePlayScreenContent(
     val audioCaptionBattleStart = stringResource(Res.string.audio_battle_start_name)
     val audioCaptionBombTicking = stringResource(Res.string.audio_bomb_ticking_name)
     val audioCaptionBombExploding = stringResource(Res.string.audio_bomb_exploding_name)
+    val captionsEnabled = AppSettings.captionsEnabled.value
 
-    LaunchedEffect(AppSettings.captionsEnabled.value) {
-        if (!AppSettings.captionsEnabled.value) {
+    LaunchedEffect(captionsEnabled) {
+        if (!captionsEnabled) {
             soundCaptionText = null
+            return@LaunchedEffect
         }
-    }
-
-    LaunchedEffect(
-        AppSettings.captionsEnabled.value,
-        audioCaptionEnemySpawn,
-        audioCaptionEnemyDestroyed,
-        audioCaptionTrapTrigger,
-        audioCaptionLifeLost,
-        audioCaptionTowerUpgraded,
-        audioCaptionBattleStart,
-        audioCaptionBombTicking,
-        audioCaptionBombExploding
-    ) {
-        if (!AppSettings.captionsEnabled.value) return@LaunchedEffect
         GlobalSoundManager.soundEvents.collect { event ->
             val caption = when (event) {
                 SoundEvent.ENEMY_SPAWN -> audioCaptionEnemySpawn
@@ -359,8 +349,11 @@ private fun GamePlayScreenContent(
 
     LaunchedEffect(soundCaptionSequence) {
         if (soundCaptionSequence <= 0L) return@LaunchedEffect
-        kotlinx.coroutines.delay(2000L)
-        soundCaptionText = null
+        val currentSequence = soundCaptionSequence
+        kotlinx.coroutines.delay(SOUND_CAPTION_DISPLAY_DURATION_MS)
+        if (soundCaptionSequence == currentSequence) {
+            soundCaptionText = null
+        }
     }
     
     // Watch for cheat dig outcomes
@@ -1089,7 +1082,8 @@ private fun GamePlayScreenContent(
                 demoHoveredPosition = demoHoveredPosition
             )
 
-            if (AppSettings.captionsEnabled.value && soundCaptionText != null) {
+            val captionText = soundCaptionText
+            if (captionsEnabled && captionText != null) {
                 Surface(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
@@ -1101,7 +1095,7 @@ private fun GamePlayScreenContent(
                     shape = MaterialTheme.shapes.medium
                 ) {
                     Text(
-                        text = soundCaptionText ?: "",
+                        text = captionText,
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface

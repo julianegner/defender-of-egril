@@ -1,5 +1,6 @@
 package de.egril.defender.audio
 
+import de.egril.defender.config.LogConfig
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -9,8 +10,11 @@ import kotlinx.coroutines.flow.asSharedFlow
  * Provides access to sound playback throughout the application
  */
 object GlobalSoundManager {
+    private const val SOUND_EVENT_BUFFER_CAPACITY = 16
+
     private var soundManager: SoundManager? = null
-    private val _soundEvents = MutableSharedFlow<SoundEvent>(extraBufferCapacity = 64)
+    // Buffer short event bursts (e.g., clustered combat sounds in one frame) without blocking callers.
+    private val _soundEvents = MutableSharedFlow<SoundEvent>(extraBufferCapacity = SOUND_EVENT_BUFFER_CAPACITY)
     val soundEvents: SharedFlow<SoundEvent> = _soundEvents.asSharedFlow()
     
     /**
@@ -29,7 +33,9 @@ object GlobalSoundManager {
      */
     fun playSound(event: SoundEvent, volume: Float = 1.0f) {
         soundManager?.playSound(event, volume)
-        _soundEvents.tryEmit(event)
+        if (!_soundEvents.tryEmit(event) && (LogConfig.ENABLE_ALL_LOGGING || LogConfig.ENABLE_UI_LOGGING)) {
+            println("GlobalSoundManager: dropped sound event $event (caption buffer full)")
+        }
     }
     
     /**
