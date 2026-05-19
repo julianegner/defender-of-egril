@@ -6,6 +6,7 @@
     <string name="start_game">Iniciar juego</string>
     <string name="continue_game">Continuar juego</string>
     <string name="rules">Reglas</string>
+    <string name="tutorials_and_help">Tutoriales y ayuda</string>
     <string name="exit_game">Salir del juego</string>
     <string name="exit_game_confirm_title">¿Salir del juego?</string>
     <string name="exit_game_confirm_message">¿Está seguro de que desea salir del juego?</string>

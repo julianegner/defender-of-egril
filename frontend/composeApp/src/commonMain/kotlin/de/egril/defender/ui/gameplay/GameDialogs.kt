@@ -1,17 +1,23 @@
 package de.egril.defender.ui.gameplay
 
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.DigOutcomeIcon
+import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
+import kotlinx.coroutines.delay
 
 @Composable
 fun DigOutcomeDialog(
@@ -150,6 +156,7 @@ fun UnsavedChangesDialog(
     onDiscardChanges: () -> Unit,
     onCancel: () -> Unit
 ) {
+    val holdToConfirmEnabled = AppSettings.holdToConfirmEnabled.value
     AlertDialog(
         onDismissRequest = onCancel,
         title = { Text(stringResource(Res.string.unsaved_changes_title)) },
@@ -160,27 +167,94 @@ fun UnsavedChangesDialog(
             )
         },
         confirmButton = {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Button(
-                    onClick = onCancel,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary
-                    )
-                ) {
-                    Text(stringResource(Res.string.cancel))
+            if (holdToConfirmEnabled) {
+                val holdToConfirmLabel = stringResource(Res.string.accessibility_hold_to_confirm)
+                val holdToDiscardLabel = "${stringResource(Res.string.discard_changes)} (${stringResource(Res.string.accessibility_hold_to_confirm)})"
+                val holdInteractionSource = remember { MutableInteractionSource() }
+                val isPressed by holdInteractionSource.collectIsPressedAsState()
+                var holdProgress by remember { mutableFloatStateOf(0f) }
+                val holdDurationMs = GamePlayConstants.ButtonSizes.HoldToConfirmDurationMs
+                val progressSteps = GamePlayConstants.ButtonSizes.HoldToConfirmProgressSteps
+
+                LaunchedEffect(isPressed) {
+                    if (isPressed) {
+                        holdProgress = 0f
+                        repeat(progressSteps) { step ->
+                            delay(holdDurationMs / progressSteps)
+                            if (!isPressed) {
+                                holdProgress = 0f
+                                return@LaunchedEffect
+                            }
+                            holdProgress = (step + 1).toFloat() / progressSteps.toFloat()
+                        }
+                        holdProgress = 0f
+                        onDiscardChanges()
+                    } else {
+                        holdProgress = 0f
+                    }
                 }
-                Button(
-                    onClick = onDiscardChanges,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error
-                    )
-                ) {
-                    Text(stringResource(Res.string.discard_changes))
+
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(
+                            onClick = onCancel,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.secondary
+                            )
+                        ) {
+                            Text(stringResource(Res.string.cancel))
+                        }
+                        Button(onClick = onSaveAndExit) {
+                            Text(stringResource(Res.string.save_and_exit))
+                        }
+                    }
+
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        if (holdProgress > 0f) {
+                            LinearProgressIndicator(
+                                progress = { holdProgress },
+                                modifier = Modifier
+                                    .width(GamePlayConstants.ButtonSizes.HoldToConfirmProgressWidth)
+                                    .height(GamePlayConstants.ButtonSizes.HoldToConfirmProgressHeight),
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            Spacer(modifier = Modifier.height(GamePlayConstants.ButtonSizes.HoldToConfirmProgressSpacing))
+                        }
+                        Button(
+                            onClick = { },
+                            interactionSource = holdInteractionSource,
+                            modifier = Modifier.semantics { stateDescription = holdToConfirmLabel },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error
+                            )
+                        ) {
+                            Text(holdToDiscardLabel)
+                        }
+                    }
                 }
-                Button(onClick = onSaveAndExit) {
-                    Text(stringResource(Res.string.save_and_exit))
+            } else {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = onCancel,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary
+                        )
+                    ) {
+                        Text(stringResource(Res.string.cancel))
+                    }
+                    Button(
+                        onClick = onDiscardChanges,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Text(stringResource(Res.string.discard_changes))
+                    }
+                    Button(onClick = onSaveAndExit) {
+                        Text(stringResource(Res.string.save_and_exit))
+                    }
                 }
             }
         }

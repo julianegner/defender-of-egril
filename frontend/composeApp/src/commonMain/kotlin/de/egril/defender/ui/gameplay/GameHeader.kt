@@ -20,11 +20,13 @@ import androidx.compose.ui.zIndex
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.KeyboardKeyIcon
+import de.egril.defender.ui.icon.HelpIcon
 import de.egril.defender.ui.icon.SaveIcon
 import de.egril.defender.ui.icon.ToolsIcon
 import de.egril.defender.ui.icon.TriangleDownIcon
 import de.egril.defender.ui.icon.TriangleLeftIcon
 import de.egril.defender.ui.icon.TriangleRightIcon
+import de.egril.defender.ui.infopage.HowToPlayContent
 import de.egril.defender.ui.infopage.KeyboardShortcutsInfo
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
@@ -55,6 +57,7 @@ fun GameHeader(
     var showDebugMenu by remember { mutableStateOf(false) }
     val showDebugOptions = AppSettings.showDebugOptions.value
     var showShortcutsDialog by remember { mutableStateOf(false) }
+    var showTutorialsHelpDialog by remember { mutableStateOf(false) }
     
     Box(
         modifier = Modifier
@@ -325,6 +328,22 @@ fun GameHeader(
                         }
                     }
                 }
+
+                val tutorialsAndHelpLabel = stringResource(Res.string.tutorials_and_help)
+                TooltipWrapper(text = tutorialsAndHelpLabel) {
+                    Button(
+                        onClick = { showTutorialsHelpDialog = true },
+                        modifier = Modifier
+                            .height(buttonHeight)
+                            .semantics { contentDescription = tutorialsAndHelpLabel },
+                        contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp)
+                    ) {
+                        HelpIcon(
+                            size = buttonIconSize,
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                        )
+                    }
+                }
             }
         }
     }
@@ -352,6 +371,44 @@ fun GameHeader(
                     Button(
                         onClick = { showShortcutsDialog = false },
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                    ) {
+                        Text(stringResource(Res.string.got_it))
+                    }
+                }
+            }
+        }
+    }
+
+    if (showTutorialsHelpDialog) {
+        Dialog(
+            onDismissRequest = { showTutorialsHelpDialog = false }
+        ) {
+            Card(
+                modifier = Modifier
+                    .width(700.dp)
+                    .heightIn(max = 700.dp)
+                    .padding(8.dp),
+                shape = RoundedCornerShape(12.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth()
+                ) {
+                    Text(
+                        text = stringResource(Res.string.tutorials_and_help),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Box(modifier = Modifier.weight(1f)) {
+                        HowToPlayContent()
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = { showTutorialsHelpDialog = false },
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(stringResource(Res.string.got_it))
                     }
