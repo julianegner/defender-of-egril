@@ -35,6 +35,10 @@ class LevelLoadingScreenAnimationToggleTest {
         }
 
         composeTestRule.waitForIdle()
+        ScreenshotTestUtils.captureScreenshot(
+            composeTestRule = composeTestRule,
+            filename = "level-loading-screen-animations-off"
+        )
         composeTestRule.onNodeWithTag("levelLoadingSpinner", useUnmergedTree = true).assertDoesNotExist()
     }
 

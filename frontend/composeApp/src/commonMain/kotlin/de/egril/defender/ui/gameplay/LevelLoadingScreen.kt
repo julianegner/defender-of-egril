@@ -42,7 +42,7 @@ import kotlin.math.PI
 /**
  * Loading screen shown while a level's map image is being loaded.
  *
- * Displays a spinner in the centre, a "Loading level" label below it,
+ * Displays a center spinner only when animations are enabled, a "Loading level" label below it,
  * and 8 icons arranged in a circle:  3 enemy unit icons, 3 tower icons,
  * and 2 barge icons.
  */
@@ -76,7 +76,8 @@ fun LevelLoadingScreen(
 
 /**
  * A spinner surrounded by 8 icons (3 enemy, 3 tower, 2 barge) in a circle.
- * The ring of icons rotates continuously, and the CircularProgressIndicator spins at the centre.
+ * The ring of icons rotates continuously when animations are enabled,
+ * and the CircularProgressIndicator is shown only in that mode.
  */
 @Composable
 private fun LoadingCircleWithIcons(animationsEnabled: Boolean) {
