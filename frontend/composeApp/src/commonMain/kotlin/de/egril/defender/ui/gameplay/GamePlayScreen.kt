@@ -32,39 +32,40 @@ import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
 private const val SOUND_CAPTION_DISPLAY_DURATION_MS = 2000L
+private val letterShortcutKeyMap: Map<Char, Key> = mapOf(
+    'A' to Key.A,
+    'B' to Key.B,
+    'C' to Key.C,
+    'D' to Key.D,
+    'E' to Key.E,
+    'F' to Key.F,
+    'G' to Key.G,
+    'H' to Key.H,
+    'I' to Key.I,
+    'J' to Key.J,
+    'K' to Key.K,
+    'L' to Key.L,
+    'M' to Key.M,
+    'N' to Key.N,
+    'O' to Key.O,
+    'P' to Key.P,
+    'Q' to Key.Q,
+    'R' to Key.R,
+    'S' to Key.S,
+    'T' to Key.T,
+    'U' to Key.U,
+    'V' to Key.V,
+    'W' to Key.W,
+    'X' to Key.X,
+    'Y' to Key.Y,
+    'Z' to Key.Z
+)
 
 private fun isShortcutKeyPressed(event: KeyEvent, shortcut: String): Boolean {
     val configured = shortcut.trim().uppercase()
     if (configured.length != 1) return false
-    return when (configured[0]) {
-        'A' -> event.key == Key.A
-        'B' -> event.key == Key.B
-        'C' -> event.key == Key.C
-        'D' -> event.key == Key.D
-        'E' -> event.key == Key.E
-        'F' -> event.key == Key.F
-        'G' -> event.key == Key.G
-        'H' -> event.key == Key.H
-        'I' -> event.key == Key.I
-        'J' -> event.key == Key.J
-        'K' -> event.key == Key.K
-        'L' -> event.key == Key.L
-        'M' -> event.key == Key.M
-        'N' -> event.key == Key.N
-        'O' -> event.key == Key.O
-        'P' -> event.key == Key.P
-        'Q' -> event.key == Key.Q
-        'R' -> event.key == Key.R
-        'S' -> event.key == Key.S
-        'T' -> event.key == Key.T
-        'U' -> event.key == Key.U
-        'V' -> event.key == Key.V
-        'W' -> event.key == Key.W
-        'X' -> event.key == Key.X
-        'Y' -> event.key == Key.Y
-        'Z' -> event.key == Key.Z
-        else -> false
-    }
+    val expectedKey = letterShortcutKeyMap[configured[0]] ?: return false
+    return event.key == expectedKey
 }
 
 @Composable

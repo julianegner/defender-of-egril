@@ -818,6 +818,11 @@ object AppSettings {
         // as user has already seen it once
     }
 
+    /**
+     * Normalizes a shortcut key to a single uppercase latin letter (`A`-`Z`).
+     * Returns [defaultKey] when the provided [shortcut] is empty, longer than one character,
+     * or outside the supported letter range.
+     */
     private fun normalizeShortcutKey(shortcut: String, defaultKey: String): String {
         val normalized = shortcut.trim().uppercase()
         return if (normalized.length == 1 && normalized[0] in 'A'..'Z') {
