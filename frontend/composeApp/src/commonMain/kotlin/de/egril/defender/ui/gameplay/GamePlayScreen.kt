@@ -724,6 +724,19 @@ private fun GamePlayScreenContent(
                     jumpToNextActionableTower(selectedDefenderId, event.isShiftPressed)
                     true
                 }
+                // R: Center map on selected tower
+                event.type == KeyEventType.KeyDown &&
+                        event.key == Key.R && !event.isCtrlPressed -> {
+                    val defender = selectedDefenderId?.let { defenderId ->
+                        gameState.defenders.find { it.id == defenderId }
+                    }
+                    if (defender != null) {
+                        tabScrollPosition = defender.position.value
+                        true
+                    } else {
+                        false
+                    }
+                }
                 // C: Open cheat code dialog
                 event.type == KeyEventType.KeyDown &&
                         event.key == Key.C && !event.isCtrlPressed &&
