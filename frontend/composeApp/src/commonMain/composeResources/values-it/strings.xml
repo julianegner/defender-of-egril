@@ -1288,6 +1288,7 @@
     <string name="keyboard_shortcut_tab_next_tower">Seleziona la prossima torre azionabile</string>
     <string name="keyboard_shortcut_shift_tab_prev_tower">Seleziona la torre azionabile precedente</string>
     <string name="keyboard_shortcut_center_selected_tower">Centra la mappa sulla torre selezionata</string>
+    <string name="keyboard_shortcut_center_next_spawn_point">Centra la mappa sul prossimo punto di spawn</string>
     <string name="auto_jump_to_next_tower">Salta automaticamente alla prossima torre azionabile</string>
     <string name="keyboard_shortcuts_note">Nota: Le scorciatoie da tastiera sono disponibili su desktop e nell\'app web.</string>
     <string name="keyboard_modifier_ctrl">Ctrl</string>

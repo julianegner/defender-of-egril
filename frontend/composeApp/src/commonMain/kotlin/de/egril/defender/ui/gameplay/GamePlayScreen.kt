@@ -242,6 +242,7 @@ private fun GamePlayScreenContent(
 
     var highlightEndTurnButton by remember { mutableStateOf(false) }
     var tabScrollPosition by remember { mutableStateOf<Position?>(null) }  // Tab-triggered scroll-to-tower
+    var nextSpawnPointIndex by remember { mutableStateOf(0) }
 
     var currentDigOutcome by remember { mutableStateOf<DigOutcome?>(null) }
     var currentDragonName by remember { mutableStateOf<String?>(null) }  // Track dragon name for dig outcome
@@ -735,6 +736,19 @@ private fun GamePlayScreenContent(
                         true
                     } else {
                         false
+                    }
+                }
+                // G: Center map on next spawn point
+                event.type == KeyEventType.KeyDown &&
+                        event.key == Key.G && !event.isCtrlPressed -> {
+                    val spawnPoints = gameState.level.startPositions
+                    if (spawnPoints.isEmpty()) {
+                        false
+                    } else {
+                        val nextPosition = spawnPoints[nextSpawnPointIndex % spawnPoints.size]
+                        tabScrollPosition = nextPosition
+                        nextSpawnPointIndex = (nextSpawnPointIndex + 1) % spawnPoints.size
+                        true
                     }
                 }
                 // C: Open cheat code dialog

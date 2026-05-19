@@ -23,11 +23,12 @@ class KeyboardShortcutsInfoTest {
         composeTestRule.waitForIdle()
         composeTestRule.onRoot().assertExists()
         composeTestRule.onNodeWithText("Center map on selected tower").assertExists()
+        composeTestRule.onNodeWithText("Center map on next spawn point").assertExists()
         composeTestRule.onNodeWithText("???").assertDoesNotExist()
 
         ScreenshotTestUtils.captureScreenshot(
             composeTestRule = composeTestRule,
-            filename = "keyboard-shortcuts-center-selected-tower",
+            filename = "keyboard-shortcuts-phase4-panzoom-assist",
             width = 1200,
             height = 900
         )

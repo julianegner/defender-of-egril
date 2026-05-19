@@ -1288,6 +1288,7 @@
     <string name="keyboard_shortcut_tab_next_tower">Sélectionner la prochaine tour actionnable</string>
     <string name="keyboard_shortcut_shift_tab_prev_tower">Sélectionner la tour actionnable précédente</string>
     <string name="keyboard_shortcut_center_selected_tower">Centrer la carte sur la tour sélectionnée</string>
+    <string name="keyboard_shortcut_center_next_spawn_point">Centrer la carte sur le prochain point d'apparition</string>
     <string name="auto_jump_to_next_tower">Sauter automatiquement à la prochaine tour actionnable</string>
     <string name="keyboard_shortcuts_note">Remarque : Les raccourcis clavier sont disponibles sur bureau et dans l\'application web.</string>
     <string name="keyboard_modifier_ctrl">Ctrl</string>

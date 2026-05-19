@@ -72,6 +72,7 @@ fun KeyboardShortcutsInfo() {
                 ShortcutRow(key = "Tab", description = stringResource(Res.string.keyboard_shortcut_tab_next_tower))
                 ShortcutRow(key = "Shift+Tab", description = stringResource(Res.string.keyboard_shortcut_shift_tab_prev_tower))
                 ShortcutRow(key = "R", description = centerSelectedTowerShortcutDescription)
+                ShortcutRow(key = "G", description = stringResource(Res.string.keyboard_shortcut_center_next_spawn_point))
                 ShortcutRow(key = "$ctrl+A", description = stringResource(Res.string.keyboard_shortcut_auto_attack))
                 ShortcutRow(key = "C", description = stringResource(Res.string.keyboard_shortcut_cheat))
                 ShortcutRow(key = "E", description = stringResource(Res.string.keyboard_shortcut_enemy_list))
