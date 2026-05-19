@@ -31,13 +31,15 @@ fun App() {
     // Observe dark mode state
     val isDarkMode by AppSettings.isDarkMode
     val highContrastEnabled by AppSettings.highContrastEnabled
+    val colorBlindPalette by AppSettings.colorBlindPalette
     
     // Use custom color schemes with softer dark mode colors
-    val colorScheme = if (highContrastEnabled) {
+    val baseColorScheme = if (highContrastEnabled) {
         if (isDarkMode) AppTheme.highContrastDarkColorScheme else AppTheme.highContrastLightColorScheme
     } else {
         if (isDarkMode) AppTheme.darkColorScheme else AppTheme.lightColorScheme
     }
+    val colorScheme = AppTheme.applyColorBlindPalette(baseColorScheme, colorBlindPalette)
     
     MaterialTheme(colorScheme = colorScheme) {
         // Track repository data error

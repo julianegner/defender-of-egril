@@ -4,6 +4,7 @@ import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
+import de.egril.defender.ui.a11y.ColorBlindPalette
 
 /**
  * Custom color schemes for the app
@@ -143,4 +144,61 @@ object AppTheme {
         outline = Color(0xFFFFFFFF),
         outlineVariant = Color(0xFFFFFFFF)
     )
+
+    /**
+     * Applies the selected color-blind palette transformation to a base [ColorScheme].
+     *
+     * @param base the current light/dark/high-contrast base scheme.
+     * @param palette the accessibility palette selected in settings.
+     * @return the transformed scheme for the selected palette, or [base] when palette is OFF.
+     * Only primary/secondary/tertiary roles (and their container/on colors) are modified;
+     * all other roles are preserved from [base].
+     */
+    fun applyColorBlindPalette(base: ColorScheme, palette: ColorBlindPalette): ColorScheme {
+        return when (palette) {
+            ColorBlindPalette.OFF -> base
+            ColorBlindPalette.DEUTERANOPIA -> base.copy(
+                primary = Color(0xFF2D5BFF),
+                onPrimary = Color(0xFFFFFFFF),
+                primaryContainer = Color(0xFFDCE4FF),
+                onPrimaryContainer = Color(0xFF00174A),
+                secondary = Color(0xFF6A3D9A),
+                onSecondary = Color(0xFFFFFFFF),
+                secondaryContainer = Color(0xFFE9D7FF),
+                onSecondaryContainer = Color(0xFF240046),
+                tertiary = Color(0xFF8C510A),
+                onTertiary = Color(0xFFFFFFFF),
+                tertiaryContainer = Color(0xFFFFE5CC),
+                onTertiaryContainer = Color(0xFF3B1D00)
+            )
+            ColorBlindPalette.PROTANOPIA -> base.copy(
+                primary = Color(0xFF005A9C),
+                onPrimary = Color(0xFFFFFFFF),
+                primaryContainer = Color(0xFFD7EAFF),
+                onPrimaryContainer = Color(0xFF001D34),
+                secondary = Color(0xFF6D3A8A),
+                onSecondary = Color(0xFFFFFFFF),
+                secondaryContainer = Color(0xFFEFD9FF),
+                onSecondaryContainer = Color(0xFF2A0A42),
+                tertiary = Color(0xFF8A6B00),
+                onTertiary = Color(0xFFFFFFFF),
+                tertiaryContainer = Color(0xFFFFEFB2),
+                onTertiaryContainer = Color(0xFF2D2300)
+            )
+            ColorBlindPalette.TRITANOPIA -> base.copy(
+                primary = Color(0xFF8A2BE2),
+                onPrimary = Color(0xFFFFFFFF),
+                primaryContainer = Color(0xFFF1D8FF),
+                onPrimaryContainer = Color(0xFF33005C),
+                secondary = Color(0xFF0A6E6E),
+                onSecondary = Color(0xFFFFFFFF),
+                secondaryContainer = Color(0xFFD2F3F3),
+                onSecondaryContainer = Color(0xFF002A2A),
+                tertiary = Color(0xFF9C5A00),
+                onTertiary = Color(0xFFFFFFFF),
+                tertiaryContainer = Color(0xFFFFE1C2),
+                onTertiaryContainer = Color(0xFF341900)
+            )
+        }
+    }
 }
