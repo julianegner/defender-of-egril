@@ -170,7 +170,36 @@ class ApplicationTest {
             )
         }.apply {
             assertEquals(HttpStatusCode.BadRequest, status)
-            assertContains(bodyAsText(), "screenshotBase64")
+            assertContains(bodyAsText(), "screenshot")
+        }
+    }
+
+    @Test
+    fun testPostFeedbackBugReportAcceptsScreenshotAttachment() = testApplication {
+        application { module() }
+        client.post("/api/feedback") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                """
+                {
+                  "feedbackId":"23222222-2222-4222-8222-222222222222",
+                  "feedbackType":"BUG_REPORT",
+                  "bugTypes":["UI"],
+                  "message":"Tower tooltip overlaps controls",
+                  "platform":"WEB",
+                  "gameLog":"turn=7",
+                  "attachments":[
+                    {
+                      "filename":"screenshot.png",
+                      "mimeType":"image/png",
+                      "base64Content":"iVBORw0KGgo="
+                    }
+                  ]
+                }
+                """.trimIndent()
+            )
+        }.apply {
+            assertEquals(HttpStatusCode.ServiceUnavailable, status)
         }
     }
 

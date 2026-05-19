@@ -687,7 +687,13 @@ class BackendIntegrationTest {
                   "message":"Game map stutters when zooming with minimap visible",
                   "platform":"WEB",
                   "gameLog":"turn=42; selectedDefender=wizard",
-                  "screenshotBase64":"$screenshotBase64"
+                  "attachments":[
+                    {
+                      "filename":"screenshot.png",
+                      "mimeType":"image/png",
+                      "base64Content":"$screenshotBase64"
+                    }
+                  ]
                 }
                 """.trimIndent()
             )
