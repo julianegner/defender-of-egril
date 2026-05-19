@@ -11,11 +11,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import de.egril.defender.audio.GlobalSoundManager
+import de.egril.defender.audio.SoundEvent
 import de.egril.defender.model.*
 import de.egril.defender.ui.CheatCodeDialog
 import de.egril.defender.ui.getGameplayUIScale
@@ -260,6 +263,8 @@ private fun GamePlayScreenContent(
     var showUnsavedChangesDialog by remember { mutableStateOf(false) }  // Unsaved changes dialog
     var showEndTurnConfirmation by remember { mutableStateOf(false) }  // End turn confirmation dialog
     var showAbortInstantTowerDialog by remember { mutableStateOf(false) }  // Abort instant tower spell dialog
+    var soundCaptionText by remember { mutableStateOf<String?>(null) }
+    var soundCaptionSequence by remember { mutableStateOf(0L) }
 
     // Wrap end-turn callbacks to always clear the selected tower type when the turn ends
     val endPlayerTurnAction: () -> Unit = { selectedDefenderType = null; onEndPlayerTurn() }
@@ -304,6 +309,58 @@ private fun GamePlayScreenContent(
             1f // Desktop unchanged
         }
         Density(density.density * uiScale, density.fontScale * textScale)
+    }
+
+    val audioCaptionEnemySpawn = stringResource(Res.string.audio_enemy_spawn_name)
+    val audioCaptionEnemyDestroyed = stringResource(Res.string.audio_enemy_destroyed_name)
+    val audioCaptionTrapTrigger = stringResource(Res.string.audio_trap_trigger_name)
+    val audioCaptionLifeLost = stringResource(Res.string.audio_life_lost_name)
+    val audioCaptionTowerUpgraded = stringResource(Res.string.audio_tower_upgraded_name)
+    val audioCaptionBattleStart = stringResource(Res.string.audio_battle_start_name)
+    val audioCaptionBombTicking = stringResource(Res.string.audio_bomb_ticking_name)
+    val audioCaptionBombExploding = stringResource(Res.string.audio_bomb_exploding_name)
+
+    LaunchedEffect(AppSettings.captionsEnabled.value) {
+        if (!AppSettings.captionsEnabled.value) {
+            soundCaptionText = null
+        }
+    }
+
+    LaunchedEffect(
+        AppSettings.captionsEnabled.value,
+        audioCaptionEnemySpawn,
+        audioCaptionEnemyDestroyed,
+        audioCaptionTrapTrigger,
+        audioCaptionLifeLost,
+        audioCaptionTowerUpgraded,
+        audioCaptionBattleStart,
+        audioCaptionBombTicking,
+        audioCaptionBombExploding
+    ) {
+        if (!AppSettings.captionsEnabled.value) return@LaunchedEffect
+        GlobalSoundManager.soundEvents.collect { event ->
+            val caption = when (event) {
+                SoundEvent.ENEMY_SPAWN -> audioCaptionEnemySpawn
+                SoundEvent.ENEMY_DESTROYED -> audioCaptionEnemyDestroyed
+                SoundEvent.TRAP_TRIGGERED -> audioCaptionTrapTrigger
+                SoundEvent.LIFE_LOST -> audioCaptionLifeLost
+                SoundEvent.TOWER_UPGRADED -> audioCaptionTowerUpgraded
+                SoundEvent.BATTLE_START -> audioCaptionBattleStart
+                SoundEvent.BOMB_TICKING -> audioCaptionBombTicking
+                SoundEvent.BOMB_EXPLOSION -> audioCaptionBombExploding
+                else -> null
+            }
+            if (caption != null) {
+                soundCaptionText = caption
+                soundCaptionSequence++
+            }
+        }
+    }
+
+    LaunchedEffect(soundCaptionSequence) {
+        if (soundCaptionSequence <= 0L) return@LaunchedEffect
+        kotlinx.coroutines.delay(2000L)
+        soundCaptionText = null
     }
     
     // Watch for cheat dig outcomes
@@ -1031,6 +1088,26 @@ private fun GamePlayScreenContent(
                 isDemoMode = isDemoMode,
                 demoHoveredPosition = demoHoveredPosition
             )
+
+            if (AppSettings.captionsEnabled.value && soundCaptionText != null) {
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 8.dp)
+                        .testTag("gameplaySoundCaption"),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+                    tonalElevation = 3.dp,
+                    shadowElevation = 3.dp,
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Text(
+                        text = soundCaptionText ?: "",
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
 
             // Overlay panel with Legend and Enemy List (conditionally shown)
             // Auto-open during LEGEND_INFO (legend only) or ENEMY_LIST_INFO (enemy list only) tutorial steps
