@@ -101,6 +101,31 @@ class GameHeaderTextScaleTest {
         )
     }
 
+    @Test
+    fun captureEnemyListButtonCenteredIcon() {
+        val gameState = createTestGameState()
+        AppSettings.saveHeaderTextSize(HeaderTextSize.DEFAULT)
+
+        composeTestRule.setContent {
+            Column {
+                GameHeader(
+                    gameState = gameState,
+                    showOverlay = false,
+                    onShowOverlayChange = {},
+                    onBackToMap = {},
+                    onSaveGame = null,
+                    onCheatCode = null
+                )
+            }
+        }
+        composeTestRule.waitForIdle()
+
+        ScreenshotTestUtils.captureScreenshot(
+            composeTestRule = composeTestRule,
+            filename = "game-header-enemy-list-button-centered"
+        )
+    }
+
     private fun createTestGameState(): GameState {
         val level = LevelData.createLevels().first { it.id == 1 }
         return GameState(level).also {

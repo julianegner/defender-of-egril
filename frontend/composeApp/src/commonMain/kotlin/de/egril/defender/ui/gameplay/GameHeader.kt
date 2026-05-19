@@ -311,10 +311,15 @@ fun GameHeader(
                             contentColor = overlayButtonContentColor
                         )
                     ) {
-                        if (showOverlay) {
-                            TriangleRightIcon(size = buttonIconSize * 2)
-                        } else {
-                            TriangleLeftIcon(size = buttonIconSize * 2)
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (showOverlay) {
+                                TriangleRightIcon(size = buttonIconSize * 2)
+                            } else {
+                                TriangleLeftIcon(size = buttonIconSize * 2)
+                            }
                         }
                     }
                 }

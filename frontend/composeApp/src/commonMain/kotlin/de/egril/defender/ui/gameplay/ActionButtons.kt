@@ -1,11 +1,15 @@
 package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -17,8 +21,10 @@ import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.SwordIcon
 import de.egril.defender.ui.icon.SellTowerIcon
 import de.egril.defender.ui.icon.UpgradeTowerIcon
+import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
+import kotlinx.coroutines.delay
 
 @Composable
 fun AttackButton(
@@ -355,16 +361,69 @@ fun UndoOrSellButton(
                     Text(stringResource(Res.string.sell_tower_message, towerName, sellAmount.toString(), coinsLabel))
                 },
                 confirmButton = {
-                    Button(
-                        onClick = {
-                            onSellTower(defender.id)
-                            showSellConfirmation = false
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = GamePlayColors.Warning
-                        )
-                    ) {
-                        Text(stringResource(Res.string.sell))
+                    val holdToConfirmEnabled = AppSettings.holdToConfirmEnabled.value
+                    if (holdToConfirmEnabled) {
+                        val holdToSellLabel = stringResource(Res.string.sell_hold_to_confirm)
+                        val holdToConfirmLabel = stringResource(Res.string.accessibility_hold_to_confirm)
+                        val holdInteractionSource = remember { MutableInteractionSource() }
+                        val isPressed by holdInteractionSource.collectIsPressedAsState()
+                        var holdProgress by remember { mutableFloatStateOf(0f) }
+                        val holdDurationMs = GamePlayConstants.ButtonSizes.HoldToConfirmDurationMs
+                        val progressSteps = GamePlayConstants.ButtonSizes.HoldToConfirmProgressSteps
+
+                        LaunchedEffect(isPressed) {
+                            if (isPressed) {
+                                holdProgress = 0f
+                                repeat(progressSteps) { step ->
+                                    delay(holdDurationMs / progressSteps)
+                                    if (!isPressed) {
+                                        holdProgress = 0f
+                                        return@LaunchedEffect
+                                    }
+                                    holdProgress = (step + 1).toFloat() / progressSteps.toFloat()
+                                }
+                                holdProgress = 0f
+                                onSellTower(defender.id)
+                                showSellConfirmation = false
+                            } else {
+                                holdProgress = 0f
+                            }
+                        }
+
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            if (holdProgress > 0f) {
+                                LinearProgressIndicator(
+                                    progress = { holdProgress },
+                                    modifier = Modifier
+                                        .width(GamePlayConstants.ButtonSizes.HoldToConfirmProgressWidth)
+                                        .height(GamePlayConstants.ButtonSizes.HoldToConfirmProgressHeight),
+                                    color = GamePlayColors.Warning
+                                )
+                                Spacer(modifier = Modifier.height(GamePlayConstants.ButtonSizes.HoldToConfirmProgressSpacing))
+                            }
+                            Button(
+                                onClick = { },
+                                interactionSource = holdInteractionSource,
+                                modifier = Modifier.semantics { stateDescription = holdToConfirmLabel },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = GamePlayColors.Warning
+                                )
+                            ) {
+                                Text(holdToSellLabel)
+                            }
+                        }
+                    } else {
+                        Button(
+                            onClick = {
+                                onSellTower(defender.id)
+                                showSellConfirmation = false
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = GamePlayColors.Warning
+                            )
+                        ) {
+                            Text(stringResource(Res.string.sell))
+                        }
                     }
                 },
                 dismissButton = {

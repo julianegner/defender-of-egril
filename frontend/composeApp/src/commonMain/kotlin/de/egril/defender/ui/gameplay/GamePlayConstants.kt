@@ -97,6 +97,21 @@ object GamePlayConstants {
          * label text without wrapping (e.g. when many buttons share the same row).
          */
         val ActionCompactWidthThreshold = 110.dp
+
+        /** Width of the hold-to-confirm visual progress indicator. */
+        val HoldToConfirmProgressWidth = 120.dp
+
+        /** Height of the hold-to-confirm visual progress indicator. */
+        val HoldToConfirmProgressHeight = 2.dp
+
+        /** Vertical spacing between hold progress indicator and button. */
+        val HoldToConfirmProgressSpacing = 2.dp
+
+        /** Target hold duration for hold-to-confirm interactions. */
+        const val HoldToConfirmDurationMs = 600L
+
+        /** Number of steps used for visual hold progress updates. */
+        const val HoldToConfirmProgressSteps = 6
     }
     
     /**
