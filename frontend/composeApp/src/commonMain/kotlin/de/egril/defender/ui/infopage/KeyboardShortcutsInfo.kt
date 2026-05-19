@@ -8,11 +8,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.hyperether.resources.AppLocale
+import com.hyperether.resources.LocalizedStrings
+import com.hyperether.resources.currentLanguage
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.icon.DownArrowIcon
 import de.egril.defender.ui.icon.LeftArrowIcon
@@ -27,6 +31,17 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 @Composable
 fun KeyboardShortcutsInfo() {
     val ctrl = stringResource(Res.string.keyboard_modifier_ctrl)
+    val centerSelectedTowerShortcutDescription = remember(currentLanguage.value) {
+        val localizedValue = LocalizedStrings.get(
+            "keyboard_shortcut_center_selected_tower",
+            currentLanguage.value
+        )
+        if (localizedValue == "???") {
+            LocalizedStrings.get("keyboard_shortcut_center_selected_tower", AppLocale.DEFAULT)
+        } else {
+            localizedValue
+        }
+    }
     SelectionContainer {
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -56,7 +71,7 @@ fun KeyboardShortcutsInfo() {
                 ShortcutRow(key = "F", description = stringResource(Res.string.keyboard_shortcut_attack))
                 ShortcutRow(key = "Tab", description = stringResource(Res.string.keyboard_shortcut_tab_next_tower))
                 ShortcutRow(key = "Shift+Tab", description = stringResource(Res.string.keyboard_shortcut_shift_tab_prev_tower))
-                ShortcutRow(key = "R", description = stringResource(Res.string.keyboard_shortcut_center_selected_tower))
+                ShortcutRow(key = "R", description = centerSelectedTowerShortcutDescription)
                 ShortcutRow(key = "$ctrl+A", description = stringResource(Res.string.keyboard_shortcut_auto_attack))
                 ShortcutRow(key = "C", description = stringResource(Res.string.keyboard_shortcut_cheat))
                 ShortcutRow(key = "E", description = stringResource(Res.string.keyboard_shortcut_enemy_list))
