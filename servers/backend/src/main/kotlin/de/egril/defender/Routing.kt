@@ -189,17 +189,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
             }
 
             val bugTypes = request.bugTypes.mapNotNull(::parseBugType).distinct()
-            val normalizedScreenshotBase64 = request.screenshotBase64
-                ?.trim()
-                ?.ifBlank { null }
-                ?: request.attachments
-                    .firstOrNull { attachment ->
-                        attachment.mimeType.startsWith("image/", ignoreCase = true) &&
-                            attachment.base64Content.isNotBlank()
-                    }
-                    ?.base64Content
-                    ?.trim()
-                    ?.ifBlank { null }
+            val normalizedScreenshotBase64 = extractScreenshotBase64(request)
 
             if (feedbackType == FeedbackType.BUG_REPORT) {
                 if (bugTypes.isEmpty()) {
@@ -1011,6 +1001,19 @@ private fun parseFeedbackType(value: String): FeedbackType? =
 
 private fun parseBugType(value: String): BugType? =
     runCatching { BugType.valueOf(value.trim().uppercase()) }.getOrNull()
+
+private fun extractScreenshotBase64(request: FeedbackSubmissionRequest): String? =
+    request.screenshotBase64
+        ?.trim()
+        ?.ifBlank { null }
+        ?: request.attachments
+            .firstOrNull { attachment ->
+                attachment.mimeType.startsWith("image/", ignoreCase = true) &&
+                    attachment.base64Content.isNotBlank()
+            }
+            ?.base64Content
+            ?.trim()
+            ?.ifBlank { null }
 
 private fun decodeBase64OrNull(value: String): ByteArray? =
     runCatching { Base64.getDecoder().decode(value) }.getOrNull()
