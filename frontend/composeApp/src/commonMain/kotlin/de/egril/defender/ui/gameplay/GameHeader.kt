@@ -312,15 +312,23 @@ fun GameHeader(
                         )
                     ) {
                         if (showOverlay) {
-                            TriangleRightIcon(
-                                size = buttonIconSize * 2,
-                                modifier = Modifier.align(Alignment.CenterVertically)
-                            )
+                            Box(
+                                modifier = Modifier
+                                    .height(buttonIconSize * 2)
+                                    .width(buttonIconSize * 2),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                TriangleRightIcon(size = buttonIconSize * 2)
+                            }
                         } else {
-                            TriangleLeftIcon(
-                                size = buttonIconSize * 2,
-                                modifier = Modifier.align(Alignment.CenterVertically)
-                            )
+                            Box(
+                                modifier = Modifier
+                                    .height(buttonIconSize * 2)
+                                    .width(buttonIconSize * 2),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                TriangleLeftIcon(size = buttonIconSize * 2)
+                            }
                         }
                     }
                 }
