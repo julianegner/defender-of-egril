@@ -189,13 +189,15 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
             }
 
             val bugTypes = request.bugTypes.mapNotNull(::parseBugType).distinct()
+            val normalizedScreenshotBase64 = extractScreenshotBase64(request)
+
             if (feedbackType == FeedbackType.BUG_REPORT) {
                 if (bugTypes.isEmpty()) {
                     call.respond(HttpStatusCode.BadRequest, "bugTypes must not be empty for bug reports")
                     return@post
                 }
-                if (request.screenshotBase64.isNullOrBlank()) {
-                    call.respond(HttpStatusCode.BadRequest, "screenshotBase64 is required for bug reports")
+                if (normalizedScreenshotBase64 == null) {
+                    call.respond(HttpStatusCode.BadRequest, "screenshot is required for bug reports")
                     return@post
                 }
                 if (request.gameLog.isNullOrBlank()) {
@@ -204,11 +206,10 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                 }
             }
 
-            val normalizedScreenshotBase64 = request.screenshotBase64?.trim()?.ifBlank { null }
             val screenshotBytes = normalizedScreenshotBase64
                 ?.let { decodeBase64OrNull(it) }
             if (normalizedScreenshotBase64 != null && screenshotBytes == null) {
-                call.respond(HttpStatusCode.BadRequest, "screenshotBase64 is not valid Base64")
+                call.respond(HttpStatusCode.BadRequest, "screenshot is not valid Base64")
                 return@post
             }
 
@@ -1000,6 +1001,18 @@ private fun parseFeedbackType(value: String): FeedbackType? =
 
 private fun parseBugType(value: String): BugType? =
     runCatching { BugType.valueOf(value.trim().uppercase()) }.getOrNull()
+
+private fun extractScreenshotBase64(request: FeedbackSubmissionRequest): String? =
+    request.screenshotBase64
+        ?.trim()
+        ?.ifBlank { null }
+        ?: request.attachments
+            .firstOrNull { attachment ->
+                attachment.mimeType.startsWith("image/", ignoreCase = true)
+            }
+            ?.base64Content
+            ?.trim()
+            ?.ifBlank { null }
 
 private fun decodeBase64OrNull(value: String): ByteArray? =
     runCatching { Base64.getDecoder().decode(value) }.getOrNull()
