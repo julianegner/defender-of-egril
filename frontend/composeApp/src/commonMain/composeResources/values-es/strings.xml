@@ -1764,18 +1764,27 @@
     <!-- Settings tabs -->
     <string name="general">General</string>
     <string name="settings_tab_level">Level</string>
+    <string name="settings_tab_shortcuts">Shortcuts</string>
     <string name="accessibility">Accesibilidad</string>
     <string name="accessibility_high_contrast">Alto contraste</string>
+    <string name="accessibility_high_contrast_info">Aumenta el contraste entre colores de primer plano y fondo para mejorar la legibilidad.</string>
     <string name="accessibility_color_blind_palette">Paleta para daltonismo</string>
+    <string name="accessibility_color_blind_palette_info">Ajusta los colores del juego para tipos comunes de daltonismo.</string>
     <string name="accessibility_color_blind_off">Desactivado</string>
     <string name="accessibility_color_blind_deuteranopia">Deuteranopía</string>
     <string name="accessibility_color_blind_protanopia">Protanopía</string>
     <string name="accessibility_color_blind_tritanopia">Tritanopía</string>
     <string name="accessibility_captions">Subtítulos</string>
+    <string name="accessibility_captions_info">Muestra pistas de texto para eventos de sonido importantes.</string>
     <string name="accessibility_hold_to_confirm">Mantener pulsado para confirmar</string>
+    <string name="accessibility_hold_to_confirm_info">Requiere mantener pulsado en acciones destructivas para evitar clics o toques accidentales.</string>
+    <string name="accessibility_reduce_motion_setting_info">Desactiva efectos animados para reducir movimiento y fatiga visual.</string>
     <string name="accessibility_reduce_motion_on">Reducir movimiento está activo (las animaciones están desactivadas).</string>
     <string name="accessibility_reduce_motion_off">Reducir movimiento está inactivo (las animaciones están activadas).</string>
     <string name="accessibility_reduce_motion_note">Este control refleja el mismo ajuste de animaciones de la pestaña Nivel.</string>
+    <string name="shortcut_bindings_capture_title">Establecer atajo</string>
+    <string name="shortcut_bindings_capture_message">Pulsa ahora la nueva tecla o combinación (por ejemplo Ctrl+S). Pulsa Escape para cancelar.</string>
+    <string name="shortcut_bindings_reset_all">Restablecer todos los atajos</string>
     <!-- Scroll hint accessibility labels -->
     <string name="scroll_hint_more_tabs_left">Desplazar a la izquierda para ver más pestañas</string>
     <string name="scroll_hint_more_tabs_right">Desplazar a la derecha para ver más pestañas</string>

@@ -1763,18 +1763,27 @@
     <!-- Settings tabs -->
     <string name="general">Allgemein</string>
     <string name="settings_tab_level">Level</string>
+    <string name="settings_tab_shortcuts">Shortcuts</string>
     <string name="accessibility">Barrierefreiheit</string>
     <string name="accessibility_high_contrast">Hoher Kontrast</string>
+    <string name="accessibility_high_contrast_info">Erhöht den Kontrast zwischen Vorder- und Hintergrundfarben für bessere Lesbarkeit.</string>
     <string name="accessibility_color_blind_palette">Farbenblind-Palette</string>
+    <string name="accessibility_color_blind_palette_info">Passt Spielfarben für häufige Farbsehschwächen an.</string>
     <string name="accessibility_color_blind_off">Aus</string>
     <string name="accessibility_color_blind_deuteranopia">Deuteranopie</string>
     <string name="accessibility_color_blind_protanopia">Protanopie</string>
     <string name="accessibility_color_blind_tritanopia">Tritanopie</string>
     <string name="accessibility_captions">Untertitel</string>
+    <string name="accessibility_captions_info">Zeigt Texthinweise für wichtige Soundereignisse.</string>
     <string name="accessibility_hold_to_confirm">Gedrückt halten zum Bestätigen</string>
+    <string name="accessibility_hold_to_confirm_info">Erfordert das Gedrückthalten bei destruktiven Aktionen, um versehentliche Eingaben zu vermeiden.</string>
+    <string name="accessibility_reduce_motion_setting_info">Schaltet animierte Effekte aus, um Bewegung und visuelle Belastung zu reduzieren.</string>
     <string name="accessibility_reduce_motion_on">Weniger Bewegung ist aktiv (Animationen sind aus).</string>
     <string name="accessibility_reduce_motion_off">Weniger Bewegung ist inaktiv (Animationen sind an).</string>
     <string name="accessibility_reduce_motion_note">Diese Steuerung spiegelt dieselbe Animationseinstellung im Level-Tab wider.</string>
+    <string name="shortcut_bindings_capture_title">Tastenkürzel festlegen</string>
+    <string name="shortcut_bindings_capture_message">Drücke jetzt die neue Taste oder Tastenkombination (z. B. Ctrl+S). Mit Escape abbrechen.</string>
+    <string name="shortcut_bindings_reset_all">Alle Tastenkürzel zurücksetzen</string>
     <!-- Scroll hint accessibility labels -->
     <string name="scroll_hint_more_tabs_left">Nach links scrollen für mehr Tabs</string>
     <string name="scroll_hint_more_tabs_right">Nach rechts scrollen für mehr Tabs</string>

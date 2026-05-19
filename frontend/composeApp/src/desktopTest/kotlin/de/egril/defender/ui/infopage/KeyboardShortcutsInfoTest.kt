@@ -2,6 +2,7 @@ package de.egril.defender.ui.infopage
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.ExperimentalTestApi
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.currentLanguage
 import de.egril.defender.ui.ScreenshotTestUtils
@@ -20,7 +21,7 @@ class KeyboardShortcutsInfoTest {
         try {
             currentLanguage.value = AppLocale.DEFAULT
             composeTestRule.setContent {
-                KeyboardShortcutsInfo()
+                KeyboardShortcutsInfo(enableBindingEdit = true)
             }
 
             composeTestRule.waitForIdle()
@@ -48,7 +49,7 @@ class KeyboardShortcutsInfoTest {
             AppSettings.saveShortcutCenterNextSpawnPoint("Y")
 
             composeTestRule.setContent {
-                KeyboardShortcutsInfo()
+                KeyboardShortcutsInfo(enableBindingEdit = true, showResetButton = true)
             }
 
             composeTestRule.waitForIdle()
@@ -61,6 +62,37 @@ class KeyboardShortcutsInfoTest {
                 width = 1200,
                 height = 900
             )
+        } finally {
+            AppSettings.resetToDefaults()
+        }
+    }
+
+    @Test
+    @OptIn(ExperimentalTestApi::class)
+    fun keyboardShortcutsSupportsKeyboardOnlyRebindingAndReset() {
+        AppSettings.resetToDefaults()
+        try {
+            composeTestRule.setContent {
+                KeyboardShortcutsInfo(enableBindingEdit = true, showResetButton = true)
+            }
+
+            composeTestRule.waitForIdle()
+            composeTestRule.onNodeWithTag("shortcut-binding-center-selected")
+                .performClick()
+
+            composeTestRule.onRoot().performKeyInput {
+                keyDown(androidx.compose.ui.input.key.Key.CtrlLeft)
+                pressKey(androidx.compose.ui.input.key.Key.S)
+                keyUp(androidx.compose.ui.input.key.Key.CtrlLeft)
+            }
+
+            composeTestRule.waitForIdle()
+            composeTestRule.onNodeWithText("Ctrl+S").assertExists()
+
+            composeTestRule.onNodeWithText("Reset all shortcut bindings", substring = true, ignoreCase = true)
+                .performClick()
+            composeTestRule.waitForIdle()
+            composeTestRule.onNodeWithText("R").assertExists()
         } finally {
             AppSettings.resetToDefaults()
         }

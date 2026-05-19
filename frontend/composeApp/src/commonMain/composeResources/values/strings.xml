@@ -1770,18 +1770,27 @@
     <!-- Settings tabs -->
     <string name="general">General</string>
     <string name="settings_tab_level">Level</string>
+    <string name="settings_tab_shortcuts">Shortcuts</string>
     <string name="accessibility">Accessibility</string>
     <string name="accessibility_high_contrast">High Contrast</string>
+    <string name="accessibility_high_contrast_info">Increases contrast between foreground and background colors to improve readability.</string>
     <string name="accessibility_color_blind_palette">Color Blind Palette</string>
+    <string name="accessibility_color_blind_palette_info">Adjusts gameplay colors for common color-vision types.</string>
     <string name="accessibility_color_blind_off">Off</string>
     <string name="accessibility_color_blind_deuteranopia">Deuteranopia</string>
     <string name="accessibility_color_blind_protanopia">Protanopia</string>
     <string name="accessibility_color_blind_tritanopia">Tritanopia</string>
     <string name="accessibility_captions">Captions</string>
+    <string name="accessibility_captions_info">Shows text hints for important sound events.</string>
     <string name="accessibility_hold_to_confirm">Hold to Confirm</string>
+    <string name="accessibility_hold_to_confirm_info">Requires holding confirmation controls for destructive actions to prevent accidental taps or clicks.</string>
+    <string name="accessibility_reduce_motion_setting_info">Turns off animated effects to reduce motion and visual strain.</string>
     <string name="accessibility_reduce_motion_on">Reduce motion is active (animations are off).</string>
     <string name="accessibility_reduce_motion_off">Reduce motion is inactive (animations are on).</string>
     <string name="accessibility_reduce_motion_note">This control mirrors the same Animations setting in the Level tab.</string>
+    <string name="shortcut_bindings_capture_title">Set Shortcut Binding</string>
+    <string name="shortcut_bindings_capture_message">Press the new key or key combination now (for example Ctrl+S). Press Escape to cancel.</string>
+    <string name="shortcut_bindings_reset_all">Reset all shortcut bindings</string>
     <!-- Scroll hint accessibility labels -->
     <string name="scroll_hint_more_tabs_left">Scroll left to see more tabs</string>
     <string name="scroll_hint_more_tabs_right">Scroll right to see more tabs</string>

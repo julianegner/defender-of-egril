@@ -28,44 +28,20 @@ import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.keyToShortcutToken
+import de.egril.defender.ui.settings.parseShortcutBinding
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
 private const val SOUND_CAPTION_DISPLAY_DURATION_MS = 2000L
-private val letterShortcutKeyMap: Map<Char, Key> = mapOf(
-    'A' to Key.A,
-    'B' to Key.B,
-    'C' to Key.C,
-    'D' to Key.D,
-    'E' to Key.E,
-    'F' to Key.F,
-    'G' to Key.G,
-    'H' to Key.H,
-    'I' to Key.I,
-    'J' to Key.J,
-    'K' to Key.K,
-    'L' to Key.L,
-    'M' to Key.M,
-    'N' to Key.N,
-    'O' to Key.O,
-    'P' to Key.P,
-    'Q' to Key.Q,
-    'R' to Key.R,
-    'S' to Key.S,
-    'T' to Key.T,
-    'U' to Key.U,
-    'V' to Key.V,
-    'W' to Key.W,
-    'X' to Key.X,
-    'Y' to Key.Y,
-    'Z' to Key.Z
-)
 
-private fun isShortcutKeyPressed(event: KeyEvent, shortcut: String): Boolean {
-    val configured = shortcut.trim().uppercase()
-    if (configured.length != 1) return false
-    val expectedKey = letterShortcutKeyMap[configured[0]] ?: return false
-    return event.key == expectedKey
+private fun isShortcutBindingPressed(event: KeyEvent, binding: String): Boolean {
+    val parsed = parseShortcutBinding(binding) ?: return false
+    return parsed.keyToken == keyToShortcutToken(event.key) &&
+            parsed.ctrl == event.isCtrlPressed &&
+            parsed.alt == event.isAltPressed &&
+            parsed.shift == event.isShiftPressed &&
+            parsed.meta == event.isMetaPressed
 }
 
 @Composable
@@ -762,8 +738,7 @@ private fun GamePlayScreenContent(
                 }
                 // Remappable: Center map on selected tower
                 event.type == KeyEventType.KeyDown &&
-                        isShortcutKeyPressed(event, AppSettings.shortcutCenterSelectedTower.value) &&
-                        !event.isCtrlPressed -> {
+                        isShortcutBindingPressed(event, AppSettings.shortcutCenterSelectedTower.value) -> {
                     val defender = selectedDefenderId?.let { defenderId ->
                         gameState.defenders.find { it.id == defenderId }
                     }
@@ -776,8 +751,7 @@ private fun GamePlayScreenContent(
                 }
                 // Remappable: Center map on next spawn point
                 event.type == KeyEventType.KeyDown &&
-                        isShortcutKeyPressed(event, AppSettings.shortcutCenterNextSpawnPoint.value) &&
-                        !event.isCtrlPressed -> {
+                        isShortcutBindingPressed(event, AppSettings.shortcutCenterNextSpawnPoint.value) -> {
                     val spawnPoints = gameState.level.startPositions
                     if (spawnPoints.isEmpty()) {
                         false

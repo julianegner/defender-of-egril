@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.RepositoryManager
+import de.egril.defender.ui.infopage.KeyboardShortcutsInfo
 import de.egril.defender.ui.a11y.ColorBlindPalette
 import de.egril.defender.ui.a11y.a11ySemantics
 import dev.vicart.compose.material.symbols.FilledSymbol
@@ -33,11 +34,21 @@ import kotlinx.coroutines.launch
 
 /**
  * Settings dialog that provides access to app settings like language selection and dark mode.
- * Settings are organized into tabs: General, Worldmap, Level, Sound.
+ * Settings are organized into tabs: General, Worldmap, Level, Sound, Accessibility, Shortcuts.
  */
+enum class SettingsTab {
+    GENERAL,
+    WORLD_MAP,
+    LEVEL,
+    SOUND,
+    ACCESSIBILITY,
+    SHORTCUTS
+}
+
 @Composable
 fun SettingsDialog(
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    initialTab: SettingsTab = SettingsTab.GENERAL
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -92,18 +103,24 @@ fun SettingsDialog(
                 }
 
                 // Tab row
-                var selectedTab by remember { mutableStateOf(0) }
-                val tabs = listOf(
-                    stringResource(Res.string.general),
-                    stringResource(Res.string.world_map),
-                    stringResource(Res.string.settings_tab_level),
-                    stringResource(Res.string.sound)
+                val tabEntriesWithLabels = listOf(
+                    SettingsTab.GENERAL to stringResource(Res.string.general),
+                    SettingsTab.WORLD_MAP to stringResource(Res.string.world_map),
+                    SettingsTab.LEVEL to stringResource(Res.string.settings_tab_level),
+                    SettingsTab.SOUND to stringResource(Res.string.sound),
+                    SettingsTab.ACCESSIBILITY to stringResource(Res.string.accessibility),
+                    SettingsTab.SHORTCUTS to stringResource(Res.string.settings_tab_shortcuts)
                 )
+                var selectedTab by remember(initialTab) {
+                    mutableStateOf(
+                        tabEntriesWithLabels.indexOfFirst { it.first == initialTab }.coerceAtLeast(0)
+                    )
+                }
 
                 ScrollableTabRowWithHints(
                     selectedTabIndex = selectedTab
                 ) {
-                    tabs.forEachIndexed { index, title ->
+                    tabEntriesWithLabels.forEachIndexed { index, (_, title) ->
                         Tab(
                             selected = selectedTab == index,
                             onClick = { selectedTab = index },
@@ -121,11 +138,13 @@ fun SettingsDialog(
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState())
                 ) {
-                    when (selectedTab) {
-                        0 -> GeneralTabContent(onDismissSettings = onDismiss)
-                        1 -> WorldmapTabContent()
-                        2 -> LevelTabContent()
-                        3 -> SoundTabContent()
+                    when (tabEntriesWithLabels[selectedTab].first) {
+                        SettingsTab.GENERAL -> GeneralTabContent(onDismissSettings = onDismiss)
+                        SettingsTab.WORLD_MAP -> WorldmapTabContent()
+                        SettingsTab.LEVEL -> LevelTabContent()
+                        SettingsTab.SOUND -> SoundTabContent()
+                        SettingsTab.ACCESSIBILITY -> AccessibilityTabContent()
+                        SettingsTab.SHORTCUTS -> ShortcutBindingsTabContent()
                     }
                 }
 
@@ -247,17 +266,13 @@ private fun GeneralTabContent(onDismissSettings: () -> Unit) {
 
         HorizontalDivider()
 
-        AccessibilitySection()
-
-        HorizontalDivider()
-
         // Restore game data section
         RestoreGameDataSection(onDismissSettings = onDismissSettings)
     }
 }
 
 @Composable
-private fun AccessibilitySection() {
+private fun AccessibilityTabContent() {
     val accessibilityPreferences = AppSettings.getAccessibilityPreferences()
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         SelectableText(
@@ -275,6 +290,7 @@ private fun AccessibilitySection() {
             },
             modifier = Modifier.fillMaxWidth()
         )
+        AccessibilityInfoText(stringResource(Res.string.accessibility_high_contrast_info))
 
         GenericSwitch(
             state = AppSettings.captionsEnabled,
@@ -285,6 +301,7 @@ private fun AccessibilitySection() {
             },
             modifier = Modifier.fillMaxWidth()
         )
+        AccessibilityInfoText(stringResource(Res.string.accessibility_captions_info))
 
         GenericSwitch(
             state = AppSettings.holdToConfirmEnabled,
@@ -295,6 +312,7 @@ private fun AccessibilitySection() {
             },
             modifier = Modifier.fillMaxWidth()
         )
+        AccessibilityInfoText(stringResource(Res.string.accessibility_hold_to_confirm_info))
 
         DualLabelSwitch(
             state = AppSettings.enableAnimations,
@@ -305,29 +323,13 @@ private fun AccessibilitySection() {
             },
             modifier = Modifier.fillMaxWidth()
         )
+        AccessibilityInfoText(stringResource(Res.string.accessibility_reduce_motion_setting_info))
 
         ColorBlindPaletteChooser(
             selected = AppSettings.colorBlindPalette.value,
             onSelected = { AppSettings.saveColorBlindPalette(it) }
         )
-
-        SelectableText(
-            text = stringResource(Res.string.keyboard_shortcuts_title),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-
-        ShortcutKeyChooser(
-            label = stringResource(Res.string.keyboard_shortcut_center_selected_tower),
-            selectedKey = AppSettings.shortcutCenterSelectedTower.value,
-            onSelected = { AppSettings.saveShortcutCenterSelectedTower(it) }
-        )
-
-        ShortcutKeyChooser(
-            label = stringResource(Res.string.keyboard_shortcut_center_next_spawn_point),
-            selectedKey = AppSettings.shortcutCenterNextSpawnPoint.value,
-            onSelected = { AppSettings.saveShortcutCenterNextSpawnPoint(it) }
-        )
+        AccessibilityInfoText(stringResource(Res.string.accessibility_color_blind_palette_info))
 
         SelectableText(
             text = if (accessibilityPreferences.reduceMotionEnabled) {
@@ -343,6 +345,28 @@ private fun AccessibilitySection() {
             text = stringResource(Res.string.accessibility_reduce_motion_note),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun AccessibilityInfoText(text: String) {
+    SelectableText(
+        text = text,
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+}
+
+@Composable
+private fun ShortcutBindingsTabContent() {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        KeyboardShortcutsInfo(
+            enableBindingEdit = true,
+            showResetButton = true
         )
     }
 }
@@ -388,46 +412,6 @@ private fun ColorBlindPaletteChooser(
                         text = { Text(label) },
                         onClick = {
                             onSelected(palette)
-                            expanded = false
-                        }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ShortcutKeyChooser(
-    label: String,
-    selectedKey: String,
-    onSelected: (String) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-    val options = remember { ('A'..'Z').map { it.toString() } }
-
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        SelectableText(
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Box {
-            OutlinedButton(
-                onClick = { expanded = true },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(selectedKey)
-            }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                options.forEach { option ->
-                    DropdownMenuItem(
-                        text = { Text(option) },
-                        onClick = {
-                            onSelected(option)
                             expanded = false
                         }
                     )

@@ -20,10 +20,22 @@ import defender_of_egril.composeapp.generated.resources.settings
  */
 @Composable
 fun SettingsButton(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    initiallyOpen: Boolean = false,
+    initialTab: SettingsTab = SettingsTab.GENERAL,
+    onInitialOpenHandled: (() -> Unit)? = null
 ) {
     var showSettings by remember { mutableStateOf(false) }
+    var autoOpenConsumed by remember { mutableStateOf(false) }
     val settingsLabel = stringResource(Res.string.settings)
+
+    LaunchedEffect(initiallyOpen, autoOpenConsumed) {
+        if (initiallyOpen && !autoOpenConsumed) {
+            showSettings = true
+            autoOpenConsumed = true
+            onInitialOpenHandled?.invoke()
+        }
+    }
 
     TooltipWrapper(text = settingsLabel) {
         IconButton(
@@ -40,7 +52,8 @@ fun SettingsButton(
     
     if (showSettings) {
         SettingsDialog(
-            onDismiss = { showSettings = false }
+            onDismiss = { showSettings = false },
+            initialTab = initialTab
         )
     }
 }

@@ -11,6 +11,7 @@ sealed class DeepLink {
     data class DataPrivacy(val language: AppLocale) : DeepLink()
     data class InfoPage(val tab: InfoTab) : DeepLink()
     object Tutorial : DeepLink()
+    object Settings : DeepLink()
     object None : DeepLink()
 }
 
@@ -87,6 +88,7 @@ fun parseLanguageFromCode(code: String?): AppLocale? {
  *   /data-privacy/{language}   → DataPrivacy deep link
  *   /info/{tab-slug}           → InfoPage deep link (e.g. /info/installation)
  *   /info                      → InfoPage deep link (defaults to INSTALLATION tab)
+ *   /settings                  → Open main menu with settings dialog
  *
  * @param path The URL path to parse (e.g., from window.location.pathname)
  * @return The parsed DeepLink, or DeepLink.None if not a recognized route
@@ -118,6 +120,11 @@ fun parseDeepLink(path: String): DeepLink {
     // Check if it's the tutorial deep link
     if (trimmedPath == "tutorial") {
         return DeepLink.Tutorial
+    }
+
+    // Check if it's the settings deep link
+    if (trimmedPath == "settings") {
+        return DeepLink.Settings
     }
 
     // Check if it's an info page route: /info or /info/{tab-slug}

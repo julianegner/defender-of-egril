@@ -12,6 +12,7 @@ import de.egril.defender.ui.gameplay.LevelLoadingScreen
 import de.egril.defender.ui.infopage.InfoPageScreen
 import de.egril.defender.ui.loadgame.LoadGameScreen
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.SettingsTab
 import de.egril.defender.ui.worldmap.WorldMapScreen
 import de.egril.defender.utils.WindowCloseHandler
 import kotlinx.coroutines.delay
@@ -103,6 +104,7 @@ fun App() {
         val isDataLoaded by viewModel.isDataLoaded.collectAsState()
         val loadingProgress by viewModel.loadingProgress.collectAsState()
         val pendingTutorialDeepLink by viewModel.pendingTutorialDeepLink.collectAsState()
+        val pendingSettingsDeepLink by viewModel.pendingSettingsDeepLink.collectAsState()
 
         val remoteCommunityLevelsMeta by viewModel.remoteCommunityLevelsMeta.collectAsState()
         val remoteCommunityMapsMeta by viewModel.remoteCommunityMapsMeta.collectAsState()
@@ -360,6 +362,9 @@ fun App() {
                     onIamLogin = { de.egril.defender.iam.IamService.login() },
                     onIamLogout = { de.egril.defender.iam.IamService.logout() },
                     onIamLoginCancel = { de.egril.defender.iam.IamService.logoutLocal() },
+                    openSettingsInitially = pendingSettingsDeepLink,
+                    settingsInitialTab = SettingsTab.GENERAL,
+                    onSettingsInitialOpenHandled = { viewModel.clearPendingSettingsDeepLink() },
                     isDataLoaded = isDataLoaded,
                     loadingProgress = loadingProgress
                 )

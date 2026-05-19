@@ -1766,18 +1766,27 @@
     <!-- Settings tabs -->
     <string name="general">Generale</string>
     <string name="settings_tab_level">Level</string>
+    <string name="settings_tab_shortcuts">Shortcuts</string>
     <string name="accessibility">Accessibilità</string>
     <string name="accessibility_high_contrast">Alto contrasto</string>
+    <string name="accessibility_high_contrast_info">Aumenta il contrasto tra colori in primo piano e sfondo per migliorare la leggibilità.</string>
     <string name="accessibility_color_blind_palette">Palette daltonismo</string>
+    <string name="accessibility_color_blind_palette_info">Regola i colori di gioco per i tipi più comuni di daltonismo.</string>
     <string name="accessibility_color_blind_off">Disattivato</string>
     <string name="accessibility_color_blind_deuteranopia">Deuteranopia</string>
     <string name="accessibility_color_blind_protanopia">Protanopia</string>
     <string name="accessibility_color_blind_tritanopia">Tritanopia</string>
     <string name="accessibility_captions">Sottotitoli</string>
+    <string name="accessibility_captions_info">Mostra suggerimenti testuali per eventi sonori importanti.</string>
     <string name="accessibility_hold_to_confirm">Tieni premuto per confermare</string>
+    <string name="accessibility_hold_to_confirm_info">Richiede di tenere premuto nelle azioni distruttive per evitare tocchi o clic accidentali.</string>
+    <string name="accessibility_reduce_motion_setting_info">Disattiva gli effetti animati per ridurre movimento e affaticamento visivo.</string>
     <string name="accessibility_reduce_motion_on">Riduzione movimento attiva (animazioni disattivate).</string>
     <string name="accessibility_reduce_motion_off">Riduzione movimento non attiva (animazioni attive).</string>
     <string name="accessibility_reduce_motion_note">Questo controllo rispecchia la stessa impostazione Animazioni nella scheda Livello.</string>
+    <string name="shortcut_bindings_capture_title">Imposta scorciatoia</string>
+    <string name="shortcut_bindings_capture_message">Premi ora il nuovo tasto o combinazione (ad esempio Ctrl+S). Premi Esc per annullare.</string>
+    <string name="shortcut_bindings_reset_all">Reimposta tutte le scorciatoie</string>
     <!-- Scroll hint accessibility labels -->
     <string name="scroll_hint_more_tabs_left">Scorri a sinistra per vedere altri tab</string>
     <string name="scroll_hint_more_tabs_right">Scorri a destra per vedere altri tab</string>

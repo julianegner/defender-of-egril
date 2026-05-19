@@ -295,7 +295,7 @@ object AppSettings {
      * Accessibility: keyboard shortcut key for centering map on selected tower.
      */
     val shortcutCenterSelectedTower: MutableState<String> = mutableStateOf(
-        normalizeShortcutKey(
+        normalizeShortcutBinding(
             settings[KEY_SHORTCUT_CENTER_SELECTED_TOWER, DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER],
             DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER
         )
@@ -305,7 +305,7 @@ object AppSettings {
      * Accessibility: keyboard shortcut key for centering map on next spawn point.
      */
     val shortcutCenterNextSpawnPoint: MutableState<String> = mutableStateOf(
-        normalizeShortcutKey(
+        normalizeShortcutBinding(
             settings[KEY_SHORTCUT_CENTER_NEXT_SPAWN_POINT, DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT],
             DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT
         )
@@ -642,17 +642,22 @@ object AppSettings {
     }
 
     fun saveShortcutCenterSelectedTower(shortcut: String) {
-        val normalized = normalizeShortcutKey(shortcut, DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER)
+        val normalized = normalizeShortcutBinding(shortcut, DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER)
         shortcutCenterSelectedTower.value = normalized
         settings[KEY_SHORTCUT_CENTER_SELECTED_TOWER] = normalized
         onPersist?.invoke()
     }
 
     fun saveShortcutCenterNextSpawnPoint(shortcut: String) {
-        val normalized = normalizeShortcutKey(shortcut, DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT)
+        val normalized = normalizeShortcutBinding(shortcut, DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT)
         shortcutCenterNextSpawnPoint.value = normalized
         settings[KEY_SHORTCUT_CENTER_NEXT_SPAWN_POINT] = normalized
         onPersist?.invoke()
+    }
+
+    fun resetShortcutBindings() {
+        saveShortcutCenterSelectedTower(DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER)
+        saveShortcutCenterNextSpawnPoint(DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT)
     }
 
     fun getAccessibilityPreferences(): AccessibilityPreferences {
@@ -811,24 +816,10 @@ object AppSettings {
         saveColorBlindPalette(ColorBlindPalette.OFF)
         saveCaptionsEnabled(false)
         saveHoldToConfirmEnabled(false)
-        saveShortcutCenterSelectedTower(DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER)
-        saveShortcutCenterNextSpawnPoint(DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT)
+        resetShortcutBindings()
         
         // Note: Don't reset settings hint shown state when resetting settings
         // as user has already seen it once
     }
 
-    /**
-     * Normalizes a shortcut key to a single uppercase latin letter (`A`-`Z`).
-     * Returns [defaultKey] when the provided [shortcut] is empty, longer than one character,
-     * or outside the supported letter range.
-     */
-    private fun normalizeShortcutKey(shortcut: String, defaultKey: String): String {
-        val normalized = shortcut.trim().uppercase()
-        return if (normalized.length == 1 && normalized[0] in 'A'..'Z') {
-            normalized
-        } else {
-            defaultKey
-        }
-    }
 }

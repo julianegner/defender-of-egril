@@ -38,10 +38,10 @@ class SettingsDialogTest {
         composeTestRule.onNodeWithText("Language", substring = true, ignoreCase = true)
             .assertExists()
 
-        // Verify accessibility shortcut remapping controls are displayed
-        composeTestRule.onNodeWithText("Center map on selected tower", substring = true, ignoreCase = true)
+        // Verify additional settings tabs are displayed
+        composeTestRule.onNodeWithText("Accessibility", substring = true, ignoreCase = true)
             .assertExists()
-        composeTestRule.onNodeWithText("Center map on next spawn point", substring = true, ignoreCase = true)
+        composeTestRule.onNodeWithText("Shortcuts", substring = true, ignoreCase = true)
             .assertExists()
         
         // Verify close button is displayed (icon button with content description)
@@ -111,6 +111,8 @@ class SettingsDialogTest {
         }
 
         composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("Shortcuts", substring = true, ignoreCase = true)
+            .performClick()
         composeTestRule.onNodeWithText("Center map on selected tower", substring = true, ignoreCase = true)
             .assertExists()
 
@@ -120,5 +122,34 @@ class SettingsDialogTest {
             width = 700,
             height = 700
         )
+    }
+
+    @Test
+    fun testSettingsDialogAccessibilityInfoTexts() {
+        composeTestRule.setContent {
+            SettingsDialog(onDismiss = {})
+        }
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("Accessibility", substring = true, ignoreCase = true)
+            .performClick()
+
+        composeTestRule.onNodeWithText("Increases contrast", substring = true, ignoreCase = true)
+            .assertExists()
+        composeTestRule.onNodeWithText("Shows text hints", substring = true, ignoreCase = true)
+            .assertExists()
+        composeTestRule.onNodeWithText("Requires holding", substring = true, ignoreCase = true)
+            .assertExists()
+
+        try {
+            ScreenshotTestUtils.captureScreenshot(
+                composeTestRule,
+                "settings-dialog-accessibility-tab",
+                width = 700,
+                height = 700
+            )
+        } catch (e: Throwable) {
+            println("Note: Could not capture screenshot for dialog (expected): ${e.message}")
+        }
     }
 }

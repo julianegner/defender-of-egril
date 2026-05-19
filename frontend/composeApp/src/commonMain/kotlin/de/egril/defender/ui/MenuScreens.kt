@@ -37,6 +37,7 @@ import dev.vicart.compose.material.symbols.MaterialSymbols
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.SettingsHintBox
+import de.egril.defender.ui.settings.SettingsTab
 import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.utils.isPlatformWasm
@@ -147,6 +148,9 @@ fun MainMenuScreen(
     onIamLogin: () -> Unit = {},
     onIamLogout: () -> Unit = {},
     onIamLoginCancel: () -> Unit = {},
+    openSettingsInitially: Boolean = false,
+    settingsInitialTab: SettingsTab = SettingsTab.GENERAL,
+    onSettingsInitialOpenHandled: () -> Unit = {},
     isDataLoaded: Boolean = true,
     loadingProgress: LoadingProgress? = null
 ) {
@@ -311,7 +315,11 @@ fun MainMenuScreen(
                                     }
                                 }
                                 FeedbackButton()
-                                SettingsButton()
+                                SettingsButton(
+                                    initiallyOpen = openSettingsInitially,
+                                    initialTab = settingsInitialTab,
+                                    onInitialOpenHandled = onSettingsInitialOpenHandled
+                                )
                             }
                         }
                     } else {
@@ -431,7 +439,11 @@ fun MainMenuScreen(
                                     }
                                 }
                                 FeedbackButton()
-                                SettingsButton()
+                                SettingsButton(
+                                    initiallyOpen = openSettingsInitially,
+                                    initialTab = settingsInitialTab,
+                                    onInitialOpenHandled = onSettingsInitialOpenHandled
+                                )
                             }
                         }
                         // Full-width banner (aspect ratio ~3:1, so height ≈ width/3; natural fit)
@@ -519,7 +531,11 @@ fun MainMenuScreen(
                         }
                     }
                     FeedbackButton()
-                    SettingsButton()
+                    SettingsButton(
+                        initiallyOpen = openSettingsInitially,
+                        initialTab = settingsInitialTab,
+                        onInitialOpenHandled = onSettingsInitialOpenHandled
+                    )
                 }
 
                 // Exit button in top-left corner

@@ -122,6 +122,10 @@ class GameViewModel {
     private val _pendingTutorialDeepLink = MutableStateFlow(false)
     val pendingTutorialDeepLink: StateFlow<Boolean> = _pendingTutorialDeepLink.asStateFlow()
 
+    // Settings deep link state – set when the user visits /settings on the web version
+    private val _pendingSettingsDeepLink = MutableStateFlow(false)
+    val pendingSettingsDeepLink: StateFlow<Boolean> = _pendingSettingsDeepLink.asStateFlow()
+
     // Player profile state
     private val _currentPlayer = MutableStateFlow<de.egril.defender.save.PlayerProfile?>(null)
     val currentPlayer: StateFlow<de.egril.defender.save.PlayerProfile?> = _currentPlayer.asStateFlow()
@@ -3866,10 +3870,18 @@ class GameViewModel {
                 _currentScreen.value = Screen.TutorialDeepLink
                 _pendingTutorialDeepLink.value = true
             }
+            DeepLink.Settings -> {
+                _currentScreen.value = Screen.MainMenu
+                _pendingSettingsDeepLink.value = true
+            }
             DeepLink.None -> {
                 // No deep link, proceed normally
             }
         }
+    }
+
+    fun clearPendingSettingsDeepLink() {
+        _pendingSettingsDeepLink.value = false
     }
 
     /**
