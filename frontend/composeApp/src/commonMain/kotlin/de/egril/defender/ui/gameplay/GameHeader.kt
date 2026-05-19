@@ -314,16 +314,16 @@ fun GameHeader(
                             contentColor = overlayButtonContentColor
                         )
                     ) {
+                        val overlayIconSize = buttonIconSize * 1.35f
                         Box(
                             modifier = Modifier
-                                .height(buttonIconSize * 2)
-                                .width(buttonIconSize * 2),
+                                .size(overlayIconSize),
                             contentAlignment = Alignment.Center
                         ) {
                             if (showOverlay) {
-                                TriangleRightIcon(size = buttonIconSize * 2)
+                                TriangleRightIcon(size = overlayIconSize)
                             } else {
-                                TriangleLeftIcon(size = buttonIconSize * 2)
+                                TriangleLeftIcon(size = overlayIconSize)
                             }
                         }
                     }

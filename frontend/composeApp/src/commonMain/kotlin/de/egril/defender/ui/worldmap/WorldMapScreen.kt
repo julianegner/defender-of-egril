@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontStyle
 import de.egril.defender.config.LogConfig
 import de.egril.defender.iam.IamState
 import de.egril.defender.ui.icon.UnlockIcon
+import de.egril.defender.ui.a11y.accessibilityVisualFilter
 
 // Button sizing constants for world map bottom bar
 private val BUTTON_WIDTH_MOBILE_IMAGE_MAP = 133.dp  // ~33% smaller than default for compact mobile layout
@@ -253,7 +254,12 @@ fun WorldMapScreen(
         }
         
         Surface(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .accessibilityVisualFilter(
+                    highContrastEnabled = AppSettings.highContrastEnabled.value,
+                    colorBlindPalette = AppSettings.colorBlindPalette.value
+                ),
             color = MaterialTheme.colorScheme.background
         ) {
         Box(

@@ -30,6 +30,7 @@ import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.keyToShortcutToken
 import de.egril.defender.ui.settings.parseShortcutBinding
+import de.egril.defender.ui.a11y.accessibilityVisualFilter
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -826,7 +827,12 @@ private fun GamePlayScreenContent(
             }
             
             Surface(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .accessibilityVisualFilter(
+                        highContrastEnabled = AppSettings.highContrastEnabled.value,
+                        colorBlindPalette = AppSettings.colorBlindPalette.value
+                    ),
                 color = MaterialTheme.colorScheme.background
             ) {
                 Column(
