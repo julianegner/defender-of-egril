@@ -27,7 +27,7 @@ class LevelLoadingScreenAnimationToggleTest {
     }
 
     @Test
-    fun levelLoadingScreenShowsStaticCenterWhenAnimationsDisabled() {
+    fun levelLoadingScreenShowsNoCenterSpinnerWhenAnimationsDisabled() {
         AppSettings.saveEnableAnimations(false)
 
         composeTestRule.setContent {
@@ -35,7 +35,6 @@ class LevelLoadingScreenAnimationToggleTest {
         }
 
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithTag("levelLoadingStaticCenter", useUnmergedTree = true).assertExists()
         composeTestRule.onNodeWithTag("levelLoadingSpinner", useUnmergedTree = true).assertDoesNotExist()
     }
 
@@ -49,6 +48,5 @@ class LevelLoadingScreenAnimationToggleTest {
 
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithTag("levelLoadingSpinner", useUnmergedTree = true).assertExists()
-        composeTestRule.onNodeWithTag("levelLoadingStaticCenter", useUnmergedTree = true).assertDoesNotExist()
     }
 }

@@ -8,7 +8,6 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -113,8 +112,6 @@ private fun LoadingCircleWithIcons(animationsEnabled: Boolean) {
         modifier = Modifier.size(totalSize),
         contentAlignment = Alignment.Center
     ) {
-        val loadingDescription = stringResource(Res.string.loading_level)
-
         // Rotating ring of icons
         Box(
             modifier = Modifier
@@ -143,6 +140,7 @@ private fun LoadingCircleWithIcons(animationsEnabled: Boolean) {
         }
 
         if (animationsEnabled) {
+            val loadingDescription = stringResource(Res.string.loading_level)
             CircularProgressIndicator(
                 modifier = Modifier
                     .size(56.dp)
@@ -151,22 +149,6 @@ private fun LoadingCircleWithIcons(animationsEnabled: Boolean) {
                 color = MaterialTheme.colorScheme.primary,
                 strokeWidth = 5.dp
             )
-        } else {
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primaryContainer)
-                    .semantics { contentDescription = loadingDescription }
-                    .testTag("levelLoadingStaticCenter"),
-                contentAlignment = Alignment.Center
-            ) {
-                // SPIKE_TOWER is used as a recognizable, neutral in-game icon for the static loading state.
-                TowerTypeIcon(
-                    defenderType = DefenderType.SPIKE_TOWER,
-                    modifier = Modifier.size(36.dp)
-                )
-            }
         }
     }
 }
