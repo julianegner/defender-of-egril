@@ -28,6 +28,8 @@ import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.config.LogConfig
 import de.egril.defender.ui.gameplay.defenderButtons.CompactDefenderButton
 import de.egril.defender.ui.gameplay.defenderButtons.DefenderButton
+import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.HeaderTextSize
 import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.ui.isMobileWebBrowser
 import org.jetbrains.compose.resources.painterResource
@@ -40,11 +42,20 @@ fun ColumnScope.TurnButton(
     primaryButtonColor: Color = GamePlayColors.WarningDeep,
     highlighted: Boolean = false
     ){
+    val buttonTextSize = when (AppSettings.headerTextSize.value) {
+        HeaderTextSize.SMALL -> GamePlayConstants.TextSizes.Body
+        HeaderTextSize.MEDIUM -> GamePlayConstants.TextSizes.Medium
+        HeaderTextSize.LARGE -> GamePlayConstants.TextSizes.Large
+    }
+    val turnButtonContentColor = GamePlayColors.readableContentColor(primaryButtonColor)
     Button(
         onClick = onPrimaryAction,
         // modifier = Modifier.fillMaxWidth(),
         colors = if (isPlayerTurn) {
-            ButtonDefaults.buttonColors(containerColor = primaryButtonColor)
+            ButtonDefaults.buttonColors(
+                containerColor = primaryButtonColor,
+                contentColor = turnButtonContentColor
+            )
         } else {
             ButtonDefaults.buttonColors()
         },
@@ -56,7 +67,7 @@ fun ColumnScope.TurnButton(
         Text(if (isPlayerTurn) stringResource(Res.string.end_turn_button) else stringResource(Res.string.start_battle),
             style = MaterialTheme.typography.labelMedium,
             fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-            fontSize = 14.sp,
+            fontSize = buttonTextSize,
             maxLines = 1,
             )
     }

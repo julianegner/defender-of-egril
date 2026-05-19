@@ -69,7 +69,7 @@ object AppTheme {
         onTertiaryContainer = Color(0xFFFFD8E4),
         
         error = Color(0xFFE57373),          // Softer red (was 0xFFF2B8B5)
-        onError = Color(0xFF601410),
+        onError = Color(0xFF4A0E0A),
         errorContainer = Color(0xFF8C1D18),
         onErrorContainer = Color(0xFFF9DEDC),
         

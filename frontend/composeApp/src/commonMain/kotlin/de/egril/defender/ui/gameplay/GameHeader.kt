@@ -105,7 +105,7 @@ fun GameHeader(
                         text = "*** DEMO MODE ***",
                         fontSize = titleFontSize,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Red
+                        color = MaterialTheme.colorScheme.error
                     )
                     Text(
                         text = "  ${gameState.level.getLocalizedTitle(locale)}  ",
@@ -116,7 +116,7 @@ fun GameHeader(
                         text = "*** DEMO MODE ***",
                         fontSize = titleFontSize,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Red
+                        color = MaterialTheme.colorScheme.error
                     )
                 }
             } else {
@@ -300,12 +300,15 @@ fun GameHeader(
                 }
 
                 TooltipWrapper(text = stringResource(Res.string.tooltip_enemy_list_and_legend)) {
+                    val overlayButtonBackgroundColor = if (showOverlay) GamePlayColors.Success else GamePlayColors.Info
+                    val overlayButtonContentColor = GamePlayColors.readableContentColor(overlayButtonBackgroundColor)
                     Button(
                         onClick = { onShowOverlayChange(!showOverlay) },
                         modifier = Modifier.height(buttonHeight),
                         contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (showOverlay) GamePlayColors.Success else GamePlayColors.Info
+                            containerColor = overlayButtonBackgroundColor,
+                            contentColor = overlayButtonContentColor
                         )
                     ) {
                         if (showOverlay) {
