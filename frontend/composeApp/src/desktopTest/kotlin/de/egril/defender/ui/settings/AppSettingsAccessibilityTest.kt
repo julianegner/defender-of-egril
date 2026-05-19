@@ -16,6 +16,8 @@ class AppSettingsAccessibilityTest {
             AppSettings.saveColorBlindPalette(ColorBlindPalette.PROTANOPIA)
             AppSettings.saveCaptionsEnabled(true)
             AppSettings.saveHoldToConfirmEnabled(true)
+            AppSettings.saveShortcutCenterSelectedTower("T")
+            AppSettings.saveShortcutCenterNextSpawnPoint("Y")
 
             val settingsMap = AppSettings.toSettingsMap()
 
@@ -23,6 +25,8 @@ class AppSettingsAccessibilityTest {
             assertEquals("PROTANOPIA", settingsMap["color_blind_palette"])
             assertEquals("true", settingsMap["captions_enabled"])
             assertEquals("true", settingsMap["hold_to_confirm"])
+            assertEquals("T", settingsMap["shortcut_center_selected_tower"])
+            assertEquals("Y", settingsMap["shortcut_center_next_spawn_point"])
         } finally {
             AppSettings.resetToDefaults()
         }
@@ -38,7 +42,9 @@ class AppSettingsAccessibilityTest {
                     "color_blind_palette" to "TRITANOPIA",
                     "captions_enabled" to "true",
                     "hold_to_confirm" to "true",
-                    "enable_animations" to "false"
+                    "enable_animations" to "false",
+                    "shortcut_center_selected_tower" to "U",
+                    "shortcut_center_next_spawn_point" to "I"
                 )
             )
 
@@ -48,6 +54,8 @@ class AppSettingsAccessibilityTest {
             assertTrue(preferences.captionsEnabled)
             assertTrue(preferences.holdToConfirmEnabled)
             assertTrue(preferences.reduceMotionEnabled)
+            assertEquals("U", AppSettings.shortcutCenterSelectedTower.value)
+            assertEquals("I", AppSettings.shortcutCenterNextSpawnPoint.value)
         } finally {
             AppSettings.resetToDefaults()
         }
@@ -59,6 +67,8 @@ class AppSettingsAccessibilityTest {
         AppSettings.saveColorBlindPalette(ColorBlindPalette.DEUTERANOPIA)
         AppSettings.saveCaptionsEnabled(true)
         AppSettings.saveHoldToConfirmEnabled(true)
+        AppSettings.saveShortcutCenterSelectedTower("Z")
+        AppSettings.saveShortcutCenterNextSpawnPoint("X")
         AppSettings.saveEnableAnimations(false)
 
         AppSettings.resetToDefaults()
@@ -69,5 +79,7 @@ class AppSettingsAccessibilityTest {
         assertFalse(preferences.captionsEnabled)
         assertFalse(preferences.holdToConfirmEnabled)
         assertFalse(preferences.reduceMotionEnabled)
+        assertEquals("R", AppSettings.shortcutCenterSelectedTower.value)
+        assertEquals("G", AppSettings.shortcutCenterNextSpawnPoint.value)
     }
 }

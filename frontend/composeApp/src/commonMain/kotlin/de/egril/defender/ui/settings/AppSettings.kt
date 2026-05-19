@@ -75,6 +75,10 @@ object AppSettings {
     private const val KEY_COLOR_BLIND_PALETTE = "color_blind_palette"
     private const val KEY_CAPTIONS_ENABLED = "captions_enabled"
     private const val KEY_HOLD_TO_CONFIRM = "hold_to_confirm"
+    private const val KEY_SHORTCUT_CENTER_SELECTED_TOWER = "shortcut_center_selected_tower"
+    private const val KEY_SHORTCUT_CENTER_NEXT_SPAWN_POINT = "shortcut_center_next_spawn_point"
+    private const val DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER = "R"
+    private const val DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT = "G"
     
     private val settings: Settings = Settings()
 
@@ -285,6 +289,26 @@ object AppSettings {
      */
     val holdToConfirmEnabled: MutableState<Boolean> = mutableStateOf(
         settings.getBoolean(KEY_HOLD_TO_CONFIRM, false)
+    )
+
+    /**
+     * Accessibility: keyboard shortcut key for centering map on selected tower.
+     */
+    val shortcutCenterSelectedTower: MutableState<String> = mutableStateOf(
+        normalizeShortcutKey(
+            settings[KEY_SHORTCUT_CENTER_SELECTED_TOWER, DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER],
+            DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER
+        )
+    )
+
+    /**
+     * Accessibility: keyboard shortcut key for centering map on next spawn point.
+     */
+    val shortcutCenterNextSpawnPoint: MutableState<String> = mutableStateOf(
+        normalizeShortcutKey(
+            settings[KEY_SHORTCUT_CENTER_NEXT_SPAWN_POINT, DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT],
+            DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT
+        )
     )
 
     // Session-only debug states (not persisted)
@@ -617,6 +641,20 @@ object AppSettings {
         onPersist?.invoke()
     }
 
+    fun saveShortcutCenterSelectedTower(shortcut: String) {
+        val normalized = normalizeShortcutKey(shortcut, DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER)
+        shortcutCenterSelectedTower.value = normalized
+        settings[KEY_SHORTCUT_CENTER_SELECTED_TOWER] = normalized
+        onPersist?.invoke()
+    }
+
+    fun saveShortcutCenterNextSpawnPoint(shortcut: String) {
+        val normalized = normalizeShortcutKey(shortcut, DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT)
+        shortcutCenterNextSpawnPoint.value = normalized
+        settings[KEY_SHORTCUT_CENTER_NEXT_SPAWN_POINT] = normalized
+        onPersist?.invoke()
+    }
+
     fun getAccessibilityPreferences(): AccessibilityPreferences {
         return AccessibilityPreferences(
             highContrastEnabled = highContrastEnabled.value,
@@ -660,6 +698,8 @@ object AppSettings {
         put(KEY_COLOR_BLIND_PALETTE, colorBlindPalette.value.name)
         put(KEY_CAPTIONS_ENABLED, captionsEnabled.value.toString())
         put(KEY_HOLD_TO_CONFIRM, holdToConfirmEnabled.value.toString())
+        put(KEY_SHORTCUT_CENTER_SELECTED_TOWER, shortcutCenterSelectedTower.value)
+        put(KEY_SHORTCUT_CENTER_NEXT_SPAWN_POINT, shortcutCenterNextSpawnPoint.value)
     }
 
     /**
@@ -707,6 +747,8 @@ object AppSettings {
             }
             map[KEY_CAPTIONS_ENABLED]?.toBooleanStrictOrNull()?.let { saveCaptionsEnabled(it) }
             map[KEY_HOLD_TO_CONFIRM]?.toBooleanStrictOrNull()?.let { saveHoldToConfirmEnabled(it) }
+            map[KEY_SHORTCUT_CENTER_SELECTED_TOWER]?.let { saveShortcutCenterSelectedTower(it) }
+            map[KEY_SHORTCUT_CENTER_NEXT_SPAWN_POINT]?.let { saveShortcutCenterNextSpawnPoint(it) }
         } finally {
             onPersist = savedCallback
         }
@@ -769,8 +811,19 @@ object AppSettings {
         saveColorBlindPalette(ColorBlindPalette.OFF)
         saveCaptionsEnabled(false)
         saveHoldToConfirmEnabled(false)
+        saveShortcutCenterSelectedTower(DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER)
+        saveShortcutCenterNextSpawnPoint(DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT)
         
         // Note: Don't reset settings hint shown state when resetting settings
         // as user has already seen it once
+    }
+
+    private fun normalizeShortcutKey(shortcut: String, defaultKey: String): String {
+        val normalized = shortcut.trim().uppercase()
+        return if (normalized.length == 1 && normalized[0] in 'A'..'Z') {
+            normalized
+        } else {
+            defaultKey
+        }
     }
 }

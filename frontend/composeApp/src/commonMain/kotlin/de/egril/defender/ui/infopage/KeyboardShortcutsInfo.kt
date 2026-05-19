@@ -18,6 +18,7 @@ import com.hyperether.resources.AppLocale
 import com.hyperether.resources.LocalizedStrings
 import com.hyperether.resources.currentLanguage
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.icon.DownArrowIcon
 import de.egril.defender.ui.icon.LeftArrowIcon
 import de.egril.defender.ui.icon.RightArrowIcon
@@ -71,8 +72,14 @@ fun KeyboardShortcutsInfo() {
                 ShortcutRow(key = "F", description = stringResource(Res.string.keyboard_shortcut_attack))
                 ShortcutRow(key = "Tab", description = stringResource(Res.string.keyboard_shortcut_tab_next_tower))
                 ShortcutRow(key = "Shift+Tab", description = stringResource(Res.string.keyboard_shortcut_shift_tab_prev_tower))
-                ShortcutRow(key = "R", description = centerSelectedTowerShortcutDescription)
-                ShortcutRow(key = "G", description = stringResource(Res.string.keyboard_shortcut_center_next_spawn_point))
+                ShortcutRow(
+                    key = AppSettings.shortcutCenterSelectedTower.value,
+                    description = centerSelectedTowerShortcutDescription
+                )
+                ShortcutRow(
+                    key = AppSettings.shortcutCenterNextSpawnPoint.value,
+                    description = stringResource(Res.string.keyboard_shortcut_center_next_spawn_point)
+                )
                 ShortcutRow(key = "$ctrl+A", description = stringResource(Res.string.keyboard_shortcut_auto_attack))
                 ShortcutRow(key = "C", description = stringResource(Res.string.keyboard_shortcut_cheat))
                 ShortcutRow(key = "E", description = stringResource(Res.string.keyboard_shortcut_enemy_list))

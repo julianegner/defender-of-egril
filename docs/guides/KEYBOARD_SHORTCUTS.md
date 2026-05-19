@@ -25,6 +25,8 @@ This document lists all keyboard shortcuts and usable keys in Defender of Egril.
 | `A` or `←` | Pan Map Left | Scrolls the map to the left. |
 | `D` or `→` | Pan Map Right | Scrolls the map to the right. |
 
+`R` and `G` are remappable in **Settings → General → Accessibility → Keyboard Shortcuts**.
+
 ---
 
 ## World Map

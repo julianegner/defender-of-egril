@@ -33,6 +33,40 @@ import defender_of_egril.composeapp.generated.resources.*
 
 private const val SOUND_CAPTION_DISPLAY_DURATION_MS = 2000L
 
+private fun isShortcutKeyPressed(event: KeyEvent, shortcut: String): Boolean {
+    val configured = shortcut.trim().uppercase()
+    if (configured.length != 1) return false
+    return when (configured[0]) {
+        'A' -> event.key == Key.A
+        'B' -> event.key == Key.B
+        'C' -> event.key == Key.C
+        'D' -> event.key == Key.D
+        'E' -> event.key == Key.E
+        'F' -> event.key == Key.F
+        'G' -> event.key == Key.G
+        'H' -> event.key == Key.H
+        'I' -> event.key == Key.I
+        'J' -> event.key == Key.J
+        'K' -> event.key == Key.K
+        'L' -> event.key == Key.L
+        'M' -> event.key == Key.M
+        'N' -> event.key == Key.N
+        'O' -> event.key == Key.O
+        'P' -> event.key == Key.P
+        'Q' -> event.key == Key.Q
+        'R' -> event.key == Key.R
+        'S' -> event.key == Key.S
+        'T' -> event.key == Key.T
+        'U' -> event.key == Key.U
+        'V' -> event.key == Key.V
+        'W' -> event.key == Key.W
+        'X' -> event.key == Key.X
+        'Y' -> event.key == Key.Y
+        'Z' -> event.key == Key.Z
+        else -> false
+    }
+}
+
 @Composable
 fun GamePlayScreen(
     gameState: GameState,
@@ -725,9 +759,10 @@ private fun GamePlayScreenContent(
                     jumpToNextActionableTower(selectedDefenderId, event.isShiftPressed)
                     true
                 }
-                // R: Center map on selected tower
+                // Remappable: Center map on selected tower
                 event.type == KeyEventType.KeyDown &&
-                        event.key == Key.R && !event.isCtrlPressed -> {
+                        isShortcutKeyPressed(event, AppSettings.shortcutCenterSelectedTower.value) &&
+                        !event.isCtrlPressed -> {
                     val defender = selectedDefenderId?.let { defenderId ->
                         gameState.defenders.find { it.id == defenderId }
                     }
@@ -738,9 +773,10 @@ private fun GamePlayScreenContent(
                         false
                     }
                 }
-                // G: Center map on next spawn point
+                // Remappable: Center map on next spawn point
                 event.type == KeyEventType.KeyDown &&
-                        event.key == Key.G && !event.isCtrlPressed -> {
+                        isShortcutKeyPressed(event, AppSettings.shortcutCenterNextSpawnPoint.value) &&
+                        !event.isCtrlPressed -> {
                     val spawnPoints = gameState.level.startPositions
                     if (spawnPoints.isEmpty()) {
                         false

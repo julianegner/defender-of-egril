@@ -37,6 +37,12 @@ class SettingsDialogTest {
         // Verify language section is displayed
         composeTestRule.onNodeWithText("Language", substring = true, ignoreCase = true)
             .assertExists()
+
+        // Verify accessibility shortcut remapping controls are displayed
+        composeTestRule.onNodeWithText("Center map on selected tower", substring = true, ignoreCase = true)
+            .assertExists()
+        composeTestRule.onNodeWithText("Center map on next spawn point", substring = true, ignoreCase = true)
+            .assertExists()
         
         // Verify close button is displayed (icon button with content description)
         composeTestRule.onNodeWithContentDescription("Close", substring = true, ignoreCase = true)
@@ -96,5 +102,23 @@ class SettingsDialogTest {
         // We verify the dialog is displayed by checking for the language text
         composeTestRule.onNodeWithText("Language", substring = true, ignoreCase = true)
             .assertIsDisplayed()
+    }
+
+    @Test
+    fun testSettingsDialogShortcutRemapScreenshot() {
+        composeTestRule.setContent {
+            SettingsDialog(onDismiss = {})
+        }
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("Center map on selected tower", substring = true, ignoreCase = true)
+            .assertExists()
+
+        ScreenshotTestUtils.captureScreenshot(
+            composeTestRule,
+            "settings-dialog-shortcut-remap",
+            width = 700,
+            height = 700
+        )
     }
 }

@@ -312,6 +312,24 @@ private fun AccessibilitySection() {
         )
 
         SelectableText(
+            text = stringResource(Res.string.keyboard_shortcuts_title),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+
+        ShortcutKeyChooser(
+            label = stringResource(Res.string.keyboard_shortcut_center_selected_tower),
+            selectedKey = AppSettings.shortcutCenterSelectedTower.value,
+            onSelected = { AppSettings.saveShortcutCenterSelectedTower(it) }
+        )
+
+        ShortcutKeyChooser(
+            label = stringResource(Res.string.keyboard_shortcut_center_next_spawn_point),
+            selectedKey = AppSettings.shortcutCenterNextSpawnPoint.value,
+            onSelected = { AppSettings.saveShortcutCenterNextSpawnPoint(it) }
+        )
+
+        SelectableText(
             text = if (accessibilityPreferences.reduceMotionEnabled) {
                 stringResource(Res.string.accessibility_reduce_motion_on)
             } else {
@@ -370,6 +388,46 @@ private fun ColorBlindPaletteChooser(
                         text = { Text(label) },
                         onClick = {
                             onSelected(palette)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ShortcutKeyChooser(
+    label: String,
+    selectedKey: String,
+    onSelected: (String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val options = remember { ('A'..'Z').map { it.toString() } }
+
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        SelectableText(
+            text = label,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Box {
+            OutlinedButton(
+                onClick = { expanded = true },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(selectedKey)
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                options.forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(option) },
+                        onClick = {
+                            onSelected(option)
                             expanded = false
                         }
                     )

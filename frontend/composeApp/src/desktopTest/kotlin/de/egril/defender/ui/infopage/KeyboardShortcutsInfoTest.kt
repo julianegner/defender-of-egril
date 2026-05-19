@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.currentLanguage
 import de.egril.defender.ui.ScreenshotTestUtils
+import de.egril.defender.ui.settings.AppSettings
 import org.junit.Rule
 import org.junit.Test
 
@@ -15,22 +16,53 @@ class KeyboardShortcutsInfoTest {
 
     @Test
     fun keyboardShortcutsIncludesCenterSelectedTowerShortcut() {
-        currentLanguage.value = AppLocale.DEFAULT
-        composeTestRule.setContent {
-            KeyboardShortcutsInfo()
+        AppSettings.resetToDefaults()
+        try {
+            currentLanguage.value = AppLocale.DEFAULT
+            composeTestRule.setContent {
+                KeyboardShortcutsInfo()
+            }
+
+            composeTestRule.waitForIdle()
+            composeTestRule.onRoot().assertExists()
+            composeTestRule.onNodeWithText("Center map on selected tower").assertExists()
+            composeTestRule.onNodeWithText("Center map on next spawn point").assertExists()
+            composeTestRule.onNodeWithText("???").assertDoesNotExist()
+
+            ScreenshotTestUtils.captureScreenshot(
+                composeTestRule = composeTestRule,
+                filename = "keyboard-shortcuts-phase4-panzoom-assist",
+                width = 1200,
+                height = 900
+            )
+        } finally {
+            AppSettings.resetToDefaults()
         }
+    }
 
-        composeTestRule.waitForIdle()
-        composeTestRule.onRoot().assertExists()
-        composeTestRule.onNodeWithText("Center map on selected tower").assertExists()
-        composeTestRule.onNodeWithText("Center map on next spawn point").assertExists()
-        composeTestRule.onNodeWithText("???").assertDoesNotExist()
+    @Test
+    fun keyboardShortcutsUsesConfiguredRemapKeys() {
+        AppSettings.resetToDefaults()
+        try {
+            AppSettings.saveShortcutCenterSelectedTower("T")
+            AppSettings.saveShortcutCenterNextSpawnPoint("Y")
 
-        ScreenshotTestUtils.captureScreenshot(
-            composeTestRule = composeTestRule,
-            filename = "keyboard-shortcuts-phase4-panzoom-assist",
-            width = 1200,
-            height = 900
-        )
+            composeTestRule.setContent {
+                KeyboardShortcutsInfo()
+            }
+
+            composeTestRule.waitForIdle()
+            composeTestRule.onNodeWithText("T").assertExists()
+            composeTestRule.onNodeWithText("Y").assertExists()
+
+            ScreenshotTestUtils.captureScreenshot(
+                composeTestRule = composeTestRule,
+                filename = "keyboard-shortcuts-remapped-keys",
+                width = 1200,
+                height = 900
+            )
+        } finally {
+            AppSettings.resetToDefaults()
+        }
     }
 }

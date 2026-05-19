@@ -475,18 +475,18 @@
 
     <!-- Tutorial -->
     <string name="tutorial_welcome_title">Welcome to Defender of Egril!</string>
-    <string name="tutorial_welcome">This is a tower defense game. Your goal is to stop enemies from reaching the target by building defensive towers.</string>
+    <string name="tutorial_welcome">This is a tower defense game. Build towers and stop enemies before they reach the target.</string>
     <string name="tutorial_map_navigation_title">Map Navigation</string>
-    <string name="tutorial_map_navigation_mobile">You can move around the map using two-finger swipe gestures or by tapping the navigation cross (arrows) on the screen.\n\nYou can also navigate by dragging the box on the minimap that shows the visible section of the map.\n\nUse pinch gestures to zoom in and out for a better view.</string>
-    <string name="tutorial_map_navigation_desktop">You can move around the map using WASD keys, arrow keys, or by dragging with the mouse.\n\nYou can also navigate by dragging the box on the minimap that shows the visible section of the map.\n\nUse the mouse wheel to zoom in and out for a better view.</string>
+    <string name="tutorial_map_navigation_mobile">Move on the map with a two-finger swipe or the arrow pad.\n\nYou can also drag the minimap box.\n\nPinch to zoom in or out.</string>
+    <string name="tutorial_map_navigation_desktop">Move on the map with WASD, arrow keys, or mouse drag.\n\nYou can also drag the minimap box.\n\nUse the mouse wheel to zoom in or out.</string>
     <string name="tutorial_resources_title">Resources</string>
-    <string name="tutorial_resources">You have coins to build towers and health points.\nWhen you defeat enemies, you earn coins equal to their base reward multiplied by their level.\nWeak enemies cost 1 HP, but mighty enemies (wizards, witches, mages, demons, dragons) cost HP equal to their level.\nEwhad costs all your HP!</string>
+    <string name="tutorial_resources">You use coins to build towers and HP to survive.\nDefeated enemies give coins (base reward × level).\nWeak enemies cost 1 HP if they pass.\nStrong enemies can cost more HP.\nEwhad removes all HP.</string>
     <string name="tutorial_towers_title">Available Towers</string>
-    <string name="tutorial_towers">Spike Tower: Close range, cheap. Spear Tower: Medium range. Bow Tower: Long range. Choose wisely based on your strategy!</string>
+    <string name="tutorial_towers">Spike Tower: close range and cheap. Spear Tower: medium range. Bow Tower: long range. Pick towers for each part of the path.</string>
     <string name="tutorial_legend_title">The Legend</string>
-    <string name="tutorial_legend">The Legend on the right shows you what different colors and symbols mean on the game map. It explains build areas (green), enemy paths (brown), and special tiles.</string>
+    <string name="tutorial_legend">The legend explains map colors and symbols, including build areas, enemy paths, and special tiles.</string>
     <string name="tutorial_enemy_list_title">Enemy List</string>
-    <string name="tutorial_enemy_list">The Enemy List shows all enemies currently on the map and those that will spawn in future turns. Use this to plan your defenses! You can see each enemy's health, level, and when they will arrive.</string>
+    <string name="tutorial_enemy_list">The enemy list shows enemies on the map and enemies coming next turns. Use it to plan defenses. It shows HP, level, and arrival turn.</string>
     <string name="tutorial_build_title">Building Towers</string>
     <string name="tutorial_build">Select a tower type from below, then click on a green build area to place it. Build your defenses!</string>
     <string name="tutorial_initial_building_title">Initial Building Phase</string>
@@ -500,15 +500,15 @@
     <string name="tutorial_range_title">Check Range</string>
     <string name="tutorial_range">Select a tower to see which enemies are in range (highlighted). Towers can only attack enemies within their range!</string>
     <string name="tutorial_attacking_title">Attack Enemies</string>
-    <string name="tutorial_attacking">Click on an enemy in range to attack.\nEach tower has limited actions per turn shown by lightning symbols.\nIf your tower can't reach enemies or has no actions left, you can end your turn or place more towers.</string>
+    <string name="tutorial_attacking">Click an enemy in range to attack.\nEach tower has limited actions per turn (lightning symbols).\nIf a tower cannot attack, end the turn or place more towers.</string>
     <string name="tutorial_upgrade_title">Upgrade Towers</string>
-    <string name="tutorial_upgrade">Select a tower and click Upgrade to increase its stats. You'll see current damage, range, and actions per turn, plus what they'll be after upgrading. Upgrades cost coins but make towers more powerful!</string>
+    <string name="tutorial_upgrade">Select a tower and click Upgrade to increase stats.\nYou can compare current and next damage, range, and actions.\nUpgrades cost coins.</string>
     <string name="tutorial_sell_title">Sell Towers</string>
-    <string name="tutorial_sell">Select a tower and click Sell to get back 75%% of its total investment (cost + upgrades). Use this if you need coins or want to reposition your defense.</string>
+    <string name="tutorial_sell">Select a tower and click Sell to get back 75%% of total cost (tower + upgrades). Sell when you need coins or want a new position.</string>
     <string name="tutorial_save_game_title">Save Your Progress</string>
-    <string name="tutorial_save_game">You can save your game at any time using the Save Game button.\nThis lets you try different strategies or continue later.\nTo load a saved game, use the Load Game button on the world map screen.</string>
+    <string name="tutorial_save_game">Save anytime with the Save Game button.\nThis helps you try strategies and continue later.\nLoad saves from the world map screen.</string>
     <string name="tutorial_complete_title">Tutorial Complete!</string>
-    <string name="tutorial_complete">You've mastered the basics! In later levels, you'll unlock mightier towers like the Ballista, Wizard, and Alchemy towers to face stronger foes like demons and bosses. Now defend Egril against the hordes. Good luck, defender!</string>
+    <string name="tutorial_complete">You learned the basics.\nLater levels unlock stronger towers like Ballista, Wizard, and Alchemy.\nStronger enemies and bosses are coming.\nDefend Egril!</string>
     <string name="tutorial_next">Next</string>
     <string name="tutorial_got_it">Got it!</string>
     <string name="tutorial_skip">Skip Tutorial</string>
