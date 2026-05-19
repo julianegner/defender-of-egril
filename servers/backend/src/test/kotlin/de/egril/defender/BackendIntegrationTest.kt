@@ -675,7 +675,7 @@ class BackendIntegrationTest {
 
     @Test
     fun `POST feedback bug report accepts screenshot and game log`() = withRealDatabase {
-        val screenshotBase64 = "iVBORw0KGgo="
+        val screenshotBase64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+Xb1cAAAAASUVORK5CYII="
         client.post("/api/feedback") {
             contentType(ContentType.Application.Json)
             setBody(

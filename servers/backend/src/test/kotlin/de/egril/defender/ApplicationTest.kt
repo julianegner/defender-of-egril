@@ -9,6 +9,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertContains
 
 class ApplicationTest {
+    private val minimalPngBase64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+Xb1cAAAAASUVORK5CYII="
+
     @Test
     fun testRoot() = testApplication {
         application {
@@ -192,7 +194,7 @@ class ApplicationTest {
                     {
                       "filename":"screenshot.png",
                       "mimeType":"image/png",
-                      "base64Content":"iVBORw0KGgo="
+                      "base64Content":"$minimalPngBase64"
                     }
                   ]
                 }

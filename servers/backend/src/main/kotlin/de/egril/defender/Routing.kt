@@ -1008,8 +1008,7 @@ private fun extractScreenshotBase64(request: FeedbackSubmissionRequest): String?
         ?.ifBlank { null }
         ?: request.attachments
             .firstOrNull { attachment ->
-                attachment.mimeType.startsWith("image/", ignoreCase = true) &&
-                    attachment.base64Content.isNotBlank()
+                attachment.mimeType.startsWith("image/", ignoreCase = true)
             }
             ?.base64Content
             ?.trim()
