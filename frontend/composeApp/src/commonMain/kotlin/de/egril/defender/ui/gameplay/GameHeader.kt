@@ -282,10 +282,22 @@ fun GameHeader(
                             modifier = Modifier.height(buttonHeight),
                             contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp)
                         ) {
-                            SaveIcon(
-                                size = buttonIconSize,
-                                modifier = Modifier.align(Alignment.CenterVertically)
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                SaveIcon(
+                                    size = buttonIconSize,
+                                    modifier = Modifier.align(Alignment.CenterVertically)
+                                )
+                                if (AppSettings.showButtonShortcutHints.value) {
+                                    Text(
+                                        text = AppSettings.shortcutSaveGame.value.replace('_', ' '),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -316,16 +328,28 @@ fun GameHeader(
                             contentColor = overlayButtonContentColor
                         )
                     ) {
-                        val overlayIconSize = buttonIconSize * 1.35f
-                        Box(
-                            modifier = Modifier
-                                .size(overlayIconSize),
-                            contentAlignment = Alignment.Center
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
-                            if (showOverlay) {
-                                TriangleRightIcon(size = overlayIconSize)
-                            } else {
-                                TriangleLeftIcon(size = overlayIconSize)
+                            val overlayIconSize = buttonIconSize * 1.35f
+                            Box(
+                                modifier = Modifier
+                                    .size(overlayIconSize),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (showOverlay) {
+                                    TriangleRightIcon(size = overlayIconSize)
+                                } else {
+                                    TriangleLeftIcon(size = overlayIconSize)
+                                }
+                            }
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                Text(
+                                    text = AppSettings.shortcutToggleEnemyList.value.replace('_', ' '),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = overlayButtonContentColor.copy(alpha = 0.75f)
+                                )
                             }
                         }
                     }
@@ -333,7 +357,6 @@ fun GameHeader(
 
                 val tutorialsAndHelpLabel = stringResource(Res.string.tutorials_and_help)
                 TooltipWrapper(text = tutorialsAndHelpLabel) {
-                    val tutorialsHelpIconSize = buttonIconSize * 1.25f
                     IconButton(
                         onClick = { showTutorialsHelpDialog = true },
                         modifier = Modifier
@@ -341,7 +364,7 @@ fun GameHeader(
                             .semantics { contentDescription = tutorialsAndHelpLabel },
                     ) {
                         HelpIcon(
-                            size = tutorialsHelpIconSize,
+                            size = 32.dp,
                             modifier = Modifier.align(Alignment.CenterVertically)
                         )
                     }

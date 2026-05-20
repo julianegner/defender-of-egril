@@ -29,6 +29,8 @@ import de.egril.defender.ui.icon.StarIcon
 import de.egril.defender.ui.icon.InfoIcon
 import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.settings.SettingsButton
+import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.isShortcutBindingPressed
 import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.ui.gameplay.ScrollableInfoCard
 import de.egril.defender.ui.gameplay.SpellTargetIcon
@@ -61,7 +63,7 @@ fun AbilitiesUpgradeScreen(
                             onBack()
                             true
                         }
-                        event.key == Key.C && !event.isCtrlPressed && onCheatCode != null -> {
+                        isShortcutBindingPressed(event, AppSettings.shortcutCheat.value) && onCheatCode != null -> {
                             showCheatDialog = true
                             true
                         }

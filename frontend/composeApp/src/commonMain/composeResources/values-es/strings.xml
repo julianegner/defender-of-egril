@@ -1789,6 +1789,9 @@
     <string name="shortcut_bindings_capture_title">Establecer atajo</string>
     <string name="shortcut_bindings_capture_message">Pulsa ahora la nueva tecla o combinación (por ejemplo Ctrl+S). Pulsa Escape para cancelar.</string>
     <string name="shortcut_bindings_reset_all">Restablecer todos los atajos</string>
+    <string name="shortcut_bindings_show_on_buttons">Mostrar atajos en los botones</string>
+    <string name="shortcut_bindings_show_on_buttons_info">Muestra los atajos de teclado coincidentes en gris en los botones con la misma función.</string>
+    <string name="shortcut_binding_changed_marker">Cambiado</string>
     <!-- Scroll hint accessibility labels -->
     <string name="scroll_hint_more_tabs_left">Desplazar a la izquierda para ver más pestañas</string>
     <string name="scroll_hint_more_tabs_right">Desplazar a la derecha para ver más pestañas</string>

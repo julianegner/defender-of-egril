@@ -64,12 +64,27 @@ fun ColumnScope.TurnButton(
         else null,
         modifier = modifier
     ) {
-        Text(if (isPlayerTurn) stringResource(Res.string.end_turn_button) else stringResource(Res.string.start_battle),
-            style = MaterialTheme.typography.labelMedium,
-            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-            fontSize = buttonTextSize,
-            maxLines = 1,
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                if (isPlayerTurn) stringResource(Res.string.end_turn_button) else stringResource(Res.string.start_battle),
+                style = MaterialTheme.typography.labelMedium,
+                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                fontSize = buttonTextSize,
+                maxLines = 1,
+                modifier = Modifier.weight(1f),
             )
+            if (AppSettings.showButtonShortcutHints.value) {
+                Text(
+                    text = AppSettings.shortcutEndTurnStartBattle.value.replace('_', ' '),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
     }
 }
 

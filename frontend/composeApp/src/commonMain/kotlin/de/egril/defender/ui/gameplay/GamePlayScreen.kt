@@ -29,20 +29,10 @@ import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.settings.AppSettings
-import de.egril.defender.ui.settings.keyToShortcutToken
-import de.egril.defender.ui.settings.parseShortcutBinding
+import de.egril.defender.ui.settings.isShortcutBindingPressed
 import de.egril.defender.ui.a11y.accessibilityVisualFilter
 
 private const val SOUND_CAPTION_DISPLAY_DURATION_MS = 2000L
-
-private fun isShortcutBindingPressed(event: KeyEvent, binding: String): Boolean {
-    val parsed = parseShortcutBinding(binding) ?: return false
-    return parsed.keyToken == keyToShortcutToken(event.key) &&
-            parsed.ctrl == event.isCtrlPressed &&
-            parsed.alt == event.isAltPressed &&
-            parsed.shift == event.isShiftPressed &&
-            parsed.meta == event.isMetaPressed
-}
 
 @Composable
 fun GamePlayScreen(
@@ -693,21 +683,21 @@ private fun GamePlayScreenContent(
                 }
                 // Ctrl+S: Save game
                 event.type == KeyEventType.KeyDown &&
-                        event.key == Key.S && event.isCtrlPressed &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutSaveGame.value) &&
                         onSaveGame != null -> {
                     showSaveDialog = true
                     true
                 }
                 // Ctrl+A: Auto-attack all towers and end turn (player turn only)
                 event.type == KeyEventType.KeyDown &&
-                        event.key == Key.A && event.isCtrlPressed &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutAutoAttackEndTurn.value) &&
                         gameState.phase.value == GamePhase.PLAYER_TURN -> {
                     autoAttackAndEndTurnAction()
                     true
                 }
                 // F: Attack with selected tower's current target (player turn only)
                 event.type == KeyEventType.KeyDown &&
-                        event.key == Key.F && !event.isCtrlPressed &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutAttackSelectedTarget.value) &&
                         gameState.phase.value == GamePhase.PLAYER_TURN -> {
                     val defenderId = selectedDefenderId
                     val targetId = selectedTargetId
@@ -731,9 +721,15 @@ private fun GamePlayScreenContent(
                 }
                 // Tab / Shift+Tab: Select next/previous actionable tower (player turn only)
                 event.type == KeyEventType.KeyDown &&
-                        event.key == Key.Tab &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutSelectNextTower.value) &&
                         gameState.phase.value == GamePhase.PLAYER_TURN -> {
-                    jumpToNextActionableTower(selectedDefenderId, event.isShiftPressed)
+                    jumpToNextActionableTower(selectedDefenderId, false)
+                    true
+                }
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutSelectPreviousTower.value) &&
+                        gameState.phase.value == GamePhase.PLAYER_TURN -> {
+                    jumpToNextActionableTower(selectedDefenderId, true)
                     true
                 }
                 // Remappable: Center map on selected tower
@@ -764,19 +760,20 @@ private fun GamePlayScreenContent(
                 }
                 // C: Open cheat code dialog
                 event.type == KeyEventType.KeyDown &&
-                        event.key == Key.C && !event.isCtrlPressed &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutCheat.value) &&
                         onCheatCode != null -> {
                     showCheatDialog = true
                     true
                 }
                 // E: Toggle enemy list overlay
                 event.type == KeyEventType.KeyDown &&
-                        event.key == Key.E && !event.isCtrlPressed -> {
+                        isShortcutBindingPressed(event, AppSettings.shortcutToggleEnemyList.value) -> {
                     showOverlay = !showOverlay
                     true
                 }
                 // Enter: End turn or Start battle
-                event.type == KeyEventType.KeyDown && event.key == Key.Enter && !event.isCtrlPressed -> {
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutEndTurnStartBattle.value) -> {
                     when (gameState.phase.value) {
                         GamePhase.PLAYER_TURN -> {
                             if (highlightEndTurnButton) {

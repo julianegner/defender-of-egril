@@ -95,3 +95,12 @@ fun buildShortcutBindingFromEvent(event: KeyEvent): String? {
     }
     return parts.joinToString("+")
 }
+
+fun isShortcutBindingPressed(event: KeyEvent, binding: String): Boolean {
+    val parsed = parseShortcutBinding(binding) ?: return false
+    return parsed.keyToken == keyToShortcutToken(event.key) &&
+            parsed.ctrl == event.isCtrlPressed &&
+            parsed.alt == event.isAltPressed &&
+            parsed.shift == event.isShiftPressed &&
+            parsed.meta == event.isMetaPressed
+}

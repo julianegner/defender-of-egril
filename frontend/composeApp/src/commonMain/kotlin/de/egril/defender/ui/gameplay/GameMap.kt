@@ -590,6 +590,10 @@ fun GameGrid(
                 hexSize = hexSize.value,
                 enableKeyboardNavigation = !isDemoMode,  // Disable keyboard navigation in demo mode
                 enablePanNavigation = !isDemoMode,        // Disable pan navigation in demo mode
+                panUpBinding = AppSettings.shortcutPanUp.value,
+                panDownBinding = AppSettings.shortcutPanDown.value,
+                panLeftBinding = AppSettings.shortcutPanLeft.value,
+                panRightBinding = AppSettings.shortcutPanRight.value,
                 minScale = if (isDemoMode) 0.2f else 0.5f  // Allow lower zoom in demo mode
             ),
             scale = scale,

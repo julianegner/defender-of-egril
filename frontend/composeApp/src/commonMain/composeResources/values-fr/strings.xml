@@ -1790,6 +1790,9 @@
     <string name="shortcut_bindings_capture_title">Définir le raccourci</string>
     <string name="shortcut_bindings_capture_message">Appuie maintenant sur la nouvelle touche ou combinaison (par ex. Ctrl+S). Appuie sur Échap pour annuler.</string>
     <string name="shortcut_bindings_reset_all">Réinitialiser tous les raccourcis</string>
+    <string name="shortcut_bindings_show_on_buttons">Afficher les raccourcis sur les boutons</string>
+    <string name="shortcut_bindings_show_on_buttons_info">Affiche en gris les raccourcis clavier correspondants sur les boutons avec la même fonction.</string>
+    <string name="shortcut_binding_changed_marker">Modifié</string>
     <!-- Scroll hint accessibility labels -->
     <string name="scroll_hint_more_tabs_left">Défiler à gauche pour voir plus d\'onglets</string>
     <string name="scroll_hint_more_tabs_right">Défiler à droite pour voir plus d\'onglets</string>

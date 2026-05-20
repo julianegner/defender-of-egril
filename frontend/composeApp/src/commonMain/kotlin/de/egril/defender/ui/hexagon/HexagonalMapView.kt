@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import de.egril.defender.model.Position
 import de.egril.defender.ui.mouseWheelZoom
 import de.egril.defender.ui.isMobileWebBrowser
+import de.egril.defender.ui.settings.isShortcutBindingPressed
 import de.egril.defender.utils.isPlatformMobile
 import kotlin.math.sqrt
 
@@ -45,6 +46,10 @@ data class HexagonalMapConfig(
     val enableBrushMode: Boolean = false,  // Enable brush painting mode (for editor)
     val enableZoomMode: Boolean = true,
     val keyboardPanSpeed: Float = 30f,  // Pixels to pan per key press
+    val panUpBinding: String = "W",
+    val panDownBinding: String = "S",
+    val panLeftBinding: String = "A",
+    val panRightBinding: String = "D",
     val dragPanSensitivity: Float = 30f,  // UNUSED: Previously used for drag pan sensitivity multiplier (removed to fix juddering)
     val minScale: Float = 0.5f,
     val maxScale: Float = 3.0f,
@@ -139,51 +144,22 @@ fun HexagonalMapView(
             var handled = false
             var newOffsetX = offsetX
             var newOffsetY = offsetY
-            // Don't handle WASD when Ctrl is pressed (allows Ctrl+S for save, etc.)
-            val isCtrlPressed = event.isCtrlPressed
-
-            when (event.key) {
-                // Arrow keys
-                Key.DirectionUp -> {
+            when {
+                isShortcutBindingPressed(event, config.panUpBinding) -> {
                     newOffsetY += config.keyboardPanSpeed
                     handled = true
                 }
-                Key.DirectionDown -> {
+                isShortcutBindingPressed(event, config.panDownBinding) -> {
                     newOffsetY -= config.keyboardPanSpeed
                     handled = true
                 }
-                Key.DirectionLeft -> {
+                isShortcutBindingPressed(event, config.panLeftBinding) -> {
                     newOffsetX += config.keyboardPanSpeed
                     handled = true
                 }
-                Key.DirectionRight -> {
+                isShortcutBindingPressed(event, config.panRightBinding) -> {
                     newOffsetX -= config.keyboardPanSpeed
                     handled = true
-                }
-                // WASD keys - only handle when Ctrl is not pressed
-                Key.W -> {
-                    if (!isCtrlPressed) {
-                        newOffsetY += config.keyboardPanSpeed
-                        handled = true
-                    }
-                }
-                Key.S -> {
-                    if (!isCtrlPressed) {
-                        newOffsetY -= config.keyboardPanSpeed
-                        handled = true
-                    }
-                }
-                Key.A -> {
-                    if (!isCtrlPressed) {
-                        newOffsetX += config.keyboardPanSpeed
-                        handled = true
-                    }
-                }
-                Key.D -> {
-                    if (!isCtrlPressed) {
-                        newOffsetX -= config.keyboardPanSpeed
-                        handled = true
-                    }
                 }
             }
 

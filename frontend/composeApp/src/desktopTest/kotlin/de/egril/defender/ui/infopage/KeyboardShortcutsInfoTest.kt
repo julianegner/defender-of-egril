@@ -80,7 +80,7 @@ class KeyboardShortcutsInfoTest {
             composeTestRule.onNodeWithTag("shortcut-binding-center-selected")
                 .performClick()
 
-            composeTestRule.onRoot().performKeyInput {
+            composeTestRule.onAllNodes(isRoot()).onFirst().performKeyInput {
                 keyDown(androidx.compose.ui.input.key.Key.CtrlLeft)
                 pressKey(androidx.compose.ui.input.key.Key.S)
                 keyUp(androidx.compose.ui.input.key.Key.CtrlLeft)

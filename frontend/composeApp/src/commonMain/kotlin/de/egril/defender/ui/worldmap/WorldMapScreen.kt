@@ -22,6 +22,7 @@ import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.ui.settings.DifficultyDisplay
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.isShortcutBindingPressed
 import de.egril.defender.editor.RepositoryManager
 import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.utils.isPlatformWasm
@@ -238,7 +239,7 @@ fun WorldMapScreen(
                             onBackToMenu()
                             true
                         }
-                        event.key == Key.C && !event.isCtrlPressed && onCheatCode != null -> {
+                        isShortcutBindingPressed(event, AppSettings.shortcutCheat.value) && onCheatCode != null -> {
                             showCheatDialog = true
                             true
                         }

@@ -79,6 +79,14 @@ fun AttackButton(
                                     fontSize = 11.sp
                                 )
                             }
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = AppSettings.shortcutAttackSelectedTarget.value.replace('_', ' '),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     }
                 }
@@ -112,6 +120,14 @@ fun AttackButton(
                             Text(
                                 "at (${selectedTargetPosition.x}, ${selectedTargetPosition.y})",
                                 fontSize = 11.sp
+                            )
+                        }
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = AppSettings.shortcutAttackSelectedTarget.value.replace('_', ' '),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -152,6 +168,14 @@ fun AttackButton(
                                 fontSize = 11.sp
                             )
                         }
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = AppSettings.shortcutAttackSelectedTarget.value.replace('_', ' '),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
             }
@@ -190,6 +214,14 @@ fun AttackButton(
                                 Text(
                                     "Bridge (${bridge.currentHealth.value}/${bridge.maxHealth} ${stringResource(Res.string.hp_label)})",
                                     fontSize = 11.sp
+                                )
+                            }
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = AppSettings.shortcutAttackSelectedTarget.value.replace('_', ' '),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }

@@ -364,13 +364,28 @@ private fun AccessibilityInfoText(text: String) {
 @Composable
 private fun ShortcutBindingsTabContent() {
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        KeyboardShortcutsInfo(
-            enableBindingEdit = true,
-            showResetButton = true
+        GenericSwitch(
+            state = AppSettings.showButtonShortcutHints,
+            checkedText = stringResource(Res.string.shortcut_bindings_show_on_buttons),
+            uncheckedText = stringResource(Res.string.shortcut_bindings_show_on_buttons),
+            onCheckedChange = { AppSettings.saveShowButtonShortcutHints(it) },
+            modifier = Modifier.fillMaxWidth()
         )
+        SelectableText(
+            text = stringResource(Res.string.shortcut_bindings_show_on_buttons_info),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Box(modifier = Modifier.weight(1f)) {
+            KeyboardShortcutsInfo(
+                enableBindingEdit = true,
+                showResetButton = true
+            )
+        }
     }
 }
 

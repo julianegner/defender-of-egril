@@ -75,8 +75,33 @@ object AppSettings {
     private const val KEY_COLOR_BLIND_PALETTE = "color_blind_palette"
     private const val KEY_CAPTIONS_ENABLED = "captions_enabled"
     private const val KEY_HOLD_TO_CONFIRM = "hold_to_confirm"
+    private const val KEY_SHOW_BUTTON_SHORTCUT_HINTS = "show_button_shortcut_hints"
+    private const val KEY_SHORTCUT_ATTACK_SELECTED_TARGET = "shortcut_attack_selected_target"
+    private const val KEY_SHORTCUT_SELECT_NEXT_TOWER = "shortcut_select_next_tower"
+    private const val KEY_SHORTCUT_SELECT_PREVIOUS_TOWER = "shortcut_select_previous_tower"
+    private const val KEY_SHORTCUT_AUTO_ATTACK_END_TURN = "shortcut_auto_attack_end_turn"
+    private const val KEY_SHORTCUT_CHEAT = "shortcut_cheat"
+    private const val KEY_SHORTCUT_TOGGLE_ENEMY_LIST = "shortcut_toggle_enemy_list"
+    private const val KEY_SHORTCUT_END_TURN_START_BATTLE = "shortcut_end_turn_start_battle"
+    private const val KEY_SHORTCUT_SAVE_GAME = "shortcut_save_game"
+    private const val KEY_SHORTCUT_PAN_UP = "shortcut_pan_up"
+    private const val KEY_SHORTCUT_PAN_DOWN = "shortcut_pan_down"
+    private const val KEY_SHORTCUT_PAN_LEFT = "shortcut_pan_left"
+    private const val KEY_SHORTCUT_PAN_RIGHT = "shortcut_pan_right"
     private const val KEY_SHORTCUT_CENTER_SELECTED_TOWER = "shortcut_center_selected_tower"
     private const val KEY_SHORTCUT_CENTER_NEXT_SPAWN_POINT = "shortcut_center_next_spawn_point"
+    private const val DEFAULT_SHORTCUT_ATTACK_SELECTED_TARGET = "F"
+    private const val DEFAULT_SHORTCUT_SELECT_NEXT_TOWER = "Tab"
+    private const val DEFAULT_SHORTCUT_SELECT_PREVIOUS_TOWER = "Shift+Tab"
+    private const val DEFAULT_SHORTCUT_AUTO_ATTACK_END_TURN = "Ctrl+A"
+    private const val DEFAULT_SHORTCUT_CHEAT = "C"
+    private const val DEFAULT_SHORTCUT_TOGGLE_ENEMY_LIST = "E"
+    private const val DEFAULT_SHORTCUT_END_TURN_START_BATTLE = "Enter"
+    private const val DEFAULT_SHORTCUT_SAVE_GAME = "Ctrl+S"
+    private const val DEFAULT_SHORTCUT_PAN_UP = "W"
+    private const val DEFAULT_SHORTCUT_PAN_DOWN = "S"
+    private const val DEFAULT_SHORTCUT_PAN_LEFT = "A"
+    private const val DEFAULT_SHORTCUT_PAN_RIGHT = "D"
     private const val DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER = "R"
     private const val DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT = "G"
     
@@ -289,6 +314,100 @@ object AppSettings {
      */
     val holdToConfirmEnabled: MutableState<Boolean> = mutableStateOf(
         settings.getBoolean(KEY_HOLD_TO_CONFIRM, false)
+    )
+
+    /**
+     * Accessibility: show keyboard shortcut hints on matching buttons.
+     */
+    val showButtonShortcutHints: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_SHOW_BUTTON_SHORTCUT_HINTS, false)
+    )
+
+    /**
+     * Keyboard shortcuts (remappable).
+     */
+    val shortcutAttackSelectedTarget: MutableState<String> = mutableStateOf(
+        normalizeShortcutBinding(
+            settings[KEY_SHORTCUT_ATTACK_SELECTED_TARGET, DEFAULT_SHORTCUT_ATTACK_SELECTED_TARGET],
+            DEFAULT_SHORTCUT_ATTACK_SELECTED_TARGET
+        )
+    )
+
+    val shortcutSelectNextTower: MutableState<String> = mutableStateOf(
+        normalizeShortcutBinding(
+            settings[KEY_SHORTCUT_SELECT_NEXT_TOWER, DEFAULT_SHORTCUT_SELECT_NEXT_TOWER],
+            DEFAULT_SHORTCUT_SELECT_NEXT_TOWER
+        )
+    )
+
+    val shortcutSelectPreviousTower: MutableState<String> = mutableStateOf(
+        normalizeShortcutBinding(
+            settings[KEY_SHORTCUT_SELECT_PREVIOUS_TOWER, DEFAULT_SHORTCUT_SELECT_PREVIOUS_TOWER],
+            DEFAULT_SHORTCUT_SELECT_PREVIOUS_TOWER
+        )
+    )
+
+    val shortcutAutoAttackEndTurn: MutableState<String> = mutableStateOf(
+        normalizeShortcutBinding(
+            settings[KEY_SHORTCUT_AUTO_ATTACK_END_TURN, DEFAULT_SHORTCUT_AUTO_ATTACK_END_TURN],
+            DEFAULT_SHORTCUT_AUTO_ATTACK_END_TURN
+        )
+    )
+
+    val shortcutCheat: MutableState<String> = mutableStateOf(
+        normalizeShortcutBinding(
+            settings[KEY_SHORTCUT_CHEAT, DEFAULT_SHORTCUT_CHEAT],
+            DEFAULT_SHORTCUT_CHEAT
+        )
+    )
+
+    val shortcutToggleEnemyList: MutableState<String> = mutableStateOf(
+        normalizeShortcutBinding(
+            settings[KEY_SHORTCUT_TOGGLE_ENEMY_LIST, DEFAULT_SHORTCUT_TOGGLE_ENEMY_LIST],
+            DEFAULT_SHORTCUT_TOGGLE_ENEMY_LIST
+        )
+    )
+
+    val shortcutEndTurnStartBattle: MutableState<String> = mutableStateOf(
+        normalizeShortcutBinding(
+            settings[KEY_SHORTCUT_END_TURN_START_BATTLE, DEFAULT_SHORTCUT_END_TURN_START_BATTLE],
+            DEFAULT_SHORTCUT_END_TURN_START_BATTLE
+        )
+    )
+
+    val shortcutSaveGame: MutableState<String> = mutableStateOf(
+        normalizeShortcutBinding(
+            settings[KEY_SHORTCUT_SAVE_GAME, DEFAULT_SHORTCUT_SAVE_GAME],
+            DEFAULT_SHORTCUT_SAVE_GAME
+        )
+    )
+
+    val shortcutPanUp: MutableState<String> = mutableStateOf(
+        normalizeShortcutBinding(
+            settings[KEY_SHORTCUT_PAN_UP, DEFAULT_SHORTCUT_PAN_UP],
+            DEFAULT_SHORTCUT_PAN_UP
+        )
+    )
+
+    val shortcutPanDown: MutableState<String> = mutableStateOf(
+        normalizeShortcutBinding(
+            settings[KEY_SHORTCUT_PAN_DOWN, DEFAULT_SHORTCUT_PAN_DOWN],
+            DEFAULT_SHORTCUT_PAN_DOWN
+        )
+    )
+
+    val shortcutPanLeft: MutableState<String> = mutableStateOf(
+        normalizeShortcutBinding(
+            settings[KEY_SHORTCUT_PAN_LEFT, DEFAULT_SHORTCUT_PAN_LEFT],
+            DEFAULT_SHORTCUT_PAN_LEFT
+        )
+    )
+
+    val shortcutPanRight: MutableState<String> = mutableStateOf(
+        normalizeShortcutBinding(
+            settings[KEY_SHORTCUT_PAN_RIGHT, DEFAULT_SHORTCUT_PAN_RIGHT],
+            DEFAULT_SHORTCUT_PAN_RIGHT
+        )
     )
 
     /**
@@ -641,6 +760,96 @@ object AppSettings {
         onPersist?.invoke()
     }
 
+    fun saveShowButtonShortcutHints(enabled: Boolean) {
+        showButtonShortcutHints.value = enabled
+        settings.putBoolean(KEY_SHOW_BUTTON_SHORTCUT_HINTS, enabled)
+        onPersist?.invoke()
+    }
+
+    fun saveShortcutAttackSelectedTarget(shortcut: String) {
+        val normalized = normalizeShortcutBinding(shortcut, DEFAULT_SHORTCUT_ATTACK_SELECTED_TARGET)
+        shortcutAttackSelectedTarget.value = normalized
+        settings[KEY_SHORTCUT_ATTACK_SELECTED_TARGET] = normalized
+        onPersist?.invoke()
+    }
+
+    fun saveShortcutSelectNextTower(shortcut: String) {
+        val normalized = normalizeShortcutBinding(shortcut, DEFAULT_SHORTCUT_SELECT_NEXT_TOWER)
+        shortcutSelectNextTower.value = normalized
+        settings[KEY_SHORTCUT_SELECT_NEXT_TOWER] = normalized
+        onPersist?.invoke()
+    }
+
+    fun saveShortcutSelectPreviousTower(shortcut: String) {
+        val normalized = normalizeShortcutBinding(shortcut, DEFAULT_SHORTCUT_SELECT_PREVIOUS_TOWER)
+        shortcutSelectPreviousTower.value = normalized
+        settings[KEY_SHORTCUT_SELECT_PREVIOUS_TOWER] = normalized
+        onPersist?.invoke()
+    }
+
+    fun saveShortcutAutoAttackEndTurn(shortcut: String) {
+        val normalized = normalizeShortcutBinding(shortcut, DEFAULT_SHORTCUT_AUTO_ATTACK_END_TURN)
+        shortcutAutoAttackEndTurn.value = normalized
+        settings[KEY_SHORTCUT_AUTO_ATTACK_END_TURN] = normalized
+        onPersist?.invoke()
+    }
+
+    fun saveShortcutCheat(shortcut: String) {
+        val normalized = normalizeShortcutBinding(shortcut, DEFAULT_SHORTCUT_CHEAT)
+        shortcutCheat.value = normalized
+        settings[KEY_SHORTCUT_CHEAT] = normalized
+        onPersist?.invoke()
+    }
+
+    fun saveShortcutToggleEnemyList(shortcut: String) {
+        val normalized = normalizeShortcutBinding(shortcut, DEFAULT_SHORTCUT_TOGGLE_ENEMY_LIST)
+        shortcutToggleEnemyList.value = normalized
+        settings[KEY_SHORTCUT_TOGGLE_ENEMY_LIST] = normalized
+        onPersist?.invoke()
+    }
+
+    fun saveShortcutEndTurnStartBattle(shortcut: String) {
+        val normalized = normalizeShortcutBinding(shortcut, DEFAULT_SHORTCUT_END_TURN_START_BATTLE)
+        shortcutEndTurnStartBattle.value = normalized
+        settings[KEY_SHORTCUT_END_TURN_START_BATTLE] = normalized
+        onPersist?.invoke()
+    }
+
+    fun saveShortcutSaveGame(shortcut: String) {
+        val normalized = normalizeShortcutBinding(shortcut, DEFAULT_SHORTCUT_SAVE_GAME)
+        shortcutSaveGame.value = normalized
+        settings[KEY_SHORTCUT_SAVE_GAME] = normalized
+        onPersist?.invoke()
+    }
+
+    fun saveShortcutPanUp(shortcut: String) {
+        val normalized = normalizeShortcutBinding(shortcut, DEFAULT_SHORTCUT_PAN_UP)
+        shortcutPanUp.value = normalized
+        settings[KEY_SHORTCUT_PAN_UP] = normalized
+        onPersist?.invoke()
+    }
+
+    fun saveShortcutPanDown(shortcut: String) {
+        val normalized = normalizeShortcutBinding(shortcut, DEFAULT_SHORTCUT_PAN_DOWN)
+        shortcutPanDown.value = normalized
+        settings[KEY_SHORTCUT_PAN_DOWN] = normalized
+        onPersist?.invoke()
+    }
+
+    fun saveShortcutPanLeft(shortcut: String) {
+        val normalized = normalizeShortcutBinding(shortcut, DEFAULT_SHORTCUT_PAN_LEFT)
+        shortcutPanLeft.value = normalized
+        settings[KEY_SHORTCUT_PAN_LEFT] = normalized
+        onPersist?.invoke()
+    }
+
+    fun saveShortcutPanRight(shortcut: String) {
+        val normalized = normalizeShortcutBinding(shortcut, DEFAULT_SHORTCUT_PAN_RIGHT)
+        shortcutPanRight.value = normalized
+        settings[KEY_SHORTCUT_PAN_RIGHT] = normalized
+        onPersist?.invoke()
+    }
+
     fun saveShortcutCenterSelectedTower(shortcut: String) {
         val normalized = normalizeShortcutBinding(shortcut, DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER)
         shortcutCenterSelectedTower.value = normalized
@@ -656,9 +865,38 @@ object AppSettings {
     }
 
     fun resetShortcutBindings() {
+        saveShortcutAttackSelectedTarget(DEFAULT_SHORTCUT_ATTACK_SELECTED_TARGET)
+        saveShortcutSelectNextTower(DEFAULT_SHORTCUT_SELECT_NEXT_TOWER)
+        saveShortcutSelectPreviousTower(DEFAULT_SHORTCUT_SELECT_PREVIOUS_TOWER)
+        saveShortcutAutoAttackEndTurn(DEFAULT_SHORTCUT_AUTO_ATTACK_END_TURN)
+        saveShortcutCheat(DEFAULT_SHORTCUT_CHEAT)
+        saveShortcutToggleEnemyList(DEFAULT_SHORTCUT_TOGGLE_ENEMY_LIST)
+        saveShortcutEndTurnStartBattle(DEFAULT_SHORTCUT_END_TURN_START_BATTLE)
+        saveShortcutSaveGame(DEFAULT_SHORTCUT_SAVE_GAME)
+        saveShortcutPanUp(DEFAULT_SHORTCUT_PAN_UP)
+        saveShortcutPanDown(DEFAULT_SHORTCUT_PAN_DOWN)
+        saveShortcutPanLeft(DEFAULT_SHORTCUT_PAN_LEFT)
+        saveShortcutPanRight(DEFAULT_SHORTCUT_PAN_RIGHT)
         saveShortcutCenterSelectedTower(DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER)
         saveShortcutCenterNextSpawnPoint(DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT)
     }
+
+    fun getDefaultShortcutBindings(): Map<String, String> = mapOf(
+        KEY_SHORTCUT_ATTACK_SELECTED_TARGET to DEFAULT_SHORTCUT_ATTACK_SELECTED_TARGET,
+        KEY_SHORTCUT_SELECT_NEXT_TOWER to DEFAULT_SHORTCUT_SELECT_NEXT_TOWER,
+        KEY_SHORTCUT_SELECT_PREVIOUS_TOWER to DEFAULT_SHORTCUT_SELECT_PREVIOUS_TOWER,
+        KEY_SHORTCUT_AUTO_ATTACK_END_TURN to DEFAULT_SHORTCUT_AUTO_ATTACK_END_TURN,
+        KEY_SHORTCUT_CHEAT to DEFAULT_SHORTCUT_CHEAT,
+        KEY_SHORTCUT_TOGGLE_ENEMY_LIST to DEFAULT_SHORTCUT_TOGGLE_ENEMY_LIST,
+        KEY_SHORTCUT_END_TURN_START_BATTLE to DEFAULT_SHORTCUT_END_TURN_START_BATTLE,
+        KEY_SHORTCUT_SAVE_GAME to DEFAULT_SHORTCUT_SAVE_GAME,
+        KEY_SHORTCUT_PAN_UP to DEFAULT_SHORTCUT_PAN_UP,
+        KEY_SHORTCUT_PAN_DOWN to DEFAULT_SHORTCUT_PAN_DOWN,
+        KEY_SHORTCUT_PAN_LEFT to DEFAULT_SHORTCUT_PAN_LEFT,
+        KEY_SHORTCUT_PAN_RIGHT to DEFAULT_SHORTCUT_PAN_RIGHT,
+        KEY_SHORTCUT_CENTER_SELECTED_TOWER to DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER,
+        KEY_SHORTCUT_CENTER_NEXT_SPAWN_POINT to DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT
+    )
 
     fun getAccessibilityPreferences(): AccessibilityPreferences {
         return AccessibilityPreferences(
@@ -703,6 +941,19 @@ object AppSettings {
         put(KEY_COLOR_BLIND_PALETTE, colorBlindPalette.value.name)
         put(KEY_CAPTIONS_ENABLED, captionsEnabled.value.toString())
         put(KEY_HOLD_TO_CONFIRM, holdToConfirmEnabled.value.toString())
+        put(KEY_SHOW_BUTTON_SHORTCUT_HINTS, showButtonShortcutHints.value.toString())
+        put(KEY_SHORTCUT_ATTACK_SELECTED_TARGET, shortcutAttackSelectedTarget.value)
+        put(KEY_SHORTCUT_SELECT_NEXT_TOWER, shortcutSelectNextTower.value)
+        put(KEY_SHORTCUT_SELECT_PREVIOUS_TOWER, shortcutSelectPreviousTower.value)
+        put(KEY_SHORTCUT_AUTO_ATTACK_END_TURN, shortcutAutoAttackEndTurn.value)
+        put(KEY_SHORTCUT_CHEAT, shortcutCheat.value)
+        put(KEY_SHORTCUT_TOGGLE_ENEMY_LIST, shortcutToggleEnemyList.value)
+        put(KEY_SHORTCUT_END_TURN_START_BATTLE, shortcutEndTurnStartBattle.value)
+        put(KEY_SHORTCUT_SAVE_GAME, shortcutSaveGame.value)
+        put(KEY_SHORTCUT_PAN_UP, shortcutPanUp.value)
+        put(KEY_SHORTCUT_PAN_DOWN, shortcutPanDown.value)
+        put(KEY_SHORTCUT_PAN_LEFT, shortcutPanLeft.value)
+        put(KEY_SHORTCUT_PAN_RIGHT, shortcutPanRight.value)
         put(KEY_SHORTCUT_CENTER_SELECTED_TOWER, shortcutCenterSelectedTower.value)
         put(KEY_SHORTCUT_CENTER_NEXT_SPAWN_POINT, shortcutCenterNextSpawnPoint.value)
     }
@@ -752,6 +1003,19 @@ object AppSettings {
             }
             map[KEY_CAPTIONS_ENABLED]?.toBooleanStrictOrNull()?.let { saveCaptionsEnabled(it) }
             map[KEY_HOLD_TO_CONFIRM]?.toBooleanStrictOrNull()?.let { saveHoldToConfirmEnabled(it) }
+            map[KEY_SHOW_BUTTON_SHORTCUT_HINTS]?.toBooleanStrictOrNull()?.let { saveShowButtonShortcutHints(it) }
+            map[KEY_SHORTCUT_ATTACK_SELECTED_TARGET]?.let { saveShortcutAttackSelectedTarget(it) }
+            map[KEY_SHORTCUT_SELECT_NEXT_TOWER]?.let { saveShortcutSelectNextTower(it) }
+            map[KEY_SHORTCUT_SELECT_PREVIOUS_TOWER]?.let { saveShortcutSelectPreviousTower(it) }
+            map[KEY_SHORTCUT_AUTO_ATTACK_END_TURN]?.let { saveShortcutAutoAttackEndTurn(it) }
+            map[KEY_SHORTCUT_CHEAT]?.let { saveShortcutCheat(it) }
+            map[KEY_SHORTCUT_TOGGLE_ENEMY_LIST]?.let { saveShortcutToggleEnemyList(it) }
+            map[KEY_SHORTCUT_END_TURN_START_BATTLE]?.let { saveShortcutEndTurnStartBattle(it) }
+            map[KEY_SHORTCUT_SAVE_GAME]?.let { saveShortcutSaveGame(it) }
+            map[KEY_SHORTCUT_PAN_UP]?.let { saveShortcutPanUp(it) }
+            map[KEY_SHORTCUT_PAN_DOWN]?.let { saveShortcutPanDown(it) }
+            map[KEY_SHORTCUT_PAN_LEFT]?.let { saveShortcutPanLeft(it) }
+            map[KEY_SHORTCUT_PAN_RIGHT]?.let { saveShortcutPanRight(it) }
             map[KEY_SHORTCUT_CENTER_SELECTED_TOWER]?.let { saveShortcutCenterSelectedTower(it) }
             map[KEY_SHORTCUT_CENTER_NEXT_SPAWN_POINT]?.let { saveShortcutCenterNextSpawnPoint(it) }
         } finally {
@@ -816,6 +1080,7 @@ object AppSettings {
         saveColorBlindPalette(ColorBlindPalette.OFF)
         saveCaptionsEnabled(false)
         saveHoldToConfirmEnabled(false)
+        saveShowButtonShortcutHints(false)
         resetShortcutBindings()
         
         // Note: Don't reset settings hint shown state when resetting settings

@@ -1788,6 +1788,9 @@
     <string name="shortcut_bindings_capture_title">Tastenkürzel festlegen</string>
     <string name="shortcut_bindings_capture_message">Drücke jetzt die neue Taste oder Tastenkombination (z. B. Ctrl+S). Mit Escape abbrechen.</string>
     <string name="shortcut_bindings_reset_all">Alle Tastenkürzel zurücksetzen</string>
+    <string name="shortcut_bindings_show_on_buttons">Tastenkürzel auf Buttons anzeigen</string>
+    <string name="shortcut_bindings_show_on_buttons_info">Zeigt passende Tastenkürzel in Grau auf Buttons mit derselben Funktion an.</string>
+    <string name="shortcut_binding_changed_marker">Geändert</string>
     <!-- Scroll hint accessibility labels -->
     <string name="scroll_hint_more_tabs_left">Nach links scrollen für mehr Tabs</string>
     <string name="scroll_hint_more_tabs_right">Nach rechts scrollen für mehr Tabs</string>

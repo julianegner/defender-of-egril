@@ -1791,6 +1791,9 @@
     <string name="shortcut_bindings_capture_title">Imposta scorciatoia</string>
     <string name="shortcut_bindings_capture_message">Premi ora il nuovo tasto o combinazione (ad esempio Ctrl+S). Premi Esc per annullare.</string>
     <string name="shortcut_bindings_reset_all">Reimposta tutte le scorciatoie</string>
+    <string name="shortcut_bindings_show_on_buttons">Mostra le scorciatoie sui pulsanti</string>
+    <string name="shortcut_bindings_show_on_buttons_info">Mostra in grigio sui pulsanti con la stessa funzione le scorciatoie da tastiera corrispondenti.</string>
+    <string name="shortcut_binding_changed_marker">Modificato</string>
     <!-- Scroll hint accessibility labels -->
     <string name="scroll_hint_more_tabs_left">Scorri a sinistra per vedere altri tab</string>
     <string name="scroll_hint_more_tabs_right">Scorri a destra per vedere altri tab</string>
