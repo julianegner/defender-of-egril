@@ -45,6 +45,8 @@ enum class SettingsTab {
     SHORTCUTS
 }
 
+private val COLOR_BLIND_OPTION_LABEL_TOP_PADDING = 10.dp
+
 @Composable
 fun SettingsDialog(
     onDismiss: () -> Unit,
@@ -135,16 +137,16 @@ fun SettingsDialog(
 
                 // Tab content
                 Box(
-                    modifier = if (selectedTabType == SettingsTab.SHORTCUTS) {
-                        Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                    } else {
-                        Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
-                            .verticalScroll(rememberScrollState())
-                    }
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .then(
+                            if (selectedTabType == SettingsTab.SHORTCUTS) {
+                                Modifier
+                            } else {
+                                Modifier.verticalScroll(rememberScrollState())
+                            }
+                        )
                 ) {
                     when (selectedTabType) {
                         SettingsTab.GENERAL -> GeneralTabContent(onDismissSettings = onDismiss)
@@ -419,7 +421,7 @@ private fun ColorBlindPaletteChooser(
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(top = 10.dp)
+                        .padding(top = COLOR_BLIND_OPTION_LABEL_TOP_PADDING)
                 ) {
                     SelectableText(
                         text = label,
