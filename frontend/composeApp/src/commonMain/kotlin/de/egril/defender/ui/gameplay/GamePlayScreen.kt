@@ -1142,7 +1142,12 @@ private fun GamePlayScreenContent(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        SpeakerHighIcon(size = 18.dp)
+                        Box(
+                            modifier = Modifier.size(20.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            SpeakerHighIcon(size = 18.dp)
+                        }
                         Text(
                             text = captionText,
                             style = MaterialTheme.typography.titleMedium,

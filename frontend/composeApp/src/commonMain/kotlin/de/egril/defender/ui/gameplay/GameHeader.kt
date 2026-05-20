@@ -333,6 +333,7 @@ fun GameHeader(
 
                 val tutorialsAndHelpLabel = stringResource(Res.string.tutorials_and_help)
                 TooltipWrapper(text = tutorialsAndHelpLabel) {
+                    val tutorialsHelpIconSize = buttonIconSize * 1.25f
                     IconButton(
                         onClick = { showTutorialsHelpDialog = true },
                         modifier = Modifier
@@ -340,7 +341,7 @@ fun GameHeader(
                             .semantics { contentDescription = tutorialsAndHelpLabel },
                     ) {
                         HelpIcon(
-                            size = buttonIconSize,
+                            size = tutorialsHelpIconSize,
                             modifier = Modifier.align(Alignment.CenterVertically)
                         )
                     }

@@ -107,6 +107,7 @@ internal fun TutorialOverlay(
     Card(
         modifier = Modifier
             .width(layout.width)
+            .wrapContentHeight()
             .heightIn(min = layout.minHeight, max = layout.maxHeight)
             .padding(8.dp)
             .testTag("tutorialOverlayCard"),
@@ -118,7 +119,6 @@ internal fun TutorialOverlay(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxHeight()
                 .padding(16.dp)
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.Start,
