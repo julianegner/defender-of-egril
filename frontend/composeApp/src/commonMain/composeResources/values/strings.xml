@@ -265,6 +265,8 @@
     <string name="attack_button">ATTACK</string>
     <string name="attack_area_button">ATTACK AREA</string>
     <string name="undo">Undo</string>
+    <string name="undo_tower_title">Remove Tower?</string>
+    <string name="undo_tower_message">Do you really want to remove the %s? You will get a full refund of %s %s.</string>
     <string name="sell_tower_title">Sell Tower?</string>
     <string name="sell_tower_message">Do you really want to sell the %s for %s %s?</string>
     <string name="sell_hold_to_confirm">Sell (Hold to Confirm)</string>

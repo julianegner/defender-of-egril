@@ -27,7 +27,13 @@ fun keyToShortcutToken(key: Key): String = when (key) {
     Key.Escape -> "ESCAPE"
     Key.Backspace -> "BACKSPACE"
     Key.Delete -> "DELETE"
-    else -> key.toString().uppercase().replace(' ', '_')
+    else -> {
+        // Compose Key.toString() on desktop returns "Key: X" (with "Key: " prefix).
+        // Strip that prefix so the token is just the key name (e.g. "X", not "KEY:_X").
+        val raw = key.toString()
+        val name = if (raw.startsWith("Key: ", ignoreCase = true)) raw.substring(5) else raw
+        name.trim().uppercase().replace(' ', '_')
+    }
 }
 
 fun parseShortcutBinding(binding: String): ShortcutBinding? {
@@ -50,7 +56,15 @@ fun parseShortcutBinding(binding: String): ShortcutBinding? {
             "META", "CMD", "COMMAND", "WIN" -> meta = true
             // Replace spaces to keep the serialized token format stable
             // with key names like "Page Up" => "PAGE_UP".
-            else -> keyToken = token.uppercase().replace(' ', '_')
+            // Also normalize old-format tokens that start with "KEY:_" (produced by
+            // a previous version of keyToShortcutToken that didn't strip the "Key: " prefix).
+            else -> {
+                val raw = token.uppercase().replace(' ', '_')
+                // Strip legacy "KEY:_" prefix if present (e.g. "KEY:_X" → "X")
+                keyToken = if (raw.startsWith("KEY:_")) raw.removePrefix("KEY:_")
+                else if (raw == "KEY:") "KEY"
+                else raw
+            }
         }
     }
 
@@ -80,9 +94,13 @@ fun normalizeShortcutBinding(binding: String, defaultBinding: String): String {
 fun formatShortcutBindingForDisplay(binding: String): String = binding.replace('_', ' ')
 
 fun isShortcutBindingChanged(current: String, defaultBinding: String): Boolean {
-    val normalizedCurrent = current.replace(" ", "").uppercase()
-    val normalizedDefault = defaultBinding.replace(" ", "").uppercase()
-    return normalizedCurrent != normalizedDefault
+    val parsedCurrent = parseShortcutBinding(current) ?: return false
+    val parsedDefault = parseShortcutBinding(defaultBinding) ?: return false
+    return parsedCurrent.keyToken != parsedDefault.keyToken ||
+            parsedCurrent.ctrl != parsedDefault.ctrl ||
+            parsedCurrent.alt != parsedDefault.alt ||
+            parsedCurrent.shift != parsedDefault.shift ||
+            parsedCurrent.meta != parsedDefault.meta
 }
 
 fun buildShortcutBindingFromEvent(event: KeyEvent): String? {

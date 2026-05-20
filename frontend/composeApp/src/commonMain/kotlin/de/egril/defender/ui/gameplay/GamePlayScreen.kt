@@ -247,7 +247,9 @@ private fun GamePlayScreenContent(
     var tabScrollPosition by remember { mutableStateOf<Position?>(null) }  // Tab-triggered scroll-to-tower
     var nextSpawnPointIndex by remember { mutableStateOf(0) }
     var keyboardSpellFocusIndex by remember { mutableStateOf(0) }
-    var keyboardSellConfirmationDefenderId by remember { mutableStateOf<Int?>(null) }
+    // Non-null means the keyboard undo/sell shortcut was pressed and the confirmation dialog is open.
+    // The Boolean flag indicates whether this is an "undo" (true) or "sell" (false) operation.
+    var keyboardUndoOrSellConfirmation by remember { mutableStateOf<Pair<Int, Boolean>?>(null) }
 
     var currentDigOutcome by remember { mutableStateOf<DigOutcome?>(null) }
     var currentDragonName by remember { mutableStateOf<String?>(null) }  // Track dragon name for dig outcome
@@ -839,7 +841,7 @@ private fun GamePlayScreenContent(
                         true
                     } ?: false
                 }
-                // X (remappable): Undo (if eligible) or sell selected tower
+                // X (remappable): Undo (if eligible) or sell selected tower – always shows confirmation
                 event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutUndoOrSellSelectedTower.value) &&
                         selectedDefenderId != null -> {
@@ -848,9 +850,14 @@ private fun GamePlayScreenContent(
                         val canUndo = defender.placedOnTurn == gameState.turnNumber.value && !defender.hasBeenUsed.value
                         val canSell = defender.isReady && defender.actionsRemaining.value > 0
                         when {
-                            canUndo -> onUndoTower(defender.id)
+                            canUndo -> {
+                                // Show confirmation dialog: isUndo = true (full refund)
+                                keyboardUndoOrSellConfirmation = Pair(defender.id, true)
+                                true
+                            }
                             canSell -> {
-                                keyboardSellConfirmationDefenderId = defender.id
+                                // Show confirmation dialog: isUndo = false (75% refund)
+                                keyboardUndoOrSellConfirmation = Pair(defender.id, false)
                                 true
                             }
                             else -> false
@@ -1823,47 +1830,48 @@ private fun GamePlayScreenContent(
             )
         }
 
-        val keyboardSellDefenderId = keyboardSellConfirmationDefenderId
-        if (keyboardSellDefenderId != null) {
-            val defender = gameState.defenders.find { it.id == keyboardSellDefenderId }
+        val keyboardConfirmation = keyboardUndoOrSellConfirmation
+        if (keyboardConfirmation != null) {
+            val (confirmDefenderId, isUndo) = keyboardConfirmation
+            val defender = gameState.defenders.find { it.id == confirmDefenderId }
             if (defender != null) {
-                val sellAmount = (defender.totalCost * 0.75).toInt()
+                val locale = com.hyperether.resources.currentLanguage.value
+                val towerName = defender.type.getLocalizedName(locale)
                 val coinsLabel = stringResource(Res.string.coins_label)
-                val towerName = defender.type.getLocalizedName(com.hyperether.resources.currentLanguage.value)
+                val refundAmount = if (isUndo) defender.totalCost else (defender.totalCost * 0.75).toInt()
+                val titleStr = if (isUndo) stringResource(Res.string.undo_tower_title) else stringResource(Res.string.sell_tower_title)
+                val messageStr = if (isUndo) {
+                    stringResource(Res.string.undo_tower_message, towerName, refundAmount.toString(), coinsLabel)
+                } else {
+                    stringResource(Res.string.sell_tower_message, towerName, refundAmount.toString(), coinsLabel)
+                }
+                val confirmLabel = if (isUndo) stringResource(Res.string.undo) else stringResource(Res.string.sell)
+                val confirmColor = if (isUndo) GamePlayColors.Success else GamePlayColors.Warning
                 AlertDialog(
-                    onDismissRequest = { keyboardSellConfirmationDefenderId = null },
-                    title = { Text(stringResource(Res.string.sell_tower_title)) },
-                    text = {
-                        Text(
-                            stringResource(
-                                Res.string.sell_tower_message,
-                                towerName,
-                                sellAmount.toString(),
-                                coinsLabel
-                            )
-                        )
-                    },
+                    onDismissRequest = { keyboardUndoOrSellConfirmation = null },
+                    title = { Text(titleStr) },
+                    text = { Text(messageStr) },
                     confirmButton = {
                         Button(
                             onClick = {
-                                if (onSellTower(defender.id)) {
+                                if (isUndo) {
+                                    onUndoTower(defender.id)
+                                } else if (onSellTower(defender.id)) {
                                     selectedDefenderType = null
                                     selectedDefenderId = null
                                 }
-                                keyboardSellConfirmationDefenderId = null
+                                keyboardUndoOrSellConfirmation = null
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = GamePlayColors.Warning)
+                            colors = ButtonDefaults.buttonColors(containerColor = confirmColor)
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Text(stringResource(Res.string.sell))
+                                Text(confirmLabel)
                                 if (AppSettings.showButtonShortcutHints.value) {
-                                    Text(
-                                        text = formatShortcutBindingForDisplay(AppSettings.shortcutUndoOrSellSelectedTower.value),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    ShortcutKeyChip(
+                                        text = formatShortcutBindingForDisplay(AppSettings.shortcutUndoOrSellSelectedTower.value)
                                     )
                                 }
                             }
@@ -1871,14 +1879,14 @@ private fun GamePlayScreenContent(
                     },
                     dismissButton = {
                         OutlinedButton(
-                            onClick = { keyboardSellConfirmationDefenderId = null }
+                            onClick = { keyboardUndoOrSellConfirmation = null }
                         ) {
                             Text(stringResource(Res.string.cancel))
                         }
                     }
                 )
             } else {
-                keyboardSellConfirmationDefenderId = null
+                keyboardUndoOrSellConfirmation = null
             }
         }
 

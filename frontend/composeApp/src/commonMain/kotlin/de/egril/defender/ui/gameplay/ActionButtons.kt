@@ -82,11 +82,7 @@ fun AttackButton(
                             }
                             if (AppSettings.showButtonShortcutHints.value) {
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = formatShortcutBindingForDisplay(AppSettings.shortcutAttackSelectedTarget.value),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                                ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutAttackSelectedTarget.value))
                             }
                         }
                     }
@@ -125,11 +121,7 @@ fun AttackButton(
                         }
                         if (AppSettings.showButtonShortcutHints.value) {
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = formatShortcutBindingForDisplay(AppSettings.shortcutAttackSelectedTarget.value),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutAttackSelectedTarget.value))
                         }
                     }
                 }
@@ -171,11 +163,7 @@ fun AttackButton(
                         }
                         if (AppSettings.showButtonShortcutHints.value) {
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = formatShortcutBindingForDisplay(AppSettings.shortcutAttackSelectedTarget.value),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutAttackSelectedTarget.value))
                         }
                     }
                 }
@@ -219,11 +207,7 @@ fun AttackButton(
                             }
                             if (AppSettings.showButtonShortcutHints.value) {
                                 Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = formatShortcutBindingForDisplay(AppSettings.shortcutAttackSelectedTarget.value),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                                ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutAttackSelectedTarget.value))
                             }
                         }
                     }
@@ -254,11 +238,7 @@ private fun TowerActionButtonContent(
             Box(contentAlignment = Alignment.Center) { icon() }
             if (shortcutHint != null) {
                 Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = shortcutHint,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                ShortcutKeyChip(text = shortcutHint)
             }
         }
     } else {
@@ -294,11 +274,7 @@ private fun TowerActionButtonContent(
             }
             if (shortcutHint != null) {
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = shortcutHint,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                ShortcutKeyChip(text = shortcutHint)
             }
         }
     }

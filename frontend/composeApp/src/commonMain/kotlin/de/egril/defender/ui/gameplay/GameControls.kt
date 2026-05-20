@@ -89,9 +89,8 @@ fun ColumnScope.TurnButton(
                 modifier = Modifier.weight(1f),
             )
             if (AppSettings.showButtonShortcutHints.value) {
-                Text(
+                ShortcutKeyChip(
                     text = formatShortcutBindingForDisplay(AppSettings.shortcutEndTurnStartBattle.value),
-                    style = MaterialTheme.typography.labelSmall,
                     color = shortcutHintColor
                 )
             }
@@ -373,9 +372,8 @@ fun GameControlsPanel(
                 ) {
                     Text(primaryButtonText)
                     if (AppSettings.showButtonShortcutHints.value) {
-                        Text(
+                        ShortcutKeyChip(
                             text = formatShortcutBindingForDisplay(AppSettings.shortcutEndTurnStartBattle.value),
-                            style = MaterialTheme.typography.labelSmall,
                             color = shortcutHintColor
                         )
                     }

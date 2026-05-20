@@ -261,6 +261,8 @@
     <string name="attack_button">ATTACCO</string>
     <string name="attack_area_button">ATTACCO AD AREA</string>
     <string name="undo">Annulla</string>
+    <string name="undo_tower_title">Rimuovere la torre?</string>
+    <string name="undo_tower_message">Vuoi davvero rimuovere %s? Riceverai un rimborso completo di %s %s.</string>
     <string name="sell_tower_title">Vendere la torre?</string>
     <string name="sell_tower_message">Vuoi davvero vendere %s per %s %s?</string>
     <string name="sell_hold_to_confirm">Vendi (tieni premuto per confermare)</string>

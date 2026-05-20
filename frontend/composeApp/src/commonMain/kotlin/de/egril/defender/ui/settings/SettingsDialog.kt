@@ -371,7 +371,7 @@ private fun AccessibilityInfoText(text: String) {
 @Composable
 private fun ShortcutBindingsTabContent() {
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         GenericSwitch(

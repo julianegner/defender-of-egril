@@ -261,6 +261,8 @@
     <string name="attack_button">ANGRIFF</string>
     <string name="attack_area_button">FLÄCHEN-ANGRIFF</string>
     <string name="undo">Rückgängig</string>
+    <string name="undo_tower_title">Turm entfernen?</string>
+    <string name="undo_tower_message">Möchten Sie den %s wirklich entfernen? Sie erhalten eine vollständige Rückerstattung von %s %s.</string>
     <string name="sell_tower_title">Turm verkaufen?</string>
     <string name="sell_tower_message">Möchten Sie den %s wirklich für %s %s verkaufen?</string>
     <string name="sell_hold_to_confirm">Verkaufen (gedrückt halten zum Bestätigen)</string>

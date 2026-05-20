@@ -1,7 +1,9 @@
 package de.egril.defender.ui.gameplay
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -11,6 +13,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
 import de.egril.defender.ui.*
@@ -225,5 +228,33 @@ fun GameStatsDisplay(
             Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
             Text("$activeEnemyCount | $remainingEnemyCount", style = textStyle)
         }
+    }
+}
+
+/**
+ * Displays a shortcut key label styled to look like a physical keyboard key:
+ * square border (no corner rounding), small padding, monospace-style text.
+ *
+ * Used wherever button-shortcut hints are shown (action buttons, dialogs).
+ */
+@Composable
+fun ShortcutKeyChip(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+) {
+    Box(
+        modifier = modifier
+            .border(width = 1.dp, color = color, shape = RoundedCornerShape(0.dp))
+            .padding(horizontal = 4.dp, vertical = 1.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            color = color,
+            fontSize = 10.sp,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1,
+        )
     }
 }
