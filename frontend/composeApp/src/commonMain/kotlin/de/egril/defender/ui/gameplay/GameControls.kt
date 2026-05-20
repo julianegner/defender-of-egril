@@ -355,7 +355,20 @@ fun GameControlsPanel(
                     ButtonDefaults.buttonColors()
                 }
             ) {
-                Text(primaryButtonText)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(primaryButtonText)
+                    if (AppSettings.showButtonShortcutHints.value) {
+                        Text(
+                            text = formatShortcutBindingForDisplay(AppSettings.shortcutEndTurnStartBattle.value),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
             }
         }
         } // end inner Column

@@ -180,20 +180,21 @@ fun HexagonalMapView(
             var handled = false
             var newOffsetX = offsetX
             var newOffsetY = offsetY
+            val noModifiers = !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed && !event.isMetaPressed
             when {
-                matchesBinding(event, parsedPanBindings.up) -> {
+                matchesBinding(event, parsedPanBindings.up) || (noModifiers && event.key == Key.DirectionUp) -> {
                     newOffsetY += config.keyboardPanSpeed
                     handled = true
                 }
-                matchesBinding(event, parsedPanBindings.down) -> {
+                matchesBinding(event, parsedPanBindings.down) || (noModifiers && event.key == Key.DirectionDown) -> {
                     newOffsetY -= config.keyboardPanSpeed
                     handled = true
                 }
-                matchesBinding(event, parsedPanBindings.left) -> {
+                matchesBinding(event, parsedPanBindings.left) || (noModifiers && event.key == Key.DirectionLeft) -> {
                     newOffsetX += config.keyboardPanSpeed
                     handled = true
                 }
-                matchesBinding(event, parsedPanBindings.right) -> {
+                matchesBinding(event, parsedPanBindings.right) || (noModifiers && event.key == Key.DirectionRight) -> {
                     newOffsetX -= config.keyboardPanSpeed
                     handled = true
                 }

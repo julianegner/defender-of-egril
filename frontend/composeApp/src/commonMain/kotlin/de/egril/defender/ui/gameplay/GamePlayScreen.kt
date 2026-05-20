@@ -22,6 +22,7 @@ import de.egril.defender.audio.SoundEvent
 import de.egril.defender.model.*
 import de.egril.defender.ui.CheatCodeDialog
 import de.egril.defender.ui.getGameplayUIScale
+import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.ReminderMessage
 import de.egril.defender.ui.icon.SpeakerHighIcon
@@ -29,6 +30,7 @@ import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.formatShortcutBindingForDisplay
 import de.egril.defender.ui.settings.isShortcutBindingPressed
 import de.egril.defender.ui.a11y.accessibilityVisualFilter
 
@@ -245,6 +247,7 @@ private fun GamePlayScreenContent(
     var tabScrollPosition by remember { mutableStateOf<Position?>(null) }  // Tab-triggered scroll-to-tower
     var nextSpawnPointIndex by remember { mutableStateOf(0) }
     var keyboardSpellFocusIndex by remember { mutableStateOf(0) }
+    var keyboardSellConfirmationDefenderId by remember { mutableStateOf<Int?>(null) }
 
     var currentDigOutcome by remember { mutableStateOf<DigOutcome?>(null) }
     var currentDragonName by remember { mutableStateOf<String?>(null) }  // Track dragon name for dig outcome
@@ -559,6 +562,26 @@ private fun GamePlayScreenContent(
         }
     }
 
+    val cycleTowerBuySelection: (Boolean) -> Unit = cycleTowerBuySelection@{ reversed ->
+        val selectableTowers = gameState.level.availableTowers
+            .filter { it != DefenderType.DRAGONS_LAIR }
+        if (selectableTowers.isEmpty()) {
+            return@cycleTowerBuySelection
+        }
+        val currentIndex = selectedDefenderType?.let { current ->
+            selectableTowers.indexOf(current).takeIf { it != -1 }
+        } ?: -1
+        val nextIndex = if (reversed) {
+            if (currentIndex <= 0) selectableTowers.lastIndex else currentIndex - 1
+        } else {
+            if (currentIndex < 0 || currentIndex >= selectableTowers.lastIndex) 0 else currentIndex + 1
+        }
+        selectedDefenderType = selectableTowers[nextIndex]
+        selectedDefenderId = null
+        selectedAttackerId = null
+        highlightEndTurnButton = false
+    }
+
     val keyboardSelectableSpells = remember(playerStats) {
         SpellType.entries.filter { spell ->
             playerStats?.unlockedSpells?.contains(spell) == true
@@ -685,11 +708,7 @@ private fun GamePlayScreenContent(
     // Keyboard event handler for shortcuts
     // Using onPreviewKeyEvent to intercept before HexagonalMapView handles it
     // This works in the "capture" phase and doesn't require focus on this element
-    val keyboardHandler: (KeyEvent) -> Boolean = remember(
-        onSaveGame, onCheatCode, endPlayerTurnAction, autoAttackAndEndTurnAction, onStartFirstPlayerTurn,
-        onDefenderAttack, onDefenderAttackPosition, isDemoMode
-    ) {
-        { event ->
+    val keyboardHandler: (KeyEvent) -> Boolean = { event ->
             when {
                 // In demo mode any key press shows "stop demo?" dialog
                 isDemoMode && event.type == KeyEventType.KeyDown -> {
@@ -723,6 +742,13 @@ private fun GamePlayScreenContent(
                     if (gameState.spellTargeting.value != null) {
                         onExitSpellTargeting?.invoke()
                     }
+                    val selectableTowers = gameState.level.availableTowers
+                        .filter { it != DefenderType.DRAGONS_LAIR }
+                    selectedDefenderType = selectableTowers.firstOrNull()
+                    selectedDefenderId = null
+                    selectedAttackerId = null
+                    selectedTargetId = null
+                    selectedTargetPosition = null
                     true
                 }
                 // Spell menu keyboard mode: Tab/Shift+Tab navigates spells
@@ -795,7 +821,10 @@ private fun GamePlayScreenContent(
                         val canSell = defender.isReady && defender.actionsRemaining.value > 0
                         when {
                             canUndo -> onUndoTower(defender.id)
-                            canSell -> onSellTower(defender.id)
+                            canSell -> {
+                                keyboardSellConfirmationDefenderId = defender.id
+                                true
+                            }
                             else -> false
                         }
                     } else {
@@ -805,14 +834,34 @@ private fun GamePlayScreenContent(
                 // Tab / Shift+Tab: Select next/previous actionable tower (player turn only)
                 event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutSelectNextTower.value) &&
+                        gameState.phase.value == GamePhase.INITIAL_BUILDING -> {
+                    cycleTowerBuySelection(false)
+                    true
+                }
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutSelectPreviousTower.value) &&
+                        gameState.phase.value == GamePhase.INITIAL_BUILDING -> {
+                    cycleTowerBuySelection(true)
+                    true
+                }
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutSelectNextTower.value) &&
                         gameState.phase.value == GamePhase.PLAYER_TURN -> {
-                    jumpToNextActionableTower(selectedDefenderId, false)
+                    if (selectedDefenderType != null && selectedDefenderId == null && !showMagicPanel) {
+                        cycleTowerBuySelection(false)
+                    } else {
+                        jumpToNextActionableTower(selectedDefenderId, false)
+                    }
                     true
                 }
                 event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutSelectPreviousTower.value) &&
                         gameState.phase.value == GamePhase.PLAYER_TURN -> {
-                    jumpToNextActionableTower(selectedDefenderId, true)
+                    if (selectedDefenderType != null && selectedDefenderId == null && !showMagicPanel) {
+                        cycleTowerBuySelection(true)
+                    } else {
+                        jumpToNextActionableTower(selectedDefenderId, true)
+                    }
                     true
                 }
                 // Remappable: Center map on selected tower
@@ -879,7 +928,6 @@ private fun GamePlayScreenContent(
                 }
                 else -> false
             }
-        }
     }
 
     CompositionLocalProvider(LocalDensity provides scaledDensity) {
@@ -1762,6 +1810,65 @@ private fun GamePlayScreenContent(
                     trapToRemove = null
                 }
             )
+        }
+
+        val keyboardSellDefenderId = keyboardSellConfirmationDefenderId
+        if (keyboardSellDefenderId != null) {
+            val defender = gameState.defenders.find { it.id == keyboardSellDefenderId }
+            if (defender != null) {
+                val sellAmount = (defender.totalCost * 0.75).toInt()
+                val coinsLabel = stringResource(Res.string.coins_label)
+                val towerName = defender.type.getLocalizedName(com.hyperether.resources.currentLanguage.value)
+                AlertDialog(
+                    onDismissRequest = { keyboardSellConfirmationDefenderId = null },
+                    title = { Text(stringResource(Res.string.sell_tower_title)) },
+                    text = {
+                        Text(
+                            stringResource(
+                                Res.string.sell_tower_message,
+                                towerName,
+                                sellAmount.toString(),
+                                coinsLabel
+                            )
+                        )
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                if (onSellTower(defender.id)) {
+                                    selectedDefenderType = null
+                                    selectedDefenderId = null
+                                }
+                                keyboardSellConfirmationDefenderId = null
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = GamePlayColors.Warning)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(stringResource(Res.string.sell))
+                                if (AppSettings.showButtonShortcutHints.value) {
+                                    Text(
+                                        text = formatShortcutBindingForDisplay(AppSettings.shortcutUndoOrSellSelectedTower.value),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    },
+                    dismissButton = {
+                        OutlinedButton(
+                            onClick = { keyboardSellConfirmationDefenderId = null }
+                        ) {
+                            Text(stringResource(Res.string.cancel))
+                        }
+                    }
+                )
+            } else {
+                keyboardSellConfirmationDefenderId = null
+            }
         }
 
         // Unsaved changes dialog

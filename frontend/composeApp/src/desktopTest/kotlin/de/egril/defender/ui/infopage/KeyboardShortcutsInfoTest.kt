@@ -33,6 +33,12 @@ class KeyboardShortcutsInfoTest {
             composeTestRule.onNodeWithTag("shortcut-binding-undo-or-sell-selected-tower").assertExists()
             composeTestRule.onNodeWithTag("shortcut-binding-toggle-spell-menu").assertExists()
             composeTestRule.onNodeWithTag("shortcut-binding-switch-to-tower-mode").assertExists()
+            composeTestRule.onNodeWithText("↑").assertExists()
+            composeTestRule.onNodeWithText("↓").assertExists()
+            composeTestRule.onNodeWithText("←").assertExists()
+            composeTestRule.onNodeWithText("→").assertExists()
+            composeTestRule.onAllNodesWithText("KEY:", substring = true, ignoreCase = false)
+                .assertCountEquals(0)
 
             ScreenshotTestUtils.captureScreenshot(
                 composeTestRule = composeTestRule,

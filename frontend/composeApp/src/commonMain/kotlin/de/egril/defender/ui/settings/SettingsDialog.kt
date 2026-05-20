@@ -167,9 +167,9 @@ fun SettingsDialog(
 
 @Composable
 private fun ScrollableSettingsTabContent(content: @Composable () -> Unit) {
-    Box(
+    Column(
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
         content()

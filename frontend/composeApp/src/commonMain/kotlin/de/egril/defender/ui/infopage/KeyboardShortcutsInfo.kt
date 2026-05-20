@@ -209,7 +209,8 @@ fun KeyboardShortcutsInfo(
                     onEdit = { bindingCaptureTarget = BindingTarget.SAVE_GAME },
                     buttonTestTag = "shortcut-binding-save-game"
                 )
-                ShortcutBindingRow(
+                DirectionalShortcutBindingRow(
+                    arrowSymbol = "↑",
                     key = AppSettings.shortcutPanUp.value,
                     defaultKey = "W",
                     description = stringResource(Res.string.keyboard_shortcut_pan_up),
@@ -217,7 +218,8 @@ fun KeyboardShortcutsInfo(
                     onEdit = { bindingCaptureTarget = BindingTarget.PAN_UP },
                     buttonTestTag = "shortcut-binding-pan-up"
                 )
-                ShortcutBindingRow(
+                DirectionalShortcutBindingRow(
+                    arrowSymbol = "↓",
                     key = AppSettings.shortcutPanDown.value,
                     defaultKey = "S",
                     description = stringResource(Res.string.keyboard_shortcut_pan_down),
@@ -225,7 +227,8 @@ fun KeyboardShortcutsInfo(
                     onEdit = { bindingCaptureTarget = BindingTarget.PAN_DOWN },
                     buttonTestTag = "shortcut-binding-pan-down"
                 )
-                ShortcutBindingRow(
+                DirectionalShortcutBindingRow(
+                    arrowSymbol = "←",
                     key = AppSettings.shortcutPanLeft.value,
                     defaultKey = "A",
                     description = stringResource(Res.string.keyboard_shortcut_pan_left),
@@ -233,7 +236,8 @@ fun KeyboardShortcutsInfo(
                     onEdit = { bindingCaptureTarget = BindingTarget.PAN_LEFT },
                     buttonTestTag = "shortcut-binding-pan-left"
                 )
-                ShortcutBindingRow(
+                DirectionalShortcutBindingRow(
+                    arrowSymbol = "→",
                     key = AppSettings.shortcutPanRight.value,
                     defaultKey = "D",
                     description = stringResource(Res.string.keyboard_shortcut_pan_right),
@@ -374,18 +378,18 @@ private fun ShortcutSection(
         // Header row
         Row(modifier = Modifier.fillMaxWidth()) {
             Text(
-                text = stringResource(Res.string.keyboard_shortcut_key_label),
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.width(100.dp)
-            )
-            Text(
                 text = stringResource(Res.string.keyboard_shortcut_description_label),
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.weight(1f)
+            )
+            Text(
+                text = stringResource(Res.string.keyboard_shortcut_key_label),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.width(140.dp)
             )
         }
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -426,7 +430,7 @@ private fun ShortcutBindingRow(
             if (enableEdit) {
                 TextButton(
                     onClick = onEdit,
-                    modifier = Modifier.width(100.dp).testTag(buttonTestTag),
+                    modifier = Modifier.testTag(buttonTestTag),
                     contentPadding = PaddingValues(0.dp)
                 ) {
                     Text(
@@ -441,8 +445,7 @@ private fun ShortcutBindingRow(
                     text = formatShortcutBindingForDisplay(key),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.width(100.dp)
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         },
@@ -461,16 +464,17 @@ private fun ShortcutRow(
         modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier.width(100.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            content = keyContent
-        )
         Text(
             text = description,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.weight(1f)
+        )
+        Row(
+            modifier = Modifier.width(140.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End,
+            content = keyContent
         )
         if (marker != null) {
             Spacer(modifier = Modifier.width(8.dp))
@@ -481,4 +485,53 @@ private fun ShortcutRow(
             )
         }
     }
+}
+
+@Composable
+private fun DirectionalShortcutBindingRow(
+    arrowSymbol: String,
+    key: String,
+    defaultKey: String,
+    description: String,
+    enableEdit: Boolean,
+    onEdit: () -> Unit,
+    buttonTestTag: String
+) {
+    val isChanged = remember(key, defaultKey) {
+        isShortcutBindingChanged(key, defaultKey)
+    }
+    ShortcutRow(
+        keyContent = {
+            Text(
+                text = arrowSymbol,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            if (enableEdit) {
+                TextButton(
+                    onClick = onEdit,
+                    modifier = Modifier.testTag(buttonTestTag),
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Text(
+                        text = formatShortcutBindingForDisplay(key),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            } else {
+                Text(
+                    text = formatShortcutBindingForDisplay(key),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        },
+        description = description,
+        marker = if (isChanged) stringResource(Res.string.shortcut_binding_changed_marker) else null
+    )
 }
