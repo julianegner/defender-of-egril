@@ -59,7 +59,9 @@ class SettingsDialogTest {
                 width = 600,
                 height = 500
             )
-        } catch (e: Throwable) {
+        } catch (e: Exception) {
+            println("Note: Could not capture screenshot for dialog (expected): ${e.message}")
+        } catch (e: AssertionError) {
             println("Note: Could not capture screenshot for dialog (expected): ${e.message}")
         }
     }
@@ -125,7 +127,9 @@ class SettingsDialogTest {
                 width = 700,
                 height = 700
             )
-        } catch (e: Throwable) {
+        } catch (e: Exception) {
+            println("Note: Could not capture screenshot for dialog (expected): ${e.message}")
+        } catch (e: AssertionError) {
             println("Note: Could not capture screenshot for dialog (expected): ${e.message}")
         }
     }
@@ -154,7 +158,9 @@ class SettingsDialogTest {
                 width = 700,
                 height = 700
             )
-        } catch (e: Throwable) {
+        } catch (e: Exception) {
+            println("Note: Could not capture screenshot for dialog (expected): ${e.message}")
+        } catch (e: AssertionError) {
             println("Note: Could not capture screenshot for dialog (expected): ${e.message}")
         }
     }

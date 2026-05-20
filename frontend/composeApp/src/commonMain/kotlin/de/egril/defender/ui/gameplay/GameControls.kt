@@ -30,6 +30,7 @@ import de.egril.defender.ui.gameplay.defenderButtons.CompactDefenderButton
 import de.egril.defender.ui.gameplay.defenderButtons.DefenderButton
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.HeaderTextSize
+import de.egril.defender.ui.settings.formatShortcutBindingForDisplay
 import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.ui.isMobileWebBrowser
 import org.jetbrains.compose.resources.painterResource
@@ -79,7 +80,7 @@ fun ColumnScope.TurnButton(
             )
             if (AppSettings.showButtonShortcutHints.value) {
                 Text(
-                    text = AppSettings.shortcutEndTurnStartBattle.value.replace('_', ' '),
+                    text = formatShortcutBindingForDisplay(AppSettings.shortcutEndTurnStartBattle.value),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

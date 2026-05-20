@@ -77,6 +77,14 @@ fun normalizeShortcutBinding(binding: String, defaultBinding: String): String {
     return parts.joinToString("+")
 }
 
+fun formatShortcutBindingForDisplay(binding: String): String = binding.replace('_', ' ')
+
+fun isShortcutBindingChanged(current: String, defaultBinding: String): Boolean {
+    val normalizedCurrent = current.replace(" ", "").uppercase()
+    val normalizedDefault = defaultBinding.replace(" ", "").uppercase()
+    return normalizedCurrent != normalizedDefault
+}
+
 fun buildShortcutBindingFromEvent(event: KeyEvent): String? {
     val keyToken = when (event.key) {
         Key.CtrlLeft, Key.CtrlRight,

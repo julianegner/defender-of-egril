@@ -22,6 +22,7 @@ import de.egril.defender.ui.icon.SwordIcon
 import de.egril.defender.ui.icon.SellTowerIcon
 import de.egril.defender.ui.icon.UpgradeTowerIcon
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.formatShortcutBindingForDisplay
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import kotlinx.coroutines.delay
@@ -82,7 +83,7 @@ fun AttackButton(
                             if (AppSettings.showButtonShortcutHints.value) {
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = AppSettings.shortcutAttackSelectedTarget.value.replace('_', ' '),
+                                    text = formatShortcutBindingForDisplay(AppSettings.shortcutAttackSelectedTarget.value),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -125,7 +126,7 @@ fun AttackButton(
                         if (AppSettings.showButtonShortcutHints.value) {
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = AppSettings.shortcutAttackSelectedTarget.value.replace('_', ' '),
+                                text = formatShortcutBindingForDisplay(AppSettings.shortcutAttackSelectedTarget.value),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -171,7 +172,7 @@ fun AttackButton(
                         if (AppSettings.showButtonShortcutHints.value) {
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = AppSettings.shortcutAttackSelectedTarget.value.replace('_', ' '),
+                                text = formatShortcutBindingForDisplay(AppSettings.shortcutAttackSelectedTarget.value),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -219,7 +220,7 @@ fun AttackButton(
                             if (AppSettings.showButtonShortcutHints.value) {
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = AppSettings.shortcutAttackSelectedTarget.value.replace('_', ' '),
+                                    text = formatShortcutBindingForDisplay(AppSettings.shortcutAttackSelectedTarget.value),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )

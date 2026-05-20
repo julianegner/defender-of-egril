@@ -21,6 +21,8 @@ import com.hyperether.resources.currentLanguage
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.buildShortcutBindingFromEvent
+import de.egril.defender.ui.settings.formatShortcutBindingForDisplay
+import de.egril.defender.ui.settings.isShortcutBindingChanged
 import defender_of_egril.composeapp.generated.resources.*
 import androidx.compose.foundation.text.selection.SelectionContainer
 
@@ -361,7 +363,7 @@ private fun ShortcutBindingRow(
     onEdit: () -> Unit,
     buttonTestTag: String
 ) {
-    val isChanged = key.replace(" ", "").uppercase() != defaultKey.replace(" ", "").uppercase()
+    val isChanged = isShortcutBindingChanged(key, defaultKey)
     ShortcutRow(
         keyContent = {
             if (enableEdit) {
@@ -371,7 +373,7 @@ private fun ShortcutBindingRow(
                     contentPadding = PaddingValues(0.dp)
                 ) {
                     Text(
-                        text = key.replace('_', ' '),
+                        text = formatShortcutBindingForDisplay(key),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary
@@ -379,7 +381,7 @@ private fun ShortcutBindingRow(
                 }
             } else {
                 Text(
-                    text = key.replace('_', ' '),
+                    text = formatShortcutBindingForDisplay(key),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary,

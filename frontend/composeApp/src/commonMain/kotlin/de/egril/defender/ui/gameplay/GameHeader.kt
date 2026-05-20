@@ -29,6 +29,7 @@ import de.egril.defender.ui.icon.TriangleRightIcon
 import de.egril.defender.ui.infopage.HowToPlayContent
 import de.egril.defender.ui.infopage.KeyboardShortcutsInfo
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.formatShortcutBindingForDisplay
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.ui.settings.DifficultyDisplay
@@ -292,7 +293,7 @@ fun GameHeader(
                                 )
                                 if (AppSettings.showButtonShortcutHints.value) {
                                     Text(
-                                        text = AppSettings.shortcutSaveGame.value.replace('_', ' '),
+                                        text = formatShortcutBindingForDisplay(AppSettings.shortcutSaveGame.value),
                                         style = MaterialTheme.typography.labelSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -346,7 +347,7 @@ fun GameHeader(
                             }
                             if (AppSettings.showButtonShortcutHints.value) {
                                 Text(
-                                    text = AppSettings.shortcutToggleEnemyList.value.replace('_', ' '),
+                                    text = formatShortcutBindingForDisplay(AppSettings.shortcutToggleEnemyList.value),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = overlayButtonContentColor.copy(alpha = 0.75f)
                                 )
