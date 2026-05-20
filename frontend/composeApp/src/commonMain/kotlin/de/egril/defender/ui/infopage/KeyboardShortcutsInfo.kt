@@ -288,15 +288,15 @@ fun KeyboardShortcutsInfo(
 
     if (bindingCaptureTarget != null) {
         val captureFocusRequester = remember { FocusRequester() }
-        val handleCaptureEvent: (KeyEvent) -> Boolean = capture@{ event ->
+        val handleCaptureEvent: (KeyEvent) -> Boolean = handleCaptureEvent@{ event ->
             if (event.type != KeyEventType.KeyDown) {
-                return@capture false
+                return@handleCaptureEvent false
             }
             if (event.key == Key.Escape) {
                 bindingCaptureTarget = null
-                return@capture true
+                return@handleCaptureEvent true
             }
-            val binding = buildShortcutBindingFromEvent(event) ?: return@capture true
+            val binding = buildShortcutBindingFromEvent(event) ?: return@handleCaptureEvent true
             when (bindingCaptureTarget) {
                 BindingTarget.ATTACK_SELECTED_TARGET -> AppSettings.saveShortcutAttackSelectedTarget(binding)
                 BindingTarget.SELECT_NEXT_TOWER -> AppSettings.saveShortcutSelectNextTower(binding)
