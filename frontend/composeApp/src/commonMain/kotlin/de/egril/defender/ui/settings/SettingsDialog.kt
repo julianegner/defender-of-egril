@@ -380,6 +380,8 @@ private fun ShortcutBindingsTabContent() {
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(4.dp))
+        // Keep shortcuts content in a weighted container so KeyboardShortcutsInfo's internal
+        // vertical scroll receives bounded height and avoids infinite-constraints crashes.
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             KeyboardShortcutsInfo(
                 enableBindingEdit = true,

@@ -58,6 +58,30 @@ data class HexagonalMapConfig(
     val zoomDelta: Float = 0.1f  // Amount to zoom per button press
 )
 
+private data class ParsedPanBindings(
+    val up: ShortcutBinding?,
+    val down: ShortcutBinding?,
+    val left: ShortcutBinding?,
+    val right: ShortcutBinding?
+)
+
+@Composable
+private fun rememberParsedPanBindings(config: HexagonalMapConfig): ParsedPanBindings {
+    return remember(
+        config.panUpBinding,
+        config.panDownBinding,
+        config.panLeftBinding,
+        config.panRightBinding
+    ) {
+        ParsedPanBindings(
+            up = parseShortcutBinding(config.panUpBinding),
+            down = parseShortcutBinding(config.panDownBinding),
+            left = parseShortcutBinding(config.panLeftBinding),
+            right = parseShortcutBinding(config.panRightBinding)
+        )
+    }
+}
+
 /**
  * Universal hexagonal map view with pan, zoom, and keyboard navigation support.
  * This component provides the core map viewing functionality that can be used
@@ -141,10 +165,7 @@ fun HexagonalMapView(
     }
 
     // Keyboard event handler
-    val parsedPanUp = remember(config.panUpBinding) { parseShortcutBinding(config.panUpBinding) }
-    val parsedPanDown = remember(config.panDownBinding) { parseShortcutBinding(config.panDownBinding) }
-    val parsedPanLeft = remember(config.panLeftBinding) { parseShortcutBinding(config.panLeftBinding) }
-    val parsedPanRight = remember(config.panRightBinding) { parseShortcutBinding(config.panRightBinding) }
+    val parsedPanBindings = rememberParsedPanBindings(config)
     val matchesBinding: (KeyEvent, ShortcutBinding?) -> Boolean = { event, parsed ->
         parsed != null &&
                 parsed.keyToken == keyToShortcutToken(event.key) &&
@@ -160,19 +181,19 @@ fun HexagonalMapView(
             var newOffsetX = offsetX
             var newOffsetY = offsetY
             when {
-                matchesBinding(event, parsedPanUp) -> {
+                matchesBinding(event, parsedPanBindings.up) -> {
                     newOffsetY += config.keyboardPanSpeed
                     handled = true
                 }
-                matchesBinding(event, parsedPanDown) -> {
+                matchesBinding(event, parsedPanBindings.down) -> {
                     newOffsetY -= config.keyboardPanSpeed
                     handled = true
                 }
-                matchesBinding(event, parsedPanLeft) -> {
+                matchesBinding(event, parsedPanBindings.left) -> {
                     newOffsetX += config.keyboardPanSpeed
                     handled = true
                 }
-                matchesBinding(event, parsedPanRight) -> {
+                matchesBinding(event, parsedPanBindings.right) -> {
                     newOffsetX -= config.keyboardPanSpeed
                     handled = true
                 }
