@@ -562,24 +562,38 @@ private fun GamePlayScreenContent(
         }
     }
 
+    val keyboardSelectableTowers = remember(gameState.level.availableTowers) {
+        gameState.level.availableTowers.filter { it != DefenderType.DRAGONS_LAIR }
+    }
+
     val cycleTowerBuySelection: (Boolean) -> Unit = cycleTowerBuySelection@{ reversed ->
-        val selectableTowers = gameState.level.availableTowers
-            .filter { it != DefenderType.DRAGONS_LAIR }
-        if (selectableTowers.isEmpty()) {
+        if (keyboardSelectableTowers.isEmpty()) {
             return@cycleTowerBuySelection
         }
         val currentIndex = selectedDefenderType?.let { current ->
-            selectableTowers.indexOf(current).takeIf { it != -1 }
+            keyboardSelectableTowers.indexOf(current).takeIf { it != -1 }
         } ?: -1
         val nextIndex = if (reversed) {
-            if (currentIndex <= 0) selectableTowers.lastIndex else currentIndex - 1
+            if (currentIndex <= 0) keyboardSelectableTowers.lastIndex else currentIndex - 1
         } else {
-            if (currentIndex < 0 || currentIndex >= selectableTowers.lastIndex) 0 else currentIndex + 1
+            if (currentIndex < 0 || currentIndex >= keyboardSelectableTowers.lastIndex) 0 else currentIndex + 1
         }
-        selectedDefenderType = selectableTowers[nextIndex]
+        selectedDefenderType = keyboardSelectableTowers[nextIndex]
         selectedDefenderId = null
         selectedAttackerId = null
         highlightEndTurnButton = false
+    }
+
+    val handleTowerSelectionShortcut: (Boolean) -> Unit = { reversed ->
+        if (gameState.phase.value == GamePhase.INITIAL_BUILDING) {
+            cycleTowerBuySelection(reversed)
+        } else if (gameState.phase.value == GamePhase.PLAYER_TURN) {
+            if (selectedDefenderType != null && selectedDefenderId == null && !showMagicPanel) {
+                cycleTowerBuySelection(reversed)
+            } else {
+                jumpToNextActionableTower(selectedDefenderId, reversed)
+            }
+        }
     }
 
     val keyboardSelectableSpells = remember(playerStats) {
@@ -708,7 +722,23 @@ private fun GamePlayScreenContent(
     // Keyboard event handler for shortcuts
     // Using onPreviewKeyEvent to intercept before HexagonalMapView handles it
     // This works in the "capture" phase and doesn't require focus on this element
-    val keyboardHandler: (KeyEvent) -> Boolean = { event ->
+    val keyboardHandler: (KeyEvent) -> Boolean = remember(
+        onSaveGame,
+        onCheatCode,
+        onOpenMagicPanel,
+        onCloseMagicPanel,
+        onCastSpell,
+        onExitSpellTargeting,
+        onStartFirstPlayerTurn,
+        onDefenderAttack,
+        onDefenderAttackPosition,
+        showMagicPanel,
+        keyboardSelectableSpells,
+        endPlayerTurnAction,
+        autoAttackAndEndTurnAction,
+        isDemoMode
+    ) {
+        { event ->
             when {
                 // In demo mode any key press shows "stop demo?" dialog
                 isDemoMode && event.type == KeyEventType.KeyDown -> {
@@ -742,9 +772,7 @@ private fun GamePlayScreenContent(
                     if (gameState.spellTargeting.value != null) {
                         onExitSpellTargeting?.invoke()
                     }
-                    val selectableTowers = gameState.level.availableTowers
-                        .filter { it != DefenderType.DRAGONS_LAIR }
-                    selectedDefenderType = selectableTowers.firstOrNull()
+                    selectedDefenderType = keyboardSelectableTowers.firstOrNull()
                     selectedDefenderId = null
                     selectedAttackerId = null
                     selectedTargetId = null
@@ -834,34 +862,16 @@ private fun GamePlayScreenContent(
                 // Tab / Shift+Tab: Select next/previous actionable tower (player turn only)
                 event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutSelectNextTower.value) &&
-                        gameState.phase.value == GamePhase.INITIAL_BUILDING -> {
-                    cycleTowerBuySelection(false)
+                        (gameState.phase.value == GamePhase.INITIAL_BUILDING ||
+                                gameState.phase.value == GamePhase.PLAYER_TURN) -> {
+                    handleTowerSelectionShortcut(false)
                     true
                 }
                 event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutSelectPreviousTower.value) &&
-                        gameState.phase.value == GamePhase.INITIAL_BUILDING -> {
-                    cycleTowerBuySelection(true)
-                    true
-                }
-                event.type == KeyEventType.KeyDown &&
-                        isShortcutBindingPressed(event, AppSettings.shortcutSelectNextTower.value) &&
-                        gameState.phase.value == GamePhase.PLAYER_TURN -> {
-                    if (selectedDefenderType != null && selectedDefenderId == null && !showMagicPanel) {
-                        cycleTowerBuySelection(false)
-                    } else {
-                        jumpToNextActionableTower(selectedDefenderId, false)
-                    }
-                    true
-                }
-                event.type == KeyEventType.KeyDown &&
-                        isShortcutBindingPressed(event, AppSettings.shortcutSelectPreviousTower.value) &&
-                        gameState.phase.value == GamePhase.PLAYER_TURN -> {
-                    if (selectedDefenderType != null && selectedDefenderId == null && !showMagicPanel) {
-                        cycleTowerBuySelection(true)
-                    } else {
-                        jumpToNextActionableTower(selectedDefenderId, true)
-                    }
+                        (gameState.phase.value == GamePhase.INITIAL_BUILDING ||
+                                gameState.phase.value == GamePhase.PLAYER_TURN) -> {
+                    handleTowerSelectionShortcut(true)
                     true
                 }
                 // Remappable: Center map on selected tower
@@ -928,6 +938,7 @@ private fun GamePlayScreenContent(
                 }
                 else -> false
             }
+        }
     }
 
     CompositionLocalProvider(LocalDensity provides scaledDensity) {

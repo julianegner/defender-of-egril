@@ -36,6 +36,15 @@ import de.egril.defender.ui.isMobileWebBrowser
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
+private fun turnButtonShortcutHintColor(isPlayerTurn: Boolean, primaryButtonColor: Color): Color {
+    return if (isPlayerTurn) {
+        GamePlayColors.readableContentColor(primaryButtonColor).copy(alpha = 0.75f)
+    } else {
+        MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f)
+    }
+}
+
+@Composable
 fun ColumnScope.TurnButton(
     isPlayerTurn: Boolean,
     modifier: Modifier,
@@ -49,6 +58,7 @@ fun ColumnScope.TurnButton(
         HeaderTextSize.LARGE -> GamePlayConstants.TextSizes.Large
     }
     val turnButtonContentColor = GamePlayColors.readableContentColor(primaryButtonColor)
+    val shortcutHintColor = turnButtonShortcutHintColor(isPlayerTurn, primaryButtonColor)
     Button(
         onClick = onPrimaryAction,
         // modifier = Modifier.fillMaxWidth(),
@@ -82,7 +92,7 @@ fun ColumnScope.TurnButton(
                 Text(
                     text = formatShortcutBindingForDisplay(AppSettings.shortcutEndTurnStartBattle.value),
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = shortcutHintColor
                 )
             }
         }
@@ -355,6 +365,7 @@ fun GameControlsPanel(
                     ButtonDefaults.buttonColors()
                 }
             ) {
+                val shortcutHintColor = turnButtonShortcutHintColor(isPlayerTurn, primaryButtonColor)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -365,7 +376,7 @@ fun GameControlsPanel(
                         Text(
                             text = formatShortcutBindingForDisplay(AppSettings.shortcutEndTurnStartBattle.value),
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = shortcutHintColor
                         )
                     }
                 }

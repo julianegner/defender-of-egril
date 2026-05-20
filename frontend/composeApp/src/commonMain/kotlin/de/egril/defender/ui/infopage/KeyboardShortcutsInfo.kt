@@ -29,6 +29,8 @@ import de.egril.defender.ui.settings.isShortcutBindingChanged
 import defender_of_egril.composeapp.generated.resources.*
 import androidx.compose.foundation.text.selection.SelectionContainer
 
+private val SHORTCUT_KEY_COLUMN_MIN_WIDTH = 140.dp
+
 private enum class BindingTarget {
     ATTACK_SELECTED_TARGET,
     SELECT_NEXT_TOWER,
@@ -389,7 +391,7 @@ private fun ShortcutSection(
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.width(140.dp)
+                modifier = Modifier.widthIn(min = SHORTCUT_KEY_COLUMN_MIN_WIDTH)
             )
         }
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -471,7 +473,7 @@ private fun ShortcutRow(
             modifier = Modifier.weight(1f)
         )
         Row(
-            modifier = Modifier.width(140.dp),
+            modifier = Modifier.widthIn(min = SHORTCUT_KEY_COLUMN_MIN_WIDTH),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End,
             content = keyContent
