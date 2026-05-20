@@ -780,7 +780,10 @@ private fun GamePlayScreenContent(
                 event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutUpgradeSelectedTower.value) &&
                         selectedDefenderId != null -> {
-                    onUpgradeDefender(selectedDefenderId!!)
+                    selectedDefenderId?.let { defenderId ->
+                        onUpgradeDefender(defenderId)
+                        true
+                    } ?: false
                 }
                 // X (remappable): Undo (if eligible) or sell selected tower
                 event.type == KeyEventType.KeyDown &&
