@@ -6,11 +6,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.focusable
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -40,7 +43,11 @@ private enum class BindingTarget {
     PAN_LEFT,
     PAN_RIGHT,
     CENTER_SELECTED_TOWER,
-    CENTER_NEXT_SPAWN
+    CENTER_NEXT_SPAWN,
+    UPGRADE_SELECTED_TOWER,
+    UNDO_OR_SELL_SELECTED_TOWER,
+    TOGGLE_SPELL_MENU,
+    SWITCH_TO_TOWER_MODE
 }
 
 /**
@@ -129,6 +136,38 @@ fun KeyboardShortcutsInfo(
                     enableEdit = enableBindingEdit,
                     onEdit = { bindingCaptureTarget = BindingTarget.CENTER_NEXT_SPAWN },
                     buttonTestTag = "shortcut-binding-center-spawn"
+                )
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutUpgradeSelectedTower.value,
+                    defaultKey = "U",
+                    description = stringResource(Res.string.keyboard_shortcut_upgrade_selected_tower),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.UPGRADE_SELECTED_TOWER },
+                    buttonTestTag = "shortcut-binding-upgrade-selected-tower"
+                )
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutUndoOrSellSelectedTower.value,
+                    defaultKey = "X",
+                    description = stringResource(Res.string.keyboard_shortcut_undo_or_sell_selected_tower),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.UNDO_OR_SELL_SELECTED_TOWER },
+                    buttonTestTag = "shortcut-binding-undo-or-sell-selected-tower"
+                )
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutToggleSpellMenu.value,
+                    defaultKey = "M",
+                    description = stringResource(Res.string.keyboard_shortcut_toggle_spell_menu),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.TOGGLE_SPELL_MENU },
+                    buttonTestTag = "shortcut-binding-toggle-spell-menu"
+                )
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutSwitchToTowerMode.value,
+                    defaultKey = "T",
+                    description = stringResource(Res.string.keyboard_shortcut_switch_to_tower_mode),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.SWITCH_TO_TOWER_MODE },
+                    buttonTestTag = "shortcut-binding-switch-to-tower-mode"
                 )
                 ShortcutBindingRow(
                     key = AppSettings.shortcutAutoAttackEndTurn.value,
@@ -248,47 +287,63 @@ fun KeyboardShortcutsInfo(
     }
 
     if (bindingCaptureTarget != null) {
+        val captureFocusRequester = remember { FocusRequester() }
+        val handleCaptureEvent: (KeyEvent) -> Boolean = capture@{ event ->
+            if (event.type != KeyEventType.KeyDown) {
+                return@capture false
+            }
+            if (event.key == Key.Escape) {
+                bindingCaptureTarget = null
+                return@capture true
+            }
+            val binding = buildShortcutBindingFromEvent(event) ?: return@capture true
+            when (bindingCaptureTarget) {
+                BindingTarget.ATTACK_SELECTED_TARGET -> AppSettings.saveShortcutAttackSelectedTarget(binding)
+                BindingTarget.SELECT_NEXT_TOWER -> AppSettings.saveShortcutSelectNextTower(binding)
+                BindingTarget.SELECT_PREVIOUS_TOWER -> AppSettings.saveShortcutSelectPreviousTower(binding)
+                BindingTarget.AUTO_ATTACK_END_TURN -> AppSettings.saveShortcutAutoAttackEndTurn(binding)
+                BindingTarget.CHEAT -> AppSettings.saveShortcutCheat(binding)
+                BindingTarget.TOGGLE_ENEMY_LIST -> AppSettings.saveShortcutToggleEnemyList(binding)
+                BindingTarget.END_TURN_START_BATTLE -> AppSettings.saveShortcutEndTurnStartBattle(binding)
+                BindingTarget.SAVE_GAME -> AppSettings.saveShortcutSaveGame(binding)
+                BindingTarget.PAN_UP -> AppSettings.saveShortcutPanUp(binding)
+                BindingTarget.PAN_DOWN -> AppSettings.saveShortcutPanDown(binding)
+                BindingTarget.PAN_LEFT -> AppSettings.saveShortcutPanLeft(binding)
+                BindingTarget.PAN_RIGHT -> AppSettings.saveShortcutPanRight(binding)
+                BindingTarget.CENTER_SELECTED_TOWER -> AppSettings.saveShortcutCenterSelectedTower(binding)
+                BindingTarget.CENTER_NEXT_SPAWN -> AppSettings.saveShortcutCenterNextSpawnPoint(binding)
+                BindingTarget.UPGRADE_SELECTED_TOWER -> AppSettings.saveShortcutUpgradeSelectedTower(binding)
+                BindingTarget.UNDO_OR_SELL_SELECTED_TOWER -> AppSettings.saveShortcutUndoOrSellSelectedTower(binding)
+                BindingTarget.TOGGLE_SPELL_MENU -> AppSettings.saveShortcutToggleSpellMenu(binding)
+                BindingTarget.SWITCH_TO_TOWER_MODE -> AppSettings.saveShortcutSwitchToTowerMode(binding)
+                null -> {}
+            }
+            bindingCaptureTarget = null
+            true
+        }
+        LaunchedEffect(bindingCaptureTarget) {
+            captureFocusRequester.requestFocus()
+        }
         AlertDialog(
             onDismissRequest = { bindingCaptureTarget = null },
             title = { Text(stringResource(Res.string.shortcut_bindings_capture_title)) },
             text = {
                 SelectionContainer {
-                    Text(stringResource(Res.string.shortcut_bindings_capture_message))
+                    Box(
+                        modifier = Modifier
+                            .testTag("shortcut-capture-target")
+                            .focusRequester(captureFocusRequester)
+                            .focusable()
+                            .onPreviewKeyEvent(handleCaptureEvent)
+                    ) {
+                        Text(stringResource(Res.string.shortcut_bindings_capture_message))
+                    }
                 }
             },
             confirmButton = {
                 OutlinedButton(onClick = { bindingCaptureTarget = null }) {
                     Text(stringResource(Res.string.cancel))
                 }
-            },
-            modifier = Modifier.onPreviewKeyEvent { event ->
-                if (event.type != KeyEventType.KeyDown) {
-                    return@onPreviewKeyEvent false
-                }
-                if (event.key == Key.Escape) {
-                    bindingCaptureTarget = null
-                    return@onPreviewKeyEvent true
-                }
-                val binding = buildShortcutBindingFromEvent(event) ?: return@onPreviewKeyEvent true
-                when (bindingCaptureTarget) {
-                    BindingTarget.ATTACK_SELECTED_TARGET -> AppSettings.saveShortcutAttackSelectedTarget(binding)
-                    BindingTarget.SELECT_NEXT_TOWER -> AppSettings.saveShortcutSelectNextTower(binding)
-                    BindingTarget.SELECT_PREVIOUS_TOWER -> AppSettings.saveShortcutSelectPreviousTower(binding)
-                    BindingTarget.AUTO_ATTACK_END_TURN -> AppSettings.saveShortcutAutoAttackEndTurn(binding)
-                    BindingTarget.CHEAT -> AppSettings.saveShortcutCheat(binding)
-                    BindingTarget.TOGGLE_ENEMY_LIST -> AppSettings.saveShortcutToggleEnemyList(binding)
-                    BindingTarget.END_TURN_START_BATTLE -> AppSettings.saveShortcutEndTurnStartBattle(binding)
-                    BindingTarget.SAVE_GAME -> AppSettings.saveShortcutSaveGame(binding)
-                    BindingTarget.PAN_UP -> AppSettings.saveShortcutPanUp(binding)
-                    BindingTarget.PAN_DOWN -> AppSettings.saveShortcutPanDown(binding)
-                    BindingTarget.PAN_LEFT -> AppSettings.saveShortcutPanLeft(binding)
-                    BindingTarget.PAN_RIGHT -> AppSettings.saveShortcutPanRight(binding)
-                    BindingTarget.CENTER_SELECTED_TOWER -> AppSettings.saveShortcutCenterSelectedTower(binding)
-                    BindingTarget.CENTER_NEXT_SPAWN -> AppSettings.saveShortcutCenterNextSpawnPoint(binding)
-                    null -> {}
-                }
-                bindingCaptureTarget = null
-                true
             }
         )
     }

@@ -1289,6 +1289,10 @@
     <string name="keyboard_shortcut_shift_tab_prev_tower">Seleccionar la torre accionable anterior</string>
     <string name="keyboard_shortcut_center_selected_tower">Centrar el mapa en la torre seleccionada</string>
     <string name="keyboard_shortcut_center_next_spawn_point">Centrar el mapa en el siguiente punto de aparición</string>
+    <string name="keyboard_shortcut_upgrade_selected_tower">Mejorar la torre seleccionada</string>
+    <string name="keyboard_shortcut_undo_or_sell_selected_tower">Deshacer o vender la torre seleccionada</string>
+    <string name="keyboard_shortcut_toggle_spell_menu">Abrir/cerrar menú de hechizos</string>
+    <string name="keyboard_shortcut_switch_to_tower_mode">Volver al modo torres</string>
     <string name="auto_jump_to_next_tower">Saltar automáticamente a la siguiente torre accionable</string>
     <string name="keyboard_shortcuts_note">Nota: Los atajos de teclado están disponibles en escritorio y en la aplicación web.</string>
     <string name="keyboard_modifier_ctrl">Ctrl</string>

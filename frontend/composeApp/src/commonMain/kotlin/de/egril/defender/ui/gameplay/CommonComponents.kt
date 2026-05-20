@@ -20,6 +20,8 @@ import de.egril.defender.ui.icon.ReloadIcon
 import de.egril.defender.ui.icon.TriangleDownIcon
 import de.egril.defender.ui.icon.TriangleLeftIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
+import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.formatShortcutBindingForDisplay
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.coins
 import defender_of_egril.composeapp.generated.resources.health
@@ -188,6 +190,14 @@ fun GameStatsDisplay(
                 )
                 Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
                 Text("$currentMana/$maxMana", style = textStyle)
+                if (AppSettings.showButtonShortcutHints.value && onManaClick != null) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = formatShortcutBindingForDisplay(AppSettings.shortcutToggleSpellMenu.value),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }

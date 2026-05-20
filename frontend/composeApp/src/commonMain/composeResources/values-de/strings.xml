@@ -1286,6 +1286,10 @@
     <string name="keyboard_shortcut_shift_tab_prev_tower">Vorherigen aktionsfähigen Turm auswählen</string>
     <string name="keyboard_shortcut_center_selected_tower">Karte auf ausgewählten Turm zentrieren</string>
     <string name="keyboard_shortcut_center_next_spawn_point">Karte auf nächsten Spawnpunkt zentrieren</string>
+    <string name="keyboard_shortcut_upgrade_selected_tower">Ausgewählten Turm verbessern</string>
+    <string name="keyboard_shortcut_undo_or_sell_selected_tower">Ausgewählten Turm rückgängig machen oder verkaufen</string>
+    <string name="keyboard_shortcut_toggle_spell_menu">Zaubermenü öffnen/schließen</string>
+    <string name="keyboard_shortcut_switch_to_tower_mode">Zum Turmmodus zurückkehren</string>
     <string name="auto_jump_to_next_tower">Automatisch zum nächsten aktionsfähigen Turm springen</string>
     <string name="keyboard_shortcuts_note">Hinweis: Tastenkürzel sind auf dem Desktop und in der Web-App verfügbar.</string>
     <string name="keyboard_modifier_ctrl">Strg</string>

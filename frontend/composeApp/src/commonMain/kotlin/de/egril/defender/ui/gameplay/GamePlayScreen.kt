@@ -244,6 +244,7 @@ private fun GamePlayScreenContent(
     var highlightEndTurnButton by remember { mutableStateOf(false) }
     var tabScrollPosition by remember { mutableStateOf<Position?>(null) }  // Tab-triggered scroll-to-tower
     var nextSpawnPointIndex by remember { mutableStateOf(0) }
+    var keyboardSpellFocusIndex by remember { mutableStateOf(0) }
 
     var currentDigOutcome by remember { mutableStateOf<DigOutcome?>(null) }
     var currentDragonName by remember { mutableStateOf<String?>(null) }  // Track dragon name for dig outcome
@@ -558,6 +559,20 @@ private fun GamePlayScreenContent(
         }
     }
 
+    val keyboardSelectableSpells = remember(playerStats) {
+        SpellType.entries.filter { spell ->
+            playerStats?.unlockedSpells?.contains(spell) == true
+        }
+    }
+    LaunchedEffect(showMagicPanel, selectedSpell, keyboardSelectableSpells) {
+        if (!showMagicPanel || keyboardSelectableSpells.isEmpty()) {
+            keyboardSpellFocusIndex = 0
+            return@LaunchedEffect
+        }
+        val currentIndex = keyboardSelectableSpells.indexOf(selectedSpell)
+        keyboardSpellFocusIndex = if (currentIndex >= 0) currentIndex else 0
+    }
+
     // Auto-jump: select first actionable tower when player turn starts (if setting is ON)
     LaunchedEffect(gameState.phase.value) {
         if (AppSettings.autoJumpToNextTower.value &&
@@ -688,6 +703,48 @@ private fun GamePlayScreenContent(
                     showSaveDialog = true
                     true
                 }
+                // M (remappable): Open/close spell menu
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutToggleSpellMenu.value) &&
+                        onOpenMagicPanel != null &&
+                        gameState.maxMana.value > 0 &&
+                        !isDemoMode -> {
+                    if (showMagicPanel) {
+                        onCloseMagicPanel?.invoke()
+                    } else {
+                        onOpenMagicPanel.invoke()
+                    }
+                    true
+                }
+                // T (remappable): Return to tower mode (close spell UI/targeting)
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutSwitchToTowerMode.value) -> {
+                    onCloseMagicPanel?.invoke()
+                    if (gameState.spellTargeting.value != null) {
+                        onExitSpellTargeting?.invoke()
+                    }
+                    true
+                }
+                // Spell menu keyboard mode: Tab/Shift+Tab navigates spells
+                event.type == KeyEventType.KeyDown &&
+                        showMagicPanel &&
+                        event.key == Key.Tab &&
+                        keyboardSelectableSpells.isNotEmpty() -> {
+                    val delta = if (event.isShiftPressed) -1 else 1
+                    val size = keyboardSelectableSpells.size
+                    keyboardSpellFocusIndex = (keyboardSpellFocusIndex + delta + size) % size
+                    true
+                }
+                // Spell menu keyboard mode: Enter selects/casts focused spell
+                event.type == KeyEventType.KeyDown &&
+                        showMagicPanel &&
+                        event.key == Key.Enter &&
+                        keyboardSelectableSpells.isNotEmpty() &&
+                        onCastSpell != null -> {
+                    val focusedSpell = keyboardSelectableSpells[keyboardSpellFocusIndex]
+                    onCastSpell.invoke(focusedSpell)
+                    true
+                }
                 // Ctrl+A: Auto-attack all towers and end turn (player turn only)
                 event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutAutoAttackEndTurn.value) &&
@@ -713,6 +770,29 @@ private fun GamePlayScreenContent(
                                 onDefenderAttackPosition(defenderId, targetPosition)
                                 true
                             }
+                            else -> false
+                        }
+                    } else {
+                        false
+                    }
+                }
+                // U (remappable): Upgrade currently selected tower
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutUpgradeSelectedTower.value) &&
+                        selectedDefenderId != null -> {
+                    onUpgradeDefender(selectedDefenderId!!)
+                }
+                // X (remappable): Undo (if eligible) or sell selected tower
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutUndoOrSellSelectedTower.value) &&
+                        selectedDefenderId != null -> {
+                    val defender = gameState.defenders.find { it.id == selectedDefenderId }
+                    if (defender != null) {
+                        val canUndo = defender.placedOnTurn == gameState.turnNumber.value && !defender.hasBeenUsed.value
+                        val canSell = defender.isReady && defender.actionsRemaining.value > 0
+                        when {
+                            canUndo -> onUndoTower(defender.id)
+                            canSell -> onSellTower(defender.id)
                             else -> false
                         }
                     } else {

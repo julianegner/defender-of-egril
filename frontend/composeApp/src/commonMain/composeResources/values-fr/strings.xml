@@ -1289,6 +1289,10 @@
     <string name="keyboard_shortcut_shift_tab_prev_tower">Sélectionner la tour actionnable précédente</string>
     <string name="keyboard_shortcut_center_selected_tower">Centrer la carte sur la tour sélectionnée</string>
     <string name="keyboard_shortcut_center_next_spawn_point">Centrer la carte sur le prochain point d'apparition</string>
+    <string name="keyboard_shortcut_upgrade_selected_tower">Améliorer la tour sélectionnée</string>
+    <string name="keyboard_shortcut_undo_or_sell_selected_tower">Annuler ou vendre la tour sélectionnée</string>
+    <string name="keyboard_shortcut_toggle_spell_menu">Ouvrir/fermer le menu des sorts</string>
+    <string name="keyboard_shortcut_switch_to_tower_mode">Revenir au mode tours</string>
     <string name="auto_jump_to_next_tower">Sauter automatiquement à la prochaine tour actionnable</string>
     <string name="keyboard_shortcuts_note">Remarque : Les raccourcis clavier sont disponibles sur bureau et dans l\'application web.</string>
     <string name="keyboard_modifier_ctrl">Ctrl</string>

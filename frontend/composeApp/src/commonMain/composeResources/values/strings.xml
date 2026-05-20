@@ -1291,6 +1291,10 @@
     <string name="keyboard_shortcut_shift_tab_prev_tower">Select previous actionable tower</string>
     <string name="keyboard_shortcut_center_selected_tower">Center map on selected tower</string>
     <string name="keyboard_shortcut_center_next_spawn_point">Center map on next spawn point</string>
+    <string name="keyboard_shortcut_upgrade_selected_tower">Upgrade selected tower</string>
+    <string name="keyboard_shortcut_undo_or_sell_selected_tower">Undo or sell selected tower</string>
+    <string name="keyboard_shortcut_toggle_spell_menu">Open/close spell menu</string>
+    <string name="keyboard_shortcut_switch_to_tower_mode">Return to tower mode</string>
     <string name="auto_jump_to_next_tower">Auto-jump to next actionable tower</string>
     <string name="keyboard_shortcuts_note">Note: Keyboard shortcuts are available on desktop and in the web app.</string>
     <string name="keyboard_modifier_ctrl">Ctrl</string>

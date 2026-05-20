@@ -140,20 +140,13 @@ fun SettingsDialog(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
-                        .then(
-                            if (selectedTabType == SettingsTab.SHORTCUTS) {
-                                Modifier
-                            } else {
-                                Modifier.verticalScroll(rememberScrollState())
-                            }
-                        )
                 ) {
                     when (selectedTabType) {
-                        SettingsTab.GENERAL -> GeneralTabContent(onDismissSettings = onDismiss)
-                        SettingsTab.WORLD_MAP -> WorldmapTabContent()
-                        SettingsTab.LEVEL -> LevelTabContent()
-                        SettingsTab.SOUND -> SoundTabContent()
-                        SettingsTab.ACCESSIBILITY -> AccessibilityTabContent()
+                        SettingsTab.GENERAL -> ScrollableSettingsTabContent { GeneralTabContent(onDismissSettings = onDismiss) }
+                        SettingsTab.WORLD_MAP -> ScrollableSettingsTabContent { WorldmapTabContent() }
+                        SettingsTab.LEVEL -> ScrollableSettingsTabContent { LevelTabContent() }
+                        SettingsTab.SOUND -> ScrollableSettingsTabContent { SoundTabContent() }
+                        SettingsTab.ACCESSIBILITY -> ScrollableSettingsTabContent { AccessibilityTabContent() }
                         SettingsTab.SHORTCUTS -> ShortcutBindingsTabContent()
                     }
                 }
@@ -169,6 +162,17 @@ fun SettingsDialog(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ScrollableSettingsTabContent(content: @Composable () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+    ) {
+        content()
     }
 }
 

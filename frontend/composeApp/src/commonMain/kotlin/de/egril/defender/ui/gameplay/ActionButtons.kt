@@ -243,34 +243,61 @@ private fun TowerActionButtonContent(
     icon: @Composable () -> Unit,
     label: String,
     amount: Int,
+    shortcutHint: String? = null,
 ) {
     if (compact) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            icon()
-        }
-    } else {
-        Column(
+        Row(
             modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                icon()
-                Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+            Box(contentAlignment = Alignment.Center) { icon() }
+            if (shortcutHint != null) {
+                Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    label,
-                    fontSize = GamePlayConstants.TextSizes.Medium,
-                    fontWeight = FontWeight.Bold
+                    text = shortcutHint,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Items))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                MoneyIcon(size = 14.dp)
-                Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+        }
+    } else {
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    icon()
+                    Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+                    Text(
+                        label,
+                        fontSize = GamePlayConstants.TextSizes.Medium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Items))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    MoneyIcon(size = 14.dp)
+                    Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+                    Text(
+                        "$amount",
+                        fontSize = GamePlayConstants.TextSizes.Large,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            if (shortcutHint != null) {
+                Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    "$amount",
-                    fontSize = GamePlayConstants.TextSizes.Large,
-                    fontWeight = FontWeight.Bold
+                    text = shortcutHint,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -289,6 +316,9 @@ fun UpgradeButton(
     val upgradeLabel = stringResource(Res.string.upgrade)
     val coinsLabel = stringResource(Res.string.coins_label)
     val tooltipText = "$upgradeLabel: ${defender.upgradeCost} $coinsLabel"
+    val shortcutHint = if (AppSettings.showButtonShortcutHints.value) {
+        formatShortcutBindingForDisplay(AppSettings.shortcutUpgradeSelectedTower.value)
+    } else null
 
     BoxWithConstraints(modifier = modifier) {
         val compact = maxHeight < GamePlayConstants.ButtonSizes.ActionCompactThreshold ||
@@ -304,7 +334,8 @@ fun UpgradeButton(
                     compact = compact,
                     icon = { UpgradeTowerIcon(size = 20.dp) },
                     label = upgradeLabel,
-                    amount = defender.upgradeCost
+                    amount = defender.upgradeCost,
+                    shortcutHint = shortcutHint
                 )
             }
         }
@@ -326,6 +357,9 @@ fun UndoOrSellButton(
     // Determine if undo or sell is available
     val canUndo = defender.placedOnTurn == gameState.turnNumber.value && !defender.hasBeenUsed.value
     val canSell = defender.isReady && defender.actionsRemaining.value > 0
+    val shortcutHint = if (AppSettings.showButtonShortcutHints.value) {
+        formatShortcutBindingForDisplay(AppSettings.shortcutUndoOrSellSelectedTower.value)
+    } else null
 
     val coinsLabel = stringResource(Res.string.coins_label)
 
@@ -350,7 +384,8 @@ fun UndoOrSellButton(
                         compact = compact,
                         icon = { SellTowerIcon(size = 20.dp) },
                         label = undoLabel,
-                        amount = defender.totalCost
+                        amount = defender.totalCost,
+                        shortcutHint = shortcutHint
                     )
                 }
             }
@@ -377,7 +412,8 @@ fun UndoOrSellButton(
                         compact = compact,
                         icon = { SellTowerIcon(size = 20.dp) },
                         label = sellLabel,
-                        amount = sellAmount
+                        amount = sellAmount,
+                        shortcutHint = shortcutHint
                     )
                 }
             }

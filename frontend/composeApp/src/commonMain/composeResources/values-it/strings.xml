@@ -1289,6 +1289,10 @@
     <string name="keyboard_shortcut_shift_tab_prev_tower">Seleziona la torre azionabile precedente</string>
     <string name="keyboard_shortcut_center_selected_tower">Centra la mappa sulla torre selezionata</string>
     <string name="keyboard_shortcut_center_next_spawn_point">Centra la mappa sul prossimo punto di spawn</string>
+    <string name="keyboard_shortcut_upgrade_selected_tower">Potenzia la torre selezionata</string>
+    <string name="keyboard_shortcut_undo_or_sell_selected_tower">Annulla o vendi la torre selezionata</string>
+    <string name="keyboard_shortcut_toggle_spell_menu">Apri/chiudi menu magie</string>
+    <string name="keyboard_shortcut_switch_to_tower_mode">Torna alla modalità torri</string>
     <string name="auto_jump_to_next_tower">Salta automaticamente alla prossima torre azionabile</string>
     <string name="keyboard_shortcuts_note">Nota: Le scorciatoie da tastiera sono disponibili su desktop e nell\'app web.</string>
     <string name="keyboard_modifier_ctrl">Ctrl</string>

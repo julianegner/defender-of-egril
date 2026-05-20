@@ -90,6 +90,10 @@ object AppSettings {
     private const val KEY_SHORTCUT_PAN_RIGHT = "shortcut_pan_right"
     private const val KEY_SHORTCUT_CENTER_SELECTED_TOWER = "shortcut_center_selected_tower"
     private const val KEY_SHORTCUT_CENTER_NEXT_SPAWN_POINT = "shortcut_center_next_spawn_point"
+    private const val KEY_SHORTCUT_UPGRADE_SELECTED_TOWER = "shortcut_upgrade_selected_tower"
+    private const val KEY_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER = "shortcut_undo_or_sell_selected_tower"
+    private const val KEY_SHORTCUT_TOGGLE_SPELL_MENU = "shortcut_toggle_spell_menu"
+    private const val KEY_SHORTCUT_SWITCH_TO_TOWER_MODE = "shortcut_switch_to_tower_mode"
     private const val DEFAULT_SHORTCUT_ATTACK_SELECTED_TARGET = "F"
     private const val DEFAULT_SHORTCUT_SELECT_NEXT_TOWER = "Tab"
     private const val DEFAULT_SHORTCUT_SELECT_PREVIOUS_TOWER = "Shift+Tab"
@@ -104,6 +108,10 @@ object AppSettings {
     private const val DEFAULT_SHORTCUT_PAN_RIGHT = "D"
     private const val DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER = "R"
     private const val DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT = "G"
+    private const val DEFAULT_SHORTCUT_UPGRADE_SELECTED_TOWER = "U"
+    private const val DEFAULT_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER = "X"
+    private const val DEFAULT_SHORTCUT_TOGGLE_SPELL_MENU = "M"
+    private const val DEFAULT_SHORTCUT_SWITCH_TO_TOWER_MODE = "T"
     
     private val settings: Settings = Settings()
 
@@ -427,6 +435,34 @@ object AppSettings {
         normalizeShortcutBinding(
             settings[KEY_SHORTCUT_CENTER_NEXT_SPAWN_POINT, DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT],
             DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT
+        )
+    )
+
+    val shortcutUpgradeSelectedTower: MutableState<String> = mutableStateOf(
+        normalizeShortcutBinding(
+            settings[KEY_SHORTCUT_UPGRADE_SELECTED_TOWER, DEFAULT_SHORTCUT_UPGRADE_SELECTED_TOWER],
+            DEFAULT_SHORTCUT_UPGRADE_SELECTED_TOWER
+        )
+    )
+
+    val shortcutUndoOrSellSelectedTower: MutableState<String> = mutableStateOf(
+        normalizeShortcutBinding(
+            settings[KEY_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER, DEFAULT_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER],
+            DEFAULT_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER
+        )
+    )
+
+    val shortcutToggleSpellMenu: MutableState<String> = mutableStateOf(
+        normalizeShortcutBinding(
+            settings[KEY_SHORTCUT_TOGGLE_SPELL_MENU, DEFAULT_SHORTCUT_TOGGLE_SPELL_MENU],
+            DEFAULT_SHORTCUT_TOGGLE_SPELL_MENU
+        )
+    )
+
+    val shortcutSwitchToTowerMode: MutableState<String> = mutableStateOf(
+        normalizeShortcutBinding(
+            settings[KEY_SHORTCUT_SWITCH_TO_TOWER_MODE, DEFAULT_SHORTCUT_SWITCH_TO_TOWER_MODE],
+            DEFAULT_SHORTCUT_SWITCH_TO_TOWER_MODE
         )
     )
 
@@ -864,6 +900,34 @@ object AppSettings {
         onPersist?.invoke()
     }
 
+    fun saveShortcutUpgradeSelectedTower(shortcut: String) {
+        val normalized = normalizeShortcutBinding(shortcut, DEFAULT_SHORTCUT_UPGRADE_SELECTED_TOWER)
+        shortcutUpgradeSelectedTower.value = normalized
+        settings[KEY_SHORTCUT_UPGRADE_SELECTED_TOWER] = normalized
+        onPersist?.invoke()
+    }
+
+    fun saveShortcutUndoOrSellSelectedTower(shortcut: String) {
+        val normalized = normalizeShortcutBinding(shortcut, DEFAULT_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER)
+        shortcutUndoOrSellSelectedTower.value = normalized
+        settings[KEY_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER] = normalized
+        onPersist?.invoke()
+    }
+
+    fun saveShortcutToggleSpellMenu(shortcut: String) {
+        val normalized = normalizeShortcutBinding(shortcut, DEFAULT_SHORTCUT_TOGGLE_SPELL_MENU)
+        shortcutToggleSpellMenu.value = normalized
+        settings[KEY_SHORTCUT_TOGGLE_SPELL_MENU] = normalized
+        onPersist?.invoke()
+    }
+
+    fun saveShortcutSwitchToTowerMode(shortcut: String) {
+        val normalized = normalizeShortcutBinding(shortcut, DEFAULT_SHORTCUT_SWITCH_TO_TOWER_MODE)
+        shortcutSwitchToTowerMode.value = normalized
+        settings[KEY_SHORTCUT_SWITCH_TO_TOWER_MODE] = normalized
+        onPersist?.invoke()
+    }
+
     fun resetShortcutBindings() {
         saveShortcutAttackSelectedTarget(DEFAULT_SHORTCUT_ATTACK_SELECTED_TARGET)
         saveShortcutSelectNextTower(DEFAULT_SHORTCUT_SELECT_NEXT_TOWER)
@@ -879,6 +943,10 @@ object AppSettings {
         saveShortcutPanRight(DEFAULT_SHORTCUT_PAN_RIGHT)
         saveShortcutCenterSelectedTower(DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER)
         saveShortcutCenterNextSpawnPoint(DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT)
+        saveShortcutUpgradeSelectedTower(DEFAULT_SHORTCUT_UPGRADE_SELECTED_TOWER)
+        saveShortcutUndoOrSellSelectedTower(DEFAULT_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER)
+        saveShortcutToggleSpellMenu(DEFAULT_SHORTCUT_TOGGLE_SPELL_MENU)
+        saveShortcutSwitchToTowerMode(DEFAULT_SHORTCUT_SWITCH_TO_TOWER_MODE)
     }
 
     fun getDefaultShortcutBindings(): Map<String, String> = mapOf(
@@ -895,7 +963,11 @@ object AppSettings {
         KEY_SHORTCUT_PAN_LEFT to DEFAULT_SHORTCUT_PAN_LEFT,
         KEY_SHORTCUT_PAN_RIGHT to DEFAULT_SHORTCUT_PAN_RIGHT,
         KEY_SHORTCUT_CENTER_SELECTED_TOWER to DEFAULT_SHORTCUT_CENTER_SELECTED_TOWER,
-        KEY_SHORTCUT_CENTER_NEXT_SPAWN_POINT to DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT
+        KEY_SHORTCUT_CENTER_NEXT_SPAWN_POINT to DEFAULT_SHORTCUT_CENTER_NEXT_SPAWN_POINT,
+        KEY_SHORTCUT_UPGRADE_SELECTED_TOWER to DEFAULT_SHORTCUT_UPGRADE_SELECTED_TOWER,
+        KEY_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER to DEFAULT_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER,
+        KEY_SHORTCUT_TOGGLE_SPELL_MENU to DEFAULT_SHORTCUT_TOGGLE_SPELL_MENU,
+        KEY_SHORTCUT_SWITCH_TO_TOWER_MODE to DEFAULT_SHORTCUT_SWITCH_TO_TOWER_MODE
     )
 
     fun getAccessibilityPreferences(): AccessibilityPreferences {
@@ -956,6 +1028,10 @@ object AppSettings {
         put(KEY_SHORTCUT_PAN_RIGHT, shortcutPanRight.value)
         put(KEY_SHORTCUT_CENTER_SELECTED_TOWER, shortcutCenterSelectedTower.value)
         put(KEY_SHORTCUT_CENTER_NEXT_SPAWN_POINT, shortcutCenterNextSpawnPoint.value)
+        put(KEY_SHORTCUT_UPGRADE_SELECTED_TOWER, shortcutUpgradeSelectedTower.value)
+        put(KEY_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER, shortcutUndoOrSellSelectedTower.value)
+        put(KEY_SHORTCUT_TOGGLE_SPELL_MENU, shortcutToggleSpellMenu.value)
+        put(KEY_SHORTCUT_SWITCH_TO_TOWER_MODE, shortcutSwitchToTowerMode.value)
     }
 
     /**
@@ -1018,6 +1094,10 @@ object AppSettings {
             map[KEY_SHORTCUT_PAN_RIGHT]?.let { saveShortcutPanRight(it) }
             map[KEY_SHORTCUT_CENTER_SELECTED_TOWER]?.let { saveShortcutCenterSelectedTower(it) }
             map[KEY_SHORTCUT_CENTER_NEXT_SPAWN_POINT]?.let { saveShortcutCenterNextSpawnPoint(it) }
+            map[KEY_SHORTCUT_UPGRADE_SELECTED_TOWER]?.let { saveShortcutUpgradeSelectedTower(it) }
+            map[KEY_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER]?.let { saveShortcutUndoOrSellSelectedTower(it) }
+            map[KEY_SHORTCUT_TOGGLE_SPELL_MENU]?.let { saveShortcutToggleSpellMenu(it) }
+            map[KEY_SHORTCUT_SWITCH_TO_TOWER_MODE]?.let { saveShortcutSwitchToTowerMode(it) }
         } finally {
             onPersist = savedCallback
         }
