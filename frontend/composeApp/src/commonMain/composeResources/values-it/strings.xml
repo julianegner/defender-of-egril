@@ -50,7 +50,7 @@
     <string name="tile_smooth_transitions_off">Bordi Netti</string>
     <string name="animations">Animazioni</string>
     <string name="animations_on">Animazioni Attive</string>
-    <string name="animations_off">Icone Statiche</string>
+    <string name="animations_off">Movimento ridotto / Icone statiche</string>
     <string name="header_text_size">Dimensione del Testo dell'Intestazione del Livello</string>
     <string name="header_text_size_small">Piccolo</string>
     <string name="header_text_size_medium">Medio</string>
@@ -1776,6 +1776,10 @@
     <string name="accessibility_color_blind_deuteranopia">Deuteranopia</string>
     <string name="accessibility_color_blind_protanopia">Protanopia</string>
     <string name="accessibility_color_blind_tritanopia">Tritanopia</string>
+    <string name="accessibility_color_blind_off_description">Nessun filtro per la visione dei colori.</string>
+    <string name="accessibility_color_blind_deuteranopia_description">Ottimizzato per difficoltà con il verde (deuteranopia).</string>
+    <string name="accessibility_color_blind_protanopia_description">Ottimizzato per difficoltà con il rosso (protanopia).</string>
+    <string name="accessibility_color_blind_tritanopia_description">Ottimizzato per difficoltà con il blu (tritanopia).</string>
     <string name="accessibility_captions">Sottotitoli</string>
     <string name="accessibility_captions_info">Mostra suggerimenti testuali per eventi sonori importanti.</string>
     <string name="accessibility_hold_to_confirm">Tieni premuto per confermare</string>

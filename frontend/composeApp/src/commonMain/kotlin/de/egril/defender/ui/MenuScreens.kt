@@ -475,9 +475,6 @@ fun MainMenuScreen(
                             textStyle = if (isPlatformMobile) MaterialTheme.typography.bodySmall else MaterialTheme.typography.labelSmall
                         )
                         Spacer(modifier = Modifier.height(8.dp))
-                        TextButton(onClick = onShowRules) {
-                            Text(stringResource(Res.string.tutorials_and_help), style = MaterialTheme.typography.labelMedium)
-                        }
                         if (isPlatformWasm && WithImpressum.withImpressum) {
                             Spacer(modifier = Modifier.height(16.dp))
                             Button(
@@ -628,9 +625,6 @@ fun MainMenuScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = onShowRules, modifier = Modifier.width(200.dp).height(60.dp)) {
                         Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
-                    }
-                    TextButton(onClick = onShowRules) {
-                        Text(stringResource(Res.string.tutorials_and_help), style = MaterialTheme.typography.bodyMedium)
                     }
                     if (isPlatformWasm && WithImpressum.withImpressum) {
                         Spacer(modifier = Modifier.height(16.dp))

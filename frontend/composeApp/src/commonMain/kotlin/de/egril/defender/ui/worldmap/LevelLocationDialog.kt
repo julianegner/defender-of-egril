@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import de.egril.defender.model.LevelStatus
 import de.egril.defender.model.WorldLevel
+import de.egril.defender.ui.a11y.accessibilityVisualFilter
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.getLocalizedName
 import com.hyperether.resources.stringResource
@@ -41,7 +42,11 @@ fun LevelLocationDialog(
             modifier = Modifier
                 .widthIn(min = 400.dp, max = 800.dp)
                 .heightIn(max = 700.dp)
-                .padding(8.dp),
+                .padding(8.dp)
+                .accessibilityVisualFilter(
+                    highContrastEnabled = AppSettings.highContrastEnabled.value,
+                    colorBlindPalette = AppSettings.colorBlindPalette.value
+                ),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
                 containerColor = if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFFF5F5F5)

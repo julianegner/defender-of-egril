@@ -131,14 +131,22 @@ fun SettingsDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                val selectedTabType = tabEntriesWithLabels[selectedTab].first
+
                 // Tab content
                 Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
+                    modifier = if (selectedTabType == SettingsTab.SHORTCUTS) {
+                        Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                    } else {
+                        Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .verticalScroll(rememberScrollState())
+                    }
                 ) {
-                    when (tabEntriesWithLabels[selectedTab].first) {
+                    when (selectedTabType) {
                         SettingsTab.GENERAL -> GeneralTabContent(onDismissSettings = onDismiss)
                         SettingsTab.WORLD_MAP -> WorldmapTabContent()
                         SettingsTab.LEVEL -> LevelTabContent()
@@ -292,16 +300,7 @@ private fun AccessibilityTabContent() {
         )
         AccessibilityInfoText(stringResource(Res.string.accessibility_high_contrast_info))
 
-        GenericSwitch(
-            state = AppSettings.captionsEnabled,
-            checkedText = stringResource(Res.string.accessibility_captions),
-            uncheckedText = stringResource(Res.string.accessibility_captions),
-            onCheckedChange = { enabled ->
-                AppSettings.saveCaptionsEnabled(enabled)
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
-        AccessibilityInfoText(stringResource(Res.string.accessibility_captions_info))
+        CaptionsSetting()
 
         GenericSwitch(
             state = AppSettings.holdToConfirmEnabled,
@@ -325,12 +324,6 @@ private fun AccessibilityTabContent() {
         )
         AccessibilityInfoText(stringResource(Res.string.accessibility_reduce_motion_setting_info))
 
-        ColorBlindPaletteChooser(
-            selected = AppSettings.colorBlindPalette.value,
-            onSelected = { AppSettings.saveColorBlindPalette(it) }
-        )
-        AccessibilityInfoText(stringResource(Res.string.accessibility_color_blind_palette_info))
-
         SelectableText(
             text = if (accessibilityPreferences.reduceMotionEnabled) {
                 stringResource(Res.string.accessibility_reduce_motion_on)
@@ -346,6 +339,14 @@ private fun AccessibilityTabContent() {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+
+        HeaderTextSizeSetting()
+
+        ColorBlindPaletteChooser(
+            selected = AppSettings.colorBlindPalette.value,
+            onSelected = { AppSettings.saveColorBlindPalette(it) }
+        )
+        AccessibilityInfoText(stringResource(Res.string.accessibility_color_blind_palette_info))
     }
 }
 
@@ -376,44 +377,59 @@ private fun ColorBlindPaletteChooser(
     selected: ColorBlindPalette,
     onSelected: (ColorBlindPalette) -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    val options = listOf(
+        Triple(
+            ColorBlindPalette.OFF,
+            stringResource(Res.string.accessibility_color_blind_off),
+            stringResource(Res.string.accessibility_color_blind_off_description)
+        ),
+        Triple(
+            ColorBlindPalette.DEUTERANOPIA,
+            stringResource(Res.string.accessibility_color_blind_deuteranopia),
+            stringResource(Res.string.accessibility_color_blind_deuteranopia_description)
+        ),
+        Triple(
+            ColorBlindPalette.PROTANOPIA,
+            stringResource(Res.string.accessibility_color_blind_protanopia),
+            stringResource(Res.string.accessibility_color_blind_protanopia_description)
+        ),
+        Triple(
+            ColorBlindPalette.TRITANOPIA,
+            stringResource(Res.string.accessibility_color_blind_tritanopia),
+            stringResource(Res.string.accessibility_color_blind_tritanopia_description)
+        )
+    )
 
-    val selectedLabel = when (selected) {
-        ColorBlindPalette.OFF -> stringResource(Res.string.accessibility_color_blind_off)
-        ColorBlindPalette.DEUTERANOPIA -> stringResource(Res.string.accessibility_color_blind_deuteranopia)
-        ColorBlindPalette.PROTANOPIA -> stringResource(Res.string.accessibility_color_blind_protanopia)
-        ColorBlindPalette.TRITANOPIA -> stringResource(Res.string.accessibility_color_blind_tritanopia)
-    }
-
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         SelectableText(
             text = stringResource(Res.string.accessibility_color_blind_palette),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
-        Box {
-            OutlinedButton(
-                onClick = { expanded = true },
-                modifier = Modifier.fillMaxWidth()
+        options.forEach { (palette, label, description) ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(selectedLabel)
-            }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false }
-            ) {
-                listOf(
-                    ColorBlindPalette.OFF to stringResource(Res.string.accessibility_color_blind_off),
-                    ColorBlindPalette.DEUTERANOPIA to stringResource(Res.string.accessibility_color_blind_deuteranopia),
-                    ColorBlindPalette.PROTANOPIA to stringResource(Res.string.accessibility_color_blind_protanopia),
-                    ColorBlindPalette.TRITANOPIA to stringResource(Res.string.accessibility_color_blind_tritanopia)
-                ).forEach { (palette, label) ->
-                    DropdownMenuItem(
-                        text = { Text(label) },
-                        onClick = {
-                            onSelected(palette)
-                            expanded = false
-                        }
+                RadioButton(
+                    selected = selected == palette,
+                    onClick = { onSelected(palette) }
+                )
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(top = 10.dp)
+                ) {
+                    SelectableText(
+                        text = label,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    SelectableText(
+                        text = description,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -632,59 +648,7 @@ private fun LevelTabContent() {
                 modifier = Modifier.fillMaxWidth()
             )
 
-            // Level header text size slider
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                SelectableText(
-                    text = stringResource(Res.string.header_text_size),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(0.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        SelectableText(
-                            text = stringResource(Res.string.header_text_size_small),
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.width(40.dp)
-                        )
-                        Slider(
-                            value = AppSettings.headerTextSize.value.ordinal.toFloat(),
-                            onValueChange = { value ->
-                                val size = when (value.toInt()) {
-                                    0 -> HeaderTextSize.SMALL
-                                    1 -> HeaderTextSize.MEDIUM
-                                    else -> HeaderTextSize.LARGE
-                                }
-                                AppSettings.saveHeaderTextSize(size)
-                            },
-                            modifier = Modifier.weight(1f),
-                            valueRange = 0f..2f,
-                            steps = 1
-                        )
-                        SelectableText(
-                            text = stringResource(Res.string.header_text_size_large),
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.width(40.dp)
-                        )
-                    }
-                    SelectableText(
-                        text = stringResource(Res.string.header_text_size_medium),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-                }
-            }
+            HeaderTextSizeSetting()
         }
 
         HorizontalDivider()
@@ -722,6 +686,76 @@ private fun LevelTabContent() {
     }
 }
 
+@Composable
+private fun HeaderTextSizeSetting() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        SelectableText(
+            text = stringResource(Res.string.header_text_size),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(0.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                SelectableText(
+                    text = stringResource(Res.string.header_text_size_small),
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.width(40.dp)
+                )
+                Slider(
+                    value = AppSettings.headerTextSize.value.ordinal.toFloat(),
+                    onValueChange = { value ->
+                        val size = when (value.toInt()) {
+                            0 -> HeaderTextSize.SMALL
+                            1 -> HeaderTextSize.MEDIUM
+                            else -> HeaderTextSize.LARGE
+                        }
+                        AppSettings.saveHeaderTextSize(size)
+                    },
+                    modifier = Modifier.weight(1f),
+                    valueRange = 0f..2f,
+                    steps = 1
+                )
+                SelectableText(
+                    text = stringResource(Res.string.header_text_size_large),
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.width(40.dp)
+                )
+            }
+            SelectableText(
+                text = stringResource(Res.string.header_text_size_medium),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+        }
+    }
+}
+
+@Composable
+private fun CaptionsSetting() {
+    GenericSwitch(
+        state = AppSettings.captionsEnabled,
+        checkedText = stringResource(Res.string.accessibility_captions),
+        uncheckedText = stringResource(Res.string.accessibility_captions),
+        onCheckedChange = { enabled ->
+            AppSettings.saveCaptionsEnabled(enabled)
+        },
+        modifier = Modifier.fillMaxWidth()
+    )
+    AccessibilityInfoText(stringResource(Res.string.accessibility_captions_info))
+}
+
 /**
  * Sound tab: All sound settings.
  */
@@ -752,6 +786,8 @@ private fun SoundTabContent() {
             },
             modifier = Modifier.fillMaxWidth()
         )
+
+        CaptionsSetting()
 
         // Master volume slider (only shown when sound is enabled)
         if (AppSettings.isSoundEnabled.value) {

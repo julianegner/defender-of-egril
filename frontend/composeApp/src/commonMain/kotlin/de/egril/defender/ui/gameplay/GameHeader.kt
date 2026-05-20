@@ -159,9 +159,11 @@ fun GameHeader(
                 )
                 
                 // Difficulty display (non-clickable on gameplay screen)
-                DifficultyDisplay(
-                    isClickable = false
-                )
+                TooltipWrapper(text = stringResource(Res.string.difficulty)) {
+                    DifficultyDisplay(
+                        isClickable = false
+                    )
+                }
 
                 // Debug options button (only visible when debug options enabled)
                 if (showDebugOptions) {
@@ -331,12 +333,11 @@ fun GameHeader(
 
                 val tutorialsAndHelpLabel = stringResource(Res.string.tutorials_and_help)
                 TooltipWrapper(text = tutorialsAndHelpLabel) {
-                    Button(
+                    IconButton(
                         onClick = { showTutorialsHelpDialog = true },
                         modifier = Modifier
-                            .height(buttonHeight)
+                            .size(buttonHeight)
                             .semantics { contentDescription = tutorialsAndHelpLabel },
-                        contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp)
                     ) {
                         HelpIcon(
                             size = buttonIconSize,
@@ -366,7 +367,10 @@ fun GameHeader(
                         .fillMaxWidth()
                 ) {
                     Box(modifier = Modifier.weight(1f)) {
-                        KeyboardShortcutsInfo()
+                        KeyboardShortcutsInfo(
+                            enableBindingEdit = true,
+                            showResetButton = true
+                        )
                     }
                     Button(
                         onClick = { showShortcutsDialog = false },

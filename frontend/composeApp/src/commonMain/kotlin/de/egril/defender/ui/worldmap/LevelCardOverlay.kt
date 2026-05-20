@@ -17,6 +17,7 @@ import de.egril.defender.ui.common.LevelInfoEnemiesColumn
 import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.icon.LockIcon
 import de.egril.defender.ui.icon.SwordIcon
+import de.egril.defender.ui.a11y.accessibilityVisualFilter
 import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.Position
@@ -70,7 +71,11 @@ fun LevelCardOverlay(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(16.dp)
+                .accessibilityVisualFilter(
+                    highContrastEnabled = AppSettings.highContrastEnabled.value,
+                    colorBlindPalette = AppSettings.colorBlindPalette.value
+                ),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = backgroundColor)
         ) {

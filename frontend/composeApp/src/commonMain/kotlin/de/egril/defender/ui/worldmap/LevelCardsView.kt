@@ -14,6 +14,8 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.model.LevelStatus
 import de.egril.defender.model.WorldLevel
 import de.egril.defender.save.CommunityFileInfo
+import de.egril.defender.ui.a11y.accessibilityVisualFilter
+import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -113,7 +115,12 @@ fun LevelCardsView(
     val showRemoteOnly = filterToCommunityOnly ||
         (showUserLevelsTab && selectedTabIndex == 1)
     
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier.accessibilityVisualFilter(
+            highContrastEnabled = AppSettings.highContrastEnabled.value,
+            colorBlindPalette = AppSettings.colorBlindPalette.value
+        )
+    ) {
         // Show tabs if requested
         if (showUserLevelsTab) {
             PrimaryTabRow(selectedTabIndex = selectedTabIndex) {

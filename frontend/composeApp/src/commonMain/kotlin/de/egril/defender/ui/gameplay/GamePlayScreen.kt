@@ -24,6 +24,7 @@ import de.egril.defender.ui.CheatCodeDialog
 import de.egril.defender.ui.getGameplayUIScale
 import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.ReminderMessage
+import de.egril.defender.ui.icon.SpeakerHighIcon
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.ui.editor.ConfirmationDialog
@@ -31,8 +32,6 @@ import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.keyToShortcutToken
 import de.egril.defender.ui.settings.parseShortcutBinding
 import de.egril.defender.ui.a11y.accessibilityVisualFilter
-import com.hyperether.resources.stringResource
-import defender_of_egril.composeapp.generated.resources.*
 
 private const val SOUND_CAPTION_DISPLAY_DURATION_MS = 2000L
 
@@ -1138,12 +1137,18 @@ private fun GamePlayScreenContent(
                     shadowElevation = 3.dp,
                     shape = MaterialTheme.shapes.medium
                 ) {
-                    Text(
-                        text = captionText,
+                    Row(
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        SpeakerHighIcon(size = 18.dp)
+                        Text(
+                            text = captionText,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
                 }
             }
 

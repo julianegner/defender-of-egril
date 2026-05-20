@@ -50,7 +50,7 @@
     <string name="tile_smooth_transitions_off">Scharfe Kanten</string>
     <string name="animations">Animationen</string>
     <string name="animations_on">Animationen An</string>
-    <string name="animations_off">Statische Symbole</string>
+    <string name="animations_off">Weniger Bewegung / Statische Symbole</string>
     <string name="header_text_size">Level-Header-Textgröße</string>
     <string name="header_text_size_small">Klein</string>
     <string name="header_text_size_medium">Mittel</string>
@@ -1773,6 +1773,10 @@
     <string name="accessibility_color_blind_deuteranopia">Deuteranopie</string>
     <string name="accessibility_color_blind_protanopia">Protanopie</string>
     <string name="accessibility_color_blind_tritanopia">Tritanopie</string>
+    <string name="accessibility_color_blind_off_description">Kein Farbseh-Filter.</string>
+    <string name="accessibility_color_blind_deuteranopia_description">Optimiert für Grünschwäche (Deuteranopie).</string>
+    <string name="accessibility_color_blind_protanopia_description">Optimiert für Rotschwäche (Protanopie).</string>
+    <string name="accessibility_color_blind_tritanopia_description">Optimiert für Blauschwäche (Tritanopie).</string>
     <string name="accessibility_captions">Untertitel</string>
     <string name="accessibility_captions_info">Zeigt Texthinweise für wichtige Soundereignisse.</string>
     <string name="accessibility_hold_to_confirm">Gedrückt halten zum Bestätigen</string>

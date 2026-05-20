@@ -50,7 +50,7 @@
     <string name="tile_smooth_transitions_off">Bords Nets</string>
     <string name="animations">Animations</string>
     <string name="animations_on">Animations Activées</string>
-    <string name="animations_off">Icônes Statiques</string>
+    <string name="animations_off">Mouvement réduit / Icônes statiques</string>
     <string name="header_text_size">Taille du Texte de l'En-tête du Niveau</string>
     <string name="header_text_size_small">Petit</string>
     <string name="header_text_size_medium">Moyen</string>
@@ -1775,6 +1775,10 @@
     <string name="accessibility_color_blind_deuteranopia">Deutéranopie</string>
     <string name="accessibility_color_blind_protanopia">Protanopie</string>
     <string name="accessibility_color_blind_tritanopia">Tritanopie</string>
+    <string name="accessibility_color_blind_off_description">Aucun filtre de vision des couleurs.</string>
+    <string name="accessibility_color_blind_deuteranopia_description">Optimisé pour la difficulté avec le vert (deutéranopie).</string>
+    <string name="accessibility_color_blind_protanopia_description">Optimisé pour la difficulté avec le rouge (protanopie).</string>
+    <string name="accessibility_color_blind_tritanopia_description">Optimisé pour la difficulté avec le bleu (tritanopie).</string>
     <string name="accessibility_captions">Sous-titres</string>
     <string name="accessibility_captions_info">Affiche des indications textuelles pour les événements sonores importants.</string>
     <string name="accessibility_hold_to_confirm">Maintenir pour confirmer</string>

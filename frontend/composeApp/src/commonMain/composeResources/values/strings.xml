@@ -50,7 +50,7 @@
     <string name="tile_smooth_transitions_off">Sharp Edges</string>
     <string name="animations">Animations</string>
     <string name="animations_on">Animations On</string>
-    <string name="animations_off">Static Icons</string>
+    <string name="animations_off">Reduced Motion / Static Icons</string>
     <string name="header_text_size">Level Header Text Size</string>
     <string name="header_text_size_small">Small</string>
     <string name="header_text_size_medium">Medium</string>
@@ -1780,6 +1780,10 @@
     <string name="accessibility_color_blind_deuteranopia">Deuteranopia</string>
     <string name="accessibility_color_blind_protanopia">Protanopia</string>
     <string name="accessibility_color_blind_tritanopia">Tritanopia</string>
+    <string name="accessibility_color_blind_off_description">No color-vision filter.</string>
+    <string name="accessibility_color_blind_deuteranopia_description">Optimized for green-weak (deuteranopia) vision.</string>
+    <string name="accessibility_color_blind_protanopia_description">Optimized for red-weak (protanopia) vision.</string>
+    <string name="accessibility_color_blind_tritanopia_description">Optimized for blue-weak (tritanopia) vision.</string>
     <string name="accessibility_captions">Captions</string>
     <string name="accessibility_captions_info">Shows text hints for important sound events.</string>
     <string name="accessibility_hold_to_confirm">Hold to Confirm</string>

@@ -21,7 +21,10 @@ import de.egril.defender.ui.icon.TriangleDownIcon
 import de.egril.defender.ui.icon.TriangleLeftIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.coins
+import defender_of_egril.composeapp.generated.resources.health
 import defender_of_egril.composeapp.generated.resources.spells
+import defender_of_egril.composeapp.generated.resources.turn
 import defender_of_egril.composeapp.generated.resources.tooltip_enemies_on_map_and_planned
 
 /**
@@ -144,24 +147,28 @@ fun GameStatsDisplay(
 ) {
 
     // Coins (clickable if callback provided)
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = if (onCoinsClick != null) {
-            Modifier.clickable(onClick = onCoinsClick)
-        } else {
-            Modifier
+    TooltipWrapper(text = stringResource(Res.string.coins)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = if (onCoinsClick != null) {
+                Modifier.clickable(onClick = onCoinsClick)
+            } else {
+                Modifier
+            }
+        ) {
+            MoneyIcon(size = iconSize)
+            Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+            Text("$coins", style = textStyle)
         }
-    ) {
-        MoneyIcon(size = iconSize)
-        Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
-        Text("$coins", style = textStyle)
     }
         
     // Health
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        HeartIcon(size = iconSize)
-        Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
-        Text("$health", style = textStyle)
+    TooltipWrapper(text = stringResource(Res.string.health)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            HeartIcon(size = iconSize)
+            Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+            Text("$health", style = textStyle)
+        }
     }
     
     // Mana (only show if mana values are provided)
@@ -186,10 +193,12 @@ fun GameStatsDisplay(
     }
         
     // Turn
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        ReloadIcon(size = iconSize - 2.dp) // Slightly smaller reload icon
-        Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
-        Text("$turn", style = textStyle)
+    TooltipWrapper(text = stringResource(Res.string.turn)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            ReloadIcon(size = iconSize - 2.dp) // Slightly smaller reload icon
+            Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+            Text("$turn", style = textStyle)
+        }
     }
 
     // Enemy count (clickable if callback provided)
