@@ -32,7 +32,9 @@ import androidx.compose.ui.unit.dp
 import de.egril.defender.model.Position
 import de.egril.defender.ui.mouseWheelZoom
 import de.egril.defender.ui.isMobileWebBrowser
-import de.egril.defender.ui.settings.isShortcutBindingPressed
+import de.egril.defender.ui.settings.ShortcutBinding
+import de.egril.defender.ui.settings.keyToShortcutToken
+import de.egril.defender.ui.settings.parseShortcutBinding
 import de.egril.defender.utils.isPlatformMobile
 import kotlin.math.sqrt
 
@@ -139,25 +141,38 @@ fun HexagonalMapView(
     }
 
     // Keyboard event handler
+    val parsedPanUp = remember(config.panUpBinding) { parseShortcutBinding(config.panUpBinding) }
+    val parsedPanDown = remember(config.panDownBinding) { parseShortcutBinding(config.panDownBinding) }
+    val parsedPanLeft = remember(config.panLeftBinding) { parseShortcutBinding(config.panLeftBinding) }
+    val parsedPanRight = remember(config.panRightBinding) { parseShortcutBinding(config.panRightBinding) }
+    val matchesBinding: (KeyEvent, ShortcutBinding?) -> Boolean = { event, parsed ->
+        parsed != null &&
+                parsed.keyToken == keyToShortcutToken(event.key) &&
+                parsed.ctrl == event.isCtrlPressed &&
+                parsed.alt == event.isAltPressed &&
+                parsed.shift == event.isShiftPressed &&
+                parsed.meta == event.isMetaPressed
+    }
+
     val keyboardHandler: (KeyEvent) -> Boolean = { event ->
         if (config.enableKeyboardNavigation && event.type == KeyEventType.KeyDown) {
             var handled = false
             var newOffsetX = offsetX
             var newOffsetY = offsetY
             when {
-                isShortcutBindingPressed(event, config.panUpBinding) -> {
+                matchesBinding(event, parsedPanUp) -> {
                     newOffsetY += config.keyboardPanSpeed
                     handled = true
                 }
-                isShortcutBindingPressed(event, config.panDownBinding) -> {
+                matchesBinding(event, parsedPanDown) -> {
                     newOffsetY -= config.keyboardPanSpeed
                     handled = true
                 }
-                isShortcutBindingPressed(event, config.panLeftBinding) -> {
+                matchesBinding(event, parsedPanLeft) -> {
                     newOffsetX += config.keyboardPanSpeed
                     handled = true
                 }
-                isShortcutBindingPressed(event, config.panRightBinding) -> {
+                matchesBinding(event, parsedPanRight) -> {
                     newOffsetX -= config.keyboardPanSpeed
                     handled = true
                 }

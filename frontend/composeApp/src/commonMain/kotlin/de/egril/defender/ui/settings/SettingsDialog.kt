@@ -364,7 +364,7 @@ private fun AccessibilityInfoText(text: String) {
 @Composable
 private fun ShortcutBindingsTabContent() {
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         GenericSwitch(
@@ -380,7 +380,7 @@ private fun ShortcutBindingsTabContent() {
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(4.dp))
-        Box(modifier = Modifier.weight(1f)) {
+        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             KeyboardShortcutsInfo(
                 enableBindingEdit = true,
                 showResetButton = true

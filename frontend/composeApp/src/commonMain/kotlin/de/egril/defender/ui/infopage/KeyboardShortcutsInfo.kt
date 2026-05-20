@@ -363,7 +363,9 @@ private fun ShortcutBindingRow(
     onEdit: () -> Unit,
     buttonTestTag: String
 ) {
-    val isChanged = isShortcutBindingChanged(key, defaultKey)
+    val isChanged = remember(key, defaultKey) {
+        isShortcutBindingChanged(key, defaultKey)
+    }
     ShortcutRow(
         keyContent = {
             if (enableEdit) {
