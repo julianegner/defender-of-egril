@@ -131,6 +131,13 @@ private fun MainMenuButtonRow(
                 )
             ) {
                 Text(stringResource(Res.string.continue_game), style = textStyle, maxLines = 1)
+                if (AppSettings.showButtonShortcutHints.value) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                    de.egril.defender.ui.gameplay.ShortcutKeyChip(
+                        text = "C",
+                        color = LocalContentColor.current.copy(alpha = 0.75f)
+                    )
+                }
             }
         }
 
@@ -191,6 +198,12 @@ fun MainMenuScreen(
                     event.key == Key.Enter && !event.isCtrlPressed && !event.isAltPressed
                             && isDataLoaded && !showExitConfirmation -> {
                         onStartGame()
+                        true
+                    }
+                    // C → Continue game (if autosave exists)
+                    event.key == Key.C && !event.isCtrlPressed && !event.isAltPressed
+                            && hasAutosave && isDataLoaded && !showExitConfirmation -> {
+                        onContinueGame()
                         true
                     }
                     // H → Show Rules (if no dialog open)
@@ -678,7 +691,12 @@ fun MainMenuScreen(
                                 modifier = Modifier.width(200.dp).height(60.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
                             ) {
-                                Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.titleMedium)
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.titleMedium)
+                                    if (AppSettings.showButtonShortcutHints.value) {
+                                        ShortcutKeyChip(text = "C", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                    }
+                                }
                             }
                         }
                     }

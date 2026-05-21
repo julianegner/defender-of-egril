@@ -6,7 +6,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
@@ -54,6 +59,10 @@ fun NarrativeMessageDialog(
     onDismiss: () -> Unit
 ) {
     Dialog(onDismissRequest = onDismiss) {
+        val focusRequester = remember { FocusRequester() }
+        LaunchedEffect(Unit) {
+            try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+        }
         val isMobile = isPlatformMobile
         val titleFontSize = when {
             isMobile && type == NarrativeMessageType.EWHAD -> 16.sp
@@ -81,6 +90,8 @@ fun NarrativeMessageDialog(
         // the actual device screen size rather than using a fixed narrow value.
         BoxWithConstraints(
             modifier = (if (isMobile) Modifier.fillMaxWidth() else Modifier.width(700.dp))
+                .focusRequester(focusRequester)
+                .focusTarget()
                 .onPreviewKeyEvent { event ->
                     if (event.type == KeyEventType.KeyDown &&
                         (event.key == Key.Enter || event.key == Key.Escape || event.key == Key.Back)

@@ -1,7 +1,10 @@
 package de.egril.defender.ui.worldmap
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -32,6 +35,7 @@ import androidx.compose.foundation.text.selection.SelectionContainer
  * 
  * Uses the same LevelCard component as the LevelCardsView for consistency.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LevelLocationDialog(
     location: WorldMapLocation,
@@ -42,9 +46,16 @@ fun LevelLocationDialog(
     val isDarkMode = AppSettings.isDarkMode.value
     var selectedIndex by remember { mutableIntStateOf(0) }
     val focusRequester = remember { FocusRequester() }
+    val bringIntoViewRequesters = remember(levelsAtLocation.size) {
+        List(levelsAtLocation.size) { BringIntoViewRequester() }
+    }
 
     LaunchedEffect(Unit) {
         try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+    }
+
+    LaunchedEffect(selectedIndex) {
+        bringIntoViewRequesters.getOrNull(selectedIndex)?.bringIntoView()
     }
 
     Dialog(onDismissRequest = onDismiss) {
@@ -124,9 +135,11 @@ fun LevelLocationDialog(
                     levelsAtLocation.forEachIndexed { index, worldLevel ->
                         val isSelected = index == selectedIndex
                         Box(
-                            modifier = Modifier.then(
-                                if (isSelected) Modifier.padding(2.dp) else Modifier
-                            )
+                            modifier = Modifier
+                                .bringIntoViewRequester(bringIntoViewRequesters[index])
+                                .then(
+                                    if (isSelected) Modifier.padding(2.dp) else Modifier
+                                )
                         ) {
                             Card(
                                 modifier = Modifier.fillMaxWidth().then(

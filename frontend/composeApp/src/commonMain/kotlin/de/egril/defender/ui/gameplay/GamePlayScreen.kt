@@ -1001,6 +1001,67 @@ private fun GamePlayScreenContent(
                         } else false
                     } else false
                 }
+                // 1: First special action for selected tower
+                event.type == KeyEventType.KeyDown &&
+                        event.key == Key.One && !event.isCtrlPressed && !event.isAltPressed &&
+                        selectedDefenderId != null &&
+                        gameState.phase.value == GamePhase.PLAYER_TURN -> {
+                    val defender = gameState.defenders.find { it.id == selectedDefenderId }
+                    if (defender != null && defender.isReady && defender.actionsRemaining.value > 0) {
+                        when (defender.type) {
+                            DefenderType.DWARVEN_MINE -> {
+                                handleMineAction(defender.id, MineAction.DIG)
+                                true
+                            }
+                            DefenderType.WIZARD_TOWER -> {
+                                val isAtMaxMana = gameState.currentMana.value >= gameState.maxMana.value
+                                if (!isAtMaxMana) {
+                                    handleWizardAction(defender.id, WizardAction.GENERATE_MANA)
+                                    true
+                                } else false
+                            }
+                            DefenderType.SPIKE_TOWER -> {
+                                val canBuild = defender.level.value >= 20 &&
+                                    gameState.constructionLevel >= de.egril.defender.model.PlayerAbilities.CONSTRUCTION_LEVEL_2
+                                if (canBuild) {
+                                    handleBarricadeAction(defender.id, BarricadeAction.BUILD_BARRICADE)
+                                    true
+                                } else false
+                            }
+                            DefenderType.SPEAR_TOWER -> {
+                                val canBuild = defender.level.value >= 10 &&
+                                    gameState.constructionLevel >= de.egril.defender.model.PlayerAbilities.CONSTRUCTION_LEVEL_1
+                                if (canBuild) {
+                                    handleBarricadeAction(defender.id, BarricadeAction.BUILD_BARRICADE)
+                                    true
+                                } else false
+                            }
+                            else -> false
+                        }
+                    } else false
+                }
+                // 2: Second special action for selected tower
+                event.type == KeyEventType.KeyDown &&
+                        event.key == Key.Two && !event.isCtrlPressed && !event.isAltPressed &&
+                        selectedDefenderId != null &&
+                        gameState.phase.value == GamePhase.PLAYER_TURN -> {
+                    val defender = gameState.defenders.find { it.id == selectedDefenderId }
+                    if (defender != null && defender.isReady && defender.actionsRemaining.value > 0) {
+                        when (defender.type) {
+                            DefenderType.DWARVEN_MINE -> {
+                                handleMineAction(defender.id, MineAction.BUILD_TRAP)
+                                true
+                            }
+                            DefenderType.WIZARD_TOWER -> {
+                                if (defender.level.value >= 10) {
+                                    handleWizardAction(defender.id, WizardAction.PLACE_MAGICAL_TRAP)
+                                    true
+                                } else false
+                            }
+                            else -> false
+                        }
+                    } else false
+                }
                 // Escape (remappable): Back to world map with confirmation
                 event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutBackToWorldMap.value) &&
@@ -1665,6 +1726,22 @@ private fun GamePlayScreenContent(
                                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                     ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutSwitchToTowerMode.value))
                                     Text(stringResource(Res.string.keyboard_shortcut_switch_to_tower_mode), style = MaterialTheme.typography.labelSmall)
+                                }
+                            }
+                        }
+                        // Enemy target cycling (only in player turn, only if a defender is selected)
+                        if (gameState.phase.value == GamePhase.PLAYER_TURN && selectedDefenderId != null) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutNextEnemyTarget.value))
+                                    Text(stringResource(Res.string.keyboard_shortcut_next_enemy_target), style = MaterialTheme.typography.labelSmall)
+                                }
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutPrevEnemyTarget.value))
+                                    Text(stringResource(Res.string.keyboard_shortcut_prev_enemy_target), style = MaterialTheme.typography.labelSmall)
                                 }
                             }
                         }

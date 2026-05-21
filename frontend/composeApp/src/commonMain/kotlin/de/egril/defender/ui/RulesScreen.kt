@@ -13,6 +13,8 @@ import androidx.compose.ui.unit.dp
 import de.egril.defender.ui.infopage.HowToPlayContent
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.feedback.FeedbackButton
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
+import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
@@ -46,8 +48,8 @@ fun RulesScreen(
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                FeedbackButton()
-                SettingsButton()
+                FeedbackButton(shortcutKey = ".")
+                SettingsButton(shortcutKey = ",")
             }
 
             Column(
@@ -74,6 +76,10 @@ fun RulesScreen(
                     modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                 ) {
                     Text(stringResource(Res.string.back))
+                    if (AppSettings.showButtonShortcutHints.value) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        ShortcutKeyChip(text = "Esc", color = LocalContentColor.current.copy(alpha = 0.75f))
+                    }
                 }
             }
         }

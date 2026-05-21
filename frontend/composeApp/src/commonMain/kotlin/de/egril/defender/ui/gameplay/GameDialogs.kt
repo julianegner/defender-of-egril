@@ -7,6 +7,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.semantics.semantics
@@ -158,8 +161,15 @@ fun UnsavedChangesDialog(
     onCancel: () -> Unit
 ) {
     val holdToConfirmEnabled = AppSettings.holdToConfirmEnabled.value
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+    }
     AlertDialog(
-        modifier = Modifier.onPreviewKeyEvent { event ->
+        modifier = Modifier
+            .focusRequester(focusRequester)
+            .focusTarget()
+            .onPreviewKeyEvent { event ->
             if (event.type == KeyEventType.KeyDown) {
                 when {
                     event.key == Key.Enter && !event.isCtrlPressed && !event.isAltPressed -> {

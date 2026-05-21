@@ -1,14 +1,17 @@
 package de.egril.defender.ui.settings
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.TooltipWrapper
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import dev.vicart.compose.material.symbols.FilledSymbol
 import dev.vicart.compose.material.symbols.MaterialSymbols
 import defender_of_egril.composeapp.generated.resources.Res
@@ -23,7 +26,8 @@ fun SettingsButton(
     modifier: Modifier = Modifier,
     initiallyOpen: Boolean = false,
     initialTab: SettingsTab = SettingsTab.GENERAL,
-    onInitialOpenHandled: (() -> Unit)? = null
+    onInitialOpenHandled: (() -> Unit)? = null,
+    shortcutKey: String? = null
 ) {
     var showSettings by remember { mutableStateOf(false) }
     var autoOpenConsumed by remember { mutableStateOf(false) }
@@ -38,15 +42,22 @@ fun SettingsButton(
     }
 
     TooltipWrapper(text = settingsLabel) {
-        IconButton(
-            onClick = { showSettings = true },
-            modifier = modifier.semantics { contentDescription = settingsLabel }
-        ) {
-            FilledSymbol(
-                icon = MaterialSymbols.SETTINGS,
-                size = 32.dp,
-                tint = MaterialTheme.colorScheme.onSurface
-            )
+        Box {
+            IconButton(
+                onClick = { showSettings = true },
+                modifier = modifier.semantics { contentDescription = settingsLabel }
+            ) {
+                FilledSymbol(
+                    icon = MaterialSymbols.SETTINGS,
+                    size = 32.dp,
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            if (shortcutKey != null && AppSettings.showButtonShortcutHints.value) {
+                Box(modifier = Modifier.align(Alignment.BottomEnd)) {
+                    ShortcutKeyChip(text = shortcutKey)
+                }
+            }
         }
     }
     

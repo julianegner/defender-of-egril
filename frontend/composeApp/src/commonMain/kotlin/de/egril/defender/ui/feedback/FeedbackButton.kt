@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.TooltipWrapper
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
+import de.egril.defender.ui.settings.AppSettings
 import dev.vicart.compose.material.symbols.FilledSymbol
 import dev.vicart.compose.material.symbols.MaterialSymbols
 import defender_of_egril.composeapp.generated.resources.Res
@@ -35,21 +37,29 @@ import defender_of_egril.composeapp.generated.resources.close
 @Composable
 fun FeedbackButton(
     modifier: Modifier = Modifier,
-    gameContext: GameFeedbackContext? = null
+    gameContext: GameFeedbackContext? = null,
+    shortcutKey: String? = null
 ) {
     var showFeedback by remember { mutableStateOf(false) }
     val feedbackLabel = stringResource(Res.string.tooltip_feedback)
 
     TooltipWrapper(text = feedbackLabel) {
-        IconButton(
-            onClick = { showFeedback = true },
-            modifier = modifier.semantics { contentDescription = feedbackLabel }
-        ) {
-            FilledSymbol(
-                icon = MaterialSymbols.RATE_REVIEW,
-                size = 32.dp,
-                tint = MaterialTheme.colorScheme.onSurface
-            )
+        Box {
+            IconButton(
+                onClick = { showFeedback = true },
+                modifier = modifier.semantics { contentDescription = feedbackLabel }
+            ) {
+                FilledSymbol(
+                    icon = MaterialSymbols.RATE_REVIEW,
+                    size = 32.dp,
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            if (shortcutKey != null && AppSettings.showButtonShortcutHints.value) {
+                Box(modifier = Modifier.align(Alignment.BottomEnd)) {
+                    ShortcutKeyChip(text = shortcutKey)
+                }
+            }
         }
     }
 

@@ -268,12 +268,14 @@ fun GameHeader(
                             append("\"phase\":\"${gameState.phase.value.name}\"")
                             append("}")
                         }
-                    )
+                    ),
+                    shortcutKey = "."
                 )
 
                 // Settings button (icon only to save space)
                 SettingsButton(
-                    modifier = Modifier.size(buttonHeight)
+                    modifier = Modifier.size(buttonHeight),
+                    shortcutKey = ","
                 )
                 
                 if (onSaveGame != null) {

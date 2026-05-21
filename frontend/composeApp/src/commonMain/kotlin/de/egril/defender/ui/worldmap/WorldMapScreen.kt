@@ -267,6 +267,18 @@ fun WorldMapScreen(
                             onOpenEditor()
                             true
                         }
+                        // V → Community Levels (if available)
+                        event.key == Key.V && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed
+                                && hasCommunityLevels && !useLevelCards && imageMapActiveTab == null -> {
+                            imageMapActiveTab = 1
+                            true
+                        }
+                        // J → User Levels (if available)
+                        event.key == Key.J && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed
+                                && hasUserLevels && !useLevelCards && imageMapActiveTab == null -> {
+                            imageMapActiveTab = 2
+                            true
+                        }
                         isShortcutBindingPressed(event, AppSettings.shortcutCheat.value) && onCheatCode != null -> {
                             showCheatDialog = true
                             true
@@ -472,10 +484,10 @@ fun WorldMapScreen(
                     )
                     
                     // Feedback button
-                    FeedbackButton()
+                    FeedbackButton(shortcutKey = ".")
 
                     // Settings button
-                    SettingsButton()
+                    SettingsButton(shortcutKey = ",")
                 }
             }
             
@@ -600,11 +612,19 @@ fun WorldMapScreen(
                         if (hasUserLevels) {
                             Button(onClick = { imageMapActiveTab = 2 }) {
                                 Text(stringResource(Res.string.user_levels))
+                                if (AppSettings.showButtonShortcutHints.value) {
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    ShortcutKeyChip(text = "J", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                }
                             }
                         }
                         if (hasCommunityLevels) {
                             Button(onClick = { imageMapActiveTab = 1 }) {
                                 Text(stringResource(Res.string.community_levels))
+                                if (AppSettings.showButtonShortcutHints.value) {
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    ShortcutKeyChip(text = "V", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                }
                             }
                         }
                         // Editor Button below the level buttons

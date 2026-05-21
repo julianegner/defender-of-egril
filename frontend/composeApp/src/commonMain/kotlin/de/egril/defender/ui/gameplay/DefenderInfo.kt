@@ -27,6 +27,8 @@ import de.egril.defender.ui.icon.TrapIcon
 import de.egril.defender.ui.icon.WoodIcon
 import de.egril.defender.ui.icon.WarningIcon
 import de.egril.defender.ui.a11y.a11ySemantics
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
+import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.gameplay.defenderButtons.TowerStats
 import defender_of_egril.composeapp.generated.resources.*
@@ -554,6 +556,9 @@ private fun RowScope.dwarvenMineActionButtonArea(
                     ) {
                         PickIcon(size = 24.dp)
                         Text(stringResource(Res.string.dig), fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            ShortcutKeyChip(text = "1")
+                        }
                     }
                 }
             }
@@ -590,6 +595,9 @@ private fun RowScope.dwarvenMineActionButtonArea(
                     ) {
                         TrapIcon(size = 24.dp)
                         Text(stringResource(Res.string.trap), fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            ShortcutKeyChip(text = "2")
+                        }
                     }
                 }
             }
@@ -727,6 +735,9 @@ fun GenerateManaButton(
                         maxLines = 1,
                         overflow = TextOverflow.Visible
                     )
+                    if (AppSettings.showButtonShortcutHints.value) {
+                        ShortcutKeyChip(text = "1")
+                    }
                 }
             }
         }
@@ -776,6 +787,9 @@ fun MagicalTrapButton(
                         fontSize = if (isOnCooldown) 14.sp else 16.sp,
                         fontWeight = FontWeight.Bold
                     )
+                    if (AppSettings.showButtonShortcutHints.value) {
+                        ShortcutKeyChip(text = "2")
+                    }
                 }
                 if (isOnCooldown) {
                     Column(modifier = Modifier.weight(1f)) {
@@ -859,6 +873,9 @@ fun BarricadeButton(
                         maxLines = 1,
                         overflow = TextOverflow.Visible
                     )
+                    if (AppSettings.showButtonShortcutHints.value) {
+                        ShortcutKeyChip(text = "1")
+                    }
                 }
             }
         }
