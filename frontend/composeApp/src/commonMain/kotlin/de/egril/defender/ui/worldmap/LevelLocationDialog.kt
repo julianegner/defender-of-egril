@@ -44,7 +44,7 @@ fun LevelLocationDialog(
     val focusRequester = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
-        try { focusRequester.requestFocus() } catch (_: Exception) {}
+        try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
     }
 
     Dialog(onDismissRequest = onDismiss) {
@@ -60,7 +60,7 @@ fun LevelLocationDialog(
                 .focusRequester(focusRequester)
                 .focusTarget()
                 .onPreviewKeyEvent { event ->
-                    if (event.type == KeyEventType.KeyDown) {
+                    if (event.type == KeyEventType.KeyDown && levelsAtLocation.isNotEmpty()) {
                         when {
                             event.key == Key.DirectionDown || event.key == Key.Tab && !event.isShiftPressed -> {
                                 selectedIndex = (selectedIndex + 1) % levelsAtLocation.size

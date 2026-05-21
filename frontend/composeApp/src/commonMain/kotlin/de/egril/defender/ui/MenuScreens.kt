@@ -177,7 +177,7 @@ fun MainMenuScreen(
     
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) {
-        try { focusRequester.requestFocus() } catch (_: Exception) {}
+        try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
     }
 
     Surface(

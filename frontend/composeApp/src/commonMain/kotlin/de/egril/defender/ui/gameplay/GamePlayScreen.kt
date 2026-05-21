@@ -798,7 +798,8 @@ private fun GamePlayScreenContent(
                 // in tower-place mode, switch back to attack/select mode instead
                 event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutSwitchToTowerMode.value) -> {
-                    if (selectedDefenderType != null && !showMagicPanel && gameState.spellTargeting.value == null) {
+                    val isInTowerPlaceMode = selectedDefenderType != null && !showMagicPanel && gameState.spellTargeting.value == null
+                    if (isInTowerPlaceMode) {
                         // Already in tower-place mode → switch back to attack/select mode
                         selectedDefenderType = null
                     } else {
