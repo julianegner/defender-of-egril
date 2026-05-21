@@ -242,7 +242,12 @@ fun UnsavedChangesDialog(
                             containerColor = MaterialTheme.colorScheme.secondary
                         )
                     ) {
-                        Text(stringResource(Res.string.cancel))
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(stringResource(Res.string.cancel))
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                ShortcutKeyChip(text = "Esc")
+                            }
+                        }
                     }
                     Button(
                         onClick = onDiscardChanges,
@@ -253,7 +258,12 @@ fun UnsavedChangesDialog(
                         Text(stringResource(Res.string.discard_changes))
                     }
                     Button(onClick = onSaveAndExit) {
-                        Text(stringResource(Res.string.save_and_exit))
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(stringResource(Res.string.save_and_exit))
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                ShortcutKeyChip(text = "Enter")
+                            }
+                        }
                     }
                 }
             }
@@ -304,7 +314,12 @@ fun EndTurnConfirmationDialog(
                             containerColor = MaterialTheme.colorScheme.secondary
                         )
                     ) {
-                        Text(stringResource(Res.string.cancel))
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(stringResource(Res.string.cancel))
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                ShortcutKeyChip(text = "Esc")
+                            }
+                        }
                     }
                     Button(
                         onClick = onConfirm,
@@ -312,7 +327,12 @@ fun EndTurnConfirmationDialog(
                             containerColor = GamePlayColors.WarningDeep
                         )
                     ) {
-                        Text(stringResource(Res.string.end_turn_confirm))
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(stringResource(Res.string.end_turn_confirm))
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                ShortcutKeyChip(text = "Enter")
+                            }
+                        }
                     }
                 }
                 if (showAutoAttackButton) {

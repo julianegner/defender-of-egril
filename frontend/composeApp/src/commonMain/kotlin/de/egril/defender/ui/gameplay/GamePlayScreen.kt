@@ -1625,6 +1625,18 @@ private fun GamePlayScreenContent(
                                 )
                             }
                         }
+                        // Mode switching info (only in player turn - tower type vs existing tower)
+                        if (gameState.phase.value == GamePhase.PLAYER_TURN) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutSwitchToTowerMode.value))
+                                    Text(stringResource(Res.string.keyboard_shortcut_switch_to_tower_mode), style = MaterialTheme.typography.labelSmall)
+                                }
+                            }
+                        }
                     }
                 }
             }
