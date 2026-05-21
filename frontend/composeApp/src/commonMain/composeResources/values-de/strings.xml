@@ -1302,6 +1302,8 @@
     <string name="keyboard_workflow_battle_phase">Mit Tab zum nächsten aktionsfähigen Turm springen. Ein Ziel wird automatisch markiert. F oder Enter drücken, um anzugreifen. U zum Verbessern, X zum Rückgängig/Verkaufen (mit Bestätigung). M zum Öffnen des Zaubermenüs, dann Tab/Umschalt+Tab zum Auswählen eines Zaubers und Enter zum Wirken. T zurück zum Turmmodus. Strg+Enter drücken, um die Runde zu beenden.</string>
     <string name="keyboard_workflow_map_nav_title">Kartennavigation</string>
     <string name="keyboard_workflow_map_nav">W/A/S/D (oder Pfeiltasten) zum Schwenken der Karte. R zum Zentrieren auf den ausgewählten Turm, G zum Zentrieren auf den nächsten Spawnpunkt. Mausrad oder Pinch zum Zoomen.</string>
+    <string name="keyboard_nav_next">Weiter</string>
+    <string name="keyboard_nav_prev">Zurück</string>
 
     <!-- License Info -->
     <string name="license_info_title">Lizenzinformationen</string>

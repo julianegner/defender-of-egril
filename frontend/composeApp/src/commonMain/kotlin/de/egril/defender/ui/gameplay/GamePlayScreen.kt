@@ -1497,16 +1497,16 @@ private fun GamePlayScreenContent(
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutSelectNextTower.value))
-                            Text("Next", style = MaterialTheme.typography.labelSmall)
+                            Text(stringResource(Res.string.keyboard_nav_next), style = MaterialTheme.typography.labelSmall)
                         }
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutSelectPreviousTower.value))
-                            Text("Prev", style = MaterialTheme.typography.labelSmall)
+                            Text(stringResource(Res.string.keyboard_nav_prev), style = MaterialTheme.typography.labelSmall)
                         }
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutEndTurnStartBattle.value))
                             Text(
-                                if (gameState.phase.value == GamePhase.INITIAL_BUILDING) "Start" else "End Turn",
+                                if (gameState.phase.value == GamePhase.INITIAL_BUILDING) stringResource(Res.string.start_battle) else stringResource(Res.string.end_turn_button),
                                 style = MaterialTheme.typography.labelSmall
                             )
                         }

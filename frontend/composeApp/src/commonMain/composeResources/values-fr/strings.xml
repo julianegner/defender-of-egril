@@ -1305,6 +1305,8 @@
     <string name="keyboard_workflow_battle_phase">Utilisez Tab pour passer à la prochaine tour actionnable. Une cible est automatiquement mise en évidence. Appuyez sur F ou Entrée pour attaquer. U pour améliorer, X pour annuler/vendre (avec confirmation). M pour ouvrir le menu des sorts, puis Tab/Maj+Tab pour sélectionner un sort et Entrée pour le lancer. T pour revenir au mode tours. Appuyez sur Ctrl+Entrée pour terminer le tour.</string>
     <string name="keyboard_workflow_map_nav_title">Navigation sur la carte</string>
     <string name="keyboard_workflow_map_nav">Utilisez W/A/S/D (ou les touches fléchées) pour déplacer la carte. R pour centrer sur la tour sélectionnée, G pour centrer sur le prochain point d\'apparition. Molette de souris ou pincement pour zoomer.</string>
+    <string name="keyboard_nav_next">Suiv.</string>
+    <string name="keyboard_nav_prev">Préc.</string>
 
     <!-- License Info -->
     <string name="license_info_title">Informations sur la Licence</string>

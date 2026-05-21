@@ -1305,6 +1305,8 @@
     <string name="keyboard_workflow_battle_phase">Usa Tab per passare alla prossima torre azionabile. Un bersaglio viene evidenziato automaticamente. Premi F o Invio per attaccare. U per potenziare, X per annullare/vendere (con conferma). M per aprire il menu magie, poi Tab/Maiusc+Tab per selezionare una magia e Invio per lanciarla. T per tornare alla modalità torri. Premi Ctrl+Invio per terminare il turno.</string>
     <string name="keyboard_workflow_map_nav_title">Navigazione mappa</string>
     <string name="keyboard_workflow_map_nav">Usa W/A/S/D (o i tasti freccia) per spostare la mappa. R per centrare sulla torre selezionata, G per centrare sul prossimo punto di spawn. Rotella del mouse o pizzico per lo zoom.</string>
+    <string name="keyboard_nav_next">Avanti</string>
+    <string name="keyboard_nav_prev">Prec.</string>
 
     <!-- License Info -->
     <string name="license_info_title">Informazioni sulla Licenza</string>

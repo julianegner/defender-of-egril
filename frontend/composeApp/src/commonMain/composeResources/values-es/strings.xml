@@ -1305,6 +1305,8 @@
     <string name="keyboard_workflow_battle_phase">Usa Tab para saltar a la siguiente torre accionable. Se resalta un objetivo automáticamente. Pulsa F o Enter para atacar. U para mejorar, X para deshacer/vender (con confirmación). M para abrir el menú de hechizos, luego Tab/Mayús+Tab para seleccionar un hechizo y Enter para lanzarlo. T para volver al modo torres. Pulsa Ctrl+Enter para terminar el turno.</string>
     <string name="keyboard_workflow_map_nav_title">Navegación del mapa</string>
     <string name="keyboard_workflow_map_nav">Usa W/A/S/D (o teclas de flecha) para desplazar el mapa. R para centrar en la torre seleccionada, G para centrar en el siguiente punto de aparición. Rueda del ratón o pellizco para hacer zoom.</string>
+    <string name="keyboard_nav_next">Sig.</string>
+    <string name="keyboard_nav_prev">Ant.</string>
 
     <!-- License Info -->
     <string name="license_info_title">Información de Licencia</string>

@@ -1307,6 +1307,8 @@
     <string name="keyboard_workflow_battle_phase">Use Tab to jump to the next actionable tower. An auto-target is highlighted. Press F or Enter to attack. Press U to upgrade, X to undo/sell (with confirmation). Use M to open the spell menu, then Tab/Shift+Tab to select a spell and Enter to cast it. Press T to return to tower mode. Use Ctrl+Enter to end the turn.</string>
     <string name="keyboard_workflow_map_nav_title">Map Navigation</string>
     <string name="keyboard_workflow_map_nav">Use W/A/S/D (or arrow keys) to pan the map. Use R to center on the selected tower, G to center on the next spawn point. Mouse scroll or pinch to zoom.</string>
+    <string name="keyboard_nav_next">Next</string>
+    <string name="keyboard_nav_prev">Prev</string>
 
     <!-- License Info -->
     <string name="license_info_title">License Information</string>
