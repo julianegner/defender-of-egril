@@ -313,6 +313,12 @@ fun GameHeader(
                             fontSize = buttonTextSize,
                             modifier = Modifier.align(Alignment.CenterVertically)
                         )
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            ShortcutKeyChip(
+                                text = formatShortcutBindingForDisplay(AppSettings.shortcutBackToWorldMap.value),
+                                color = LocalContentColor.current.copy(alpha = 0.75f)
+                            )
+                        }
                     }
                 }
 

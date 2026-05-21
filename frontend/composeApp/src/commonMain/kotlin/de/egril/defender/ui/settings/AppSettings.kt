@@ -383,10 +383,17 @@ object AppSettings {
     )
 
     val shortcutEndTurnStartBattle: MutableState<String> = mutableStateOf(
-        normalizeShortcutBinding(
-            settings[KEY_SHORTCUT_END_TURN_START_BATTLE, DEFAULT_SHORTCUT_END_TURN_START_BATTLE],
-            DEFAULT_SHORTCUT_END_TURN_START_BATTLE
-        )
+        run {
+            val raw = settings[KEY_SHORTCUT_END_TURN_START_BATTLE, DEFAULT_SHORTCUT_END_TURN_START_BATTLE]
+            val normalized = normalizeShortcutBinding(raw, DEFAULT_SHORTCUT_END_TURN_START_BATTLE)
+            // Migrate: plain "ENTER" was the old default; upgrade to the new default "Ctrl+ENTER"
+            if (normalized == "ENTER") {
+                settings[KEY_SHORTCUT_END_TURN_START_BATTLE] = DEFAULT_SHORTCUT_END_TURN_START_BATTLE
+                normalizeShortcutBinding(DEFAULT_SHORTCUT_END_TURN_START_BATTLE, DEFAULT_SHORTCUT_END_TURN_START_BATTLE)
+            } else {
+                normalized
+            }
+        }
     )
 
     val shortcutSaveGame: MutableState<String> = mutableStateOf(

@@ -255,7 +255,12 @@ fun UnsavedChangesDialog(
                             containerColor = MaterialTheme.colorScheme.error
                         )
                     ) {
-                        Text(stringResource(Res.string.discard_changes))
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(stringResource(Res.string.discard_changes))
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                ShortcutKeyChip(text = "D")
+                            }
+                        }
                     }
                     Button(onClick = onSaveAndExit) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {

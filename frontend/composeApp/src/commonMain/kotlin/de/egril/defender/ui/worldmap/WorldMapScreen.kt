@@ -35,6 +35,8 @@ import de.egril.defender.config.LogConfig
 import de.egril.defender.iam.IamState
 import de.egril.defender.ui.icon.UnlockIcon
 import de.egril.defender.ui.a11y.accessibilityVisualFilter
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
+import de.egril.defender.ui.settings.formatShortcutBindingForDisplay
 
 // Button sizing constants for world map bottom bar
 private val BUTTON_WIDTH_MOBILE_IMAGE_MAP = 133.dp  // ~33% smaller than default for compact mobile layout
@@ -237,6 +239,11 @@ fun WorldMapScreen(
                     when {
                         event.key == Key.Back || event.key == Key.Escape -> {
                             onBackToMenu()
+                            true
+                        }
+                        // L: Load game
+                        event.key == Key.L && !event.isCtrlPressed && !event.isAltPressed -> {
+                            onLoadGame()
                             true
                         }
                         isShortcutBindingPressed(event, AppSettings.shortcutCheat.value) && onCheatCode != null -> {
@@ -497,6 +504,10 @@ fun WorldMapScreen(
                                 modifier = Modifier.widthIn(min = buttonMinWidth)
                             ) {
                                 Text(stringResource(Res.string.load_game))
+                                if (AppSettings.showButtonShortcutHints.value) {
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    ShortcutKeyChip(text = "L", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                }
                             }
                             
                             Button(
@@ -511,6 +522,10 @@ fun WorldMapScreen(
                                 modifier = Modifier.widthIn(min = buttonMinWidth)
                             ) {
                                 Text(stringResource(Res.string.back))
+                                if (AppSettings.showButtonShortcutHints.value) {
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    ShortcutKeyChip(text = "Esc", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                }
                             }
                         }
                     }
@@ -520,6 +535,10 @@ fun WorldMapScreen(
                         ) {
                             Button(onClick = onLoadGame) {
                                 Text(stringResource(Res.string.load_game))
+                                if (AppSettings.showButtonShortcutHints.value) {
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    ShortcutKeyChip(text = "L", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                }
                             }
                             
                             Button(onClick = onShowRules) {
@@ -528,6 +547,10 @@ fun WorldMapScreen(
                             
                             Button(onClick = onBackToMenu) {
                                 Text(stringResource(Res.string.back))
+                                if (AppSettings.showButtonShortcutHints.value) {
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    ShortcutKeyChip(text = "Esc", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                }
                             }
                         }
                     }

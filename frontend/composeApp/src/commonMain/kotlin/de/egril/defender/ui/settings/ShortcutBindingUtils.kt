@@ -91,7 +91,14 @@ fun normalizeShortcutBinding(binding: String, defaultBinding: String): String {
     return parts.joinToString("+")
 }
 
-fun formatShortcutBindingForDisplay(binding: String): String = binding.replace('_', ' ')
+fun formatShortcutBindingForDisplay(binding: String): String = binding
+    .replace('_', ' ')
+    .replace("ESCAPE", "Esc")
+    .replace("ENTER", "Enter")
+    .replace("SPACE", "Space")
+    .replace("BACKSPACE", "Backspace")
+    .replace("DELETE", "Del")
+    .replace("TAB", "Tab")
 
 fun isShortcutBindingChanged(current: String, defaultBinding: String): Boolean {
     val parsedCurrent = parseShortcutBinding(current) ?: return false

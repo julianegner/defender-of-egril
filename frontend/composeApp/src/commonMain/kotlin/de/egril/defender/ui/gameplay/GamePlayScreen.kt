@@ -736,6 +736,7 @@ private fun GamePlayScreenContent(
         onDefenderAttack,
         onDefenderAttackPosition,
         showMagicPanel,
+        showUnsavedChangesDialog,
         keyboardSelectableSpells,
         endPlayerTurnAction,
         autoAttackAndEndTurnAction,
@@ -747,6 +748,31 @@ private fun GamePlayScreenContent(
                 isDemoMode && event.type == KeyEventType.KeyDown -> {
                     showStopDemoDialog = true
                     true
+                }
+                // Unsaved-changes dialog key handling: intercept before generic Esc/Enter handlers
+                event.type == KeyEventType.KeyDown && showUnsavedChangesDialog -> {
+                    when {
+                        event.key == Key.Enter && !event.isCtrlPressed && !event.isAltPressed -> {
+                            // Enter: save and exit
+                            onSaveGame?.invoke(null)
+                            showUnsavedChangesDialog = false
+                            onBackToMap()
+                            true
+                        }
+                        event.key == Key.Escape ||
+                        isShortcutBindingPressed(event, AppSettings.shortcutBackToWorldMap.value) -> {
+                            // Esc: cancel the dialog
+                            showUnsavedChangesDialog = false
+                            true
+                        }
+                        event.key == Key.D && !event.isCtrlPressed && !event.isAltPressed -> {
+                            // D: discard changes and exit
+                            showUnsavedChangesDialog = false
+                            onBackToMap()
+                            true
+                        }
+                        else -> false
+                    }
                 }
                 // Ctrl+S: Save game
                 event.type == KeyEventType.KeyDown &&

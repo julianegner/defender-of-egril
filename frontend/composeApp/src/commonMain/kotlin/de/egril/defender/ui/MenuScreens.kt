@@ -42,6 +42,7 @@ import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.utils.isPlatformWasm
 import de.egril.defender.ui.isMobileWebBrowser
+import androidx.compose.ui.input.key.*
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.icon.HeartIcon
 import de.egril.defender.ui.icon.HelpIcon
@@ -107,6 +108,13 @@ private fun MainMenuButtonRow(
             contentPadding = contentPadding ?: ButtonDefaults.ContentPadding
         ) {
             Text(stringResource(Res.string.start_game), style = textStyle, maxLines = 1)
+            if (AppSettings.showButtonShortcutHints.value) {
+                Spacer(modifier = Modifier.width(4.dp))
+                de.egril.defender.ui.gameplay.ShortcutKeyChip(
+                    text = "Enter",
+                    color = LocalContentColor.current.copy(alpha = 0.75f)
+                )
+            }
         }
 
         if (hasAutosave) {
@@ -164,7 +172,36 @@ fun MainMenuScreen(
     var showExitConfirmation by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
     
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().onPreviewKeyEvent { event ->
+            if (event.type == KeyEventType.KeyDown) {
+                when {
+                    // Enter → Start Game (if data is loaded)
+                    event.key == Key.Enter && !event.isCtrlPressed && !event.isAltPressed && isDataLoaded
+                            && !showExitConfirmation -> {
+                        onStartGame()
+                        true
+                    }
+                    // Esc → show exit confirmation (non-iOS)
+                    (event.key == Key.Escape || event.key == Key.Back) && !isPlatformIos
+                            && !showExitConfirmation -> {
+                        showExitConfirmation = true
+                        true
+                    }
+                    // Esc when exit dialog is open → cancel it
+                    (event.key == Key.Escape || event.key == Key.Back) && showExitConfirmation -> {
+                        showExitConfirmation = false
+                        true
+                    }
+                    // Enter when exit dialog is open → confirm exit
+                    event.key == Key.Enter && !event.isCtrlPressed && showExitConfirmation -> {
+                        showExitConfirmation = false
+                        exitApplication()
+                        true
+                    }
+                    else -> false
+                }
+            } else false
+        },
         color = MaterialTheme.colorScheme.background
     ) {
         BoxWithConstraints(
