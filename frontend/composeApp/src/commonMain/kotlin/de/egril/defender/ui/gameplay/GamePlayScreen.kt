@@ -920,24 +920,65 @@ private fun GamePlayScreenContent(
                     showOverlay = !showOverlay
                     true
                 }
-                // Enter: End turn or Start battle
+                // Enter: Attack / confirm / end turn / start battle
                 event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutEndTurnStartBattle.value) -> {
                     when (gameState.phase.value) {
                         GamePhase.PLAYER_TURN -> {
-                            if (highlightEndTurnButton) {
-                                // End Turn button has keyboard focus — end the turn directly
-                                highlightEndTurnButton = false
-                                endPlayerTurnAction()
-                            } else if (gameState.hasDefendersWithUnusedActions()) {
-                                showEndTurnConfirmation = true
-                            } else {
-                                endPlayerTurnAction()
+                            when {
+                                // If a tower type is selected for buying (buy mode), cancel buy mode
+                                selectedDefenderType != null && selectedDefenderId == null && !showMagicPanel -> {
+                                    selectedDefenderType = null
+                                    true
+                                }
+                                // If a tower is selected with a valid target, attack first (ENTER = confirm attack)
+                                selectedDefenderId != null && !showMagicPanel -> {
+                                    val defenderId = selectedDefenderId
+                                    val targetId = selectedTargetId
+                                    val targetPos = selectedTargetPosition
+                                    val defender = defenderId?.let { id -> gameState.defenders.find { it.id == id } }
+                                    if (defender != null && defender.isReady && defender.actionsRemaining.value > 0 && (targetId != null || targetPos != null)) {
+                                        when {
+                                            targetId != null -> { onDefenderAttack(defenderId!!, targetId); true }
+                                            targetPos != null -> { onDefenderAttackPosition(defenderId!!, targetPos); true }
+                                            else -> false
+                                        }
+                                    } else {
+                                        // No valid attack — fall through to end-turn logic
+                                        if (highlightEndTurnButton) {
+                                            highlightEndTurnButton = false
+                                            endPlayerTurnAction()
+                                        } else if (gameState.hasDefendersWithUnusedActions()) {
+                                            showEndTurnConfirmation = true
+                                        } else {
+                                            endPlayerTurnAction()
+                                        }
+                                        true
+                                    }
+                                }
+                                highlightEndTurnButton -> {
+                                    // End Turn button has keyboard focus — end the turn directly
+                                    highlightEndTurnButton = false
+                                    endPlayerTurnAction()
+                                    true
+                                }
+                                gameState.hasDefendersWithUnusedActions() -> {
+                                    showEndTurnConfirmation = true
+                                    true
+                                }
+                                else -> {
+                                    endPlayerTurnAction()
+                                    true
+                                }
                             }
-                            true
                         }
                         GamePhase.INITIAL_BUILDING -> {
-                            onStartFirstPlayerTurn()
+                            if (selectedDefenderType != null) {
+                                // Cancel tower type selection instead of starting battle
+                                selectedDefenderType = null
+                            } else {
+                                onStartFirstPlayerTurn()
+                            }
                             true
                         }
                         else -> false

@@ -1279,18 +1279,18 @@
     <string name="keyboard_shortcut_key_label">Key</string>
     <string name="keyboard_shortcut_description_label">Action</string>
     <string name="keyboard_shortcut_where_label">Where</string>
-    <string name="keyboard_shortcut_attack">Attack selected tower\'s current target</string>
+    <string name="keyboard_shortcut_attack">Attack with selected tower (confirm auto-target)</string>
     <string name="keyboard_shortcut_auto_attack">Auto-attack all towers and end turn</string>
     <string name="keyboard_shortcut_cheat">Open cheat code dialog</string>
     <string name="keyboard_shortcut_enemy_list">Toggle enemy list overlay</string>
-    <string name="keyboard_shortcut_end_turn">End turn / Start battle</string>
+    <string name="keyboard_shortcut_end_turn">Confirm attack / end turn / start battle / cancel buy</string>
     <string name="keyboard_shortcut_save">Save game</string>
     <string name="keyboard_shortcut_pan_up">Pan map up</string>
     <string name="keyboard_shortcut_pan_down">Pan map down</string>
     <string name="keyboard_shortcut_pan_left">Pan map left</string>
     <string name="keyboard_shortcut_pan_right">Pan map right</string>
-    <string name="keyboard_shortcut_tab_next_tower">Select next actionable tower</string>
-    <string name="keyboard_shortcut_shift_tab_prev_tower">Select previous actionable tower</string>
+    <string name="keyboard_shortcut_tab_next_tower">Cycle tower types (build phase) / select next tower (battle)</string>
+    <string name="keyboard_shortcut_shift_tab_prev_tower">Cycle tower types backwards / select previous tower</string>
     <string name="keyboard_shortcut_center_selected_tower">Center map on selected tower</string>
     <string name="keyboard_shortcut_center_next_spawn_point">Center map on next spawn point</string>
     <string name="keyboard_shortcut_upgrade_selected_tower">Upgrade selected tower</string>
@@ -1300,6 +1300,13 @@
     <string name="auto_jump_to_next_tower">Auto-jump to next actionable tower</string>
     <string name="keyboard_shortcuts_note">Note: Keyboard shortcuts are available on desktop and in the web app.</string>
     <string name="keyboard_modifier_ctrl">Ctrl</string>
+    <string name="keyboard_workflow_title">Keyboard-only Gameplay Guide</string>
+    <string name="keyboard_workflow_build_phase_title">Build Phase (before battle)</string>
+    <string name="keyboard_workflow_build_phase">Use Tab / Shift+Tab to cycle through available tower types. The highlighted type is shown in the buy panel. Click a green tile on the map to place the tower. Press Enter or Tab again to cancel the selection. When ready to start the battle, press Enter without any tower type selected.</string>
+    <string name="keyboard_workflow_battle_phase_title">Battle Phase (your turn)</string>
+    <string name="keyboard_workflow_battle_phase">Use Tab to jump to the next actionable tower. An auto-target is highlighted. Press F or Enter to attack. Press U to upgrade, X to undo/sell (with confirmation). Use M to open the spell menu, then Tab/Shift+Tab to select a spell and Enter to cast it. Press T to return to tower mode. When all towers have acted, press Enter to end the turn.</string>
+    <string name="keyboard_workflow_map_nav_title">Map Navigation</string>
+    <string name="keyboard_workflow_map_nav">Use W/A/S/D (or arrow keys) to pan the map. Use R to center on the selected tower, G to center on the next spawn point. Mouse scroll or pinch to zoom.</string>
 
     <!-- License Info -->
     <string name="license_info_title">License Information</string>

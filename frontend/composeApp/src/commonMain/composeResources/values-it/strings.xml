@@ -1277,18 +1277,18 @@
     <string name="keyboard_shortcut_key_label">Tasto</string>
     <string name="keyboard_shortcut_description_label">Azione</string>
     <string name="keyboard_shortcut_where_label">Dove</string>
-    <string name="keyboard_shortcut_attack">Attacca il bersaglio attuale con la torre selezionata</string>
+    <string name="keyboard_shortcut_attack">Attacca con la torre selezionata (conferma bersaglio)</string>
     <string name="keyboard_shortcut_auto_attack">Attacco automatico di tutte le torri e fine turno</string>
     <string name="keyboard_shortcut_cheat">Apri il dialogo dei codici truffa</string>
     <string name="keyboard_shortcut_enemy_list">Mostra/nascondi la lista dei nemici</string>
-    <string name="keyboard_shortcut_end_turn">Fine turno / Inizia battaglia</string>
+    <string name="keyboard_shortcut_end_turn">Conferma attacco / fine turno / inizia battaglia / annulla acquisto</string>
     <string name="keyboard_shortcut_save">Salva partita</string>
     <string name="keyboard_shortcut_pan_up">Sposta la mappa verso l\'alto</string>
     <string name="keyboard_shortcut_pan_down">Sposta la mappa verso il basso</string>
     <string name="keyboard_shortcut_pan_left">Sposta la mappa a sinistra</string>
     <string name="keyboard_shortcut_pan_right">Sposta la mappa a destra</string>
-    <string name="keyboard_shortcut_tab_next_tower">Seleziona la prossima torre azionabile</string>
-    <string name="keyboard_shortcut_shift_tab_prev_tower">Seleziona la torre azionabile precedente</string>
+    <string name="keyboard_shortcut_tab_next_tower">Cambia tipo di torre (fase costruzione) / seleziona prossima torre (battaglia)</string>
+    <string name="keyboard_shortcut_shift_tab_prev_tower">Cambia tipo di torre all\'indietro / seleziona torre precedente</string>
     <string name="keyboard_shortcut_center_selected_tower">Centra la mappa sulla torre selezionata</string>
     <string name="keyboard_shortcut_center_next_spawn_point">Centra la mappa sul prossimo punto di spawn</string>
     <string name="keyboard_shortcut_upgrade_selected_tower">Potenzia la torre selezionata</string>
@@ -1298,6 +1298,13 @@
     <string name="auto_jump_to_next_tower">Salta automaticamente alla prossima torre azionabile</string>
     <string name="keyboard_shortcuts_note">Nota: Le scorciatoie da tastiera sono disponibili su desktop e nell\'app web.</string>
     <string name="keyboard_modifier_ctrl">Ctrl</string>
+    <string name="keyboard_workflow_title">Guida: Giocare solo con la tastiera</string>
+    <string name="keyboard_workflow_build_phase_title">Fase di costruzione (prima della battaglia)</string>
+    <string name="keyboard_workflow_build_phase">Usa Tab / Maiusc+Tab per scorrere i tipi di torri disponibili. Clicca su una tile verde sulla mappa per posizionare la torre. Premi Invio o Tab per annullare la selezione. Quando sei pronto per iniziare la battaglia, premi Invio senza nessun tipo di torre selezionato.</string>
+    <string name="keyboard_workflow_battle_phase_title">Fase di battaglia (il tuo turno)</string>
+    <string name="keyboard_workflow_battle_phase">Usa Tab per passare alla prossima torre azionabile. Un bersaglio viene evidenziato automaticamente. Premi F o Invio per attaccare. U per potenziare, X per annullare/vendere (con conferma). M per aprire il menu magie, poi Tab/Maiusc+Tab per selezionare una magia e Invio per lanciarla. T per tornare alla modalità torri. Quando tutte le torri hanno agito, premi Invio per terminare il turno.</string>
+    <string name="keyboard_workflow_map_nav_title">Navigazione mappa</string>
+    <string name="keyboard_workflow_map_nav">Usa W/A/S/D (o i tasti freccia) per spostare la mappa. R per centrare sulla torre selezionata, G per centrare sul prossimo punto di spawn. Rotella del mouse o pizzico per lo zoom.</string>
 
     <!-- License Info -->
     <string name="license_info_title">Informazioni sulla Licenza</string>

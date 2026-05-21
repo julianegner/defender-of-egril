@@ -97,6 +97,44 @@ fun KeyboardShortcutsInfo(
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
+            // Keyboard-only workflow guide
+            ShortcutSection(title = stringResource(Res.string.keyboard_workflow_title)) {
+                Text(
+                    text = stringResource(Res.string.keyboard_workflow_build_phase_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                Text(
+                    text = stringResource(Res.string.keyboard_workflow_build_phase),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+                Text(
+                    text = stringResource(Res.string.keyboard_workflow_battle_phase_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                Text(
+                    text = stringResource(Res.string.keyboard_workflow_battle_phase),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+                Text(
+                    text = stringResource(Res.string.keyboard_workflow_map_nav_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                Text(
+                    text = stringResource(Res.string.keyboard_workflow_map_nav),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             // Gameplay shortcuts
             ShortcutSection(title = stringResource(Res.string.keyboard_shortcuts_gameplay_section)) {
                 ShortcutBindingRow(
