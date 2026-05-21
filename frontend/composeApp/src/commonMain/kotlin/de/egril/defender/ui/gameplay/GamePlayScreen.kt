@@ -794,18 +794,25 @@ private fun GamePlayScreenContent(
                     }
                     true
                 }
-                // T (remappable): Return to tower mode (close spell UI/targeting)
+                // T (remappable): Toggle tower-place mode (close spell UI/targeting); if already
+                // in tower-place mode, switch back to attack/select mode instead
                 event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutSwitchToTowerMode.value) -> {
-                    onCloseMagicPanel?.invoke()
-                    if (gameState.spellTargeting.value != null) {
-                        onExitSpellTargeting?.invoke()
+                    if (selectedDefenderType != null && !showMagicPanel && gameState.spellTargeting.value == null) {
+                        // Already in tower-place mode → switch back to attack/select mode
+                        selectedDefenderType = null
+                    } else {
+                        // Enter tower-place mode (close spell UI/targeting first)
+                        onCloseMagicPanel?.invoke()
+                        if (gameState.spellTargeting.value != null) {
+                            onExitSpellTargeting?.invoke()
+                        }
+                        selectedDefenderType = keyboardSelectableTowers.firstOrNull()
+                        selectedDefenderId = null
+                        selectedAttackerId = null
+                        selectedTargetId = null
+                        selectedTargetPosition = null
                     }
-                    selectedDefenderType = keyboardSelectableTowers.firstOrNull()
-                    selectedDefenderId = null
-                    selectedAttackerId = null
-                    selectedTargetId = null
-                    selectedTargetPosition = null
                     true
                 }
                 // Spell menu keyboard mode: Tab/Shift+Tab navigates spells
@@ -1033,6 +1040,8 @@ private fun GamePlayScreenContent(
                     }
                 }
                 // Enter (plain): Confirm tower type selection / attack with selected tower
+                // Always consume Enter in gameplay phases to prevent focused buttons from handling it
+                // (Start Battle / End Turn buttons should only be triggered via shortcutEndTurnStartBattle)
                 event.type == KeyEventType.KeyDown &&
                         event.key == Key.Enter &&
                         !event.isCtrlPressed && !event.isAltPressed && !event.isMetaPressed -> {
@@ -1050,13 +1059,10 @@ private fun GamePlayScreenContent(
                                     if (!gameState.canPlaceDefender(defType)) {
                                         selectedDefenderType = null
                                     }
-                                    true
-                                } else {
-                                    false
                                 }
-                            } else {
-                                false
                             }
+                            // Always consume Enter in build phase (prevent Start Battle button activation)
+                            true
                         }
                         GamePhase.PLAYER_TURN -> {
                             when {
@@ -1073,13 +1079,9 @@ private fun GamePlayScreenContent(
                                             if (!gameState.canPlaceDefender(defType)) {
                                                 selectedDefenderType = null
                                             }
-                                            true
-                                        } else {
-                                            false
                                         }
-                                    } else {
-                                        false
                                     }
+                                    true
                                 }
                                 // If a tower is selected with a valid target, attack
                                 selectedDefenderId != null && !showMagicPanel -> {
@@ -1091,13 +1093,15 @@ private fun GamePlayScreenContent(
                                         when {
                                             targetId != null -> { onDefenderAttack(defenderId!!, targetId); true }
                                             targetPos != null -> { onDefenderAttackPosition(defenderId!!, targetPos); true }
-                                            else -> false
+                                            else -> true
                                         }
                                     } else {
-                                        false
+                                        // Consume Enter anyway to prevent End Turn button activation
+                                        true
                                     }
                                 }
-                                else -> false
+                                // Always consume Enter in player turn to prevent End Turn button activation
+                                else -> true
                             }
                         }
                         else -> false

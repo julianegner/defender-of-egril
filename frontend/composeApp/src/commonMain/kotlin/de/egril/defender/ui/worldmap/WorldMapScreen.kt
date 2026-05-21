@@ -11,6 +11,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.LevelStatus
@@ -231,9 +234,16 @@ fun WorldMapScreen(
         }
     }
     
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        try { focusRequester.requestFocus() } catch (_: Exception) {}
+    }
+
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
+            .focusRequester(focusRequester)
+            .focusTarget()
             .onPreviewKeyEvent { event ->
                 if (event.type == KeyEventType.KeyDown) {
                     when {
@@ -244,6 +254,17 @@ fun WorldMapScreen(
                         // L: Load game
                         event.key == Key.L && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
                             onLoadGame()
+                            true
+                        }
+                        // H: Show Rules
+                        event.key == Key.H && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                            onShowRules()
+                            true
+                        }
+                        // O: Open Level Editor (if available)
+                        event.key == Key.O && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed
+                                && isEditorAvailable() -> {
+                            onOpenEditor()
                             true
                         }
                         isShortcutBindingPressed(event, AppSettings.shortcutCheat.value) && onCheatCode != null -> {
@@ -515,6 +536,10 @@ fun WorldMapScreen(
                                 modifier = Modifier.widthIn(min = buttonMinWidth)
                             ) {
                                 Text(stringResource(Res.string.rules))
+                                if (AppSettings.showButtonShortcutHints.value) {
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    ShortcutKeyChip(text = "H", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                }
                             }
                             
                             Button(
@@ -543,6 +568,10 @@ fun WorldMapScreen(
                             
                             Button(onClick = onShowRules) {
                                 Text(stringResource(Res.string.rules))
+                                if (AppSettings.showButtonShortcutHints.value) {
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    ShortcutKeyChip(text = "H", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                }
                             }
                             
                             Button(onClick = onBackToMenu) {

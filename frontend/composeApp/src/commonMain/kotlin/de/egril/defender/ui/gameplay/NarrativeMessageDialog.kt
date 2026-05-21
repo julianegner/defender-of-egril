@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -20,6 +21,7 @@ import de.egril.defender.model.AttackerType
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
 import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.ui.common.SelectableText
+import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -78,7 +80,17 @@ fun NarrativeMessageDialog(
         // On mobile, BoxWithConstraints fills the available popup width so the dialog scales to
         // the actual device screen size rather than using a fixed narrow value.
         BoxWithConstraints(
-            modifier = if (isMobile) Modifier.fillMaxWidth() else Modifier.width(700.dp),
+            modifier = (if (isMobile) Modifier.fillMaxWidth() else Modifier.width(700.dp))
+                .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown &&
+                        (event.key == Key.Enter || event.key == Key.Escape || event.key == Key.Back)
+                    ) {
+                        onDismiss()
+                        true
+                    } else {
+                        false
+                    }
+                },
             contentAlignment = Alignment.Center
         ) {
             // dialogWidth equals the actual rendered width on all platforms.
@@ -152,10 +164,21 @@ fun NarrativeMessageDialog(
                         onClick = onDismiss,
                         colors = ButtonDefaults.buttonColors(containerColor = buttonColor)
                     ) {
-                        Text(
-                            text = stringResource(Res.string.ok),
-                            color = Color.White
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.ok),
+                                color = Color.White
+                            )
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                ShortcutKeyChip(
+                                    text = "Enter",
+                                    color = Color.White.copy(alpha = 0.75f)
+                                )
+                            }
+                        }
                     }
                 }
             }

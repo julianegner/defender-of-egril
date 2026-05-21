@@ -100,32 +100,6 @@ fun KeyboardShortcutsInfo(
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
-            // Toggle: Show shortcut keys on buttons
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = stringResource(Res.string.shortcut_bindings_show_on_buttons),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        text = stringResource(Res.string.shortcut_bindings_show_on_buttons_info),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
-                }
-                Switch(
-                    checked = AppSettings.showButtonShortcutHints.value,
-                    onCheckedChange = { AppSettings.showButtonShortcutHints.value = it }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             // Gameplay shortcuts
             ShortcutSection(title = stringResource(Res.string.keyboard_shortcuts_gameplay_section)) {
                 ShortcutBindingRow(

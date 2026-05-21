@@ -43,9 +43,13 @@ import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.utils.isPlatformWasm
 import de.egril.defender.ui.isMobileWebBrowser
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.icon.HeartIcon
 import de.egril.defender.ui.icon.HelpIcon
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.settings.AppSettings.isDarkMode
 import de.egril.defender.utils.isPlatformIos
 import defender_of_egril.composeapp.generated.resources.*
@@ -171,14 +175,28 @@ fun MainMenuScreen(
     // Track if exit confirmation dialog should be shown
     var showExitConfirmation by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
     
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        try { focusRequester.requestFocus() } catch (_: Exception) {}
+    }
+
     Surface(
-        modifier = Modifier.fillMaxSize().onPreviewKeyEvent { event ->
+        modifier = Modifier.fillMaxSize()
+            .focusRequester(focusRequester)
+            .focusTarget()
+            .onPreviewKeyEvent { event ->
             if (event.type == KeyEventType.KeyDown) {
                 when {
                     // Enter → Start Game (if data is loaded and no dialog open)
                     event.key == Key.Enter && !event.isCtrlPressed && !event.isAltPressed
                             && isDataLoaded && !showExitConfirmation -> {
                         onStartGame()
+                        true
+                    }
+                    // H → Show Rules (if no dialog open)
+                    event.key == Key.H && !event.isCtrlPressed && !event.isAltPressed
+                            && !showExitConfirmation -> {
+                        onShowRules()
                         true
                     }
                     // Esc → show exit confirmation (non-iOS)
@@ -647,7 +665,12 @@ fun MainMenuScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         Button(onClick = onStartGame, enabled = isDataLoaded, modifier = Modifier.width(200.dp).height(60.dp)) {
-                            Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
+                                if (AppSettings.showButtonShortcutHints.value) {
+                                    ShortcutKeyChip(text = "Enter", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                }
+                            }
                         }
                         if (hasAutosave) {
                             Button(
@@ -661,7 +684,12 @@ fun MainMenuScreen(
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = onShowRules, modifier = Modifier.width(200.dp).height(60.dp)) {
-                        Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                ShortcutKeyChip(text = "H", color = LocalContentColor.current.copy(alpha = 0.75f))
+                            }
+                        }
                     }
                     if (isPlatformWasm && WithImpressum.withImpressum) {
                         Spacer(modifier = Modifier.height(16.dp))

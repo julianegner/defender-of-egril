@@ -8,6 +8,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
@@ -158,6 +159,21 @@ fun UnsavedChangesDialog(
 ) {
     val holdToConfirmEnabled = AppSettings.holdToConfirmEnabled.value
     AlertDialog(
+        modifier = Modifier.onPreviewKeyEvent { event ->
+            if (event.type == KeyEventType.KeyDown) {
+                when {
+                    event.key == Key.Enter && !event.isCtrlPressed && !event.isAltPressed -> {
+                        onSaveAndExit()
+                        true
+                    }
+                    event.key == Key.D && !event.isCtrlPressed && !event.isAltPressed -> {
+                        onDiscardChanges()
+                        true
+                    }
+                    else -> false
+                }
+            } else false
+        },
         onDismissRequest = onCancel,
         title = { Text(stringResource(Res.string.unsaved_changes_title)) },
         text = {
