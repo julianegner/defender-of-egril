@@ -39,10 +39,15 @@ class KeyboardShortcutsInfoTest {
             composeTestRule.onNodeWithText("→").assertExists()
             composeTestRule.onAllNodesWithText("KEY:", substring = true, ignoreCase = false)
                 .assertCountEquals(0)
+            // Verify keyboard-only workflow guide section is present
+            composeTestRule.onNodeWithText("Keyboard-only Gameplay Guide").assertExists()
+            composeTestRule.onNodeWithText("Build Phase (before battle)").assertExists()
+            composeTestRule.onNodeWithText("Battle Phase (your turn)").assertExists()
+            composeTestRule.onNodeWithText("Map Navigation").assertExists()
 
             ScreenshotTestUtils.captureScreenshot(
                 composeTestRule = composeTestRule,
-                filename = "keyboard-shortcuts-phase4-panzoom-assist",
+                filename = "keyboard-shortcuts-workflow-guide",
                 width = 1200,
                 height = 900
             )
