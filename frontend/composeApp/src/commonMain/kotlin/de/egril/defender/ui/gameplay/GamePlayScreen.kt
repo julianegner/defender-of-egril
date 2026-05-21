@@ -963,7 +963,7 @@ private fun GamePlayScreenContent(
                     showOverlay = !showOverlay
                     true
                 }
-                // N (remappable): In tower-place mode, cycle to next buildable tile
+                // Reuses the "next enemy target" binding (default N) for cycling build tiles in tower-place mode
                 event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutNextEnemyTarget.value) &&
                         selectedDefenderType != null && !showMagicPanel &&
@@ -978,7 +978,7 @@ private fun GamePlayScreenContent(
                         true
                     } else false
                 }
-                // Shift+N (remappable): In tower-place mode, cycle to previous buildable tile
+                // Reuses the "prev enemy target" binding (default Shift+N) for cycling build tiles in tower-place mode
                 event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutPrevEnemyTarget.value) &&
                         selectedDefenderType != null && !showMagicPanel &&
