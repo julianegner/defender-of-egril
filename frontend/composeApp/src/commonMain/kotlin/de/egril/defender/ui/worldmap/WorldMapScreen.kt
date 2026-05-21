@@ -239,6 +239,11 @@ fun WorldMapScreen(
         try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
     }
 
+    // True when the image-map is shown and no level-tab overlay is active.
+    // Used both in the keyboard handler and the button rendering below.
+    val canShowCommunityLevelsTab = hasCommunityLevels && !useLevelCards && imageMapActiveTab == null
+    val canShowUserLevelsTab = hasUserLevels && !useLevelCards && imageMapActiveTab == null
+
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
@@ -269,13 +274,13 @@ fun WorldMapScreen(
                         }
                         // V → Community Levels (if available)
                         event.key == Key.V && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed
-                                && hasCommunityLevels && !useLevelCards && imageMapActiveTab == null -> {
+                                && canShowCommunityLevelsTab -> {
                             imageMapActiveTab = 1
                             true
                         }
                         // J → User Levels (if available)
                         event.key == Key.J && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed
-                                && hasUserLevels && !useLevelCards && imageMapActiveTab == null -> {
+                                && canShowUserLevelsTab -> {
                             imageMapActiveTab = 2
                             true
                         }
@@ -604,12 +609,12 @@ fun WorldMapScreen(
                 }
                 
                 // User/Community Levels Buttons (only in Image Map View when not showing tab view)
-                if ((hasUserLevels || hasCommunityLevels) && !useLevelCards && imageMapActiveTab == null) {
+                if ((canShowUserLevelsTab || canShowCommunityLevelsTab)) {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         horizontalAlignment = Alignment.End
                     ) {
-                        if (hasUserLevels) {
+                        if (canShowUserLevelsTab) {
                             Button(onClick = { imageMapActiveTab = 2 }) {
                                 Text(stringResource(Res.string.user_levels))
                                 if (AppSettings.showButtonShortcutHints.value) {
@@ -618,7 +623,7 @@ fun WorldMapScreen(
                                 }
                             }
                         }
-                        if (hasCommunityLevels) {
+                        if (canShowCommunityLevelsTab) {
                             Button(onClick = { imageMapActiveTab = 1 }) {
                                 Text(stringResource(Res.string.community_levels))
                                 if (AppSettings.showButtonShortcutHints.value) {

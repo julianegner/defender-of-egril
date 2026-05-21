@@ -1022,7 +1022,7 @@ private fun GamePlayScreenContent(
                             }
                             DefenderType.SPIKE_TOWER -> {
                                 val canBuild = defender.level.value >= 20 &&
-                                    gameState.constructionLevel >= de.egril.defender.model.PlayerAbilities.CONSTRUCTION_LEVEL_2
+                                    gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_2
                                 if (canBuild) {
                                     handleBarricadeAction(defender.id, BarricadeAction.BUILD_BARRICADE)
                                     true
@@ -1030,7 +1030,7 @@ private fun GamePlayScreenContent(
                             }
                             DefenderType.SPEAR_TOWER -> {
                                 val canBuild = defender.level.value >= 10 &&
-                                    gameState.constructionLevel >= de.egril.defender.model.PlayerAbilities.CONSTRUCTION_LEVEL_1
+                                    gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_1
                                 if (canBuild) {
                                     handleBarricadeAction(defender.id, BarricadeAction.BUILD_BARRICADE)
                                     true
