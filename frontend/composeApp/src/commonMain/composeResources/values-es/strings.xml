@@ -1307,6 +1307,10 @@
     <string name="keyboard_workflow_map_nav">Usa W/A/S/D (o teclas de flecha) para desplazar el mapa. R para centrar en la torre seleccionada, G para centrar en el siguiente punto de aparición. Rueda del ratón o pellizco para hacer zoom.</string>
     <string name="keyboard_nav_next">Sig.</string>
     <string name="keyboard_nav_prev">Ant.</string>
+    <string name="keyboard_nav_confirm">Confirmar</string>
+    <string name="keyboard_shortcut_next_enemy_target">Siguiente enemigo alcanzable</string>
+    <string name="keyboard_shortcut_prev_enemy_target">Enemigo alcanzable anterior</string>
+    <string name="keyboard_shortcut_back_to_worldmap">Volver al mapa mundial</string>
 
     <!-- License Info -->
     <string name="license_info_title">Información de Licencia</string>

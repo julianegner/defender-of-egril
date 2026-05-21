@@ -49,7 +49,10 @@ private enum class BindingTarget {
     UPGRADE_SELECTED_TOWER,
     UNDO_OR_SELL_SELECTED_TOWER,
     TOGGLE_SPELL_MENU,
-    SWITCH_TO_TOWER_MODE
+    SWITCH_TO_TOWER_MODE,
+    NEXT_ENEMY_TARGET,
+    PREV_ENEMY_TARGET,
+    BACK_TO_WORLDMAP
 }
 
 /**
@@ -118,42 +121,6 @@ fun KeyboardShortcutsInfo(
                 Switch(
                     checked = AppSettings.showButtonShortcutHints.value,
                     onCheckedChange = { AppSettings.showButtonShortcutHints.value = it }
-                )
-            }
-
-            // Keyboard-only workflow guide
-            ShortcutSection(title = stringResource(Res.string.keyboard_workflow_title)) {
-                Text(
-                    text = stringResource(Res.string.keyboard_workflow_build_phase_title),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-                Text(
-                    text = stringResource(Res.string.keyboard_workflow_build_phase),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-                Text(
-                    text = stringResource(Res.string.keyboard_workflow_battle_phase_title),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-                Text(
-                    text = stringResource(Res.string.keyboard_workflow_battle_phase),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-                Text(
-                    text = stringResource(Res.string.keyboard_workflow_map_nav_title),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-                Text(
-                    text = stringResource(Res.string.keyboard_workflow_map_nav),
-                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
 
@@ -232,6 +199,30 @@ fun KeyboardShortcutsInfo(
                     enableEdit = enableBindingEdit,
                     onEdit = { bindingCaptureTarget = BindingTarget.SWITCH_TO_TOWER_MODE },
                     buttonTestTag = "shortcut-binding-switch-to-tower-mode"
+                )
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutNextEnemyTarget.value,
+                    defaultKey = "N",
+                    description = stringResource(Res.string.keyboard_shortcut_next_enemy_target),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.NEXT_ENEMY_TARGET },
+                    buttonTestTag = "shortcut-binding-next-enemy-target"
+                )
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutPrevEnemyTarget.value,
+                    defaultKey = "Shift+N",
+                    description = stringResource(Res.string.keyboard_shortcut_prev_enemy_target),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.PREV_ENEMY_TARGET },
+                    buttonTestTag = "shortcut-binding-prev-enemy-target"
+                )
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutBackToWorldMap.value,
+                    defaultKey = "Escape",
+                    description = stringResource(Res.string.keyboard_shortcut_back_to_worldmap),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.BACK_TO_WORLDMAP },
+                    buttonTestTag = "shortcut-binding-back-to-worldmap"
                 )
                 ShortcutBindingRow(
                     key = AppSettings.shortcutAutoAttackEndTurn.value,
@@ -350,6 +341,44 @@ fun KeyboardShortcutsInfo(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+
+            // Keyboard-only workflow guide (at bottom)
+            ShortcutSection(title = stringResource(Res.string.keyboard_workflow_title)) {
+                Text(
+                    text = stringResource(Res.string.keyboard_workflow_build_phase_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                Text(
+                    text = stringResource(Res.string.keyboard_workflow_build_phase),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+                Text(
+                    text = stringResource(Res.string.keyboard_workflow_battle_phase_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                Text(
+                    text = stringResource(Res.string.keyboard_workflow_battle_phase),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+                Text(
+                    text = stringResource(Res.string.keyboard_workflow_map_nav_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                Text(
+                    text = stringResource(Res.string.keyboard_workflow_map_nav),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
         }
     }
@@ -384,6 +413,9 @@ fun KeyboardShortcutsInfo(
                 BindingTarget.UNDO_OR_SELL_SELECTED_TOWER -> AppSettings.saveShortcutUndoOrSellSelectedTower(binding)
                 BindingTarget.TOGGLE_SPELL_MENU -> AppSettings.saveShortcutToggleSpellMenu(binding)
                 BindingTarget.SWITCH_TO_TOWER_MODE -> AppSettings.saveShortcutSwitchToTowerMode(binding)
+                BindingTarget.NEXT_ENEMY_TARGET -> AppSettings.saveShortcutNextEnemyTarget(binding)
+                BindingTarget.PREV_ENEMY_TARGET -> AppSettings.saveShortcutPrevEnemyTarget(binding)
+                BindingTarget.BACK_TO_WORLDMAP -> AppSettings.saveShortcutBackToWorldMap(binding)
                 null -> {}
             }
             bindingCaptureTarget = null

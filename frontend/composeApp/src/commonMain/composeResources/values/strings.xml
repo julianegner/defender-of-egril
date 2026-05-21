@@ -1309,6 +1309,10 @@
     <string name="keyboard_workflow_map_nav">Use W/A/S/D (or arrow keys) to pan the map. Use R to center on the selected tower, G to center on the next spawn point. Mouse scroll or pinch to zoom.</string>
     <string name="keyboard_nav_next">Next</string>
     <string name="keyboard_nav_prev">Prev</string>
+    <string name="keyboard_nav_confirm">Confirm</string>
+    <string name="keyboard_shortcut_next_enemy_target">Next reachable enemy</string>
+    <string name="keyboard_shortcut_prev_enemy_target">Previous reachable enemy</string>
+    <string name="keyboard_shortcut_back_to_worldmap">Back to world map</string>
 
     <!-- License Info -->
     <string name="license_info_title">License Information</string>

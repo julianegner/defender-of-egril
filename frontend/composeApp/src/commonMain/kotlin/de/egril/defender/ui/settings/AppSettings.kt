@@ -94,6 +94,9 @@ object AppSettings {
     private const val KEY_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER = "shortcut_undo_or_sell_selected_tower"
     private const val KEY_SHORTCUT_TOGGLE_SPELL_MENU = "shortcut_toggle_spell_menu"
     private const val KEY_SHORTCUT_SWITCH_TO_TOWER_MODE = "shortcut_switch_to_tower_mode"
+    private const val KEY_SHORTCUT_NEXT_ENEMY_TARGET = "shortcut_next_enemy_target"
+    private const val KEY_SHORTCUT_PREV_ENEMY_TARGET = "shortcut_prev_enemy_target"
+    private const val KEY_SHORTCUT_BACK_TO_WORLDMAP = "shortcut_back_to_worldmap"
     private const val DEFAULT_SHORTCUT_ATTACK_SELECTED_TARGET = "F"
     private const val DEFAULT_SHORTCUT_SELECT_NEXT_TOWER = "Tab"
     private const val DEFAULT_SHORTCUT_SELECT_PREVIOUS_TOWER = "Shift+Tab"
@@ -112,6 +115,9 @@ object AppSettings {
     private const val DEFAULT_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER = "X"
     private const val DEFAULT_SHORTCUT_TOGGLE_SPELL_MENU = "M"
     private const val DEFAULT_SHORTCUT_SWITCH_TO_TOWER_MODE = "T"
+    private const val DEFAULT_SHORTCUT_NEXT_ENEMY_TARGET = "N"
+    private const val DEFAULT_SHORTCUT_PREV_ENEMY_TARGET = "Shift+N"
+    private const val DEFAULT_SHORTCUT_BACK_TO_WORLDMAP = "Escape"
     
     private val settings: Settings = Settings()
 
@@ -463,6 +469,27 @@ object AppSettings {
         normalizeShortcutBinding(
             settings[KEY_SHORTCUT_SWITCH_TO_TOWER_MODE, DEFAULT_SHORTCUT_SWITCH_TO_TOWER_MODE],
             DEFAULT_SHORTCUT_SWITCH_TO_TOWER_MODE
+        )
+    )
+
+    val shortcutNextEnemyTarget: MutableState<String> = mutableStateOf(
+        normalizeShortcutBinding(
+            settings[KEY_SHORTCUT_NEXT_ENEMY_TARGET, DEFAULT_SHORTCUT_NEXT_ENEMY_TARGET],
+            DEFAULT_SHORTCUT_NEXT_ENEMY_TARGET
+        )
+    )
+
+    val shortcutPrevEnemyTarget: MutableState<String> = mutableStateOf(
+        normalizeShortcutBinding(
+            settings[KEY_SHORTCUT_PREV_ENEMY_TARGET, DEFAULT_SHORTCUT_PREV_ENEMY_TARGET],
+            DEFAULT_SHORTCUT_PREV_ENEMY_TARGET
+        )
+    )
+
+    val shortcutBackToWorldMap: MutableState<String> = mutableStateOf(
+        normalizeShortcutBinding(
+            settings[KEY_SHORTCUT_BACK_TO_WORLDMAP, DEFAULT_SHORTCUT_BACK_TO_WORLDMAP],
+            DEFAULT_SHORTCUT_BACK_TO_WORLDMAP
         )
     )
 
@@ -928,6 +955,27 @@ object AppSettings {
         onPersist?.invoke()
     }
 
+    fun saveShortcutNextEnemyTarget(shortcut: String) {
+        val normalized = normalizeShortcutBinding(shortcut, DEFAULT_SHORTCUT_NEXT_ENEMY_TARGET)
+        shortcutNextEnemyTarget.value = normalized
+        settings[KEY_SHORTCUT_NEXT_ENEMY_TARGET] = normalized
+        onPersist?.invoke()
+    }
+
+    fun saveShortcutPrevEnemyTarget(shortcut: String) {
+        val normalized = normalizeShortcutBinding(shortcut, DEFAULT_SHORTCUT_PREV_ENEMY_TARGET)
+        shortcutPrevEnemyTarget.value = normalized
+        settings[KEY_SHORTCUT_PREV_ENEMY_TARGET] = normalized
+        onPersist?.invoke()
+    }
+
+    fun saveShortcutBackToWorldMap(shortcut: String) {
+        val normalized = normalizeShortcutBinding(shortcut, DEFAULT_SHORTCUT_BACK_TO_WORLDMAP)
+        shortcutBackToWorldMap.value = normalized
+        settings[KEY_SHORTCUT_BACK_TO_WORLDMAP] = normalized
+        onPersist?.invoke()
+    }
+
     fun resetShortcutBindings() {
         saveShortcutAttackSelectedTarget(DEFAULT_SHORTCUT_ATTACK_SELECTED_TARGET)
         saveShortcutSelectNextTower(DEFAULT_SHORTCUT_SELECT_NEXT_TOWER)
@@ -947,6 +995,9 @@ object AppSettings {
         saveShortcutUndoOrSellSelectedTower(DEFAULT_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER)
         saveShortcutToggleSpellMenu(DEFAULT_SHORTCUT_TOGGLE_SPELL_MENU)
         saveShortcutSwitchToTowerMode(DEFAULT_SHORTCUT_SWITCH_TO_TOWER_MODE)
+        saveShortcutNextEnemyTarget(DEFAULT_SHORTCUT_NEXT_ENEMY_TARGET)
+        saveShortcutPrevEnemyTarget(DEFAULT_SHORTCUT_PREV_ENEMY_TARGET)
+        saveShortcutBackToWorldMap(DEFAULT_SHORTCUT_BACK_TO_WORLDMAP)
     }
 
     fun getDefaultShortcutBindings(): Map<String, String> = mapOf(
@@ -1032,6 +1083,9 @@ object AppSettings {
         put(KEY_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER, shortcutUndoOrSellSelectedTower.value)
         put(KEY_SHORTCUT_TOGGLE_SPELL_MENU, shortcutToggleSpellMenu.value)
         put(KEY_SHORTCUT_SWITCH_TO_TOWER_MODE, shortcutSwitchToTowerMode.value)
+        put(KEY_SHORTCUT_NEXT_ENEMY_TARGET, shortcutNextEnemyTarget.value)
+        put(KEY_SHORTCUT_PREV_ENEMY_TARGET, shortcutPrevEnemyTarget.value)
+        put(KEY_SHORTCUT_BACK_TO_WORLDMAP, shortcutBackToWorldMap.value)
     }
 
     /**

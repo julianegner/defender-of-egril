@@ -1304,6 +1304,10 @@
     <string name="keyboard_workflow_map_nav">W/A/S/D (oder Pfeiltasten) zum Schwenken der Karte. R zum Zentrieren auf den ausgewählten Turm, G zum Zentrieren auf den nächsten Spawnpunkt. Mausrad oder Pinch zum Zoomen.</string>
     <string name="keyboard_nav_next">Weiter</string>
     <string name="keyboard_nav_prev">Zurück</string>
+    <string name="keyboard_nav_confirm">Bestätigen</string>
+    <string name="keyboard_shortcut_next_enemy_target">Nächster erreichbarer Gegner</string>
+    <string name="keyboard_shortcut_prev_enemy_target">Vorheriger erreichbarer Gegner</string>
+    <string name="keyboard_shortcut_back_to_worldmap">Zurück zur Weltkarte</string>
 
     <!-- License Info -->
     <string name="license_info_title">Lizenzinformationen</string>

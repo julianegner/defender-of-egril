@@ -1307,6 +1307,10 @@
     <string name="keyboard_workflow_map_nav">Utilisez W/A/S/D (ou les touches fléchées) pour déplacer la carte. R pour centrer sur la tour sélectionnée, G pour centrer sur le prochain point d\'apparition. Molette de souris ou pincement pour zoomer.</string>
     <string name="keyboard_nav_next">Suiv.</string>
     <string name="keyboard_nav_prev">Préc.</string>
+    <string name="keyboard_nav_confirm">Confirmer</string>
+    <string name="keyboard_shortcut_next_enemy_target">Ennemi atteignable suivant</string>
+    <string name="keyboard_shortcut_prev_enemy_target">Ennemi atteignable précédent</string>
+    <string name="keyboard_shortcut_back_to_worldmap">Retour à la carte du monde</string>
 
     <!-- License Info -->
     <string name="license_info_title">Informations sur la Licence</string>

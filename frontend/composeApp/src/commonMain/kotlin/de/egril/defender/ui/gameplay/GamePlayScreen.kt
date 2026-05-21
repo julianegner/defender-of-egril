@@ -921,6 +921,63 @@ private fun GamePlayScreenContent(
                     showOverlay = !showOverlay
                     true
                 }
+                // N (remappable): Cycle to next reachable enemy target
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutNextEnemyTarget.value) &&
+                        selectedDefenderId != null &&
+                        gameState.phase.value == GamePhase.PLAYER_TURN -> {
+                    val defender = gameState.defenders.find { it.id == selectedDefenderId }
+                    if (defender != null) {
+                        val reachableEnemies = gameState.attackers.filter { attacker ->
+                            !attacker.isDefeated.value &&
+                            defender.position.value.distanceTo(attacker.position.value) <= defender.range
+                        }
+                        if (reachableEnemies.isNotEmpty()) {
+                            val currentIdx = selectedTargetId?.let { tid ->
+                                reachableEnemies.indexOfFirst { it.id == tid }
+                            } ?: -1
+                            val nextIdx = (currentIdx + 1) % reachableEnemies.size
+                            val nextEnemy = reachableEnemies[nextIdx]
+                            selectedTargetId = nextEnemy.id
+                            selectedTargetPosition = nextEnemy.position.value
+                            true
+                        } else false
+                    } else false
+                }
+                // Shift+N (remappable): Cycle to previous reachable enemy target
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutPrevEnemyTarget.value) &&
+                        selectedDefenderId != null &&
+                        gameState.phase.value == GamePhase.PLAYER_TURN -> {
+                    val defender = gameState.defenders.find { it.id == selectedDefenderId }
+                    if (defender != null) {
+                        val reachableEnemies = gameState.attackers.filter { attacker ->
+                            !attacker.isDefeated.value &&
+                            defender.position.value.distanceTo(attacker.position.value) <= defender.range
+                        }
+                        if (reachableEnemies.isNotEmpty()) {
+                            val currentIdx = selectedTargetId?.let { tid ->
+                                reachableEnemies.indexOfFirst { it.id == tid }
+                            } ?: 0
+                            val prevIdx = (currentIdx - 1 + reachableEnemies.size) % reachableEnemies.size
+                            val prevEnemy = reachableEnemies[prevIdx]
+                            selectedTargetId = prevEnemy.id
+                            selectedTargetPosition = prevEnemy.position.value
+                            true
+                        } else false
+                    } else false
+                }
+                // Escape (remappable): Back to world map with confirmation
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutBackToWorldMap.value) &&
+                        !isDemoMode -> {
+                    if (unsavedChangesEnabled && hasUnsavedChanges.invoke()) {
+                        showUnsavedChangesDialog = true
+                    } else {
+                        onBackToMap()
+                    }
+                    true
+                }
                 // End turn / start battle (Ctrl+Enter by default)
                 event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutEndTurnStartBattle.value) -> {
@@ -954,8 +1011,50 @@ private fun GamePlayScreenContent(
                         event.key == Key.Enter &&
                         !event.isCtrlPressed && !event.isAltPressed && !event.isMetaPressed -> {
                     when (gameState.phase.value) {
+                        GamePhase.INITIAL_BUILDING -> {
+                            // In build phase, Enter confirms placement on first available build tile
+                            val defType = selectedDefenderType
+                            if (defType != null) {
+                                val buildTile = gameState.level.buildAreas
+                                    .firstOrNull { pos ->
+                                        gameState.defenders.none { it.position.value == pos } &&
+                                        gameState.canPlaceDefender(defType)
+                                    }
+                                if (buildTile != null && onPlaceDefender(defType, buildTile)) {
+                                    if (!gameState.canPlaceDefender(defType)) {
+                                        selectedDefenderType = null
+                                    }
+                                    true
+                                } else {
+                                    false
+                                }
+                            } else {
+                                false
+                            }
+                        }
                         GamePhase.PLAYER_TURN -> {
                             when {
+                                // If a tower type is selected (buy mode), place on first available tile
+                                selectedDefenderType != null && selectedDefenderId == null && !showMagicPanel -> {
+                                    val defType = selectedDefenderType
+                                    if (defType != null) {
+                                        val buildTile = gameState.level.buildAreas
+                                            .firstOrNull { pos ->
+                                                gameState.defenders.none { it.position.value == pos } &&
+                                                gameState.canPlaceDefender(defType)
+                                            }
+                                        if (buildTile != null && onPlaceDefender(defType, buildTile)) {
+                                            if (!gameState.canPlaceDefender(defType)) {
+                                                selectedDefenderType = null
+                                            }
+                                            true
+                                        } else {
+                                            false
+                                        }
+                                    } else {
+                                        false
+                                    }
+                                }
                                 // If a tower is selected with a valid target, attack
                                 selectedDefenderId != null && !showMagicPanel -> {
                                     val defenderId = selectedDefenderId
@@ -1480,35 +1579,51 @@ private fun GamePlayScreenContent(
                 }
             }
 
-            // Keyboard navigation hint overlay (bottom-right)
-            if (selectedDefenderType != null && selectedDefenderId == null && !showMagicPanel) {
+            // Keyboard navigation hint overlay (bottom-right, below minimap area)
+            val showKeyboardHints = AppSettings.showButtonShortcutHints.value &&
+                !showMagicPanel &&
+                (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN)
+            if (showKeyboardHints) {
                 Surface(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(8.dp),
+                        .padding(bottom = 60.dp, end = 8.dp),
                     shape = RoundedCornerShape(4.dp),
                     color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.9f),
                     tonalElevation = 2.dp
                 ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                    Column(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutSelectNextTower.value))
-                            Text(stringResource(Res.string.keyboard_nav_next), style = MaterialTheme.typography.labelSmall)
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutSelectNextTower.value))
+                                Text(stringResource(Res.string.keyboard_nav_next), style = MaterialTheme.typography.labelSmall)
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutSelectPreviousTower.value))
+                                Text(stringResource(Res.string.keyboard_nav_prev), style = MaterialTheme.typography.labelSmall)
+                            }
                         }
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutSelectPreviousTower.value))
-                            Text(stringResource(Res.string.keyboard_nav_prev), style = MaterialTheme.typography.labelSmall)
-                        }
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutEndTurnStartBattle.value))
-                            Text(
-                                if (gameState.phase.value == GamePhase.INITIAL_BUILDING) stringResource(Res.string.start_battle) else stringResource(Res.string.end_turn_button),
-                                style = MaterialTheme.typography.labelSmall
-                            )
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                ShortcutKeyChip(text = "Enter")
+                                Text(stringResource(Res.string.keyboard_nav_confirm), style = MaterialTheme.typography.labelSmall)
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutEndTurnStartBattle.value))
+                                Text(
+                                    if (gameState.phase.value == GamePhase.INITIAL_BUILDING) stringResource(Res.string.start_battle) else stringResource(Res.string.end_turn_button),
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            }
                         }
                     }
                 }

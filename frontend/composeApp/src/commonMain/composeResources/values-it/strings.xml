@@ -1307,6 +1307,10 @@
     <string name="keyboard_workflow_map_nav">Usa W/A/S/D (o i tasti freccia) per spostare la mappa. R per centrare sulla torre selezionata, G per centrare sul prossimo punto di spawn. Rotella del mouse o pizzico per lo zoom.</string>
     <string name="keyboard_nav_next">Avanti</string>
     <string name="keyboard_nav_prev">Prec.</string>
+    <string name="keyboard_nav_confirm">Conferma</string>
+    <string name="keyboard_shortcut_next_enemy_target">Prossimo nemico raggiungibile</string>
+    <string name="keyboard_shortcut_prev_enemy_target">Nemico raggiungibile precedente</string>
+    <string name="keyboard_shortcut_back_to_worldmap">Torna alla mappa del mondo</string>
 
     <!-- License Info -->
     <string name="license_info_title">Informazioni sulla Licenza</string>
