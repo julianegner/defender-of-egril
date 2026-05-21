@@ -196,10 +196,8 @@ fun GameStatsDisplay(
                 Text("$currentMana/$maxMana", style = textStyle)
                 if (AppSettings.showButtonShortcutHints.value && onManaClick != null) {
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = formatShortcutBindingForDisplay(AppSettings.shortcutToggleSpellMenu.value),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    ShortcutKeyChip(
+                        text = formatShortcutBindingForDisplay(AppSettings.shortcutToggleSpellMenu.value)
                     )
                 }
             }

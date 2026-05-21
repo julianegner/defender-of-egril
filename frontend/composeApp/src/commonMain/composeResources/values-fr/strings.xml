@@ -1300,9 +1300,9 @@
     <string name="keyboard_modifier_ctrl">Ctrl</string>
     <string name="keyboard_workflow_title">Guide : Jouer uniquement au clavier</string>
     <string name="keyboard_workflow_build_phase_title">Phase de construction (avant la bataille)</string>
-    <string name="keyboard_workflow_build_phase">Utilisez Tab / Maj+Tab pour parcourir les types de tours disponibles. Cliquez sur une tuile verte de la carte pour placer la tour. Appuyez sur Entrée ou Tab pour annuler la sélection. Quand vous êtes prêt à démarrer la bataille, appuyez sur Entrée sans type de tour sélectionné.</string>
+    <string name="keyboard_workflow_build_phase">Utilisez Tab / Maj+Tab pour parcourir les types de tours disponibles. Cliquez sur une tuile verte de la carte pour placer la tour. Appuyez sur Ctrl+Entrée pour démarrer la bataille quand vous êtes prêt.</string>
     <string name="keyboard_workflow_battle_phase_title">Phase de bataille (votre tour)</string>
-    <string name="keyboard_workflow_battle_phase">Utilisez Tab pour passer à la prochaine tour actionnable. Une cible est automatiquement mise en évidence. Appuyez sur F ou Entrée pour attaquer. U pour améliorer, X pour annuler/vendre (avec confirmation). M pour ouvrir le menu des sorts, puis Tab/Maj+Tab pour sélectionner un sort et Entrée pour le lancer. T pour revenir au mode tours. Quand toutes les tours ont agi, appuyez sur Entrée pour terminer le tour.</string>
+    <string name="keyboard_workflow_battle_phase">Utilisez Tab pour passer à la prochaine tour actionnable. Une cible est automatiquement mise en évidence. Appuyez sur F ou Entrée pour attaquer. U pour améliorer, X pour annuler/vendre (avec confirmation). M pour ouvrir le menu des sorts, puis Tab/Maj+Tab pour sélectionner un sort et Entrée pour le lancer. T pour revenir au mode tours. Appuyez sur Ctrl+Entrée pour terminer le tour.</string>
     <string name="keyboard_workflow_map_nav_title">Navigation sur la carte</string>
     <string name="keyboard_workflow_map_nav">Utilisez W/A/S/D (ou les touches fléchées) pour déplacer la carte. R pour centrer sur la tour sélectionnée, G pour centrer sur le prochain point d\'apparition. Molette de souris ou pincement pour zoomer.</string>
 

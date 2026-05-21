@@ -1297,9 +1297,9 @@
     <string name="keyboard_modifier_ctrl">Strg</string>
     <string name="keyboard_workflow_title">Anleitung: Nur mit Tastatur spielen</string>
     <string name="keyboard_workflow_build_phase_title">Bauphase (vor dem Kampf)</string>
-    <string name="keyboard_workflow_build_phase">Mit Tab / Umschalt+Tab durch die verfügbaren Turmtypen blättern. Den markierten Typ im Kaufbereich anzeigen. Auf ein grünes Feld auf der Karte klicken, um den Turm zu platzieren. Enter oder Tab drücken, um die Auswahl abzubrechen. Wenn der Kampf starten soll, Enter drücken ohne gewählten Turmtyp.</string>
+    <string name="keyboard_workflow_build_phase">Mit Tab / Umschalt+Tab durch die verfügbaren Turmtypen blättern. Den markierten Typ im Kaufbereich anzeigen. Auf ein grünes Feld auf der Karte klicken, um den Turm zu platzieren. Strg+Enter drücken, um den Kampf zu starten.</string>
     <string name="keyboard_workflow_battle_phase_title">Kampfphase (eigener Zug)</string>
-    <string name="keyboard_workflow_battle_phase">Mit Tab zum nächsten aktionsfähigen Turm springen. Ein Ziel wird automatisch markiert. F oder Enter drücken, um anzugreifen. U zum Verbessern, X zum Rückgängig/Verkaufen (mit Bestätigung). M zum Öffnen des Zaubermenüs, dann Tab/Umschalt+Tab zum Auswählen eines Zaubers und Enter zum Wirken. T zurück zum Turmmodus. Wenn alle Türme gehandelt haben, Enter drücken, um die Runde zu beenden.</string>
+    <string name="keyboard_workflow_battle_phase">Mit Tab zum nächsten aktionsfähigen Turm springen. Ein Ziel wird automatisch markiert. F oder Enter drücken, um anzugreifen. U zum Verbessern, X zum Rückgängig/Verkaufen (mit Bestätigung). M zum Öffnen des Zaubermenüs, dann Tab/Umschalt+Tab zum Auswählen eines Zaubers und Enter zum Wirken. T zurück zum Turmmodus. Strg+Enter drücken, um die Runde zu beenden.</string>
     <string name="keyboard_workflow_map_nav_title">Kartennavigation</string>
     <string name="keyboard_workflow_map_nav">W/A/S/D (oder Pfeiltasten) zum Schwenken der Karte. R zum Zentrieren auf den ausgewählten Turm, G zum Zentrieren auf den nächsten Spawnpunkt. Mausrad oder Pinch zum Zoomen.</string>
 

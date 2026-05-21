@@ -1300,9 +1300,9 @@
     <string name="keyboard_modifier_ctrl">Ctrl</string>
     <string name="keyboard_workflow_title">Guía: Jugar solo con teclado</string>
     <string name="keyboard_workflow_build_phase_title">Fase de construcción (antes de la batalla)</string>
-    <string name="keyboard_workflow_build_phase">Usa Tab / Mayús+Tab para recorrer los tipos de torres disponibles. Haz clic en un tile verde del mapa para colocar la torre. Pulsa Enter o Tab para cancelar la selección. Cuando estés listo para iniciar la batalla, pulsa Enter sin ningún tipo de torre seleccionado.</string>
+    <string name="keyboard_workflow_build_phase">Usa Tab / Mayús+Tab para recorrer los tipos de torres disponibles. Haz clic en un tile verde del mapa para colocar la torre. Pulsa Ctrl+Enter para iniciar la batalla cuando estés listo.</string>
     <string name="keyboard_workflow_battle_phase_title">Fase de batalla (tu turno)</string>
-    <string name="keyboard_workflow_battle_phase">Usa Tab para saltar a la siguiente torre accionable. Se resalta un objetivo automáticamente. Pulsa F o Enter para atacar. U para mejorar, X para deshacer/vender (con confirmación). M para abrir el menú de hechizos, luego Tab/Mayús+Tab para seleccionar un hechizo y Enter para lanzarlo. T para volver al modo torres. Cuando todas las torres hayan actuado, pulsa Enter para terminar el turno.</string>
+    <string name="keyboard_workflow_battle_phase">Usa Tab para saltar a la siguiente torre accionable. Se resalta un objetivo automáticamente. Pulsa F o Enter para atacar. U para mejorar, X para deshacer/vender (con confirmación). M para abrir el menú de hechizos, luego Tab/Mayús+Tab para seleccionar un hechizo y Enter para lanzarlo. T para volver al modo torres. Pulsa Ctrl+Enter para terminar el turno.</string>
     <string name="keyboard_workflow_map_nav_title">Navegación del mapa</string>
     <string name="keyboard_workflow_map_nav">Usa W/A/S/D (o teclas de flecha) para desplazar el mapa. R para centrar en la torre seleccionada, G para centrar en el siguiente punto de aparición. Rueda del ratón o pellizco para hacer zoom.</string>
 

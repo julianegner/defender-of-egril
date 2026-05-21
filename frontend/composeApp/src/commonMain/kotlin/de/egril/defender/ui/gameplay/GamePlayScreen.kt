@@ -4,6 +4,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -920,44 +921,13 @@ private fun GamePlayScreenContent(
                     showOverlay = !showOverlay
                     true
                 }
-                // Enter: Attack / confirm / end turn / start battle
+                // End turn / start battle (Ctrl+Enter by default)
                 event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutEndTurnStartBattle.value) -> {
                     when (gameState.phase.value) {
                         GamePhase.PLAYER_TURN -> {
                             when {
-                                // If a tower type is selected for buying (buy mode), cancel buy mode
-                                selectedDefenderType != null && selectedDefenderId == null && !showMagicPanel -> {
-                                    selectedDefenderType = null
-                                    true
-                                }
-                                // If a tower is selected with a valid target, attack first (ENTER = confirm attack)
-                                selectedDefenderId != null && !showMagicPanel -> {
-                                    val defenderId = selectedDefenderId
-                                    val targetId = selectedTargetId
-                                    val targetPos = selectedTargetPosition
-                                    val defender = defenderId?.let { id -> gameState.defenders.find { it.id == id } }
-                                    if (defender != null && defender.isReady && defender.actionsRemaining.value > 0 && (targetId != null || targetPos != null)) {
-                                        when {
-                                            targetId != null -> { onDefenderAttack(defenderId!!, targetId); true }
-                                            targetPos != null -> { onDefenderAttackPosition(defenderId!!, targetPos); true }
-                                            else -> false
-                                        }
-                                    } else {
-                                        // No valid attack — fall through to end-turn logic
-                                        if (highlightEndTurnButton) {
-                                            highlightEndTurnButton = false
-                                            endPlayerTurnAction()
-                                        } else if (gameState.hasDefendersWithUnusedActions()) {
-                                            showEndTurnConfirmation = true
-                                        } else {
-                                            endPlayerTurnAction()
-                                        }
-                                        true
-                                    }
-                                }
                                 highlightEndTurnButton -> {
-                                    // End Turn button has keyboard focus — end the turn directly
                                     highlightEndTurnButton = false
                                     endPlayerTurnAction()
                                     true
@@ -973,13 +943,37 @@ private fun GamePlayScreenContent(
                             }
                         }
                         GamePhase.INITIAL_BUILDING -> {
-                            if (selectedDefenderType != null) {
-                                // Cancel tower type selection instead of starting battle
-                                selectedDefenderType = null
-                            } else {
-                                onStartFirstPlayerTurn()
-                            }
+                            onStartFirstPlayerTurn()
                             true
+                        }
+                        else -> false
+                    }
+                }
+                // Enter (plain): Confirm tower type selection / attack with selected tower
+                event.type == KeyEventType.KeyDown &&
+                        event.key == Key.Enter &&
+                        !event.isCtrlPressed && !event.isAltPressed && !event.isMetaPressed -> {
+                    when (gameState.phase.value) {
+                        GamePhase.PLAYER_TURN -> {
+                            when {
+                                // If a tower is selected with a valid target, attack
+                                selectedDefenderId != null && !showMagicPanel -> {
+                                    val defenderId = selectedDefenderId
+                                    val targetId = selectedTargetId
+                                    val targetPos = selectedTargetPosition
+                                    val defender = defenderId?.let { id -> gameState.defenders.find { it.id == id } }
+                                    if (defender != null && defender.isReady && defender.actionsRemaining.value > 0 && (targetId != null || targetPos != null)) {
+                                        when {
+                                            targetId != null -> { onDefenderAttack(defenderId!!, targetId); true }
+                                            targetPos != null -> { onDefenderAttackPosition(defenderId!!, targetPos); true }
+                                            else -> false
+                                        }
+                                    } else {
+                                        false
+                                    }
+                                }
+                                else -> false
+                            }
                         }
                         else -> false
                     }
@@ -1482,6 +1476,40 @@ private fun GamePlayScreenContent(
                             },
                             layout = tutorialLayout
                         )
+                    }
+                }
+            }
+
+            // Keyboard navigation hint overlay (bottom-right)
+            if (selectedDefenderType != null && selectedDefenderId == null && !showMagicPanel) {
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(8.dp),
+                    shape = RoundedCornerShape(4.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.9f),
+                    tonalElevation = 2.dp
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutSelectNextTower.value))
+                            Text("Next", style = MaterialTheme.typography.labelSmall)
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutSelectPreviousTower.value))
+                            Text("Prev", style = MaterialTheme.typography.labelSmall)
+                        }
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutEndTurnStartBattle.value))
+                            Text(
+                                if (gameState.phase.value == GamePhase.INITIAL_BUILDING) "Start" else "End Turn",
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        }
                     }
                 }
             }

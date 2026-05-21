@@ -292,10 +292,9 @@ fun GameHeader(
                                     modifier = Modifier.align(Alignment.CenterVertically)
                                 )
                                 if (AppSettings.showButtonShortcutHints.value) {
-                                    Text(
+                                    ShortcutKeyChip(
                                         text = formatShortcutBindingForDisplay(AppSettings.shortcutSaveGame.value),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f)
                                     )
                                 }
                             }
@@ -346,9 +345,8 @@ fun GameHeader(
                                 }
                             }
                             if (AppSettings.showButtonShortcutHints.value) {
-                                Text(
+                                ShortcutKeyChip(
                                     text = formatShortcutBindingForDisplay(AppSettings.shortcutToggleEnemyList.value),
-                                    style = MaterialTheme.typography.labelSmall,
                                     color = overlayButtonContentColor.copy(alpha = 0.75f)
                                 )
                             }

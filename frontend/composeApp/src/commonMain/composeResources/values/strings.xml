@@ -1302,9 +1302,9 @@
     <string name="keyboard_modifier_ctrl">Ctrl</string>
     <string name="keyboard_workflow_title">Keyboard-only Gameplay Guide</string>
     <string name="keyboard_workflow_build_phase_title">Build Phase (before battle)</string>
-    <string name="keyboard_workflow_build_phase">Use Tab / Shift+Tab to cycle through available tower types. The highlighted type is shown in the buy panel. Click a green tile on the map to place the tower. Press Enter or Tab again to cancel the selection. When ready to start the battle, press Enter without any tower type selected.</string>
+    <string name="keyboard_workflow_build_phase">Use Tab / Shift+Tab to cycle through available tower types. The highlighted type is shown in the buy panel. Click a green tile on the map to place the tower. Use Ctrl+Enter to start the battle when ready.</string>
     <string name="keyboard_workflow_battle_phase_title">Battle Phase (your turn)</string>
-    <string name="keyboard_workflow_battle_phase">Use Tab to jump to the next actionable tower. An auto-target is highlighted. Press F or Enter to attack. Press U to upgrade, X to undo/sell (with confirmation). Use M to open the spell menu, then Tab/Shift+Tab to select a spell and Enter to cast it. Press T to return to tower mode. When all towers have acted, press Enter to end the turn.</string>
+    <string name="keyboard_workflow_battle_phase">Use Tab to jump to the next actionable tower. An auto-target is highlighted. Press F or Enter to attack. Press U to upgrade, X to undo/sell (with confirmation). Use M to open the spell menu, then Tab/Shift+Tab to select a spell and Enter to cast it. Press T to return to tower mode. Use Ctrl+Enter to end the turn.</string>
     <string name="keyboard_workflow_map_nav_title">Map Navigation</string>
     <string name="keyboard_workflow_map_nav">Use W/A/S/D (or arrow keys) to pan the map. Use R to center on the selected tower, G to center on the next spawn point. Mouse scroll or pinch to zoom.</string>
 

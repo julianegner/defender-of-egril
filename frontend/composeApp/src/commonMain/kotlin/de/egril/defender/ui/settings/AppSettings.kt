@@ -100,7 +100,7 @@ object AppSettings {
     private const val DEFAULT_SHORTCUT_AUTO_ATTACK_END_TURN = "Ctrl+A"
     private const val DEFAULT_SHORTCUT_CHEAT = "C"
     private const val DEFAULT_SHORTCUT_TOGGLE_ENEMY_LIST = "E"
-    private const val DEFAULT_SHORTCUT_END_TURN_START_BATTLE = "Enter"
+    private const val DEFAULT_SHORTCUT_END_TURN_START_BATTLE = "Ctrl+Enter"
     private const val DEFAULT_SHORTCUT_SAVE_GAME = "Ctrl+S"
     private const val DEFAULT_SHORTCUT_PAN_UP = "W"
     private const val DEFAULT_SHORTCUT_PAN_DOWN = "S"
