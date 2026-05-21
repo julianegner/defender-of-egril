@@ -242,7 +242,7 @@ fun WorldMapScreen(
                             true
                         }
                         // L: Load game
-                        event.key == Key.L && !event.isCtrlPressed && !event.isAltPressed -> {
+                        event.key == Key.L && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
                             onLoadGame()
                             true
                         }

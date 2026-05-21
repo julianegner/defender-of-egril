@@ -175,15 +175,15 @@ fun MainMenuScreen(
         modifier = Modifier.fillMaxSize().onPreviewKeyEvent { event ->
             if (event.type == KeyEventType.KeyDown) {
                 when {
-                    // Enter → Start Game (if data is loaded)
-                    event.key == Key.Enter && !event.isCtrlPressed && !event.isAltPressed && isDataLoaded
-                            && !showExitConfirmation -> {
+                    // Enter → Start Game (if data is loaded and no dialog open)
+                    event.key == Key.Enter && !event.isCtrlPressed && !event.isAltPressed
+                            && isDataLoaded && !showExitConfirmation -> {
                         onStartGame()
                         true
                     }
                     // Esc → show exit confirmation (non-iOS)
-                    (event.key == Key.Escape || event.key == Key.Back) && !isPlatformIos
-                            && !showExitConfirmation -> {
+                    (event.key == Key.Escape || event.key == Key.Back)
+                            && !isPlatformIos && !showExitConfirmation -> {
                         showExitConfirmation = true
                         true
                     }
