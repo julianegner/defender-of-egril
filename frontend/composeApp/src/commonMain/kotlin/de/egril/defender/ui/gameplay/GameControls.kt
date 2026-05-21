@@ -264,6 +264,7 @@ fun GameControlsPanel(
                                 isSelected = selectedDefenderType == type,
                                 canAfford = coinsState.value >= type.baseCost,
                                 instantTowerActive = gameState.instantTowerSpellActive.value,
+                                shortcutIndex = if (type != DefenderType.DRAGONS_LAIR) index else null,
                                 modifier = compactDefenderButtonModifier,
                                 onClick = {
                                     onSelectDefenderType(if (selectedDefenderType == type) null else type)
@@ -309,6 +310,7 @@ fun GameControlsPanel(
                             canAfford = canAfford,
                             coinsState = coinsState,
                             instantTowerActive = gameState.instantTowerSpellActive.value,
+                            shortcutIndex = index,
                             modifier = Modifier.width(buttonWidth),
                             onClick = {
                                 onSelectDefenderType(if (selectedDefenderType == type) null else type)

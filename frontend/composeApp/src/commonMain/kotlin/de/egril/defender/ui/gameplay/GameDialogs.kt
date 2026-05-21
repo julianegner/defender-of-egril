@@ -180,6 +180,10 @@ fun UnsavedChangesDialog(
                         onDiscardChanges()
                         true
                     }
+                    event.key == Key.Escape -> {
+                        onCancel()
+                        true
+                    }
                     else -> false
                 }
             } else false

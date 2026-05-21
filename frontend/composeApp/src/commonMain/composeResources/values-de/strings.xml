@@ -1307,6 +1307,8 @@
     <string name="keyboard_nav_confirm">Bestätigen</string>
     <string name="keyboard_shortcut_next_enemy_target">Nächster erreichbarer Gegner</string>
     <string name="keyboard_shortcut_prev_enemy_target">Vorheriger erreichbarer Gegner</string>
+    <string name="keyboard_shortcut_next_build_tile">Nächstes Baufeld</string>
+    <string name="keyboard_shortcut_prev_build_tile">Vorheriges Baufeld</string>
     <string name="keyboard_shortcut_back_to_worldmap">Zurück zur Weltkarte</string>
 
     <!-- License Info -->

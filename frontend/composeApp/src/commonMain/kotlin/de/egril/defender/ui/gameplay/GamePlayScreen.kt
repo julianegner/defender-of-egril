@@ -246,6 +246,7 @@ private fun GamePlayScreenContent(
 
     var highlightEndTurnButton by remember { mutableStateOf(false) }
     var tabScrollPosition by remember { mutableStateOf<Position?>(null) }  // Tab-triggered scroll-to-tower
+    var keyboardSelectedBuildTile by remember { mutableStateOf<Position?>(null) }
     var nextSpawnPointIndex by remember { mutableStateOf(0) }
     var keyboardSpellFocusIndex by remember { mutableStateOf(0) }
     // Non-null means the keyboard undo/sell shortcut was pressed and the confirmation dialog is open.
@@ -654,6 +655,13 @@ private fun GamePlayScreenContent(
         }
     }
 
+    // Reset keyboard build tile selection when tower-place mode exits
+    LaunchedEffect(selectedDefenderType) {
+        if (selectedDefenderType == null) {
+            keyboardSelectedBuildTile = null
+        }
+    }
+
     // Mine action handler
     val handleMineAction: (Int, MineAction) -> Unit = { mineId, action ->
         when (action) {
@@ -955,6 +963,36 @@ private fun GamePlayScreenContent(
                     showOverlay = !showOverlay
                     true
                 }
+                // N (remappable): In tower-place mode, cycle to next buildable tile
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutNextEnemyTarget.value) &&
+                        selectedDefenderType != null && !showMagicPanel &&
+                        (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
+                    val buildTiles = gameState.level.buildAreas
+                        .filter { pos -> gameState.defenders.none { it.position.value == pos } }
+                    if (buildTiles.isNotEmpty()) {
+                        val currentIdx = keyboardSelectedBuildTile?.let { buildTiles.indexOf(it).takeIf { i -> i != -1 } }
+                        val nextIdx = if (currentIdx == null || currentIdx >= buildTiles.lastIndex) 0 else currentIdx + 1
+                        keyboardSelectedBuildTile = buildTiles[nextIdx]
+                        tabScrollPosition = buildTiles[nextIdx]
+                        true
+                    } else false
+                }
+                // Shift+N (remappable): In tower-place mode, cycle to previous buildable tile
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutPrevEnemyTarget.value) &&
+                        selectedDefenderType != null && !showMagicPanel &&
+                        (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
+                    val buildTiles = gameState.level.buildAreas
+                        .filter { pos -> gameState.defenders.none { it.position.value == pos } }
+                    if (buildTiles.isNotEmpty()) {
+                        val currentIdx = keyboardSelectedBuildTile?.let { buildTiles.indexOf(it).takeIf { i -> i != -1 } }
+                        val prevIdx = if (currentIdx == null || currentIdx <= 0) buildTiles.lastIndex else currentIdx - 1
+                        keyboardSelectedBuildTile = buildTiles[prevIdx]
+                        tabScrollPosition = buildTiles[prevIdx]
+                        true
+                    } else false
+                }
                 // N (remappable): Cycle to next reachable enemy target
                 event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutNextEnemyTarget.value) &&
@@ -999,6 +1037,25 @@ private fun GamePlayScreenContent(
                             selectedTargetPosition = prevEnemy.position.value
                             true
                         } else false
+                    } else false
+                }
+                // 1-8: Select defender type by index (only when NOT in tower-selected mode)
+                event.type == KeyEventType.KeyDown &&
+                        !event.isCtrlPressed && !event.isAltPressed &&
+                        selectedDefenderId == null &&
+                        (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) &&
+                        !showMagicPanel -> {
+                    val digit = when (event.key) {
+                        Key.One -> 1; Key.Two -> 2; Key.Three -> 3; Key.Four -> 4
+                        Key.Five -> 5; Key.Six -> 6; Key.Seven -> 7; Key.Eight -> 8
+                        else -> 0
+                    }
+                    if (digit > 0 && digit <= keyboardSelectableTowers.size) {
+                        selectedDefenderType = if (selectedDefenderType == keyboardSelectableTowers[digit - 1]) null else keyboardSelectableTowers[digit - 1]
+                        selectedAttackerId = null
+                        selectedTargetId = null
+                        selectedTargetPosition = null
+                        true
                     } else false
                 }
                 // 1: First special action for selected tower
@@ -1671,15 +1728,15 @@ private fun GamePlayScreenContent(
                 }
             }
 
-            // Keyboard navigation hint overlay (bottom-right, below minimap area)
+            // Keyboard navigation hint overlay (bottom-left, away from minimap)
             val showKeyboardHints = AppSettings.showButtonShortcutHints.value &&
                 !showMagicPanel &&
                 (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN)
             if (showKeyboardHints) {
                 Surface(
                     modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(bottom = 60.dp, end = 8.dp),
+                        .align(Alignment.BottomStart)
+                        .padding(bottom = 8.dp, start = 8.dp),
                     shape = RoundedCornerShape(4.dp),
                     color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.9f),
                     tonalElevation = 2.dp
@@ -1709,13 +1766,6 @@ private fun GamePlayScreenContent(
                                 ShortcutKeyChip(text = "Enter")
                                 Text(stringResource(Res.string.keyboard_nav_confirm), style = MaterialTheme.typography.labelSmall)
                             }
-                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutEndTurnStartBattle.value))
-                                Text(
-                                    if (gameState.phase.value == GamePhase.INITIAL_BUILDING) stringResource(Res.string.start_battle) else stringResource(Res.string.end_turn_button),
-                                    style = MaterialTheme.typography.labelSmall
-                                )
-                            }
                         }
                         // Mode switching info (only in player turn - tower type vs existing tower)
                         if (gameState.phase.value == GamePhase.PLAYER_TURN) {
@@ -1742,6 +1792,69 @@ private fun GamePlayScreenContent(
                                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                     ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutPrevEnemyTarget.value))
                                     Text(stringResource(Res.string.keyboard_shortcut_prev_enemy_target), style = MaterialTheme.typography.labelSmall)
+                                }
+                            }
+                        }
+                        // Build tile cycling (when a tower type is selected for placement)
+                        if (selectedDefenderType != null) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutNextEnemyTarget.value))
+                                    Text(stringResource(Res.string.keyboard_shortcut_next_build_tile), style = MaterialTheme.typography.labelSmall)
+                                }
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutPrevEnemyTarget.value))
+                                    Text(stringResource(Res.string.keyboard_shortcut_prev_build_tile), style = MaterialTheme.typography.labelSmall)
+                                }
+                            }
+                        }
+                        // Special action shortcuts (when a tower with special actions is selected)
+                        if (gameState.phase.value == GamePhase.PLAYER_TURN && selectedDefenderId != null) {
+                            val selectedDefenderForHints = gameState.defenders.find { it.id == selectedDefenderId }
+                            if (selectedDefenderForHints != null) {
+                                val showKey1 = when (selectedDefenderForHints.type) {
+                                    DefenderType.WIZARD_TOWER, DefenderType.DWARVEN_MINE -> true
+                                    DefenderType.SPIKE_TOWER -> selectedDefenderForHints.level.value >= 20
+                                    DefenderType.SPEAR_TOWER -> selectedDefenderForHints.level.value >= 10
+                                    else -> false
+                                }
+                                val key1Label = when (selectedDefenderForHints.type) {
+                                    DefenderType.WIZARD_TOWER -> stringResource(Res.string.generate_mana)
+                                    DefenderType.DWARVEN_MINE -> stringResource(Res.string.dig)
+                                    DefenderType.SPIKE_TOWER, DefenderType.SPEAR_TOWER -> stringResource(Res.string.barricade)
+                                    else -> ""
+                                }
+                                val showKey2 = when (selectedDefenderForHints.type) {
+                                    DefenderType.WIZARD_TOWER -> selectedDefenderForHints.level.value >= 10
+                                    DefenderType.DWARVEN_MINE -> true
+                                    else -> false
+                                }
+                                val key2Label = when (selectedDefenderForHints.type) {
+                                    DefenderType.WIZARD_TOWER -> stringResource(Res.string.magical_trap)
+                                    DefenderType.DWARVEN_MINE -> stringResource(Res.string.trap)
+                                    else -> ""
+                                }
+                                if (showKey1 || showKey2) {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        if (showKey1) {
+                                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                                ShortcutKeyChip(text = "1")
+                                                Text(key1Label, style = MaterialTheme.typography.labelSmall)
+                                            }
+                                        }
+                                        if (showKey2) {
+                                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                                ShortcutKeyChip(text = "2")
+                                                Text(key2Label, style = MaterialTheme.typography.labelSmall)
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }

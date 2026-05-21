@@ -1310,6 +1310,8 @@
     <string name="keyboard_nav_confirm">Conferma</string>
     <string name="keyboard_shortcut_next_enemy_target">Prossimo nemico raggiungibile</string>
     <string name="keyboard_shortcut_prev_enemy_target">Nemico raggiungibile precedente</string>
+    <string name="keyboard_shortcut_next_build_tile">Prossima area di costruzione</string>
+    <string name="keyboard_shortcut_prev_build_tile">Area di costruzione precedente</string>
     <string name="keyboard_shortcut_back_to_worldmap">Torna alla mappa del mondo</string>
 
     <!-- License Info -->

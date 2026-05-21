@@ -46,6 +46,7 @@ import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.TargetIcon
 import de.egril.defender.ui.icon.TimerIcon
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.stringResource
 import de.egril.defender.utils.isPlatformMobile
@@ -59,6 +60,7 @@ fun DefenderButton(
     canAfford: Boolean,
     coinsState: State<Int>,
     instantTowerActive: Boolean = false,
+    shortcutIndex: Int? = null,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
@@ -154,6 +156,12 @@ fun DefenderButton(
                     .fillMaxSize()
                     .border(2.dp, SpellInstantTowerColor, RoundedCornerShape(percent = 50))
             )
+        }
+        // Show shortcut number chip overlay in top-start corner
+        if (AppSettings.showButtonShortcutHints.value && shortcutIndex != null) {
+            Box(modifier = Modifier.align(Alignment.TopStart).padding(2.dp)) {
+                ShortcutKeyChip(text = "${shortcutIndex + 1}")
+            }
         }
     }
 }

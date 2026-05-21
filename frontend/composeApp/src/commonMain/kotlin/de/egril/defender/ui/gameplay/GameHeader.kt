@@ -238,12 +238,20 @@ fun GameHeader(
                 // Shortcuts button (not shown on mobile platforms or mobile web browsers)
                 if (!isPlatformMobile && !isLimitedInputDevice && !isMobileWebBrowser()) {
                     val shortcutsLabel = stringResource(Res.string.tooltip_shortcuts)
-                    TooltipWrapper(text = shortcutsLabel) {
-                        IconButton(
-                            onClick = { showShortcutsDialog = true },
-                            modifier = Modifier.size(buttonHeight).semantics { contentDescription = shortcutsLabel }
-                        ) {
-                            KeyboardKeyIcon(size = buttonIconSize)
+                    Box {
+                        TooltipWrapper(text = shortcutsLabel) {
+                            IconButton(
+                                onClick = { showShortcutsDialog = true },
+                                modifier = Modifier.size(buttonHeight).semantics { contentDescription = shortcutsLabel }
+                            ) {
+                                KeyboardKeyIcon(size = buttonIconSize)
+                            }
+                        }
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            ShortcutKeyChip(
+                                text = "/",
+                                modifier = Modifier.align(Alignment.BottomEnd)
+                            )
                         }
                     }
                 }
@@ -363,16 +371,23 @@ fun GameHeader(
                 }
 
                 val tutorialsAndHelpLabel = stringResource(Res.string.tutorials_and_help)
-                TooltipWrapper(text = tutorialsAndHelpLabel) {
-                    IconButton(
-                        onClick = { showTutorialsHelpDialog = true },
-                        modifier = Modifier
-                            .size(buttonHeight)
-                            .semantics { contentDescription = tutorialsAndHelpLabel },
-                    ) {
-                        HelpIcon(
-                            size = 32.dp,
-                            modifier = Modifier.align(Alignment.CenterVertically)
+                Box {
+                    TooltipWrapper(text = tutorialsAndHelpLabel) {
+                        IconButton(
+                            onClick = { showTutorialsHelpDialog = true },
+                            modifier = Modifier
+                                .size(buttonHeight)
+                                .semantics { contentDescription = tutorialsAndHelpLabel },
+                        ) {
+                            HelpIcon(
+                                size = 32.dp
+                            )
+                        }
+                    }
+                    if (AppSettings.showButtonShortcutHints.value) {
+                        ShortcutKeyChip(
+                            text = "H",
+                            modifier = Modifier.align(Alignment.BottomEnd)
                         )
                     }
                 }

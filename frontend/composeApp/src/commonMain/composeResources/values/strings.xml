@@ -1312,6 +1312,8 @@
     <string name="keyboard_nav_confirm">Confirm</string>
     <string name="keyboard_shortcut_next_enemy_target">Next reachable enemy</string>
     <string name="keyboard_shortcut_prev_enemy_target">Previous reachable enemy</string>
+    <string name="keyboard_shortcut_next_build_tile">Next build tile</string>
+    <string name="keyboard_shortcut_prev_build_tile">Prev build tile</string>
     <string name="keyboard_shortcut_back_to_worldmap">Back to world map</string>
 
     <!-- License Info -->
