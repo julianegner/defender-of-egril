@@ -144,6 +144,10 @@ fun WorldMapScreen(
     // null = show image map, 1 = Community tab, 2 = User Levels tab
     var imageMapActiveTab by remember { mutableStateOf<Int?>(null) }
     
+    // Keyboard navigation: focused location index for Tab cycling
+    var keyboardFocusedLocationIndex by remember { mutableStateOf(-1) }
+    var triggerLocationSelect by remember { mutableStateOf(false) }
+    
     // Watch the setting for world map style
     val useLevelCards = AppSettings.useLevelCards.value
     
@@ -284,6 +288,28 @@ fun WorldMapScreen(
                             imageMapActiveTab = 2
                             true
                         }
+                        // Tab: Cycle through map locations
+                        event.key == Key.Tab && !event.isShiftPressed && imageMapActiveTab == null -> {
+                            val locationCount = visibleWorldLevels.map { it.level.locationId }.distinct().size
+                            if (locationCount > 0) {
+                                keyboardFocusedLocationIndex = (keyboardFocusedLocationIndex + 1) % locationCount
+                            }
+                            true
+                        }
+                        // Shift+Tab: Cycle backwards through map locations
+                        event.key == Key.Tab && event.isShiftPressed && imageMapActiveTab == null -> {
+                            val locationCount = visibleWorldLevels.map { it.level.locationId }.distinct().size
+                            if (locationCount > 0) {
+                                keyboardFocusedLocationIndex = if (keyboardFocusedLocationIndex <= 0) locationCount - 1
+                                    else keyboardFocusedLocationIndex - 1
+                            }
+                            true
+                        }
+                        // Enter: Select focused location (handled below via onKeyboardLocationSelected)
+                        event.key == Key.Enter && keyboardFocusedLocationIndex >= 0 && imageMapActiveTab == null -> {
+                            triggerLocationSelect = true
+                            true
+                        }
                         isShortcutBindingPressed(event, AppSettings.shortcutCheat.value) && onCheatCode != null -> {
                             showCheatDialog = true
                             true
@@ -381,7 +407,13 @@ fun WorldMapScreen(
                         onLocationClicked = { location, levelsAtLocation ->
                             selectedLocation = location to levelsAtLocation
                         },
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
+                        keyboardFocusedLocationIndex = keyboardFocusedLocationIndex,
+                        onKeyboardLocationSelected = { location, levelsAtLocation ->
+                            selectedLocation = location to levelsAtLocation
+                        },
+                        triggerSelect = triggerLocationSelect,
+                        onTriggerSelectHandled = { triggerLocationSelect = false }
                     )
                 }
             }

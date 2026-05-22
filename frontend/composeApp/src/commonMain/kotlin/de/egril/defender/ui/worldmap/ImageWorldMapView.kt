@@ -38,6 +38,7 @@ import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.icon.LockIcon
+import de.egril.defender.ui.icon.TriangleDownIcon
 import org.jetbrains.compose.resources.painterResource
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.Res
@@ -103,13 +104,34 @@ private fun getPlayableLevelsAtLocation(
 fun ImageWorldMapView(
     worldLevels: List<WorldLevel>,
     onLocationClicked: (WorldMapLocation, List<WorldLevel>) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    keyboardFocusedLocationIndex: Int = -1,
+    onKeyboardLocationSelected: ((WorldMapLocation, List<WorldLevel>) -> Unit)? = null,
+    triggerSelect: Boolean = false,
+    onTriggerSelectHandled: () -> Unit = {}
 ) {
     val isDarkMode = AppSettings.isDarkMode.value
     
     // Generate location data and road connections from level maps
     val (locations, roads) = remember(worldLevels) {
         generateWorldMapLocationsAndRoads(worldLevels)
+    }
+    
+    // Handle Enter key trigger
+    LaunchedEffect(triggerSelect) {
+        if (triggerSelect && keyboardFocusedLocationIndex >= 0 && onKeyboardLocationSelected != null) {
+            var index = 0
+            for (location in locations) {
+                val levelsAtLocation = getPlayableLevelsAtLocation(worldLevels, location)
+                if (levelsAtLocation.isEmpty()) continue
+                if (index == keyboardFocusedLocationIndex) {
+                    onKeyboardLocationSelected(location, levelsAtLocation)
+                    break
+                }
+                index++
+            }
+            onTriggerSelectHandled()
+        }
     }
     
     // Pan and zoom state
@@ -265,7 +287,8 @@ fun ImageWorldMapView(
                 containerSize = containerSize,
                 isDarkMode = isDarkMode,
                 onLocationClicked = onLocationClicked,
-                imageAspectRatio = imageAspectRatio
+                imageAspectRatio = imageAspectRatio,
+                keyboardFocusedLocationIndex = keyboardFocusedLocationIndex
             )
         }
     }
@@ -384,7 +407,8 @@ private fun BoxScope.LocationMarkersOverlay(
     containerSize: IntSize,
     isDarkMode: Boolean,
     onLocationClicked: (WorldMapLocation, List<WorldLevel>) -> Unit,
-    imageAspectRatio: Float
+    imageAspectRatio: Float,
+    keyboardFocusedLocationIndex: Int = -1
 ) {
     // Calculate actual image bounds within container (accounting for ContentScale.Fit)
     val containerAspectRatio = containerSize.width.toFloat() / containerSize.height.toFloat().coerceAtLeast(1f)
@@ -404,12 +428,16 @@ private fun BoxScope.LocationMarkersOverlay(
     }
     
     // Draw each location marker
+    var playableLocationIndex = 0
     for (location in locations) {
         // Only consider levels that are ready to play (not misconfigured)
         val levelsAtLocation = getPlayableLevelsAtLocation(worldLevels, location)
         
         // Skip if no playable levels at this location
         if (levelsAtLocation.isEmpty()) continue
+        
+        val isKeyboardFocused = playableLocationIndex == keyboardFocusedLocationIndex
+        playableLocationIndex++
         
         // Try to load custom icon for this location
         val iconResourceName = location.locationData?.iconResourceName
@@ -582,6 +610,29 @@ private fun BoxScope.LocationMarkersOverlay(
                             Text(
                                 text = levelsAtLocation.size.toString(),
                                 style = if (isPlatformAndroid) MaterialTheme.typography.labelSmall else MaterialTheme.typography.bodyMedium,
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
+                
+                // Keyboard focus pointer marker
+                if (isKeyboardFocused && AppSettings.showButtonShortcutHints.value) {
+                    Surface(
+                        modifier = Modifier.padding(top = 2.dp),
+                        shape = RoundedCornerShape(4.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        shadowElevation = 4.dp
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            TriangleDownIcon(size = (12 * scaleFactor).dp)
+                            Text(
+                                "Enter",
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = (9 * scaleFactor).sp),
                                 color = Color.White
                             )
                         }
