@@ -28,6 +28,7 @@ data class FeedbackSubmissionRequest(
     val gameTurnNumber: Int? = null,
     val gameStateJson: String? = null,
     val gameLog: String? = null,
+    val screenshotBase64: String? = null,
     val attachments: List<FeedbackAttachmentDto> = emptyList()
 )
 

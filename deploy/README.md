@@ -197,15 +197,16 @@ The pre-provisioned **Defender of Egril – Overview** dashboard shows:
 | Total Events | All-time count of events recorded in the `events` table |
 | Events Today | Events recorded since midnight (UTC) |
 | Levels Started Today | `LEVEL_STARTED` events since midnight (UTC) |
-| Keycloak Users (Selected Realm) | Number of Keycloak user accounts filtered by selected realm |
+| Keycloak Users (Selected Realm) | Number of Keycloak user accounts in the `egril` realm |
 | Keycloak Users by Realm | Table of Keycloak user counts grouped by realm |
 | Total Feedback | All-time count of rows in the `player_feedback` table |
 | Feedback Today | Feedback entries created since midnight (UTC) |
+| Feedback Entries (Latest 100) | Table of the 100 most recent rows from `player_feedback` |
 | Events by Type | Bar chart of event counts grouped by `event_type` (all time) |
 | Events per Day | Time series of daily event volume for the past 90 days |
 | Recent Events | Table of the 100 most recent events with all fields |
 | CPU / Memory / Disk | Gauge panels for all three Hetzner servers with colour thresholds: green (0–70 %), yellow (70–85 %), red (85–100 %) |
-| Backend Errors Today | Count of HTTP 5xx errors recorded today (green = 0, yellow ≥ 1, red ≥ 5) |
+| Backend Errors Today | Count of HTTP 5xx errors recorded today (green = 0, orange ≥ 1, red ≥ 5) |
 | Backend Errors (Last 7 Days) | Count of HTTP 5xx errors over the past 7 days (green = 0, yellow ≥ 1, red ≥ 10) |
 | Backend Errors over Time | Time series of daily error counts for the past 30 days |
 | Recent Backend Errors | Table of the 50 most recent errors with status code, method, endpoint, message, and timestamp |

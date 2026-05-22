@@ -49,9 +49,9 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
+        "w": 8,
         "x": 0,
-        "y": 1
+        "y": 5
       },
       "id": 1,
       "options": {
@@ -285,9 +285,9 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 4,
-        "x": 20,
-        "y": 1
+        "w": 8,
+        "x": 16,
+        "y": 5
       },
       "id": 4,
       "options": {
@@ -313,7 +313,7 @@
             "uid": "postgres-keycloak"
           },
           "format": "table",
-          "rawSql": "SELECT COUNT(*) AS value FROM user_entity ue JOIN realm r ON ue.realm_id = r.id WHERE ('${keycloak_realm}' = '__all' OR r.name = ${keycloak_realm:sqlstring})",
+          "rawSql": "SELECT COUNT(*) AS value FROM user_entity ue JOIN realm r ON ue.realm_id = r.id WHERE (r.name = 'egril')",
           "refId": "A"
         }
       ]
@@ -336,7 +336,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 5
+        "y": 9
       },
       "id": 5,
       "options": {
@@ -392,7 +392,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 5
+        "y": 9
       },
       "id": 6,
       "options": {
@@ -550,7 +550,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 13
+        "y": 17
       },
       "id": 7,
       "options": {
@@ -585,7 +585,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 23
+        "y": 27
       },
       "id": 101,
       "title": "\ud83d\udda5\ufe0f Hetzner Server Metrics",
@@ -628,7 +628,7 @@
         "h": 5,
         "w": 8,
         "x": 0,
-        "y": 24
+        "y": 28
       },
       "id": 10,
       "options": {
@@ -694,7 +694,7 @@
         "h": 5,
         "w": 8,
         "x": 8,
-        "y": 24
+        "y": 28
       },
       "id": 11,
       "options": {
@@ -760,7 +760,7 @@
         "h": 5,
         "w": 8,
         "x": 16,
-        "y": 24
+        "y": 28
       },
       "id": 12,
       "options": {
@@ -826,7 +826,7 @@
         "h": 5,
         "w": 8,
         "x": 0,
-        "y": 29
+        "y": 33
       },
       "id": 20,
       "options": {
@@ -892,7 +892,7 @@
         "h": 5,
         "w": 8,
         "x": 8,
-        "y": 29
+        "y": 33
       },
       "id": 21,
       "options": {
@@ -958,7 +958,7 @@
         "h": 5,
         "w": 8,
         "x": 16,
-        "y": 29
+        "y": 33
       },
       "id": 22,
       "options": {
@@ -1024,7 +1024,7 @@
         "h": 5,
         "w": 8,
         "x": 0,
-        "y": 34
+        "y": 38
       },
       "id": 30,
       "options": {
@@ -1090,7 +1090,7 @@
         "h": 5,
         "w": 8,
         "x": 8,
-        "y": 34
+        "y": 38
       },
       "id": 31,
       "options": {
@@ -1156,7 +1156,7 @@
         "h": 5,
         "w": 8,
         "x": 16,
-        "y": 34
+        "y": 38
       },
       "id": 32,
       "options": {
@@ -1191,7 +1191,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 39
+        "y": 43
       },
       "id": 102,
       "title": "\u26a0\ufe0f Backend Errors",
@@ -1215,7 +1215,7 @@
                 "value": null
               },
               {
-                "color": "yellow",
+                "color": "orange",
                 "value": 1
               },
               {
@@ -1231,9 +1231,9 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 0,
-        "y": 40
+        "w": 4,
+        "x": 20,
+        "y": 1
       },
       "id": 50,
       "options": {
@@ -1299,8 +1299,8 @@
       "gridPos": {
         "h": 4,
         "w": 6,
-        "x": 6,
-        "y": 40
+        "x": 0,
+        "y": 44
       },
       "id": 51,
       "options": {
@@ -1352,7 +1352,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 48
       },
       "id": 52,
       "options": {
@@ -1450,7 +1450,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 52
+        "y": 56
       },
       "id": 53,
       "options": {
@@ -1485,7 +1485,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 62
+        "y": 66
       },
       "id": 103,
       "title": "\ud83d\udcdd Player Feedback",
@@ -1517,9 +1517,9 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 6,
-        "x": 0,
-        "y": 63
+        "w": 8,
+        "x": 8,
+        "y": 5
       },
       "id": 301,
       "options": {
@@ -1577,8 +1577,8 @@
       "gridPos": {
         "h": 4,
         "w": 6,
-        "x": 6,
-        "y": 63
+        "x": 0,
+        "y": 1
       },
       "id": 302,
       "options": {
@@ -1626,7 +1626,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 63
+        "y": 67
       },
       "id": 303,
       "options": {
@@ -1661,6 +1661,59 @@
           "refId": "A"
         }
       ]
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres-app"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 75
+      },
+      "id": 304,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "created_at"
+          }
+        ]
+      },
+      "title": "Feedback Entries (Latest 100)",
+      "type": "table",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres-app"
+          },
+          "format": "table",
+          "rawSql": "SELECT created_at, feedback_uuid, feedback_type, bug_types, message, player_name, email, platform, app_version, language, has_screenshot, screenshot_name, has_savegame, savegame_name FROM player_feedback ORDER BY created_at DESC LIMIT 100",
+          "refId": "A"
+        }
+      ]
     }
   ],
   "refresh": "5m",
@@ -1676,7 +1729,7 @@
   "timezone": "browser",
   "title": "Defender of Egril \u2013 Overview",
   "uid": "defender-overview",
-  "version": 3,
+  "version": 4,
   "weekStart": "",
   "templating": {
     "list": [
