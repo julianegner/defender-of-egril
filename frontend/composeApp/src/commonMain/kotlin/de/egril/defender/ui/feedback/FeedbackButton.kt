@@ -38,13 +38,22 @@ import defender_of_egril.composeapp.generated.resources.close
 fun FeedbackButton(
     modifier: Modifier = Modifier,
     gameContext: GameFeedbackContext? = null,
-    shortcutKey: String? = null
+    shortcutKey: String? = null,
+    triggerOpen: Boolean = false,
+    onTriggerHandled: (() -> Unit)? = null
 ) {
     var showFeedback by remember { mutableStateOf(false) }
     val feedbackLabel = stringResource(Res.string.tooltip_feedback)
 
+    LaunchedEffect(triggerOpen) {
+        if (triggerOpen) {
+            showFeedback = true
+            onTriggerHandled?.invoke()
+        }
+    }
+
     TooltipWrapper(text = feedbackLabel) {
-        Box {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(
                 onClick = { showFeedback = true },
                 modifier = modifier.semantics { contentDescription = feedbackLabel }
@@ -56,9 +65,8 @@ fun FeedbackButton(
                 )
             }
             if (shortcutKey != null && AppSettings.showButtonShortcutHints.value) {
-                Box(modifier = Modifier.align(Alignment.CenterEnd)) {
-                    ShortcutKeyChip(text = shortcutKey)
-                }
+                Spacer(modifier = Modifier.width(2.dp))
+                ShortcutKeyChip(text = shortcutKey)
             }
         }
     }

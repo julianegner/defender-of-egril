@@ -113,7 +113,8 @@ fun GameGrid(
     scrollToPosition: Position? = null,
     onScrollToPositionConsumed: (() -> Unit)? = null,
     isDemoMode: Boolean = false,
-    demoHoveredPosition: Position? = null   // overrides the local hover in demo mode
+    demoHoveredPosition: Position? = null,   // overrides the local hover in demo mode
+    extraFocusTrigger: Int = 0
 ) {
     // State for pan and zoom
     var scale by remember { mutableStateOf(1f) }
@@ -607,7 +608,7 @@ fun GameGrid(
             onActualContentSizeChange = { newContentSize ->
                 contentSize = newContentSize
             },
-            focusTrigger = gameState.phase.value,  // Request focus when game phase changes (e.g., after "Start Battle")
+            focusTrigger = Pair(gameState.phase.value, extraFocusTrigger),  // Request focus when game phase changes or after dialogs close
             modifier = Modifier.fillMaxSize(),
             backgroundContent = if (hasMapImage) { { measuredContentSize ->
                 val density = androidx.compose.ui.platform.LocalDensity.current

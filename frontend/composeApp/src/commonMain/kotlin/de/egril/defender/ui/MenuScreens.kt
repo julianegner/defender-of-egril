@@ -189,6 +189,10 @@ fun MainMenuScreen(
     // Track if exit confirmation dialog should be shown
     var showExitConfirmation by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
     
+    // Track keyboard-triggered feedback/settings/iam-logout
+    var triggerFeedback by remember { mutableStateOf(false) }
+    var triggerSettings by remember { mutableStateOf(false) }
+    
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) {
         try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
@@ -223,6 +227,24 @@ fun MainMenuScreen(
                     event.key == Key.I && !event.isCtrlPressed && !event.isAltPressed
                             && !showExitConfirmation -> {
                         onShowInstallationInfo()
+                        true
+                    }
+                    // Period (.) → Open feedback
+                    event.key == Key.Period && !event.isCtrlPressed && !event.isAltPressed
+                            && !showExitConfirmation -> {
+                        triggerFeedback = true
+                        true
+                    }
+                    // Comma (,) → Open settings
+                    event.key == Key.Comma && !event.isCtrlPressed && !event.isAltPressed
+                            && !showExitConfirmation -> {
+                        triggerSettings = true
+                        true
+                    }
+                    // L → IAM login/logout
+                    event.key == Key.L && !event.isCtrlPressed && !event.isAltPressed
+                            && !showExitConfirmation -> {
+                        if (iamState.isAuthenticated) onIamLogout() else onIamLogin()
                         true
                     }
                     // Esc → show exit confirmation (non-iOS)
@@ -388,7 +410,7 @@ fun MainMenuScreen(
                             Column(verticalArrangement = Arrangement.Top, horizontalAlignment = Alignment.End) {
                                 val installationInfoLabel = stringResource(Res.string.tooltip_info_installation)
                                 TooltipWrapper(text = installationInfoLabel) {
-                                    Box {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
                                         IconButton(
                                             onClick = onShowInstallationInfo,
                                             modifier = Modifier.size(40.dp).semantics { contentDescription = installationInfoLabel }
@@ -396,18 +418,23 @@ fun MainMenuScreen(
                                             FilledSymbol(icon = MaterialSymbols.INFO, size = 28.dp)
                                         }
                                         if (AppSettings.showButtonShortcutHints.value) {
-                                            Box(modifier = Modifier.align(Alignment.CenterEnd)) {
-                                                ShortcutKeyChip(text = "I")
-                                            }
+                                            Spacer(modifier = Modifier.width(2.dp))
+                                            ShortcutKeyChip(text = "I")
                                         }
                                     }
                                 }
-                                FeedbackButton(shortcutKey = ".")
+                                FeedbackButton(
+                                    shortcutKey = ".",
+                                    triggerOpen = triggerFeedback,
+                                    onTriggerHandled = { triggerFeedback = false }
+                                )
                                 SettingsButton(
                                     initiallyOpen = openSettingsInitially,
                                     initialTab = settingsInitialTab,
                                     onInitialOpenHandled = onSettingsInitialOpenHandled,
-                                    shortcutKey = ","
+                                    shortcutKey = ",",
+                                    triggerOpen = triggerSettings,
+                                    onTriggerHandled = { triggerSettings = false }
                                 )
                             }
                         }
@@ -520,7 +547,7 @@ fun MainMenuScreen(
                             Column(verticalArrangement = Arrangement.Top, horizontalAlignment = Alignment.End) {
                                 val installationInfoLabel = stringResource(Res.string.tooltip_info_installation)
                                 TooltipWrapper(text = installationInfoLabel) {
-                                    Box {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
                                         IconButton(
                                             onClick = onShowInstallationInfo,
                                             modifier = Modifier.size(40.dp).semantics { contentDescription = installationInfoLabel }
@@ -528,18 +555,23 @@ fun MainMenuScreen(
                                             FilledSymbol(icon = MaterialSymbols.INFO, size = 28.dp)
                                         }
                                         if (AppSettings.showButtonShortcutHints.value) {
-                                            Box(modifier = Modifier.align(Alignment.CenterEnd)) {
-                                                ShortcutKeyChip(text = "I")
-                                            }
+                                            Spacer(modifier = Modifier.width(2.dp))
+                                            ShortcutKeyChip(text = "I")
                                         }
                                     }
                                 }
-                                FeedbackButton(shortcutKey = ".")
+                                FeedbackButton(
+                                    shortcutKey = ".",
+                                    triggerOpen = triggerFeedback,
+                                    onTriggerHandled = { triggerFeedback = false }
+                                )
                                 SettingsButton(
                                     initiallyOpen = openSettingsInitially,
                                     initialTab = settingsInitialTab,
                                     onInitialOpenHandled = onSettingsInitialOpenHandled,
-                                    shortcutKey = ","
+                                    shortcutKey = ",",
+                                    triggerOpen = triggerSettings,
+                                    onTriggerHandled = { triggerSettings = false }
                                 )
                             }
                         }
@@ -617,7 +649,7 @@ fun MainMenuScreen(
                 ) {
                     val installationInfoLabel = stringResource(Res.string.tooltip_info_installation)
                     TooltipWrapper(text = installationInfoLabel) {
-                        Box {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             IconButton(
                                 onClick = onShowInstallationInfo,
                                 modifier = Modifier.size(48.dp).semantics { contentDescription = installationInfoLabel }
@@ -625,18 +657,23 @@ fun MainMenuScreen(
                                 FilledSymbol(icon = MaterialSymbols.INFO, size = 32.dp)
                             }
                             if (AppSettings.showButtonShortcutHints.value) {
-                                Box(modifier = Modifier.align(Alignment.CenterEnd)) {
-                                    ShortcutKeyChip(text = "I")
-                                }
+                                Spacer(modifier = Modifier.width(2.dp))
+                                ShortcutKeyChip(text = "I")
                             }
                         }
                     }
-                    FeedbackButton(shortcutKey = ".")
+                    FeedbackButton(
+                        shortcutKey = ".",
+                        triggerOpen = triggerFeedback,
+                        onTriggerHandled = { triggerFeedback = false }
+                    )
                     SettingsButton(
                         initiallyOpen = openSettingsInitially,
                         initialTab = settingsInitialTab,
                         onInitialOpenHandled = onSettingsInitialOpenHandled,
-                        shortcutKey = ","
+                        shortcutKey = ",",
+                        triggerOpen = triggerSettings,
+                        onTriggerHandled = { triggerSettings = false }
                     )
                 }
 
@@ -674,6 +711,10 @@ fun MainMenuScreen(
                                     LockIcon(size = 14.dp)
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(text = stringResource(Res.string.iam_logout), style = MaterialTheme.typography.bodySmall)
+                                    if (AppSettings.showButtonShortcutHints.value) {
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        ShortcutKeyChip(text = "L", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                    }
                                 }
                             }
                         } else if (iamLoginInProgress) {
@@ -687,6 +728,10 @@ fun MainMenuScreen(
                                 UnlockIcon(size = 14.dp)
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(text = stringResource(Res.string.iam_login), style = MaterialTheme.typography.bodySmall)
+                                if (AppSettings.showButtonShortcutHints.value) {
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    ShortcutKeyChip(text = "L", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                }
                             }
                         }
                         val backendInfoDesc = stringResource(Res.string.backend_info_title)

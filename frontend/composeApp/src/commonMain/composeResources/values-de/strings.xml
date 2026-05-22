@@ -1308,6 +1308,7 @@
     <string name="keyboard_nav_confirm">Bestätigen</string>
     <string name="keyboard_nav_scroll">Scrollen</string>
     <string name="keyboard_nav_switch_tab">Tab wechseln</string>
+    <string name="keyboard_nav_navigate_locations">Orte navigieren</string>
     <string name="keyboard_shortcut_next_enemy_target">Nächster erreichbarer Gegner</string>
     <string name="keyboard_shortcut_prev_enemy_target">Vorheriger erreichbarer Gegner</string>
     <string name="keyboard_shortcut_next_build_tile">Nächstes Baufeld</string>

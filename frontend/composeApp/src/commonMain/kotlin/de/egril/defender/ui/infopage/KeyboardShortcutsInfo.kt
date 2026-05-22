@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.focusable
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -61,7 +62,8 @@ private enum class BindingTarget {
 @Composable
 fun KeyboardShortcutsInfo(
     enableBindingEdit: Boolean = false,
-    showResetButton: Boolean = false
+    showResetButton: Boolean = false,
+    scrollState: ScrollState = rememberScrollState()
 ) {
     val centerSelectedTowerShortcutDescription = remember(currentLanguage.value) {
         val localizedValue = LocalizedStrings.get(
@@ -78,7 +80,9 @@ fun KeyboardShortcutsInfo(
 
     SelectionContainer {
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(scrollState)
         ) {
         Text(
             text = stringResource(Res.string.keyboard_shortcuts_title),
@@ -91,7 +95,6 @@ fun KeyboardShortcutsInfo(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
         ) {
             Text(
                 text = stringResource(Res.string.keyboard_shortcuts_note),

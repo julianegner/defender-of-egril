@@ -256,6 +256,8 @@ private fun GamePlayScreenContent(
     // External dialog triggers for header icon shortcuts
     var triggerShowShortcuts by remember { mutableStateOf(false) }
     var triggerShowHelp by remember { mutableStateOf(false) }
+    var triggerShowFeedback by remember { mutableStateOf(false) }
+    var triggerShowSettings by remember { mutableStateOf(false) }
 
     var currentDigOutcome by remember { mutableStateOf<DigOutcome?>(null) }
     var currentDragonName by remember { mutableStateOf<String?>(null) }  // Track dragon name for dig outcome
@@ -290,6 +292,14 @@ private fun GamePlayScreenContent(
 
     // Demo mode: "stop demo?" confirmation dialog
     var showStopDemoDialog by remember { mutableStateOf(false) }
+
+    // Counter to trigger map focus requests after dialogs close (ensures ESC works after UI interactions)
+    var mapRefocusTrigger by remember { mutableStateOf(0) }
+    LaunchedEffect(showUnsavedChangesDialog, showEndTurnConfirmation, keyboardUndoOrSellConfirmation) {
+        if (!showUnsavedChangesDialog && !showEndTurnConfirmation && keyboardUndoOrSellConfirmation == null) {
+            mapRefocusTrigger++
+        }
+    }
 
     // When demo mode visual state changes, sync it into the local selection state so
     // the existing rendering code (GameGrid, GameControls) shows the preview without any changes.
@@ -994,6 +1004,18 @@ private fun GamePlayScreenContent(
                     triggerShowHelp = true
                     true
                 }
+                // Period (.): Open feedback dialog
+                event.type == KeyEventType.KeyDown &&
+                        event.key == Key.Period && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                    triggerShowFeedback = true
+                    true
+                }
+                // Comma (,): Open settings dialog
+                event.type == KeyEventType.KeyDown &&
+                        event.key == Key.Comma && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                    triggerShowSettings = true
+                    true
+                }
                 // P (remappable): Toggle audio on/off
                 event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutToggleAudio.value) -> {
@@ -1348,7 +1370,11 @@ private fun GamePlayScreenContent(
             externalShowShortcuts = triggerShowShortcuts,
             onExternalShowShortcutsHandled = { triggerShowShortcuts = false },
             externalShowHelp = triggerShowHelp,
-            onExternalShowHelpHandled = { triggerShowHelp = false }
+            onExternalShowHelpHandled = { triggerShowHelp = false },
+            externalShowFeedback = triggerShowFeedback,
+            onExternalShowFeedbackHandled = { triggerShowFeedback = false },
+            externalShowSettings = triggerShowSettings,
+            onExternalShowSettingsHandled = { triggerShowSettings = false }
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -1365,6 +1391,7 @@ private fun GamePlayScreenContent(
                 selectedMineAction = selectedMineAction,
                 selectedWizardAction = selectedWizardAction,
                 selectedBarricadeAction = selectedBarricadeAction,
+                extraFocusTrigger = mapRefocusTrigger,
                 onCellClick = { position ->
                     // Handle spell targeting mode first
                     val targeting = gameState.spellTargeting.value

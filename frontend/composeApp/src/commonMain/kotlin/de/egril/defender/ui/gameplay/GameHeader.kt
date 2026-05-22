@@ -63,7 +63,11 @@ fun GameHeader(
     externalShowShortcuts: Boolean = false,
     onExternalShowShortcutsHandled: () -> Unit = {},
     externalShowHelp: Boolean = false,
-    onExternalShowHelpHandled: () -> Unit = {}
+    onExternalShowHelpHandled: () -> Unit = {},
+    externalShowFeedback: Boolean = false,
+    onExternalShowFeedbackHandled: () -> Unit = {},
+    externalShowSettings: Boolean = false,
+    onExternalShowSettingsHandled: () -> Unit = {}
 ) {
     val headerTextSize = de.egril.defender.ui.settings.AppSettings.headerTextSize.value
     var showDebugMenu by remember { mutableStateOf(false) }
@@ -301,13 +305,17 @@ fun GameHeader(
                             append("}")
                         }
                     ),
-                    shortcutKey = "."
+                    shortcutKey = ".",
+                    triggerOpen = externalShowFeedback,
+                    onTriggerHandled = onExternalShowFeedbackHandled
                 )
 
                 // Settings button (icon only to save space)
                 SettingsButton(
                     modifier = Modifier.size(buttonHeight),
-                    shortcutKey = ","
+                    shortcutKey = ",",
+                    triggerOpen = externalShowSettings,
+                    onTriggerHandled = onExternalShowSettingsHandled
                 )
                 
                 if (onSaveGame != null) {
@@ -477,8 +485,8 @@ fun GameHeader(
             LaunchedEffect(Unit) { helpFocusRequester.requestFocus() }
             Card(
                 modifier = Modifier
-                    .width(700.dp)
-                    .heightIn(max = 700.dp)
+                    .widthIn(max = 700.dp)
+                    .fillMaxHeight(fraction = 0.85f)
                     .padding(8.dp)
                     .focusRequester(helpFocusRequester)
                     .focusTarget()
@@ -508,6 +516,7 @@ fun GameHeader(
                     modifier = Modifier
                         .padding(16.dp)
                         .fillMaxWidth()
+                        .fillMaxHeight()
                 ) {
                     Text(
                         text = stringResource(Res.string.tutorials_and_help),

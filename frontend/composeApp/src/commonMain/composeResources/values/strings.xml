@@ -1313,6 +1313,7 @@
     <string name="keyboard_nav_confirm">Confirm</string>
     <string name="keyboard_nav_scroll">Scroll</string>
     <string name="keyboard_nav_switch_tab">Switch tab</string>
+    <string name="keyboard_nav_navigate_locations">Navigate locations</string>
     <string name="keyboard_shortcut_next_enemy_target">Next reachable enemy</string>
     <string name="keyboard_shortcut_prev_enemy_target">Previous reachable enemy</string>
     <string name="keyboard_shortcut_next_build_tile">Next build tile</string>

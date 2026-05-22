@@ -1,7 +1,9 @@
 package de.egril.defender.ui.settings
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,7 +29,9 @@ fun SettingsButton(
     initiallyOpen: Boolean = false,
     initialTab: SettingsTab = SettingsTab.GENERAL,
     onInitialOpenHandled: (() -> Unit)? = null,
-    shortcutKey: String? = null
+    shortcutKey: String? = null,
+    triggerOpen: Boolean = false,
+    onTriggerHandled: (() -> Unit)? = null
 ) {
     var showSettings by remember { mutableStateOf(false) }
     var autoOpenConsumed by remember { mutableStateOf(false) }
@@ -41,8 +45,15 @@ fun SettingsButton(
         }
     }
 
+    LaunchedEffect(triggerOpen) {
+        if (triggerOpen) {
+            showSettings = true
+            onTriggerHandled?.invoke()
+        }
+    }
+
     TooltipWrapper(text = settingsLabel) {
-        Box {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(
                 onClick = { showSettings = true },
                 modifier = modifier.semantics { contentDescription = settingsLabel }
@@ -54,9 +65,8 @@ fun SettingsButton(
                 )
             }
             if (shortcutKey != null && AppSettings.showButtonShortcutHints.value) {
-                Box(modifier = Modifier.align(Alignment.CenterEnd)) {
-                    ShortcutKeyChip(text = shortcutKey)
-                }
+                Spacer(modifier = Modifier.width(2.dp))
+                ShortcutKeyChip(text = shortcutKey)
             }
         }
     }

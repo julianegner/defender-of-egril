@@ -124,6 +124,10 @@ fun WorldMapScreen(
     var showCheatDialog by remember { mutableStateOf(false) }
     var selectedLocation by remember { mutableStateOf<Pair<WorldMapLocation, List<WorldLevel>>?>(null) }
 
+    // Keyboard-triggered dialog open triggers for feedback/settings
+    var triggerFeedback by remember { mutableStateOf(false) }
+    var triggerSettings by remember { mutableStateOf(false) }
+
     // ID of the community level currently being downloaded on-demand (null if none)
     var downloadingLevelId by remember { mutableStateOf<String?>(null) }
 
@@ -258,7 +262,11 @@ fun WorldMapScreen(
                 if (event.type == KeyEventType.KeyDown) {
                     when {
                         event.key == Key.Back || event.key == Key.Escape -> {
-                            onBackToMenu()
+                            if (selectedLocation != null) {
+                                selectedLocation = null
+                            } else {
+                                onBackToMenu()
+                            }
                             true
                         }
                         // L: Load game
@@ -323,6 +331,16 @@ fun WorldMapScreen(
                         }
                         isShortcutBindingPressed(event, AppSettings.shortcutCheat.value) && onCheatCode != null -> {
                             showCheatDialog = true
+                            true
+                        }
+                        // Period (.) → Open feedback
+                        event.key == Key.Period && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                            triggerFeedback = true
+                            true
+                        }
+                        // Comma (,) → Open settings
+                        event.key == Key.Comma && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                            triggerSettings = true
                             true
                         }
                         else -> false
@@ -533,13 +551,46 @@ fun WorldMapScreen(
                     )
                     
                     // Feedback button
-                    FeedbackButton(shortcutKey = ".")
+                    FeedbackButton(
+                        shortcutKey = ".",
+                        triggerOpen = triggerFeedback,
+                        onTriggerHandled = { triggerFeedback = false }
+                    )
 
                     // Settings button
-                    SettingsButton(shortcutKey = ",")
+                    SettingsButton(
+                        shortcutKey = ",",
+                        triggerOpen = triggerSettings,
+                        onTriggerHandled = { triggerSettings = false }
+                    )
                 }
             }
             
+            // TAB navigation hint overlay (bottom-right, only shown when shortcut hints ON and in image map mode)
+            if (AppSettings.showButtonShortcutHints.value && imageMapActiveTab == null) {
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(bottom = 80.dp, end = 16.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f),
+                    shape = MaterialTheme.shapes.small,
+                    tonalElevation = 2.dp
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        ShortcutKeyChip(text = "Tab")
+                        Text(
+                            text = stringResource(Res.string.keyboard_nav_navigate_locations),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+
             // Bottom bar with action buttons
             // Determine button arrangement based on platform and view mode
             val isMobileImageMap = isPlatformMobile && !useLevelCards

@@ -207,13 +207,11 @@ fun InfoPageScreen(
                         .fillMaxWidth()
                 ) {
                     when (selectedTab) {
-                        InfoTab.INSTALLATION -> InstallationInfo()
+                        InfoTab.INSTALLATION -> InstallationInfo(scrollState = contentScrollState)
                         InfoTab.HOW_TO_PLAY -> HowToPlayContent(scrollState = contentScrollState)
                         InfoTab.AUDIO_LICENSES -> AudioLicensesInfo()
                         InfoTab.LICENSE -> LicenseInfo()
-                        InfoTab.KEYBOARD_SHORTCUTS -> Column(modifier = Modifier.verticalScroll(contentScrollState)) {
-                            KeyboardShortcutsInfo()
-                        }
+                        InfoTab.KEYBOARD_SHORTCUTS -> KeyboardShortcutsInfo(scrollState = contentScrollState)
                         InfoTab.BACKEND -> BackendInfo()
                         InfoTab.FEEDBACK -> FeedbackInfo()
                         InfoTab.EDITOR_HOWTO -> EditorHowToContent()
