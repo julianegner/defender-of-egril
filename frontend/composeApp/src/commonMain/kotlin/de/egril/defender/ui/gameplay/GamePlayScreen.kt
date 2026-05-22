@@ -307,12 +307,8 @@ private fun GamePlayScreenContent(
         }
     }
 
-    // Request focus on the screen container when entering the level
-    LaunchedEffect(Unit) {
-        screenFocusRequester.requestFocus()
-    }
-    // Re-request focus when mapRefocusTrigger changes (e.g., after dialogs close)
-    LaunchedEffect(mapRefocusTrigger) {
+    // Request focus on screen entry and after dialogs close (mapRefocusTrigger changes)
+    LaunchedEffect(Unit, mapRefocusTrigger) {
         screenFocusRequester.requestFocus()
     }
 
