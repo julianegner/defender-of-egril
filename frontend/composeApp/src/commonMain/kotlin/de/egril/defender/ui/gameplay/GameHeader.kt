@@ -52,13 +52,31 @@ fun GameHeader(
     onEnemyCountClick: (() -> Unit)? = null,
     onManaClick: (() -> Unit)? = null,
     isDemoMode: Boolean = false,
-    onDemoTitleClick: (() -> Unit)? = null
+    onDemoTitleClick: (() -> Unit)? = null,
+    externalShowShortcuts: Boolean = false,
+    onExternalShowShortcutsHandled: () -> Unit = {},
+    externalShowHelp: Boolean = false,
+    onExternalShowHelpHandled: () -> Unit = {}
 ) {
     val headerTextSize = de.egril.defender.ui.settings.AppSettings.headerTextSize.value
     var showDebugMenu by remember { mutableStateOf(false) }
     val showDebugOptions = AppSettings.showDebugOptions.value
     var showShortcutsDialog by remember { mutableStateOf(false) }
     var showTutorialsHelpDialog by remember { mutableStateOf(false) }
+    
+    // Handle externally triggered dialogs
+    LaunchedEffect(externalShowShortcuts) {
+        if (externalShowShortcuts) {
+            showShortcutsDialog = true
+            onExternalShowShortcutsHandled()
+        }
+    }
+    LaunchedEffect(externalShowHelp) {
+        if (externalShowHelp) {
+            showTutorialsHelpDialog = true
+            onExternalShowHelpHandled()
+        }
+    }
     
     Box(
         modifier = Modifier
@@ -238,7 +256,7 @@ fun GameHeader(
                 // Shortcuts button (not shown on mobile platforms or mobile web browsers)
                 if (!isPlatformMobile && !isLimitedInputDevice && !isMobileWebBrowser()) {
                     val shortcutsLabel = stringResource(Res.string.tooltip_shortcuts)
-                    Box {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         TooltipWrapper(text = shortcutsLabel) {
                             IconButton(
                                 onClick = { showShortcutsDialog = true },
@@ -249,8 +267,7 @@ fun GameHeader(
                         }
                         if (AppSettings.showButtonShortcutHints.value) {
                             ShortcutKeyChip(
-                                text = "/",
-                                modifier = Modifier.align(Alignment.BottomEnd)
+                                text = "/"
                             )
                         }
                     }
@@ -371,7 +388,7 @@ fun GameHeader(
                 }
 
                 val tutorialsAndHelpLabel = stringResource(Res.string.tutorials_and_help)
-                Box {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     TooltipWrapper(text = tutorialsAndHelpLabel) {
                         IconButton(
                             onClick = { showTutorialsHelpDialog = true },
@@ -386,8 +403,7 @@ fun GameHeader(
                     }
                     if (AppSettings.showButtonShortcutHints.value) {
                         ShortcutKeyChip(
-                            text = "H",
-                            modifier = Modifier.align(Alignment.BottomEnd)
+                            text = "H"
                         )
                     }
                 }

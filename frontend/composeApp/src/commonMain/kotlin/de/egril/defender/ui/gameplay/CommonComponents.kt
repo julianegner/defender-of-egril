@@ -226,6 +226,12 @@ fun GameStatsDisplay(
             EnemyTypeIcon(AttackerType.GOBLIN, modifier = Modifier.size(iconSize + 4.dp))
             Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
             Text("$activeEnemyCount | $remainingEnemyCount", style = textStyle)
+            if (AppSettings.showButtonShortcutHints.value && onEnemyCountClick != null) {
+                Spacer(modifier = Modifier.width(6.dp))
+                ShortcutKeyChip(
+                    text = formatShortcutBindingForDisplay(AppSettings.shortcutToggleEnemyList.value)
+                )
+            }
         }
     }
 }

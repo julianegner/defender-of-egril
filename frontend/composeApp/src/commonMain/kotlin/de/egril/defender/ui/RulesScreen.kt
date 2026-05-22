@@ -23,12 +23,15 @@ import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
+import kotlinx.coroutines.launch
 
 @Composable
 fun RulesScreen(
     onBack: () -> Unit
 ) {
     val focusRequester = remember { FocusRequester() }
+    val scrollState = androidx.compose.foundation.rememberScrollState()
+    val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
     LaunchedEffect(Unit) {
         try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
     }
@@ -38,11 +41,22 @@ fun RulesScreen(
             .focusRequester(focusRequester)
             .focusTarget()
             .onPreviewKeyEvent { event ->
-                if (event.type == KeyEventType.KeyDown &&
-                    (event.key == Key.Back || event.key == Key.Escape)
-                ) {
-                    onBack()
-                    true
+                if (event.type == KeyEventType.KeyDown) {
+                    when (event.key) {
+                        Key.Back, Key.Escape -> {
+                            onBack()
+                            true
+                        }
+                        Key.DirectionDown -> {
+                            coroutineScope.launch { scrollState.animateScrollTo(scrollState.value + 150) }
+                            true
+                        }
+                        Key.DirectionUp -> {
+                            coroutineScope.launch { scrollState.animateScrollTo((scrollState.value - 150).coerceAtLeast(0)) }
+                            true
+                        }
+                        else -> false
+                    }
                 } else {
                     false
                 }
@@ -78,7 +92,23 @@ fun RulesScreen(
 
                 // Scrollable content
                 Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-                    HowToPlayContent()
+                    HowToPlayContent(scrollState = scrollState)
+                }
+
+                // Scroll hint (only if there's scrollable content and hints are enabled)
+                if (AppSettings.showButtonShortcutHints.value && scrollState.maxValue > 0) {
+                    Row(
+                        modifier = Modifier.padding(vertical = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ShortcutKeyChip(text = "\u2191\u2193")
+                        Text(
+                            stringResource(Res.string.keyboard_nav_scroll),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
 
                 // Back button

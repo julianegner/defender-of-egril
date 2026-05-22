@@ -17,14 +17,17 @@ import de.egril.defender.ui.common.ScrollableTabRowWithHints
 import de.egril.defender.ui.editor.EditorHowToContent
 import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.ui.feedback.FeedbackFormContent
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.isEditorAvailable
+import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.utils.isPlatformWasm
 import de.egril.defender.utils.setInfoPageActive
 import de.egril.defender.utils.toUrlSlug
 import de.egril.defender.utils.updateBrowserUrl
 import defender_of_egril.composeapp.generated.resources.*
+import kotlinx.coroutines.launch
 
 /**
  * Main info page screen that combines installation info, audio licenses, and backend info.
@@ -62,6 +65,10 @@ fun InfoPageScreen(
     }
 
     val selectedTabIndex = visibleTabs.indexOf(selectedTab).coerceAtLeast(0)
+    
+    // Scroll state for content area keyboard scrolling
+    val contentScrollState = rememberScrollState()
+    val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
 
     // Suppress the HTML portrait-rotation overlay while on the info page and update the URL.
     DisposableEffect(Unit) {
@@ -80,11 +87,32 @@ fun InfoPageScreen(
         modifier = Modifier
             .fillMaxSize()
             .onPreviewKeyEvent { event ->
-                if (event.type == KeyEventType.KeyDown &&
-                    (event.key == Key.Back || event.key == Key.Escape)
-                ) {
-                    onBack()
-                    true
+                if (event.type == KeyEventType.KeyDown) {
+                    when (event.key) {
+                        Key.Back, Key.Escape -> {
+                            onBack()
+                            true
+                        }
+                        Key.DirectionDown -> {
+                            coroutineScope.launch { contentScrollState.animateScrollTo(contentScrollState.value + 150) }
+                            true
+                        }
+                        Key.DirectionUp -> {
+                            coroutineScope.launch { contentScrollState.animateScrollTo((contentScrollState.value - 150).coerceAtLeast(0)) }
+                            true
+                        }
+                        Key.DirectionRight -> {
+                            val nextIndex = (selectedTabIndex + 1).coerceAtMost(visibleTabs.lastIndex)
+                            selectedTab = visibleTabs[nextIndex]
+                            true
+                        }
+                        Key.DirectionLeft -> {
+                            val prevIndex = (selectedTabIndex - 1).coerceAtLeast(0)
+                            selectedTab = visibleTabs[prevIndex]
+                            true
+                        }
+                        else -> false
+                    }
                 } else {
                     false
                 }
@@ -179,6 +207,32 @@ fun InfoPageScreen(
                 }
                 
                 if (!isLandscapeMobileWeb) {
+                    // Keyboard navigation hints
+                    if (AppSettings.showButtonShortcutHints.value) {
+                        Row(
+                            modifier = Modifier.padding(vertical = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                ShortcutKeyChip(text = "\u2191\u2193")
+                                Text(
+                                    stringResource(Res.string.keyboard_nav_scroll),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                ShortcutKeyChip(text = "\u2190\u2192")
+                                Text(
+                                    stringResource(Res.string.keyboard_nav_switch_tab),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+
                     // Back button
                     Button(
                         onClick = onBack,
@@ -187,6 +241,10 @@ fun InfoPageScreen(
                             .widthIn(min = 200.dp)
                     ) {
                         Text(stringResource(Res.string.back))
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            ShortcutKeyChip(text = "Esc", color = LocalContentColor.current.copy(alpha = 0.75f))
+                        }
                     }
                 }
             }

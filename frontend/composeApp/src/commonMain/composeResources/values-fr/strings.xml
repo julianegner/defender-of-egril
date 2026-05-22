@@ -1308,6 +1308,8 @@
     <string name="keyboard_nav_next">Suiv.</string>
     <string name="keyboard_nav_prev">Préc.</string>
     <string name="keyboard_nav_confirm">Confirmer</string>
+    <string name="keyboard_nav_scroll">Défiler</string>
+    <string name="keyboard_nav_switch_tab">Changer d'onglet</string>
     <string name="keyboard_shortcut_next_enemy_target">Ennemi atteignable suivant</string>
     <string name="keyboard_shortcut_prev_enemy_target">Ennemi atteignable précédent</string>
     <string name="keyboard_shortcut_next_build_tile">Emplacement de construction suivant</string>

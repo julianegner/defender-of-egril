@@ -1308,6 +1308,8 @@
     <string name="keyboard_nav_next">Sig.</string>
     <string name="keyboard_nav_prev">Ant.</string>
     <string name="keyboard_nav_confirm">Confirmar</string>
+    <string name="keyboard_nav_scroll">Desplazar</string>
+    <string name="keyboard_nav_switch_tab">Cambiar pestaña</string>
     <string name="keyboard_shortcut_next_enemy_target">Siguiente enemigo alcanzable</string>
     <string name="keyboard_shortcut_prev_enemy_target">Enemigo alcanzable anterior</string>
     <string name="keyboard_shortcut_next_build_tile">Siguiente área de construcción</string>

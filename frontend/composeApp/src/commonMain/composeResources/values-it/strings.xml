@@ -1308,6 +1308,8 @@
     <string name="keyboard_nav_next">Avanti</string>
     <string name="keyboard_nav_prev">Prec.</string>
     <string name="keyboard_nav_confirm">Conferma</string>
+    <string name="keyboard_nav_scroll">Scorrere</string>
+    <string name="keyboard_nav_switch_tab">Cambia scheda</string>
     <string name="keyboard_shortcut_next_enemy_target">Prossimo nemico raggiungibile</string>
     <string name="keyboard_shortcut_prev_enemy_target">Nemico raggiungibile precedente</string>
     <string name="keyboard_shortcut_next_build_tile">Prossima area di costruzione</string>

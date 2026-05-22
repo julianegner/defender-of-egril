@@ -252,6 +252,10 @@ private fun GamePlayScreenContent(
     // Non-null means the keyboard undo/sell shortcut was pressed and the confirmation dialog is open.
     // The Boolean flag indicates whether this is an "undo" (true) or "sell" (false) operation.
     var keyboardUndoOrSellConfirmation by remember { mutableStateOf<Pair<Int, Boolean>?>(null) }
+    
+    // External dialog triggers for header icon shortcuts
+    var triggerShowShortcuts by remember { mutableStateOf(false) }
+    var triggerShowHelp by remember { mutableStateOf(false) }
 
     var currentDigOutcome by remember { mutableStateOf<DigOutcome?>(null) }
     var currentDragonName by remember { mutableStateOf<String?>(null) }  // Track dragon name for dig outcome
@@ -963,6 +967,19 @@ private fun GamePlayScreenContent(
                     showOverlay = !showOverlay
                     true
                 }
+                // /: Open keyboard shortcuts dialog
+                event.type == KeyEventType.KeyDown &&
+                        event.key == Key.Slash && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                    triggerShowShortcuts = true
+                    true
+                }
+                // H: Open tutorials/help dialog
+                event.type == KeyEventType.KeyDown &&
+                        event.key == Key.H && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed &&
+                        selectedDefenderId == null && selectedDefenderType == null -> {
+                    triggerShowHelp = true
+                    true
+                }
                 // Reuses the "next enemy target" binding (default N) for cycling build tiles in tower-place mode
                 event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutNextEnemyTarget.value) &&
@@ -1166,10 +1183,13 @@ private fun GamePlayScreenContent(
                         !event.isCtrlPressed && !event.isAltPressed && !event.isMetaPressed -> {
                     when (gameState.phase.value) {
                         GamePhase.INITIAL_BUILDING -> {
-                            // In build phase, Enter confirms placement on first available build tile
+                            // In build phase, Enter confirms placement on keyboard-selected build tile (or first available)
                             val defType = selectedDefenderType
                             if (defType != null) {
-                                val buildTile = gameState.level.buildAreas
+                                val buildTile = keyboardSelectedBuildTile?.takeIf { pos ->
+                                    gameState.defenders.none { it.position.value == pos } &&
+                                    gameState.canPlaceDefender(defType)
+                                } ?: gameState.level.buildAreas
                                     .firstOrNull { pos ->
                                         gameState.defenders.none { it.position.value == pos } &&
                                         gameState.canPlaceDefender(defType)
@@ -1178,6 +1198,7 @@ private fun GamePlayScreenContent(
                                     if (!gameState.canPlaceDefender(defType)) {
                                         selectedDefenderType = null
                                     }
+                                    keyboardSelectedBuildTile = null
                                 }
                             }
                             // Always consume Enter in build phase (prevent Start Battle button activation)
@@ -1189,7 +1210,10 @@ private fun GamePlayScreenContent(
                                 selectedDefenderType != null && selectedDefenderId == null && !showMagicPanel -> {
                                     val defType = selectedDefenderType
                                     if (defType != null) {
-                                        val buildTile = gameState.level.buildAreas
+                                        val buildTile = keyboardSelectedBuildTile?.takeIf { pos ->
+                                            gameState.defenders.none { it.position.value == pos } &&
+                                            gameState.canPlaceDefender(defType)
+                                        } ?: gameState.level.buildAreas
                                             .firstOrNull { pos ->
                                                 gameState.defenders.none { it.position.value == pos } &&
                                                 gameState.canPlaceDefender(defType)
@@ -1198,6 +1222,7 @@ private fun GamePlayScreenContent(
                                             if (!gameState.canPlaceDefender(defType)) {
                                                 selectedDefenderType = null
                                             }
+                                            keyboardSelectedBuildTile = null
                                         }
                                     }
                                     true
@@ -1296,7 +1321,11 @@ private fun GamePlayScreenContent(
                 }
             } else null,
             isDemoMode = isDemoMode,
-            onDemoTitleClick = if (isDemoMode) {{ showStopDemoDialog = true }} else null
+            onDemoTitleClick = if (isDemoMode) {{ showStopDemoDialog = true }} else null,
+            externalShowShortcuts = triggerShowShortcuts,
+            onExternalShowShortcutsHandled = { triggerShowShortcuts = false },
+            externalShowHelp = triggerShowHelp,
+            onExternalShowHelpHandled = { triggerShowHelp = false }
         )
 
         Spacer(modifier = Modifier.height(8.dp))

@@ -1310,6 +1310,8 @@
     <string name="keyboard_nav_next">Next</string>
     <string name="keyboard_nav_prev">Prev</string>
     <string name="keyboard_nav_confirm">Confirm</string>
+    <string name="keyboard_nav_scroll">Scroll</string>
+    <string name="keyboard_nav_switch_tab">Switch tab</string>
     <string name="keyboard_shortcut_next_enemy_target">Next reachable enemy</string>
     <string name="keyboard_shortcut_prev_enemy_target">Previous reachable enemy</string>
     <string name="keyboard_shortcut_next_build_tile">Next build tile</string>
