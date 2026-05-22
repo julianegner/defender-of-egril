@@ -247,6 +247,18 @@ fun MainMenuScreen(
                         if (iamState.isAuthenticated) onIamLogout() else onIamLogin()
                         true
                     }
+                    // P → Edit player name
+                    event.key == Key.P && !event.isCtrlPressed && !event.isAltPressed
+                            && !showExitConfirmation -> {
+                        onEditPlayerName()
+                        true
+                    }
+                    // Slash (?) → Show backend/privacy info
+                    event.key == Key.Slash && !event.isCtrlPressed && !event.isAltPressed
+                            && !showExitConfirmation -> {
+                        onShowBackendInfo()
+                        true
+                    }
                     // Esc → show exit confirmation (non-iOS)
                     (event.key == Key.Escape || event.key == Key.Back)
                             && !isPlatformIos && !showExitConfirmation -> {
@@ -317,6 +329,10 @@ fun MainMenuScreen(
                                             style = MaterialTheme.typography.bodySmall,
                                             fontSize = 12.sp
                                         )
+                                        if (AppSettings.showButtonShortcutHints.value) {
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            ShortcutKeyChip(text = "Esc", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                        }
                                     }
                                 }
                                 if (currentPlayerName != null) {
@@ -387,11 +403,16 @@ fun MainMenuScreen(
                                         }
                                         val backendInfoDesc = stringResource(Res.string.backend_info_title)
                                         TooltipWrapper(text = backendInfoDesc) {
-                                            IconButton(
-                                                onClick = onShowBackendInfo,
-                                                modifier = Modifier.size(28.dp).semantics { contentDescription = backendInfoDesc }
-                                            ) {
-                                                HelpIcon(size = 28.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                IconButton(
+                                                    onClick = onShowBackendInfo,
+                                                    modifier = Modifier.size(28.dp).semantics { contentDescription = backendInfoDesc }
+                                                ) {
+                                                    HelpIcon(size = 28.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
+                                                }
+                                                if (AppSettings.showButtonShortcutHints.value) {
+                                                    ShortcutKeyChip(text = "?")
+                                                }
                                             }
                                         }
                                     }
@@ -460,6 +481,10 @@ fun MainMenuScreen(
                                             style = MaterialTheme.typography.bodySmall,
                                             fontSize = 12.sp
                                         )
+                                        if (AppSettings.showButtonShortcutHints.value) {
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            ShortcutKeyChip(text = "Esc", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                        }
                                     }
                                 }
                                 if (currentPlayerName != null) {
@@ -530,11 +555,16 @@ fun MainMenuScreen(
                                         }
                                         val backendInfoDesc = stringResource(Res.string.backend_info_title)
                                         TooltipWrapper(text = backendInfoDesc) {
-                                            IconButton(
-                                                onClick = onShowBackendInfo,
-                                                modifier = Modifier.size(28.dp).semantics { contentDescription = backendInfoDesc }
-                                            ) {
-                                                HelpIcon(size = 28.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                IconButton(
+                                                    onClick = onShowBackendInfo,
+                                                    modifier = Modifier.size(28.dp).semantics { contentDescription = backendInfoDesc }
+                                                ) {
+                                                    HelpIcon(size = 28.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
+                                                }
+                                                if (AppSettings.showButtonShortcutHints.value) {
+                                                    ShortcutKeyChip(text = "?")
+                                                }
                                             }
                                         }
                                     }
@@ -685,6 +715,10 @@ fun MainMenuScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                     ) {
                         Text(text = stringResource(Res.string.exit_game), style = MaterialTheme.typography.bodySmall, fontSize = 12.sp)
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            ShortcutKeyChip(text = "Esc", color = LocalContentColor.current.copy(alpha = 0.75f))
+                        }
                     }
                 }
 
@@ -697,7 +731,12 @@ fun MainMenuScreen(
                     ) {
                         Column(modifier = Modifier.clickable { onEditPlayerName() }) {
                             Text(text = stringResource(Res.string.player_name), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text(text = currentPlayerName, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text(text = currentPlayerName, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                                if (AppSettings.showButtonShortcutHints.value) {
+                                    ShortcutKeyChip(text = "P")
+                                }
+                            }
                             if (iamState.isAuthenticated && iamState.username != null) {
                                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                                     UnlockIcon(size = 12.dp)
@@ -736,8 +775,13 @@ fun MainMenuScreen(
                         }
                         val backendInfoDesc = stringResource(Res.string.backend_info_title)
                         TooltipWrapper(text = backendInfoDesc) {
-                            IconButton(onClick = onShowBackendInfo, modifier = Modifier.size(34.dp).semantics { contentDescription = backendInfoDesc }) {
-                                HelpIcon(size = 34.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                IconButton(onClick = onShowBackendInfo, modifier = Modifier.size(34.dp).semantics { contentDescription = backendInfoDesc }) {
+                                    HelpIcon(size = 34.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
+                                }
+                                if (AppSettings.showButtonShortcutHints.value) {
+                                    ShortcutKeyChip(text = "?")
+                                }
                             }
                         }
                     }

@@ -566,12 +566,12 @@ fun WorldMapScreen(
                 }
             }
             
-            // TAB navigation hint overlay (bottom-right, only shown when shortcut hints ON and in image map mode)
+            // TAB navigation hint overlay (above the left-side buttons)
             if (AppSettings.showButtonShortcutHints.value && imageMapActiveTab == null) {
                 Surface(
                     modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(bottom = 80.dp, end = 16.dp),
+                        .align(Alignment.BottomStart)
+                        .padding(bottom = 180.dp, start = 16.dp),
                     color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f),
                     shape = MaterialTheme.shapes.small,
                     tonalElevation = 2.dp

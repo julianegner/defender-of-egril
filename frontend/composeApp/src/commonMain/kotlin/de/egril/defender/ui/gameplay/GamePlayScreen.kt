@@ -9,6 +9,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -293,12 +296,24 @@ private fun GamePlayScreenContent(
     // Demo mode: "stop demo?" confirmation dialog
     var showStopDemoDialog by remember { mutableStateOf(false) }
 
+    // Focus requester for the screen container - ensures keyboard events (especially ESC) always work
+    val screenFocusRequester = remember { FocusRequester() }
+
     // Counter to trigger map focus requests after dialogs close (ensures ESC works after UI interactions)
     var mapRefocusTrigger by remember { mutableStateOf(0) }
     LaunchedEffect(showUnsavedChangesDialog, showEndTurnConfirmation, keyboardUndoOrSellConfirmation) {
         if (!showUnsavedChangesDialog && !showEndTurnConfirmation && keyboardUndoOrSellConfirmation == null) {
             mapRefocusTrigger++
         }
+    }
+
+    // Request focus on the screen container when entering the level
+    LaunchedEffect(Unit) {
+        screenFocusRequester.requestFocus()
+    }
+    // Re-request focus when mapRefocusTrigger changes (e.g., after dialogs close)
+    LaunchedEffect(mapRefocusTrigger) {
+        screenFocusRequester.requestFocus()
     }
 
     // When demo mode visual state changes, sync it into the local selection state so
@@ -587,18 +602,20 @@ private fun GamePlayScreenContent(
     }
 
     val cycleTowerBuySelection: (Boolean) -> Unit = cycleTowerBuySelection@{ reversed ->
-        if (keyboardSelectableTowers.isEmpty()) {
+        // Filter to only affordable towers when cycling
+        val affordableTowers = keyboardSelectableTowers.filter { gameState.coins.value >= it.baseCost }
+        if (affordableTowers.isEmpty()) {
             return@cycleTowerBuySelection
         }
         val currentIndex = selectedDefenderType?.let { current ->
-            keyboardSelectableTowers.indexOf(current).takeIf { it != -1 }
+            affordableTowers.indexOf(current).takeIf { it != -1 }
         } ?: -1
         val nextIndex = if (reversed) {
-            if (currentIndex <= 0) keyboardSelectableTowers.lastIndex else currentIndex - 1
+            if (currentIndex <= 0) affordableTowers.lastIndex else currentIndex - 1
         } else {
-            if (currentIndex < 0 || currentIndex >= keyboardSelectableTowers.lastIndex) 0 else currentIndex + 1
+            if (currentIndex < 0 || currentIndex >= affordableTowers.lastIndex) 0 else currentIndex + 1
         }
-        selectedDefenderType = keyboardSelectableTowers[nextIndex]
+        selectedDefenderType = affordableTowers[nextIndex]
         selectedDefenderId = null
         selectedAttackerId = null
         highlightEndTurnButton = false
@@ -1305,6 +1322,8 @@ private fun GamePlayScreenContent(
         BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
+                .focusRequester(screenFocusRequester)
+                .focusTarget()
                 .onPreviewKeyEvent(keyboardHandler)
                 // In demo mode, intercept any click/tap to show "stop demo?" dialog
                 .then(
@@ -1630,7 +1649,8 @@ private fun GamePlayScreenContent(
                     }
                 },
                 isDemoMode = isDemoMode,
-                demoHoveredPosition = demoHoveredPosition
+                demoHoveredPosition = demoHoveredPosition,
+                keyboardHoveredPosition = keyboardSelectedBuildTile
             )
 
             val captionText = soundCaptionText

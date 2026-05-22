@@ -20,7 +20,7 @@ import androidx.compose.foundation.text.selection.SelectionContainer
  * Composable displaying information about the backend server, user accounts, and logging.
  */
 @Composable
-fun BackendInfo() {
+fun BackendInfo(scrollState: androidx.compose.foundation.ScrollState = rememberScrollState()) {
     SelectionContainer {
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -36,7 +36,7 @@ fun BackendInfo() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState()),
+                .verticalScroll(scrollState),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Logging section

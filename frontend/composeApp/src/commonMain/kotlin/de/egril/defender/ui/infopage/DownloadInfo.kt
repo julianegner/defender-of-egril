@@ -29,7 +29,7 @@ private const val GITHUB_RELEASES_PAGE =
  * Only shown on WASM platform when the withImpressum build flag is enabled.
  */
 @Composable
-fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}) {
+fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}, scrollState: androidx.compose.foundation.ScrollState = rememberScrollState()) {
     var release by remember { mutableStateOf<GithubRelease?>(null) }
     var loadError by remember { mutableStateOf(false) }
 
@@ -71,7 +71,7 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
         ) {
             // Intro text
             Text(

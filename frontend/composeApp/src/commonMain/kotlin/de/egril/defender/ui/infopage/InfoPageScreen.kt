@@ -209,13 +209,13 @@ fun InfoPageScreen(
                     when (selectedTab) {
                         InfoTab.INSTALLATION -> InstallationInfo(scrollState = contentScrollState)
                         InfoTab.HOW_TO_PLAY -> HowToPlayContent(scrollState = contentScrollState)
-                        InfoTab.AUDIO_LICENSES -> AudioLicensesInfo()
-                        InfoTab.LICENSE -> LicenseInfo()
+                        InfoTab.AUDIO_LICENSES -> AudioLicensesInfo(scrollState = contentScrollState)
+                        InfoTab.LICENSE -> LicenseInfo(scrollState = contentScrollState)
                         InfoTab.KEYBOARD_SHORTCUTS -> KeyboardShortcutsInfo(scrollState = contentScrollState)
-                        InfoTab.BACKEND -> BackendInfo()
-                        InfoTab.FEEDBACK -> FeedbackInfo()
-                        InfoTab.EDITOR_HOWTO -> EditorHowToContent()
-                        InfoTab.DOWNLOAD -> DownloadInfo(onNavigateToInstallation = { selectedTab = InfoTab.INSTALLATION })
+                        InfoTab.BACKEND -> BackendInfo(scrollState = contentScrollState)
+                        InfoTab.FEEDBACK -> FeedbackInfo(scrollState = contentScrollState)
+                        InfoTab.EDITOR_HOWTO -> EditorHowToContent(scrollState = contentScrollState)
+                        InfoTab.DOWNLOAD -> DownloadInfo(onNavigateToInstallation = { selectedTab = InfoTab.INSTALLATION }, scrollState = contentScrollState)
                     }
                 }
                 
@@ -284,11 +284,11 @@ enum class InfoTab {
  * Standalone feedback tab content: wraps the shared FeedbackFormContent in a scrollable column.
  */
 @Composable
-private fun FeedbackInfo() {
+private fun FeedbackInfo(scrollState: androidx.compose.foundation.ScrollState = rememberScrollState()) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         FeedbackFormContent()

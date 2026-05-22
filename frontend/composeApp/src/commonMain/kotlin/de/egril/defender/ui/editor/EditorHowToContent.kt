@@ -19,8 +19,7 @@ import androidx.compose.foundation.text.selection.SelectionContainer
  * This composable is used both in the editor info popup dialog and as a tab in the InfoPageScreen.
  */
 @Composable
-fun EditorHowToContent() {
-    val scrollState = rememberScrollState()
+fun EditorHowToContent(scrollState: androidx.compose.foundation.ScrollState = rememberScrollState()) {
 
     SelectionContainer {
         Column(
