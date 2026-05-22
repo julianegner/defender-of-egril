@@ -904,7 +904,10 @@ fun MainMenuScreen(
                         ) {
                             Text(stringResource(Res.string.cancel))
                             if (AppSettings.showButtonShortcutHints.value) {
-                                ShortcutKeyChip(text = "Esc")
+                                ShortcutKeyChip(
+                                    text = "Esc",
+                                    color = LocalContentColor.current.copy(alpha = 0.75f)
+                                )
                             }
                         }
                     }
