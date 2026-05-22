@@ -428,6 +428,21 @@ fun GameHeader(
                         .padding(16.dp)
                         .fillMaxWidth()
                 ) {
+                    // Shortcut hint toggle
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            stringResource(Res.string.shortcut_bindings_show_on_buttons),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Switch(
+                            checked = AppSettings.showButtonShortcutHints.value,
+                            onCheckedChange = { AppSettings.saveShowButtonShortcutHints(it) }
+                        )
+                    }
                     Box(modifier = Modifier.weight(1f)) {
                         KeyboardShortcutsInfo(
                             enableBindingEdit = true,

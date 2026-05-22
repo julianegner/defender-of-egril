@@ -164,6 +164,13 @@ fun LevelLocationDialog(
                                     }
                                 )
                             }
+                            // Shortcut chip on preselected card
+                            if (isSelected && AppSettings.showButtonShortcutHints.value) {
+                                ShortcutKeyChip(
+                                    text = "Enter",
+                                    modifier = Modifier.align(Alignment.CenterEnd).padding(end = 8.dp)
+                                )
+                            }
                         }
                     }
                 }

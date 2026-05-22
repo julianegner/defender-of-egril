@@ -52,6 +52,12 @@ fun SettingsDialog(
     onDismiss: () -> Unit,
     initialTab: SettingsTab = SettingsTab.GENERAL
 ) {
+    val tabCount = 6  // GENERAL, WORLD_MAP, LEVEL, SOUND, ACCESSIBILITY, SHORTCUTS
+    var selectedTabIndex by remember(initialTab) {
+        mutableStateOf(
+            SettingsTab.entries.indexOf(initialTab).coerceAtLeast(0)
+        )
+    }
     Dialog(onDismissRequest = onDismiss) {
         Surface(
             modifier = Modifier
@@ -59,11 +65,22 @@ fun SettingsDialog(
                 .fillMaxHeight(fraction = 0.9f)
                 .heightIn(max = 680.dp)
                 .onPreviewKeyEvent { event ->
-                    if (event.type == KeyEventType.KeyDown &&
-                        (event.key == Key.Back || event.key == Key.Escape)
-                    ) {
-                        onDismiss()
-                        true
+                    if (event.type == KeyEventType.KeyDown) {
+                        when (event.key) {
+                            Key.Back, Key.Escape -> {
+                                onDismiss()
+                                true
+                            }
+                            Key.DirectionRight -> {
+                                selectedTabIndex = (selectedTabIndex + 1).coerceAtMost(tabCount - 1)
+                                true
+                            }
+                            Key.DirectionLeft -> {
+                                selectedTabIndex = (selectedTabIndex - 1).coerceAtLeast(0)
+                                true
+                            }
+                            else -> false
+                        }
                     } else {
                         false
                     }
@@ -113,19 +130,14 @@ fun SettingsDialog(
                     SettingsTab.ACCESSIBILITY to stringResource(Res.string.accessibility),
                     SettingsTab.SHORTCUTS to stringResource(Res.string.settings_tab_shortcuts)
                 )
-                var selectedTab by remember(initialTab) {
-                    mutableStateOf(
-                        tabEntriesWithLabels.indexOfFirst { it.first == initialTab }.coerceAtLeast(0)
-                    )
-                }
 
                 ScrollableTabRowWithHints(
-                    selectedTabIndex = selectedTab
+                    selectedTabIndex = selectedTabIndex
                 ) {
                     tabEntriesWithLabels.forEachIndexed { index, (_, title) ->
                         Tab(
-                            selected = selectedTab == index,
-                            onClick = { selectedTab = index },
+                            selected = selectedTabIndex == index,
+                            onClick = { selectedTabIndex = index },
                             text = { Text(title) }
                         )
                     }
@@ -133,7 +145,7 @@ fun SettingsDialog(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                val selectedTabType = tabEntriesWithLabels[selectedTab].first
+                val selectedTabType = tabEntriesWithLabels[selectedTabIndex].first
 
                 // Tab content
                 Box(

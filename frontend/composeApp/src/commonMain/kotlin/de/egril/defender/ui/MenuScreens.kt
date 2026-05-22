@@ -147,6 +147,13 @@ private fun MainMenuButtonRow(
             contentPadding = contentPadding ?: ButtonDefaults.ContentPadding
         ) {
             Text(stringResource(Res.string.rules), style = textStyle, maxLines = 1)
+            if (AppSettings.showButtonShortcutHints.value) {
+                Spacer(modifier = Modifier.width(4.dp))
+                de.egril.defender.ui.gameplay.ShortcutKeyChip(
+                    text = "H",
+                    color = LocalContentColor.current.copy(alpha = 0.75f)
+                )
+            }
         }
     }
 }
@@ -210,6 +217,12 @@ fun MainMenuScreen(
                     event.key == Key.H && !event.isCtrlPressed && !event.isAltPressed
                             && !showExitConfirmation -> {
                         onShowRules()
+                        true
+                    }
+                    // I → Show Info / Installation page
+                    event.key == Key.I && !event.isCtrlPressed && !event.isAltPressed
+                            && !showExitConfirmation -> {
+                        onShowInstallationInfo()
                         true
                     }
                     // Esc → show exit confirmation (non-iOS)
