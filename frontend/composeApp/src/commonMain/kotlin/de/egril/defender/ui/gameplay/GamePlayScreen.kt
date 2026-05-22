@@ -273,6 +273,8 @@ private fun GamePlayScreenContent(
         pendingDigOutcome = null
     }
     var showOverlay by remember { mutableStateOf(false) }  // MutableState for overlay visibility
+    // 0 = both legend+enemies, 1 = legend only, 2 = enemy list only
+    var overlayMode by remember { mutableStateOf(0) }
     var showSaveDialog by remember { mutableStateOf(false) }  // Save dialog with comment
     var saveCommentInput by remember { mutableStateOf("") }  // Comment input for save
     var showSaveConfirmation by remember { mutableStateOf(false) }  // Save confirmation
@@ -961,10 +963,22 @@ private fun GamePlayScreenContent(
                     showCheatDialog = true
                     true
                 }
-                // E: Toggle enemy list overlay
+                // E: Toggle enemy list overlay (cycle: off → both → legend only → enemy list only → off)
                 event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutToggleEnemyList.value) -> {
-                    showOverlay = !showOverlay
+                    if (!showOverlay) {
+                        showOverlay = true
+                        overlayMode = 0  // both
+                    } else {
+                        when (overlayMode) {
+                            0 -> overlayMode = 1  // legend only
+                            1 -> overlayMode = 2  // enemy list only
+                            else -> {
+                                showOverlay = false
+                                overlayMode = 0
+                            }
+                        }
+                    }
                     true
                 }
                 // /: Open keyboard shortcuts dialog
@@ -1146,7 +1160,10 @@ private fun GamePlayScreenContent(
                 event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutBackToWorldMap.value) &&
                         !isDemoMode -> {
-                    if (unsavedChangesEnabled && hasUnsavedChanges.invoke()) {
+                    // Skip unsaved changes check if in initial building phase with no defenders placed
+                    val isInitialWithNothingDone = gameState.phase.value == GamePhase.INITIAL_BUILDING &&
+                            gameState.defenders.isEmpty()
+                    if (!isInitialWithNothingDone && unsavedChangesEnabled && hasUnsavedChanges.invoke()) {
                         showUnsavedChangesDialog = true
                     } else {
                         onBackToMap()
@@ -1636,21 +1653,23 @@ private fun GamePlayScreenContent(
                         .fillMaxHeight()
                         .padding(8.dp)
                 ) {
-                    // Legend - show if user opened overlay OR during LEGEND_INFO tutorial step
-                    if (showOverlay || shouldShowLegendForTutorial) {
+                    // Legend - show if mode includes legend OR during LEGEND_INFO tutorial step
+                    val showLegendPanel = (showOverlay && overlayMode != 2) || shouldShowLegendForTutorial
+                    if (showLegendPanel) {
                         GameLegend(
                             modifier = Modifier.fillMaxWidth(),
                             forceExpanded = shouldShowLegendForTutorial
                         )
                         
                         // Add spacer only if both legend and enemy list are shown
-                        if (showOverlay) {
+                        if (showOverlay && overlayMode == 0) {
                             Spacer(modifier = Modifier.height(16.dp))
                         }
                     }
 
-                    // Enemy List - show if user opened overlay OR during ENEMY_LIST_INFO tutorial step
-                    if (showOverlay || shouldShowEnemyListForTutorial) {
+                    // Enemy List - show if mode includes enemy list OR during ENEMY_LIST_INFO tutorial step
+                    val showEnemyPanel = (showOverlay && overlayMode != 1) || shouldShowEnemyListForTutorial
+                    if (showEnemyPanel) {
                         EnemyListPanel(
                             gameState = gameState, 
                             modifier = Modifier.fillMaxWidth().weight(1f),
