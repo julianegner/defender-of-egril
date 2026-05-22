@@ -39,6 +39,7 @@ import de.egril.defender.editor.EditorStorage
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.icon.LockIcon
 import de.egril.defender.ui.icon.TriangleDownIcon
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import org.jetbrains.compose.resources.painterResource
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.Res
@@ -46,6 +47,7 @@ import defender_of_egril.composeapp.generated.resources.available
 import defender_of_egril.composeapp.generated.resources.completed
 import defender_of_egril.composeapp.generated.resources.levels
 import defender_of_egril.composeapp.generated.resources.locked
+import defender_of_egril.composeapp.generated.resources.to_select
 import defender_of_egril.composeapp.generated.resources.world_map_background
 
 import de.egril.defender.editor.WorldMapData
@@ -620,18 +622,21 @@ private fun BoxScope.LocationMarkersOverlay(
                 if (isKeyboardFocused && AppSettings.showButtonShortcutHints.value) {
                     Surface(
                         modifier = Modifier.padding(top = 2.dp),
-                        shape = RoundedCornerShape(4.dp),
-                        color = MaterialTheme.colorScheme.primary,
+                        shape = RoundedCornerShape(6.dp),
+                        color = Color(0xB3404040),  // Semi-transparent dark gray (same as location labels)
                         shadowElevation = 4.dp
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            TriangleDownIcon(size = (12 * scaleFactor).dp)
+                            ShortcutKeyChip(
+                                text = "Enter",
+                                color = Color.White
+                            )
                             Text(
-                                "Enter",
+                                stringResource(Res.string.to_select),
                                 style = MaterialTheme.typography.labelSmall.copy(fontSize = (9 * scaleFactor).sp),
                                 color = Color.White
                             )

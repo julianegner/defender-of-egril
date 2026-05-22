@@ -388,18 +388,26 @@ fun MainMenuScreen(
                             Column(verticalArrangement = Arrangement.Top, horizontalAlignment = Alignment.End) {
                                 val installationInfoLabel = stringResource(Res.string.tooltip_info_installation)
                                 TooltipWrapper(text = installationInfoLabel) {
-                                    IconButton(
-                                        onClick = onShowInstallationInfo,
-                                        modifier = Modifier.size(40.dp).semantics { contentDescription = installationInfoLabel }
-                                    ) {
-                                        FilledSymbol(icon = MaterialSymbols.INFO, size = 28.dp)
+                                    Box {
+                                        IconButton(
+                                            onClick = onShowInstallationInfo,
+                                            modifier = Modifier.size(40.dp).semantics { contentDescription = installationInfoLabel }
+                                        ) {
+                                            FilledSymbol(icon = MaterialSymbols.INFO, size = 28.dp)
+                                        }
+                                        if (AppSettings.showButtonShortcutHints.value) {
+                                            Box(modifier = Modifier.align(Alignment.BottomEnd)) {
+                                                ShortcutKeyChip(text = "I")
+                                            }
+                                        }
                                     }
                                 }
-                                FeedbackButton()
+                                FeedbackButton(shortcutKey = ".")
                                 SettingsButton(
                                     initiallyOpen = openSettingsInitially,
                                     initialTab = settingsInitialTab,
-                                    onInitialOpenHandled = onSettingsInitialOpenHandled
+                                    onInitialOpenHandled = onSettingsInitialOpenHandled,
+                                    shortcutKey = ","
                                 )
                             }
                         }
@@ -512,18 +520,26 @@ fun MainMenuScreen(
                             Column(verticalArrangement = Arrangement.Top, horizontalAlignment = Alignment.End) {
                                 val installationInfoLabel = stringResource(Res.string.tooltip_info_installation)
                                 TooltipWrapper(text = installationInfoLabel) {
-                                    IconButton(
-                                        onClick = onShowInstallationInfo,
-                                        modifier = Modifier.size(40.dp).semantics { contentDescription = installationInfoLabel }
-                                    ) {
-                                        FilledSymbol(icon = MaterialSymbols.INFO, size = 28.dp)
+                                    Box {
+                                        IconButton(
+                                            onClick = onShowInstallationInfo,
+                                            modifier = Modifier.size(40.dp).semantics { contentDescription = installationInfoLabel }
+                                        ) {
+                                            FilledSymbol(icon = MaterialSymbols.INFO, size = 28.dp)
+                                        }
+                                        if (AppSettings.showButtonShortcutHints.value) {
+                                            Box(modifier = Modifier.align(Alignment.BottomEnd)) {
+                                                ShortcutKeyChip(text = "I")
+                                            }
+                                        }
                                     }
                                 }
-                                FeedbackButton()
+                                FeedbackButton(shortcutKey = ".")
                                 SettingsButton(
                                     initiallyOpen = openSettingsInitially,
                                     initialTab = settingsInitialTab,
-                                    onInitialOpenHandled = onSettingsInitialOpenHandled
+                                    onInitialOpenHandled = onSettingsInitialOpenHandled,
+                                    shortcutKey = ","
                                 )
                             }
                         }
@@ -601,18 +617,26 @@ fun MainMenuScreen(
                 ) {
                     val installationInfoLabel = stringResource(Res.string.tooltip_info_installation)
                     TooltipWrapper(text = installationInfoLabel) {
-                        IconButton(
-                            onClick = onShowInstallationInfo,
-                            modifier = Modifier.size(48.dp).semantics { contentDescription = installationInfoLabel }
-                        ) {
-                            FilledSymbol(icon = MaterialSymbols.INFO, size = 32.dp)
+                        Box {
+                            IconButton(
+                                onClick = onShowInstallationInfo,
+                                modifier = Modifier.size(48.dp).semantics { contentDescription = installationInfoLabel }
+                            ) {
+                                FilledSymbol(icon = MaterialSymbols.INFO, size = 32.dp)
+                            }
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                Box(modifier = Modifier.align(Alignment.BottomEnd)) {
+                                    ShortcutKeyChip(text = "I")
+                                }
+                            }
                         }
                     }
-                    FeedbackButton()
+                    FeedbackButton(shortcutKey = ".")
                     SettingsButton(
                         initiallyOpen = openSettingsInitially,
                         initialTab = settingsInitialTab,
-                        onInitialOpenHandled = onSettingsInitialOpenHandled
+                        onInitialOpenHandled = onSettingsInitialOpenHandled,
+                        shortcutKey = ","
                     )
                 }
 
@@ -906,8 +930,8 @@ fun LevelCompleteScreen(
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                FeedbackButton()
-                SettingsButton()
+                FeedbackButton(shortcutKey = ".")
+                SettingsButton(shortcutKey = ",")
             }
             }
             

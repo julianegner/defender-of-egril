@@ -3,12 +3,18 @@ package de.egril.defender.ui.gameplay
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -40,6 +46,7 @@ import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.utils.isLimitedInputDevice
 import de.egril.defender.utils.isPlatformMobile
+import kotlinx.coroutines.launch
 
 @Composable
 fun GameHeader(
@@ -464,11 +471,36 @@ fun GameHeader(
         Dialog(
             onDismissRequest = { showTutorialsHelpDialog = false }
         ) {
+            val helpFocusRequester = remember { FocusRequester() }
+            val helpScrollState = rememberScrollState()
+            val coroutineScope = rememberCoroutineScope()
+            LaunchedEffect(Unit) { helpFocusRequester.requestFocus() }
             Card(
                 modifier = Modifier
                     .width(700.dp)
                     .heightIn(max = 700.dp)
-                    .padding(8.dp),
+                    .padding(8.dp)
+                    .focusRequester(helpFocusRequester)
+                    .focusTarget()
+                    .onPreviewKeyEvent { event ->
+                        if (event.type == KeyEventType.KeyDown) {
+                            when (event.key) {
+                                Key.Escape, Key.Back -> {
+                                    showTutorialsHelpDialog = false
+                                    true
+                                }
+                                Key.DirectionDown -> {
+                                    coroutineScope.launch { helpScrollState.animateScrollTo(helpScrollState.value + 150) }
+                                    true
+                                }
+                                Key.DirectionUp -> {
+                                    coroutineScope.launch { helpScrollState.animateScrollTo((helpScrollState.value - 150).coerceAtLeast(0)) }
+                                    true
+                                }
+                                else -> false
+                            }
+                        } else false
+                    },
                 shape = RoundedCornerShape(12.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
@@ -484,7 +516,25 @@ fun GameHeader(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Box(modifier = Modifier.weight(1f)) {
-                        HowToPlayContent()
+                        Column(modifier = Modifier.verticalScroll(helpScrollState)) {
+                            HowToPlayContent()
+                        }
+                    }
+                    // Scroll hint
+                    if (AppSettings.showButtonShortcutHints.value) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            ShortcutKeyChip(text = "\u2191\u2193")
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                stringResource(Res.string.keyboard_nav_scroll),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            )
+                        }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(
@@ -492,6 +542,10 @@ fun GameHeader(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(stringResource(Res.string.got_it))
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            ShortcutKeyChip(text = "Esc", color = LocalContentColor.current.copy(alpha = 0.75f))
+                        }
                     }
                 }
             }

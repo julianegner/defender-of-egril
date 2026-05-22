@@ -164,12 +164,29 @@ fun LevelLocationDialog(
                                     }
                                 )
                             }
-                            // Shortcut chip on preselected card
+                            // Shortcut chip on preselected card - bottom row with "to select" text
                             if (isSelected && AppSettings.showButtonShortcutHints.value) {
-                                ShortcutKeyChip(
-                                    text = "Enter",
-                                    modifier = Modifier.align(Alignment.CenterEnd).padding(end = 8.dp)
-                                )
+                                Surface(
+                                    modifier = Modifier.align(Alignment.BottomStart).padding(start = 8.dp, bottom = 8.dp),
+                                    shape = RoundedCornerShape(6.dp),
+                                    color = Color(0xB3404040)
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    ) {
+                                        ShortcutKeyChip(
+                                            text = "Enter",
+                                            color = Color.White
+                                        )
+                                        Text(
+                                            stringResource(Res.string.to_select),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = Color.White
+                                        )
+                                    }
+                                }
                             }
                         }
                     }

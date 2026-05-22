@@ -11,6 +11,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
@@ -59,11 +62,15 @@ fun SettingsDialog(
         )
     }
     Dialog(onDismissRequest = onDismiss) {
+        val focusRequester = remember { FocusRequester() }
+        LaunchedEffect(Unit) { focusRequester.requestFocus() }
         Surface(
             modifier = Modifier
                 .widthIn(min = 300.dp, max = 500.dp)
                 .fillMaxHeight(fraction = 0.9f)
                 .heightIn(max = 680.dp)
+                .focusRequester(focusRequester)
+                .focusTarget()
                 .onPreviewKeyEvent { event ->
                     if (event.type == KeyEventType.KeyDown) {
                         when (event.key) {

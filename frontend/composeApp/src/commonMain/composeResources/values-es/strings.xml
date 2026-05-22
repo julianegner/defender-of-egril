@@ -86,6 +86,7 @@
     <string name="upgrade">Mejorar</string>
     <string name="sell">Vender</string>
     <string name="selected">Seleccionado</string>
+    <string name="to_select">para seleccionar</string>
     <string name="attack">Ataque</string>
     <string name="end_turn">Terminar turno</string>
     <string name="next_turn">Siguiente turno</string>

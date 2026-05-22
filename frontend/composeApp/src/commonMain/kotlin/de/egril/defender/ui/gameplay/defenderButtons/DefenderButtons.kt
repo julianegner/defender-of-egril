@@ -159,7 +159,7 @@ fun DefenderButton(
         }
         // Show shortcut number chip - positioned left of the stats column
         if (AppSettings.showButtonShortcutHints.value && shortcutIndex != null) {
-            Box(modifier = Modifier.align(Alignment.CenterEnd).padding(end = 48.dp)) {
+            Box(modifier = Modifier.align(Alignment.CenterEnd).padding(end = 60.dp)) {
                 ShortcutKeyChip(text = "${shortcutIndex + 1}")
             }
         }
