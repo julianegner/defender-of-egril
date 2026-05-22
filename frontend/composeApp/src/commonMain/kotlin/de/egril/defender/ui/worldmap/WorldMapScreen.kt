@@ -290,7 +290,8 @@ fun WorldMapScreen(
                         }
                         // Tab: Cycle through map locations
                         event.key == Key.Tab && !event.isShiftPressed && imageMapActiveTab == null -> {
-                            val locationCount = visibleWorldLevels.map { it.level.locationId }.distinct().size
+                            val locationCount = de.egril.defender.editor.EditorStorage.getWorldMapData().locations.size
+                                .coerceAtLeast(visibleWorldLevels.size)
                             if (locationCount > 0) {
                                 keyboardFocusedLocationIndex = (keyboardFocusedLocationIndex + 1) % locationCount
                             }
@@ -298,7 +299,8 @@ fun WorldMapScreen(
                         }
                         // Shift+Tab: Cycle backwards through map locations
                         event.key == Key.Tab && event.isShiftPressed && imageMapActiveTab == null -> {
-                            val locationCount = visibleWorldLevels.map { it.level.locationId }.distinct().size
+                            val locationCount = de.egril.defender.editor.EditorStorage.getWorldMapData().locations.size
+                                .coerceAtLeast(visibleWorldLevels.size)
                             if (locationCount > 0) {
                                 keyboardFocusedLocationIndex = if (keyboardFocusedLocationIndex <= 0) locationCount - 1
                                     else keyboardFocusedLocationIndex - 1
