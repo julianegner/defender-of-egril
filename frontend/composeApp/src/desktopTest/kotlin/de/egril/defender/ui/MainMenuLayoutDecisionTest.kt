@@ -58,4 +58,24 @@ class MainMenuLayoutDecisionTest {
             )
         )
     }
+
+    @Test
+    fun androidDoesNotShowExitGameButton() {
+        assertFalse(
+            shouldShowExitGameButton(
+                isAndroid = true,
+                isIos = false
+            )
+        )
+    }
+
+    @Test
+    fun desktopStillShowsExitGameButton() {
+        assertTrue(
+            shouldShowExitGameButton(
+                isAndroid = false,
+                isIos = false
+            )
+        )
+    }
 }
