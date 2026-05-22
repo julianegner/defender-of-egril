@@ -38,7 +38,7 @@ import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.SettingsHintBox
 import de.egril.defender.ui.feedback.FeedbackButton
-import de.egril.defender.utils.isPlatformAndroid
+import de.egril.defender.utils.isPlatformDesktop
 import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.utils.isPlatformWasm
 import de.egril.defender.ui.isMobileWebBrowser
@@ -65,10 +65,7 @@ internal fun shouldUseCompactMainMenuLayout(
     isMobileWeb: Boolean
 ): Boolean = isNativeMobile || isMobileWeb
 
-internal fun shouldShowExitGameButton(
-    isAndroid: Boolean,
-    isIos: Boolean
-): Boolean = !isAndroid && !isIos
+internal fun shouldShowExitGameButton(isDesktop: Boolean): Boolean = isDesktop
 
 /** Returns true when LevelComplete screen should use a compact, scrollable mobile layout. */
 internal fun shouldUseMobileLevelCompleteLayout(
@@ -183,10 +180,7 @@ fun MainMenuScreen(
                 isNativeMobile = isPlatformMobile,
                 isMobileWeb = isMobileWeb
             )
-            val showExitGameButton = shouldShowExitGameButton(
-                isAndroid = isPlatformAndroid,
-                isIos = isPlatformIos
-            )
+            val showExitGameButton = shouldShowExitGameButton(isDesktop = isPlatformDesktop)
             // Pre-compute at BoxWithConstraints scope where maxHeight/maxWidth are in scope
             val mobileLandscapeBannerHeight = (maxHeight * 0.40f).coerceAtLeast(72.dp).coerceAtMost(140.dp)
             // Desktop banner: height = available width / (aspect-ratio × 1.5) — 2/3 of the full-width size.
