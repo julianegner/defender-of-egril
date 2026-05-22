@@ -157,9 +157,9 @@ fun DefenderButton(
                     .border(2.dp, SpellInstantTowerColor, RoundedCornerShape(percent = 50))
             )
         }
-        // Show shortcut number chip overlay in top-start corner
+        // Show shortcut number chip - positioned left of the stats column
         if (AppSettings.showButtonShortcutHints.value && shortcutIndex != null) {
-            Box(modifier = Modifier.align(Alignment.TopStart).padding(2.dp)) {
+            Box(modifier = Modifier.align(Alignment.CenterEnd).padding(end = 48.dp)) {
                 ShortcutKeyChip(text = "${shortcutIndex + 1}")
             }
         }

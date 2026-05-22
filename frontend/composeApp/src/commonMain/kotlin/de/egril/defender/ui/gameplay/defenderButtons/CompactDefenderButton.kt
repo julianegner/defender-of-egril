@@ -99,6 +99,15 @@ fun CompactDefenderButton(
                     modifier = Modifier.weight(1f),
                     color = if (isSelected && isDarkMode) Color.White else Color.White  // Ensure bright text
                 )
+                
+                // Shortcut chip right of tower name
+                if (AppSettings.showButtonShortcutHints.value && shortcutIndex != null) {
+                    Spacer(modifier = Modifier.width(2.dp))
+                    ShortcutKeyChip(
+                        text = "${shortcutIndex + 1}",
+                        color = Color.White.copy(alpha = 0.85f)
+                    )
+                }
 
                 Spacer(modifier = Modifier.width(4.dp))
 
@@ -125,12 +134,6 @@ fun CompactDefenderButton(
                 modifier = Modifier.fillMaxSize()
                     .border(2.dp, SpellInstantTowerColor, RoundedCornerShape(percent = 50))
             )
-        }
-        // Show shortcut number chip overlay in top-start corner
-        if (AppSettings.showButtonShortcutHints.value && shortcutIndex != null) {
-            Box(modifier = Modifier.align(Alignment.TopStart).padding(2.dp)) {
-                ShortcutKeyChip(text = "${shortcutIndex + 1}")
-            }
         }
     }
 }

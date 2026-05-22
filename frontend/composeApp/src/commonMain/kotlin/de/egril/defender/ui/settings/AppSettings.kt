@@ -97,6 +97,7 @@ object AppSettings {
     private const val KEY_SHORTCUT_NEXT_ENEMY_TARGET = "shortcut_next_enemy_target"
     private const val KEY_SHORTCUT_PREV_ENEMY_TARGET = "shortcut_prev_enemy_target"
     private const val KEY_SHORTCUT_BACK_TO_WORLDMAP = "shortcut_back_to_worldmap"
+    private const val KEY_SHORTCUT_TOGGLE_AUDIO = "shortcut_toggle_audio"
     private const val DEFAULT_SHORTCUT_ATTACK_SELECTED_TARGET = "F"
     private const val DEFAULT_SHORTCUT_SELECT_NEXT_TOWER = "Tab"
     private const val DEFAULT_SHORTCUT_SELECT_PREVIOUS_TOWER = "Shift+Tab"
@@ -118,6 +119,7 @@ object AppSettings {
     private const val DEFAULT_SHORTCUT_NEXT_ENEMY_TARGET = "N"
     private const val DEFAULT_SHORTCUT_PREV_ENEMY_TARGET = "Shift+N"
     private const val DEFAULT_SHORTCUT_BACK_TO_WORLDMAP = "Escape"
+    private const val DEFAULT_SHORTCUT_TOGGLE_AUDIO = "P"
     
     private val settings: Settings = Settings()
 
@@ -497,6 +499,13 @@ object AppSettings {
         normalizeShortcutBinding(
             settings[KEY_SHORTCUT_BACK_TO_WORLDMAP, DEFAULT_SHORTCUT_BACK_TO_WORLDMAP],
             DEFAULT_SHORTCUT_BACK_TO_WORLDMAP
+        )
+    )
+
+    val shortcutToggleAudio: MutableState<String> = mutableStateOf(
+        normalizeShortcutBinding(
+            settings[KEY_SHORTCUT_TOGGLE_AUDIO, DEFAULT_SHORTCUT_TOGGLE_AUDIO],
+            DEFAULT_SHORTCUT_TOGGLE_AUDIO
         )
     )
 
@@ -983,6 +992,13 @@ object AppSettings {
         onPersist?.invoke()
     }
 
+    fun saveShortcutToggleAudio(shortcut: String) {
+        val normalized = normalizeShortcutBinding(shortcut, DEFAULT_SHORTCUT_TOGGLE_AUDIO)
+        shortcutToggleAudio.value = normalized
+        settings[KEY_SHORTCUT_TOGGLE_AUDIO] = normalized
+        onPersist?.invoke()
+    }
+
     fun resetShortcutBindings() {
         saveShortcutAttackSelectedTarget(DEFAULT_SHORTCUT_ATTACK_SELECTED_TARGET)
         saveShortcutSelectNextTower(DEFAULT_SHORTCUT_SELECT_NEXT_TOWER)
@@ -1005,6 +1021,7 @@ object AppSettings {
         saveShortcutNextEnemyTarget(DEFAULT_SHORTCUT_NEXT_ENEMY_TARGET)
         saveShortcutPrevEnemyTarget(DEFAULT_SHORTCUT_PREV_ENEMY_TARGET)
         saveShortcutBackToWorldMap(DEFAULT_SHORTCUT_BACK_TO_WORLDMAP)
+        saveShortcutToggleAudio(DEFAULT_SHORTCUT_TOGGLE_AUDIO)
     }
 
     fun getDefaultShortcutBindings(): Map<String, String> = mapOf(
@@ -1025,7 +1042,8 @@ object AppSettings {
         KEY_SHORTCUT_UPGRADE_SELECTED_TOWER to DEFAULT_SHORTCUT_UPGRADE_SELECTED_TOWER,
         KEY_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER to DEFAULT_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER,
         KEY_SHORTCUT_TOGGLE_SPELL_MENU to DEFAULT_SHORTCUT_TOGGLE_SPELL_MENU,
-        KEY_SHORTCUT_SWITCH_TO_TOWER_MODE to DEFAULT_SHORTCUT_SWITCH_TO_TOWER_MODE
+        KEY_SHORTCUT_SWITCH_TO_TOWER_MODE to DEFAULT_SHORTCUT_SWITCH_TO_TOWER_MODE,
+        KEY_SHORTCUT_TOGGLE_AUDIO to DEFAULT_SHORTCUT_TOGGLE_AUDIO
     )
 
     fun getAccessibilityPreferences(): AccessibilityPreferences {
@@ -1093,6 +1111,7 @@ object AppSettings {
         put(KEY_SHORTCUT_NEXT_ENEMY_TARGET, shortcutNextEnemyTarget.value)
         put(KEY_SHORTCUT_PREV_ENEMY_TARGET, shortcutPrevEnemyTarget.value)
         put(KEY_SHORTCUT_BACK_TO_WORLDMAP, shortcutBackToWorldMap.value)
+        put(KEY_SHORTCUT_TOGGLE_AUDIO, shortcutToggleAudio.value)
     }
 
     /**
@@ -1159,6 +1178,7 @@ object AppSettings {
             map[KEY_SHORTCUT_UNDO_OR_SELL_SELECTED_TOWER]?.let { saveShortcutUndoOrSellSelectedTower(it) }
             map[KEY_SHORTCUT_TOGGLE_SPELL_MENU]?.let { saveShortcutToggleSpellMenu(it) }
             map[KEY_SHORTCUT_SWITCH_TO_TOWER_MODE]?.let { saveShortcutSwitchToTowerMode(it) }
+            map[KEY_SHORTCUT_TOGGLE_AUDIO]?.let { saveShortcutToggleAudio(it) }
         } finally {
             onPersist = savedCallback
         }

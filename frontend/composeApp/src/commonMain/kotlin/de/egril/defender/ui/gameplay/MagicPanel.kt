@@ -33,6 +33,8 @@ import de.egril.defender.ui.icon.SnowflakeIcon
 import de.egril.defender.ui.icon.TowerIcon
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.getLocalizedName
+import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.formatShortcutBindingForDisplay
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -93,6 +95,13 @@ fun MagicPanel(
                     Spacer(modifier = Modifier.width(8.dp))
                     TextButton(onClick = onClose, contentPadding = PaddingValues(4.dp)) {
                         Text(stringResource(Res.string.close), style = MaterialTheme.typography.bodySmall)
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            ShortcutKeyChip(
+                                text = formatShortcutBindingForDisplay(AppSettings.shortcutToggleSpellMenu.value),
+                                color = LocalContentColor.current.copy(alpha = 0.75f)
+                            )
+                        }
                     }
                 }
             }

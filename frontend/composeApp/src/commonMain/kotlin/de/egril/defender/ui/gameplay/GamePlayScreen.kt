@@ -980,6 +980,12 @@ private fun GamePlayScreenContent(
                     triggerShowHelp = true
                     true
                 }
+                // P (remappable): Toggle audio on/off
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutToggleAudio.value) -> {
+                    AppSettings.saveSoundEnabled(!AppSettings.isSoundEnabled.value)
+                    true
+                }
                 // Reuses the "next enemy target" binding (default N) for cycling build tiles in tower-place mode
                 event.type == KeyEventType.KeyDown &&
                         isShortcutBindingPressed(event, AppSettings.shortcutNextEnemyTarget.value) &&
