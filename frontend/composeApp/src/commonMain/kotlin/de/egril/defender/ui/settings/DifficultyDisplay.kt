@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -38,7 +39,7 @@ fun DifficultyDisplay(
             )
             if (shortcutKey != null && AppSettings.showButtonShortcutHints.value) {
                 Spacer(modifier = Modifier.width(4.dp))
-                de.egril.defender.ui.gameplay.ShortcutKeyChip(text = shortcutKey)
+                ShortcutKeyChip(text = shortcutKey)
             }
         }
         

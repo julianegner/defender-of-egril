@@ -24,6 +24,7 @@ import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.ui.settings.DifficultyDisplay
+import de.egril.defender.ui.settings.DifficultyLevel
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.isShortcutBindingPressed
 import de.egril.defender.editor.RepositoryManager
@@ -314,7 +315,7 @@ fun WorldMapScreen(
                         }
                         // D: Cycle difficulty level
                         event.key == Key.D && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
-                            val levels = de.egril.defender.ui.settings.DifficultyLevel.entries
+                            val levels = DifficultyLevel.entries
                             val currentIndex = levels.indexOf(AppSettings.difficulty.value)
                             val nextIndex = (currentIndex + 1) % levels.size
                             AppSettings.saveDifficulty(levels[nextIndex])
