@@ -8,7 +8,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.withTransform
 
 /**
- * Draw Ewhad symbol (evil arch mage boss) - unique symbol ☠ Ψ
+ * Draw Ewhad symbol (evil arch mage boss) - unique skull and trident symbol
  */
 fun DrawScope.drawEwhadSymbol(centerX: Float, centerY: Float, size: Float, outlineColor: Color? = null, headScale: Float = 1.0f) {
     val headCenterY = centerY - size * 0.05f

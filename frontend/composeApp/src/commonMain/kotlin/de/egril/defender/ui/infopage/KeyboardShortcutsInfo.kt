@@ -239,7 +239,7 @@ fun KeyboardShortcutsInfo(
                     buttonTestTag = "shortcut-binding-save-game"
                 )
                 DirectionalShortcutBindingRow(
-                    arrowSymbol = "↑",
+                    arrowSymbol = "Up",
                     key = AppSettings.shortcutPanUp.value,
                     defaultKey = "W",
                     description = stringResource(Res.string.keyboard_shortcut_pan_up),
@@ -248,7 +248,7 @@ fun KeyboardShortcutsInfo(
                     buttonTestTag = "shortcut-binding-pan-up"
                 )
                 DirectionalShortcutBindingRow(
-                    arrowSymbol = "↓",
+                    arrowSymbol = "Down",
                     key = AppSettings.shortcutPanDown.value,
                     defaultKey = "S",
                     description = stringResource(Res.string.keyboard_shortcut_pan_down),
@@ -257,7 +257,7 @@ fun KeyboardShortcutsInfo(
                     buttonTestTag = "shortcut-binding-pan-down"
                 )
                 DirectionalShortcutBindingRow(
-                    arrowSymbol = "←",
+                    arrowSymbol = "Left",
                     key = AppSettings.shortcutPanLeft.value,
                     defaultKey = "A",
                     description = stringResource(Res.string.keyboard_shortcut_pan_left),
@@ -266,7 +266,7 @@ fun KeyboardShortcutsInfo(
                     buttonTestTag = "shortcut-binding-pan-left"
                 )
                 DirectionalShortcutBindingRow(
-                    arrowSymbol = "→",
+                    arrowSymbol = "Right",
                     key = AppSettings.shortcutPanRight.value,
                     defaultKey = "D",
                     description = stringResource(Res.string.keyboard_shortcut_pan_right),
