@@ -882,12 +882,31 @@ fun MainMenuScreen(
                             containerColor = MaterialTheme.colorScheme.error
                         )
                     ) {
-                        Text(stringResource(Res.string.exit))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(stringResource(Res.string.exit))
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                ShortcutKeyChip(
+                                    text = "Enter",
+                                    color = LocalContentColor.current.copy(alpha = 0.75f)
+                                )
+                            }
+                        }
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showExitConfirmation = false }) {
-                        Text(stringResource(Res.string.cancel))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(stringResource(Res.string.cancel))
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                ShortcutKeyChip(text = "Esc")
+                            }
+                        }
                     }
                 }
             )
