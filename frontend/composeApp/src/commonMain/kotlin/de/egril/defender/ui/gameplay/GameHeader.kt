@@ -516,9 +516,7 @@ fun GameHeader(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Box(modifier = Modifier.weight(1f)) {
-                        Column(modifier = Modifier.verticalScroll(helpScrollState)) {
-                            HowToPlayContent()
-                        }
+                        HowToPlayContent(scrollState = helpScrollState)
                     }
                     // Scroll hint
                     if (AppSettings.showButtonShortcutHints.value) {

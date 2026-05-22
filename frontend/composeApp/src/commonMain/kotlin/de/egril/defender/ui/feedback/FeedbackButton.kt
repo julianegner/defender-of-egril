@@ -56,7 +56,7 @@ fun FeedbackButton(
                 )
             }
             if (shortcutKey != null && AppSettings.showButtonShortcutHints.value) {
-                Box(modifier = Modifier.align(Alignment.BottomEnd)) {
+                Box(modifier = Modifier.align(Alignment.CenterEnd)) {
                     ShortcutKeyChip(text = shortcutKey)
                 }
             }

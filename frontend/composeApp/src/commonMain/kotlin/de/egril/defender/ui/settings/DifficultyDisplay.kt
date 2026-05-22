@@ -17,23 +17,30 @@ import defender_of_egril.composeapp.generated.resources.*
 @Composable
 fun DifficultyDisplay(
     modifier: Modifier = Modifier,
-    isClickable: Boolean = false
+    isClickable: Boolean = false,
+    shortcutKey: String? = null
 ) {
     val currentDifficulty = AppSettings.difficulty.value
     var showDropdown by remember { mutableStateOf(false) }
     
     Box(modifier = modifier) {
-        Text(
-            text = getDifficultyDisplayName(currentDifficulty),
-            style = MaterialTheme.typography.bodyMedium,
-            fontStyle = FontStyle.Italic,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = if (isClickable) {
-                Modifier.clickable { showDropdown = !showDropdown }
-            } else {
-                Modifier
+        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+            Text(
+                text = getDifficultyDisplayName(currentDifficulty),
+                style = MaterialTheme.typography.bodyMedium,
+                fontStyle = FontStyle.Italic,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = if (isClickable) {
+                    Modifier.clickable { showDropdown = !showDropdown }
+                } else {
+                    Modifier
+                }
+            )
+            if (shortcutKey != null && AppSettings.showButtonShortcutHints.value) {
+                Spacer(modifier = Modifier.width(4.dp))
+                de.egril.defender.ui.gameplay.ShortcutKeyChip(text = shortcutKey)
             }
-        )
+        }
         
         // Show dropdown if clickable and opened
         if (isClickable && showDropdown) {

@@ -396,7 +396,7 @@ fun MainMenuScreen(
                                             FilledSymbol(icon = MaterialSymbols.INFO, size = 28.dp)
                                         }
                                         if (AppSettings.showButtonShortcutHints.value) {
-                                            Box(modifier = Modifier.align(Alignment.BottomEnd)) {
+                                            Box(modifier = Modifier.align(Alignment.CenterEnd)) {
                                                 ShortcutKeyChip(text = "I")
                                             }
                                         }
@@ -528,7 +528,7 @@ fun MainMenuScreen(
                                             FilledSymbol(icon = MaterialSymbols.INFO, size = 28.dp)
                                         }
                                         if (AppSettings.showButtonShortcutHints.value) {
-                                            Box(modifier = Modifier.align(Alignment.BottomEnd)) {
+                                            Box(modifier = Modifier.align(Alignment.CenterEnd)) {
                                                 ShortcutKeyChip(text = "I")
                                             }
                                         }
@@ -625,7 +625,7 @@ fun MainMenuScreen(
                                 FilledSymbol(icon = MaterialSymbols.INFO, size = 32.dp)
                             }
                             if (AppSettings.showButtonShortcutHints.value) {
-                                Box(modifier = Modifier.align(Alignment.BottomEnd)) {
+                                Box(modifier = Modifier.align(Alignment.CenterEnd)) {
                                     ShortcutKeyChip(text = "I")
                                 }
                             }

@@ -195,6 +195,11 @@ fun InfoPageScreen(
                     }
                 }
                 
+                // Reset scroll position when tab changes
+                LaunchedEffect(selectedTab) {
+                    contentScrollState.scrollTo(0)
+                }
+                
                 // Content area
                 Box(
                     modifier = Modifier
@@ -203,10 +208,12 @@ fun InfoPageScreen(
                 ) {
                     when (selectedTab) {
                         InfoTab.INSTALLATION -> InstallationInfo()
-                        InfoTab.HOW_TO_PLAY -> HowToPlayContent()
+                        InfoTab.HOW_TO_PLAY -> HowToPlayContent(scrollState = contentScrollState)
                         InfoTab.AUDIO_LICENSES -> AudioLicensesInfo()
                         InfoTab.LICENSE -> LicenseInfo()
-                        InfoTab.KEYBOARD_SHORTCUTS -> KeyboardShortcutsInfo()
+                        InfoTab.KEYBOARD_SHORTCUTS -> Column(modifier = Modifier.verticalScroll(contentScrollState)) {
+                            KeyboardShortcutsInfo()
+                        }
                         InfoTab.BACKEND -> BackendInfo()
                         InfoTab.FEEDBACK -> FeedbackInfo()
                         InfoTab.EDITOR_HOWTO -> EditorHowToContent()
