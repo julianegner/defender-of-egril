@@ -249,7 +249,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                         stmt.setString(14, userName)
                         stmt.setString(15, request.gameLevelName)
                         if (request.gameTurnNumber != null) stmt.setInt(16, request.gameTurnNumber) else stmt.setNull(16, java.sql.Types.INTEGER)
-                        stmt.setString(17, request.currentSettingsJson)
+                        if (request.currentSettingsJson != null) stmt.setString(17, request.currentSettingsJson) else stmt.setNull(17, java.sql.Types.VARCHAR)
                         stmt.setString(18, request.gameStateJson)
                         stmt.setString(19, request.gameLog)
                         if (screenshotBytes != null) stmt.setBytes(20, screenshotBytes) else stmt.setNull(20, java.sql.Types.BINARY)
