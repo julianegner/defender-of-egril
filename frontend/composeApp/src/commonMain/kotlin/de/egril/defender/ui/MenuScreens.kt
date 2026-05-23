@@ -65,8 +65,6 @@ internal fun shouldUseCompactMainMenuLayout(
     isMobileWeb: Boolean
 ): Boolean = isNativeMobile || isMobileWeb
 
-internal fun shouldShowExitGameButton(isDesktop: Boolean): Boolean = isDesktop
-
 /** Returns true when LevelComplete screen should use a compact, scrollable mobile layout. */
 internal fun shouldUseMobileLevelCompleteLayout(
     isNativeMobile: Boolean,
@@ -180,7 +178,7 @@ fun MainMenuScreen(
                 isNativeMobile = isPlatformMobile,
                 isMobileWeb = isMobileWeb
             )
-            val showExitGameButton = shouldShowExitGameButton(isDesktop = isPlatformDesktop)
+            val showExitGameButton = isPlatformDesktop
             // Pre-compute at BoxWithConstraints scope where maxHeight/maxWidth are in scope
             val mobileLandscapeBannerHeight = (maxHeight * 0.40f).coerceAtLeast(72.dp).coerceAtMost(140.dp)
             // Desktop banner: height = available width / (aspect-ratio × 1.5) — 2/3 of the full-width size.
