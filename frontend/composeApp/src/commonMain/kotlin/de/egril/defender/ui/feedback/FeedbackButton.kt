@@ -10,6 +10,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -89,10 +92,13 @@ private fun FeedbackDialog(
     Dialog(onDismissRequest = onDismiss) {
         val scrollState = rememberScrollState()
         val scope = rememberCoroutineScope()
+        val focusRequester = remember { FocusRequester() }
         Surface(
             modifier = Modifier
                 .widthIn(min = 300.dp, max = 560.dp)
                 .fillMaxHeight(fraction = 0.92f)
+                .focusRequester(focusRequester)
+                .focusTarget()
                 .onPreviewKeyEvent { event ->
                     if (event.type == KeyEventType.KeyDown) {
                         when (event.key) {
@@ -120,6 +126,9 @@ private fun FeedbackDialog(
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 6.dp
         ) {
+            LaunchedEffect(Unit) {
+                try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+            }
             Column(
                 modifier = Modifier
                     .padding(16.dp)

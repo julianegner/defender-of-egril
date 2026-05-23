@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -197,8 +198,11 @@ fun SelectPlayerDialog(
     var preselectedIndex by remember { mutableStateOf(if (selectablePlayers.isNotEmpty()) 0 else -1) }
 
     Dialog(onDismissRequest = onDismiss) {
+        val dialogFocusRequester = remember { FocusRequester() }
         Surface(
             modifier = Modifier.widthIn(max = 500.dp).heightIn(max = 600.dp)
+                .focusRequester(dialogFocusRequester)
+                .focusTarget()
                 .onPreviewKeyEvent { event ->
                     if (event.type == KeyEventType.KeyDown) {
                         when (event.key) {
@@ -245,6 +249,9 @@ fun SelectPlayerDialog(
             shape = MaterialTheme.shapes.medium,
             color = MaterialTheme.colorScheme.surface
         ) {
+            LaunchedEffect(Unit) {
+                try { dialogFocusRequester.requestFocus() } catch (_: IllegalStateException) {}
+            }
             Column(
                 modifier = Modifier.padding(24.dp)
             ) {
