@@ -26,6 +26,7 @@ data class FeedbackSubmissionRequest(
     val commitHash: String? = null,
     val gameLevelName: String? = null,
     val gameTurnNumber: Int? = null,
+    val currentSettingsJson: String? = null,
     val gameStateJson: String? = null,
     val gameLog: String? = null,
     val screenshotBase64: String? = null,
