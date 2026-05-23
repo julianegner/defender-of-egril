@@ -89,11 +89,11 @@ fun PlayerProfileScreen(
                                 true
                             }
                             // Left/Right arrows → switch tabs
-                            event.key == Key.DirectionLeft && !event.isCtrlPressed -> {
+                            event.key == Key.DirectionLeft && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
                                 if (selectedTabIndex > 0) selectedTabIndex--
                                 true
                             }
-                            event.key == Key.DirectionRight && !event.isCtrlPressed -> {
+                            event.key == Key.DirectionRight && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
                                 if (selectedTabIndex < 1) selectedTabIndex++
                                 true
                             }
@@ -113,11 +113,11 @@ fun PlayerProfileScreen(
                                 true
                             }
                             // Up/Down arrows → scroll tab content
-                            event.key == Key.DirectionUp && !event.isCtrlPressed -> {
+                            event.key == Key.DirectionUp && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
                                 scope.launch { tabScrollState.animateScrollTo((tabScrollState.value - 120).coerceAtLeast(0)) }
                                 true
                             }
-                            event.key == Key.DirectionDown && !event.isCtrlPressed -> {
+                            event.key == Key.DirectionDown && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
                                 scope.launch { tabScrollState.animateScrollTo((tabScrollState.value + 120).coerceAtMost(tabScrollState.maxValue)) }
                                 true
                             }
@@ -743,6 +743,32 @@ private fun StatsAndAbilitiesContent(
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
+        // Keyboard navigation hint for abilities/spells
+        if (AppSettings.showButtonShortcutHints.value && stats.availableAbilityPoints > 0) {
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ShortcutKeyChip(text = "Tab")
+                    Text(
+                        text = stringResource(Res.string.keyboard_nav_next),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    ShortcutKeyChip(text = "Enter")
+                    Text(
+                        text = stringResource(Res.string.keyboard_nav_upgrade),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
         
         // Ability Cards Grid (3 columns)
         var showConstructionInfo by remember { mutableStateOf(false) }
