@@ -137,6 +137,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                 if (event.versionName != null) append(" version=${event.versionName}")
                 if (event.commitHash != null) append(" commit=${event.commitHash}")
                 if (event.turnNumber != null) append(" turn=${event.turnNumber}")
+                if (event.difficulty != null) append(" difficulty=${event.difficulty}")
                 if (authUser != null) append(" user=$authUser")
             }
             analyticsLogger.info(message)
@@ -144,7 +145,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
             dataSourceRef.get()?.connection?.use { conn ->
                 try {
                     conn.prepareStatement(
-                        "INSERT INTO events (event_type, platform, platform_long, platform_extended, os_name, level_name, version_name, commit_hash, user_name, turn_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                        "INSERT INTO events (event_type, platform, platform_long, platform_extended, os_name, level_name, version_name, commit_hash, user_name, turn_number, difficulty) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                     ).use { stmt ->
                         stmt.setString(1, event.event)
                         stmt.setString(2, event.platform)
@@ -156,6 +157,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                         stmt.setString(8, event.commitHash)
                         stmt.setString(9, authUser)
                         if (event.turnNumber != null) stmt.setInt(10, event.turnNumber) else stmt.setNull(10, java.sql.Types.INTEGER)
+                        stmt.setString(11, event.difficulty)
                         stmt.executeUpdate()
                     }
                 } catch (e: Exception) {

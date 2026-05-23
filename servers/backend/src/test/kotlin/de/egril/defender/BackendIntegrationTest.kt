@@ -129,6 +129,18 @@ class BackendIntegrationTest {
                     }
                 }
             }
+
+        private fun latestEventDifficulty(levelName: String): String? =
+            testDataSource.connection.use { conn ->
+                conn.prepareStatement(
+                    "SELECT difficulty FROM events WHERE level_name = ? ORDER BY id DESC LIMIT 1"
+                ).use { stmt ->
+                    stmt.setString(1, levelName)
+                    stmt.executeQuery().use { rs ->
+                        if (rs.next()) rs.getString(1) else null
+                    }
+                }
+            }
     }
 
     // -------------------------------------------------------------------------
@@ -636,6 +648,30 @@ class BackendIntegrationTest {
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
         }
+    }
+
+    @Test
+    fun `POST events with difficulty persists difficulty`() = withRealDatabase {
+        val levelName = "difficulty-test-level"
+        client.post("/api/events") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"event":"LEVEL_STARTED","levelName":"$levelName","platform":"DESKTOP","difficulty":"HARD"}""")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+        assertEquals("HARD", latestEventDifficulty(levelName))
+    }
+
+    @Test
+    fun `POST events without difficulty stores null difficulty`() = withRealDatabase {
+        val levelName = "difficulty-null-level"
+        client.post("/api/events") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"event":"LEVEL_STARTED","levelName":"$levelName","platform":"DESKTOP"}""")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+        assertEquals(null, latestEventDifficulty(levelName))
     }
 
     @Test
