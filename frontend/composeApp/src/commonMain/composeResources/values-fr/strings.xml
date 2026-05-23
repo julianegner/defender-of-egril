@@ -1878,7 +1878,7 @@
     <string name="feedback_bug_type_crash">Plantage / Gel</string>
     <string name="feedback_bug_type_crash_desc">Le jeu plante, se fige ou ne répond plus du tout.</string>
 
-    <string name="feedback_form_keyboard_nav_info">Navigation au clavier : Utilisez Tab pour naviguer entre les champs et les boutons. Dans les champs de texte, utilisez Ctrl+Tab pour quitter le champ. Utilisez Espace pour cocher les cases et Entrée pour valider.</string>
+    <string name="feedback_form_keyboard_nav_info">Navigation au clavier : Utilisez Tab pour naviguer entre les champs et les boutons. Dans les champs de texte, utilisez Ctrl+Tab pour quitter le champ. Utilisez Espace pour cocher les cases et Entrée pour valider. Utilisez les flèches Haut/Bas pour faire défiler.</string>
     <string name="keyboard_nav_select">Sélectionner</string>
     <string name="keyboard_nav_upgrade">Améliorer</string>
     <string name="keyboard_nav_buy">Acheter</string>

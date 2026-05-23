@@ -129,24 +129,6 @@ fun PlayerProfileScreen(
             LaunchedEffect(Unit) {
                 try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
             }
-            // Settings and Feedback buttons in top-right corner
-            Row(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                FeedbackButton(
-                    shortcutKey = ".",
-                    triggerOpen = triggerFeedback,
-                    onTriggerHandled = { triggerFeedback = false }
-                )
-                SettingsButton(
-                    shortcutKey = ",",
-                    triggerOpen = triggerSettings,
-                    onTriggerHandled = { triggerSettings = false }
-                )
-            }
             
             Column(
                 modifier = Modifier.fillMaxSize(),
@@ -165,10 +147,9 @@ fun PlayerProfileScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 8.dp)
-                            .padding(end = 56.dp),
+                            .padding(bottom = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         // Player name and info on the LEFT, taking remaining space
                         Row(
@@ -221,7 +202,7 @@ fun PlayerProfileScreen(
                                 }
                             }
                         }
-                        // Expand button on the RIGHT
+                        // Expand button
                         TextButton(
                             onClick = { headerCollapsed = false },
                             modifier = Modifier.height(28.dp)
@@ -235,7 +216,7 @@ fun PlayerProfileScreen(
                                 ShortcutKeyChip(text = "K", color = LocalContentColor.current.copy(alpha = 0.75f))
                             }
                         }
-                        // Switch player button on the RIGHT
+                        // Switch player button
                         OutlinedButton(
                             onClick = onSelectPlayer,
                             modifier = Modifier.height(28.dp)
@@ -245,6 +226,17 @@ fun PlayerProfileScreen(
                                 style = MaterialTheme.typography.bodySmall
                             )
                         }
+                        // Feedback and Settings buttons
+                        FeedbackButton(
+                            shortcutKey = ".",
+                            triggerOpen = triggerFeedback,
+                            onTriggerHandled = { triggerFeedback = false }
+                        )
+                        SettingsButton(
+                            shortcutKey = ",",
+                            triggerOpen = triggerSettings,
+                            onTriggerHandled = { triggerSettings = false }
+                        )
                     }
                 } else {
                     // Full header with player name title, switch player button, and collapse button
@@ -254,8 +246,7 @@ fun PlayerProfileScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = headerBottomPadding)
-                            .padding(end = 56.dp),
+                            .padding(bottom = headerBottomPadding),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
@@ -267,7 +258,7 @@ fun PlayerProfileScreen(
                             color = MaterialTheme.colorScheme.onBackground,
                             modifier = Modifier.weight(1f)
                         )
-                        // Collapse button on the RIGHT
+                        // Collapse button
                         TextButton(
                             onClick = { headerCollapsed = true },
                             modifier = Modifier.height(headerButtonHeight)
@@ -281,7 +272,7 @@ fun PlayerProfileScreen(
                                 ShortcutKeyChip(text = "K", color = LocalContentColor.current.copy(alpha = 0.75f))
                             }
                         }
-                        // Switch player button on the RIGHT
+                        // Switch player button
                         OutlinedButton(
                             onClick = onSelectPlayer,
                             modifier = Modifier.height(headerButtonHeight)
@@ -291,6 +282,17 @@ fun PlayerProfileScreen(
                                 style = MaterialTheme.typography.bodySmall
                             )
                         }
+                        // Feedback and Settings buttons
+                        FeedbackButton(
+                            shortcutKey = ".",
+                            triggerOpen = triggerFeedback,
+                            onTriggerHandled = { triggerFeedback = false }
+                        )
+                        SettingsButton(
+                            shortcutKey = ",",
+                            triggerOpen = triggerSettings,
+                            onTriggerHandled = { triggerSettings = false }
+                        )
                     }
                 }
                 

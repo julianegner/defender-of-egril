@@ -1877,7 +1877,7 @@
     <string name="feedback_bug_type_crash">Bloqueo / Congelamiento</string>
     <string name="feedback_bug_type_crash_desc">El juego se bloquea, se congela o deja de responder completamente.</string>
 
-    <string name="feedback_form_keyboard_nav_info">Navegación por teclado: Usa Tab para moverte entre campos y botones. En campos de texto, usa Ctrl+Tab para salir del campo. Usa Espacio para marcar casillas y Enter para enviar o pulsar botones.</string>
+    <string name="feedback_form_keyboard_nav_info">Navegación por teclado: Usa Tab para moverte entre campos y botones. En campos de texto, usa Ctrl+Tab para salir del campo. Usa Espacio para marcar casillas y Enter para enviar o pulsar botones. Usa las flechas Arriba/Abajo para desplazarte.</string>
     <string name="keyboard_nav_select">Seleccionar</string>
     <string name="keyboard_nav_upgrade">Mejorar</string>
     <string name="keyboard_nav_buy">Comprar</string>

@@ -7,6 +7,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -15,6 +16,8 @@ import androidx.compose.ui.window.Dialog
 import de.egril.defender.save.PlayerProfile
 import de.egril.defender.utils.formatTimestamp
 import de.egril.defender.ui.icon.TrashIcon
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
+import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -162,7 +165,18 @@ fun SelectPlayerDialog(
 ) {
     Dialog(onDismissRequest = onDismiss) {
         Surface(
-            modifier = Modifier.widthIn(max = 500.dp).heightIn(max = 600.dp),
+            modifier = Modifier.widthIn(max = 500.dp).heightIn(max = 600.dp)
+                .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown) {
+                        when (event.key) {
+                            Key.Escape, Key.Back -> {
+                                onDismiss()
+                                true
+                            }
+                            else -> false
+                        }
+                    } else false
+                },
             shape = MaterialTheme.shapes.medium,
             color = MaterialTheme.colorScheme.surface
         ) {
@@ -210,6 +224,10 @@ fun SelectPlayerDialog(
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(stringResource(Res.string.close))
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            ShortcutKeyChip(text = "Esc", color = LocalContentColor.current.copy(alpha = 0.75f))
+                        }
                     }
                     
                     Button(
@@ -280,6 +298,10 @@ private fun PlayerProfileCard(
                 if (!isSelected) {
                     Button(onClick = onSelect) {
                         Text(stringResource(Res.string.select))
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            ShortcutKeyChip(text = "Enter", color = LocalContentColor.current.copy(alpha = 0.75f))
+                        }
                     }
                 }
 

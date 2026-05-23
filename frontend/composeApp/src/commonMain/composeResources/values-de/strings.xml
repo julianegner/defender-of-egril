@@ -1876,7 +1876,7 @@
     <string name="feedback_bug_type_crash">Absturz / Einfrieren</string>
     <string name="feedback_bug_type_crash_desc">Das Spiel stürzt ab, friert ein oder reagiert nicht mehr.</string>
 
-    <string name="feedback_form_keyboard_nav_info">Tastaturnavigation: Verwende Tab, um zwischen Feldern und Schaltflächen zu wechseln. In Textfeldern verwende Strg+Tab, um das Feld zu verlassen. Verwende Leertaste zum Umschalten von Kontrollkästchen und Eingabe zum Absenden.</string>
+    <string name="feedback_form_keyboard_nav_info">Tastaturnavigation: Verwende Tab, um zwischen Feldern und Schaltflächen zu wechseln. In Textfeldern verwende Strg+Tab, um das Feld zu verlassen. Verwende Leertaste zum Umschalten von Kontrollkästchen und Eingabe zum Absenden. Verwende Pfeiltasten Hoch/Runter zum Scrollen.</string>
     <string name="keyboard_nav_select">Auswählen</string>
     <string name="keyboard_nav_upgrade">Aufwerten</string>
     <string name="keyboard_nav_buy">Kaufen</string>

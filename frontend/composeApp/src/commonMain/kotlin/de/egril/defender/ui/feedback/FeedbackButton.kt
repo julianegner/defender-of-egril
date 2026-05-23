@@ -25,6 +25,7 @@ import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.tooltip_feedback
 import defender_of_egril.composeapp.generated.resources.feedback_form_title
 import defender_of_egril.composeapp.generated.resources.close
+import kotlinx.coroutines.launch
 
 /**
  * Feedback button with chat/feedback icon that opens a dialog containing the feedback form.
@@ -86,19 +87,34 @@ private fun FeedbackDialog(
     gameContext: GameFeedbackContext? = null
 ) {
     Dialog(onDismissRequest = onDismiss) {
+        val scrollState = rememberScrollState()
+        val scope = rememberCoroutineScope()
         Surface(
             modifier = Modifier
                 .widthIn(min = 300.dp, max = 560.dp)
                 .fillMaxHeight(fraction = 0.92f)
                 .onPreviewKeyEvent { event ->
-                    if (event.type == KeyEventType.KeyDown &&
-                        (event.key == Key.Back || event.key == Key.Escape)
-                    ) {
-                        onDismiss()
-                        true
-                    } else {
-                        false
-                    }
+                    if (event.type == KeyEventType.KeyDown) {
+                        when (event.key) {
+                            Key.Back, Key.Escape -> {
+                                onDismiss()
+                                true
+                            }
+                            Key.DirectionUp -> {
+                                if (!event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed) {
+                                    scope.launch { scrollState.animateScrollTo((scrollState.value - 120).coerceAtLeast(0)) }
+                                    true
+                                } else false
+                            }
+                            Key.DirectionDown -> {
+                                if (!event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed) {
+                                    scope.launch { scrollState.animateScrollTo((scrollState.value + 120).coerceAtMost(scrollState.maxValue)) }
+                                    true
+                                } else false
+                            }
+                            else -> false
+                        }
+                    } else false
                 },
             shape = RoundedCornerShape(16.dp),
             color = MaterialTheme.colorScheme.surface,
@@ -138,7 +154,7 @@ private fun FeedbackDialog(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(scrollState)
                 ) {
                     FeedbackFormContent(
                         showTitle = false,
