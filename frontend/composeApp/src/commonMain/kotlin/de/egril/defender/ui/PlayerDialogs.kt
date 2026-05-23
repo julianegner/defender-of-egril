@@ -187,7 +187,7 @@ fun SelectPlayerDialog(
     onDeletePlayer: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
-    // Sort players: current player last (not selectable), others by most recently played
+    // Sort players by most recently played
     val sortedPlayers = remember(players, currentPlayerId) {
         players.sortedByDescending { it.lastPlayedAt }
     }

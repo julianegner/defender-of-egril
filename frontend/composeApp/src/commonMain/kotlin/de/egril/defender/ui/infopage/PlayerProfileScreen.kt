@@ -108,7 +108,7 @@ fun PlayerProfileScreen(
                                 true
                             }
                             // K → Toggle collapse/expand header
-                            event.key == Key.K && !event.isCtrlPressed && !event.isAltPressed -> {
+                            event.key == Key.K && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
                                 headerCollapsed = !headerCollapsed
                                 true
                             }
