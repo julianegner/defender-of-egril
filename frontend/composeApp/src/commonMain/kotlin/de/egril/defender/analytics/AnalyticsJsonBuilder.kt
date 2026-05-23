@@ -7,7 +7,13 @@ import de.egril.defender.utils.getPlatform
 /**
  * Builds the JSON payload for an analytics event.
  */
-internal fun buildEventJson(eventType: GameEventType, levelName: String?, platform: String, turnNumber: Int? = null): String = buildString {
+internal fun buildEventJson(
+    eventType: GameEventType,
+    levelName: String?,
+    platform: String,
+    turnNumber: Int? = null,
+    difficulty: String? = null
+): String = buildString {
     val currentPlatform = getPlatform()
     val platformLong = currentPlatform.name
     val platformExtended = currentPlatform.platformExtended
@@ -46,6 +52,11 @@ internal fun buildEventJson(eventType: GameEventType, levelName: String?, platfo
     if (turnNumber != null) {
         append(",\"turnNumber\":")
         append(turnNumber)
+    }
+    if (difficulty != null) {
+        append(",\"difficulty\":\"")
+        append(escapeJson(difficulty))
+        append("\"")
     }
     append("}")
 }

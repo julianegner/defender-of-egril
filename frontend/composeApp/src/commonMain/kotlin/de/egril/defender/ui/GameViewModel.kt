@@ -238,7 +238,11 @@ class GameViewModel {
     val remoteCommunityMapsMeta: StateFlow<List<de.egril.defender.save.CommunityFileInfo>> = _remoteCommunityMapsMeta.asStateFlow()
 
     init {
-        de.egril.defender.analytics.reportEvent(de.egril.defender.analytics.GameEventType.APP_STARTED, null)
+        de.egril.defender.analytics.reportEvent(
+            de.egril.defender.analytics.GameEventType.APP_STARTED,
+            null,
+            difficulty = AppSettings.difficulty.value.name
+        )
 
         // Upload settings to the dedicated backend table whenever a setting is changed
         // and the user is authenticated.
@@ -716,7 +720,12 @@ class GameViewModel {
         if (_currentScreen.value is Screen.GamePlay) {
             val levelName = _gameState.value?.level?.name ?: "unknown"
             val turnNumber = _gameState.value?.turnNumber?.value
-            de.egril.defender.analytics.reportEvent(de.egril.defender.analytics.GameEventType.LEVEL_LEFT, levelName, turnNumber)
+            de.egril.defender.analytics.reportEvent(
+                de.egril.defender.analytics.GameEventType.LEVEL_LEFT,
+                levelName,
+                turnNumber,
+                _gameState.value?.difficulty?.name ?: AppSettings.difficulty.value.name
+            )
         }
         stopTimeTracking()
         // Player explicitly left gameplay – remove any background save so it is not
@@ -961,7 +970,11 @@ class GameViewModel {
             initialGameStateSnapshot = createGameStateSnapshot(newGameState)
             lastSaveSnapshot = initialGameStateSnapshot
 
-            de.egril.defender.analytics.reportEvent(de.egril.defender.analytics.GameEventType.LEVEL_STARTED, level.name)
+            de.egril.defender.analytics.reportEvent(
+                de.egril.defender.analytics.GameEventType.LEVEL_STARTED,
+                level.name,
+                difficulty = difficulty.name
+            )
             
             // Initialize achievement manager for this level
             val playerId = _currentPlayer.value?.id
@@ -1136,7 +1149,11 @@ class GameViewModel {
             initialGameStateSnapshot = createGameStateSnapshot(newGameState)
             lastSaveSnapshot = initialGameStateSnapshot
 
-            de.egril.defender.analytics.reportEvent(de.egril.defender.analytics.GameEventType.LEVEL_STARTED, level.name)
+            de.egril.defender.analytics.reportEvent(
+                de.egril.defender.analytics.GameEventType.LEVEL_STARTED,
+                level.name,
+                difficulty = difficulty.name
+            )
 
             val playerId = _currentPlayer.value?.id
             if (playerId != null) {
@@ -1578,7 +1595,12 @@ class GameViewModel {
 
         GameLogBuffer.log("GAME", "Level '$levelName' ${if (won) "WON" else "LOST"} — HP: $currentHP, Turn: $turnNumber, XP: $xpEarned")
 
-        de.egril.defender.analytics.reportEvent(if (won) de.egril.defender.analytics.GameEventType.LEVEL_WON else de.egril.defender.analytics.GameEventType.LEVEL_LOST, levelName, turnNumber)
+        de.egril.defender.analytics.reportEvent(
+            if (won) de.egril.defender.analytics.GameEventType.LEVEL_WON else de.egril.defender.analytics.GameEventType.LEVEL_LOST,
+            levelName,
+            turnNumber,
+            _gameState.value?.difficulty?.name ?: AppSettings.difficulty.value.name
+        )
 
         // Track achievement for level completion
         if (won) {
@@ -2514,7 +2536,12 @@ class GameViewModel {
                     initialGameStateSnapshot = createGameStateSnapshot(gameState)
                     lastSaveSnapshot = initialGameStateSnapshot
                     
-                    de.egril.defender.analytics.reportEvent(de.egril.defender.analytics.GameEventType.LEVEL_LOADED, levelWithCorrectMap.name, gameState.turnNumber.value)
+                    de.egril.defender.analytics.reportEvent(
+                        de.egril.defender.analytics.GameEventType.LEVEL_LOADED,
+                        levelWithCorrectMap.name,
+                        gameState.turnNumber.value,
+                        gameState.difficulty.name
+                    )
                     // Start time tracking for reminders
                     startTimeTracking()
                     return
@@ -2538,7 +2565,12 @@ class GameViewModel {
             initialGameStateSnapshot = createGameStateSnapshot(gameState)
             lastSaveSnapshot = initialGameStateSnapshot
             
-            de.egril.defender.analytics.reportEvent(de.egril.defender.analytics.GameEventType.LEVEL_LOADED, level.name, gameState.turnNumber.value)
+            de.egril.defender.analytics.reportEvent(
+                de.egril.defender.analytics.GameEventType.LEVEL_LOADED,
+                level.name,
+                gameState.turnNumber.value,
+                gameState.difficulty.name
+            )
             // Start time tracking for reminders
             startTimeTracking()
         }
