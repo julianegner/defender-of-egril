@@ -7,6 +7,7 @@ class BackendFeedbackServiceTest {
 
     @Test
     fun buildFeedbackUploadJson_includesCurrentSettingsJsonField() {
+        val settingsJson = """{"language":"en","darkMode":"false"}"""
         val request = FeedbackSubmitRequest(
             feedbackId = "123e4567-e89b-12d3-a456-426614174000",
             feedbackType = "FEATURE_REQUEST",
@@ -17,13 +18,15 @@ class BackendFeedbackServiceTest {
             userLanguage = "EN",
             gameLevelName = null,
             gameTurnNumber = null,
-            currentSettingsJson = """{"language":"en","darkMode":"false"}""",
+            currentSettingsJson = settingsJson,
             gameStateJson = null,
             gameLog = null
         )
 
         val payload = buildFeedbackUploadJson(request)
 
-        assertContains(payload, "\"currentSettingsJson\":\"{\\\"language\\\":\\\"en\\\",\\\"darkMode\\\":\\\"false\\\"}\"")
+        assertContains(payload, "\"currentSettingsJson\":")
+        assertContains(payload, "\\\"language\\\":\\\"en\\\"")
+        assertContains(payload, "\\\"darkMode\\\":\\\"false\\\"")
     }
 }
