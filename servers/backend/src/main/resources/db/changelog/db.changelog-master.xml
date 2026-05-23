@@ -18,5 +18,6 @@
     <include file="db/changelog/migrations/011-backend-errors.sql"/>
     <include file="db/changelog/migrations/012-events-os-name.sql"/>
     <include file="db/changelog/migrations/013-player-feedback.sql"/>
+    <include file="db/changelog/migrations/014-player-feedback-current-settings-json.sql"/>
 
 </databaseChangeLog>
