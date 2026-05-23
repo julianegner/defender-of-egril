@@ -10,8 +10,14 @@ import java.net.URI
  * Errors are silently swallowed so analytics never disrupts gameplay.
  * If the user is authenticated via IAM, the Bearer token is attached as an optional header.
  */
-internal fun postEventJson(eventType: GameEventType, levelName: String?, platform: String, turnNumber: Int? = null) {
-    val json = buildEventJson(eventType, levelName, platform, turnNumber)
+internal fun postEventJson(
+    eventType: GameEventType,
+    levelName: String?,
+    platform: String,
+    turnNumber: Int? = null,
+    difficulty: String? = null
+) {
+    val json = buildEventJson(eventType, levelName, platform, turnNumber, difficulty)
     val targetUrl = "$backendUrl/api/events"
     val token = IamService.getToken()
     Thread {

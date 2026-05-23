@@ -21,8 +21,8 @@ private val backendUrl: String
  * Errors are silently swallowed so analytics never disrupts gameplay.
  * If the user is authenticated via IAM, the Bearer token is attached as an optional header.
  */
-actual fun reportEvent(eventType: GameEventType, levelName: String?, turnNumber: Int?) {
-    val json = buildEventJson(eventType, levelName, PLATFORM, turnNumber)
+actual fun reportEvent(eventType: GameEventType, levelName: String?, turnNumber: Int?, difficulty: String?) {
+    val json = buildEventJson(eventType, levelName, PLATFORM, turnNumber, difficulty)
     val url = NSURL.URLWithString("$backendUrl/api/events") ?: return
     val request = NSMutableURLRequest.requestWithURL(url)
     request.HTTPMethod = "POST"

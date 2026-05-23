@@ -14,6 +14,6 @@ private external fun postJson(url: String, body: String, token: String?)
 
 private const val PLATFORM = "WEB"
 
-actual fun reportEvent(eventType: GameEventType, levelName: String?, turnNumber: Int?) {
-    postJson("$backendUrl/api/events", buildEventJson(eventType, levelName, PLATFORM, turnNumber), IamService.getToken())
+actual fun reportEvent(eventType: GameEventType, levelName: String?, turnNumber: Int?, difficulty: String?) {
+    postJson("$backendUrl/api/events", buildEventJson(eventType, levelName, PLATFORM, turnNumber, difficulty), IamService.getToken())
 }

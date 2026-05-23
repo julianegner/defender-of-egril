@@ -15,6 +15,7 @@ import kotlinx.serialization.Serializable
  * @param commitHash The short git commit hash of the frontend build, optional
  * @param username The Keycloak username of the authenticated player, optional (only present when logged in)
  * @param turnNumber The current game turn number at the time of the event, optional (present for LEVEL_LOADED, LEVEL_WON, LEVEL_LOST, LEVEL_LEFT)
+ * @param difficulty The selected game difficulty (BABY, EASY, MEDIUM, HARD, NIGHTMARE), optional
  */
 @Serializable
 data class GameEvent(
@@ -27,5 +28,6 @@ data class GameEvent(
     val versionName: String? = null,
     val commitHash: String? = null,
     val username: String? = null,
-    val turnNumber: Int? = null
+    val turnNumber: Int? = null,
+    val difficulty: String? = null
 )
