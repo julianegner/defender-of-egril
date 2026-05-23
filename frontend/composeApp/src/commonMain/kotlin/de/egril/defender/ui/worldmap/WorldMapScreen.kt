@@ -65,11 +65,19 @@ private fun PlayerNameWithIam(
         Column(
             modifier = Modifier.clickable { onEditPlayerName() }
         ) {
-            Text(
-                text = currentPlayerName,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.primary,
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = currentPlayerName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                if (AppSettings.showButtonShortcutHints.value) {
+                    ShortcutKeyChip(text = "P")
+                }
+            }
             // Show Keycloak username below the local player name when logged in
             if (iamState.isAuthenticated && iamState.username != null) {
                 Row(
@@ -94,6 +102,10 @@ private fun PlayerNameWithIam(
                 text = stringResource(Res.string.switch_player),
                 style = MaterialTheme.typography.labelSmall
             )
+            if (AppSettings.showButtonShortcutHints.value) {
+                Spacer(modifier = Modifier.width(4.dp))
+                ShortcutKeyChip(text = "Q", color = LocalContentColor.current.copy(alpha = 0.75f))
+            }
         }
     }
 }
@@ -341,6 +353,18 @@ fun WorldMapScreen(
                         // Comma (,) → Open settings
                         event.key == Key.Comma && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
                             triggerSettings = true
+                            true
+                        }
+                        // P → Open player profile
+                        event.key == Key.P && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed
+                                && onEditPlayerName != null -> {
+                            onEditPlayerName.invoke()
+                            true
+                        }
+                        // Q → Switch player
+                        event.key == Key.Q && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed
+                                && onSwitchPlayer != null -> {
+                            onSwitchPlayer.invoke()
                             true
                         }
                         else -> false

@@ -1879,4 +1879,12 @@
     <string name="feedback_bug_type_crash">Crash / Blocco</string>
     <string name="feedback_bug_type_crash_desc">Il gioco si blocca, si congela o smette completamente di rispondere.</string>
 
+    <string name="feedback_form_keyboard_nav_info">Navigazione da tastiera: Usa Tab per spostarti tra campi e pulsanti. Nei campi di testo, usa Ctrl+Tab per uscire dal campo. Usa Spazio per attivare le caselle e Invio per inviare o premere pulsanti.</string>
+    <string name="keyboard_nav_select">Seleziona</string>
+    <string name="keyboard_nav_upgrade">Potenzia</string>
+    <string name="keyboard_nav_buy">Acquista</string>
+    <string name="keyboard_nav_skip_locked">Salta bloccati</string>
+    <string name="player_profile_shortcut">P</string>
+    <string name="keyboard_nav_collapse_expand">Comprimi/Espandi</string>
+
 </resources>

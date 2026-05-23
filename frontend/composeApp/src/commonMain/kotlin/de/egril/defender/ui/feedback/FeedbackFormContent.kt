@@ -31,6 +31,7 @@ import de.egril.defender.iam.IamService
 import de.egril.defender.save.BackendFeedbackService
 import de.egril.defender.save.FeedbackAttachmentData
 import de.egril.defender.save.FeedbackSubmitRequest
+import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.utils.currentTimeMillis
 import de.egril.defender.utils.getClientPlatformName
 import de.egril.defender.utils.getPlatform
@@ -177,6 +178,21 @@ fun FeedbackFormContent(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
+        }
+        // Keyboard navigation info (only shown when shortcut hints setting is ON)
+        if (AppSettings.showButtonShortcutHints.value) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(
+                    text = stringResource(Res.string.feedback_form_keyboard_nav_info),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
         }
         Text(
             text = stringResource(Res.string.feedback_form_github_issues_pre_text),

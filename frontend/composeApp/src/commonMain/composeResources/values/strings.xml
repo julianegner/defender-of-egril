@@ -1883,4 +1883,12 @@
     <string name="feedback_bug_type_crash">Crash / Freeze</string>
     <string name="feedback_bug_type_crash_desc">The game crashes, freezes, or becomes completely unresponsive.</string>
 
+    <string name="feedback_form_keyboard_nav_info">Keyboard navigation: Use Tab to move between fields and buttons. In text fields, use Ctrl+Tab to leave the field. Use Space to toggle checkboxes and Enter to submit or press buttons.</string>
+    <string name="keyboard_nav_select">Select</string>
+    <string name="keyboard_nav_upgrade">Upgrade</string>
+    <string name="keyboard_nav_buy">Buy</string>
+    <string name="keyboard_nav_skip_locked">Skip locked</string>
+    <string name="player_profile_shortcut">P</string>
+    <string name="keyboard_nav_collapse_expand">Collapse/Expand</string>
+
 </resources>

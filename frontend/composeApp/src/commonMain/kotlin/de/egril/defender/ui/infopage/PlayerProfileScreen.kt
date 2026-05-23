@@ -9,6 +9,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -20,10 +24,12 @@ import de.egril.defender.save.PlayerProfile
 import de.egril.defender.ui.ProfileTabScrollbar
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.getLocalizedDescription
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.icon.LockIcon
 import de.egril.defender.ui.icon.ToolsIcon
 import de.egril.defender.ui.icon.TrophyIcon
 import de.egril.defender.ui.icon.UnlockIcon
+import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.utils.formatTimestamp
@@ -31,6 +37,7 @@ import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.ui.isMobileWebBrowser
 import defender_of_egril.composeapp.generated.resources.*
 import androidx.compose.foundation.text.selection.SelectionContainer
+import kotlinx.coroutines.launch
 
 /**
  * Screen displaying player profile information and achievements
@@ -56,9 +63,72 @@ fun PlayerProfileScreen(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
+        val focusRequester = remember { FocusRequester() }
+        val scope = rememberCoroutineScope()
+        // Keyboard-triggered open triggers for feedback/settings
+        var triggerFeedback by remember { mutableStateOf(false) }
+        var triggerSettings by remember { mutableStateOf(false) }
+        // Tab index state hoisted here for keyboard access
+        var selectedTabIndex by remember { mutableStateOf(1) }
+        var headerCollapsed by remember { mutableStateOf(false) }
+        // Shared scroll state for keyboard arrow scrolling
+        val tabScrollState = rememberScrollState()
+
         Box(
-            modifier = Modifier.fillMaxSize().padding(16.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .focusRequester(focusRequester)
+                .focusTarget()
+                .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown) {
+                        when {
+                            // Escape / Back → go back
+                            event.key == Key.Escape || event.key == Key.Back -> {
+                                onBack()
+                                true
+                            }
+                            // Left/Right arrows → switch tabs
+                            event.key == Key.DirectionLeft && !event.isCtrlPressed -> {
+                                if (selectedTabIndex > 0) selectedTabIndex--
+                                true
+                            }
+                            event.key == Key.DirectionRight && !event.isCtrlPressed -> {
+                                if (selectedTabIndex < 1) selectedTabIndex++
+                                true
+                            }
+                            // Period (.) → Open feedback
+                            event.key == Key.Period && !event.isCtrlPressed -> {
+                                triggerFeedback = true
+                                true
+                            }
+                            // Comma (,) → Open settings
+                            event.key == Key.Comma && !event.isCtrlPressed -> {
+                                triggerSettings = true
+                                true
+                            }
+                            // K → Toggle collapse/expand header
+                            event.key == Key.K && !event.isCtrlPressed && !event.isAltPressed -> {
+                                headerCollapsed = !headerCollapsed
+                                true
+                            }
+                            // Up/Down arrows → scroll tab content
+                            event.key == Key.DirectionUp && !event.isCtrlPressed -> {
+                                scope.launch { tabScrollState.animateScrollTo((tabScrollState.value - 120).coerceAtLeast(0)) }
+                                true
+                            }
+                            event.key == Key.DirectionDown && !event.isCtrlPressed -> {
+                                scope.launch { tabScrollState.animateScrollTo((tabScrollState.value + 120).coerceAtMost(tabScrollState.maxValue)) }
+                                true
+                            }
+                            else -> false
+                        }
+                    } else false
+                }
         ) {
+            LaunchedEffect(Unit) {
+                try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+            }
             // Settings and Feedback buttons in top-right corner
             Row(
                 modifier = Modifier
@@ -66,8 +136,16 @@ fun PlayerProfileScreen(
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                FeedbackButton()
-                SettingsButton()
+                FeedbackButton(
+                    shortcutKey = ".",
+                    triggerOpen = triggerFeedback,
+                    onTriggerHandled = { triggerFeedback = false }
+                )
+                SettingsButton(
+                    shortcutKey = ",",
+                    triggerOpen = triggerSettings,
+                    onTriggerHandled = { triggerSettings = false }
+                )
             }
             
             Column(
@@ -75,7 +153,6 @@ fun PlayerProfileScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Header: toggle between full and compact view
-                var headerCollapsed by remember { mutableStateOf(false) }
 
                 if (headerCollapsed) {
                     // Compact single-row header: name | remote account | XP | ability points
@@ -153,6 +230,10 @@ fun PlayerProfileScreen(
                                 text = stringResource(Res.string.expand),
                                 style = MaterialTheme.typography.labelSmall
                             )
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                Spacer(modifier = Modifier.width(4.dp))
+                                ShortcutKeyChip(text = "K", color = LocalContentColor.current.copy(alpha = 0.75f))
+                            }
                         }
                         // Switch player button on the RIGHT
                         OutlinedButton(
@@ -195,6 +276,10 @@ fun PlayerProfileScreen(
                                 text = stringResource(Res.string.collapse),
                                 style = MaterialTheme.typography.labelSmall
                             )
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                Spacer(modifier = Modifier.width(4.dp))
+                                ShortcutKeyChip(text = "K", color = LocalContentColor.current.copy(alpha = 0.75f))
+                            }
                         }
                         // Switch player button on the RIGHT
                         OutlinedButton(
@@ -210,7 +295,6 @@ fun PlayerProfileScreen(
                 }
                 
                 // Scrollable content
-                var selectedTabIndex by remember { mutableStateOf(1) }
                 
                 Column(
                     modifier = Modifier
@@ -306,7 +390,6 @@ fun PlayerProfileScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                         
                         // Tab content (scrollable) with vertical scrollbar
-                        val tabScrollState = rememberScrollState()
                         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                             Column(
                                 modifier = Modifier
@@ -349,7 +432,6 @@ fun PlayerProfileScreen(
                         }
                     } else {
                         // No stats callback - just show achievements directly (old behavior)
-                        val tabScrollState = rememberScrollState()
                         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                             Column(
                                 modifier = Modifier
@@ -373,6 +455,45 @@ fun PlayerProfileScreen(
                         .height(48.dp)
                 ) {
                     Text(stringResource(Res.string.back))
+                    if (AppSettings.showButtonShortcutHints.value) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        ShortcutKeyChip(text = "Esc", color = LocalContentColor.current.copy(alpha = 0.75f))
+                    }
+                }
+
+                // Navigation hints (shown when shortcut hints are ON)
+                if (AppSettings.showButtonShortcutHints.value) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Left/Right → Switch tab
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            ShortcutKeyChip(text = "\u2190/\u2192")
+                            Text(
+                                text = stringResource(Res.string.keyboard_nav_switch_tab),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        // Up/Down → Scroll
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            ShortcutKeyChip(text = "\u2191/\u2193")
+                            Text(
+                                text = stringResource(Res.string.keyboard_nav_scroll),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                 }
             }
         }
