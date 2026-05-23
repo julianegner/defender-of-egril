@@ -96,7 +96,7 @@ private fun PlayerNameWithIam(
 
         TextButton(
             onClick = onSwitchPlayer,
-            modifier = Modifier.height(32.dp)
+            modifier = Modifier.height(36.dp)
         ) {
             Text(
                 text = stringResource(Res.string.switch_player),

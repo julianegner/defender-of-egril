@@ -112,6 +112,21 @@ fun PlayerProfileScreen(
                                 headerCollapsed = !headerCollapsed
                                 true
                             }
+                            // E → Edit player name
+                            event.key == Key.E && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                onEditName()
+                                true
+                            }
+                            // A → Toggle always log in
+                            event.key == Key.A && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                onAlwaysLoginChanged(!playerProfile.alwaysLogin)
+                                true
+                            }
+                            // R → Toggle use remote settings
+                            event.key == Key.R && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                onUseRemoteSettingsChanged(!playerProfile.useRemoteSettings)
+                                true
+                            }
                             // Up/Down arrows → scroll tab content
                             event.key == Key.DirectionUp && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
                                 scope.launch { tabScrollState.animateScrollTo((tabScrollState.value - 120).coerceAtLeast(0)) }
@@ -549,6 +564,10 @@ private fun PlayerInfoCard(
                         text = stringResource(Res.string.edit),
                         style = MaterialTheme.typography.bodySmall
                     )
+                    if (AppSettings.showButtonShortcutHints.value) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        ShortcutKeyChip(text = "E", color = LocalContentColor.current.copy(alpha = 0.75f))
+                    }
                 }
             }
             
@@ -1200,11 +1219,19 @@ private fun AccountSettingToggles(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = rowArrangement
         ) {
-            Text(
-                text = stringResource(Res.string.always_log_in),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = stringResource(Res.string.always_log_in),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                if (AppSettings.showButtonShortcutHints.value) {
+                    ShortcutKeyChip(text = "A")
+                }
+            }
             Switch(
                 checked = alwaysLogin,
                 onCheckedChange = { onAlwaysLoginChanged(it) }
@@ -1215,11 +1242,19 @@ private fun AccountSettingToggles(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = rowArrangement
         ) {
-            Text(
-                text = stringResource(Res.string.use_remote_settings),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = stringResource(Res.string.use_remote_settings),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                if (AppSettings.showButtonShortcutHints.value) {
+                    ShortcutKeyChip(text = "R")
+                }
+            }
             Switch(
                 checked = useRemoteSettings,
                 onCheckedChange = { onUseRemoteSettingsChanged(it) }

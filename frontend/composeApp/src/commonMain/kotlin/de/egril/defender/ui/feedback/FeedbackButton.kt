@@ -138,14 +138,20 @@ private fun FeedbackDialog(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     val closeLabel = stringResource(Res.string.close)
-                    IconButton(
-                        onClick = onDismiss,
-                        modifier = Modifier.semantics { contentDescription = closeLabel }
-                    ) {
-                        FilledSymbol(
-                            icon = MaterialSymbols.CLOSE,
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            ShortcutKeyChip(text = "Esc")
+                            Spacer(modifier = Modifier.width(4.dp))
+                        }
+                        IconButton(
+                            onClick = onDismiss,
+                            modifier = Modifier.semantics { contentDescription = closeLabel }
+                        ) {
+                            FilledSymbol(
+                                icon = MaterialSymbols.CLOSE,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
                     }
                 }
 
