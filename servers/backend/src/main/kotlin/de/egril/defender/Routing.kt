@@ -228,8 +228,8 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                         INSERT INTO player_feedback (
                             feedback_uuid, feedback_type, bug_types, message, contact_email, source_context,
                             platform, platform_long, platform_extended, os_name, version_name, commit_hash,
-                            user_id, user_name, game_level_name, game_turn_number, game_state_json, game_log, screenshot_png
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            user_id, user_name, game_level_name, game_turn_number, current_settings_json, game_state_json, game_log, screenshot_png
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                         ON CONFLICT (feedback_uuid) DO NOTHING
                         """.trimIndent()
                     ).use { stmt ->
@@ -249,9 +249,10 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                         stmt.setString(14, userName)
                         stmt.setString(15, request.gameLevelName)
                         if (request.gameTurnNumber != null) stmt.setInt(16, request.gameTurnNumber) else stmt.setNull(16, java.sql.Types.INTEGER)
-                        stmt.setString(17, request.gameStateJson)
-                        stmt.setString(18, request.gameLog)
-                        if (screenshotBytes != null) stmt.setBytes(19, screenshotBytes) else stmt.setNull(19, java.sql.Types.BINARY)
+                        if (request.currentSettingsJson != null) stmt.setString(17, request.currentSettingsJson) else stmt.setNull(17, java.sql.Types.VARCHAR)
+                        stmt.setString(18, request.gameStateJson)
+                        stmt.setString(19, request.gameLog)
+                        if (screenshotBytes != null) stmt.setBytes(20, screenshotBytes) else stmt.setNull(20, java.sql.Types.BINARY)
                         stmt.executeUpdate()
                     }
 
