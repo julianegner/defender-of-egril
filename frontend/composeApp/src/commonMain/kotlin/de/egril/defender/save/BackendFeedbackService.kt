@@ -10,6 +10,7 @@ data class FeedbackSubmitRequest(
     val userLanguage: String?,
     val gameLevelName: String?,
     val gameTurnNumber: Int?,
+    val currentSettingsJson: String?,
     val gameStateJson: String?,
     val gameLog: String?,
     val attachments: List<FeedbackAttachmentData> = emptyList()
@@ -45,6 +46,8 @@ internal fun buildFeedbackUploadJson(request: FeedbackSubmitRequest): String = b
     appendNullableString("gameLevelName", request.gameLevelName)
     append(',')
     appendNullableInt("gameTurnNumber", request.gameTurnNumber)
+    append(',')
+    appendNullableString("currentSettingsJson", request.currentSettingsJson)
     append(',')
     appendNullableString("gameStateJson", request.gameStateJson)
     append(',')

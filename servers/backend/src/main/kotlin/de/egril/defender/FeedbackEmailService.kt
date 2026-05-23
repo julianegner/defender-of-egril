@@ -71,6 +71,7 @@ internal object FeedbackEmailService {
                         appendLine("contactEmail: ${request.contactEmail ?: "-"}")
                         appendLine("gameLevelName: ${request.gameLevelName ?: "-"}")
                         appendLine("gameTurnNumber: ${request.gameTurnNumber?.toString() ?: "-"}")
+                        appendLine("hasCurrentSettingsJson: ${!request.currentSettingsJson.isNullOrBlank()}")
                         appendLine("hasScreenshot: $hasScreenshot")
                         appendLine("hasGameLog: ${!request.gameLog.isNullOrBlank()}")
                         appendLine()

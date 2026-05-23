@@ -29,6 +29,8 @@ import de.egril.defender.iam.IamService
 import de.egril.defender.save.BackendFeedbackService
 import de.egril.defender.save.FeedbackAttachmentData
 import de.egril.defender.save.FeedbackSubmitRequest
+import de.egril.defender.save.serializeSettingsJson
+import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.utils.currentTimeMillis
 import de.egril.defender.utils.getClientPlatformName
 import de.egril.defender.utils.getPlatform
@@ -415,6 +417,9 @@ fun FeedbackFormContent(
                             base64Content = att.base64Content
                         )
                     }
+                    val currentSettingsJson = runCatching {
+                        serializeSettingsJson(AppSettings.toSettingsMap())
+                    }.getOrNull()
 
                     // Prepend selected language to message for language requests
                     val finalMessage = selectedLanguage?.let { lang ->
@@ -434,6 +439,7 @@ fun FeedbackFormContent(
                             userLanguage = currentLanguage.value.name,
                             gameLevelName = gameContext?.levelName,
                             gameTurnNumber = gameContext?.turnNumber,
+                            currentSettingsJson = currentSettingsJson,
                             gameStateJson = gameContext?.gameStateJson,
                             gameLog = collectedGameLog,
                             attachments = attachmentDataList
