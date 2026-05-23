@@ -38,6 +38,7 @@ import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.SettingsHintBox
 import de.egril.defender.ui.feedback.FeedbackButton
+import de.egril.defender.utils.isPlatformDesktop
 import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.utils.isPlatformWasm
 import de.egril.defender.ui.isMobileWebBrowser
@@ -177,6 +178,7 @@ fun MainMenuScreen(
                 isNativeMobile = isPlatformMobile,
                 isMobileWeb = isMobileWeb
             )
+            val showExitGameButton = isPlatformDesktop
             // Pre-compute at BoxWithConstraints scope where maxHeight/maxWidth are in scope
             val mobileLandscapeBannerHeight = (maxHeight * 0.40f).coerceAtLeast(72.dp).coerceAtMost(140.dp)
             // Desktop banner: height = available width / (aspect-ratio × 1.5) — 2/3 of the full-width size.
@@ -199,7 +201,7 @@ fun MainMenuScreen(
                                 modifier = Modifier.padding(end = 4.dp),
                                 verticalArrangement = Arrangement.Top
                             ) {
-                                if (!isPlatformIos) {
+                                if (showExitGameButton) {
                                     Button(
                                         onClick = { showExitConfirmation = true },
                                         modifier = Modifier.height(32.dp).widthIn(min = 80.dp),
@@ -321,7 +323,7 @@ fun MainMenuScreen(
                                 modifier = Modifier.padding(end = 4.dp),
                                 verticalArrangement = Arrangement.Top
                             ) {
-                                if (!isPlatformIos) {
+                                if (showExitGameButton) {
                                     Button(
                                         onClick = { showExitConfirmation = true },
                                         modifier = Modifier.height(32.dp).widthIn(min = 80.dp),
@@ -507,7 +509,7 @@ fun MainMenuScreen(
                 }
 
                 // Exit button in top-left corner
-                if (!isPlatformIos) {
+                if (showExitGameButton) {
                     Button(
                         onClick = { showExitConfirmation = true },
                         modifier = Modifier.align(Alignment.TopStart).padding(8.dp).height(32.dp).widthIn(min = 80.dp),
