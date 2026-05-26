@@ -27,6 +27,7 @@ import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.stringResource
+import kotlinx.coroutines.launch
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -249,26 +250,80 @@ fun LevelEditorScreen(
         // How-To dialog shown when the Info button is clicked
         if (showHowToDialog) {
             Dialog(onDismissRequest = { showHowToDialog = false }) {
+                val infoScrollState = androidx.compose.foundation.rememberScrollState()
+                val infoScope = rememberCoroutineScope()
+                val infoFocusRequester = remember { FocusRequester() }
+                LaunchedEffect(Unit) {
+                    try { infoFocusRequester.requestFocus() } catch (_: IllegalStateException) {}
+                }
                 Card(
                     modifier = Modifier
                         .widthIn(min = 700.dp, max = 900.dp)
-                        .heightIn(max = 620.dp),
+                        .heightIn(max = 620.dp)
+                        .focusRequester(infoFocusRequester)
+                        .focusTarget()
+                        .onPreviewKeyEvent { event ->
+                            if (event.type == KeyEventType.KeyDown) {
+                                when (event.key) {
+                                    Key.Escape, Key.Back -> {
+                                        showHowToDialog = false
+                                        true
+                                    }
+                                    Key.DirectionUp -> {
+                                        infoScope.launch { infoScrollState.animateScrollTo((infoScrollState.value - 100).coerceAtLeast(0)) }
+                                        true
+                                    }
+                                    Key.DirectionDown -> {
+                                        infoScope.launch { infoScrollState.animateScrollTo((infoScrollState.value + 100).coerceAtMost(infoScrollState.maxValue)) }
+                                        true
+                                    }
+                                    else -> false
+                                }
+                            } else false
+                        },
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Column(modifier = Modifier.padding(24.dp)) {
-                        Text(
-                            text = stringResource(Res.string.editor_howto_title),
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.padding(bottom = 12.dp)
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.editor_howto_title),
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    ShortcutKeyChip(text = "↑↓")
+                                    Text(
+                                        text = stringResource(Res.string.scroll),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
                         Box(modifier = Modifier.weight(1f)) {
-                            EditorHowToContent()
+                            EditorHowToContent(scrollState = infoScrollState)
                         }
                         Button(
                             onClick = { showHowToDialog = false },
                             modifier = Modifier.align(Alignment.End).padding(top = 12.dp)
                         ) {
-                            Text(stringResource(Res.string.editor_howto_close))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(stringResource(Res.string.editor_howto_close))
+                                if (AppSettings.showButtonShortcutHints.value) {
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    ShortcutKeyChip(
+                                        text = "Esc",
+                                        color = LocalContentColor.current.copy(alpha = 0.75f)
+                                    )
+                                }
+                            }
                         }
                     }
                 }

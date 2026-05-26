@@ -107,7 +107,21 @@ fun SettingsDialog(
                                 // (don't capture it - let default focus traversal work)
                                 false
                             }
-                            else -> false
+                            else -> {
+                                // Number key shortcuts for toggling settings in current tab
+                                val number = when (event.key) {
+                                    Key.One -> 1; Key.Two -> 2; Key.Three -> 3
+                                    Key.Four -> 4; Key.Five -> 5; Key.Six -> 6
+                                    Key.Seven -> 7; Key.Eight -> 8; Key.Nine -> 9
+                                    else -> null
+                                }
+                                if (number != null && !event.isCtrlPressed && !event.isAltPressed) {
+                                    val currentTab = SettingsTab.entries.getOrNull(selectedTabIndex) ?: SettingsTab.GENERAL
+                                    handleSettingsNumberKey(currentTab, number)
+                                } else {
+                                    false
+                                }
+                            }
                         }
                     } else {
                         false
@@ -182,10 +196,10 @@ fun SettingsDialog(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.width(12.dp))
-                        de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "Tab")
+                        de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "1-9")
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = stringResource(Res.string.keyboard_nav_next),
+                            text = "Toggle",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -261,6 +275,25 @@ private fun ScrollableSettingsTabContent(scrollState: ScrollState, content: @Com
 }
 
 /**
+ * Helper composable that wraps a setting with a number shortcut chip when hints are enabled.
+ */
+@Composable
+private fun NumberedSetting(number: Int, content: @Composable () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (AppSettings.showButtonShortcutHints.value) {
+            de.egril.defender.ui.gameplay.ShortcutKeyChip(text = number.toString())
+            Spacer(modifier = Modifier.width(8.dp))
+        }
+        Box(modifier = Modifier.weight(1f)) {
+            content()
+        }
+    }
+}
+
+/**
  * General tab: Language, Difficulty, Dark mode, Check for updates, Debug options.
  */
 @Composable
@@ -318,41 +351,47 @@ private fun GeneralTabContent(onDismissSettings: () -> Unit) {
             )
 
             // Dark mode switch
-            GenericSwitch(
-                state = AppSettings.isDarkMode,
-                checkedText = stringResource(Res.string.dark_mode),
-                uncheckedText = stringResource(Res.string.dark_mode),
-                onCheckedChange = { enabled ->
-                    AppSettings.saveDarkMode(enabled)
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
+            NumberedSetting(1) {
+                GenericSwitch(
+                    state = AppSettings.isDarkMode,
+                    checkedText = stringResource(Res.string.dark_mode),
+                    uncheckedText = stringResource(Res.string.dark_mode),
+                    onCheckedChange = { enabled ->
+                        AppSettings.saveDarkMode(enabled)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             // Debug options switch
-            GenericSwitch(
-                state = AppSettings.showDebugOptions,
-                checkedText = stringResource(Res.string.debug_options),
-                uncheckedText = stringResource(Res.string.debug_options),
-                onCheckedChange = { enabled ->
-                    AppSettings.saveShowDebugOptions(enabled)
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
+            NumberedSetting(2) {
+                GenericSwitch(
+                    state = AppSettings.showDebugOptions,
+                    checkedText = stringResource(Res.string.debug_options),
+                    uncheckedText = stringResource(Res.string.debug_options),
+                    onCheckedChange = { enabled ->
+                        AppSettings.saveShowDebugOptions(enabled)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             // Check for updates switch
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                GenericSwitch(
-                    state = AppSettings.checkForUpdates,
-                    checkedText = stringResource(Res.string.check_for_updates),
-                    uncheckedText = stringResource(Res.string.check_for_updates),
-                    onCheckedChange = { enabled ->
-                        AppSettings.saveCheckForUpdates(enabled)
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                NumberedSetting(3) {
+                    GenericSwitch(
+                        state = AppSettings.checkForUpdates,
+                        checkedText = stringResource(Res.string.check_for_updates),
+                        uncheckedText = stringResource(Res.string.check_for_updates),
+                        onCheckedChange = { enabled ->
+                            AppSettings.saveCheckForUpdates(enabled)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
                 SelectableText(
                     text = stringResource(Res.string.check_for_updates_description),
                     style = MaterialTheme.typography.bodySmall,
@@ -379,39 +418,45 @@ private fun AccessibilityTabContent() {
             color = MaterialTheme.colorScheme.onSurface
         )
 
-        GenericSwitch(
-            state = AppSettings.highContrastEnabled,
-            checkedText = stringResource(Res.string.accessibility_high_contrast),
-            uncheckedText = stringResource(Res.string.accessibility_high_contrast),
-            onCheckedChange = { enabled ->
-                AppSettings.saveHighContrastEnabled(enabled)
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
+        NumberedSetting(1) {
+            GenericSwitch(
+                state = AppSettings.highContrastEnabled,
+                checkedText = stringResource(Res.string.accessibility_high_contrast),
+                uncheckedText = stringResource(Res.string.accessibility_high_contrast),
+                onCheckedChange = { enabled ->
+                    AppSettings.saveHighContrastEnabled(enabled)
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
         AccessibilityInfoText(stringResource(Res.string.accessibility_high_contrast_info))
 
-        CaptionsSetting()
+        NumberedSetting(2) { CaptionsSetting() }
 
-        GenericSwitch(
-            state = AppSettings.holdToConfirmEnabled,
-            checkedText = stringResource(Res.string.accessibility_hold_to_confirm),
-            uncheckedText = stringResource(Res.string.accessibility_hold_to_confirm),
-            onCheckedChange = { enabled ->
-                AppSettings.saveHoldToConfirmEnabled(enabled)
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
+        NumberedSetting(3) {
+            GenericSwitch(
+                state = AppSettings.holdToConfirmEnabled,
+                checkedText = stringResource(Res.string.accessibility_hold_to_confirm),
+                uncheckedText = stringResource(Res.string.accessibility_hold_to_confirm),
+                onCheckedChange = { enabled ->
+                    AppSettings.saveHoldToConfirmEnabled(enabled)
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
         AccessibilityInfoText(stringResource(Res.string.accessibility_hold_to_confirm_info))
 
-        DualLabelSwitch(
-            state = AppSettings.enableAnimations,
-            leftText = stringResource(Res.string.animations_off),
-            rightText = stringResource(Res.string.animations_on),
-            onCheckedChange = { enabled ->
-                AppSettings.saveEnableAnimations(enabled)
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
+        NumberedSetting(4) {
+            DualLabelSwitch(
+                state = AppSettings.enableAnimations,
+                leftText = stringResource(Res.string.animations_off),
+                rightText = stringResource(Res.string.animations_on),
+                onCheckedChange = { enabled ->
+                    AppSettings.saveEnableAnimations(enabled)
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
         AccessibilityInfoText(stringResource(Res.string.accessibility_reduce_motion_setting_info))
 
         SelectableText(
@@ -455,13 +500,15 @@ private fun ShortcutBindingsTabContent() {
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        GenericSwitch(
-            state = AppSettings.showButtonShortcutHints,
-            checkedText = stringResource(Res.string.shortcut_bindings_show_on_buttons),
-            uncheckedText = stringResource(Res.string.shortcut_bindings_show_on_buttons),
-            onCheckedChange = { AppSettings.saveShowButtonShortcutHints(it) },
-            modifier = Modifier.fillMaxWidth()
-        )
+        NumberedSetting(1) {
+            GenericSwitch(
+                state = AppSettings.showButtonShortcutHints,
+                checkedText = stringResource(Res.string.shortcut_bindings_show_on_buttons),
+                uncheckedText = stringResource(Res.string.shortcut_bindings_show_on_buttons),
+                onCheckedChange = { AppSettings.saveShowButtonShortcutHints(it) },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
         SelectableText(
             text = stringResource(Res.string.shortcut_bindings_show_on_buttons_info),
             style = MaterialTheme.typography.bodySmall,
@@ -658,26 +705,30 @@ private fun WorldmapTabContent() {
         LaunchedEffect(AppSettings.useLevelCards.value) {
             invertedUseLevelCards.value = !AppSettings.useLevelCards.value
         }
-        DualLabelSwitch(
-            state = invertedUseLevelCards,
-            leftText = stringResource(Res.string.world_map_level_cards),
-            rightText = stringResource(Res.string.world_map_image_map),
-            onCheckedChange = { enabled ->
-                AppSettings.saveUseLevelCards(!enabled)
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
+        NumberedSetting(1) {
+            DualLabelSwitch(
+                state = invertedUseLevelCards,
+                leftText = stringResource(Res.string.world_map_level_cards),
+                rightText = stringResource(Res.string.world_map_image_map),
+                onCheckedChange = { enabled ->
+                    AppSettings.saveUseLevelCards(!enabled)
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
 
         // Show testing levels switch
-        GenericSwitch(
-            state = AppSettings.showTestingLevels,
-            checkedText = stringResource(Res.string.show_testing_levels),
-            uncheckedText = stringResource(Res.string.show_testing_levels),
-            onCheckedChange = { enabled ->
-                AppSettings.saveShowTestingLevels(enabled)
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
+        NumberedSetting(2) {
+            GenericSwitch(
+                state = AppSettings.showTestingLevels,
+                checkedText = stringResource(Res.string.show_testing_levels),
+                uncheckedText = stringResource(Res.string.show_testing_levels),
+                onCheckedChange = { enabled ->
+                    AppSettings.saveShowTestingLevels(enabled)
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
     }
 }
 
@@ -699,61 +750,71 @@ private fun LevelTabContent() {
             )
 
             // Tile background images switch
-            DualLabelSwitch(
-                state = AppSettings.useTileImages,
-                leftText = stringResource(Res.string.tile_background_images_off),
-                rightText = stringResource(Res.string.tile_background_images_on),
-                onCheckedChange = { enabled ->
-                    AppSettings.saveUseTileImages(enabled)
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            // Tile smooth transitions switch (only visible when tile images are on)
-            if (AppSettings.useTileImages.value) {
+            NumberedSetting(1) {
                 DualLabelSwitch(
-                    state = AppSettings.useTileSmoothTransitions,
-                    leftText = stringResource(Res.string.tile_smooth_transitions_off),
-                    rightText = stringResource(Res.string.tile_smooth_transitions_on),
+                    state = AppSettings.useTileImages,
+                    leftText = stringResource(Res.string.tile_background_images_off),
+                    rightText = stringResource(Res.string.tile_background_images_on),
                     onCheckedChange = { enabled ->
-                        AppSettings.saveUseTileSmoothTransitions(enabled)
+                        AppSettings.saveUseTileImages(enabled)
                     },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
 
+            // Tile smooth transitions switch (only visible when tile images are on)
+            if (AppSettings.useTileImages.value) {
+                NumberedSetting(2) {
+                    DualLabelSwitch(
+                        state = AppSettings.useTileSmoothTransitions,
+                        leftText = stringResource(Res.string.tile_smooth_transitions_off),
+                        rightText = stringResource(Res.string.tile_smooth_transitions_on),
+                        onCheckedChange = { enabled ->
+                            AppSettings.saveUseTileSmoothTransitions(enabled)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
             // Animations switch
-            DualLabelSwitch(
-                state = AppSettings.enableAnimations,
-                leftText = stringResource(Res.string.animations_off),
-                rightText = stringResource(Res.string.animations_on),
-                onCheckedChange = { enabled ->
-                    AppSettings.saveEnableAnimations(enabled)
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
+            NumberedSetting(3) {
+                DualLabelSwitch(
+                    state = AppSettings.enableAnimations,
+                    leftText = stringResource(Res.string.animations_off),
+                    rightText = stringResource(Res.string.animations_on),
+                    onCheckedChange = { enabled ->
+                        AppSettings.saveEnableAnimations(enabled)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             // Level map image switch
-            GenericSwitch(
-                state = AppSettings.useLevelMapImage,
-                checkedText = stringResource(Res.string.level_map_image),
-                uncheckedText = stringResource(Res.string.level_map_image),
-                onCheckedChange = { enabled ->
-                    AppSettings.saveUseLevelMapImage(enabled)
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
+            NumberedSetting(4) {
+                GenericSwitch(
+                    state = AppSettings.useLevelMapImage,
+                    checkedText = stringResource(Res.string.level_map_image),
+                    uncheckedText = stringResource(Res.string.level_map_image),
+                    onCheckedChange = { enabled ->
+                        AppSettings.saveUseLevelMapImage(enabled)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             // Unit/tower background color switch
-            DualLabelSwitch(
-                state = AppSettings.showUnitTowerBackground,
-                leftText = stringResource(Res.string.unit_tower_background_off),
-                rightText = stringResource(Res.string.unit_tower_background_on),
-                onCheckedChange = { enabled ->
-                    AppSettings.saveShowUnitTowerBackground(enabled)
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
+            NumberedSetting(5) {
+                DualLabelSwitch(
+                    state = AppSettings.showUnitTowerBackground,
+                    leftText = stringResource(Res.string.unit_tower_background_off),
+                    rightText = stringResource(Res.string.unit_tower_background_on),
+                    onCheckedChange = { enabled ->
+                        AppSettings.saveShowUnitTowerBackground(enabled)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             HeaderTextSizeSetting()
         }
@@ -769,26 +830,30 @@ private fun LevelTabContent() {
             )
 
             // Control pad switch
-            GenericSwitch(
-                state = AppSettings.showControlPad,
-                checkedText = stringResource(Res.string.control_pad_enabled),
-                uncheckedText = stringResource(Res.string.control_pad_enabled),
-                onCheckedChange = { enabled ->
-                    AppSettings.saveShowControlPad(enabled)
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
+            NumberedSetting(6) {
+                GenericSwitch(
+                    state = AppSettings.showControlPad,
+                    checkedText = stringResource(Res.string.control_pad_enabled),
+                    uncheckedText = stringResource(Res.string.control_pad_enabled),
+                    onCheckedChange = { enabled ->
+                        AppSettings.saveShowControlPad(enabled)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
 
             // Auto-jump to next actionable tower switch
-            GenericSwitch(
-                state = AppSettings.autoJumpToNextTower,
-                checkedText = stringResource(Res.string.auto_jump_to_next_tower),
-                uncheckedText = stringResource(Res.string.auto_jump_to_next_tower),
-                onCheckedChange = { enabled ->
-                    AppSettings.saveAutoJumpToNextTower(enabled)
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
+            NumberedSetting(7) {
+                GenericSwitch(
+                    state = AppSettings.autoJumpToNextTower,
+                    checkedText = stringResource(Res.string.auto_jump_to_next_tower),
+                    uncheckedText = stringResource(Res.string.auto_jump_to_next_tower),
+                    onCheckedChange = { enabled ->
+                        AppSettings.saveAutoJumpToNextTower(enabled)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }
@@ -875,26 +940,28 @@ private fun SoundTabContent() {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         // Overall sound enabled/disabled switch
-        GenericSwitch(
-            state = AppSettings.isSoundEnabled,
-            checkedText = stringResource(Res.string.sound),
-            uncheckedText = stringResource(Res.string.sound),
-            onCheckedChange = { enabled ->
-                AppSettings.saveSoundEnabled(enabled)
-                de.egril.defender.audio.GlobalSoundManager.getInstance()?.setEnabled(enabled && AppSettings.isEffectsEnabled.value)
-                if (enabled && AppSettings.isMusicEnabled.value) {
-                    val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getCurrentMusic()
-                    if (currentMusic != null) {
-                        de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(currentMusic, loop = true)
+        NumberedSetting(1) {
+            GenericSwitch(
+                state = AppSettings.isSoundEnabled,
+                checkedText = stringResource(Res.string.sound),
+                uncheckedText = stringResource(Res.string.sound),
+                onCheckedChange = { enabled ->
+                    AppSettings.saveSoundEnabled(enabled)
+                    de.egril.defender.audio.GlobalSoundManager.getInstance()?.setEnabled(enabled && AppSettings.isEffectsEnabled.value)
+                    if (enabled && AppSettings.isMusicEnabled.value) {
+                        val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getCurrentMusic()
+                        if (currentMusic != null) {
+                            de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(currentMusic, loop = true)
+                        }
+                    } else {
+                        de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
                     }
-                } else {
-                    de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
 
-        CaptionsSetting()
+        NumberedSetting(2) { CaptionsSetting() }
 
         // Master volume slider (only shown when sound is enabled)
         if (AppSettings.isSoundEnabled.value) {
@@ -954,16 +1021,18 @@ private fun SoundTabContent() {
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
-                    GenericSwitch(
-                        state = AppSettings.isEffectsEnabled,
-                        checkedText = stringResource(Res.string.effects_enabled),
-                        uncheckedText = stringResource(Res.string.effects_disabled),
-                        onCheckedChange = { enabled ->
-                            AppSettings.saveEffectsEnabled(enabled)
-                            de.egril.defender.audio.GlobalSoundManager.getInstance()?.setEnabled(enabled && AppSettings.isSoundEnabled.value)
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    NumberedSetting(3) {
+                        GenericSwitch(
+                            state = AppSettings.isEffectsEnabled,
+                            checkedText = stringResource(Res.string.effects_enabled),
+                            uncheckedText = stringResource(Res.string.effects_disabled),
+                            onCheckedChange = { enabled ->
+                                AppSettings.saveEffectsEnabled(enabled)
+                                de.egril.defender.audio.GlobalSoundManager.getInstance()?.setEnabled(enabled && AppSettings.isSoundEnabled.value)
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
 
                     if (AppSettings.isEffectsEnabled.value) {
                         Column(
@@ -1004,23 +1073,25 @@ private fun SoundTabContent() {
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
-                    GenericSwitch(
-                        state = AppSettings.isMusicEnabled,
-                        checkedText = stringResource(Res.string.music_enabled),
-                        uncheckedText = stringResource(Res.string.music_disabled),
-                        onCheckedChange = { enabled ->
-                            AppSettings.saveMusicEnabled(enabled)
-                            if (enabled && AppSettings.isSoundEnabled.value) {
-                                val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getCurrentMusic()
-                                if (currentMusic != null) {
-                                    de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(currentMusic, loop = true)
+                    NumberedSetting(4) {
+                        GenericSwitch(
+                            state = AppSettings.isMusicEnabled,
+                            checkedText = stringResource(Res.string.music_enabled),
+                            uncheckedText = stringResource(Res.string.music_disabled),
+                            onCheckedChange = { enabled ->
+                                AppSettings.saveMusicEnabled(enabled)
+                                if (enabled && AppSettings.isSoundEnabled.value) {
+                                    val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getCurrentMusic()
+                                    if (currentMusic != null) {
+                                        de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(currentMusic, loop = true)
+                                    }
+                                } else {
+                                    de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
                                 }
-                            } else {
-                                de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
 
                     if (AppSettings.isMusicEnabled.value) {
                         // World Map Music
@@ -1157,6 +1228,88 @@ private fun SoundTabContent() {
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * Handle number key shortcuts to toggle settings in the current settings tab.
+ * Returns true if the key was handled.
+ */
+private fun handleSettingsNumberKey(tab: SettingsTab, number: Int): Boolean {
+    return when (tab) {
+        SettingsTab.GENERAL -> when (number) {
+            1 -> { AppSettings.saveDarkMode(!AppSettings.isDarkMode.value); true }
+            2 -> { AppSettings.saveShowDebugOptions(!AppSettings.showDebugOptions.value); true }
+            3 -> { AppSettings.saveCheckForUpdates(!AppSettings.checkForUpdates.value); true }
+            else -> false
+        }
+        SettingsTab.WORLD_MAP -> when (number) {
+            1 -> { AppSettings.saveUseLevelCards(!AppSettings.useLevelCards.value); true }
+            2 -> { AppSettings.saveShowTestingLevels(!AppSettings.showTestingLevels.value); true }
+            else -> false
+        }
+        SettingsTab.LEVEL -> when (number) {
+            1 -> { AppSettings.saveUseTileImages(!AppSettings.useTileImages.value); true }
+            2 -> { AppSettings.saveUseTileSmoothTransitions(!AppSettings.useTileSmoothTransitions.value); true }
+            3 -> { AppSettings.saveEnableAnimations(!AppSettings.enableAnimations.value); true }
+            4 -> { AppSettings.saveUseLevelMapImage(!AppSettings.useLevelMapImage.value); true }
+            5 -> { AppSettings.saveShowUnitTowerBackground(!AppSettings.showUnitTowerBackground.value); true }
+            6 -> { AppSettings.saveShowControlPad(!AppSettings.showControlPad.value); true }
+            7 -> { AppSettings.saveAutoJumpToNextTower(!AppSettings.autoJumpToNextTower.value); true }
+            else -> false
+        }
+        SettingsTab.SOUND -> when (number) {
+            1 -> {
+                val newVal = !AppSettings.isSoundEnabled.value
+                AppSettings.saveSoundEnabled(newVal)
+                de.egril.defender.audio.GlobalSoundManager.getInstance()?.setEnabled(newVal && AppSettings.isEffectsEnabled.value)
+                if (newVal && AppSettings.isMusicEnabled.value) {
+                    val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getCurrentMusic()
+                    if (currentMusic != null) {
+                        de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(currentMusic, loop = true)
+                    }
+                } else {
+                    de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
+                }
+                true
+            }
+            2 -> {
+                val newVal = !AppSettings.captionsEnabled.value
+                AppSettings.saveCaptionsEnabled(newVal)
+                true
+            }
+            3 -> {
+                val newVal = !AppSettings.isEffectsEnabled.value
+                AppSettings.saveEffectsEnabled(newVal)
+                de.egril.defender.audio.GlobalSoundManager.getInstance()?.setEnabled(newVal && AppSettings.isSoundEnabled.value)
+                true
+            }
+            4 -> {
+                val newVal = !AppSettings.isMusicEnabled.value
+                AppSettings.saveMusicEnabled(newVal)
+                if (newVal && AppSettings.isSoundEnabled.value) {
+                    val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getCurrentMusic()
+                    if (currentMusic != null) {
+                        de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(currentMusic, loop = true)
+                    }
+                } else {
+                    de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
+                }
+                true
+            }
+            else -> false
+        }
+        SettingsTab.ACCESSIBILITY -> when (number) {
+            1 -> { AppSettings.saveHighContrastEnabled(!AppSettings.highContrastEnabled.value); true }
+            2 -> { AppSettings.saveCaptionsEnabled(!AppSettings.captionsEnabled.value); true }
+            3 -> { AppSettings.saveHoldToConfirmEnabled(!AppSettings.holdToConfirmEnabled.value); true }
+            4 -> { AppSettings.saveEnableAnimations(!AppSettings.enableAnimations.value); true }
+            else -> false
+        }
+        SettingsTab.SHORTCUTS -> when (number) {
+            1 -> { AppSettings.saveShowButtonShortcutHints(!AppSettings.showButtonShortcutHints.value); true }
+            else -> false
         }
     }
 }
