@@ -67,9 +67,10 @@ fun SettingsDialog(
         val scope = rememberCoroutineScope()
         val settingsScrollState = rememberScrollState()
         LaunchedEffect(Unit) { focusRequester.requestFocus() }
-        // Reset scroll when tab changes
+        // Reset scroll when tab changes, and re-request focus to ensure arrow keys work
         LaunchedEffect(selectedTabIndex) {
             settingsScrollState.scrollTo(0)
+            try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
         }
         Surface(
             modifier = Modifier
@@ -99,6 +100,11 @@ fun SettingsDialog(
                             }
                             Key.DirectionDown -> {
                                 scope.launch { settingsScrollState.animateScrollTo((settingsScrollState.value + 100).coerceAtMost(settingsScrollState.maxValue)) }
+                                true
+                            }
+                            Key.Tab -> {
+                                // Keep Tab within the settings dialog - re-request focus to prevent escape
+                                scope.launch { try { focusRequester.requestFocus() } catch (_: IllegalStateException) {} }
                                 true
                             }
                             else -> false

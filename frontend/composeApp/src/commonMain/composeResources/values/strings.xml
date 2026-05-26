@@ -1313,7 +1313,7 @@
     <string name="keyboard_nav_confirm">Confirm</string>
     <string name="keyboard_nav_scroll">Scroll</string>
     <string name="keyboard_nav_switch_tab">Switch tab</string>
-    <string name="keyboard_nav_navigate_locations">Navigate locations</string>
+    <string name="keyboard_nav_navigate_locations">next location</string>
     <string name="keyboard_shortcut_next_enemy_target">Next reachable enemy</string>
     <string name="keyboard_shortcut_prev_enemy_target">Previous reachable enemy</string>
     <string name="keyboard_shortcut_next_build_tile">Next build tile</string>
@@ -1891,7 +1891,7 @@
     <string name="player_profile_shortcut">P</string>
     <string name="keyboard_nav_collapse_expand">Collapse/Expand</string>
     <string name="feedback_field_ctrl_tab_hint">Ctrl+Tab to leave field</string>
-    <string name="keyboard_nav_prev_location">preselects previous location</string>
+    <string name="keyboard_nav_prev_location">previous location</string>
     <string name="scroll">Scroll</string>
 
 </resources>

@@ -24,6 +24,8 @@ import de.egril.defender.ui.editor.map.MapEditorContent
 import de.egril.defender.ui.editor.worldmap.WorldMapPositionEditorContent
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.feedback.FeedbackButton
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
+import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -53,6 +55,10 @@ fun LevelEditorScreen(
     ) {
         val focusRequester = remember { FocusRequester() }
         LaunchedEffect(Unit) {
+            try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+        }
+        // Re-request focus on tab change to keep Esc and ←/→ working
+        LaunchedEffect(currentTab) {
             try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
         }
         Box(
@@ -145,6 +151,13 @@ fun LevelEditorScreen(
                                 LeftArrowIcon(size = 16.dp, tint = Color.White)
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(stringResource(Res.string.back_to_world_map))
+                                if (AppSettings.showButtonShortcutHints.value) {
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    ShortcutKeyChip(
+                                        text = "Esc",
+                                        color = LocalContentColor.current.copy(alpha = 0.75f)
+                                    )
+                                }
                             }
                         }
                     }
@@ -160,6 +173,31 @@ fun LevelEditorScreen(
                 
                 val selectedTabIndex = tabs.indexOfFirst { it.first == currentTab }.let { index ->
                     if (index == -1) tabs.indexOfFirst { it.first == EditorTab.LEVEL_EDITOR } else index
+                }
+                
+                // Shortcut chips for tab navigation
+                if (AppSettings.showButtonShortcutHints.value) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        ShortcutKeyChip(text = "←")
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "/",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        ShortcutKeyChip(text = "→")
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = stringResource(Res.string.keyboard_nav_switch_tab),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
                 
                 PrimaryTabRow(

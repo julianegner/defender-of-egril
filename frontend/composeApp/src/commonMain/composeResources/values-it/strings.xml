@@ -1311,7 +1311,7 @@
     <string name="keyboard_nav_confirm">Conferma</string>
     <string name="keyboard_nav_scroll">Scorrere</string>
     <string name="keyboard_nav_switch_tab">Cambia scheda</string>
-    <string name="keyboard_nav_navigate_locations">Naviga luoghi</string>
+    <string name="keyboard_nav_navigate_locations">posizione successiva</string>
     <string name="keyboard_shortcut_next_enemy_target">Prossimo nemico raggiungibile</string>
     <string name="keyboard_shortcut_prev_enemy_target">Nemico raggiungibile precedente</string>
     <string name="keyboard_shortcut_next_build_tile">Prossima area di costruzione</string>
@@ -1887,7 +1887,7 @@
     <string name="player_profile_shortcut">P</string>
     <string name="keyboard_nav_collapse_expand">Comprimi/Espandi</string>
     <string name="feedback_field_ctrl_tab_hint">Ctrl+Tab per uscire dal campo</string>
-    <string name="keyboard_nav_prev_location">preseleziona la posizione precedente</string>
+    <string name="keyboard_nav_prev_location">posizione precedente</string>
     <string name="scroll">Scorrere</string>
 
 </resources>

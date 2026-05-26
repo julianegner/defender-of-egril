@@ -914,8 +914,31 @@ fun MainMenuScreen(
         
         // Exit confirmation dialog
         if (showExitConfirmation) {
+            val exitDialogFocusRequester = remember { FocusRequester() }
+            LaunchedEffect(Unit) {
+                try { exitDialogFocusRequester.requestFocus() } catch (_: IllegalStateException) {}
+            }
             AlertDialog(
                 onDismissRequest = { showExitConfirmation = false },
+                modifier = Modifier
+                    .focusRequester(exitDialogFocusRequester)
+                    .focusTarget()
+                    .onPreviewKeyEvent { event ->
+                        if (event.type == KeyEventType.KeyDown) {
+                            when (event.key) {
+                                Key.Enter -> {
+                                    showExitConfirmation = false
+                                    exitApplication()
+                                    true
+                                }
+                                Key.Escape, Key.Back -> {
+                                    showExitConfirmation = false
+                                    true
+                                }
+                                else -> false
+                            }
+                        } else false
+                    },
                 title = { Text(stringResource(Res.string.exit_game_confirm_title)) },
                 text = { Text(stringResource(Res.string.exit_game_confirm_message)) },
                 confirmButton = {
