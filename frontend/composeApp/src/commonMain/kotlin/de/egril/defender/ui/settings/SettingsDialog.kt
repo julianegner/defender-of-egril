@@ -199,7 +199,7 @@ fun SettingsDialog(
                         de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "1-9")
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Toggle",
+                            text = stringResource(Res.string.toggle_setting),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -1251,7 +1251,7 @@ private fun handleSettingsNumberKey(tab: SettingsTab, number: Int): Boolean {
         }
         SettingsTab.LEVEL -> when (number) {
             1 -> { AppSettings.saveUseTileImages(!AppSettings.useTileImages.value); true }
-            2 -> { AppSettings.saveUseTileSmoothTransitions(!AppSettings.useTileSmoothTransitions.value); true }
+            2 -> { if (AppSettings.useTileImages.value) { AppSettings.saveUseTileSmoothTransitions(!AppSettings.useTileSmoothTransitions.value) }; true }
             3 -> { AppSettings.saveEnableAnimations(!AppSettings.enableAnimations.value); true }
             4 -> { AppSettings.saveUseLevelMapImage(!AppSettings.useLevelMapImage.value); true }
             5 -> { AppSettings.saveShowUnitTowerBackground(!AppSettings.showUnitTowerBackground.value); true }

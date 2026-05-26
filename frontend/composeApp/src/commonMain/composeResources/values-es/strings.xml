@@ -1887,5 +1887,6 @@
     <string name="feedback_field_ctrl_tab_hint">Ctrl+Tab para salir del campo</string>
     <string name="keyboard_nav_prev_location">ubicación anterior</string>
     <string name="scroll">Desplazar</string>
+    <string name="toggle_setting">Alternar</string>
 
 </resources>

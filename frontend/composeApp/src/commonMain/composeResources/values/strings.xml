@@ -1893,5 +1893,6 @@
     <string name="feedback_field_ctrl_tab_hint">Ctrl+Tab to leave field</string>
     <string name="keyboard_nav_prev_location">previous location</string>
     <string name="scroll">Scroll</string>
+    <string name="toggle_setting">Toggle</string>
 
 </resources>

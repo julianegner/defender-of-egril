@@ -1889,5 +1889,6 @@
     <string name="feedback_field_ctrl_tab_hint">Ctrl+Tab per uscire dal campo</string>
     <string name="keyboard_nav_prev_location">posizione precedente</string>
     <string name="scroll">Scorrere</string>
+    <string name="toggle_setting">Attiva/Disattiva</string>
 
 </resources>

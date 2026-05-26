@@ -1888,5 +1888,6 @@
     <string name="feedback_field_ctrl_tab_hint">Ctrl+Tab pour quitter le champ</string>
     <string name="keyboard_nav_prev_location">emplacement précédent</string>
     <string name="scroll">Défiler</string>
+    <string name="toggle_setting">Basculer</string>
 
 </resources>

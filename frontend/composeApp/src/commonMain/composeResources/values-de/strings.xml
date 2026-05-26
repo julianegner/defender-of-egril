@@ -1886,5 +1886,6 @@
     <string name="feedback_field_ctrl_tab_hint">Strg+Tab zum Verlassen des Feldes</string>
     <string name="keyboard_nav_prev_location">vorheriger Ort</string>
     <string name="scroll">Scrollen</string>
+    <string name="toggle_setting">Umschalten</string>
 
 </resources>
