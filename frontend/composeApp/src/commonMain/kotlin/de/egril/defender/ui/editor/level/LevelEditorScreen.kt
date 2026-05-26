@@ -85,15 +85,15 @@ fun LevelEditorScreen(
                                 if (idx < tabs.size - 1) currentTab = tabs[idx + 1]
                                 true
                             }
-                            event.key == Key.I && !event.isCtrlPressed && !event.isAltPressed -> {
+                            event.key == Key.I && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
                                 showHowToDialog = true
                                 true
                             }
-                            event.key == Key.Period -> {
+                            event.key == Key.Period && !event.isCtrlPressed && !event.isAltPressed -> {
                                 triggerFeedback = true
                                 true
                             }
-                            event.key == Key.Comma -> {
+                            event.key == Key.Comma && !event.isCtrlPressed && !event.isAltPressed -> {
                                 triggerSettings = true
                                 true
                             }
