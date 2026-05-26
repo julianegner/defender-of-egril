@@ -168,15 +168,13 @@ fun SettingsDialog(
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "←")
+                        de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "←→")
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = stringResource(Res.string.settings_tab_shortcuts),
+                            text = "Tabs",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "→")
                         Spacer(modifier = Modifier.width(12.dp))
                         de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "↑↓")
                         Spacer(modifier = Modifier.width(4.dp))
