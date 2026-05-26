@@ -9,7 +9,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
@@ -36,12 +40,47 @@ fun LevelEditorScreen(
     var currentTab by remember { mutableStateOf(EditorTab.LEVEL_EDITOR) }
     var showHowToDialog by remember { mutableStateOf(false) }
     
+    val tabs = listOf(
+        EditorTab.MAP_EDITOR,
+        EditorTab.LEVEL_EDITOR,
+        EditorTab.LEVEL_SEQUENCE,
+        EditorTab.WORLD_MAP_POSITIONS
+    )
+    
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
+        val focusRequester = remember { FocusRequester() }
+        LaunchedEffect(Unit) {
+            try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+        }
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .focusRequester(focusRequester)
+                .focusTarget()
+                .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown) {
+                        when {
+                            event.key == Key.Escape || event.key == Key.Back -> {
+                                onBack()
+                                true
+                            }
+                            event.key == Key.DirectionLeft && !event.isCtrlPressed && !event.isAltPressed -> {
+                                val idx = tabs.indexOf(currentTab)
+                                if (idx > 0) currentTab = tabs[idx - 1]
+                                true
+                            }
+                            event.key == Key.DirectionRight && !event.isCtrlPressed && !event.isAltPressed -> {
+                                val idx = tabs.indexOf(currentTab)
+                                if (idx < tabs.size - 1) currentTab = tabs[idx + 1]
+                                true
+                            }
+                            else -> false
+                        }
+                    } else false
+                }
         ) {
         // Content area (below header)
         Column(

@@ -1890,5 +1890,8 @@
     <string name="keyboard_nav_skip_locked">Skip locked</string>
     <string name="player_profile_shortcut">P</string>
     <string name="keyboard_nav_collapse_expand">Collapse/Expand</string>
+    <string name="feedback_field_ctrl_tab_hint">Ctrl+Tab to leave field</string>
+    <string name="keyboard_nav_prev_location">preselects previous location</string>
+    <string name="scroll">Scroll</string>
 
 </resources>

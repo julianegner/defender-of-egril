@@ -322,6 +322,13 @@ fun FeedbackFormContent(
             minLines = 4,
             modifier = Modifier.fillMaxWidth()
         )
+        if (AppSettings.showButtonShortcutHints.value) {
+            Text(
+                text = stringResource(Res.string.feedback_field_ctrl_tab_hint),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
         OutlinedTextField(
             value = contactEmail,
             onValueChange = { contactEmail = it },
@@ -333,6 +340,13 @@ fun FeedbackFormContent(
             },
             modifier = Modifier.fillMaxWidth()
         )
+        if (AppSettings.showButtonShortcutHints.value) {
+            Text(
+                text = stringResource(Res.string.feedback_field_ctrl_tab_hint),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
 
         // Auto-collect checkboxes for bug reports (instead of manual text fields)
         if (isBugReport) {

@@ -600,17 +600,32 @@ fun WorldMapScreen(
                     shape = MaterialTheme.shapes.small,
                     tonalElevation = 2.dp
                 ) {
-                    Row(
+                    Column(
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        verticalArrangement = Arrangement.spacedBy(2.dp)
                     ) {
-                        ShortcutKeyChip(text = "Tab")
-                        Text(
-                            text = stringResource(Res.string.keyboard_nav_navigate_locations),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            ShortcutKeyChip(text = "Tab")
+                            Text(
+                                text = stringResource(Res.string.keyboard_nav_navigate_locations),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            ShortcutKeyChip(text = "Shift+Tab")
+                            Text(
+                                text = stringResource(Res.string.keyboard_nav_prev_location),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
             }

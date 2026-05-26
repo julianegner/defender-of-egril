@@ -1884,5 +1884,8 @@
     <string name="keyboard_nav_skip_locked">Saltar bloqueados</string>
     <string name="player_profile_shortcut">P</string>
     <string name="keyboard_nav_collapse_expand">Contraer/Expandir</string>
+    <string name="feedback_field_ctrl_tab_hint">Ctrl+Tab para salir del campo</string>
+    <string name="keyboard_nav_prev_location">preselecciona la ubicación anterior</string>
+    <string name="scroll">Desplazar</string>
 
 </resources>

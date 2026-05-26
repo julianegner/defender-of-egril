@@ -3,6 +3,7 @@
 package de.egril.defender.ui.settings
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -63,7 +64,13 @@ fun SettingsDialog(
     }
     Dialog(onDismissRequest = onDismiss) {
         val focusRequester = remember { FocusRequester() }
+        val scope = rememberCoroutineScope()
+        val settingsScrollState = rememberScrollState()
         LaunchedEffect(Unit) { focusRequester.requestFocus() }
+        // Reset scroll when tab changes
+        LaunchedEffect(selectedTabIndex) {
+            settingsScrollState.scrollTo(0)
+        }
         Surface(
             modifier = Modifier
                 .widthIn(min = 300.dp, max = 500.dp)
@@ -84,6 +91,14 @@ fun SettingsDialog(
                             }
                             Key.DirectionLeft -> {
                                 selectedTabIndex = (selectedTabIndex - 1).coerceAtLeast(0)
+                                true
+                            }
+                            Key.DirectionUp -> {
+                                scope.launch { settingsScrollState.animateScrollTo((settingsScrollState.value - 100).coerceAtLeast(0)) }
+                                true
+                            }
+                            Key.DirectionDown -> {
+                                scope.launch { settingsScrollState.animateScrollTo((settingsScrollState.value + 100).coerceAtMost(settingsScrollState.maxValue)) }
                                 true
                             }
                             else -> false
@@ -113,18 +128,26 @@ fun SettingsDialog(
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    val closeLabel = stringResource(Res.string.close)
-                    IconButton(
-                        onClick = onDismiss,
-                        modifier = Modifier.a11ySemantics(
-                            role = Role.Button,
-                            label = closeLabel
-                        )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        FilledSymbol(
-                            icon = MaterialSymbols.CLOSE,
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "Esc")
+                        }
+                        val closeLabel = stringResource(Res.string.close)
+                        IconButton(
+                            onClick = onDismiss,
+                            modifier = Modifier.a11ySemantics(
+                                role = Role.Button,
+                                label = closeLabel
+                            )
+                        ) {
+                            FilledSymbol(
+                                icon = MaterialSymbols.CLOSE,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
                     }
                 }
 
@@ -137,6 +160,33 @@ fun SettingsDialog(
                     SettingsTab.ACCESSIBILITY to stringResource(Res.string.accessibility),
                     SettingsTab.SHORTCUTS to stringResource(Res.string.settings_tab_shortcuts)
                 )
+
+                // Tab navigation hint
+                if (AppSettings.showButtonShortcutHints.value) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "←")
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(Res.string.settings_tab_shortcuts),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "→")
+                        Spacer(modifier = Modifier.width(12.dp))
+                        de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "↑↓")
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(Res.string.scroll),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
 
                 ScrollableTabRowWithHints(
                     selectedTabIndex = selectedTabIndex
@@ -161,11 +211,11 @@ fun SettingsDialog(
                         .fillMaxWidth()
                 ) {
                     when (selectedTabType) {
-                        SettingsTab.GENERAL -> ScrollableSettingsTabContent { GeneralTabContent(onDismissSettings = onDismiss) }
-                        SettingsTab.WORLD_MAP -> ScrollableSettingsTabContent { WorldmapTabContent() }
-                        SettingsTab.LEVEL -> ScrollableSettingsTabContent { LevelTabContent() }
-                        SettingsTab.SOUND -> ScrollableSettingsTabContent { SoundTabContent() }
-                        SettingsTab.ACCESSIBILITY -> ScrollableSettingsTabContent { AccessibilityTabContent() }
+                        SettingsTab.GENERAL -> ScrollableSettingsTabContent(settingsScrollState) { GeneralTabContent(onDismissSettings = onDismiss) }
+                        SettingsTab.WORLD_MAP -> ScrollableSettingsTabContent(settingsScrollState) { WorldmapTabContent() }
+                        SettingsTab.LEVEL -> ScrollableSettingsTabContent(settingsScrollState) { LevelTabContent() }
+                        SettingsTab.SOUND -> ScrollableSettingsTabContent(settingsScrollState) { SoundTabContent() }
+                        SettingsTab.ACCESSIBILITY -> ScrollableSettingsTabContent(settingsScrollState) { AccessibilityTabContent() }
                         SettingsTab.SHORTCUTS -> ShortcutBindingsTabContent()
                     }
                 }
@@ -185,13 +235,13 @@ fun SettingsDialog(
 }
 
 @Composable
-private fun ScrollableSettingsTabContent(content: @Composable () -> Unit) {
+private fun ScrollableSettingsTabContent(scrollState: ScrollState, content: @Composable () -> Unit) {
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(max = maxHeight)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
         ) {
             content()
         }

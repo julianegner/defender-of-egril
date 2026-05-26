@@ -1883,5 +1883,8 @@
     <string name="keyboard_nav_skip_locked">Gesperrte überspringen</string>
     <string name="player_profile_shortcut">P</string>
     <string name="keyboard_nav_collapse_expand">Ein-/Ausklappen</string>
+    <string name="feedback_field_ctrl_tab_hint">Strg+Tab zum Verlassen des Feldes</string>
+    <string name="keyboard_nav_prev_location">wählt vorherigen Ort</string>
+    <string name="scroll">Scrollen</string>
 
 </resources>

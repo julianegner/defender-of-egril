@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -127,6 +128,21 @@ fun PlayerProfileScreen(
                                 onUseRemoteSettingsChanged(!playerProfile.useRemoteSettings)
                                 true
                             }
+                            // S → Switch player
+                            event.key == Key.S && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                onSelectPlayer()
+                                true
+                            }
+                            // M → Manage account
+                            event.key == Key.M && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                onManageAccount()
+                                true
+                            }
+                            // L → Logout
+                            event.key == Key.L && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                onIamLogout()
+                                true
+                            }
                             // Up/Down arrows → scroll tab content
                             event.key == Key.DirectionUp && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
                                 scope.launch { tabScrollState.animateScrollTo((tabScrollState.value - 120).coerceAtLeast(0)) }
@@ -240,6 +256,10 @@ fun PlayerProfileScreen(
                                 text = stringResource(Res.string.switch_player),
                                 style = MaterialTheme.typography.bodySmall
                             )
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                Spacer(modifier = Modifier.width(4.dp))
+                                ShortcutKeyChip(text = "S", color = LocalContentColor.current.copy(alpha = 0.75f))
+                            }
                         }
                         // Feedback and Settings buttons
                         FeedbackButton(
@@ -296,6 +316,10 @@ fun PlayerProfileScreen(
                                 text = stringResource(Res.string.switch_player),
                                 style = MaterialTheme.typography.bodySmall
                             )
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                Spacer(modifier = Modifier.width(4.dp))
+                                ShortcutKeyChip(text = "S", color = LocalContentColor.current.copy(alpha = 0.75f))
+                            }
                         }
                         // Feedback and Settings buttons
                         FeedbackButton(
@@ -395,12 +419,26 @@ fun PlayerProfileScreen(
                             Tab(
                                 selected = selectedTabIndex == 0,
                                 onClick = { selectedTabIndex = 0 },
-                                text = { Text(stringResource(Res.string.achievements)) }
+                                text = {
+                                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                        if (AppSettings.showButtonShortcutHints.value) {
+                                            ShortcutKeyChip(text = "←", color = LocalContentColor.current.copy(alpha = 0.6f))
+                                        }
+                                        Text(stringResource(Res.string.achievements))
+                                    }
+                                }
                             )
                             Tab(
                                 selected = selectedTabIndex == 1,
                                 onClick = { selectedTabIndex = 1 },
-                                text = { Text(stringResource(Res.string.abilities)) }
+                                text = {
+                                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                        Text(stringResource(Res.string.abilities))
+                                        if (AppSettings.showButtonShortcutHints.value) {
+                                            ShortcutKeyChip(text = "→", color = LocalContentColor.current.copy(alpha = 0.6f))
+                                        }
+                                    }
+                                }
                             )
                         }
                         
@@ -1059,6 +1097,10 @@ private fun UserAccountCard(
                                         text = stringResource(Res.string.iam_manage_account),
                                         style = MaterialTheme.typography.bodySmall
                                     )
+                                    if (AppSettings.showButtonShortcutHints.value) {
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        ShortcutKeyChip(text = "M", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                    }
                                 }
                                 OutlinedButton(
                                     onClick = onIamLogout,
@@ -1070,6 +1112,10 @@ private fun UserAccountCard(
                                         text = stringResource(Res.string.iam_logout),
                                         style = MaterialTheme.typography.bodySmall
                                     )
+                                    if (AppSettings.showButtonShortcutHints.value) {
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        ShortcutKeyChip(text = "L", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                    }
                                 }
                             }
                             // Column 3: Toggles
@@ -1123,6 +1169,10 @@ private fun UserAccountCard(
                                         text = stringResource(Res.string.iam_manage_account),
                                         style = MaterialTheme.typography.bodySmall
                                     )
+                                    if (AppSettings.showButtonShortcutHints.value) {
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        ShortcutKeyChip(text = "M", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                    }
                                 }
                                 OutlinedButton(
                                     onClick = onIamLogout,
@@ -1134,6 +1184,10 @@ private fun UserAccountCard(
                                         text = stringResource(Res.string.iam_logout),
                                         style = MaterialTheme.typography.bodySmall
                                     )
+                                    if (AppSettings.showButtonShortcutHints.value) {
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        ShortcutKeyChip(text = "L", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                    }
                                 }
                             }
                             HorizontalDivider()
