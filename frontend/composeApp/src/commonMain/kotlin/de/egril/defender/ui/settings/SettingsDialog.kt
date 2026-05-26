@@ -103,9 +103,9 @@ fun SettingsDialog(
                                 true
                             }
                             Key.Tab -> {
-                                // Keep Tab within the settings dialog - re-request focus to prevent escape
-                                scope.launch { try { focusRequester.requestFocus() } catch (_: IllegalStateException) {} }
-                                true
+                                // Allow Tab to navigate between settings items within the current tab
+                                // (don't capture it - let default focus traversal work)
+                                false
                             }
                             else -> false
                         }
@@ -178,6 +178,14 @@ fun SettingsDialog(
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "Tabs",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "Tab")
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(Res.string.keyboard_nav_next),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )

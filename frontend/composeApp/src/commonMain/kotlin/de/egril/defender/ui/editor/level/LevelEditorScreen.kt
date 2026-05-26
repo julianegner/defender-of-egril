@@ -41,6 +41,8 @@ fun LevelEditorScreen(
 ) {
     var currentTab by remember { mutableStateOf(EditorTab.LEVEL_EDITOR) }
     var showHowToDialog by remember { mutableStateOf(false) }
+    var triggerFeedback by remember { mutableStateOf(false) }
+    var triggerSettings by remember { mutableStateOf(false) }
     
     val tabs = listOf(
         EditorTab.MAP_EDITOR,
@@ -83,6 +85,18 @@ fun LevelEditorScreen(
                                 if (idx < tabs.size - 1) currentTab = tabs[idx + 1]
                                 true
                             }
+                            event.key == Key.I && !event.isCtrlPressed && !event.isAltPressed -> {
+                                showHowToDialog = true
+                                true
+                            }
+                            event.key == Key.Period -> {
+                                triggerFeedback = true
+                                true
+                            }
+                            event.key == Key.Comma -> {
+                                triggerSettings = true
+                                true
+                            }
                             else -> false
                         }
                     } else false
@@ -94,6 +108,31 @@ fun LevelEditorScreen(
         ) {
             // Spacer for header
             Spacer(modifier = Modifier.height(140.dp))
+
+            // Tab switch hint row (same level as action buttons inside each tab)
+            if (AppSettings.showButtonShortcutHints.value) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ShortcutKeyChip(text = "←")
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "/",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    ShortcutKeyChip(text = "→")
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(Res.string.keyboard_nav_switch_tab),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
             
             // Content based on selected tab
             when (currentTab) {
@@ -137,13 +176,30 @@ fun LevelEditorScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        FeedbackButton()
-                        SettingsButton()
+                        FeedbackButton(
+                            shortcutKey = ".",
+                            triggerOpen = triggerFeedback,
+                            onTriggerHandled = { triggerFeedback = false }
+                        )
+                        SettingsButton(
+                            shortcutKey = ",",
+                            triggerOpen = triggerSettings,
+                            onTriggerHandled = { triggerSettings = false }
+                        )
                         
                         Button(
                             onClick = { showHowToDialog = true }
                         ) {
-                            Text(stringResource(Res.string.info))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(stringResource(Res.string.info))
+                                if (AppSettings.showButtonShortcutHints.value) {
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    ShortcutKeyChip(
+                                        text = "I",
+                                        color = LocalContentColor.current.copy(alpha = 0.75f)
+                                    )
+                                }
+                            }
                         }
                         
                         Button(onClick = onBack) {
@@ -173,31 +229,6 @@ fun LevelEditorScreen(
                 
                 val selectedTabIndex = tabs.indexOfFirst { it.first == currentTab }.let { index ->
                     if (index == -1) tabs.indexOfFirst { it.first == EditorTab.LEVEL_EDITOR } else index
-                }
-                
-                // Shortcut chips for tab navigation
-                if (AppSettings.showButtonShortcutHints.value) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        ShortcutKeyChip(text = "←")
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "/",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        ShortcutKeyChip(text = "→")
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = stringResource(Res.string.keyboard_nav_switch_tab),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
                 }
                 
                 PrimaryTabRow(
