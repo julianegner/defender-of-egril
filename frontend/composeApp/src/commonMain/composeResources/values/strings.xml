@@ -1894,5 +1894,6 @@
     <string name="keyboard_nav_prev_location">previous location</string>
     <string name="scroll">Scroll</string>
     <string name="toggle_setting">Toggle</string>
+    <string name="cycle">Cycle</string>
 
 </resources>

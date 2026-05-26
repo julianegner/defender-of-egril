@@ -1887,5 +1887,6 @@
     <string name="keyboard_nav_prev_location">vorheriger Ort</string>
     <string name="scroll">Scrollen</string>
     <string name="toggle_setting">Umschalten</string>
+    <string name="cycle">Wechseln</string>
 
 </resources>

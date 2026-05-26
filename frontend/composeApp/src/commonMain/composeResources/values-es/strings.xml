@@ -1888,5 +1888,6 @@
     <string name="keyboard_nav_prev_location">ubicación anterior</string>
     <string name="scroll">Desplazar</string>
     <string name="toggle_setting">Alternar</string>
+    <string name="cycle">Cambiar</string>
 
 </resources>

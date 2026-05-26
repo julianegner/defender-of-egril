@@ -66,6 +66,9 @@ fun SettingsDialog(
         val focusRequester = remember { FocusRequester() }
         val scope = rememberCoroutineScope()
         val settingsScrollState = rememberScrollState()
+        // State triggers for keyboard shortcuts that need composable-level state
+        var triggerRestoreData by remember { mutableStateOf(false) }
+        var triggerShowSoundDetails by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) { focusRequester.requestFocus() }
         // Reset scroll when tab changes, and re-request focus to ensure arrow keys work
         LaunchedEffect(selectedTabIndex) {
@@ -115,9 +118,19 @@ fun SettingsDialog(
                                     Key.Seven -> 7; Key.Eight -> 8; Key.Nine -> 9
                                     else -> null
                                 }
+                                val currentTab = SettingsTab.entries.getOrNull(selectedTabIndex) ?: SettingsTab.GENERAL
                                 if (number != null && !event.isCtrlPressed && !event.isAltPressed) {
-                                    val currentTab = SettingsTab.entries.getOrNull(selectedTabIndex) ?: SettingsTab.GENERAL
                                     handleSettingsNumberKey(currentTab, number)
+                                } else if (!event.isCtrlPressed && !event.isAltPressed) {
+                                    when {
+                                        currentTab == SettingsTab.GENERAL && event.key == Key.R -> {
+                                            triggerRestoreData = true; true
+                                        }
+                                        currentTab == SettingsTab.SOUND && event.key == Key.D -> {
+                                            triggerShowSoundDetails = true; true
+                                        }
+                                        else -> handleSettingsLetterKey(currentTab, event.key)
+                                    }
                                 } else {
                                     false
                                 }
@@ -211,6 +224,8 @@ fun SettingsDialog(
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "Tab")
                     }
                 }
 
@@ -237,12 +252,12 @@ fun SettingsDialog(
                         .fillMaxWidth()
                 ) {
                     when (selectedTabType) {
-                        SettingsTab.GENERAL -> ScrollableSettingsTabContent(settingsScrollState) { GeneralTabContent(onDismissSettings = onDismiss) }
+                        SettingsTab.GENERAL -> ScrollableSettingsTabContent(settingsScrollState) { GeneralTabContent(onDismissSettings = onDismiss, triggerRestore = triggerRestoreData, onRestoreHandled = { triggerRestoreData = false }) }
                         SettingsTab.WORLD_MAP -> ScrollableSettingsTabContent(settingsScrollState) { WorldmapTabContent() }
                         SettingsTab.LEVEL -> ScrollableSettingsTabContent(settingsScrollState) { LevelTabContent() }
-                        SettingsTab.SOUND -> ScrollableSettingsTabContent(settingsScrollState) { SoundTabContent() }
+                        SettingsTab.SOUND -> ScrollableSettingsTabContent(settingsScrollState) { SoundTabContent(triggerShowDetails = triggerShowSoundDetails, onShowDetailsHandled = { triggerShowSoundDetails = false }) }
                         SettingsTab.ACCESSIBILITY -> ScrollableSettingsTabContent(settingsScrollState) { AccessibilityTabContent() }
-                        SettingsTab.SHORTCUTS -> ShortcutBindingsTabContent()
+                        SettingsTab.SHORTCUTS -> ShortcutBindingsTabContent(settingsScrollState)
                     }
                 }
 
@@ -297,18 +312,31 @@ private fun NumberedSetting(number: Int, content: @Composable () -> Unit) {
  * General tab: Language, Difficulty, Dark mode, Check for updates, Debug options.
  */
 @Composable
-private fun GeneralTabContent(onDismissSettings: () -> Unit) {
+private fun GeneralTabContent(onDismissSettings: () -> Unit, triggerRestore: Boolean = false, onRestoreHandled: () -> Unit = {}) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Language section
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            SelectableText(
-                text = stringResource(Res.string.language),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                SelectableText(
+                    text = stringResource(Res.string.language),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                if (AppSettings.showButtonShortcutHints.value) {
+                    de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "L")
+                    Text(
+                        text = stringResource(Res.string.cycle),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
             LanguageChooser(
                 modifier = Modifier.fillMaxWidth(),
                 onLanguageChanged = { locale ->
@@ -321,11 +349,24 @@ private fun GeneralTabContent(onDismissSettings: () -> Unit) {
 
         // Difficulty section
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            SelectableText(
-                text = stringResource(Res.string.difficulty),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                SelectableText(
+                    text = stringResource(Res.string.difficulty),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                if (AppSettings.showButtonShortcutHints.value) {
+                    de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "D")
+                    Text(
+                        text = stringResource(Res.string.cycle),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
             DifficultyChooser(
                 modifier = Modifier.fillMaxWidth(),
                 onDifficultyChanged = { level ->
@@ -404,7 +445,7 @@ private fun GeneralTabContent(onDismissSettings: () -> Unit) {
         HorizontalDivider()
 
         // Restore game data section
-        RestoreGameDataSection(onDismissSettings = onDismissSettings)
+        RestoreGameDataSection(onDismissSettings = onDismissSettings, triggerRestore = triggerRestore, onRestoreHandled = onRestoreHandled)
     }
 }
 
@@ -495,7 +536,7 @@ private fun AccessibilityInfoText(text: String) {
 }
 
 @Composable
-private fun ShortcutBindingsTabContent() {
+private fun ShortcutBindingsTabContent(settingsScrollState: ScrollState = rememberScrollState()) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -514,13 +555,33 @@ private fun ShortcutBindingsTabContent() {
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
+        if (AppSettings.showButtonShortcutHints.value) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "↑↓")
+                Text(
+                    text = stringResource(Res.string.scroll),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Tab + Enter = edit binding",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
         Spacer(modifier = Modifier.height(4.dp))
         // Keep shortcuts content in a weighted container so KeyboardShortcutsInfo's internal
         // vertical scroll receives bounded height and avoids infinite-constraints crashes.
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
             KeyboardShortcutsInfo(
                 enableBindingEdit = true,
-                showResetButton = true
+                showResetButton = true,
+                scrollState = settingsScrollState
             )
         }
     }
@@ -560,12 +621,15 @@ private fun ColorBlindPaletteChooser(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
-        options.forEach { (palette, label, description) ->
+        options.forEachIndexed { index, (palette, label, description) ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                if (AppSettings.showButtonShortcutHints.value) {
+                    de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "${index + 5}")
+                }
                 RadioButton(
                     selected = selected == palette,
                     onClick = { onSelected(palette) }
@@ -597,11 +661,19 @@ private fun ColorBlindPaletteChooser(
  * performs a backup-and-restore via RepositoryManager and reloads the world map data.
  */
 @Composable
-private fun RestoreGameDataSection(onDismissSettings: () -> Unit) {
+private fun RestoreGameDataSection(onDismissSettings: () -> Unit, triggerRestore: Boolean = false, onRestoreHandled: () -> Unit = {}) {
     val coroutineScope = rememberCoroutineScope()
     var showConfirmDialog by remember { mutableStateOf(false) }
     var showResultDialog by remember { mutableStateOf<Pair<Boolean, String?>?>(null) }
     var isRestoring by remember { mutableStateOf(false) }
+
+    // Handle keyboard trigger
+    LaunchedEffect(triggerRestore) {
+        if (triggerRestore) {
+            showConfirmDialog = true
+            onRestoreHandled()
+        }
+    }
 
     val confirmMessage = if (isPlatformWasm) {
         stringResource(Res.string.restore_game_data_confirm_message_web)
@@ -624,6 +696,10 @@ private fun RestoreGameDataSection(onDismissSettings: () -> Unit) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(stringResource(Res.string.restore_game_data))
+            if (AppSettings.showButtonShortcutHints.value) {
+                Spacer(modifier = Modifier.width(8.dp))
+                de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "R")
+            }
         }
     }
 
@@ -870,6 +946,9 @@ private fun HeaderTextSizeSetting() {
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
+        if (AppSettings.showButtonShortcutHints.value) {
+            de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "+/-")
+        }
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(0.dp)
@@ -916,24 +995,37 @@ private fun HeaderTextSizeSetting() {
 
 @Composable
 private fun CaptionsSetting() {
-    GenericSwitch(
-        state = AppSettings.captionsEnabled,
-        checkedText = stringResource(Res.string.accessibility_captions),
-        uncheckedText = stringResource(Res.string.accessibility_captions),
-        onCheckedChange = { enabled ->
-            AppSettings.saveCaptionsEnabled(enabled)
-        },
-        modifier = Modifier.fillMaxWidth()
-    )
-    AccessibilityInfoText(stringResource(Res.string.accessibility_captions_info))
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        GenericSwitch(
+            state = AppSettings.captionsEnabled,
+            checkedText = stringResource(Res.string.accessibility_captions),
+            uncheckedText = stringResource(Res.string.accessibility_captions),
+            onCheckedChange = { enabled ->
+                AppSettings.saveCaptionsEnabled(enabled)
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+        AccessibilityInfoText(stringResource(Res.string.accessibility_captions_info))
+    }
 }
 
 /**
  * Sound tab: All sound settings.
  */
 @Composable
-private fun SoundTabContent() {
+private fun SoundTabContent(triggerShowDetails: Boolean = false, onShowDetailsHandled: () -> Unit = {}) {
     var showDetailedSoundSettings by remember { mutableStateOf(false) }
+
+    // Handle keyboard trigger for showing details
+    LaunchedEffect(triggerShowDetails) {
+        if (triggerShowDetails) {
+            showDetailedSoundSettings = !showDetailedSoundSettings
+            onShowDetailsHandled()
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -969,11 +1061,19 @@ private fun SoundTabContent() {
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                SelectableText(
-                    text = stringResource(Res.string.sound_volume),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    SelectableText(
+                        text = stringResource(Res.string.sound_volume),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    if (AppSettings.showButtonShortcutHints.value) {
+                        de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "+/-")
+                    }
+                }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -1004,6 +1104,10 @@ private fun SoundTabContent() {
                         stringResource(Res.string.show_detailed_sound_settings)
                     }
                 )
+                if (AppSettings.showButtonShortcutHints.value) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "D")
+                }
             }
 
             // Detailed sound settings (collapsible)
@@ -1305,11 +1409,114 @@ private fun handleSettingsNumberKey(tab: SettingsTab, number: Int): Boolean {
             2 -> { AppSettings.saveCaptionsEnabled(!AppSettings.captionsEnabled.value); true }
             3 -> { AppSettings.saveHoldToConfirmEnabled(!AppSettings.holdToConfirmEnabled.value); true }
             4 -> { AppSettings.saveEnableAnimations(!AppSettings.enableAnimations.value); true }
+            5 -> { AppSettings.saveColorBlindPalette(ColorBlindPalette.OFF); true }
+            6 -> { AppSettings.saveColorBlindPalette(ColorBlindPalette.DEUTERANOPIA); true }
+            7 -> { AppSettings.saveColorBlindPalette(ColorBlindPalette.PROTANOPIA); true }
+            8 -> { AppSettings.saveColorBlindPalette(ColorBlindPalette.TRITANOPIA); true }
             else -> false
         }
         SettingsTab.SHORTCUTS -> when (number) {
             1 -> { AppSettings.saveShowButtonShortcutHints(!AppSettings.showButtonShortcutHints.value); true }
             else -> false
         }
+    }
+}
+
+/**
+ * Handle letter/special key shortcuts for settings that aren't simple toggles.
+ * Returns true if the key was handled.
+ */
+private fun handleSettingsLetterKey(tab: SettingsTab, key: Key): Boolean {
+    return when (tab) {
+        SettingsTab.GENERAL -> when (key) {
+            Key.L -> {
+                // Cycle through languages
+                val locales = com.hyperether.resources.AppLocale.entries
+                val currentIndex = locales.indexOf(com.hyperether.resources.currentLanguage.value)
+                val nextIndex = (currentIndex + 1) % locales.size
+                AppSettings.saveLanguage(locales[nextIndex])
+                true
+            }
+            Key.D -> {
+                // Cycle through difficulty levels
+                val levels = DifficultyLevel.entries
+                val currentIndex = levels.indexOf(AppSettings.difficulty.value)
+                val nextIndex = (currentIndex + 1) % levels.size
+                AppSettings.saveDifficulty(levels[nextIndex])
+                true
+            }
+            else -> false
+        }
+        SettingsTab.SOUND -> when (key) {
+            Key.D -> {
+                // Toggle show details - handled via composable state, signal via dummy toggle
+                // This will be handled separately in the composable
+                false
+            }
+            Key.Plus, Key.Equals -> {
+                // Increase master volume
+                val newVolume = (AppSettings.soundVolume.value + 0.1f).coerceAtMost(1f)
+                AppSettings.saveSoundVolume(newVolume)
+                true
+            }
+            Key.Minus -> {
+                // Decrease master volume
+                val newVolume = (AppSettings.soundVolume.value - 0.1f).coerceAtLeast(0f)
+                AppSettings.saveSoundVolume(newVolume)
+                true
+            }
+            else -> false
+        }
+        SettingsTab.LEVEL -> when (key) {
+            Key.Plus, Key.Equals -> {
+                // Increase header text size
+                val current = AppSettings.headerTextSize.value
+                val next = when (current) {
+                    HeaderTextSize.SMALL -> HeaderTextSize.MEDIUM
+                    HeaderTextSize.MEDIUM -> HeaderTextSize.LARGE
+                    HeaderTextSize.LARGE -> HeaderTextSize.LARGE
+                }
+                AppSettings.saveHeaderTextSize(next)
+                true
+            }
+            Key.Minus -> {
+                // Decrease header text size
+                val current = AppSettings.headerTextSize.value
+                val next = when (current) {
+                    HeaderTextSize.LARGE -> HeaderTextSize.MEDIUM
+                    HeaderTextSize.MEDIUM -> HeaderTextSize.SMALL
+                    HeaderTextSize.SMALL -> HeaderTextSize.SMALL
+                }
+                AppSettings.saveHeaderTextSize(next)
+                true
+            }
+            else -> false
+        }
+        SettingsTab.ACCESSIBILITY -> when (key) {
+            Key.Plus, Key.Equals -> {
+                // Increase header text size
+                val current = AppSettings.headerTextSize.value
+                val next = when (current) {
+                    HeaderTextSize.SMALL -> HeaderTextSize.MEDIUM
+                    HeaderTextSize.MEDIUM -> HeaderTextSize.LARGE
+                    HeaderTextSize.LARGE -> HeaderTextSize.LARGE
+                }
+                AppSettings.saveHeaderTextSize(next)
+                true
+            }
+            Key.Minus -> {
+                // Decrease header text size
+                val current = AppSettings.headerTextSize.value
+                val next = when (current) {
+                    HeaderTextSize.LARGE -> HeaderTextSize.MEDIUM
+                    HeaderTextSize.MEDIUM -> HeaderTextSize.SMALL
+                    HeaderTextSize.SMALL -> HeaderTextSize.SMALL
+                }
+                AppSettings.saveHeaderTextSize(next)
+                true
+            }
+            else -> false
+        }
+        else -> false
     }
 }
