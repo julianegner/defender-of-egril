@@ -1888,5 +1888,6 @@
     <string name="scroll">Scrollen</string>
     <string name="toggle_setting">Umschalten</string>
     <string name="cycle">Wechseln</string>
+    <string name="edit_binding_hint">Tab + Enter = Taste ändern</string>
 
 </resources>

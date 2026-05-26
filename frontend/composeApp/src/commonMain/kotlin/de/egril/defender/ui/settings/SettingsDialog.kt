@@ -568,7 +568,7 @@ private fun ShortcutBindingsTabContent(settingsScrollState: ScrollState = rememb
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Tab + Enter = edit binding",
+                    text = stringResource(Res.string.edit_binding_hint),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -1468,55 +1468,36 @@ private fun handleSettingsLetterKey(tab: SettingsTab, key: Key): Boolean {
             else -> false
         }
         SettingsTab.LEVEL -> when (key) {
-            Key.Plus, Key.Equals -> {
-                // Increase header text size
-                val current = AppSettings.headerTextSize.value
-                val next = when (current) {
-                    HeaderTextSize.SMALL -> HeaderTextSize.MEDIUM
-                    HeaderTextSize.MEDIUM -> HeaderTextSize.LARGE
-                    HeaderTextSize.LARGE -> HeaderTextSize.LARGE
-                }
-                AppSettings.saveHeaderTextSize(next)
-                true
-            }
-            Key.Minus -> {
-                // Decrease header text size
-                val current = AppSettings.headerTextSize.value
-                val next = when (current) {
-                    HeaderTextSize.LARGE -> HeaderTextSize.MEDIUM
-                    HeaderTextSize.MEDIUM -> HeaderTextSize.SMALL
-                    HeaderTextSize.SMALL -> HeaderTextSize.SMALL
-                }
-                AppSettings.saveHeaderTextSize(next)
-                true
-            }
+            Key.Plus, Key.Equals -> { adjustHeaderTextSize(increase = true); true }
+            Key.Minus -> { adjustHeaderTextSize(increase = false); true }
             else -> false
         }
         SettingsTab.ACCESSIBILITY -> when (key) {
-            Key.Plus, Key.Equals -> {
-                // Increase header text size
-                val current = AppSettings.headerTextSize.value
-                val next = when (current) {
-                    HeaderTextSize.SMALL -> HeaderTextSize.MEDIUM
-                    HeaderTextSize.MEDIUM -> HeaderTextSize.LARGE
-                    HeaderTextSize.LARGE -> HeaderTextSize.LARGE
-                }
-                AppSettings.saveHeaderTextSize(next)
-                true
-            }
-            Key.Minus -> {
-                // Decrease header text size
-                val current = AppSettings.headerTextSize.value
-                val next = when (current) {
-                    HeaderTextSize.LARGE -> HeaderTextSize.MEDIUM
-                    HeaderTextSize.MEDIUM -> HeaderTextSize.SMALL
-                    HeaderTextSize.SMALL -> HeaderTextSize.SMALL
-                }
-                AppSettings.saveHeaderTextSize(next)
-                true
-            }
+            Key.Plus, Key.Equals -> { adjustHeaderTextSize(increase = true); true }
+            Key.Minus -> { adjustHeaderTextSize(increase = false); true }
             else -> false
         }
         else -> false
     }
+}
+
+/**
+ * Adjusts the header text size up or down by one step.
+ */
+private fun adjustHeaderTextSize(increase: Boolean) {
+    val current = AppSettings.headerTextSize.value
+    val next = if (increase) {
+        when (current) {
+            HeaderTextSize.SMALL -> HeaderTextSize.MEDIUM
+            HeaderTextSize.MEDIUM -> HeaderTextSize.LARGE
+            HeaderTextSize.LARGE -> HeaderTextSize.LARGE
+        }
+    } else {
+        when (current) {
+            HeaderTextSize.LARGE -> HeaderTextSize.MEDIUM
+            HeaderTextSize.MEDIUM -> HeaderTextSize.SMALL
+            HeaderTextSize.SMALL -> HeaderTextSize.SMALL
+        }
+    }
+    AppSettings.saveHeaderTextSize(next)
 }

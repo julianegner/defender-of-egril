@@ -1889,5 +1889,6 @@
     <string name="scroll">Desplazar</string>
     <string name="toggle_setting">Alternar</string>
     <string name="cycle">Cambiar</string>
+    <string name="edit_binding_hint">Tab + Enter = editar tecla</string>
 
 </resources>

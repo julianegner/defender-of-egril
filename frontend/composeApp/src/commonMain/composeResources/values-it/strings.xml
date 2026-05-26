@@ -1891,5 +1891,6 @@
     <string name="scroll">Scorrere</string>
     <string name="toggle_setting">Attiva/Disattiva</string>
     <string name="cycle">Cambia</string>
+    <string name="edit_binding_hint">Tab + Enter = modifica tasto</string>
 
 </resources>

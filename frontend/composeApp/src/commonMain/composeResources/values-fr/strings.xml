@@ -1890,5 +1890,6 @@
     <string name="scroll">Défiler</string>
     <string name="toggle_setting">Basculer</string>
     <string name="cycle">Changer</string>
+    <string name="edit_binding_hint">Tab + Enter = modifier touche</string>
 
 </resources>
