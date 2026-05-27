@@ -139,11 +139,6 @@ fun LanguageChooser(
                 )
             }
         }
-
-        // Keyboard navigation hint
-        if (AppSettings.showButtonShortcutHints.value && expanded) {
-            // Hint shown inside the dropdown area via text below
-        }
     }
 }
 
