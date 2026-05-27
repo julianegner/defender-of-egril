@@ -1107,7 +1107,7 @@ private fun SoundTabContent(triggerShowDetails: Boolean = false, onShowDetailsHa
                 modifier = Modifier.fillMaxWidth()
                     .then(
                         if (selectedVolumeIndex == 0) Modifier.border(
-                            androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                            BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
                             RoundedCornerShape(8.dp)
                         ).padding(4.dp) else Modifier
                     )
