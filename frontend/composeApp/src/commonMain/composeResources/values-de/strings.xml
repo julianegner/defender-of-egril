@@ -1889,5 +1889,7 @@
     <string name="toggle_setting">Umschalten</string>
     <string name="cycle">Wechseln</string>
     <string name="edit_binding_hint">Tab + Enter = Taste ändern</string>
+    <string name="dropdown_keyboard_hint">↑↓ Navigieren, Enter = Auswählen, Esc = Schließen</string>
+    <string name="shortcut_bindings_nav_hint">Tab/Shift+Tab zum Auswählen einer Tastenbelegung, dann Enter zum Ändern. R zum Zurücksetzen aller Belegungen.</string>
 
 </resources>

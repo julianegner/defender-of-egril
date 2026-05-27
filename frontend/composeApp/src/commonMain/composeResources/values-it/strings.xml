@@ -1892,5 +1892,7 @@
     <string name="toggle_setting">Attiva/Disattiva</string>
     <string name="cycle">Cambia</string>
     <string name="edit_binding_hint">Tab + Enter = modifica tasto</string>
+    <string name="dropdown_keyboard_hint">↑↓ Naviga, Enter = Seleziona, Esc = Chiudi</string>
+    <string name="shortcut_bindings_nav_hint">Usa Tab/Shift+Tab per selezionare un tasto, poi Enter per modificarlo. R per ripristinare tutti i tasti.</string>
 
 </resources>

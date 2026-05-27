@@ -314,6 +314,10 @@ fun KeyboardShortcutsInfo(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(stringResource(Res.string.shortcut_bindings_reset_all))
+                    if (AppSettings.showButtonShortcutHints.value) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "R")
+                    }
                 }
             }
 

@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.AppLocale
@@ -22,7 +23,8 @@ import dev.carlsen.flagkit.FlagKit
 
 /**
  * Language chooser dropdown component
- * Displays the current language with its flag and allows switching between supported languages
+ * Displays the current language with its flag and allows switching between supported languages.
+ * Keyboard navigation: Enter/Space to open, ↑/↓ to navigate, Enter to select, Esc to close.
  */
 @Composable
 fun LanguageChooser(
@@ -30,6 +32,14 @@ fun LanguageChooser(
     onLanguageChanged: ((AppLocale) -> Unit)? = null
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var highlightedIndex by remember { mutableStateOf(-1) }
+
+    // Reset highlighted index when dropdown opens
+    LaunchedEffect(expanded) {
+        if (expanded) {
+            highlightedIndex = AppLocale.entries.indexOf(currentLanguage.value).coerceAtLeast(0)
+        }
+    }
 
     Box(
         contentAlignment = Alignment.CenterStart,
@@ -38,6 +48,38 @@ fun LanguageChooser(
             .clip(RoundedCornerShape(8.dp))
             .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(8.dp))
             .clickable { expanded = !expanded }
+            .onPreviewKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown) {
+                    when {
+                        expanded && event.key == Key.DirectionDown -> {
+                            highlightedIndex = (highlightedIndex + 1).coerceAtMost(AppLocale.entries.size - 1)
+                            true
+                        }
+                        expanded && event.key == Key.DirectionUp -> {
+                            highlightedIndex = (highlightedIndex - 1).coerceAtLeast(0)
+                            true
+                        }
+                        expanded && event.key == Key.Enter -> {
+                            val locale = AppLocale.entries.getOrNull(highlightedIndex)
+                            if (locale != null) {
+                                currentLanguage.value = locale
+                                onLanguageChanged?.invoke(locale)
+                            }
+                            expanded = false
+                            true
+                        }
+                        expanded && event.key == Key.Escape -> {
+                            expanded = false
+                            true
+                        }
+                        !expanded && (event.key == Key.Enter || event.key == Key.Spacebar) -> {
+                            expanded = true
+                            true
+                        }
+                        else -> false
+                    }
+                } else false
+            }
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 16.dp),
@@ -69,7 +111,7 @@ fun LanguageChooser(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            AppLocale.entries.forEach { locale ->
+            AppLocale.entries.forEachIndexed { index, locale ->
                 DropdownMenuItem(
                     text = {
                         LanguageFlagAndName(locale)
@@ -78,9 +120,29 @@ fun LanguageChooser(
                         currentLanguage.value = locale
                         onLanguageChanged?.invoke(locale)
                         expanded = false
+                    },
+                    colors = if (index == highlightedIndex) {
+                        MenuDefaults.itemColors(
+                            textColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    } else {
+                        MenuDefaults.itemColors()
+                    },
+                    modifier = if (index == highlightedIndex) {
+                        Modifier.border(
+                            BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                            RoundedCornerShape(4.dp)
+                        )
+                    } else {
+                        Modifier
                     }
                 )
             }
+        }
+
+        // Keyboard navigation hint
+        if (AppSettings.showButtonShortcutHints.value && expanded) {
+            // Hint shown inside the dropdown area via text below
         }
     }
 }

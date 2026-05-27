@@ -1896,5 +1896,7 @@
     <string name="toggle_setting">Toggle</string>
     <string name="cycle">Cycle</string>
     <string name="edit_binding_hint">Tab + Enter = edit binding</string>
+    <string name="dropdown_keyboard_hint">↑↓ Navigate, Enter = Select, Esc = Close</string>
+    <string name="shortcut_bindings_nav_hint">Use Tab/Shift+Tab to select a keybind, then Enter to change it. Press R to reset all bindings.</string>
 
 </resources>

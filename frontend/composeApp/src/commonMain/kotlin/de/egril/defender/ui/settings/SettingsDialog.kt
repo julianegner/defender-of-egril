@@ -123,6 +123,9 @@ fun SettingsDialog(
                                     handleSettingsNumberKey(currentTab, number)
                                 } else if (!event.isCtrlPressed && !event.isAltPressed) {
                                     when {
+                                        event.key == Key.X -> {
+                                            AppSettings.resetToDefaults(); true
+                                        }
                                         currentTab == SettingsTab.GENERAL && event.key == Key.R -> {
                                             triggerRestoreData = true; true
                                         }
@@ -269,6 +272,10 @@ fun SettingsDialog(
                     modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
                 ) {
                     Text(stringResource(Res.string.reset_settings))
+                    if (AppSettings.showButtonShortcutHints.value) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "X")
+                    }
                 }
             }
         }
@@ -343,6 +350,13 @@ private fun GeneralTabContent(onDismissSettings: () -> Unit, triggerRestore: Boo
                     AppSettings.saveLanguage(locale)
                 }
             )
+            if (AppSettings.showButtonShortcutHints.value) {
+                Text(
+                    text = stringResource(Res.string.dropdown_keyboard_hint),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
 
         HorizontalDivider()
@@ -373,6 +387,13 @@ private fun GeneralTabContent(onDismissSettings: () -> Unit, triggerRestore: Boo
                     AppSettings.saveDifficulty(level)
                 }
             )
+            if (AppSettings.showButtonShortcutHints.value) {
+                Text(
+                    text = stringResource(Res.string.dropdown_keyboard_hint),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
             SelectableText(
                 text = stringResource(Res.string.difficulty_info_current_level),
                 style = MaterialTheme.typography.bodySmall,
@@ -556,6 +577,19 @@ private fun ShortcutBindingsTabContent(settingsScrollState: ScrollState = rememb
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         if (AppSettings.showButtonShortcutHints.value) {
+            // Descriptive info box for keybind navigation
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = stringResource(Res.string.shortcut_bindings_nav_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -563,12 +597,6 @@ private fun ShortcutBindingsTabContent(settingsScrollState: ScrollState = rememb
                 de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "↑↓")
                 Text(
                     text = stringResource(Res.string.scroll),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = stringResource(Res.string.edit_binding_hint),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -1209,6 +1237,7 @@ private fun SoundTabContent(triggerShowDetails: Boolean = false, onShowDetailsHa
                                 color = MaterialTheme.colorScheme.onSurface
                             )
 
+                            NumberedSetting(5) {
                             GenericSwitch(
                                 state = AppSettings.isWorldMapMusicEnabled,
                                 checkedText = stringResource(Res.string.worldmap_music_enabled),
@@ -1229,6 +1258,7 @@ private fun SoundTabContent(triggerShowDetails: Boolean = false, onShowDetailsHa
                                 },
                                 modifier = Modifier.fillMaxWidth()
                             )
+                            }
 
                             if (AppSettings.isWorldMapMusicEnabled.value) {
                                 Text(
@@ -1275,6 +1305,7 @@ private fun SoundTabContent(triggerShowDetails: Boolean = false, onShowDetailsHa
                                 color = MaterialTheme.colorScheme.onSurface
                             )
 
+                            NumberedSetting(6) {
                             GenericSwitch(
                                 state = AppSettings.isGameplayMusicEnabled,
                                 checkedText = stringResource(Res.string.gameplay_music_enabled),
@@ -1296,6 +1327,7 @@ private fun SoundTabContent(triggerShowDetails: Boolean = false, onShowDetailsHa
                                 },
                                 modifier = Modifier.fillMaxWidth()
                             )
+                            }
 
                             if (AppSettings.isGameplayMusicEnabled.value) {
                                 Text(
@@ -1402,6 +1434,33 @@ private fun handleSettingsNumberKey(tab: SettingsTab, number: Int): Boolean {
                 }
                 true
             }
+            5 -> {
+                val newVal = !AppSettings.isWorldMapMusicEnabled.value
+                AppSettings.saveWorldMapMusicEnabled(newVal)
+                val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getCurrentMusic()
+                if (currentMusic == de.egril.defender.audio.BackgroundMusic.WORLD_MAP) {
+                    if (newVal && AppSettings.isSoundEnabled.value && AppSettings.isMusicEnabled.value) {
+                        de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(de.egril.defender.audio.BackgroundMusic.WORLD_MAP, loop = true)
+                    } else {
+                        de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
+                    }
+                }
+                true
+            }
+            6 -> {
+                val newVal = !AppSettings.isGameplayMusicEnabled.value
+                AppSettings.saveGameplayMusicEnabled(newVal)
+                val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getCurrentMusic()
+                if (currentMusic == de.egril.defender.audio.BackgroundMusic.GAMEPLAY_NORMAL ||
+                    currentMusic == de.egril.defender.audio.BackgroundMusic.GAMEPLAY_LOW_HEALTH) {
+                    if (newVal && AppSettings.isSoundEnabled.value && AppSettings.isMusicEnabled.value) {
+                        de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(currentMusic, loop = true)
+                    } else {
+                        de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
+                    }
+                }
+                true
+            }
             else -> false
         }
         SettingsTab.ACCESSIBILITY -> when (number) {
@@ -1475,6 +1534,10 @@ private fun handleSettingsLetterKey(tab: SettingsTab, key: Key): Boolean {
         SettingsTab.ACCESSIBILITY -> when (key) {
             Key.Plus, Key.Equals -> { adjustHeaderTextSize(increase = true); true }
             Key.Minus -> { adjustHeaderTextSize(increase = false); true }
+            else -> false
+        }
+        SettingsTab.SHORTCUTS -> when (key) {
+            Key.R -> { AppSettings.resetShortcutBindings(); true }
             else -> false
         }
         else -> false

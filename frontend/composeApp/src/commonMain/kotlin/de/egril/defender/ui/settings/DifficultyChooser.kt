@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.icon.TriangleDownIcon
@@ -18,7 +19,8 @@ import defender_of_egril.composeapp.generated.resources.*
 
 /**
  * Difficulty level chooser dropdown component
- * Displays the current difficulty and allows switching between difficulty levels
+ * Displays the current difficulty and allows switching between difficulty levels.
+ * Keyboard navigation: Enter/Space to open, ↑/↓ to navigate, Enter to select, Esc to close.
  */
 @Composable
 fun DifficultyChooser(
@@ -26,7 +28,15 @@ fun DifficultyChooser(
     onDifficultyChanged: (DifficultyLevel) -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var highlightedIndex by remember { mutableStateOf(-1) }
     val currentDifficulty = AppSettings.difficulty.value
+
+    // Reset highlighted index when dropdown opens
+    LaunchedEffect(expanded) {
+        if (expanded) {
+            highlightedIndex = DifficultyLevel.entries.indexOf(currentDifficulty).coerceAtLeast(0)
+        }
+    }
 
     Box(
         contentAlignment = Alignment.CenterStart,
@@ -35,6 +45,37 @@ fun DifficultyChooser(
             .clip(RoundedCornerShape(8.dp))
             .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(8.dp))
             .clickable { expanded = !expanded }
+            .onPreviewKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown) {
+                    when {
+                        expanded && event.key == Key.DirectionDown -> {
+                            highlightedIndex = (highlightedIndex + 1).coerceAtMost(DifficultyLevel.entries.size - 1)
+                            true
+                        }
+                        expanded && event.key == Key.DirectionUp -> {
+                            highlightedIndex = (highlightedIndex - 1).coerceAtLeast(0)
+                            true
+                        }
+                        expanded && event.key == Key.Enter -> {
+                            val level = DifficultyLevel.entries.getOrNull(highlightedIndex)
+                            if (level != null) {
+                                onDifficultyChanged(level)
+                            }
+                            expanded = false
+                            true
+                        }
+                        expanded && event.key == Key.Escape -> {
+                            expanded = false
+                            true
+                        }
+                        !expanded && (event.key == Key.Enter || event.key == Key.Spacebar) -> {
+                            expanded = true
+                            true
+                        }
+                        else -> false
+                    }
+                } else false
+            }
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 16.dp),
@@ -69,7 +110,7 @@ fun DifficultyChooser(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            DifficultyLevel.entries.forEach { level ->
+            DifficultyLevel.entries.forEachIndexed { index, level ->
                 DropdownMenuItem(
                     text = {
                         Column {
@@ -87,6 +128,21 @@ fun DifficultyChooser(
                     onClick = {
                         onDifficultyChanged(level)
                         expanded = false
+                    },
+                    colors = if (index == highlightedIndex) {
+                        MenuDefaults.itemColors(
+                            textColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    } else {
+                        MenuDefaults.itemColors()
+                    },
+                    modifier = if (index == highlightedIndex) {
+                        Modifier.border(
+                            BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                            RoundedCornerShape(4.dp)
+                        )
+                    } else {
+                        Modifier
                     }
                 )
             }
