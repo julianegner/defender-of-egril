@@ -87,6 +87,7 @@ fun InfoPageScreen(
     }
     
     val focusRequester = remember { FocusRequester() }
+    val linkFocusManager = remember { LinkFocusManager() }
     LaunchedEffect(Unit) { focusRequester.requestFocus() }
     
     Surface(
@@ -118,6 +119,26 @@ fun InfoPageScreen(
                             val prevIndex = (selectedTabIndex - 1).coerceAtLeast(0)
                             selectedTab = visibleTabs[prevIndex]
                             true
+                        }
+                        Key.Tab -> {
+                            if (selectedTab == InfoTab.DOWNLOAD) {
+                                if (event.isShiftPressed) {
+                                    linkFocusManager.focusPrevious()
+                                } else {
+                                    linkFocusManager.focusNext()
+                                }
+                                true
+                            } else {
+                                false
+                            }
+                        }
+                        Key.I -> {
+                            if (selectedTab == InfoTab.DOWNLOAD && !event.isCtrlPressed && !event.isAltPressed) {
+                                selectedTab = InfoTab.INSTALLATION
+                                true
+                            } else {
+                                false
+                            }
                         }
                         else -> false
                     }
@@ -215,7 +236,7 @@ fun InfoPageScreen(
                         InfoTab.BACKEND -> BackendInfo(scrollState = contentScrollState)
                         InfoTab.FEEDBACK -> FeedbackInfo(scrollState = contentScrollState)
                         InfoTab.EDITOR_HOWTO -> EditorHowToContent(scrollState = contentScrollState)
-                        InfoTab.DOWNLOAD -> DownloadInfo(onNavigateToInstallation = { selectedTab = InfoTab.INSTALLATION }, scrollState = contentScrollState)
+                        InfoTab.DOWNLOAD -> DownloadInfo(onNavigateToInstallation = { selectedTab = InfoTab.INSTALLATION }, scrollState = contentScrollState, linkFocusManager = linkFocusManager)
                     }
                 }
                 

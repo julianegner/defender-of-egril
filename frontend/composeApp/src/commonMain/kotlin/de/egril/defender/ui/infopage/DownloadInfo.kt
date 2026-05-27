@@ -14,6 +14,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +29,50 @@ import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.*
 import androidx.compose.foundation.text.selection.SelectionContainer
 
+/**
+ * Manages focus cycling through download links only.
+ * Used by InfoPageScreen to restrict Tab/Shift+Tab to links on the Download tab.
+ */
+class LinkFocusManager {
+    private val _requesters = mutableListOf<FocusRequester>()
+    private var _currentIndex = -1
+    private var _registrationIndex = 0
+
+    val size: Int get() = _requesters.size
+    val currentIndex: Int get() = _currentIndex
+
+    fun resetRegistration() {
+        _registrationIndex = 0
+    }
+
+    fun register(): Pair<FocusRequester, Int> {
+        val index = _registrationIndex
+        _registrationIndex++
+        if (index < _requesters.size) {
+            return _requesters[index] to index
+        }
+        val requester = FocusRequester()
+        _requesters.add(requester)
+        return requester to index
+    }
+
+    fun focusNext() {
+        if (_requesters.isEmpty()) return
+        _currentIndex = (_currentIndex + 1) % _requesters.size
+        try { _requesters[_currentIndex].requestFocus() } catch (_: Exception) {}
+    }
+
+    fun focusPrevious() {
+        if (_requesters.isEmpty()) return
+        _currentIndex = if (_currentIndex <= 0) _requesters.size - 1 else _currentIndex - 1
+        try { _requesters[_currentIndex].requestFocus() } catch (_: Exception) {}
+    }
+
+    fun updateIndex(index: Int) {
+        _currentIndex = index
+    }
+}
+
 private const val GITHUB_RELEASES_PAGE =
     "https://github.com/julianegner/defender-of-egril/releases/latest"
 
@@ -37,7 +83,7 @@ private const val GITHUB_RELEASES_PAGE =
  * Only shown on WASM platform when the withImpressum build flag is enabled.
  */
 @Composable
-fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}, scrollState: androidx.compose.foundation.ScrollState = rememberScrollState()) {
+fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}, scrollState: androidx.compose.foundation.ScrollState = rememberScrollState(), linkFocusManager: LinkFocusManager? = null) {
     var release by remember { mutableStateOf<GithubRelease?>(null) }
     var loadError by remember { mutableStateOf(false) }
 
@@ -49,6 +95,9 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}, scrollState: android
             loadError = true
         }
     }
+
+    // Reset link registration on each recomposition
+    linkFocusManager?.resetRegistration()
 
     SelectionContainer {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -81,6 +130,22 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}, scrollState: android
                 .fillMaxWidth()
                 .verticalScroll(scrollState)
         ) {
+            // Navigation hint area (only when shortcut chips are ON)
+            if (AppSettings.showButtonShortcutHints.value) {
+                Surface(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.download_nav_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+            }
+
             // Intro text
             Text(
                 text = stringResource(Res.string.download_info_intro),
@@ -102,7 +167,8 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}, scrollState: android
                 )
                 DownloadLink(
                     url = GITHUB_RELEASES_PAGE,
-                    text = stringResource(Res.string.download_info_view_releases)
+                    text = stringResource(Res.string.download_info_view_releases),
+                    linkFocusManager = linkFocusManager
                 )
             }
 
@@ -147,14 +213,14 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}, scrollState: android
                 // Assets loaded – show per-file table
                 else -> {
                     release?.assets?.forEach { asset ->
-                        AssetListItem(asset = asset)
+                        AssetListItem(asset = asset, linkFocusManager = linkFocusManager)
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            PlayStorePrereleaseInfo()
+            PlayStorePrereleaseInfo(linkFocusManager = linkFocusManager)
 
             // Android sideloading instructions
             Text(
@@ -218,11 +284,19 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}, scrollState: android
 
             // Link to installation instructions
             Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = onNavigateToInstallation,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
-                Text(stringResource(Res.string.download_info_goto_installation))
+                Button(
+                    onClick = onNavigateToInstallation
+                ) {
+                    Text(stringResource(Res.string.download_info_goto_installation))
+                    if (AppSettings.showButtonShortcutHints.value) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        ShortcutKeyChip(text = "I", color = LocalContentColor.current.copy(alpha = 0.75f))
+                    }
+                }
             }
 
             // Impressum section
@@ -233,7 +307,7 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}, scrollState: android
 }
 
 @Composable
-private fun AssetListItem(asset: GithubReleaseAsset) {
+private fun AssetListItem(asset: GithubReleaseAsset, linkFocusManager: LinkFocusManager? = null) {
     val platform = asset.platform()
     val fileType = asset.fileType()
 
@@ -260,15 +334,20 @@ private fun AssetListItem(asset: GithubReleaseAsset) {
         )
         // Download link fills remaining space; long filenames are truncated with ellipsis
         // so the entire row always fits on a single line on narrow screens.
-        DownloadLink(url = asset.downloadUrl, text = asset.name, modifier = Modifier.weight(1f))
+        DownloadLink(url = asset.downloadUrl, text = asset.name, modifier = Modifier.weight(1f), linkFocusManager = linkFocusManager)
     }
     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 }
 
 @Composable
-private fun DownloadLink(url: String, text: String, modifier: Modifier = Modifier, chipText: String = "Enter") {
+private fun DownloadLink(url: String, text: String, modifier: Modifier = Modifier, chipText: String = "Enter", linkFocusManager: LinkFocusManager? = null) {
     val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
     var isFocused by remember { mutableStateOf(false) }
+    val (focusRequester, myIndex) = if (linkFocusManager != null) {
+        linkFocusManager.register()
+    } else {
+        remember { FocusRequester() } to -1
+    }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
@@ -289,7 +368,13 @@ private fun DownloadLink(url: String, text: String, modifier: Modifier = Modifie
                     ).padding(4.dp)
                     else Modifier
                 )
-                .onFocusChanged { isFocused = it.isFocused }
+                .focusRequester(focusRequester)
+                .onFocusChanged { state ->
+                    isFocused = state.isFocused
+                    if (state.isFocused && linkFocusManager != null) {
+                        linkFocusManager.updateIndex(myIndex)
+                    }
+                }
                 .focusable()
                 .onPreviewKeyEvent { event ->
                     if (event.type == KeyEventType.KeyDown && event.key == Key.Enter) {

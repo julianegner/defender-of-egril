@@ -1772,6 +1772,7 @@
     <string name="download_info_error">Could not load download links from GitHub. Visit the releases page to find all downloads.</string>
     <string name="download_info_goto_installation">View Installation Instructions</string>
     <string name="download_info_latest_version">Latest version: %1$s</string>
+    <string name="download_nav_hint">Use Tab/Shift+Tab to navigate between links, Enter to open the selected link. Press I for installation instructions.</string>
     <string name="play_store_test_info_title">Google Play prerelease test</string>
     <string name="play_store_test_info_register_step">To get the game from the Google Play Store, you have to first register at the Google mailing list.</string>
     <string name="play_store_test_info_mailing_list_label">Google mailing list:</string>

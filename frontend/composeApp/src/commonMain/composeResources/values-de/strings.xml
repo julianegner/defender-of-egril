@@ -1765,6 +1765,7 @@
     <string name="download_info_error">Download-Links konnten nicht von GitHub geladen werden. Besuche die Releases-Seite, um alle Downloads zu finden.</string>
     <string name="download_info_goto_installation">Installationsanweisungen anzeigen</string>
     <string name="download_info_latest_version">Neueste Version: %1$s</string>
+    <string name="download_nav_hint">Tab/Shift+Tab zum Navigieren zwischen Links, Enter zum \u00d6ffnen. I f\u00fcr Installationsanweisungen.</string>
     <string name="play_store_test_info_title">Google Play-Prerelease-Test</string>
     <string name="play_store_test_info_register_step">Um das Spiel über den Google Play Store zu erhalten, musst du dich zuerst in der Google-Mailingliste registrieren.</string>
     <string name="play_store_test_info_mailing_list_label">Google-Mailingliste:</string>

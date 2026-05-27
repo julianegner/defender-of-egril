@@ -24,6 +24,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.platform.LocalUriHandler
@@ -47,7 +49,7 @@ private const val GOOGLE_MAILING_LIST = "https://groups.google.com/g/defender-of
 private const val GOOGLE_PLAY_STORE = "https://play.google.com/store/apps/details?id=de.egril.defender"
 
 @Composable
-fun PlayStorePrereleaseInfo() {
+fun PlayStorePrereleaseInfo(linkFocusManager: LinkFocusManager? = null) {
     val uriHandler = LocalUriHandler.current
 
     SelectionContainer {
@@ -83,7 +85,8 @@ fun PlayStorePrereleaseInfo() {
                 FocusableLink(
                     url = GOOGLE_MAILING_LIST,
                     text = GOOGLE_MAILING_LIST,
-                    contentDesc = GOOGLE_MAILING_LIST
+                    contentDesc = GOOGLE_MAILING_LIST,
+                    linkFocusManager = linkFocusManager
                 )
                 Text(
                     text = stringResource(Res.string.play_store_test_info_after_registration),
@@ -98,7 +101,8 @@ fun PlayStorePrereleaseInfo() {
                 FocusableLink(
                     url = GOOGLE_PLAY_STORE,
                     text = GOOGLE_PLAY_STORE,
-                    contentDesc = GOOGLE_PLAY_STORE
+                    contentDesc = GOOGLE_PLAY_STORE,
+                    linkFocusManager = linkFocusManager
                 )
                 Text(
                     text = stringResource(Res.string.play_store_test_info_search_hint),
@@ -115,9 +119,14 @@ fun PlayStorePrereleaseInfo() {
  * Shows an "[Enter] to follow link" shortcut chip when focused.
  */
 @Composable
-private fun FocusableLink(url: String, text: String, contentDesc: String) {
+private fun FocusableLink(url: String, text: String, contentDesc: String, linkFocusManager: LinkFocusManager? = null) {
     val uriHandler = LocalUriHandler.current
     var isFocused by remember { mutableStateOf(false) }
+    val (focusRequester, myIndex) = if (linkFocusManager != null) {
+        linkFocusManager.register()
+    } else {
+        remember { FocusRequester() } to -1
+    }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = text,
@@ -133,7 +142,13 @@ private fun FocusableLink(url: String, text: String, contentDesc: String) {
                     ).padding(4.dp)
                     else Modifier
                 )
-                .onFocusChanged { isFocused = it.isFocused }
+                .focusRequester(focusRequester)
+                .onFocusChanged { state ->
+                    isFocused = state.isFocused
+                    if (state.isFocused && linkFocusManager != null) {
+                        linkFocusManager.updateIndex(myIndex)
+                    }
+                }
                 .focusable()
                 .onPreviewKeyEvent { event ->
                     if (event.type == KeyEventType.KeyDown && event.key == Key.Enter) {

@@ -1768,6 +1768,7 @@
     <string name="download_info_error">Impossibile caricare i link di download da GitHub. Visita la pagina delle versioni per trovare tutti i download.</string>
     <string name="download_info_goto_installation">Visualizza le istruzioni di installazione</string>
     <string name="download_info_latest_version">Ultima versione: %1$s</string>
+    <string name="download_nav_hint">Tab/Shift+Tab per navigare tra i link, Invio per aprire. I per le istruzioni di installazione.</string>
     <string name="play_store_test_info_title">Test prerelease su Google Play</string>
     <string name="play_store_test_info_register_step">Per ottenere il gioco dal Google Play Store, devi prima registrarti alla mailing list di Google.</string>
     <string name="play_store_test_info_mailing_list_label">Mailing list Google:</string>
