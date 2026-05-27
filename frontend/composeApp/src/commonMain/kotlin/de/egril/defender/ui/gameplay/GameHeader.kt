@@ -3,12 +3,20 @@ package de.egril.defender.ui.gameplay
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.*
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -18,13 +26,16 @@ import androidx.compose.ui.zIndex
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.KeyboardKeyIcon
+import de.egril.defender.ui.icon.HelpIcon
 import de.egril.defender.ui.icon.SaveIcon
 import de.egril.defender.ui.icon.ToolsIcon
 import de.egril.defender.ui.icon.TriangleDownIcon
 import de.egril.defender.ui.icon.TriangleLeftIcon
 import de.egril.defender.ui.icon.TriangleRightIcon
+import de.egril.defender.ui.infopage.HowToPlayContent
 import de.egril.defender.ui.infopage.KeyboardShortcutsInfo
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.formatShortcutBindingForDisplay
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.ui.settings.DifficultyDisplay
@@ -35,6 +46,7 @@ import de.egril.defender.ui.common.SelectableText
 import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.utils.isLimitedInputDevice
 import de.egril.defender.utils.isPlatformMobile
+import kotlinx.coroutines.launch
 
 @Composable
 fun GameHeader(
@@ -47,12 +59,35 @@ fun GameHeader(
     onEnemyCountClick: (() -> Unit)? = null,
     onManaClick: (() -> Unit)? = null,
     isDemoMode: Boolean = false,
-    onDemoTitleClick: (() -> Unit)? = null
+    onDemoTitleClick: (() -> Unit)? = null,
+    externalShowShortcuts: Boolean = false,
+    onExternalShowShortcutsHandled: () -> Unit = {},
+    externalShowHelp: Boolean = false,
+    onExternalShowHelpHandled: () -> Unit = {},
+    externalShowFeedback: Boolean = false,
+    onExternalShowFeedbackHandled: () -> Unit = {},
+    externalShowSettings: Boolean = false,
+    onExternalShowSettingsHandled: () -> Unit = {}
 ) {
     val headerTextSize = de.egril.defender.ui.settings.AppSettings.headerTextSize.value
     var showDebugMenu by remember { mutableStateOf(false) }
     val showDebugOptions = AppSettings.showDebugOptions.value
     var showShortcutsDialog by remember { mutableStateOf(false) }
+    var showTutorialsHelpDialog by remember { mutableStateOf(false) }
+    
+    // Handle externally triggered dialogs
+    LaunchedEffect(externalShowShortcuts) {
+        if (externalShowShortcuts) {
+            showShortcutsDialog = true
+            onExternalShowShortcutsHandled()
+        }
+    }
+    LaunchedEffect(externalShowHelp) {
+        if (externalShowHelp) {
+            showTutorialsHelpDialog = true
+            onExternalShowHelpHandled()
+        }
+    }
     
     Box(
         modifier = Modifier
@@ -103,7 +138,7 @@ fun GameHeader(
                         text = "*** DEMO MODE ***",
                         fontSize = titleFontSize,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Red
+                        color = MaterialTheme.colorScheme.error
                     )
                     Text(
                         text = "  ${gameState.level.getLocalizedTitle(locale)}  ",
@@ -114,7 +149,7 @@ fun GameHeader(
                         text = "*** DEMO MODE ***",
                         fontSize = titleFontSize,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Red
+                        color = MaterialTheme.colorScheme.error
                     )
                 }
             } else {
@@ -154,16 +189,19 @@ fun GameHeader(
                 )
                 
                 // Difficulty display (non-clickable on gameplay screen)
-                DifficultyDisplay(
-                    isClickable = false
-                )
+                TooltipWrapper(text = stringResource(Res.string.difficulty)) {
+                    DifficultyDisplay(
+                        isClickable = false
+                    )
+                }
 
                 // Debug options button (only visible when debug options enabled)
                 if (showDebugOptions) {
                     Box {
+                        val debugOptionsLabel = stringResource(Res.string.debug_options)
                         IconButton(
                             onClick = { showDebugMenu = !showDebugMenu },
-                            modifier = Modifier.size(buttonHeight)
+                            modifier = Modifier.size(buttonHeight).semantics { contentDescription = debugOptionsLabel }
                         ) {
                             ToolsIcon(size = buttonIconSize)
                         }
@@ -228,13 +266,19 @@ fun GameHeader(
 
                 // Shortcuts button (not shown on mobile platforms or mobile web browsers)
                 if (!isPlatformMobile && !isLimitedInputDevice && !isMobileWebBrowser()) {
-                    TooltipWrapper(text = stringResource(Res.string.tooltip_shortcuts)) {
-                        IconButton(
-                            onClick = { showShortcutsDialog = true },
-                            modifier = Modifier.size(buttonHeight)
-                        ) {
-                            KeyboardKeyIcon(size = buttonIconSize)
+                    val shortcutsLabel = stringResource(Res.string.tooltip_shortcuts)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        TooltipWrapper(text = shortcutsLabel) {
+                            IconButton(
+                                onClick = { showShortcutsDialog = true },
+                                modifier = Modifier.size(buttonHeight).semantics { contentDescription = shortcutsLabel }
+                            ) {
+                                KeyboardKeyIcon(size = buttonIconSize)
+                            }
                         }
+                            ShortcutKeyChip(
+                                text = "/"
+                            )
                     }
                 }
 
@@ -258,12 +302,18 @@ fun GameHeader(
                             append("\"phase\":\"${gameState.phase.value.name}\"")
                             append("}")
                         }
-                    )
+                    ),
+                    shortcutKey = ".",
+                    triggerOpen = externalShowFeedback,
+                    onTriggerHandled = onExternalShowFeedbackHandled
                 )
 
                 // Settings button (icon only to save space)
                 SettingsButton(
-                    modifier = Modifier.size(buttonHeight)
+                    modifier = Modifier.size(buttonHeight),
+                    shortcutKey = ",",
+                    triggerOpen = externalShowSettings,
+                    onTriggerHandled = onExternalShowSettingsHandled
                 )
                 
                 if (onSaveGame != null) {
@@ -273,10 +323,19 @@ fun GameHeader(
                             modifier = Modifier.height(buttonHeight),
                             contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp)
                         ) {
-                            SaveIcon(
-                                size = buttonIconSize,
-                                modifier = Modifier.align(Alignment.CenterVertically)
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                SaveIcon(
+                                    size = buttonIconSize,
+                                    modifier = Modifier.align(Alignment.CenterVertically)
+                                )
+                                    ShortcutKeyChip(
+                                        text = formatShortcutBindingForDisplay(AppSettings.shortcutSaveGame.value),
+                                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f)
+                                    )
+                            }
                         }
                     }
                 }
@@ -292,24 +351,66 @@ fun GameHeader(
                             fontSize = buttonTextSize,
                             modifier = Modifier.align(Alignment.CenterVertically)
                         )
+                            ShortcutKeyChip(
+                                text = formatShortcutBindingForDisplay(AppSettings.shortcutBackToWorldMap.value),
+                                color = LocalContentColor.current.copy(alpha = 0.75f)
+                            )
                     }
                 }
 
                 TooltipWrapper(text = stringResource(Res.string.tooltip_enemy_list_and_legend)) {
+                    val overlayButtonBackgroundColor = if (showOverlay) GamePlayColors.Success else GamePlayColors.Info
+                    val overlayButtonContentColor = GamePlayColors.readableContentColor(overlayButtonBackgroundColor)
                     Button(
                         onClick = { onShowOverlayChange(!showOverlay) },
                         modifier = Modifier.height(buttonHeight),
                         contentPadding = PaddingValues(horizontal = GamePlayConstants.Spacing.Items, vertical = 0.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (showOverlay) GamePlayColors.Success else GamePlayColors.Info
+                            containerColor = overlayButtonBackgroundColor,
+                            contentColor = overlayButtonContentColor
                         )
                     ) {
-                        if (showOverlay) {
-                            TriangleRightIcon(size = buttonIconSize * 2)
-                        } else {
-                            TriangleLeftIcon(size = buttonIconSize * 2)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            val overlayIconSize = buttonIconSize * 1.35f
+                            Box(
+                                modifier = Modifier
+                                    .size(overlayIconSize),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                if (showOverlay) {
+                                    TriangleRightIcon(size = overlayIconSize)
+                                } else {
+                                    TriangleLeftIcon(size = overlayIconSize)
+                                }
+                            }
+                                ShortcutKeyChip(
+                                    text = formatShortcutBindingForDisplay(AppSettings.shortcutToggleEnemyList.value),
+                                    color = overlayButtonContentColor.copy(alpha = 0.75f)
+                                )
                         }
                     }
+                }
+
+                val tutorialsAndHelpLabel = stringResource(Res.string.tutorials_and_help)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    TooltipWrapper(text = tutorialsAndHelpLabel) {
+                        IconButton(
+                            onClick = { showTutorialsHelpDialog = true },
+                            modifier = Modifier
+                                .size(buttonHeight)
+                                .semantics { contentDescription = tutorialsAndHelpLabel },
+                        ) {
+                            HelpIcon(
+                                size = 32.dp
+                            )
+                        }
+                    }
+                        ShortcutKeyChip(
+                            text = "H"
+                        )
                 }
             }
         }
@@ -332,14 +433,116 @@ fun GameHeader(
                         .padding(16.dp)
                         .fillMaxWidth()
                 ) {
+                    // Shortcut hint toggle
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            stringResource(Res.string.shortcut_bindings_show_on_buttons),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Switch(
+                            checked = AppSettings.showButtonShortcutHints.value,
+                            onCheckedChange = { AppSettings.saveShowButtonShortcutHints(it) }
+                        )
+                    }
                     Box(modifier = Modifier.weight(1f)) {
-                        KeyboardShortcutsInfo()
+                        KeyboardShortcutsInfo(
+                            enableBindingEdit = true,
+                            showResetButton = true
+                        )
                     }
                     Button(
                         onClick = { showShortcutsDialog = false },
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
                     ) {
                         Text(stringResource(Res.string.got_it))
+                    }
+                }
+            }
+        }
+    }
+
+    if (showTutorialsHelpDialog) {
+        Dialog(
+            onDismissRequest = { showTutorialsHelpDialog = false }
+        ) {
+            val helpFocusRequester = remember { FocusRequester() }
+            val helpScrollState = rememberScrollState()
+            val coroutineScope = rememberCoroutineScope()
+            LaunchedEffect(Unit) { helpFocusRequester.requestFocus() }
+            Card(
+                modifier = Modifier
+                    .widthIn(max = 700.dp)
+                    .fillMaxHeight(fraction = 0.85f)
+                    .padding(8.dp)
+                    .focusRequester(helpFocusRequester)
+                    .focusTarget()
+                    .onPreviewKeyEvent { event ->
+                        if (event.type == KeyEventType.KeyDown) {
+                            when (event.key) {
+                                Key.Escape, Key.Back -> {
+                                    showTutorialsHelpDialog = false
+                                    true
+                                }
+                                Key.DirectionDown -> {
+                                    coroutineScope.launch { helpScrollState.animateScrollTo(helpScrollState.value + 150) }
+                                    true
+                                }
+                                Key.DirectionUp -> {
+                                    coroutineScope.launch { helpScrollState.animateScrollTo((helpScrollState.value - 150).coerceAtLeast(0)) }
+                                    true
+                                }
+                                else -> false
+                            }
+                        } else false
+                    },
+                shape = RoundedCornerShape(12.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                ) {
+                    Text(
+                        text = stringResource(Res.string.tutorials_and_help),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Box(modifier = Modifier.weight(1f)) {
+                        HowToPlayContent(scrollState = helpScrollState)
+                    }
+                    // Scroll hint
+                    if (AppSettings.showButtonShortcutHints.value) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            ShortcutKeyChip(text = "\u2191\u2193")
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                stringResource(Res.string.keyboard_nav_scroll),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = { showTutorialsHelpDialog = false },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(stringResource(Res.string.got_it))
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            ShortcutKeyChip(text = "Esc", color = LocalContentColor.current.copy(alpha = 0.75f))
+                        }
                     }
                 }
             }

@@ -2,6 +2,8 @@ package de.egril.defender.ui
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import com.hyperether.resources.AppLocale
+import com.hyperether.resources.currentLanguage
 import de.egril.defender.ui.settings.SettingsDialog
 import org.junit.Rule
 import org.junit.Test
@@ -37,6 +39,12 @@ class SettingsDialogTest {
         // Verify language section is displayed
         composeTestRule.onNodeWithText("Language", substring = true, ignoreCase = true)
             .assertExists()
+
+        // Verify additional settings tabs are displayed
+        composeTestRule.onNodeWithText("Accessibility", substring = true, ignoreCase = true)
+            .assertExists()
+        composeTestRule.onNodeWithText("Shortcuts", substring = true, ignoreCase = true)
+            .assertExists()
         
         // Verify close button is displayed (icon button with content description)
         composeTestRule.onNodeWithContentDescription("Close", substring = true, ignoreCase = true)
@@ -51,7 +59,9 @@ class SettingsDialogTest {
                 width = 600,
                 height = 500
             )
-        } catch (e: Throwable) {
+        } catch (e: Exception) {
+            println("Note: Could not capture screenshot for dialog (expected): ${e.message}")
+        } catch (e: AssertionError) {
             println("Note: Could not capture screenshot for dialog (expected): ${e.message}")
         }
     }
@@ -96,5 +106,62 @@ class SettingsDialogTest {
         // We verify the dialog is displayed by checking for the language text
         composeTestRule.onNodeWithText("Language", substring = true, ignoreCase = true)
             .assertIsDisplayed()
+    }
+
+    @Test
+    fun testSettingsDialogShortcutRemapScreenshot() {
+        currentLanguage.value = AppLocale.DEFAULT
+        composeTestRule.setContent {
+            SettingsDialog(onDismiss = {})
+        }
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("Shortcuts", substring = true, ignoreCase = true)
+            .performClick()
+        composeTestRule.waitForIdle()
+
+        try {
+            ScreenshotTestUtils.captureScreenshot(
+                composeTestRule,
+                "settings-dialog-shortcut-remap",
+                width = 700,
+                height = 700
+            )
+        } catch (e: Exception) {
+            println("Note: Could not capture screenshot for dialog (expected): ${e.message}")
+        } catch (e: AssertionError) {
+            println("Note: Could not capture screenshot for dialog (expected): ${e.message}")
+        }
+    }
+
+    @Test
+    fun testSettingsDialogAccessibilityInfoTexts() {
+        composeTestRule.setContent {
+            SettingsDialog(onDismiss = {})
+        }
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText("Accessibility", substring = true, ignoreCase = true)
+            .performClick()
+
+        composeTestRule.onNodeWithText("Increases contrast", substring = true, ignoreCase = true)
+            .assertExists()
+        composeTestRule.onNodeWithText("Shows text hints", substring = true, ignoreCase = true)
+            .assertExists()
+        composeTestRule.onNodeWithText("Requires holding", substring = true, ignoreCase = true)
+            .assertExists()
+
+        try {
+            ScreenshotTestUtils.captureScreenshot(
+                composeTestRule,
+                "settings-dialog-accessibility-tab",
+                width = 700,
+                height = 700
+            )
+        } catch (e: Exception) {
+            println("Note: Could not capture screenshot for dialog (expected): ${e.message}")
+        } catch (e: AssertionError) {
+            println("Note: Could not capture screenshot for dialog (expected): ${e.message}")
+        }
     }
 }

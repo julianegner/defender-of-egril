@@ -1,8 +1,11 @@
 package de.egril.defender.ui.gameplay
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -11,6 +14,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
 import de.egril.defender.ui.*
@@ -20,8 +24,13 @@ import de.egril.defender.ui.icon.ReloadIcon
 import de.egril.defender.ui.icon.TriangleDownIcon
 import de.egril.defender.ui.icon.TriangleLeftIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
+import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.formatShortcutBindingForDisplay
 import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.coins
+import defender_of_egril.composeapp.generated.resources.health
 import defender_of_egril.composeapp.generated.resources.spells
+import defender_of_egril.composeapp.generated.resources.turn
 import defender_of_egril.composeapp.generated.resources.tooltip_enemies_on_map_and_planned
 
 /**
@@ -144,24 +153,28 @@ fun GameStatsDisplay(
 ) {
 
     // Coins (clickable if callback provided)
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = if (onCoinsClick != null) {
-            Modifier.clickable(onClick = onCoinsClick)
-        } else {
-            Modifier
+    TooltipWrapper(text = stringResource(Res.string.coins)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = if (onCoinsClick != null) {
+                Modifier.clickable(onClick = onCoinsClick)
+            } else {
+                Modifier
+            }
+        ) {
+            MoneyIcon(size = iconSize)
+            Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+            Text("$coins", style = textStyle)
         }
-    ) {
-        MoneyIcon(size = iconSize)
-        Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
-        Text("$coins", style = textStyle)
     }
         
     // Health
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        HeartIcon(size = iconSize)
-        Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
-        Text("$health", style = textStyle)
+    TooltipWrapper(text = stringResource(Res.string.health)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            HeartIcon(size = iconSize)
+            Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+            Text("$health", style = textStyle)
+        }
     }
     
     // Mana (only show if mana values are provided)
@@ -181,15 +194,23 @@ fun GameStatsDisplay(
                 )
                 Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
                 Text("$currentMana/$maxMana", style = textStyle)
+                if (AppSettings.showButtonShortcutHints.value && onManaClick != null) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    ShortcutKeyChip(
+                        text = formatShortcutBindingForDisplay(AppSettings.shortcutToggleSpellMenu.value)
+                    )
+                }
             }
         }
     }
         
     // Turn
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        ReloadIcon(size = iconSize - 2.dp) // Slightly smaller reload icon
-        Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
-        Text("$turn", style = textStyle)
+    TooltipWrapper(text = stringResource(Res.string.turn)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            ReloadIcon(size = iconSize - 2.dp) // Slightly smaller reload icon
+            Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+            Text("$turn", style = textStyle)
+        }
     }
 
     // Enemy count (clickable if callback provided)
@@ -205,6 +226,103 @@ fun GameStatsDisplay(
             EnemyTypeIcon(AttackerType.GOBLIN, modifier = Modifier.size(iconSize + 4.dp))
             Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
             Text("$activeEnemyCount | $remainingEnemyCount", style = textStyle)
+            if (AppSettings.showButtonShortcutHints.value && onEnemyCountClick != null) {
+                Spacer(modifier = Modifier.width(6.dp))
+                ShortcutKeyChip(
+                    text = formatShortcutBindingForDisplay(AppSettings.shortcutToggleEnemyList.value)
+                )
+            }
         }
     }
+}
+
+/**
+ * Displays a shortcut key label styled to look like a physical keyboard key:
+ * square border (no corner rounding), small padding, monospace-style text.
+ *
+ * Used wherever button-shortcut hints are shown (action buttons, dialogs).
+ * Arrow unicode characters (\u2190\u2191\u2192\u2193\u25C0) are rendered as
+ * Material Symbol icons to ensure compatibility on all platforms including wasm.
+ */
+@Composable
+fun ShortcutKeyChip(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = LocalContentColor.current,
+) {
+    if (!AppSettings.showButtonShortcutHints.value) return
+    Box(
+        modifier = modifier
+            .border(width = 1.dp, color = color, shape = RoundedCornerShape(0.dp))
+            .padding(horizontal = 4.dp, vertical = 1.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        if (containsArrowUnicode(text)) {
+            ArrowChipContent(text = text, color = color)
+        } else {
+            Text(
+                text = text,
+                color = color,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+            )
+        }
+    }
+}
+
+/**
+ * Set of arrow unicode characters that need material symbol rendering for wasm compatibility.
+ */
+private val ARROW_UNICODE_CHARS = setOf('\u2190', '\u2191', '\u2192', '\u2193', '\u25C0')
+
+/**
+ * Returns true if the text contains any arrow unicode characters that need
+ * to be rendered as material symbol icons for wasm compatibility.
+ */
+private fun containsArrowUnicode(text: String): Boolean {
+    return text.any { it in ARROW_UNICODE_CHARS }
+}
+
+/**
+ * Renders chip content that may contain arrow unicode characters as Material Symbol icons.
+ * Non-arrow characters (like "/" separators) are rendered as text.
+ */
+@Composable
+private fun ArrowChipContent(text: String, color: Color) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        for (char in text) {
+            val arrowIcon = charToArrowIcon(char)
+            if (arrowIcon != null) {
+                dev.vicart.compose.material.symbols.FilledSymbol(
+                    icon = arrowIcon,
+                    size = 10.dp,
+                    tint = color
+                )
+            } else {
+                Text(
+                    text = char.toString(),
+                    color = color,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Maps a unicode arrow character to its corresponding Material Symbol icon,
+ * or null if the character is not an arrow.
+ */
+private fun charToArrowIcon(char: Char): String? = when (char) {
+    '\u2190' -> dev.vicart.compose.material.symbols.MaterialSymbols.ARROW_BACK
+    '\u2191' -> dev.vicart.compose.material.symbols.MaterialSymbols.ARROW_UPWARD
+    '\u2192' -> dev.vicart.compose.material.symbols.MaterialSymbols.ARROW_FORWARD
+    '\u2193' -> dev.vicart.compose.material.symbols.MaterialSymbols.ARROW_DOWNWARD
+    '\u25C0' -> dev.vicart.compose.material.symbols.MaterialSymbols.ARROW_BACK
+    else -> null
 }

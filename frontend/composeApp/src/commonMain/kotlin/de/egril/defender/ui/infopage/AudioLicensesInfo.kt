@@ -22,7 +22,7 @@ import androidx.compose.foundation.text.selection.SelectionContainer
  * Composable displaying audio files sources and licenses
  */
 @Composable
-fun AudioLicensesInfo() {
+fun AudioLicensesInfo(scrollState: androidx.compose.foundation.ScrollState = rememberScrollState()) {
     SelectionContainer {
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -38,7 +38,7 @@ fun AudioLicensesInfo() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
         ) {
             // Background Music Section
             AudioSection(

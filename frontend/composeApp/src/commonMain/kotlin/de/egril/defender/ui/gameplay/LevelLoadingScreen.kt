@@ -19,6 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,6 +32,7 @@ import de.egril.defender.ui.DrawRaft
 import de.egril.defender.ui.TowerTypeIcon
 import de.egril.defender.ui.hexagon.HexagonShape
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
+import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.loading_level
 import kotlin.math.cos
@@ -38,12 +42,15 @@ import kotlin.math.PI
 /**
  * Loading screen shown while a level's map image is being loaded.
  *
- * Displays a spinner in the centre, a "Loading level" label below it,
+ * Displays a center spinner only when animations are enabled, a "Loading level" label below it,
  * and 8 icons arranged in a circle:  3 enemy unit icons, 3 tower icons,
  * and 2 barge icons.
  */
 @Composable
-fun LevelLoadingScreen(modifier: Modifier = Modifier) {
+fun LevelLoadingScreen(
+    modifier: Modifier = Modifier,
+    animationsEnabled: Boolean = AppSettings.enableAnimations.value
+) {
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -54,7 +61,7 @@ fun LevelLoadingScreen(modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            LoadingCircleWithIcons()
+            LoadingCircleWithIcons(animationsEnabled = animationsEnabled)
             Spacer(modifier = Modifier.height(20.dp))
             Text(
                 text = stringResource(Res.string.loading_level),
@@ -69,18 +76,18 @@ fun LevelLoadingScreen(modifier: Modifier = Modifier) {
 
 /**
  * A spinner surrounded by 8 icons (3 enemy, 3 tower, 2 barge) in a circle.
- * The ring of icons rotates continuously, and the CircularProgressIndicator spins at the centre.
+ * The ring of icons rotates continuously when animations are enabled,
+ * and the CircularProgressIndicator is shown only in that mode.
  */
 @Composable
-private fun LoadingCircleWithIcons() {
+private fun LoadingCircleWithIcons(animationsEnabled: Boolean) {
     val circleRadius = 90.dp
     val iconSize = 44.dp
     val totalSize = circleRadius * 2 + iconSize
-
     val infiniteTransition = rememberInfiniteTransition(label = "loadingRotation")
     val rotationDeg by infiniteTransition.animateFloat(
         initialValue = 0f,
-        targetValue = 360f,
+        targetValue = if (animationsEnabled) 360f else 0f,
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = 8000, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
@@ -133,11 +140,17 @@ private fun LoadingCircleWithIcons() {
             }
         }
 
-        CircularProgressIndicator(
-            modifier = Modifier.size(56.dp),
-            color = MaterialTheme.colorScheme.primary,
-            strokeWidth = 5.dp
-        )
+        if (animationsEnabled) {
+            val loadingDescription = stringResource(Res.string.loading_level)
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .size(56.dp)
+                    .semantics { contentDescription = loadingDescription }
+                    .testTag("levelLoadingSpinner"),
+                color = MaterialTheme.colorScheme.primary,
+                strokeWidth = 5.dp
+            )
+        }
     }
 }
 

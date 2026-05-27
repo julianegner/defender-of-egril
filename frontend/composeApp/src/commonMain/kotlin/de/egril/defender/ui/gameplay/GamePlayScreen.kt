@@ -4,29 +4,41 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import de.egril.defender.audio.GlobalSoundManager
+import de.egril.defender.audio.SoundEvent
 import de.egril.defender.model.*
 import de.egril.defender.ui.CheatCodeDialog
 import de.egril.defender.ui.getGameplayUIScale
+import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.ReminderMessage
+import de.egril.defender.ui.icon.SpeakerHighIcon
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.ui.editor.ConfirmationDialog
 import de.egril.defender.ui.settings.AppSettings
-import com.hyperether.resources.stringResource
-import defender_of_egril.composeapp.generated.resources.*
+import de.egril.defender.ui.settings.formatShortcutBindingForDisplay
+import de.egril.defender.ui.settings.isShortcutBindingPressed
+import de.egril.defender.ui.a11y.accessibilityVisualFilter
+
+private const val SOUND_CAPTION_DISPLAY_DURATION_MS = 2000L
 
 @Composable
 fun GamePlayScreen(
@@ -237,6 +249,18 @@ private fun GamePlayScreenContent(
 
     var highlightEndTurnButton by remember { mutableStateOf(false) }
     var tabScrollPosition by remember { mutableStateOf<Position?>(null) }  // Tab-triggered scroll-to-tower
+    var keyboardSelectedBuildTile by remember { mutableStateOf<Position?>(null) }
+    var nextSpawnPointIndex by remember { mutableStateOf(0) }
+    var keyboardSpellFocusIndex by remember { mutableStateOf(0) }
+    // Non-null means the keyboard undo/sell shortcut was pressed and the confirmation dialog is open.
+    // The Boolean flag indicates whether this is an "undo" (true) or "sell" (false) operation.
+    var keyboardUndoOrSellConfirmation by remember { mutableStateOf<Pair<Int, Boolean>?>(null) }
+    
+    // External dialog triggers for header icon shortcuts
+    var triggerShowShortcuts by remember { mutableStateOf(false) }
+    var triggerShowHelp by remember { mutableStateOf(false) }
+    var triggerShowFeedback by remember { mutableStateOf(false) }
+    var triggerShowSettings by remember { mutableStateOf(false) }
 
     var currentDigOutcome by remember { mutableStateOf<DigOutcome?>(null) }
     var currentDragonName by remember { mutableStateOf<String?>(null) }  // Track dragon name for dig outcome
@@ -254,12 +278,16 @@ private fun GamePlayScreenContent(
         pendingDigOutcome = null
     }
     var showOverlay by remember { mutableStateOf(false) }  // MutableState for overlay visibility
+    // 0 = both legend+enemies, 1 = legend only, 2 = enemy list only
+    var overlayMode by remember { mutableStateOf(0) }
     var showSaveDialog by remember { mutableStateOf(false) }  // Save dialog with comment
     var saveCommentInput by remember { mutableStateOf("") }  // Comment input for save
     var showSaveConfirmation by remember { mutableStateOf(false) }  // Save confirmation
     var showUnsavedChangesDialog by remember { mutableStateOf(false) }  // Unsaved changes dialog
     var showEndTurnConfirmation by remember { mutableStateOf(false) }  // End turn confirmation dialog
     var showAbortInstantTowerDialog by remember { mutableStateOf(false) }  // Abort instant tower spell dialog
+    var soundCaptionText by remember { mutableStateOf<String?>(null) }
+    var soundCaptionSequence by remember { mutableStateOf(0L) }
 
     // Wrap end-turn callbacks to always clear the selected tower type when the turn ends
     val endPlayerTurnAction: () -> Unit = { selectedDefenderType = null; onEndPlayerTurn() }
@@ -267,6 +295,22 @@ private fun GamePlayScreenContent(
 
     // Demo mode: "stop demo?" confirmation dialog
     var showStopDemoDialog by remember { mutableStateOf(false) }
+
+    // Focus requester for the screen container - ensures keyboard events (especially ESC) always work
+    val screenFocusRequester = remember { FocusRequester() }
+
+    // Counter to trigger map focus requests after dialogs close (ensures ESC works after UI interactions)
+    var mapRefocusTrigger by remember { mutableStateOf(0) }
+    LaunchedEffect(showUnsavedChangesDialog, showEndTurnConfirmation, keyboardUndoOrSellConfirmation) {
+        if (!showUnsavedChangesDialog && !showEndTurnConfirmation && keyboardUndoOrSellConfirmation == null) {
+            mapRefocusTrigger++
+        }
+    }
+
+    // Request focus on screen entry and after dialogs close (mapRefocusTrigger changes)
+    LaunchedEffect(Unit, mapRefocusTrigger) {
+        screenFocusRequester.requestFocus()
+    }
 
     // When demo mode visual state changes, sync it into the local selection state so
     // the existing rendering code (GameGrid, GameControls) shows the preview without any changes.
@@ -304,6 +348,49 @@ private fun GamePlayScreenContent(
             1f // Desktop unchanged
         }
         Density(density.density * uiScale, density.fontScale * textScale)
+    }
+
+    val audioCaptionEnemySpawn = stringResource(Res.string.audio_enemy_spawn_name)
+    val audioCaptionEnemyDestroyed = stringResource(Res.string.audio_enemy_destroyed_name)
+    val audioCaptionTrapTrigger = stringResource(Res.string.audio_trap_trigger_name)
+    val audioCaptionLifeLost = stringResource(Res.string.audio_life_lost_name)
+    val audioCaptionTowerUpgraded = stringResource(Res.string.audio_tower_upgraded_name)
+    val audioCaptionBattleStart = stringResource(Res.string.audio_battle_start_name)
+    val audioCaptionBombTicking = stringResource(Res.string.audio_bomb_ticking_name)
+    val audioCaptionBombExploding = stringResource(Res.string.audio_bomb_exploding_name)
+    val captionsEnabled = AppSettings.captionsEnabled.value
+
+    LaunchedEffect(captionsEnabled) {
+        if (!captionsEnabled) {
+            soundCaptionText = null
+            return@LaunchedEffect
+        }
+        GlobalSoundManager.soundEvents.collect { event ->
+            val caption = when (event) {
+                SoundEvent.ENEMY_SPAWN -> audioCaptionEnemySpawn
+                SoundEvent.ENEMY_DESTROYED -> audioCaptionEnemyDestroyed
+                SoundEvent.TRAP_TRIGGERED -> audioCaptionTrapTrigger
+                SoundEvent.LIFE_LOST -> audioCaptionLifeLost
+                SoundEvent.TOWER_UPGRADED -> audioCaptionTowerUpgraded
+                SoundEvent.BATTLE_START -> audioCaptionBattleStart
+                SoundEvent.BOMB_TICKING -> audioCaptionBombTicking
+                SoundEvent.BOMB_EXPLOSION -> audioCaptionBombExploding
+                else -> null
+            }
+            if (caption != null) {
+                soundCaptionText = caption
+                soundCaptionSequence++
+            }
+        }
+    }
+
+    LaunchedEffect(soundCaptionSequence) {
+        if (soundCaptionSequence <= 0L) return@LaunchedEffect
+        val currentSequence = soundCaptionSequence
+        kotlinx.coroutines.delay(SOUND_CAPTION_DISPLAY_DURATION_MS)
+        if (soundCaptionSequence == currentSequence) {
+            soundCaptionText = null
+        }
     }
     
     // Watch for cheat dig outcomes
@@ -506,6 +593,56 @@ private fun GamePlayScreenContent(
         }
     }
 
+    val keyboardSelectableTowers = remember(gameState.level.availableTowers) {
+        gameState.level.availableTowers.filter { it != DefenderType.DRAGONS_LAIR }
+    }
+
+    val cycleTowerBuySelection: (Boolean) -> Unit = cycleTowerBuySelection@{ reversed ->
+        // Filter to only affordable towers when cycling
+        val affordableTowers = keyboardSelectableTowers.filter { gameState.coins.value >= it.baseCost }
+        if (affordableTowers.isEmpty()) {
+            return@cycleTowerBuySelection
+        }
+        val currentIndex = selectedDefenderType?.let { current ->
+            affordableTowers.indexOf(current).takeIf { it != -1 }
+        } ?: -1
+        val nextIndex = if (reversed) {
+            if (currentIndex <= 0) affordableTowers.lastIndex else currentIndex - 1
+        } else {
+            if (currentIndex < 0 || currentIndex >= affordableTowers.lastIndex) 0 else currentIndex + 1
+        }
+        selectedDefenderType = affordableTowers[nextIndex]
+        selectedDefenderId = null
+        selectedAttackerId = null
+        highlightEndTurnButton = false
+    }
+
+    val handleTowerSelectionShortcut: (Boolean) -> Unit = { reversed ->
+        if (gameState.phase.value == GamePhase.INITIAL_BUILDING) {
+            cycleTowerBuySelection(reversed)
+        } else if (gameState.phase.value == GamePhase.PLAYER_TURN) {
+            if (selectedDefenderType != null && selectedDefenderId == null && !showMagicPanel) {
+                cycleTowerBuySelection(reversed)
+            } else {
+                jumpToNextActionableTower(selectedDefenderId, reversed)
+            }
+        }
+    }
+
+    val keyboardSelectableSpells = remember(playerStats) {
+        SpellType.entries.filter { spell ->
+            playerStats?.unlockedSpells?.contains(spell) == true
+        }
+    }
+    LaunchedEffect(showMagicPanel, selectedSpell, keyboardSelectableSpells) {
+        if (!showMagicPanel || keyboardSelectableSpells.isEmpty()) {
+            keyboardSpellFocusIndex = 0
+            return@LaunchedEffect
+        }
+        val currentIndex = keyboardSelectableSpells.indexOf(selectedSpell)
+        keyboardSpellFocusIndex = if (currentIndex >= 0) currentIndex else 0
+    }
+
     // Auto-jump: select first actionable tower when player turn starts (if setting is ON)
     LaunchedEffect(gameState.phase.value) {
         if (AppSettings.autoJumpToNextTower.value &&
@@ -544,6 +681,13 @@ private fun GamePlayScreenContent(
     LaunchedEffect(selectedDefenderId) {
         if (selectedDefenderId != null) {
             highlightEndTurnButton = false
+        }
+    }
+
+    // Reset keyboard build tile selection when tower-place mode exits
+    LaunchedEffect(selectedDefenderType) {
+        if (selectedDefenderType == null) {
+            keyboardSelectedBuildTile = null
         }
     }
 
@@ -619,8 +763,21 @@ private fun GamePlayScreenContent(
     // Using onPreviewKeyEvent to intercept before HexagonalMapView handles it
     // This works in the "capture" phase and doesn't require focus on this element
     val keyboardHandler: (KeyEvent) -> Boolean = remember(
-        onSaveGame, onCheatCode, endPlayerTurnAction, autoAttackAndEndTurnAction, onStartFirstPlayerTurn,
-        onDefenderAttack, onDefenderAttackPosition, isDemoMode
+        onSaveGame,
+        onCheatCode,
+        onOpenMagicPanel,
+        onCloseMagicPanel,
+        onCastSpell,
+        onExitSpellTargeting,
+        onStartFirstPlayerTurn,
+        onDefenderAttack,
+        onDefenderAttackPosition,
+        showMagicPanel,
+        showUnsavedChangesDialog,
+        keyboardSelectableSpells,
+        endPlayerTurnAction,
+        autoAttackAndEndTurnAction,
+        isDemoMode
     ) {
         { event ->
             when {
@@ -629,23 +786,103 @@ private fun GamePlayScreenContent(
                     showStopDemoDialog = true
                     true
                 }
+                // Unsaved-changes dialog key handling: intercept before generic Esc/Enter handlers
+                event.type == KeyEventType.KeyDown && showUnsavedChangesDialog -> {
+                    when {
+                        event.key == Key.Enter && !event.isCtrlPressed && !event.isAltPressed -> {
+                            // Enter: save and exit
+                            onSaveGame?.invoke(null)
+                            showUnsavedChangesDialog = false
+                            onBackToMap()
+                            true
+                        }
+                        event.key == Key.Escape ||
+                        isShortcutBindingPressed(event, AppSettings.shortcutBackToWorldMap.value) -> {
+                            // Esc: cancel the dialog
+                            showUnsavedChangesDialog = false
+                            true
+                        }
+                        event.key == Key.D && !event.isCtrlPressed && !event.isAltPressed -> {
+                            // D: discard changes and exit
+                            showUnsavedChangesDialog = false
+                            onBackToMap()
+                            true
+                        }
+                        else -> false
+                    }
+                }
                 // Ctrl+S: Save game
                 event.type == KeyEventType.KeyDown &&
-                        event.key == Key.S && event.isCtrlPressed &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutSaveGame.value) &&
                         onSaveGame != null -> {
                     showSaveDialog = true
                     true
                 }
+                // M (remappable): Open/close spell menu
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutToggleSpellMenu.value) &&
+                        onOpenMagicPanel != null &&
+                        gameState.maxMana.value > 0 &&
+                        !isDemoMode -> {
+                    if (showMagicPanel) {
+                        onCloseMagicPanel?.invoke()
+                    } else {
+                        onOpenMagicPanel.invoke()
+                    }
+                    true
+                }
+                // T (remappable): Toggle tower-place mode (close spell UI/targeting); if already
+                // in tower-place mode, switch back to attack/select mode instead
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutSwitchToTowerMode.value) -> {
+                    val isInTowerPlaceMode = selectedDefenderType != null && !showMagicPanel && gameState.spellTargeting.value == null
+                    if (isInTowerPlaceMode) {
+                        // Already in tower-place mode → switch back to attack/select mode
+                        selectedDefenderType = null
+                    } else {
+                        // Enter tower-place mode (close spell UI/targeting first)
+                        onCloseMagicPanel?.invoke()
+                        if (gameState.spellTargeting.value != null) {
+                            onExitSpellTargeting?.invoke()
+                        }
+                        selectedDefenderType = keyboardSelectableTowers.firstOrNull()
+                        selectedDefenderId = null
+                        selectedAttackerId = null
+                        selectedTargetId = null
+                        selectedTargetPosition = null
+                    }
+                    true
+                }
+                // Spell menu keyboard mode: Tab/Shift+Tab navigates spells
+                event.type == KeyEventType.KeyDown &&
+                        showMagicPanel &&
+                        event.key == Key.Tab &&
+                        keyboardSelectableSpells.isNotEmpty() -> {
+                    val delta = if (event.isShiftPressed) -1 else 1
+                    val size = keyboardSelectableSpells.size
+                    keyboardSpellFocusIndex = (keyboardSpellFocusIndex + delta + size) % size
+                    true
+                }
+                // Spell menu keyboard mode: Enter selects/casts focused spell
+                event.type == KeyEventType.KeyDown &&
+                        showMagicPanel &&
+                        event.key == Key.Enter &&
+                        keyboardSelectableSpells.isNotEmpty() &&
+                        onCastSpell != null -> {
+                    val focusedSpell = keyboardSelectableSpells[keyboardSpellFocusIndex]
+                    onCastSpell.invoke(focusedSpell)
+                    true
+                }
                 // Ctrl+A: Auto-attack all towers and end turn (player turn only)
                 event.type == KeyEventType.KeyDown &&
-                        event.key == Key.A && event.isCtrlPressed &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutAutoAttackEndTurn.value) &&
                         gameState.phase.value == GamePhase.PLAYER_TURN -> {
                     autoAttackAndEndTurnAction()
                     true
                 }
                 // F: Attack with selected tower's current target (player turn only)
                 event.type == KeyEventType.KeyDown &&
-                        event.key == Key.F && !event.isCtrlPressed &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutAttackSelectedTarget.value) &&
                         gameState.phase.value == GamePhase.PLAYER_TURN -> {
                     val defenderId = selectedDefenderId
                     val targetId = selectedTargetId
@@ -667,44 +904,407 @@ private fun GamePlayScreenContent(
                         false
                     }
                 }
+                // U (remappable): Upgrade currently selected tower
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutUpgradeSelectedTower.value) &&
+                        selectedDefenderId != null -> {
+                    selectedDefenderId?.let { defenderId ->
+                        onUpgradeDefender(defenderId)
+                        true
+                    } ?: false
+                }
+                // X (remappable): Undo (if eligible) or sell selected tower – always shows confirmation
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutUndoOrSellSelectedTower.value) &&
+                        selectedDefenderId != null -> {
+                    val defender = gameState.defenders.find { it.id == selectedDefenderId }
+                    if (defender != null) {
+                        val canUndo = defender.placedOnTurn == gameState.turnNumber.value && !defender.hasBeenUsed.value
+                        val canSell = defender.isReady && defender.actionsRemaining.value > 0
+                        when {
+                            canUndo -> {
+                                // Show confirmation dialog: isUndo = true (full refund)
+                                keyboardUndoOrSellConfirmation = Pair(defender.id, true)
+                                true
+                            }
+                            canSell -> {
+                                // Show confirmation dialog: isUndo = false (75% refund)
+                                keyboardUndoOrSellConfirmation = Pair(defender.id, false)
+                                true
+                            }
+                            else -> false
+                        }
+                    } else {
+                        false
+                    }
+                }
                 // Tab / Shift+Tab: Select next/previous actionable tower (player turn only)
                 event.type == KeyEventType.KeyDown &&
-                        event.key == Key.Tab &&
-                        gameState.phase.value == GamePhase.PLAYER_TURN -> {
-                    jumpToNextActionableTower(selectedDefenderId, event.isShiftPressed)
+                        isShortcutBindingPressed(event, AppSettings.shortcutSelectNextTower.value) &&
+                        (gameState.phase.value == GamePhase.INITIAL_BUILDING ||
+                                gameState.phase.value == GamePhase.PLAYER_TURN) -> {
+                    handleTowerSelectionShortcut(false)
                     true
+                }
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutSelectPreviousTower.value) &&
+                        (gameState.phase.value == GamePhase.INITIAL_BUILDING ||
+                                gameState.phase.value == GamePhase.PLAYER_TURN) -> {
+                    handleTowerSelectionShortcut(true)
+                    true
+                }
+                // Remappable: Center map on selected tower
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutCenterSelectedTower.value) -> {
+                    val defender = selectedDefenderId?.let { defenderId ->
+                        gameState.defenders.find { it.id == defenderId }
+                    }
+                    if (defender != null) {
+                        tabScrollPosition = defender.position.value
+                        true
+                    } else {
+                        false
+                    }
+                }
+                // Remappable: Center map on next spawn point
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutCenterNextSpawnPoint.value) -> {
+                    val spawnPoints = gameState.level.startPositions
+                    if (spawnPoints.isEmpty()) {
+                        false
+                    } else {
+                        val nextPosition = spawnPoints[nextSpawnPointIndex % spawnPoints.size]
+                        tabScrollPosition = nextPosition
+                        nextSpawnPointIndex = (nextSpawnPointIndex + 1) % spawnPoints.size
+                        true
+                    }
                 }
                 // C: Open cheat code dialog
                 event.type == KeyEventType.KeyDown &&
-                        event.key == Key.C && !event.isCtrlPressed &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutCheat.value) &&
                         onCheatCode != null -> {
                     showCheatDialog = true
                     true
                 }
-                // E: Toggle enemy list overlay
+                // E: Toggle enemy list overlay (cycle: off → both → legend only → enemy list only → off)
                 event.type == KeyEventType.KeyDown &&
-                        event.key == Key.E && !event.isCtrlPressed -> {
-                    showOverlay = !showOverlay
+                        isShortcutBindingPressed(event, AppSettings.shortcutToggleEnemyList.value) -> {
+                    if (!showOverlay) {
+                        showOverlay = true
+                        overlayMode = 0  // both
+                    } else {
+                        when (overlayMode) {
+                            0 -> overlayMode = 1  // legend only
+                            1 -> overlayMode = 2  // enemy list only
+                            else -> {
+                                showOverlay = false
+                                overlayMode = 0
+                            }
+                        }
+                    }
                     true
                 }
-                // Enter: End turn or Start battle
-                event.type == KeyEventType.KeyDown && event.key == Key.Enter && !event.isCtrlPressed -> {
+                // /: Open keyboard shortcuts dialog
+                event.type == KeyEventType.KeyDown &&
+                        event.key == Key.Slash && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                    triggerShowShortcuts = true
+                    true
+                }
+                // H: Open tutorials/help dialog
+                event.type == KeyEventType.KeyDown &&
+                        event.key == Key.H && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed &&
+                        selectedDefenderId == null && selectedDefenderType == null -> {
+                    triggerShowHelp = true
+                    true
+                }
+                // Period (.): Open feedback dialog
+                event.type == KeyEventType.KeyDown &&
+                        event.key == Key.Period && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                    triggerShowFeedback = true
+                    true
+                }
+                // Comma (,): Open settings dialog
+                event.type == KeyEventType.KeyDown &&
+                        event.key == Key.Comma && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                    triggerShowSettings = true
+                    true
+                }
+                // P (remappable): Toggle audio on/off
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutToggleAudio.value) -> {
+                    AppSettings.saveSoundEnabled(!AppSettings.isSoundEnabled.value)
+                    true
+                }
+                // Reuses the "next enemy target" binding (default N) for cycling build tiles in tower-place mode
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutNextEnemyTarget.value) &&
+                        selectedDefenderType != null && !showMagicPanel &&
+                        (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
+                    val buildTiles = gameState.level.buildAreas
+                        .filter { pos -> gameState.defenders.none { it.position.value == pos } }
+                    if (buildTiles.isNotEmpty()) {
+                        val currentIdx = keyboardSelectedBuildTile?.let { buildTiles.indexOf(it).takeIf { i -> i != -1 } }
+                        val nextIdx = if (currentIdx == null || currentIdx >= buildTiles.lastIndex) 0 else currentIdx + 1
+                        keyboardSelectedBuildTile = buildTiles[nextIdx]
+                        tabScrollPosition = buildTiles[nextIdx]
+                        true
+                    } else false
+                }
+                // Reuses the "prev enemy target" binding (default Shift+N) for cycling build tiles in tower-place mode
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutPrevEnemyTarget.value) &&
+                        selectedDefenderType != null && !showMagicPanel &&
+                        (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) -> {
+                    val buildTiles = gameState.level.buildAreas
+                        .filter { pos -> gameState.defenders.none { it.position.value == pos } }
+                    if (buildTiles.isNotEmpty()) {
+                        val currentIdx = keyboardSelectedBuildTile?.let { buildTiles.indexOf(it).takeIf { i -> i != -1 } }
+                        val prevIdx = if (currentIdx == null || currentIdx <= 0) buildTiles.lastIndex else currentIdx - 1
+                        keyboardSelectedBuildTile = buildTiles[prevIdx]
+                        tabScrollPosition = buildTiles[prevIdx]
+                        true
+                    } else false
+                }
+                // N (remappable): Cycle to next reachable enemy target
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutNextEnemyTarget.value) &&
+                        selectedDefenderId != null &&
+                        gameState.phase.value == GamePhase.PLAYER_TURN -> {
+                    val defender = gameState.defenders.find { it.id == selectedDefenderId }
+                    if (defender != null) {
+                        val reachableEnemies = gameState.attackers.filter { attacker ->
+                            !attacker.isDefeated.value &&
+                            defender.position.value.distanceTo(attacker.position.value) <= defender.range
+                        }
+                        if (reachableEnemies.isNotEmpty()) {
+                            val currentIdx = selectedTargetId?.let { tid ->
+                                reachableEnemies.indexOfFirst { it.id == tid }
+                            } ?: -1
+                            val nextIdx = (currentIdx + 1) % reachableEnemies.size
+                            val nextEnemy = reachableEnemies[nextIdx]
+                            selectedTargetId = nextEnemy.id
+                            selectedTargetPosition = nextEnemy.position.value
+                            true
+                        } else false
+                    } else false
+                }
+                // Shift+N (remappable): Cycle to previous reachable enemy target
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutPrevEnemyTarget.value) &&
+                        selectedDefenderId != null &&
+                        gameState.phase.value == GamePhase.PLAYER_TURN -> {
+                    val defender = gameState.defenders.find { it.id == selectedDefenderId }
+                    if (defender != null) {
+                        val reachableEnemies = gameState.attackers.filter { attacker ->
+                            !attacker.isDefeated.value &&
+                            defender.position.value.distanceTo(attacker.position.value) <= defender.range
+                        }
+                        if (reachableEnemies.isNotEmpty()) {
+                            val currentIdx = selectedTargetId?.let { tid ->
+                                reachableEnemies.indexOfFirst { it.id == tid }
+                            } ?: 0
+                            val prevIdx = (currentIdx - 1 + reachableEnemies.size) % reachableEnemies.size
+                            val prevEnemy = reachableEnemies[prevIdx]
+                            selectedTargetId = prevEnemy.id
+                            selectedTargetPosition = prevEnemy.position.value
+                            true
+                        } else false
+                    } else false
+                }
+                // 1-8: Select defender type by index (only when NOT in tower-selected mode)
+                event.type == KeyEventType.KeyDown &&
+                        !event.isCtrlPressed && !event.isAltPressed &&
+                        selectedDefenderId == null &&
+                        (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) &&
+                        !showMagicPanel -> {
+                    val digit = when (event.key) {
+                        Key.One -> 1; Key.Two -> 2; Key.Three -> 3; Key.Four -> 4
+                        Key.Five -> 5; Key.Six -> 6; Key.Seven -> 7; Key.Eight -> 8
+                        else -> 0
+                    }
+                    if (digit > 0 && digit <= keyboardSelectableTowers.size) {
+                        selectedDefenderType = if (selectedDefenderType == keyboardSelectableTowers[digit - 1]) null else keyboardSelectableTowers[digit - 1]
+                        selectedAttackerId = null
+                        selectedTargetId = null
+                        selectedTargetPosition = null
+                        true
+                    } else false
+                }
+                // 1: First special action for selected tower
+                event.type == KeyEventType.KeyDown &&
+                        event.key == Key.One && !event.isCtrlPressed && !event.isAltPressed &&
+                        selectedDefenderId != null &&
+                        gameState.phase.value == GamePhase.PLAYER_TURN -> {
+                    val defender = gameState.defenders.find { it.id == selectedDefenderId }
+                    if (defender != null && defender.isReady && defender.actionsRemaining.value > 0) {
+                        when (defender.type) {
+                            DefenderType.DWARVEN_MINE -> {
+                                handleMineAction(defender.id, MineAction.DIG)
+                                true
+                            }
+                            DefenderType.WIZARD_TOWER -> {
+                                val isAtMaxMana = gameState.currentMana.value >= gameState.maxMana.value
+                                if (!isAtMaxMana) {
+                                    handleWizardAction(defender.id, WizardAction.GENERATE_MANA)
+                                    true
+                                } else false
+                            }
+                            DefenderType.SPIKE_TOWER -> {
+                                val canBuild = defender.level.value >= 20 &&
+                                    gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_2
+                                if (canBuild) {
+                                    handleBarricadeAction(defender.id, BarricadeAction.BUILD_BARRICADE)
+                                    true
+                                } else false
+                            }
+                            DefenderType.SPEAR_TOWER -> {
+                                val canBuild = defender.level.value >= 10 &&
+                                    gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_1
+                                if (canBuild) {
+                                    handleBarricadeAction(defender.id, BarricadeAction.BUILD_BARRICADE)
+                                    true
+                                } else false
+                            }
+                            else -> false
+                        }
+                    } else false
+                }
+                // 2: Second special action for selected tower
+                event.type == KeyEventType.KeyDown &&
+                        event.key == Key.Two && !event.isCtrlPressed && !event.isAltPressed &&
+                        selectedDefenderId != null &&
+                        gameState.phase.value == GamePhase.PLAYER_TURN -> {
+                    val defender = gameState.defenders.find { it.id == selectedDefenderId }
+                    if (defender != null && defender.isReady && defender.actionsRemaining.value > 0) {
+                        when (defender.type) {
+                            DefenderType.DWARVEN_MINE -> {
+                                handleMineAction(defender.id, MineAction.BUILD_TRAP)
+                                true
+                            }
+                            DefenderType.WIZARD_TOWER -> {
+                                if (defender.level.value >= 10) {
+                                    handleWizardAction(defender.id, WizardAction.PLACE_MAGICAL_TRAP)
+                                    true
+                                } else false
+                            }
+                            else -> false
+                        }
+                    } else false
+                }
+                // Escape (remappable): Back to world map with confirmation
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutBackToWorldMap.value) &&
+                        !isDemoMode -> {
+                    // Skip unsaved changes check if in initial building phase with no defenders placed
+                    val isInitialWithNothingDone = gameState.phase.value == GamePhase.INITIAL_BUILDING &&
+                            gameState.defenders.isEmpty()
+                    if (!isInitialWithNothingDone && unsavedChangesEnabled && hasUnsavedChanges.invoke()) {
+                        showUnsavedChangesDialog = true
+                    } else {
+                        onBackToMap()
+                    }
+                    true
+                }
+                // End turn / start battle (Ctrl+Enter by default)
+                event.type == KeyEventType.KeyDown &&
+                        isShortcutBindingPressed(event, AppSettings.shortcutEndTurnStartBattle.value) -> {
                     when (gameState.phase.value) {
                         GamePhase.PLAYER_TURN -> {
-                            if (highlightEndTurnButton) {
-                                // End Turn button has keyboard focus — end the turn directly
-                                highlightEndTurnButton = false
-                                endPlayerTurnAction()
-                            } else if (gameState.hasDefendersWithUnusedActions()) {
-                                showEndTurnConfirmation = true
-                            } else {
-                                endPlayerTurnAction()
+                            when {
+                                highlightEndTurnButton -> {
+                                    highlightEndTurnButton = false
+                                    endPlayerTurnAction()
+                                    true
+                                }
+                                gameState.hasDefendersWithUnusedActions() -> {
+                                    showEndTurnConfirmation = true
+                                    true
+                                }
+                                else -> {
+                                    endPlayerTurnAction()
+                                    true
+                                }
                             }
-                            true
                         }
                         GamePhase.INITIAL_BUILDING -> {
                             onStartFirstPlayerTurn()
                             true
+                        }
+                        else -> false
+                    }
+                }
+                // Enter (plain): Confirm tower type selection / attack with selected tower
+                // Always consume Enter in gameplay phases to prevent focused buttons from handling it
+                // (Start Battle / End Turn buttons should only be triggered via shortcutEndTurnStartBattle)
+                event.type == KeyEventType.KeyDown &&
+                        event.key == Key.Enter &&
+                        !event.isCtrlPressed && !event.isAltPressed && !event.isMetaPressed -> {
+                    when (gameState.phase.value) {
+                        GamePhase.INITIAL_BUILDING -> {
+                            // In build phase, Enter confirms placement on keyboard-selected build tile (or first available)
+                            val defType = selectedDefenderType
+                            if (defType != null) {
+                                val buildTile = keyboardSelectedBuildTile?.takeIf { pos ->
+                                    gameState.defenders.none { it.position.value == pos } &&
+                                    gameState.canPlaceDefender(defType)
+                                } ?: gameState.level.buildAreas
+                                    .firstOrNull { pos ->
+                                        gameState.defenders.none { it.position.value == pos } &&
+                                        gameState.canPlaceDefender(defType)
+                                    }
+                                if (buildTile != null && onPlaceDefender(defType, buildTile)) {
+                                    if (!gameState.canPlaceDefender(defType)) {
+                                        selectedDefenderType = null
+                                    }
+                                    keyboardSelectedBuildTile = null
+                                }
+                            }
+                            // Always consume Enter in build phase (prevent Start Battle button activation)
+                            true
+                        }
+                        GamePhase.PLAYER_TURN -> {
+                            when {
+                                // If a tower type is selected (buy mode), place on first available tile
+                                selectedDefenderType != null && selectedDefenderId == null && !showMagicPanel -> {
+                                    val defType = selectedDefenderType
+                                    if (defType != null) {
+                                        val buildTile = keyboardSelectedBuildTile?.takeIf { pos ->
+                                            gameState.defenders.none { it.position.value == pos } &&
+                                            gameState.canPlaceDefender(defType)
+                                        } ?: gameState.level.buildAreas
+                                            .firstOrNull { pos ->
+                                                gameState.defenders.none { it.position.value == pos } &&
+                                                gameState.canPlaceDefender(defType)
+                                            }
+                                        if (buildTile != null && onPlaceDefender(defType, buildTile)) {
+                                            if (!gameState.canPlaceDefender(defType)) {
+                                                selectedDefenderType = null
+                                            }
+                                            keyboardSelectedBuildTile = null
+                                        }
+                                    }
+                                    true
+                                }
+                                // If a tower is selected with a valid target, attack
+                                selectedDefenderId != null && !showMagicPanel -> {
+                                    val defenderId = selectedDefenderId
+                                    val targetId = selectedTargetId
+                                    val targetPos = selectedTargetPosition
+                                    val defender = defenderId?.let { id -> gameState.defenders.find { it.id == id } }
+                                    if (defender != null && defender.isReady && defender.actionsRemaining.value > 0 && (targetId != null || targetPos != null)) {
+                                        when {
+                                            targetId != null -> { onDefenderAttack(defenderId!!, targetId); true }
+                                            targetPos != null -> { onDefenderAttackPosition(defenderId!!, targetPos); true }
+                                            else -> true
+                                        }
+                                    } else {
+                                        // Consume Enter anyway to prevent End Turn button activation
+                                        true
+                                    }
+                                }
+                                // Always consume Enter in player turn to prevent End Turn button activation
+                                else -> true
+                            }
                         }
                         else -> false
                     }
@@ -718,6 +1318,8 @@ private fun GamePlayScreenContent(
         BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
+                .focusRequester(screenFocusRequester)
+                .focusTarget()
                 .onPreviewKeyEvent(keyboardHandler)
                 // In demo mode, intercept any click/tap to show "stop demo?" dialog
                 .then(
@@ -738,7 +1340,12 @@ private fun GamePlayScreenContent(
             }
             
             Surface(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .accessibilityVisualFilter(
+                        highContrastEnabled = AppSettings.highContrastEnabled.value,
+                        colorBlindPalette = AppSettings.colorBlindPalette.value
+                    ),
                 color = MaterialTheme.colorScheme.background
             ) {
                 Column(
@@ -774,7 +1381,15 @@ private fun GamePlayScreenContent(
                 }
             } else null,
             isDemoMode = isDemoMode,
-            onDemoTitleClick = if (isDemoMode) {{ showStopDemoDialog = true }} else null
+            onDemoTitleClick = if (isDemoMode) {{ showStopDemoDialog = true }} else null,
+            externalShowShortcuts = triggerShowShortcuts,
+            onExternalShowShortcutsHandled = { triggerShowShortcuts = false },
+            externalShowHelp = triggerShowHelp,
+            onExternalShowHelpHandled = { triggerShowHelp = false },
+            externalShowFeedback = triggerShowFeedback,
+            onExternalShowFeedbackHandled = { triggerShowFeedback = false },
+            externalShowSettings = triggerShowSettings,
+            onExternalShowSettingsHandled = { triggerShowSettings = false }
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -791,6 +1406,7 @@ private fun GamePlayScreenContent(
                 selectedMineAction = selectedMineAction,
                 selectedWizardAction = selectedWizardAction,
                 selectedBarricadeAction = selectedBarricadeAction,
+                extraFocusTrigger = mapRefocusTrigger,
                 onCellClick = { position ->
                     // Handle spell targeting mode first
                     val targeting = gameState.spellTargeting.value
@@ -1029,8 +1645,41 @@ private fun GamePlayScreenContent(
                     }
                 },
                 isDemoMode = isDemoMode,
-                demoHoveredPosition = demoHoveredPosition
+                demoHoveredPosition = demoHoveredPosition,
+                keyboardHoveredPosition = keyboardSelectedBuildTile
             )
+
+            val captionText = soundCaptionText
+            if (captionsEnabled && captionText != null) {
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 8.dp)
+                        .testTag("gameplaySoundCaption"),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+                    tonalElevation = 3.dp,
+                    shadowElevation = 3.dp,
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier.size(20.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            SpeakerHighIcon(size = 18.dp)
+                        }
+                        Text(
+                            text = captionText,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            }
 
             // Overlay panel with Legend and Enemy List (conditionally shown)
             // Auto-open during LEGEND_INFO (legend only) or ENEMY_LIST_INFO (enemy list only) tutorial steps
@@ -1047,21 +1696,23 @@ private fun GamePlayScreenContent(
                         .fillMaxHeight()
                         .padding(8.dp)
                 ) {
-                    // Legend - show if user opened overlay OR during LEGEND_INFO tutorial step
-                    if (showOverlay || shouldShowLegendForTutorial) {
+                    // Legend - show if mode includes legend OR during LEGEND_INFO tutorial step
+                    val showLegendPanel = (showOverlay && overlayMode != 2) || shouldShowLegendForTutorial
+                    if (showLegendPanel) {
                         GameLegend(
                             modifier = Modifier.fillMaxWidth(),
                             forceExpanded = shouldShowLegendForTutorial
                         )
                         
                         // Add spacer only if both legend and enemy list are shown
-                        if (showOverlay) {
+                        if (showOverlay && overlayMode == 0) {
                             Spacer(modifier = Modifier.height(16.dp))
                         }
                     }
 
-                    // Enemy List - show if user opened overlay OR during ENEMY_LIST_INFO tutorial step
-                    if (showOverlay || shouldShowEnemyListForTutorial) {
+                    // Enemy List - show if mode includes enemy list OR during ENEMY_LIST_INFO tutorial step
+                    val showEnemyPanel = (showOverlay && overlayMode != 1) || shouldShowEnemyListForTutorial
+                    if (showEnemyPanel) {
                         EnemyListPanel(
                             gameState = gameState, 
                             modifier = Modifier.fillMaxWidth().weight(1f),
@@ -1170,6 +1821,140 @@ private fun GamePlayScreenContent(
                             },
                             layout = tutorialLayout
                         )
+                    }
+                }
+            }
+
+            // Keyboard navigation hint overlay (bottom-left, away from minimap)
+            val showKeyboardHints = AppSettings.showButtonShortcutHints.value &&
+                !showMagicPanel &&
+                (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN)
+            if (showKeyboardHints) {
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(bottom = 8.dp, start = 8.dp),
+                    shape = RoundedCornerShape(4.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.9f),
+                    tonalElevation = 2.dp
+                ) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutSelectNextTower.value))
+                                Text(stringResource(Res.string.keyboard_nav_next), style = MaterialTheme.typography.labelSmall)
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutSelectPreviousTower.value))
+                                Text(stringResource(Res.string.keyboard_nav_prev), style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                ShortcutKeyChip(text = "Enter")
+                                Text(stringResource(Res.string.keyboard_nav_confirm), style = MaterialTheme.typography.labelSmall)
+                            }
+                        }
+                        // Mode switching info (only in player turn - tower type vs existing tower)
+                        if (gameState.phase.value == GamePhase.PLAYER_TURN) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutSwitchToTowerMode.value))
+                                    Text(stringResource(Res.string.keyboard_shortcut_switch_to_tower_mode), style = MaterialTheme.typography.labelSmall)
+                                }
+                            }
+                        }
+                        // Enemy target cycling (only in player turn, only if a defender is selected)
+                        if (gameState.phase.value == GamePhase.PLAYER_TURN && selectedDefenderId != null) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutNextEnemyTarget.value))
+                                    Text(stringResource(Res.string.keyboard_shortcut_next_enemy_target), style = MaterialTheme.typography.labelSmall)
+                                }
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutPrevEnemyTarget.value))
+                                    Text(stringResource(Res.string.keyboard_shortcut_prev_enemy_target), style = MaterialTheme.typography.labelSmall)
+                                }
+                            }
+                        }
+                        // Build tile cycling (when a tower type is selected for placement)
+                        if (selectedDefenderType != null) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutNextEnemyTarget.value))
+                                    Text(stringResource(Res.string.keyboard_shortcut_next_build_tile), style = MaterialTheme.typography.labelSmall)
+                                }
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutPrevEnemyTarget.value))
+                                    Text(stringResource(Res.string.keyboard_shortcut_prev_build_tile), style = MaterialTheme.typography.labelSmall)
+                                }
+                            }
+                        }
+                        // Special action shortcuts (when a tower with special actions is selected)
+                        if (gameState.phase.value == GamePhase.PLAYER_TURN && selectedDefenderId != null) {
+                            val selectedDefenderForHints = gameState.defenders.find { it.id == selectedDefenderId }
+                            if (selectedDefenderForHints != null) {
+                                val showKey1 = when (selectedDefenderForHints.type) {
+                                    DefenderType.WIZARD_TOWER, DefenderType.DWARVEN_MINE -> true
+                                    DefenderType.SPIKE_TOWER -> selectedDefenderForHints.level.value >= 20
+                                    DefenderType.SPEAR_TOWER -> selectedDefenderForHints.level.value >= 10
+                                    else -> false
+                                }
+                                val key1Label = when (selectedDefenderForHints.type) {
+                                    DefenderType.WIZARD_TOWER -> stringResource(Res.string.generate_mana)
+                                    DefenderType.DWARVEN_MINE -> stringResource(Res.string.dig)
+                                    DefenderType.SPIKE_TOWER, DefenderType.SPEAR_TOWER -> stringResource(Res.string.barricade)
+                                    else -> ""
+                                }
+                                val showKey2 = when (selectedDefenderForHints.type) {
+                                    DefenderType.WIZARD_TOWER -> selectedDefenderForHints.level.value >= 10
+                                    DefenderType.DWARVEN_MINE -> true
+                                    else -> false
+                                }
+                                val key2Label = when (selectedDefenderForHints.type) {
+                                    DefenderType.WIZARD_TOWER -> stringResource(Res.string.magical_trap)
+                                    DefenderType.DWARVEN_MINE -> stringResource(Res.string.trap)
+                                    else -> ""
+                                }
+                                if (showKey1 || showKey2) {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        if (showKey1) {
+                                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                                ShortcutKeyChip(text = "1")
+                                                Text(key1Label, style = MaterialTheme.typography.labelSmall)
+                                            }
+                                        }
+                                        if (showKey2) {
+                                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                                ShortcutKeyChip(text = "2")
+                                                Text(key2Label, style = MaterialTheme.typography.labelSmall)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1557,6 +2342,64 @@ private fun GamePlayScreenContent(
                     trapToRemove = null
                 }
             )
+        }
+
+        val keyboardConfirmation = keyboardUndoOrSellConfirmation
+        if (keyboardConfirmation != null) {
+            val (confirmDefenderId, isUndo) = keyboardConfirmation
+            val defender = gameState.defenders.find { it.id == confirmDefenderId }
+            if (defender != null) {
+                val locale = com.hyperether.resources.currentLanguage.value
+                val towerName = defender.type.getLocalizedName(locale)
+                val coinsLabel = stringResource(Res.string.coins_label)
+                val refundAmount = if (isUndo) defender.totalCost else (defender.totalCost * 0.75).toInt()
+                val titleStr = if (isUndo) stringResource(Res.string.undo_tower_title) else stringResource(Res.string.sell_tower_title)
+                val messageStr = if (isUndo) {
+                    stringResource(Res.string.undo_tower_message, towerName, refundAmount.toString(), coinsLabel)
+                } else {
+                    stringResource(Res.string.sell_tower_message, towerName, refundAmount.toString(), coinsLabel)
+                }
+                val confirmLabel = if (isUndo) stringResource(Res.string.undo) else stringResource(Res.string.sell)
+                val confirmColor = if (isUndo) GamePlayColors.Success else GamePlayColors.Warning
+                AlertDialog(
+                    onDismissRequest = { keyboardUndoOrSellConfirmation = null },
+                    title = { Text(titleStr) },
+                    text = { Text(messageStr) },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                if (isUndo) {
+                                    onUndoTower(defender.id)
+                                } else if (onSellTower(defender.id)) {
+                                    selectedDefenderType = null
+                                    selectedDefenderId = null
+                                }
+                                keyboardUndoOrSellConfirmation = null
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = confirmColor)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(confirmLabel)
+                                    ShortcutKeyChip(
+                                        text = formatShortcutBindingForDisplay(AppSettings.shortcutUndoOrSellSelectedTower.value)
+                                    )
+                            }
+                        }
+                    },
+                    dismissButton = {
+                        OutlinedButton(
+                            onClick = { keyboardUndoOrSellConfirmation = null }
+                        ) {
+                            Text(stringResource(Res.string.cancel))
+                        }
+                    }
+                )
+            } else {
+                keyboardUndoOrSellConfirmation = null
+            }
         }
 
         // Unsaved changes dialog

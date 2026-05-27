@@ -37,14 +37,20 @@ import dev.vicart.compose.material.symbols.MaterialSymbols
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.SettingsHintBox
+import de.egril.defender.ui.settings.SettingsTab
 import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.utils.isPlatformDesktop
 import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.utils.isPlatformWasm
 import de.egril.defender.ui.isMobileWebBrowser
+import androidx.compose.ui.input.key.*
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.icon.HeartIcon
 import de.egril.defender.ui.icon.HelpIcon
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.settings.AppSettings.isDarkMode
 import de.egril.defender.utils.isPlatformIos
 import defender_of_egril.composeapp.generated.resources.*
@@ -107,6 +113,13 @@ private fun MainMenuButtonRow(
             contentPadding = contentPadding ?: ButtonDefaults.ContentPadding
         ) {
             Text(stringResource(Res.string.start_game), style = textStyle, maxLines = 1)
+            if (AppSettings.showButtonShortcutHints.value) {
+                Spacer(modifier = Modifier.width(4.dp))
+                de.egril.defender.ui.gameplay.ShortcutKeyChip(
+                    text = "Enter",
+                    color = LocalContentColor.current.copy(alpha = 0.75f)
+                )
+            }
         }
 
         if (hasAutosave) {
@@ -119,6 +132,13 @@ private fun MainMenuButtonRow(
                 )
             ) {
                 Text(stringResource(Res.string.continue_game), style = textStyle, maxLines = 1)
+                if (AppSettings.showButtonShortcutHints.value) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                    de.egril.defender.ui.gameplay.ShortcutKeyChip(
+                        text = "C",
+                        color = LocalContentColor.current.copy(alpha = 0.75f)
+                    )
+                }
             }
         }
 
@@ -128,6 +148,13 @@ private fun MainMenuButtonRow(
             contentPadding = contentPadding ?: ButtonDefaults.ContentPadding
         ) {
             Text(stringResource(Res.string.rules), style = textStyle, maxLines = 1)
+            if (AppSettings.showButtonShortcutHints.value) {
+                Spacer(modifier = Modifier.width(4.dp))
+                de.egril.defender.ui.gameplay.ShortcutKeyChip(
+                    text = "H",
+                    color = LocalContentColor.current.copy(alpha = 0.75f)
+                )
+            }
         }
     }
 }
@@ -148,6 +175,9 @@ fun MainMenuScreen(
     onIamLogin: () -> Unit = {},
     onIamLogout: () -> Unit = {},
     onIamLoginCancel: () -> Unit = {},
+    openSettingsInitially: Boolean = false,
+    settingsInitialTab: SettingsTab = SettingsTab.GENERAL,
+    onSettingsInitialOpenHandled: () -> Unit = {},
     isDataLoaded: Boolean = true,
     loadingProgress: LoadingProgress? = null
 ) {
@@ -160,8 +190,127 @@ fun MainMenuScreen(
     // Track if exit confirmation dialog should be shown
     var showExitConfirmation by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
     
+    // Track keyboard-triggered feedback/settings/iam-logout
+    var triggerFeedback by remember { mutableStateOf(false) }
+    var triggerSettings by remember { mutableStateOf(false) }
+    var triggerImpressumOpen by remember { mutableStateOf(false) }
+    var triggerImpressumClose by remember { mutableStateOf(false) }
+    var impressumIsOpen by remember { mutableStateOf(false) }
+    
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+    }
+
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize()
+            .focusRequester(focusRequester)
+            .focusTarget()
+            .onPreviewKeyEvent { event ->
+            if (event.type == KeyEventType.KeyDown) {
+                when {
+                    // Enter → Start Game (if data is loaded and no dialog open)
+                    event.key == Key.Enter && !event.isCtrlPressed && !event.isAltPressed
+                            && isDataLoaded && !showExitConfirmation -> {
+                        onStartGame()
+                        true
+                    }
+                    // C → Continue game (if autosave exists)
+                    event.key == Key.C && !event.isCtrlPressed && !event.isAltPressed
+                            && hasAutosave && isDataLoaded && !showExitConfirmation -> {
+                        onContinueGame()
+                        true
+                    }
+                    // H → Show Rules (if no dialog open)
+                    event.key == Key.H && !event.isCtrlPressed && !event.isAltPressed
+                            && !showExitConfirmation -> {
+                        onShowRules()
+                        true
+                    }
+                    // I → Show Info / Installation page
+                    event.key == Key.I && !event.isCtrlPressed && !event.isAltPressed
+                            && !showExitConfirmation -> {
+                        onShowInstallationInfo()
+                        true
+                    }
+                    // Period (.) → Open feedback
+                    event.key == Key.Period && !event.isCtrlPressed && !event.isAltPressed
+                            && !showExitConfirmation -> {
+                        triggerFeedback = true
+                        true
+                    }
+                    // Comma (,) → Open settings
+                    event.key == Key.Comma && !event.isCtrlPressed && !event.isAltPressed
+                            && !showExitConfirmation -> {
+                        triggerSettings = true
+                        true
+                    }
+                    // L → IAM login/logout
+                    event.key == Key.L && !event.isCtrlPressed && !event.isAltPressed
+                            && !showExitConfirmation -> {
+                        if (iamState.isAuthenticated) onIamLogout() else onIamLogin()
+                        true
+                    }
+                    // P → Edit player name
+                    event.key == Key.P && !event.isCtrlPressed && !event.isAltPressed
+                            && !showExitConfirmation -> {
+                        onEditPlayerName()
+                        true
+                    }
+                    // Slash (?) → Show backend/privacy info
+                    event.key == Key.Slash && !event.isCtrlPressed && !event.isAltPressed
+                            && !showExitConfirmation -> {
+                        onShowBackendInfo()
+                        true
+                    }
+                    // D → Show download page (WASM only)
+                    event.key == Key.D && !event.isCtrlPressed && !event.isAltPressed
+                            && !showExitConfirmation && isPlatformWasm && WithImpressum.withImpressum -> {
+                        onShowDownloadInfo()
+                        true
+                    }
+                    // V → Show commit/version info
+                    event.key == Key.V && !event.isCtrlPressed && !event.isAltPressed
+                            && !showExitConfirmation -> {
+                        showCommitInfo = true
+                        true
+                    }
+                    // N → Toggle impressum (WASM only)
+                    event.key == Key.N && !event.isCtrlPressed && !event.isAltPressed
+                            && !showExitConfirmation && isPlatformWasm -> {
+                        if (impressumIsOpen) {
+                            triggerImpressumClose = true
+                        } else {
+                            triggerImpressumOpen = true
+                        }
+                        impressumIsOpen = !impressumIsOpen
+                        // Re-request focus on main surface so shortcuts keep working after close
+                        if (!impressumIsOpen) {
+                            try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+                        }
+                        true
+                    }
+                    // Esc → show exit confirmation (non-iOS)
+                    (event.key == Key.Escape || event.key == Key.Back)
+                            && !isPlatformIos && !showExitConfirmation -> {
+                        showExitConfirmation = true
+                        true
+                    }
+                    // Esc when exit dialog is open → cancel it
+                    (event.key == Key.Escape || event.key == Key.Back) && showExitConfirmation -> {
+                        showExitConfirmation = false
+                        true
+                    }
+                    // Enter when exit dialog is open → confirm exit
+                    event.key == Key.Enter && !event.isCtrlPressed && showExitConfirmation -> {
+                        showExitConfirmation = false
+                        exitApplication()
+                        true
+                    }
+                    else -> false
+                }
+            } else false
+        },
         color = MaterialTheme.colorScheme.background
     ) {
         BoxWithConstraints(
@@ -212,6 +361,10 @@ fun MainMenuScreen(
                                             style = MaterialTheme.typography.bodySmall,
                                             fontSize = 12.sp
                                         )
+                                        if (AppSettings.showButtonShortcutHints.value) {
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            ShortcutKeyChip(text = "Esc", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                        }
                                     }
                                 }
                                 if (currentPlayerName != null) {
@@ -282,11 +435,14 @@ fun MainMenuScreen(
                                         }
                                         val backendInfoDesc = stringResource(Res.string.backend_info_title)
                                         TooltipWrapper(text = backendInfoDesc) {
-                                            IconButton(
-                                                onClick = onShowBackendInfo,
-                                                modifier = Modifier.size(28.dp).semantics { contentDescription = backendInfoDesc }
-                                            ) {
-                                                HelpIcon(size = 28.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                IconButton(
+                                                    onClick = onShowBackendInfo,
+                                                    modifier = Modifier.size(28.dp).semantics { contentDescription = backendInfoDesc }
+                                                ) {
+                                                    HelpIcon(size = 28.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
+                                                }
+                                                    ShortcutKeyChip(text = "?")
                                             }
                                         }
                                     }
@@ -303,13 +459,34 @@ fun MainMenuScreen(
 
                             // Right column: info + settings buttons
                             Column(verticalArrangement = Arrangement.Top, horizontalAlignment = Alignment.End) {
-                                TooltipWrapper(text = stringResource(Res.string.tooltip_info_installation)) {
-                                    IconButton(onClick = onShowInstallationInfo, modifier = Modifier.size(40.dp)) {
-                                        FilledSymbol(icon = MaterialSymbols.INFO, size = 28.dp)
+                                val installationInfoLabel = stringResource(Res.string.tooltip_info_installation)
+                                TooltipWrapper(text = installationInfoLabel) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        IconButton(
+                                            onClick = onShowInstallationInfo,
+                                            modifier = Modifier.size(40.dp).semantics { contentDescription = installationInfoLabel }
+                                        ) {
+                                            FilledSymbol(icon = MaterialSymbols.INFO, size = 28.dp)
+                                        }
+                                        if (AppSettings.showButtonShortcutHints.value) {
+                                            Spacer(modifier = Modifier.width(2.dp))
+                                            ShortcutKeyChip(text = "I")
+                                        }
                                     }
                                 }
-                                FeedbackButton()
-                                SettingsButton()
+                                FeedbackButton(
+                                    shortcutKey = ".",
+                                    triggerOpen = triggerFeedback,
+                                    onTriggerHandled = { triggerFeedback = false }
+                                )
+                                SettingsButton(
+                                    initiallyOpen = openSettingsInitially,
+                                    initialTab = settingsInitialTab,
+                                    onInitialOpenHandled = onSettingsInitialOpenHandled,
+                                    shortcutKey = ",",
+                                    triggerOpen = triggerSettings,
+                                    onTriggerHandled = { triggerSettings = false }
+                                )
                             }
                         }
                     } else {
@@ -334,6 +511,10 @@ fun MainMenuScreen(
                                             style = MaterialTheme.typography.bodySmall,
                                             fontSize = 12.sp
                                         )
+                                        if (AppSettings.showButtonShortcutHints.value) {
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            ShortcutKeyChip(text = "Esc", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                        }
                                     }
                                 }
                                 if (currentPlayerName != null) {
@@ -404,11 +585,14 @@ fun MainMenuScreen(
                                         }
                                         val backendInfoDesc = stringResource(Res.string.backend_info_title)
                                         TooltipWrapper(text = backendInfoDesc) {
-                                            IconButton(
-                                                onClick = onShowBackendInfo,
-                                                modifier = Modifier.size(28.dp).semantics { contentDescription = backendInfoDesc }
-                                            ) {
-                                                HelpIcon(size = 28.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
+                                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                                IconButton(
+                                                    onClick = onShowBackendInfo,
+                                                    modifier = Modifier.size(28.dp).semantics { contentDescription = backendInfoDesc }
+                                                ) {
+                                                    HelpIcon(size = 28.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
+                                                }
+                                                    ShortcutKeyChip(text = "?")
                                             }
                                         }
                                     }
@@ -419,13 +603,34 @@ fun MainMenuScreen(
 
                             // Right column: info + settings buttons
                             Column(verticalArrangement = Arrangement.Top, horizontalAlignment = Alignment.End) {
-                                TooltipWrapper(text = stringResource(Res.string.tooltip_info_installation)) {
-                                    IconButton(onClick = onShowInstallationInfo, modifier = Modifier.size(40.dp)) {
-                                        FilledSymbol(icon = MaterialSymbols.INFO, size = 28.dp)
+                                val installationInfoLabel = stringResource(Res.string.tooltip_info_installation)
+                                TooltipWrapper(text = installationInfoLabel) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        IconButton(
+                                            onClick = onShowInstallationInfo,
+                                            modifier = Modifier.size(40.dp).semantics { contentDescription = installationInfoLabel }
+                                        ) {
+                                            FilledSymbol(icon = MaterialSymbols.INFO, size = 28.dp)
+                                        }
+                                        if (AppSettings.showButtonShortcutHints.value) {
+                                            Spacer(modifier = Modifier.width(2.dp))
+                                            ShortcutKeyChip(text = "I")
+                                        }
                                     }
                                 }
-                                FeedbackButton()
-                                SettingsButton()
+                                FeedbackButton(
+                                    shortcutKey = ".",
+                                    triggerOpen = triggerFeedback,
+                                    onTriggerHandled = { triggerFeedback = false }
+                                )
+                                SettingsButton(
+                                    initiallyOpen = openSettingsInitially,
+                                    initialTab = settingsInitialTab,
+                                    onInitialOpenHandled = onSettingsInitialOpenHandled,
+                                    shortcutKey = ",",
+                                    triggerOpen = triggerSettings,
+                                    onTriggerHandled = { triggerSettings = false }
+                                )
                             }
                         }
                         // Full-width banner (aspect ratio ~3:1, so height ≈ width/3; natural fit)
@@ -456,6 +661,7 @@ fun MainMenuScreen(
                             buttonHeight = if (isPlatformMobile) 40.dp else 34.dp,
                             textStyle = if (isPlatformMobile) MaterialTheme.typography.bodySmall else MaterialTheme.typography.labelSmall
                         )
+                        Spacer(modifier = Modifier.height(8.dp))
                         if (isPlatformWasm && WithImpressum.withImpressum) {
                             Spacer(modifier = Modifier.height(16.dp))
                             Button(
@@ -464,6 +670,8 @@ fun MainMenuScreen(
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
                             ) {
                                 Text(stringResource(Res.string.download_button), style = MaterialTheme.typography.labelSmall)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                ShortcutKeyChip(text = "D", color = LocalContentColor.current.copy(alpha = 0.75f))
                             }
                         }
                         if (!isDataLoaded) {
@@ -499,13 +707,34 @@ fun MainMenuScreen(
                     modifier = Modifier.align(Alignment.TopEnd).padding(8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    TooltipWrapper(text = stringResource(Res.string.tooltip_info_installation)) {
-                        IconButton(onClick = onShowInstallationInfo, modifier = Modifier.size(48.dp)) {
-                            FilledSymbol(icon = MaterialSymbols.INFO, size = 32.dp)
+                    val installationInfoLabel = stringResource(Res.string.tooltip_info_installation)
+                    TooltipWrapper(text = installationInfoLabel) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            IconButton(
+                                onClick = onShowInstallationInfo,
+                                modifier = Modifier.size(48.dp).semantics { contentDescription = installationInfoLabel }
+                            ) {
+                                FilledSymbol(icon = MaterialSymbols.INFO, size = 32.dp)
+                            }
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                Spacer(modifier = Modifier.width(2.dp))
+                                ShortcutKeyChip(text = "I")
+                            }
                         }
                     }
-                    FeedbackButton()
-                    SettingsButton()
+                    FeedbackButton(
+                        shortcutKey = ".",
+                        triggerOpen = triggerFeedback,
+                        onTriggerHandled = { triggerFeedback = false }
+                    )
+                    SettingsButton(
+                        initiallyOpen = openSettingsInitially,
+                        initialTab = settingsInitialTab,
+                        onInitialOpenHandled = onSettingsInitialOpenHandled,
+                        shortcutKey = ",",
+                        triggerOpen = triggerSettings,
+                        onTriggerHandled = { triggerSettings = false }
+                    )
                 }
 
                 // Exit button in top-left corner
@@ -516,6 +745,10 @@ fun MainMenuScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                     ) {
                         Text(text = stringResource(Res.string.exit_game), style = MaterialTheme.typography.bodySmall, fontSize = 12.sp)
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            ShortcutKeyChip(text = "Esc", color = LocalContentColor.current.copy(alpha = 0.75f))
+                        }
                     }
                 }
 
@@ -528,7 +761,10 @@ fun MainMenuScreen(
                     ) {
                         Column(modifier = Modifier.clickable { onEditPlayerName() }) {
                             Text(text = stringResource(Res.string.player_name), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text(text = currentPlayerName, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Text(text = currentPlayerName, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                                    ShortcutKeyChip(text = "P")
+                            }
                             if (iamState.isAuthenticated && iamState.username != null) {
                                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
                                     UnlockIcon(size = 12.dp)
@@ -542,6 +778,10 @@ fun MainMenuScreen(
                                     LockIcon(size = 14.dp)
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(text = stringResource(Res.string.iam_logout), style = MaterialTheme.typography.bodySmall)
+                                    if (AppSettings.showButtonShortcutHints.value) {
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        ShortcutKeyChip(text = "L", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                    }
                                 }
                             }
                         } else if (iamLoginInProgress) {
@@ -555,12 +795,19 @@ fun MainMenuScreen(
                                 UnlockIcon(size = 14.dp)
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(text = stringResource(Res.string.iam_login), style = MaterialTheme.typography.bodySmall)
+                                if (AppSettings.showButtonShortcutHints.value) {
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    ShortcutKeyChip(text = "L", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                }
                             }
                         }
                         val backendInfoDesc = stringResource(Res.string.backend_info_title)
                         TooltipWrapper(text = backendInfoDesc) {
-                            IconButton(onClick = onShowBackendInfo, modifier = Modifier.size(34.dp).semantics { contentDescription = backendInfoDesc }) {
-                                HelpIcon(size = 34.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                IconButton(onClick = onShowBackendInfo, modifier = Modifier.size(34.dp).semantics { contentDescription = backendInfoDesc }) {
+                                    HelpIcon(size = 34.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
+                                }
+                                    ShortcutKeyChip(text = "?")
                             }
                         }
                     }
@@ -583,7 +830,10 @@ fun MainMenuScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         Button(onClick = onStartGame, enabled = isDataLoaded, modifier = Modifier.width(200.dp).height(60.dp)) {
-                            Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
+                                    ShortcutKeyChip(text = "Enter", color = LocalContentColor.current.copy(alpha = 0.75f))
+                            }
                         }
                         if (hasAutosave) {
                             Button(
@@ -591,13 +841,19 @@ fun MainMenuScreen(
                                 modifier = Modifier.width(200.dp).height(60.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
                             ) {
-                                Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.titleMedium)
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.titleMedium)
+                                        ShortcutKeyChip(text = "C", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                }
                             }
                         }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = onShowRules, modifier = Modifier.width(200.dp).height(60.dp)) {
-                        Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
+                                ShortcutKeyChip(text = "H", color = LocalContentColor.current.copy(alpha = 0.75f))
+                        }
                     }
                     if (isPlatformWasm && WithImpressum.withImpressum) {
                         Spacer(modifier = Modifier.height(16.dp))
@@ -606,7 +862,10 @@ fun MainMenuScreen(
                             modifier = Modifier.width(200.dp).height(60.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
                         ) {
-                            Text(stringResource(Res.string.download_button), style = MaterialTheme.typography.titleMedium)
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(stringResource(Res.string.download_button), style = MaterialTheme.typography.titleMedium)
+                                ShortcutKeyChip(text = "D", color = LocalContentColor.current.copy(alpha = 0.75f))
+                            }
                         }
                     }
                     if (!isDataLoaded) {
@@ -639,13 +898,16 @@ fun MainMenuScreen(
                         .align(Alignment.BottomStart)
                         .padding(bottom = 8.dp)
                 ) {
-                    Text(
-                        text = "v${AppBuildInfo.VERSION_NAME} (${AppBuildInfo.COMMIT_HASH})",
-                        style = MaterialTheme.typography.bodySmall,
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.clickable { showCommitInfo = true }
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            text = "v${AppBuildInfo.VERSION_NAME} (${AppBuildInfo.COMMIT_HASH})",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.clickable { showCommitInfo = true }
+                        )
+                        ShortcutKeyChip(text = "V")
+                    }
                 }
             }
             
@@ -654,7 +916,15 @@ fun MainMenuScreen(
                 ImpressumWrapper(
                     rowModifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 8.dp)
+                        .padding(bottom = 8.dp),
+                    triggerOpen = triggerImpressumOpen,
+                    onTriggerOpenHandled = { triggerImpressumOpen = false },
+                    triggerClose = triggerImpressumClose,
+                    onTriggerCloseHandled = { triggerImpressumClose = false },
+                    onDismissed = {
+                        impressumIsOpen = false
+                        try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+                    }
                 )
             }
             
@@ -676,8 +946,31 @@ fun MainMenuScreen(
         
         // Exit confirmation dialog
         if (showExitConfirmation) {
+            val exitDialogFocusRequester = remember { FocusRequester() }
+            LaunchedEffect(Unit) {
+                try { exitDialogFocusRequester.requestFocus() } catch (_: IllegalStateException) {}
+            }
             AlertDialog(
                 onDismissRequest = { showExitConfirmation = false },
+                modifier = Modifier
+                    .focusRequester(exitDialogFocusRequester)
+                    .focusTarget()
+                    .onPreviewKeyEvent { event ->
+                        if (event.type == KeyEventType.KeyDown) {
+                            when (event.key) {
+                                Key.Enter -> {
+                                    showExitConfirmation = false
+                                    exitApplication()
+                                    true
+                                }
+                                Key.Escape, Key.Back -> {
+                                    showExitConfirmation = false
+                                    true
+                                }
+                                else -> false
+                            }
+                        } else false
+                    },
                 title = { Text(stringResource(Res.string.exit_game_confirm_title)) },
                 text = { Text(stringResource(Res.string.exit_game_confirm_message)) },
                 confirmButton = {
@@ -690,12 +983,30 @@ fun MainMenuScreen(
                             containerColor = MaterialTheme.colorScheme.error
                         )
                     ) {
-                        Text(stringResource(Res.string.exit))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(stringResource(Res.string.exit))
+                                ShortcutKeyChip(
+                                    text = "Enter",
+                                    color = LocalContentColor.current.copy(alpha = 0.75f)
+                                )
+                        }
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showExitConfirmation = false }) {
-                        Text(stringResource(Res.string.cancel))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(stringResource(Res.string.cancel))
+                                ShortcutKeyChip(
+                                    text = "Esc",
+                                    color = LocalContentColor.current.copy(alpha = 0.75f)
+                                )
+                        }
                     }
                 }
             )
@@ -783,8 +1094,8 @@ fun LevelCompleteScreen(
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                FeedbackButton()
-                SettingsButton()
+                FeedbackButton(shortcutKey = ".")
+                SettingsButton(shortcutKey = ",")
             }
             }
             

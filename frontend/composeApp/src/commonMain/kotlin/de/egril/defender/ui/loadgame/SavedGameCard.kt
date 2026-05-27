@@ -5,12 +5,19 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import de.egril.defender.game.LevelData
 import de.egril.defender.model.*
 import de.egril.defender.save.SaveGameMetadata
+import de.egril.defender.ui.a11y.a11ySemantics
 import de.egril.defender.utils.formatTimestamp
 import de.egril.defender.ui.getLocalizedTitle
+import com.hyperether.resources.stringResource
+import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.coins
+import defender_of_egril.composeapp.generated.resources.health
+import defender_of_egril.composeapp.generated.resources.turn
 
 @Composable
 fun SavedGameCard(
@@ -90,10 +97,35 @@ fun SavedGameCard(
         
         // Check if this is an autosave
         val isAutosave = saveGame.id == "autosave_game"
+        val locale = com.hyperether.resources.currentLanguage.value
+        val displayName = if (level != null) {
+            level.getLocalizedTitle(locale)
+        } else {
+            saveGame.levelName
+        }
+        val turnLabel = stringResource(Res.string.turn)
+        val coinsLabel = stringResource(Res.string.coins)
+        val healthLabel = stringResource(Res.string.health)
+        val saveCardLabel = buildString {
+            append(displayName)
+            append(", ")
+            append(turnLabel)
+            append(": ")
+            append(saveGame.turnNumber)
+            append(", ")
+            append(coinsLabel)
+            append(": ")
+            append(saveGame.coins)
+            append(", ")
+            append(healthLabel)
+            append(": ")
+            append(saveGame.healthPoints)
+        }
         
         Card(
             modifier = Modifier
                 .fillMaxWidth()
+                .a11ySemantics(role = Role.Button, label = saveCardLabel)
                 .clickable { onLoad() },
             elevation = CardDefaults.cardElevation(defaultElevation = if (isMobileCard) 2.dp else 4.dp),
             colors = CardDefaults.cardColors(
@@ -105,14 +137,6 @@ fun SavedGameCard(
             )
         ) {
             Column(modifier = Modifier.fillMaxWidth().padding(cardPadding)) {
-                // Get localized level name if level is available
-                val locale = com.hyperether.resources.currentLanguage.value
-                val displayName = if (level != null) {
-                    level.getLocalizedTitle(locale)
-                } else {
-                    saveGame.levelName  // Fallback to saved name if level not found
-                }
-                
                 SavedGameCardHeader(
                     levelName = displayName,
                     dateStr = dateStr,

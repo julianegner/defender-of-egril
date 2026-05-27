@@ -14,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.input.key.*
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.Level
 import de.egril.defender.model.WorldLevel
@@ -46,7 +48,27 @@ fun LevelHandoffDialog(
             modifier = Modifier
                 .widthIn(min = 500.dp, max = 900.dp)
                 .heightIn(max = 700.dp)
-                .padding(8.dp),
+                .padding(8.dp)
+                .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown) {
+                        when {
+                            event.key == Key.Enter && !event.isCtrlPressed -> {
+                                if (selectedOption == HandoffOption.CONTINUE) onStartWithHandoff() else onStartFresh()
+                                true
+                            }
+                            event.key == Key.Escape || event.key == Key.Back -> {
+                                onDismiss()
+                                true
+                            }
+                            event.key == Key.Tab -> {
+                                selectedOption = if (selectedOption == HandoffOption.CONTINUE)
+                                    HandoffOption.FRESH_START else HandoffOption.CONTINUE
+                                true
+                            }
+                            else -> false
+                        }
+                    } else false
+                },
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
                 containerColor = if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFFF5F5F5)
@@ -112,6 +134,10 @@ fun LevelHandoffDialog(
                 ) {
                     OutlinedButton(onClick = onDismiss) {
                         Text(stringResource(Res.string.cancel))
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            ShortcutKeyChip(text = "Esc")
+                        }
                     }
                     Button(
                         onClick = {
@@ -127,6 +153,10 @@ fun LevelHandoffDialog(
                         )
                     ) {
                         Text(stringResource(Res.string.start_battle))
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            ShortcutKeyChip(text = "Enter", color = Color.White.copy(alpha = 0.75f))
+                        }
                     }
                 }
             }

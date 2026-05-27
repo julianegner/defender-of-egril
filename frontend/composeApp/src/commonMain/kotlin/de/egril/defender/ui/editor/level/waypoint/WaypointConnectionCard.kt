@@ -13,6 +13,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorWaypoint
@@ -23,6 +25,7 @@ import de.egril.defender.ui.icon.TrashIcon
 import de.egril.defender.ui.icon.WarningIcon
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.circular_dependency_warning
+import defender_of_egril.composeapp.generated.resources.delete
 import defender_of_egril.composeapp.generated.resources.spawn_point_text
 import defender_of_egril.composeapp.generated.resources.target_text
 import defender_of_egril.composeapp.generated.resources.unconnected_waypoint_warning
@@ -63,7 +66,11 @@ fun WaypointConnectionCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 PositionText(waypoint.position, MaterialTheme.typography.titleMedium)
-                IconButton(onClick = onDelete) {
+                val deleteLabel = stringResource(Res.string.delete)
+                IconButton(
+                    onClick = onDelete,
+                    modifier = Modifier.semantics { contentDescription = deleteLabel }
+                ) {
                     TrashIcon(size = 20.dp)
                 }
             }

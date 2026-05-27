@@ -113,7 +113,9 @@ fun GameGrid(
     scrollToPosition: Position? = null,
     onScrollToPositionConsumed: (() -> Unit)? = null,
     isDemoMode: Boolean = false,
-    demoHoveredPosition: Position? = null   // overrides the local hover in demo mode
+    demoHoveredPosition: Position? = null,   // overrides the local hover in demo mode
+    keyboardHoveredPosition: Position? = null, // overrides the local hover for keyboard build tile selection
+    extraFocusTrigger: Int = 0
 ) {
     // State for pan and zoom
     var scale by remember { mutableStateOf(1f) }
@@ -125,8 +127,8 @@ fun GameGrid(
     
     // State for hover position (for tower placement preview)
     var localHoveredPosition by remember { mutableStateOf<Position?>(null) }
-    // In demo mode use the externally-driven hover; in normal play use the local hover
-    val hoveredPosition: Position? = if (isDemoMode) demoHoveredPosition else localHoveredPosition
+    // In demo mode use the externally-driven hover; keyboard hover overrides local hover for build tile preview
+    val hoveredPosition: Position? = if (isDemoMode) demoHoveredPosition else (keyboardHoveredPosition ?: localHoveredPosition)
 
     val hexSize = 40.dp  // Radius of hexagon (center to corner)
 
@@ -590,6 +592,10 @@ fun GameGrid(
                 hexSize = hexSize.value,
                 enableKeyboardNavigation = !isDemoMode,  // Disable keyboard navigation in demo mode
                 enablePanNavigation = !isDemoMode,        // Disable pan navigation in demo mode
+                panUpBinding = AppSettings.shortcutPanUp.value,
+                panDownBinding = AppSettings.shortcutPanDown.value,
+                panLeftBinding = AppSettings.shortcutPanLeft.value,
+                panRightBinding = AppSettings.shortcutPanRight.value,
                 minScale = if (isDemoMode) 0.2f else 0.5f  // Allow lower zoom in demo mode
             ),
             scale = scale,
@@ -603,7 +609,7 @@ fun GameGrid(
             onActualContentSizeChange = { newContentSize ->
                 contentSize = newContentSize
             },
-            focusTrigger = gameState.phase.value,  // Request focus when game phase changes (e.g., after "Start Battle")
+            focusTrigger = Pair(gameState.phase.value, extraFocusTrigger),  // Request focus when game phase changes or after dialogs close
             modifier = Modifier.fillMaxSize(),
             backgroundContent = if (hasMapImage) { { measuredContentSize ->
                 val density = androidx.compose.ui.platform.LocalDensity.current

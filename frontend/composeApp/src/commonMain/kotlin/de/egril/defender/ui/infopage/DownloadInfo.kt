@@ -2,22 +2,70 @@
 
 package de.egril.defender.ui.infopage
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
+import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.*
 import androidx.compose.foundation.text.selection.SelectionContainer
+
+/**
+ * Manages focus cycling through download links only.
+ * Used by InfoPageScreen to restrict Tab/Shift+Tab to links on the Download tab.
+ */
+class LinkFocusManager {
+    private var _requesters = mutableListOf<FocusRequester>()
+    private var _currentIndex = -1
+
+    val size: Int get() = _requesters.size
+    val currentIndex: Int get() = _currentIndex
+
+    fun resetRegistration() {
+        _requesters.clear()
+    }
+
+    fun register(requester: FocusRequester): Int {
+        val index = _requesters.size
+        _requesters.add(requester)
+        return index
+    }
+
+    fun focusNext() {
+        if (_requesters.isEmpty()) return
+        _currentIndex = (_currentIndex + 1) % _requesters.size
+        try { _requesters[_currentIndex].requestFocus() } catch (_: Exception) {}
+    }
+
+    fun focusPrevious() {
+        if (_requesters.isEmpty()) return
+        _currentIndex = if (_currentIndex <= 0) _requesters.size - 1 else _currentIndex - 1
+        try { _requesters[_currentIndex].requestFocus() } catch (_: Exception) {}
+    }
+
+    fun updateIndex(index: Int) {
+        _currentIndex = index
+    }
+}
 
 private const val GITHUB_RELEASES_PAGE =
     "https://github.com/julianegner/defender-of-egril/releases/latest"
@@ -29,7 +77,7 @@ private const val GITHUB_RELEASES_PAGE =
  * Only shown on WASM platform when the withImpressum build flag is enabled.
  */
 @Composable
-fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}) {
+fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}, scrollState: androidx.compose.foundation.ScrollState = rememberScrollState(), linkFocusManager: LinkFocusManager? = null) {
     var release by remember { mutableStateOf<GithubRelease?>(null) }
     var loadError by remember { mutableStateOf(false) }
 
@@ -41,6 +89,9 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}) {
             loadError = true
         }
     }
+
+    // Reset link registration on each recomposition
+    linkFocusManager?.resetRegistration()
 
     SelectionContainer {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -71,8 +122,24 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
         ) {
+            // Navigation hint area (only when shortcut chips are ON)
+            if (AppSettings.showButtonShortcutHints.value) {
+                Surface(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.download_nav_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+            }
+
             // Intro text
             Text(
                 text = stringResource(Res.string.download_info_intro),
@@ -94,7 +161,8 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}) {
                 )
                 DownloadLink(
                     url = GITHUB_RELEASES_PAGE,
-                    text = stringResource(Res.string.download_info_view_releases)
+                    text = stringResource(Res.string.download_info_view_releases),
+                    linkFocusManager = linkFocusManager
                 )
             }
 
@@ -139,14 +207,14 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}) {
                 // Assets loaded – show per-file table
                 else -> {
                     release?.assets?.forEach { asset ->
-                        AssetListItem(asset = asset)
+                        AssetListItem(asset = asset, linkFocusManager = linkFocusManager)
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            PlayStorePrereleaseInfo()
+            PlayStorePrereleaseInfo(linkFocusManager = linkFocusManager)
 
             // Android sideloading instructions
             Text(
@@ -210,11 +278,19 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}) {
 
             // Link to installation instructions
             Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = onNavigateToInstallation,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             ) {
-                Text(stringResource(Res.string.download_info_goto_installation))
+                Button(
+                    onClick = onNavigateToInstallation
+                ) {
+                    Text(stringResource(Res.string.download_info_goto_installation))
+                    if (AppSettings.showButtonShortcutHints.value) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        ShortcutKeyChip(text = "I", color = LocalContentColor.current.copy(alpha = 0.75f))
+                    }
+                }
             }
 
             // Impressum section
@@ -225,7 +301,7 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}) {
 }
 
 @Composable
-private fun AssetListItem(asset: GithubReleaseAsset) {
+private fun AssetListItem(asset: GithubReleaseAsset, linkFocusManager: LinkFocusManager? = null) {
     val platform = asset.platform()
     val fileType = asset.fileType()
 
@@ -252,25 +328,62 @@ private fun AssetListItem(asset: GithubReleaseAsset) {
         )
         // Download link fills remaining space; long filenames are truncated with ellipsis
         // so the entire row always fits on a single line on narrow screens.
-        DownloadLink(url = asset.downloadUrl, text = asset.name, modifier = Modifier.weight(1f))
+        DownloadLink(url = asset.downloadUrl, text = asset.name, modifier = Modifier.weight(1f), linkFocusManager = linkFocusManager)
     }
     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 }
 
 @Composable
-private fun DownloadLink(url: String, text: String, modifier: Modifier = Modifier) {
+private fun DownloadLink(url: String, text: String, modifier: Modifier = Modifier, chipText: String = "Enter", linkFocusManager: LinkFocusManager? = null) {
     val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
-    Text(
-        text = text,
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.primary,
-        textDecoration = TextDecoration.Underline,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
+    var isFocused by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
+    val myIndex = if (linkFocusManager != null) {
+        linkFocusManager.register(focusRequester)
+    } else {
+        -1
+    }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .padding(start = 8.dp)
-            .clickable { uriHandler.openUri(url) }
-    )
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary,
+            textDecoration = TextDecoration.Underline,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .padding(start = 8.dp)
+                .then(
+                    if (isFocused) Modifier.border(
+                        BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                        RoundedCornerShape(4.dp)
+                    ).padding(4.dp)
+                    else Modifier
+                )
+                .focusRequester(focusRequester)
+                .onFocusChanged { state ->
+                    isFocused = state.isFocused
+                    if (state.isFocused && linkFocusManager != null) {
+                        linkFocusManager.updateIndex(myIndex)
+                    }
+                }
+                .focusable()
+                .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown && event.key == Key.Enter) {
+                        uriHandler.openUri(url)
+                        true
+                    } else false
+                }
+                .clickable { uriHandler.openUri(url) }
+        )
+        if (isFocused && AppSettings.showButtonShortcutHints.value) {
+            Spacer(modifier = Modifier.width(4.dp))
+            ShortcutKeyChip(text = chipText)
+        }
+    }
 }
 
 private fun GithubReleaseAsset.platform(): String = when {

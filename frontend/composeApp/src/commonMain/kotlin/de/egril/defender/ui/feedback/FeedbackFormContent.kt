@@ -8,6 +8,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -18,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -178,6 +180,21 @@ fun FeedbackFormContent(
                 color = MaterialTheme.colorScheme.primary
             )
         }
+        // Keyboard navigation info (only shown when shortcut hints setting is ON)
+        if (AppSettings.showButtonShortcutHints.value) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(
+                    text = stringResource(Res.string.feedback_form_keyboard_nav_info),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
+        }
         Text(
             text = stringResource(Res.string.feedback_form_github_issues_pre_text),
             style = MaterialTheme.typography.bodyMedium
@@ -188,7 +205,7 @@ fun FeedbackFormContent(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.primary,
             textDecoration = TextDecoration.Underline,
-            modifier = Modifier.clickable {
+            modifier = Modifier.clickable(role = Role.Button) {
                 uriHandler.openUri("https://github.com/julianegner/defender-of-egril/issues")
             }
         )
@@ -249,16 +266,26 @@ fun FeedbackFormContent(
                 fontWeight = FontWeight.Bold
             )
             bugTypeOptions.forEach { option ->
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                val isChecked = selectedBugTypes.contains(option.apiValue)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .toggleable(
+                            value = isChecked,
+                            onValueChange = { checked ->
+                                selectedBugTypes = if (checked) {
+                                    selectedBugTypes + option.apiValue
+                                } else {
+                                    selectedBugTypes - option.apiValue
+                                }
+                            },
+                            role = Role.Checkbox
+                        ),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     Checkbox(
-                        checked = selectedBugTypes.contains(option.apiValue),
-                        onCheckedChange = { checked ->
-                            selectedBugTypes = if (checked) {
-                                selectedBugTypes + option.apiValue
-                            } else {
-                                selectedBugTypes - option.apiValue
-                            }
-                        }
+                        checked = isChecked,
+                        onCheckedChange = null
                     )
                     Column(modifier = Modifier.padding(top = 8.dp)) {
                         Text(option.label, fontWeight = FontWeight.Bold)
@@ -295,6 +322,13 @@ fun FeedbackFormContent(
             minLines = 4,
             modifier = Modifier.fillMaxWidth()
         )
+        if (AppSettings.showButtonShortcutHints.value) {
+            Text(
+                text = stringResource(Res.string.feedback_field_ctrl_tab_hint),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
         OutlinedTextField(
             value = contactEmail,
             onValueChange = { contactEmail = it },
@@ -306,6 +340,13 @@ fun FeedbackFormContent(
             },
             modifier = Modifier.fillMaxWidth()
         )
+        if (AppSettings.showButtonShortcutHints.value) {
+            Text(
+                text = stringResource(Res.string.feedback_field_ctrl_tab_hint),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
 
         // Auto-collect checkboxes for bug reports (instead of manual text fields)
         if (isBugReport) {
@@ -316,12 +357,19 @@ fun FeedbackFormContent(
                 modifier = Modifier.padding(top = 4.dp)
             )
             Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .toggleable(
+                        value = includeGameLog,
+                        onValueChange = { includeGameLog = it },
+                        role = Role.Checkbox
+                    ),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Checkbox(
                     checked = includeGameLog,
-                    onCheckedChange = { includeGameLog = it }
+                    onCheckedChange = null
                 )
                 Text(
                     text = stringResource(Res.string.feedback_form_include_game_log),
@@ -517,7 +565,7 @@ fun FeedbackFormContent(
                         color = MaterialTheme.colorScheme.onErrorContainer,
                         style = MaterialTheme.typography.bodySmall,
                         textDecoration = TextDecoration.Underline,
-                        modifier = Modifier.clickable {
+                        modifier = Modifier.clickable(role = Role.Button) {
                             uriHandler.openUri("mailto:$adminEmail")
                         }
                     )
@@ -622,7 +670,7 @@ private fun LanguageSelector(
                             else Color.Transparent,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { onLanguageSelected(lang) }
+                                .clickable(role = Role.Button) { onLanguageSelected(lang) }
                         ) {
                             Row(
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),

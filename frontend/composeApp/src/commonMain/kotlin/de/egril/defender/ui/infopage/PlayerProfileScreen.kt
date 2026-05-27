@@ -9,6 +9,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -20,10 +24,12 @@ import de.egril.defender.save.PlayerProfile
 import de.egril.defender.ui.ProfileTabScrollbar
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.getLocalizedDescription
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.icon.LockIcon
 import de.egril.defender.ui.icon.ToolsIcon
 import de.egril.defender.ui.icon.TrophyIcon
 import de.egril.defender.ui.icon.UnlockIcon
+import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.utils.formatTimestamp
@@ -31,6 +37,7 @@ import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.ui.isMobileWebBrowser
 import defender_of_egril.composeapp.generated.resources.*
 import androidx.compose.foundation.text.selection.SelectionContainer
+import kotlinx.coroutines.launch
 
 /**
  * Screen displaying player profile information and achievements
@@ -56,18 +63,101 @@ fun PlayerProfileScreen(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
+        val focusRequester = remember { FocusRequester() }
+        val scope = rememberCoroutineScope()
+        // Keyboard-triggered open triggers for feedback/settings
+        var triggerFeedback by remember { mutableStateOf(false) }
+        var triggerSettings by remember { mutableStateOf(false) }
+        // Tab index state hoisted here for keyboard access
+        var selectedTabIndex by remember { mutableStateOf(1) }
+        var headerCollapsed by remember { mutableStateOf(false) }
+        // Shared scroll state for keyboard arrow scrolling
+        val tabScrollState = rememberScrollState()
+
         Box(
-            modifier = Modifier.fillMaxSize().padding(16.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .focusRequester(focusRequester)
+                .focusTarget()
+                .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown) {
+                        when {
+                            // Escape / Back → go back
+                            event.key == Key.Escape || event.key == Key.Back -> {
+                                onBack()
+                                true
+                            }
+                            // Left/Right arrows → switch tabs
+                            event.key == Key.DirectionLeft && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                if (selectedTabIndex > 0) selectedTabIndex--
+                                true
+                            }
+                            event.key == Key.DirectionRight && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                if (selectedTabIndex < 1) selectedTabIndex++
+                                true
+                            }
+                            // Period (.) → Open feedback
+                            event.key == Key.Period && !event.isCtrlPressed -> {
+                                triggerFeedback = true
+                                true
+                            }
+                            // Comma (,) → Open settings
+                            event.key == Key.Comma && !event.isCtrlPressed -> {
+                                triggerSettings = true
+                                true
+                            }
+                            // K → Toggle collapse/expand header
+                            event.key == Key.K && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                headerCollapsed = !headerCollapsed
+                                true
+                            }
+                            // E → Edit player name
+                            event.key == Key.E && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                onEditName()
+                                true
+                            }
+                            // A → Toggle always log in
+                            event.key == Key.A && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                onAlwaysLoginChanged(!playerProfile.alwaysLogin)
+                                true
+                            }
+                            // R → Toggle use remote settings
+                            event.key == Key.R && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                onUseRemoteSettingsChanged(!playerProfile.useRemoteSettings)
+                                true
+                            }
+                            // S → Switch player
+                            event.key == Key.S && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                onSelectPlayer()
+                                true
+                            }
+                            // M → Manage account
+                            event.key == Key.M && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                onManageAccount()
+                                true
+                            }
+                            // L → Logout
+                            event.key == Key.L && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                onIamLogout()
+                                true
+                            }
+                            // Up/Down arrows → scroll tab content
+                            event.key == Key.DirectionUp && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                scope.launch { tabScrollState.animateScrollTo((tabScrollState.value - 120).coerceAtLeast(0)) }
+                                true
+                            }
+                            event.key == Key.DirectionDown && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                scope.launch { tabScrollState.animateScrollTo((tabScrollState.value + 120).coerceAtMost(tabScrollState.maxValue)) }
+                                true
+                            }
+                            else -> false
+                        }
+                    } else false
+                }
         ) {
-            // Settings and Feedback buttons in top-right corner
-            Row(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                FeedbackButton()
-                SettingsButton()
+            LaunchedEffect(Unit) {
+                try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
             }
             
             Column(
@@ -75,7 +165,6 @@ fun PlayerProfileScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Header: toggle between full and compact view
-                var headerCollapsed by remember { mutableStateOf(false) }
 
                 if (headerCollapsed) {
                     // Compact single-row header: name | remote account | XP | ability points
@@ -88,10 +177,9 @@ fun PlayerProfileScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 8.dp)
-                            .padding(end = 56.dp),
+                            .padding(bottom = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         // Player name and info on the LEFT, taking remaining space
                         Row(
@@ -144,7 +232,7 @@ fun PlayerProfileScreen(
                                 }
                             }
                         }
-                        // Expand button on the RIGHT
+                        // Expand button
                         TextButton(
                             onClick = { headerCollapsed = false },
                             modifier = Modifier.height(28.dp)
@@ -153,8 +241,12 @@ fun PlayerProfileScreen(
                                 text = stringResource(Res.string.expand),
                                 style = MaterialTheme.typography.labelSmall
                             )
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                Spacer(modifier = Modifier.width(4.dp))
+                                ShortcutKeyChip(text = "K", color = LocalContentColor.current.copy(alpha = 0.75f))
+                            }
                         }
-                        // Switch player button on the RIGHT
+                        // Switch player button
                         OutlinedButton(
                             onClick = onSelectPlayer,
                             modifier = Modifier.height(28.dp)
@@ -163,7 +255,22 @@ fun PlayerProfileScreen(
                                 text = stringResource(Res.string.switch_player),
                                 style = MaterialTheme.typography.bodySmall
                             )
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                Spacer(modifier = Modifier.width(4.dp))
+                                ShortcutKeyChip(text = "S", color = LocalContentColor.current.copy(alpha = 0.75f))
+                            }
                         }
+                        // Feedback and Settings buttons
+                        FeedbackButton(
+                            shortcutKey = ".",
+                            triggerOpen = triggerFeedback,
+                            onTriggerHandled = { triggerFeedback = false }
+                        )
+                        SettingsButton(
+                            shortcutKey = ",",
+                            triggerOpen = triggerSettings,
+                            onTriggerHandled = { triggerSettings = false }
+                        )
                     }
                 } else {
                     // Full header with player name title, switch player button, and collapse button
@@ -173,8 +280,7 @@ fun PlayerProfileScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = headerBottomPadding)
-                            .padding(end = 56.dp),
+                            .padding(bottom = headerBottomPadding),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
@@ -186,7 +292,7 @@ fun PlayerProfileScreen(
                             color = MaterialTheme.colorScheme.onBackground,
                             modifier = Modifier.weight(1f)
                         )
-                        // Collapse button on the RIGHT
+                        // Collapse button
                         TextButton(
                             onClick = { headerCollapsed = true },
                             modifier = Modifier.height(headerButtonHeight)
@@ -195,8 +301,12 @@ fun PlayerProfileScreen(
                                 text = stringResource(Res.string.collapse),
                                 style = MaterialTheme.typography.labelSmall
                             )
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                Spacer(modifier = Modifier.width(4.dp))
+                                ShortcutKeyChip(text = "K", color = LocalContentColor.current.copy(alpha = 0.75f))
+                            }
                         }
-                        // Switch player button on the RIGHT
+                        // Switch player button
                         OutlinedButton(
                             onClick = onSelectPlayer,
                             modifier = Modifier.height(headerButtonHeight)
@@ -205,12 +315,26 @@ fun PlayerProfileScreen(
                                 text = stringResource(Res.string.switch_player),
                                 style = MaterialTheme.typography.bodySmall
                             )
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                Spacer(modifier = Modifier.width(4.dp))
+                                ShortcutKeyChip(text = "S", color = LocalContentColor.current.copy(alpha = 0.75f))
+                            }
                         }
+                        // Feedback and Settings buttons
+                        FeedbackButton(
+                            shortcutKey = ".",
+                            triggerOpen = triggerFeedback,
+                            onTriggerHandled = { triggerFeedback = false }
+                        )
+                        SettingsButton(
+                            shortcutKey = ",",
+                            triggerOpen = triggerSettings,
+                            onTriggerHandled = { triggerSettings = false }
+                        )
                     }
                 }
                 
                 // Scrollable content
-                var selectedTabIndex by remember { mutableStateOf(1) }
                 
                 Column(
                     modifier = Modifier
@@ -294,19 +418,28 @@ fun PlayerProfileScreen(
                             Tab(
                                 selected = selectedTabIndex == 0,
                                 onClick = { selectedTabIndex = 0 },
-                                text = { Text(stringResource(Res.string.achievements)) }
+                                text = {
+                                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                            ShortcutKeyChip(text = "\u2190", color = LocalContentColor.current.copy(alpha = 0.6f))
+                                        Text(stringResource(Res.string.achievements))
+                                    }
+                                }
                             )
                             Tab(
                                 selected = selectedTabIndex == 1,
                                 onClick = { selectedTabIndex = 1 },
-                                text = { Text(stringResource(Res.string.abilities)) }
+                                text = {
+                                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                        Text(stringResource(Res.string.abilities))
+                                            ShortcutKeyChip(text = "\u2192", color = LocalContentColor.current.copy(alpha = 0.6f))
+                                    }
+                                }
                             )
                         }
                         
                         Spacer(modifier = Modifier.height(16.dp))
                         
                         // Tab content (scrollable) with vertical scrollbar
-                        val tabScrollState = rememberScrollState()
                         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                             Column(
                                 modifier = Modifier
@@ -349,7 +482,6 @@ fun PlayerProfileScreen(
                         }
                     } else {
                         // No stats callback - just show achievements directly (old behavior)
-                        val tabScrollState = rememberScrollState()
                         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                             Column(
                                 modifier = Modifier
@@ -373,6 +505,45 @@ fun PlayerProfileScreen(
                         .height(48.dp)
                 ) {
                     Text(stringResource(Res.string.back))
+                    if (AppSettings.showButtonShortcutHints.value) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        ShortcutKeyChip(text = "Esc", color = LocalContentColor.current.copy(alpha = 0.75f))
+                    }
+                }
+
+                // Navigation hints (shown when shortcut hints are ON)
+                if (AppSettings.showButtonShortcutHints.value) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Left/Right → Switch tab
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            ShortcutKeyChip(text = "\u2190/\u2192")
+                            Text(
+                                text = stringResource(Res.string.keyboard_nav_switch_tab),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        // Up/Down → Scroll
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            ShortcutKeyChip(text = "\u2191/\u2193")
+                            Text(
+                                text = stringResource(Res.string.keyboard_nav_scroll),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -426,6 +597,10 @@ private fun PlayerInfoCard(
                         text = stringResource(Res.string.edit),
                         style = MaterialTheme.typography.bodySmall
                     )
+                    if (AppSettings.showButtonShortcutHints.value) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        ShortcutKeyChip(text = "E", color = LocalContentColor.current.copy(alpha = 0.75f))
+                    }
                 }
             }
             
@@ -622,6 +797,32 @@ private fun StatsAndAbilitiesContent(
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
+        // Keyboard navigation hint for abilities/spells
+        if (AppSettings.showButtonShortcutHints.value && stats.availableAbilityPoints > 0) {
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    ShortcutKeyChip(text = "Tab")
+                    Text(
+                        text = stringResource(Res.string.keyboard_nav_next),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    ShortcutKeyChip(text = "Enter")
+                    Text(
+                        text = stringResource(Res.string.keyboard_nav_upgrade),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
         
         // Ability Cards Grid (3 columns)
         var showConstructionInfo by remember { mutableStateOf(false) }
@@ -891,6 +1092,10 @@ private fun UserAccountCard(
                                         text = stringResource(Res.string.iam_manage_account),
                                         style = MaterialTheme.typography.bodySmall
                                     )
+                                    if (AppSettings.showButtonShortcutHints.value) {
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        ShortcutKeyChip(text = "M", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                    }
                                 }
                                 OutlinedButton(
                                     onClick = onIamLogout,
@@ -902,6 +1107,10 @@ private fun UserAccountCard(
                                         text = stringResource(Res.string.iam_logout),
                                         style = MaterialTheme.typography.bodySmall
                                     )
+                                    if (AppSettings.showButtonShortcutHints.value) {
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        ShortcutKeyChip(text = "L", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                    }
                                 }
                             }
                             // Column 3: Toggles
@@ -955,6 +1164,10 @@ private fun UserAccountCard(
                                         text = stringResource(Res.string.iam_manage_account),
                                         style = MaterialTheme.typography.bodySmall
                                     )
+                                    if (AppSettings.showButtonShortcutHints.value) {
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        ShortcutKeyChip(text = "M", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                    }
                                 }
                                 OutlinedButton(
                                     onClick = onIamLogout,
@@ -966,6 +1179,10 @@ private fun UserAccountCard(
                                         text = stringResource(Res.string.iam_logout),
                                         style = MaterialTheme.typography.bodySmall
                                     )
+                                    if (AppSettings.showButtonShortcutHints.value) {
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        ShortcutKeyChip(text = "L", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                    }
                                 }
                             }
                             HorizontalDivider()
@@ -1051,11 +1268,17 @@ private fun AccountSettingToggles(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = rowArrangement
         ) {
-            Text(
-                text = stringResource(Res.string.always_log_in),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = stringResource(Res.string.always_log_in),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                    ShortcutKeyChip(text = "A")
+            }
             Switch(
                 checked = alwaysLogin,
                 onCheckedChange = { onAlwaysLoginChanged(it) }
@@ -1066,11 +1289,17 @@ private fun AccountSettingToggles(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = rowArrangement
         ) {
-            Text(
-                text = stringResource(Res.string.use_remote_settings),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = stringResource(Res.string.use_remote_settings),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                    ShortcutKeyChip(text = "R")
+            }
             Switch(
                 checked = useRemoteSettings,
                 onCheckedChange = { onUseRemoteSettingsChanged(it) }

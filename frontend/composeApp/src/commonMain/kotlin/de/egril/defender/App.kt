@@ -12,6 +12,7 @@ import de.egril.defender.ui.gameplay.LevelLoadingScreen
 import de.egril.defender.ui.infopage.InfoPageScreen
 import de.egril.defender.ui.loadgame.LoadGameScreen
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.SettingsTab
 import de.egril.defender.ui.worldmap.WorldMapScreen
 import de.egril.defender.utils.WindowCloseHandler
 import kotlinx.coroutines.delay
@@ -30,13 +31,16 @@ fun App() {
     
     // Observe dark mode state
     val isDarkMode by AppSettings.isDarkMode
+    val highContrastEnabled by AppSettings.highContrastEnabled
+    val colorBlindPalette by AppSettings.colorBlindPalette
     
     // Use custom color schemes with softer dark mode colors
-    val colorScheme = if (isDarkMode) {
-        AppTheme.darkColorScheme
+    val baseColorScheme = if (highContrastEnabled) {
+        if (isDarkMode) AppTheme.highContrastDarkColorScheme else AppTheme.highContrastLightColorScheme
     } else {
-        AppTheme.lightColorScheme
+        if (isDarkMode) AppTheme.darkColorScheme else AppTheme.lightColorScheme
     }
+    val colorScheme = AppTheme.applyColorBlindPalette(baseColorScheme, colorBlindPalette)
     
     MaterialTheme(colorScheme = colorScheme) {
         // Track repository data error
@@ -100,6 +104,7 @@ fun App() {
         val isDataLoaded by viewModel.isDataLoaded.collectAsState()
         val loadingProgress by viewModel.loadingProgress.collectAsState()
         val pendingTutorialDeepLink by viewModel.pendingTutorialDeepLink.collectAsState()
+        val pendingSettingsDeepLink by viewModel.pendingSettingsDeepLink.collectAsState()
 
         val remoteCommunityLevelsMeta by viewModel.remoteCommunityLevelsMeta.collectAsState()
         val remoteCommunityMapsMeta by viewModel.remoteCommunityMapsMeta.collectAsState()
@@ -357,6 +362,9 @@ fun App() {
                     onIamLogin = { de.egril.defender.iam.IamService.login() },
                     onIamLogout = { de.egril.defender.iam.IamService.logout() },
                     onIamLoginCancel = { de.egril.defender.iam.IamService.logoutLocal() },
+                    openSettingsInitially = pendingSettingsDeepLink,
+                    settingsInitialTab = SettingsTab.GENERAL,
+                    onSettingsInitialOpenHandled = { viewModel.clearPendingSettingsDeepLink() },
                     isDataLoaded = isDataLoaded,
                     loadingProgress = loadingProgress
                 )

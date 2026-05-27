@@ -31,12 +31,12 @@ import androidx.compose.foundation.text.selection.SelectionContainer
  * Used both in RulesScreen and as a tab in InfoPageScreen.
  */
 @Composable
-fun HowToPlayContent() {
+fun HowToPlayContent(scrollState: androidx.compose.foundation.ScrollState = rememberScrollState()) {
     SelectionContainer {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
         ) {
         // Game Overview
         HowToPlaySectionTitle(stringResource(Res.string.game_overview))

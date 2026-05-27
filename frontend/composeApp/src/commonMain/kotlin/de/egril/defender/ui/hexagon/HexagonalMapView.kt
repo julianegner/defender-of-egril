@@ -32,6 +32,9 @@ import androidx.compose.ui.unit.dp
 import de.egril.defender.model.Position
 import de.egril.defender.ui.mouseWheelZoom
 import de.egril.defender.ui.isMobileWebBrowser
+import de.egril.defender.ui.settings.ShortcutBinding
+import de.egril.defender.ui.settings.keyToShortcutToken
+import de.egril.defender.ui.settings.parseShortcutBinding
 import de.egril.defender.utils.isPlatformMobile
 import kotlin.math.sqrt
 
@@ -45,11 +48,39 @@ data class HexagonalMapConfig(
     val enableBrushMode: Boolean = false,  // Enable brush painting mode (for editor)
     val enableZoomMode: Boolean = true,
     val keyboardPanSpeed: Float = 30f,  // Pixels to pan per key press
+    val panUpBinding: String = "W",
+    val panDownBinding: String = "S",
+    val panLeftBinding: String = "A",
+    val panRightBinding: String = "D",
     val dragPanSensitivity: Float = 30f,  // UNUSED: Previously used for drag pan sensitivity multiplier (removed to fix juddering)
     val minScale: Float = 0.5f,
     val maxScale: Float = 3.0f,
     val zoomDelta: Float = 0.1f  // Amount to zoom per button press
 )
+
+private data class ParsedPanBindings(
+    val up: ShortcutBinding?,
+    val down: ShortcutBinding?,
+    val left: ShortcutBinding?,
+    val right: ShortcutBinding?
+)
+
+@Composable
+private fun rememberParsedPanBindings(config: HexagonalMapConfig): ParsedPanBindings {
+    return remember(
+        config.panUpBinding,
+        config.panDownBinding,
+        config.panLeftBinding,
+        config.panRightBinding
+    ) {
+        ParsedPanBindings(
+            up = parseShortcutBinding(config.panUpBinding),
+            down = parseShortcutBinding(config.panDownBinding),
+            left = parseShortcutBinding(config.panLeftBinding),
+            right = parseShortcutBinding(config.panRightBinding)
+        )
+    }
+}
 
 /**
  * Universal hexagonal map view with pan, zoom, and keyboard navigation support.
@@ -134,56 +165,38 @@ fun HexagonalMapView(
     }
 
     // Keyboard event handler
+    val parsedPanBindings = rememberParsedPanBindings(config)
+    val matchesBinding: (KeyEvent, ShortcutBinding?) -> Boolean = { event, parsed ->
+        parsed != null &&
+                parsed.keyToken == keyToShortcutToken(event.key) &&
+                parsed.ctrl == event.isCtrlPressed &&
+                parsed.alt == event.isAltPressed &&
+                parsed.shift == event.isShiftPressed &&
+                parsed.meta == event.isMetaPressed
+    }
+
     val keyboardHandler: (KeyEvent) -> Boolean = { event ->
         if (config.enableKeyboardNavigation && event.type == KeyEventType.KeyDown) {
             var handled = false
             var newOffsetX = offsetX
             var newOffsetY = offsetY
-            // Don't handle WASD when Ctrl is pressed (allows Ctrl+S for save, etc.)
-            val isCtrlPressed = event.isCtrlPressed
-
-            when (event.key) {
-                // Arrow keys
-                Key.DirectionUp -> {
+            val noModifiers = !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed && !event.isMetaPressed
+            when {
+                matchesBinding(event, parsedPanBindings.up) || (noModifiers && event.key == Key.DirectionUp) -> {
                     newOffsetY += config.keyboardPanSpeed
                     handled = true
                 }
-                Key.DirectionDown -> {
+                matchesBinding(event, parsedPanBindings.down) || (noModifiers && event.key == Key.DirectionDown) -> {
                     newOffsetY -= config.keyboardPanSpeed
                     handled = true
                 }
-                Key.DirectionLeft -> {
+                matchesBinding(event, parsedPanBindings.left) || (noModifiers && event.key == Key.DirectionLeft) -> {
                     newOffsetX += config.keyboardPanSpeed
                     handled = true
                 }
-                Key.DirectionRight -> {
+                matchesBinding(event, parsedPanBindings.right) || (noModifiers && event.key == Key.DirectionRight) -> {
                     newOffsetX -= config.keyboardPanSpeed
                     handled = true
-                }
-                // WASD keys - only handle when Ctrl is not pressed
-                Key.W -> {
-                    if (!isCtrlPressed) {
-                        newOffsetY += config.keyboardPanSpeed
-                        handled = true
-                    }
-                }
-                Key.S -> {
-                    if (!isCtrlPressed) {
-                        newOffsetY -= config.keyboardPanSpeed
-                        handled = true
-                    }
-                }
-                Key.A -> {
-                    if (!isCtrlPressed) {
-                        newOffsetX += config.keyboardPanSpeed
-                        handled = true
-                    }
-                }
-                Key.D -> {
-                    if (!isCtrlPressed) {
-                        newOffsetX -= config.keyboardPanSpeed
-                        handled = true
-                    }
                 }
             }
 

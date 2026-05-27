@@ -20,6 +20,7 @@ import de.egril.defender.ui.icon.LockIcon
 import de.egril.defender.ui.icon.SnowflakeIcon
 import de.egril.defender.ui.icon.ShieldIcon
 import de.egril.defender.ui.icon.RightArrowIcon
+import de.egril.defender.ui.a11y.a11ySemantics
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -35,6 +36,29 @@ fun AttackerInfo(
     onShowDragonInfo: () -> Unit = {}
 ) {
     val locale = com.hyperether.resources.currentLanguage.value
+    val attackerDisplayName = if (attacker.type.isDragon && attacker.dragonName != null) {
+        "${stringResource(Res.string.the_dragon)} ${attacker.dragonName}"
+    } else {
+        attacker.type.getLocalizedName(locale)
+    }
+    val healthLabel = stringResource(Res.string.health)
+    val healthPointsLabel = stringResource(Res.string.health_points)
+    val speedLabel = stringResource(Res.string.speed_label)
+    val attackerCardLabel = buildString {
+        append(attackerDisplayName)
+        append(", ")
+        append(healthLabel)
+        append(": ")
+        append(attacker.currentHealth.value)
+        append(", ")
+        append(healthPointsLabel)
+        append(": ")
+        append(attacker.maxHealth)
+        append(", ")
+        append(speedLabel)
+        append(": ")
+        append(attacker.type.speed)
+    }
     
     // Use key to force recomposition when attacker stats change
     key(
@@ -50,6 +74,7 @@ fun AttackerInfo(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(if (isMobile) 4.dp else 8.dp)
+                .a11ySemantics(label = attackerCardLabel)
         ) {
             // Enemy icon, name, and details in one row
             Row(
@@ -90,13 +115,8 @@ fun AttackerInfo(
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         // Show "The dragon [name]" for dragons, otherwise just the type name
-                        val displayName = if (attacker.type.isDragon && attacker.dragonName != null) {
-                            "${stringResource(Res.string.the_dragon)} ${attacker.dragonName}"
-                        } else {
-                            attacker.type.getLocalizedName(locale)
-                        }
                         Text(
-                            displayName,
+                            attackerDisplayName,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )

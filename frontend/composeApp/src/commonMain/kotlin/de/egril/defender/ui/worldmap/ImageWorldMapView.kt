@@ -23,11 +23,13 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.LevelStatus
 import de.egril.defender.model.WorldLevel
+import de.egril.defender.ui.a11y.a11ySemantics
 import de.egril.defender.ui.mouseWheelZoom
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.utils.isPlatformAndroid
@@ -36,8 +38,16 @@ import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.icon.LockIcon
+import de.egril.defender.ui.icon.TriangleDownIcon
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import org.jetbrains.compose.resources.painterResource
+import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.available
+import defender_of_egril.composeapp.generated.resources.completed
+import defender_of_egril.composeapp.generated.resources.levels
+import defender_of_egril.composeapp.generated.resources.locked
+import defender_of_egril.composeapp.generated.resources.to_select
 import defender_of_egril.composeapp.generated.resources.world_map_background
 
 import de.egril.defender.editor.WorldMapData
@@ -96,13 +106,34 @@ private fun getPlayableLevelsAtLocation(
 fun ImageWorldMapView(
     worldLevels: List<WorldLevel>,
     onLocationClicked: (WorldMapLocation, List<WorldLevel>) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    keyboardFocusedLocationIndex: Int = -1,
+    onKeyboardLocationSelected: ((WorldMapLocation, List<WorldLevel>) -> Unit)? = null,
+    triggerSelect: Boolean = false,
+    onTriggerSelectHandled: () -> Unit = {}
 ) {
     val isDarkMode = AppSettings.isDarkMode.value
     
     // Generate location data and road connections from level maps
     val (locations, roads) = remember(worldLevels) {
         generateWorldMapLocationsAndRoads(worldLevels)
+    }
+    
+    // Handle Enter key trigger
+    LaunchedEffect(triggerSelect) {
+        if (triggerSelect && keyboardFocusedLocationIndex >= 0 && onKeyboardLocationSelected != null) {
+            var index = 0
+            for (location in locations) {
+                val levelsAtLocation = getPlayableLevelsAtLocation(worldLevels, location)
+                if (levelsAtLocation.isEmpty()) continue
+                if (index == keyboardFocusedLocationIndex) {
+                    onKeyboardLocationSelected(location, levelsAtLocation)
+                    break
+                }
+                index++
+            }
+            onTriggerSelectHandled()
+        }
     }
     
     // Pan and zoom state
@@ -258,7 +289,8 @@ fun ImageWorldMapView(
                 containerSize = containerSize,
                 isDarkMode = isDarkMode,
                 onLocationClicked = onLocationClicked,
-                imageAspectRatio = imageAspectRatio
+                imageAspectRatio = imageAspectRatio,
+                keyboardFocusedLocationIndex = keyboardFocusedLocationIndex
             )
         }
     }
@@ -377,7 +409,8 @@ private fun BoxScope.LocationMarkersOverlay(
     containerSize: IntSize,
     isDarkMode: Boolean,
     onLocationClicked: (WorldMapLocation, List<WorldLevel>) -> Unit,
-    imageAspectRatio: Float
+    imageAspectRatio: Float,
+    keyboardFocusedLocationIndex: Int = -1
 ) {
     // Calculate actual image bounds within container (accounting for ContentScale.Fit)
     val containerAspectRatio = containerSize.width.toFloat() / containerSize.height.toFloat().coerceAtLeast(1f)
@@ -397,12 +430,16 @@ private fun BoxScope.LocationMarkersOverlay(
     }
     
     // Draw each location marker
+    var playableLocationIndex = 0
     for (location in locations) {
         // Only consider levels that are ready to play (not misconfigured)
         val levelsAtLocation = getPlayableLevelsAtLocation(worldLevels, location)
         
         // Skip if no playable levels at this location
         if (levelsAtLocation.isEmpty()) continue
+        
+        val isKeyboardFocused = playableLocationIndex == keyboardFocusedLocationIndex
+        playableLocationIndex++
         
         // Try to load custom icon for this location
         val iconResourceName = location.locationData?.iconResourceName
@@ -418,6 +455,23 @@ private fun BoxScope.LocationMarkersOverlay(
             hasUnlockedLevel -> if (isDarkMode) Color(0xFF3498DB) else Color(0xFF2196F3)  // Blue
             allLocked -> if (isDarkMode) Color(0xFF7F8C8D) else Color(0xFF95A5A6)  // Grey
             else -> if (isDarkMode) Color(0xFF3498DB) else Color(0xFF2196F3)  // Blue default
+        }
+        val locale = com.hyperether.resources.currentLanguage.value
+        val localizedName = location.locationData?.getLocalizedName(locale) ?: location.name
+        val locationStatusText = when {
+            hasWonLevel -> stringResource(Res.string.completed)
+            hasUnlockedLevel -> stringResource(Res.string.available)
+            else -> stringResource(Res.string.locked)
+        }
+        val levelsLabel = stringResource(Res.string.levels)
+        val locationMarkerLabel = buildString {
+            append(localizedName)
+            append(", ")
+            append(levelsLabel)
+            append(": ")
+            append(levelsAtLocation.size)
+            append(", ")
+            append(locationStatusText)
         }
         
         // Calculate marker position accounting for image bounds within container
@@ -467,8 +521,6 @@ private fun BoxScope.LocationMarkersOverlay(
                     color = Color(0xB3404040),  // Semi-transparent dark gray (70% opacity)
                     shadowElevation = labelElevation
                 ) {
-                    val locale = com.hyperether.resources.currentLanguage.value
-                    val localizedName = location.locationData?.getLocalizedName(locale) ?: location.name
                     Text(
                         text = localizedName,
                         style = MaterialTheme.typography.labelSmall.copy(fontSize = labelFontSize),
@@ -486,6 +538,7 @@ private fun BoxScope.LocationMarkersOverlay(
                         modifier = Modifier
                             .size(iconMarkerSize)
                             .offset(y = (-10).dp)
+                            .a11ySemantics(role = Role.Button, label = locationMarkerLabel)
                             .clickable {
                                 onLocationClicked(location, levelsAtLocation)
                             },
@@ -544,6 +597,7 @@ private fun BoxScope.LocationMarkersOverlay(
                     Surface(
                         modifier = Modifier
                             .size(markerSize)
+                            .a11ySemantics(role = Role.Button, label = locationMarkerLabel)
                             .clickable {
                                 onLocationClicked(location, levelsAtLocation)
                             },
@@ -558,6 +612,32 @@ private fun BoxScope.LocationMarkersOverlay(
                             Text(
                                 text = levelsAtLocation.size.toString(),
                                 style = if (isPlatformAndroid) MaterialTheme.typography.labelSmall else MaterialTheme.typography.bodyMedium,
+                                color = Color.White
+                            )
+                        }
+                    }
+                }
+                
+                // Keyboard focus pointer marker
+                if (isKeyboardFocused && AppSettings.showButtonShortcutHints.value) {
+                    Surface(
+                        modifier = Modifier.padding(top = 2.dp),
+                        shape = RoundedCornerShape(6.dp),
+                        color = Color(0xB3404040),  // Semi-transparent dark gray (same as location labels)
+                        shadowElevation = 4.dp
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            ShortcutKeyChip(
+                                text = "Enter",
+                                color = Color.White
+                            )
+                            Text(
+                                stringResource(Res.string.to_select),
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = (9 * scaleFactor).sp),
                                 color = Color.White
                             )
                         }

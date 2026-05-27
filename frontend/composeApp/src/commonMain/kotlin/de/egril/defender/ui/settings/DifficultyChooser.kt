@@ -1,97 +1,62 @@
 package de.egril.defender.ui.settings
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
-import de.egril.defender.ui.icon.TriangleDownIcon
-import de.egril.defender.ui.icon.TriangleUpIcon
+import de.egril.defender.ui.common.DropdownItem
+import de.egril.defender.ui.common.KeyboardNavigableDropdown
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
  * Difficulty level chooser dropdown component
- * Displays the current difficulty and allows switching between difficulty levels
+ * Displays the current difficulty and allows switching between difficulty levels.
+ * Keyboard navigation: Enter/Space to open, ↑/↓ to navigate, Enter to select, Esc to close.
  */
 @Composable
 fun DifficultyChooser(
     modifier: Modifier = Modifier,
-    onDifficultyChanged: (DifficultyLevel) -> Unit = {}
+    onDifficultyChanged: (DifficultyLevel) -> Unit = {},
+    triggerOpen: Boolean = false,
+    onTriggerOpenHandled: () -> Unit = {}
 ) {
-    var expanded by remember { mutableStateOf(false) }
     val currentDifficulty = AppSettings.difficulty.value
 
-    Box(
-        contentAlignment = Alignment.CenterStart,
-        modifier = modifier
-            .height(56.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(8.dp))
-            .clickable { expanded = !expanded }
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+    val items = DifficultyLevel.entries.map { level ->
+        DropdownItem(
+            value = level,
+            content = {
+                Column {
+                    Text(
+                        text = getDifficultyDisplayName(level),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Text(
+                        text = getDifficultyDescription(level),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        )
+    }
+
+    KeyboardNavigableDropdown(
+        items = items,
+        selectedValue = currentDifficulty,
+        onItemSelected = { level -> onDifficultyChanged(level) },
+        selectedContent = {
             Text(
                 text = getDifficultyDisplayName(currentDifficulty),
                 style = MaterialTheme.typography.bodyLarge
             )
-        }
-        
-        // Dropdown arrow icon
-        if (expanded) {
-            TriangleUpIcon(
-                size = 14.dp,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = 16.dp)
-            )
-        } else {
-            TriangleDownIcon(
-                size = 14.dp,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = 16.dp)
-            )
-        }
-        
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            DifficultyLevel.entries.forEach { level ->
-                DropdownMenuItem(
-                    text = {
-                        Column {
-                            Text(
-                                text = getDifficultyDisplayName(level),
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                            Text(
-                                text = getDifficultyDescription(level),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    },
-                    onClick = {
-                        onDifficultyChanged(level)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
+        },
+        modifier = modifier.fillMaxWidth(),
+        triggerOpen = triggerOpen,
+        onTriggerOpenHandled = onTriggerOpenHandled
+    )
 }
 
 /**

@@ -73,6 +73,7 @@ fun SettingsHintBox(
                     SettingsHintItem(stringResource(Res.string.controls))
                     SettingsHintItem(stringResource(Res.string.language))
                     SettingsHintItem(stringResource(Res.string.difficulty))
+                    SettingsHintItem(stringResource(Res.string.accessibility))
                 }
             }
             

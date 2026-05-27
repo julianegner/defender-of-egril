@@ -16,6 +16,7 @@ import io.github.alexzhirkevich.compottie.rememberLottieComposition
 import io.github.alexzhirkevich.compottie.rememberLottiePainter
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import defender_of_egril.composeapp.generated.resources.Res
+import de.egril.defender.ui.settings.AppSettings
 import kotlinx.coroutines.launch
 
 /**
@@ -66,6 +67,11 @@ fun LottieAnimation(
     speed: Float = 1f,   // Playback speed multiplier (1f = normal, 2f = double speed)
     contentScale: ContentScale = ContentScale.Fit
 ) {
+    // Accessibility: global reduce-motion/animations setting must short-circuit all Lottie rendering.
+    if (!AppSettings.enableAnimations.value) {
+        return
+    }
+
     // Get the animation file path based on type
     val animationPath = when (animationType) {
         AnimationType.GREEN_WITCH_HEALING -> "files/animations/green_witch_healing.json"

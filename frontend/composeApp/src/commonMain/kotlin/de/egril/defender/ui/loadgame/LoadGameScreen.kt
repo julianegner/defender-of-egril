@@ -9,12 +9,18 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.save.SaveGameMetadata
 import de.egril.defender.save.getFileExportImport
 import de.egril.defender.save.SaveFileStorage
 import de.egril.defender.editor.getFileStorage
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
+import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.feedback.FeedbackButton
 import com.hyperether.resources.stringResource
@@ -228,8 +234,21 @@ private fun LoadGameScreenDesktop(
     handleUpload: () -> Unit,
     onBack: () -> Unit
 ) {
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+    }
     Surface(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .focusRequester(focusRequester)
+            .focusTarget()
+            .onPreviewKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown && event.key == Key.Escape) {
+                    onBack()
+                    true
+                } else false
+            },
         color = MaterialTheme.colorScheme.background
     ) {
         Box(
@@ -403,6 +422,7 @@ private fun LoadGameScreenDesktop(
             
                 Button(onClick = onBack) {
                     Text(stringResource(Res.string.back))
+                        ShortcutKeyChip(text = "Esc")
                 }
             
                 Spacer(modifier = Modifier.height(8.dp))
@@ -577,6 +597,7 @@ private fun LoadGameScreenMobile(
                         text = stringResource(Res.string.back),
                         style = MaterialTheme.typography.bodySmall
                     )
+                        ShortcutKeyChip(text = "Esc")
                 }
                 
                 // Display savegame folder path at the bottom

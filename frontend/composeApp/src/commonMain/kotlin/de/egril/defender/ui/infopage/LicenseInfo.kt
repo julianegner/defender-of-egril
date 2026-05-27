@@ -22,7 +22,7 @@ import androidx.compose.foundation.text.selection.SelectionContainer
  * Composable displaying license information and GitHub project link
  */
 @Composable
-fun LicenseInfo() {
+fun LicenseInfo(scrollState: androidx.compose.foundation.ScrollState = rememberScrollState()) {
     val uriHandler = LocalUriHandler.current
     
     SelectionContainer {
@@ -40,7 +40,7 @@ fun LicenseInfo() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
         ) {
             // GitHub Project Section
             LicenseSection(

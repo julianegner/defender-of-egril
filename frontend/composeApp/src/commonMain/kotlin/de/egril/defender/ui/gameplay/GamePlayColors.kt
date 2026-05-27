@@ -3,6 +3,7 @@ package de.egril.defender.ui.gameplay
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import de.egril.defender.ui.settings.AppSettings
+import kotlin.math.pow
 
 /**
  * Color palette for gameplay UI components.
@@ -162,4 +163,33 @@ object GamePlayColors {
     
     val MagicalTrapPlacementHighlight: Color
         @Composable get() = if (AppSettings.isDarkMode.value) MagicalTrapPlacementHighlightDarkMode else MagicalTrapPlacementHighlightLight
+
+    /**
+     * Returns a readable black/white content color for the given [background].
+     * The option with the higher contrast ratio is selected.
+     */
+    fun readableContentColor(background: Color): Color {
+        val contrastOnWhite = contrastRatio(Color.White, background)
+        val contrastOnBlack = contrastRatio(Color.Black, background)
+        return if (contrastOnWhite > contrastOnBlack) Color.White else Color.Black
+    }
+
+    /**
+     * Computes WCAG contrast ratio between [foreground] and [background].
+     */
+    fun contrastRatio(foreground: Color, background: Color): Double {
+        val fg = foreground.toSrgbLuminance()
+        val bg = background.toSrgbLuminance()
+        val lighter = maxOf(fg, bg)
+        val darker = minOf(fg, bg)
+        return (lighter + 0.05) / (darker + 0.05)
+    }
+
+    private fun Color.toSrgbLuminance(): Double {
+        fun channel(c: Float): Double {
+            val value = c.toDouble()
+            return if (value <= 0.03928) value / 12.92 else ((value + 0.055) / 1.055).pow(2.4)
+        }
+        return 0.2126 * channel(red) + 0.7152 * channel(green) + 0.0722 * channel(blue)
+    }
 }

@@ -9,7 +9,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
@@ -20,7 +24,10 @@ import de.egril.defender.ui.editor.map.MapEditorContent
 import de.egril.defender.ui.editor.worldmap.WorldMapPositionEditorContent
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.feedback.FeedbackButton
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
+import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.stringResource
+import kotlinx.coroutines.launch
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -35,13 +42,66 @@ fun LevelEditorScreen(
 ) {
     var currentTab by remember { mutableStateOf(EditorTab.LEVEL_EDITOR) }
     var showHowToDialog by remember { mutableStateOf(false) }
+    var triggerFeedback by remember { mutableStateOf(false) }
+    var triggerSettings by remember { mutableStateOf(false) }
+    
+    val tabs = listOf(
+        EditorTab.MAP_EDITOR,
+        EditorTab.LEVEL_EDITOR,
+        EditorTab.LEVEL_SEQUENCE,
+        EditorTab.WORLD_MAP_POSITIONS
+    )
     
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
+        val focusRequester = remember { FocusRequester() }
+        LaunchedEffect(Unit) {
+            try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+        }
+        // Re-request focus on tab change to keep Esc and ←/→ working
+        LaunchedEffect(currentTab) {
+            try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+        }
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .focusRequester(focusRequester)
+                .focusTarget()
+                .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown) {
+                        when {
+                            event.key == Key.Escape || event.key == Key.Back -> {
+                                onBack()
+                                true
+                            }
+                            event.key == Key.DirectionLeft && !event.isCtrlPressed && !event.isAltPressed -> {
+                                val idx = tabs.indexOf(currentTab)
+                                if (idx > 0) currentTab = tabs[idx - 1]
+                                true
+                            }
+                            event.key == Key.DirectionRight && !event.isCtrlPressed && !event.isAltPressed -> {
+                                val idx = tabs.indexOf(currentTab)
+                                if (idx < tabs.size - 1) currentTab = tabs[idx + 1]
+                                true
+                            }
+                            event.key == Key.I && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                showHowToDialog = true
+                                true
+                            }
+                            event.key == Key.Period && !event.isCtrlPressed && !event.isAltPressed -> {
+                                triggerFeedback = true
+                                true
+                            }
+                            event.key == Key.Comma && !event.isCtrlPressed && !event.isAltPressed -> {
+                                triggerSettings = true
+                                true
+                            }
+                            else -> false
+                        }
+                    } else false
+                }
         ) {
         // Content area (below header)
         Column(
@@ -49,6 +109,31 @@ fun LevelEditorScreen(
         ) {
             // Spacer for header
             Spacer(modifier = Modifier.height(140.dp))
+
+            // Tab switch hint row (same level as action buttons inside each tab)
+            if (AppSettings.showButtonShortcutHints.value) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ShortcutKeyChip(text = "\u2190")
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "/",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    ShortcutKeyChip(text = "\u2192")
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(Res.string.keyboard_nav_switch_tab),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
             
             // Content based on selected tab
             when (currentTab) {
@@ -92,13 +177,30 @@ fun LevelEditorScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        FeedbackButton()
-                        SettingsButton()
+                        FeedbackButton(
+                            shortcutKey = ".",
+                            triggerOpen = triggerFeedback,
+                            onTriggerHandled = { triggerFeedback = false }
+                        )
+                        SettingsButton(
+                            shortcutKey = ",",
+                            triggerOpen = triggerSettings,
+                            onTriggerHandled = { triggerSettings = false }
+                        )
                         
                         Button(
                             onClick = { showHowToDialog = true }
                         ) {
-                            Text(stringResource(Res.string.info))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(stringResource(Res.string.info))
+                                if (AppSettings.showButtonShortcutHints.value) {
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    ShortcutKeyChip(
+                                        text = "I",
+                                        color = LocalContentColor.current.copy(alpha = 0.75f)
+                                    )
+                                }
+                            }
                         }
                         
                         Button(onClick = onBack) {
@@ -106,6 +208,13 @@ fun LevelEditorScreen(
                                 LeftArrowIcon(size = 16.dp, tint = Color.White)
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(stringResource(Res.string.back_to_world_map))
+                                if (AppSettings.showButtonShortcutHints.value) {
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    ShortcutKeyChip(
+                                        text = "Esc",
+                                        color = LocalContentColor.current.copy(alpha = 0.75f)
+                                    )
+                                }
                             }
                         }
                     }
@@ -141,26 +250,80 @@ fun LevelEditorScreen(
         // How-To dialog shown when the Info button is clicked
         if (showHowToDialog) {
             Dialog(onDismissRequest = { showHowToDialog = false }) {
+                val infoScrollState = androidx.compose.foundation.rememberScrollState()
+                val infoScope = rememberCoroutineScope()
+                val infoFocusRequester = remember { FocusRequester() }
+                LaunchedEffect(Unit) {
+                    try { infoFocusRequester.requestFocus() } catch (_: IllegalStateException) {}
+                }
                 Card(
                     modifier = Modifier
                         .widthIn(min = 700.dp, max = 900.dp)
-                        .heightIn(max = 620.dp),
+                        .heightIn(max = 620.dp)
+                        .focusRequester(infoFocusRequester)
+                        .focusTarget()
+                        .onPreviewKeyEvent { event ->
+                            if (event.type == KeyEventType.KeyDown) {
+                                when (event.key) {
+                                    Key.Escape, Key.Back -> {
+                                        showHowToDialog = false
+                                        true
+                                    }
+                                    Key.DirectionUp -> {
+                                        infoScope.launch { infoScrollState.animateScrollTo((infoScrollState.value - 100).coerceAtLeast(0)) }
+                                        true
+                                    }
+                                    Key.DirectionDown -> {
+                                        infoScope.launch { infoScrollState.animateScrollTo((infoScrollState.value + 100).coerceAtMost(infoScrollState.maxValue)) }
+                                        true
+                                    }
+                                    else -> false
+                                }
+                            } else false
+                        },
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Column(modifier = Modifier.padding(24.dp)) {
-                        Text(
-                            text = stringResource(Res.string.editor_howto_title),
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.padding(bottom = 12.dp)
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.editor_howto_title),
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    ShortcutKeyChip(text = "\u2191\u2193")
+                                    Text(
+                                        text = stringResource(Res.string.scroll),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
                         Box(modifier = Modifier.weight(1f)) {
-                            EditorHowToContent()
+                            EditorHowToContent(scrollState = infoScrollState)
                         }
                         Button(
                             onClick = { showHowToDialog = false },
                             modifier = Modifier.align(Alignment.End).padding(top = 12.dp)
                         ) {
-                            Text(stringResource(Res.string.editor_howto_close))
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(stringResource(Res.string.editor_howto_close))
+                                if (AppSettings.showButtonShortcutHints.value) {
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    ShortcutKeyChip(
+                                        text = "Esc",
+                                        color = LocalContentColor.current.copy(alpha = 0.75f)
+                                    )
+                                }
+                            }
                         }
                     }
                 }

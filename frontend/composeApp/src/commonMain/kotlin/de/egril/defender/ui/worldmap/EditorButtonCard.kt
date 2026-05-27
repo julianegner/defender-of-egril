@@ -3,9 +3,12 @@ package de.egril.defender.ui.worldmap
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import de.egril.defender.ui.icon.ToolsIcon
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
+import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -13,7 +16,7 @@ import defender_of_egril.composeapp.generated.resources.*
 fun EditorButtonCard(
     onClick: () -> Unit
 ) {
-    val isDarkMode = de.egril.defender.ui.settings.AppSettings.isDarkMode.value
+    val isDarkMode = AppSettings.isDarkMode.value
     val backgroundColor = if (isDarkMode) Color(0xFFFFB74D) else Color(0xFFFF9800)  // Lighter orange in dark mode
     // Text color - white for good contrast on orange backgrounds
     val textColor = Color.White
@@ -26,7 +29,7 @@ fun EditorButtonCard(
         )
     ) {
         Row(
-            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // Distinctive symbol - wrench/hammer icon
@@ -36,6 +39,7 @@ fun EditorButtonCard(
                 text = stringResource(Res.string.level_editor),
                 style = MaterialTheme.typography.bodyMedium
             )
+                ShortcutKeyChip(text = "O", color = Color.White.copy(alpha = 0.75f))
         }
     }
 }

@@ -90,6 +90,18 @@ class DeepLinkHandlerTest {
         assertIs<DeepLink.Tutorial>(result)
     }
 
+    @Test
+    fun `parseDeepLink settings`() {
+        val result = parseDeepLink("/settings")
+        assertIs<DeepLink.Settings>(result)
+    }
+
+    @Test
+    fun `parseDeepLink settings is case insensitive`() {
+        val result = parseDeepLink("/Settings")
+        assertIs<DeepLink.Settings>(result)
+    }
+
     // ---------------------------------------------------------------
     // parseDeepLink – info page routes (all tabs)
     // ---------------------------------------------------------------

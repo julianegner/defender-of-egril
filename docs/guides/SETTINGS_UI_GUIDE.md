@@ -138,6 +138,12 @@ When language dropdown is clicked:
 - All interactive elements have minimum 48dp touch targets
 - Color contrast meets WCAG AA standards
 - Screen reader compatible (icon descriptions provided)
+- General tab now includes an **Accessibility** section with:
+  - High Contrast toggle
+  - Color Blind Palette selector (Off / Deuteranopia / Protanopia / Tritanopia)
+  - Captions toggle
+  - Hold to Confirm toggle
+  - Mirrored Animations toggle (for reduce-motion discoverability)
 
 ## Notes
 

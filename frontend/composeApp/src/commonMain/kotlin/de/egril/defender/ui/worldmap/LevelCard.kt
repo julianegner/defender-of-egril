@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -22,6 +23,7 @@ import de.egril.defender.ui.common.LevelInfoEnemiesColumn
 import de.egril.defender.ui.hexagon.HexagonMinimap
 import de.egril.defender.ui.hexagon.MinimapConfig
 import de.egril.defender.ui.loadgame.SavefileLocationChip
+import de.egril.defender.ui.a11y.a11ySemantics
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 
@@ -48,6 +50,9 @@ fun LevelCard(
         LevelStatus.UNLOCKED -> stringResource(Res.string.available)
         LevelStatus.WON -> stringResource(Res.string.completed)
     }
+    val locale = com.hyperether.resources.currentLanguage.value
+    val localizedLevelTitle = worldLevel.level.getLocalizedTitle(locale)
+    val levelCardLabel = "$localizedLevelTitle, $statusText"
     
     // Get prerequisite info for locked levels
     val editorLevel = worldLevel.level.editorLevelId?.let { EditorStorage.getLevel(it) }
@@ -64,6 +69,10 @@ fun LevelCard(
         modifier = Modifier
             .fillMaxWidth()
             .height(if (worldLevel.status == LevelStatus.LOCKED && prerequisites.isNotEmpty()) 240.dp else 200.dp)
+            .a11ySemantics(
+                role = if (worldLevel.status != LevelStatus.LOCKED) Role.Button else null,
+                label = levelCardLabel
+            )
             .clickable(enabled = worldLevel.status != LevelStatus.LOCKED, onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = backgroundColor)
     ) {
@@ -155,7 +164,6 @@ fun LevelCard(
                         )
                         
                         // List prerequisite level names (up to 3)
-                        val locale = com.hyperether.resources.currentLanguage.value
                         for (prereqId in prerequisites.take(3)) {
                             val prereqLevel = EditorStorage.getLevel(prereqId)
                             val prereqName = prereqLevel?.getLocalizedTitle(locale) ?: prereqId

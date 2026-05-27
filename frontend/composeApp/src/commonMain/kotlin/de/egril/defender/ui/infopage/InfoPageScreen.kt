@@ -9,6 +9,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
@@ -17,14 +20,17 @@ import de.egril.defender.ui.common.ScrollableTabRowWithHints
 import de.egril.defender.ui.editor.EditorHowToContent
 import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.ui.feedback.FeedbackFormContent
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.isEditorAvailable
+import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.utils.isPlatformWasm
 import de.egril.defender.utils.setInfoPageActive
 import de.egril.defender.utils.toUrlSlug
 import de.egril.defender.utils.updateBrowserUrl
 import defender_of_egril.composeapp.generated.resources.*
+import kotlinx.coroutines.launch
 
 /**
  * Main info page screen that combines installation info, audio licenses, and backend info.
@@ -62,6 +68,10 @@ fun InfoPageScreen(
     }
 
     val selectedTabIndex = visibleTabs.indexOf(selectedTab).coerceAtLeast(0)
+    
+    // Scroll state for content area keyboard scrolling
+    val contentScrollState = rememberScrollState()
+    val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
 
     // Suppress the HTML portrait-rotation overlay while on the info page and update the URL.
     DisposableEffect(Unit) {
@@ -76,15 +86,62 @@ fun InfoPageScreen(
         updateBrowserUrl("/info/${selectedTab.toUrlSlug()}")
     }
     
+    val focusRequester = remember { FocusRequester() }
+    val linkFocusManager = remember { LinkFocusManager() }
+    LaunchedEffect(Unit) { focusRequester.requestFocus() }
+    
     Surface(
         modifier = Modifier
             .fillMaxSize()
+            .focusRequester(focusRequester)
+            .focusTarget()
             .onPreviewKeyEvent { event ->
-                if (event.type == KeyEventType.KeyDown &&
-                    (event.key == Key.Back || event.key == Key.Escape)
-                ) {
-                    onBack()
-                    true
+                if (event.type == KeyEventType.KeyDown) {
+                    when (event.key) {
+                        Key.Back, Key.Escape -> {
+                            onBack()
+                            true
+                        }
+                        Key.DirectionDown -> {
+                            coroutineScope.launch { contentScrollState.animateScrollTo(contentScrollState.value + 150) }
+                            true
+                        }
+                        Key.DirectionUp -> {
+                            coroutineScope.launch { contentScrollState.animateScrollTo((contentScrollState.value - 150).coerceAtLeast(0)) }
+                            true
+                        }
+                        Key.DirectionRight -> {
+                            val nextIndex = (selectedTabIndex + 1).coerceAtMost(visibleTabs.lastIndex)
+                            selectedTab = visibleTabs[nextIndex]
+                            true
+                        }
+                        Key.DirectionLeft -> {
+                            val prevIndex = (selectedTabIndex - 1).coerceAtLeast(0)
+                            selectedTab = visibleTabs[prevIndex]
+                            true
+                        }
+                        Key.Tab -> {
+                            if (selectedTab == InfoTab.DOWNLOAD) {
+                                if (event.isShiftPressed) {
+                                    linkFocusManager.focusPrevious()
+                                } else {
+                                    linkFocusManager.focusNext()
+                                }
+                                true
+                            } else {
+                                false
+                            }
+                        }
+                        Key.I -> {
+                            if (selectedTab == InfoTab.DOWNLOAD && !event.isCtrlPressed && !event.isAltPressed) {
+                                selectedTab = InfoTab.INSTALLATION
+                                true
+                            } else {
+                                false
+                            }
+                        }
+                        else -> false
+                    }
                 } else {
                     false
                 }
@@ -159,6 +216,11 @@ fun InfoPageScreen(
                     }
                 }
                 
+                // Reset scroll position when tab changes
+                LaunchedEffect(selectedTab) {
+                    contentScrollState.scrollTo(0)
+                }
+                
                 // Content area
                 Box(
                     modifier = Modifier
@@ -166,19 +228,45 @@ fun InfoPageScreen(
                         .fillMaxWidth()
                 ) {
                     when (selectedTab) {
-                        InfoTab.INSTALLATION -> InstallationInfo()
-                        InfoTab.HOW_TO_PLAY -> HowToPlayContent()
-                        InfoTab.AUDIO_LICENSES -> AudioLicensesInfo()
-                        InfoTab.LICENSE -> LicenseInfo()
-                        InfoTab.KEYBOARD_SHORTCUTS -> KeyboardShortcutsInfo()
-                        InfoTab.BACKEND -> BackendInfo()
-                        InfoTab.FEEDBACK -> FeedbackInfo()
-                        InfoTab.EDITOR_HOWTO -> EditorHowToContent()
-                        InfoTab.DOWNLOAD -> DownloadInfo(onNavigateToInstallation = { selectedTab = InfoTab.INSTALLATION })
+                        InfoTab.INSTALLATION -> InstallationInfo(scrollState = contentScrollState)
+                        InfoTab.HOW_TO_PLAY -> HowToPlayContent(scrollState = contentScrollState)
+                        InfoTab.AUDIO_LICENSES -> AudioLicensesInfo(scrollState = contentScrollState)
+                        InfoTab.LICENSE -> LicenseInfo(scrollState = contentScrollState)
+                        InfoTab.KEYBOARD_SHORTCUTS -> KeyboardShortcutsInfo(scrollState = contentScrollState)
+                        InfoTab.BACKEND -> BackendInfo(scrollState = contentScrollState)
+                        InfoTab.FEEDBACK -> FeedbackInfo(scrollState = contentScrollState)
+                        InfoTab.EDITOR_HOWTO -> EditorHowToContent(scrollState = contentScrollState)
+                        InfoTab.DOWNLOAD -> DownloadInfo(onNavigateToInstallation = { selectedTab = InfoTab.INSTALLATION }, scrollState = contentScrollState, linkFocusManager = linkFocusManager)
                     }
                 }
                 
                 if (!isLandscapeMobileWeb) {
+                    // Keyboard navigation hints
+                    if (AppSettings.showButtonShortcutHints.value) {
+                        Row(
+                            modifier = Modifier.padding(vertical = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                ShortcutKeyChip(text = "\u2191\u2193")
+                                Text(
+                                    stringResource(Res.string.keyboard_nav_scroll),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                ShortcutKeyChip(text = "\u2190\u2192")
+                                Text(
+                                    stringResource(Res.string.keyboard_nav_switch_tab),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+
                     // Back button
                     Button(
                         onClick = onBack,
@@ -187,6 +275,10 @@ fun InfoPageScreen(
                             .widthIn(min = 200.dp)
                     ) {
                         Text(stringResource(Res.string.back))
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            ShortcutKeyChip(text = "Esc", color = LocalContentColor.current.copy(alpha = 0.75f))
+                        }
                     }
                 }
             }
@@ -213,11 +305,11 @@ enum class InfoTab {
  * Standalone feedback tab content: wraps the shared FeedbackFormContent in a scrollable column.
  */
 @Composable
-private fun FeedbackInfo() {
+private fun FeedbackInfo(scrollState: androidx.compose.foundation.ScrollState = rememberScrollState()) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         FeedbackFormContent()

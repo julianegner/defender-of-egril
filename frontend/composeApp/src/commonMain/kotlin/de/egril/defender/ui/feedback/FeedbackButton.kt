@@ -10,6 +10,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -17,12 +20,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.TooltipWrapper
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
+import de.egril.defender.ui.settings.AppSettings
 import dev.vicart.compose.material.symbols.FilledSymbol
 import dev.vicart.compose.material.symbols.MaterialSymbols
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.tooltip_feedback
 import defender_of_egril.composeapp.generated.resources.feedback_form_title
 import defender_of_egril.composeapp.generated.resources.close
+import kotlinx.coroutines.launch
 
 /**
  * Feedback button with chat/feedback icon that opens a dialog containing the feedback form.
@@ -35,22 +41,37 @@ import defender_of_egril.composeapp.generated.resources.close
 @Composable
 fun FeedbackButton(
     modifier: Modifier = Modifier,
-    gameContext: GameFeedbackContext? = null
+    gameContext: GameFeedbackContext? = null,
+    shortcutKey: String? = null,
+    triggerOpen: Boolean = false,
+    onTriggerHandled: (() -> Unit)? = null
 ) {
     var showFeedback by remember { mutableStateOf(false) }
     val feedbackLabel = stringResource(Res.string.tooltip_feedback)
 
+    LaunchedEffect(triggerOpen) {
+        if (triggerOpen) {
+            showFeedback = true
+            onTriggerHandled?.invoke()
+        }
+    }
+
     TooltipWrapper(text = feedbackLabel) {
-        IconButton(
-            onClick = { showFeedback = true },
-            modifier = modifier
-        ) {
-            FilledSymbol(
-                icon = MaterialSymbols.RATE_REVIEW,
-                size = 32.dp,
-                tint = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.semantics { contentDescription = feedbackLabel }
-            )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(
+                onClick = { showFeedback = true },
+                modifier = modifier.semantics { contentDescription = feedbackLabel }
+            ) {
+                FilledSymbol(
+                    icon = MaterialSymbols.RATE_REVIEW,
+                    size = 32.dp,
+                    tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+            if (shortcutKey != null && AppSettings.showButtonShortcutHints.value) {
+                Spacer(modifier = Modifier.width(2.dp))
+                ShortcutKeyChip(text = shortcutKey)
+            }
         }
     }
 
@@ -69,24 +90,45 @@ private fun FeedbackDialog(
     gameContext: GameFeedbackContext? = null
 ) {
     Dialog(onDismissRequest = onDismiss) {
+        val scrollState = rememberScrollState()
+        val scope = rememberCoroutineScope()
+        val focusRequester = remember { FocusRequester() }
         Surface(
             modifier = Modifier
                 .widthIn(min = 300.dp, max = 560.dp)
                 .fillMaxHeight(fraction = 0.92f)
+                .focusRequester(focusRequester)
+                .focusTarget()
                 .onPreviewKeyEvent { event ->
-                    if (event.type == KeyEventType.KeyDown &&
-                        (event.key == Key.Back || event.key == Key.Escape)
-                    ) {
-                        onDismiss()
-                        true
-                    } else {
-                        false
-                    }
+                    if (event.type == KeyEventType.KeyDown) {
+                        when (event.key) {
+                            Key.Back, Key.Escape -> {
+                                onDismiss()
+                                true
+                            }
+                            Key.DirectionUp -> {
+                                if (!event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed) {
+                                    scope.launch { scrollState.animateScrollTo((scrollState.value - 120).coerceAtLeast(0)) }
+                                    true
+                                } else false
+                            }
+                            Key.DirectionDown -> {
+                                if (!event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed) {
+                                    scope.launch { scrollState.animateScrollTo((scrollState.value + 120).coerceAtMost(scrollState.maxValue)) }
+                                    true
+                                } else false
+                            }
+                            else -> false
+                        }
+                    } else false
                 },
             shape = RoundedCornerShape(16.dp),
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 6.dp
         ) {
+            LaunchedEffect(Unit) {
+                try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+            }
             Column(
                 modifier = Modifier
                     .padding(16.dp)
@@ -104,13 +146,19 @@ private fun FeedbackDialog(
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onSurface
                     )
-                    IconButton(onClick = onDismiss) {
-                        val closeLabel = stringResource(Res.string.close)
-                        FilledSymbol(
-                            icon = MaterialSymbols.CLOSE,
-                            tint = MaterialTheme.colorScheme.onSurface,
+                    val closeLabel = stringResource(Res.string.close)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                            ShortcutKeyChip(text = "Esc")
+                            Spacer(modifier = Modifier.width(4.dp))
+                        IconButton(
+                            onClick = onDismiss,
                             modifier = Modifier.semantics { contentDescription = closeLabel }
-                        )
+                        ) {
+                            FilledSymbol(
+                                icon = MaterialSymbols.CLOSE,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
                     }
                 }
 
@@ -119,7 +167,7 @@ private fun FeedbackDialog(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxWidth()
-                        .verticalScroll(rememberScrollState())
+                        .verticalScroll(scrollState)
                 ) {
                     FeedbackFormContent(
                         showTitle = false,

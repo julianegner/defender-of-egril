@@ -1,11 +1,15 @@
 package de.egril.defender.ui.gameplay
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -17,8 +21,11 @@ import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.SwordIcon
 import de.egril.defender.ui.icon.SellTowerIcon
 import de.egril.defender.ui.icon.UpgradeTowerIcon
+import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.formatShortcutBindingForDisplay
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
+import kotlinx.coroutines.delay
 
 @Composable
 fun AttackButton(
@@ -73,6 +80,10 @@ fun AttackButton(
                                     fontSize = 11.sp
                                 )
                             }
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutAttackSelectedTarget.value))
+                            }
                         }
                     }
                 }
@@ -107,6 +118,10 @@ fun AttackButton(
                                 "at (${selectedTargetPosition.x}, ${selectedTargetPosition.y})",
                                 fontSize = 11.sp
                             )
+                        }
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutAttackSelectedTarget.value))
                         }
                     }
                 }
@@ -145,6 +160,10 @@ fun AttackButton(
                                 "${target.type.getLocalizedName(locale)} (${target.currentHealth.value}/${target.maxHealth} ${stringResource(Res.string.hp_label)})",
                                 fontSize = 11.sp
                             )
+                        }
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutAttackSelectedTarget.value))
                         }
                     }
                 }
@@ -186,6 +205,10 @@ fun AttackButton(
                                     fontSize = 11.sp
                                 )
                             }
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                Spacer(modifier = Modifier.width(8.dp))
+                                ShortcutKeyChip(text = formatShortcutBindingForDisplay(AppSettings.shortcutAttackSelectedTarget.value))
+                            }
                         }
                     }
                 }
@@ -204,35 +227,54 @@ private fun TowerActionButtonContent(
     icon: @Composable () -> Unit,
     label: String,
     amount: Int,
+    shortcutHint: String? = null,
 ) {
     if (compact) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            icon()
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Box(contentAlignment = Alignment.Center) { icon() }
+            if (shortcutHint != null) {
+                Spacer(modifier = Modifier.width(6.dp))
+                ShortcutKeyChip(text = shortcutHint)
+            }
         }
     } else {
-        Column(
+        Row(
             modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                icon()
-                Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
-                Text(
-                    label,
-                    fontSize = GamePlayConstants.TextSizes.Medium,
-                    fontWeight = FontWeight.Bold
-                )
+            Column(
+                modifier = Modifier.weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    icon()
+                    Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+                    Text(
+                        label,
+                        fontSize = GamePlayConstants.TextSizes.Medium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Items))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    MoneyIcon(size = 14.dp)
+                    Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
+                    Text(
+                        "$amount",
+                        fontSize = GamePlayConstants.TextSizes.Large,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
-            Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Items))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                MoneyIcon(size = 14.dp)
-                Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
-                Text(
-                    "$amount",
-                    fontSize = GamePlayConstants.TextSizes.Large,
-                    fontWeight = FontWeight.Bold
-                )
+            if (shortcutHint != null) {
+                Spacer(modifier = Modifier.width(8.dp))
+                ShortcutKeyChip(text = shortcutHint)
             }
         }
     }
@@ -250,6 +292,9 @@ fun UpgradeButton(
     val upgradeLabel = stringResource(Res.string.upgrade)
     val coinsLabel = stringResource(Res.string.coins_label)
     val tooltipText = "$upgradeLabel: ${defender.upgradeCost} $coinsLabel"
+    val shortcutHint = if (AppSettings.showButtonShortcutHints.value) {
+        formatShortcutBindingForDisplay(AppSettings.shortcutUpgradeSelectedTower.value)
+    } else null
 
     BoxWithConstraints(modifier = modifier) {
         val compact = maxHeight < GamePlayConstants.ButtonSizes.ActionCompactThreshold ||
@@ -265,7 +310,8 @@ fun UpgradeButton(
                     compact = compact,
                     icon = { UpgradeTowerIcon(size = 20.dp) },
                     label = upgradeLabel,
-                    amount = defender.upgradeCost
+                    amount = defender.upgradeCost,
+                    shortcutHint = shortcutHint
                 )
             }
         }
@@ -287,6 +333,9 @@ fun UndoOrSellButton(
     // Determine if undo or sell is available
     val canUndo = defender.placedOnTurn == gameState.turnNumber.value && !defender.hasBeenUsed.value
     val canSell = defender.isReady && defender.actionsRemaining.value > 0
+    val shortcutHint = if (AppSettings.showButtonShortcutHints.value) {
+        formatShortcutBindingForDisplay(AppSettings.shortcutUndoOrSellSelectedTower.value)
+    } else null
 
     val coinsLabel = stringResource(Res.string.coins_label)
 
@@ -311,7 +360,8 @@ fun UndoOrSellButton(
                         compact = compact,
                         icon = { SellTowerIcon(size = 20.dp) },
                         label = undoLabel,
-                        amount = defender.totalCost
+                        amount = defender.totalCost,
+                        shortcutHint = shortcutHint
                     )
                 }
             }
@@ -338,7 +388,8 @@ fun UndoOrSellButton(
                         compact = compact,
                         icon = { SellTowerIcon(size = 20.dp) },
                         label = sellLabel,
-                        amount = sellAmount
+                        amount = sellAmount,
+                        shortcutHint = shortcutHint
                     )
                 }
             }
@@ -355,16 +406,69 @@ fun UndoOrSellButton(
                     Text(stringResource(Res.string.sell_tower_message, towerName, sellAmount.toString(), coinsLabel))
                 },
                 confirmButton = {
-                    Button(
-                        onClick = {
-                            onSellTower(defender.id)
-                            showSellConfirmation = false
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = GamePlayColors.Warning
-                        )
-                    ) {
-                        Text(stringResource(Res.string.sell))
+                    val holdToConfirmEnabled = AppSettings.holdToConfirmEnabled.value
+                    if (holdToConfirmEnabled) {
+                        val holdToSellLabel = stringResource(Res.string.sell_hold_to_confirm)
+                        val holdToConfirmLabel = stringResource(Res.string.accessibility_hold_to_confirm)
+                        val holdInteractionSource = remember { MutableInteractionSource() }
+                        val isPressed by holdInteractionSource.collectIsPressedAsState()
+                        var holdProgress by remember { mutableFloatStateOf(0f) }
+                        val holdDurationMs = GamePlayConstants.ButtonSizes.HoldToConfirmDurationMs
+                        val progressSteps = GamePlayConstants.ButtonSizes.HoldToConfirmProgressSteps
+
+                        LaunchedEffect(isPressed) {
+                            if (isPressed) {
+                                holdProgress = 0f
+                                repeat(progressSteps) { step ->
+                                    delay(holdDurationMs / progressSteps)
+                                    if (!isPressed) {
+                                        holdProgress = 0f
+                                        return@LaunchedEffect
+                                    }
+                                    holdProgress = (step + 1).toFloat() / progressSteps.toFloat()
+                                }
+                                holdProgress = 0f
+                                onSellTower(defender.id)
+                                showSellConfirmation = false
+                            } else {
+                                holdProgress = 0f
+                            }
+                        }
+
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            if (holdProgress > 0f) {
+                                LinearProgressIndicator(
+                                    progress = { holdProgress },
+                                    modifier = Modifier
+                                        .width(GamePlayConstants.ButtonSizes.HoldToConfirmProgressWidth)
+                                        .height(GamePlayConstants.ButtonSizes.HoldToConfirmProgressHeight),
+                                    color = GamePlayColors.Warning
+                                )
+                                Spacer(modifier = Modifier.height(GamePlayConstants.ButtonSizes.HoldToConfirmProgressSpacing))
+                            }
+                            Button(
+                                onClick = { },
+                                interactionSource = holdInteractionSource,
+                                modifier = Modifier.semantics { stateDescription = holdToConfirmLabel },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = GamePlayColors.Warning
+                                )
+                            ) {
+                                Text(holdToSellLabel)
+                            }
+                        }
+                    } else {
+                        Button(
+                            onClick = {
+                                onSellTower(defender.id)
+                                showSellConfirmation = false
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = GamePlayColors.Warning
+                            )
+                        ) {
+                            Text(stringResource(Res.string.sell))
+                        }
                     }
                 },
                 dismissButton = {

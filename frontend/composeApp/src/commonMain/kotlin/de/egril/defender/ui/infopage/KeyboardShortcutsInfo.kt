@@ -6,30 +6,142 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.focusable
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.*
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.hyperether.resources.AppLocale
+import com.hyperether.resources.LocalizedStrings
+import com.hyperether.resources.currentLanguage
 import com.hyperether.resources.stringResource
-import de.egril.defender.ui.icon.DownArrowIcon
-import de.egril.defender.ui.icon.LeftArrowIcon
-import de.egril.defender.ui.icon.RightArrowIcon
-import de.egril.defender.ui.icon.UpArrowIcon
+import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.buildShortcutBindingFromEvent
+import de.egril.defender.ui.settings.formatShortcutBindingForDisplay
+import de.egril.defender.ui.settings.isShortcutBindingChanged
 import defender_of_egril.composeapp.generated.resources.*
 import androidx.compose.foundation.text.selection.SelectionContainer
+
+private val SHORTCUT_KEY_COLUMN_MIN_WIDTH = 140.dp
+
+/**
+ * Manages focus cycling through keybind entries only.
+ * Used by SettingsDialog to restrict Tab/Shift+Tab to keybinds on the Shortcuts tab.
+ */
+class KeybindFocusManager {
+    private val _requesters = mutableListOf<FocusRequester>()
+    private var _currentIndex = -1
+    private var _registrationIndex = 0
+
+    val size: Int get() = _requesters.size
+    val currentIndex: Int get() = _currentIndex
+
+    /**
+     * Called before composition starts to reset the registration counter.
+     * Existing FocusRequesters are reused.
+     */
+    fun resetRegistration() {
+        _registrationIndex = 0
+    }
+
+    /**
+     * Returns the FocusRequester for the next keybind entry in composition order.
+     * Creates new ones as needed, reuses existing ones on recomposition.
+     * Returns the FocusRequester and the index assigned to this entry.
+     */
+    fun register(): Pair<FocusRequester, Int> {
+        val index = _registrationIndex
+        _registrationIndex++
+        if (index < _requesters.size) {
+            return _requesters[index] to index
+        }
+        val requester = FocusRequester()
+        _requesters.add(requester)
+        return requester to index
+    }
+
+    fun focusNext() {
+        if (_requesters.isEmpty()) return
+        _currentIndex = (_currentIndex + 1) % _requesters.size
+        try { _requesters[_currentIndex].requestFocus() } catch (_: Exception) {}
+    }
+
+    fun focusPrevious() {
+        if (_requesters.isEmpty()) return
+        _currentIndex = if (_currentIndex <= 0) _requesters.size - 1 else _currentIndex - 1
+        try { _requesters[_currentIndex].requestFocus() } catch (_: Exception) {}
+    }
+
+    fun updateIndex(index: Int) {
+        _currentIndex = index
+    }
+}
+
+val LocalKeybindFocusManager = staticCompositionLocalOf<KeybindFocusManager?> { null }
+
+private enum class BindingTarget {
+    ATTACK_SELECTED_TARGET,
+    SELECT_NEXT_TOWER,
+    SELECT_PREVIOUS_TOWER,
+    AUTO_ATTACK_END_TURN,
+    CHEAT,
+    TOGGLE_ENEMY_LIST,
+    END_TURN_START_BATTLE,
+    SAVE_GAME,
+    PAN_UP,
+    PAN_DOWN,
+    PAN_LEFT,
+    PAN_RIGHT,
+    CENTER_SELECTED_TOWER,
+    CENTER_NEXT_SPAWN,
+    UPGRADE_SELECTED_TOWER,
+    UNDO_OR_SELL_SELECTED_TOWER,
+    TOGGLE_SPELL_MENU,
+    SWITCH_TO_TOWER_MODE,
+    NEXT_ENEMY_TARGET,
+    PREV_ENEMY_TARGET,
+    BACK_TO_WORLDMAP
+}
 
 /**
  * Composable displaying keyboard shortcuts documentation
  */
 @Composable
-fun KeyboardShortcutsInfo() {
-    val ctrl = stringResource(Res.string.keyboard_modifier_ctrl)
+fun KeyboardShortcutsInfo(
+    enableBindingEdit: Boolean = false,
+    showResetButton: Boolean = false,
+    scrollState: ScrollState = rememberScrollState()
+) {
+    val centerSelectedTowerShortcutDescription = remember(currentLanguage.value) {
+        val localizedValue = LocalizedStrings.get(
+            "keyboard_shortcut_center_selected_tower",
+            currentLanguage.value
+        )
+        if (localizedValue == "???") {
+            LocalizedStrings.get("keyboard_shortcut_center_selected_tower", AppLocale.DEFAULT)
+        } else {
+            localizedValue
+        }
+    }
+    var bindingCaptureTarget by remember { mutableStateOf<BindingTarget?>(null) }
+    
+    // Reset registration counter so keybind entries reuse existing FocusRequesters on recomposition
+    LocalKeybindFocusManager.current?.resetRegistration()
+
     SelectionContainer {
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(scrollState)
         ) {
         Text(
             text = stringResource(Res.string.keyboard_shortcuts_title),
@@ -42,7 +154,6 @@ fun KeyboardShortcutsInfo() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
         ) {
             Text(
                 text = stringResource(Res.string.keyboard_shortcuts_note),
@@ -53,61 +164,177 @@ fun KeyboardShortcutsInfo() {
 
             // Gameplay shortcuts
             ShortcutSection(title = stringResource(Res.string.keyboard_shortcuts_gameplay_section)) {
-                ShortcutRow(key = "F", description = stringResource(Res.string.keyboard_shortcut_attack))
-                ShortcutRow(key = "Tab", description = stringResource(Res.string.keyboard_shortcut_tab_next_tower))
-                ShortcutRow(key = "Shift+Tab", description = stringResource(Res.string.keyboard_shortcut_shift_tab_prev_tower))
-                ShortcutRow(key = "$ctrl+A", description = stringResource(Res.string.keyboard_shortcut_auto_attack))
-                ShortcutRow(key = "C", description = stringResource(Res.string.keyboard_shortcut_cheat))
-                ShortcutRow(key = "E", description = stringResource(Res.string.keyboard_shortcut_enemy_list))
-                ShortcutRow(key = "Enter", description = stringResource(Res.string.keyboard_shortcut_end_turn))
-                ShortcutRow(key = "$ctrl+S", description = stringResource(Res.string.keyboard_shortcut_save))
-                ShortcutRow(
-                    keyContent = {
-                        Text(
-                            text = "W / ",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        UpArrowIcon(size = 14.dp)
-                    },
-                    description = stringResource(Res.string.keyboard_shortcut_pan_up)
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutAttackSelectedTarget.value,
+                    defaultKey = "F",
+                    description = stringResource(Res.string.keyboard_shortcut_attack),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.ATTACK_SELECTED_TARGET },
+                    buttonTestTag = "shortcut-binding-attack-selected"
                 )
-                ShortcutRow(
-                    keyContent = {
-                        Text(
-                            text = "S / ",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        DownArrowIcon(size = 14.dp)
-                    },
-                    description = stringResource(Res.string.keyboard_shortcut_pan_down)
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutSelectNextTower.value,
+                    defaultKey = "Tab",
+                    description = stringResource(Res.string.keyboard_shortcut_tab_next_tower),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.SELECT_NEXT_TOWER },
+                    buttonTestTag = "shortcut-binding-next-tower"
                 )
-                ShortcutRow(
-                    keyContent = {
-                        Text(
-                            text = "A / ",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        LeftArrowIcon(size = 14.dp)
-                    },
-                    description = stringResource(Res.string.keyboard_shortcut_pan_left)
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutSelectPreviousTower.value,
+                    defaultKey = "Shift+Tab",
+                    description = stringResource(Res.string.keyboard_shortcut_shift_tab_prev_tower),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.SELECT_PREVIOUS_TOWER },
+                    buttonTestTag = "shortcut-binding-previous-tower"
                 )
-                ShortcutRow(
-                    keyContent = {
-                        Text(
-                            text = "D / ",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        RightArrowIcon(size = 14.dp)
-                    },
-                    description = stringResource(Res.string.keyboard_shortcut_pan_right)
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutCenterSelectedTower.value,
+                    defaultKey = "R",
+                    description = centerSelectedTowerShortcutDescription,
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.CENTER_SELECTED_TOWER },
+                    buttonTestTag = "shortcut-binding-center-selected"
+                )
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutCenterNextSpawnPoint.value,
+                    defaultKey = "G",
+                    description = stringResource(Res.string.keyboard_shortcut_center_next_spawn_point),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.CENTER_NEXT_SPAWN },
+                    buttonTestTag = "shortcut-binding-center-spawn"
+                )
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutUpgradeSelectedTower.value,
+                    defaultKey = "U",
+                    description = stringResource(Res.string.keyboard_shortcut_upgrade_selected_tower),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.UPGRADE_SELECTED_TOWER },
+                    buttonTestTag = "shortcut-binding-upgrade-selected-tower"
+                )
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutUndoOrSellSelectedTower.value,
+                    defaultKey = "X",
+                    description = stringResource(Res.string.keyboard_shortcut_undo_or_sell_selected_tower),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.UNDO_OR_SELL_SELECTED_TOWER },
+                    buttonTestTag = "shortcut-binding-undo-or-sell-selected-tower"
+                )
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutToggleSpellMenu.value,
+                    defaultKey = "M",
+                    description = stringResource(Res.string.keyboard_shortcut_toggle_spell_menu),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.TOGGLE_SPELL_MENU },
+                    buttonTestTag = "shortcut-binding-toggle-spell-menu"
+                )
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutSwitchToTowerMode.value,
+                    defaultKey = "T",
+                    description = stringResource(Res.string.keyboard_shortcut_switch_to_tower_mode),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.SWITCH_TO_TOWER_MODE },
+                    buttonTestTag = "shortcut-binding-switch-to-tower-mode"
+                )
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutNextEnemyTarget.value,
+                    defaultKey = "N",
+                    description = stringResource(Res.string.keyboard_shortcut_next_enemy_target),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.NEXT_ENEMY_TARGET },
+                    buttonTestTag = "shortcut-binding-next-enemy-target"
+                )
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutPrevEnemyTarget.value,
+                    defaultKey = "Shift+N",
+                    description = stringResource(Res.string.keyboard_shortcut_prev_enemy_target),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.PREV_ENEMY_TARGET },
+                    buttonTestTag = "shortcut-binding-prev-enemy-target"
+                )
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutBackToWorldMap.value,
+                    defaultKey = "Escape",
+                    description = stringResource(Res.string.keyboard_shortcut_back_to_worldmap),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.BACK_TO_WORLDMAP },
+                    buttonTestTag = "shortcut-binding-back-to-worldmap"
+                )
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutAutoAttackEndTurn.value,
+                    defaultKey = "Ctrl+A",
+                    description = stringResource(Res.string.keyboard_shortcut_auto_attack),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.AUTO_ATTACK_END_TURN },
+                    buttonTestTag = "shortcut-binding-auto-attack"
+                )
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutCheat.value,
+                    defaultKey = "C",
+                    description = stringResource(Res.string.keyboard_shortcut_cheat),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.CHEAT },
+                    buttonTestTag = "shortcut-binding-cheat"
+                )
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutToggleEnemyList.value,
+                    defaultKey = "E",
+                    description = stringResource(Res.string.keyboard_shortcut_enemy_list),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.TOGGLE_ENEMY_LIST },
+                    buttonTestTag = "shortcut-binding-toggle-enemy-list"
+                )
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutEndTurnStartBattle.value,
+                    defaultKey = "Enter",
+                    description = stringResource(Res.string.keyboard_shortcut_end_turn),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.END_TURN_START_BATTLE },
+                    buttonTestTag = "shortcut-binding-end-turn"
+                )
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutSaveGame.value,
+                    defaultKey = "Ctrl+S",
+                    description = stringResource(Res.string.keyboard_shortcut_save),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.SAVE_GAME },
+                    buttonTestTag = "shortcut-binding-save-game"
+                )
+                DirectionalShortcutBindingRow(
+                    arrowSymbol = "Up",
+                    key = AppSettings.shortcutPanUp.value,
+                    defaultKey = "W",
+                    description = stringResource(Res.string.keyboard_shortcut_pan_up),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.PAN_UP },
+                    buttonTestTag = "shortcut-binding-pan-up"
+                )
+                DirectionalShortcutBindingRow(
+                    arrowSymbol = "Down",
+                    key = AppSettings.shortcutPanDown.value,
+                    defaultKey = "S",
+                    description = stringResource(Res.string.keyboard_shortcut_pan_down),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.PAN_DOWN },
+                    buttonTestTag = "shortcut-binding-pan-down"
+                )
+                DirectionalShortcutBindingRow(
+                    arrowSymbol = "Left",
+                    key = AppSettings.shortcutPanLeft.value,
+                    defaultKey = "A",
+                    description = stringResource(Res.string.keyboard_shortcut_pan_left),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.PAN_LEFT },
+                    buttonTestTag = "shortcut-binding-pan-left"
+                )
+                DirectionalShortcutBindingRow(
+                    arrowSymbol = "Right",
+                    key = AppSettings.shortcutPanRight.value,
+                    defaultKey = "D",
+                    description = stringResource(Res.string.keyboard_shortcut_pan_right),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.PAN_RIGHT },
+                    buttonTestTag = "shortcut-binding-pan-right"
                 )
             }
 
@@ -115,19 +342,150 @@ fun KeyboardShortcutsInfo() {
 
             // World map shortcuts
             ShortcutSection(title = stringResource(Res.string.keyboard_shortcuts_worldmap_section)) {
-                ShortcutRow(key = "C", description = stringResource(Res.string.keyboard_shortcut_cheat))
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutCheat.value,
+                    defaultKey = "C",
+                    description = stringResource(Res.string.keyboard_shortcut_cheat),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.CHEAT },
+                    buttonTestTag = "shortcut-binding-cheat-worldmap"
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // Abilities screen shortcuts
             ShortcutSection(title = stringResource(Res.string.keyboard_shortcuts_abilities_section)) {
-                ShortcutRow(key = "C", description = stringResource(Res.string.keyboard_shortcut_cheat))
+                ShortcutBindingRow(
+                    key = AppSettings.shortcutCheat.value,
+                    defaultKey = "C",
+                    description = stringResource(Res.string.keyboard_shortcut_cheat),
+                    enableEdit = enableBindingEdit,
+                    onEdit = { bindingCaptureTarget = BindingTarget.CHEAT },
+                    buttonTestTag = "shortcut-binding-cheat-abilities"
+                )
+            }
+
+            if (enableBindingEdit && showResetButton) {
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedButton(
+                    onClick = { AppSettings.resetShortcutBindings() },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(stringResource(Res.string.shortcut_bindings_reset_all))
+                    if (AppSettings.showButtonShortcutHints.value) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "R")
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Keyboard-only workflow guide (at bottom)
+            ShortcutSection(title = stringResource(Res.string.keyboard_workflow_title)) {
+                Text(
+                    text = stringResource(Res.string.keyboard_workflow_build_phase_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                Text(
+                    text = stringResource(Res.string.keyboard_workflow_build_phase),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+                Text(
+                    text = stringResource(Res.string.keyboard_workflow_battle_phase_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                Text(
+                    text = stringResource(Res.string.keyboard_workflow_battle_phase),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(bottom = 12.dp)
+                )
+                Text(
+                    text = stringResource(Res.string.keyboard_workflow_map_nav_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                Text(
+                    text = stringResource(Res.string.keyboard_workflow_map_nav),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
         }
         }
+    }
+
+    if (bindingCaptureTarget != null) {
+        val captureFocusRequester = remember { FocusRequester() }
+        val handleCaptureEvent: (KeyEvent) -> Boolean = handleCaptureEvent@{ event ->
+            if (event.type != KeyEventType.KeyDown) {
+                return@handleCaptureEvent false
+            }
+            if (event.key == Key.Escape) {
+                bindingCaptureTarget = null
+                return@handleCaptureEvent true
+            }
+            val binding = buildShortcutBindingFromEvent(event) ?: return@handleCaptureEvent true
+            when (bindingCaptureTarget) {
+                BindingTarget.ATTACK_SELECTED_TARGET -> AppSettings.saveShortcutAttackSelectedTarget(binding)
+                BindingTarget.SELECT_NEXT_TOWER -> AppSettings.saveShortcutSelectNextTower(binding)
+                BindingTarget.SELECT_PREVIOUS_TOWER -> AppSettings.saveShortcutSelectPreviousTower(binding)
+                BindingTarget.AUTO_ATTACK_END_TURN -> AppSettings.saveShortcutAutoAttackEndTurn(binding)
+                BindingTarget.CHEAT -> AppSettings.saveShortcutCheat(binding)
+                BindingTarget.TOGGLE_ENEMY_LIST -> AppSettings.saveShortcutToggleEnemyList(binding)
+                BindingTarget.END_TURN_START_BATTLE -> AppSettings.saveShortcutEndTurnStartBattle(binding)
+                BindingTarget.SAVE_GAME -> AppSettings.saveShortcutSaveGame(binding)
+                BindingTarget.PAN_UP -> AppSettings.saveShortcutPanUp(binding)
+                BindingTarget.PAN_DOWN -> AppSettings.saveShortcutPanDown(binding)
+                BindingTarget.PAN_LEFT -> AppSettings.saveShortcutPanLeft(binding)
+                BindingTarget.PAN_RIGHT -> AppSettings.saveShortcutPanRight(binding)
+                BindingTarget.CENTER_SELECTED_TOWER -> AppSettings.saveShortcutCenterSelectedTower(binding)
+                BindingTarget.CENTER_NEXT_SPAWN -> AppSettings.saveShortcutCenterNextSpawnPoint(binding)
+                BindingTarget.UPGRADE_SELECTED_TOWER -> AppSettings.saveShortcutUpgradeSelectedTower(binding)
+                BindingTarget.UNDO_OR_SELL_SELECTED_TOWER -> AppSettings.saveShortcutUndoOrSellSelectedTower(binding)
+                BindingTarget.TOGGLE_SPELL_MENU -> AppSettings.saveShortcutToggleSpellMenu(binding)
+                BindingTarget.SWITCH_TO_TOWER_MODE -> AppSettings.saveShortcutSwitchToTowerMode(binding)
+                BindingTarget.NEXT_ENEMY_TARGET -> AppSettings.saveShortcutNextEnemyTarget(binding)
+                BindingTarget.PREV_ENEMY_TARGET -> AppSettings.saveShortcutPrevEnemyTarget(binding)
+                BindingTarget.BACK_TO_WORLDMAP -> AppSettings.saveShortcutBackToWorldMap(binding)
+                null -> {}
+            }
+            bindingCaptureTarget = null
+            true
+        }
+        LaunchedEffect(bindingCaptureTarget) {
+            captureFocusRequester.requestFocus()
+        }
+        AlertDialog(
+            onDismissRequest = { bindingCaptureTarget = null },
+            title = { Text(stringResource(Res.string.shortcut_bindings_capture_title)) },
+            text = {
+                SelectionContainer {
+                    Box(
+                        modifier = Modifier
+                            .testTag("shortcut-capture-target")
+                            .focusRequester(captureFocusRequester)
+                            .focusable()
+                            .onPreviewKeyEvent(handleCaptureEvent)
+                    ) {
+                        Text(stringResource(Res.string.shortcut_bindings_capture_message))
+                    }
+                }
+            },
+            confirmButton = {
+                OutlinedButton(onClick = { bindingCaptureTarget = null }) {
+                    Text(stringResource(Res.string.cancel))
+                }
+            }
+        )
     }
 }
 
@@ -156,18 +514,18 @@ private fun ShortcutSection(
         // Header row
         Row(modifier = Modifier.fillMaxWidth()) {
             Text(
-                text = stringResource(Res.string.keyboard_shortcut_key_label),
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.width(100.dp)
-            )
-            Text(
                 text = stringResource(Res.string.keyboard_shortcut_description_label),
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.weight(1f)
+            )
+            Text(
+                text = stringResource(Res.string.keyboard_shortcut_key_label),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.widthIn(min = SHORTCUT_KEY_COLUMN_MIN_WIDTH)
             )
         }
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
@@ -192,21 +550,156 @@ private fun ShortcutRow(key: String, description: String) {
 }
 
 @Composable
-private fun ShortcutRow(keyContent: @Composable RowScope.() -> Unit, description: String) {
+private fun ShortcutBindingRow(
+    key: String,
+    defaultKey: String,
+    description: String,
+    enableEdit: Boolean,
+    onEdit: () -> Unit,
+    buttonTestTag: String
+) {
+    val isChanged = remember(key, defaultKey) {
+        isShortcutBindingChanged(key, defaultKey)
+    }
+    var isFocused by remember { mutableStateOf(false) }
+    val keybindFocusManager = LocalKeybindFocusManager.current
+    val registration = remember { keybindFocusManager?.register() }
+    val focusRequester = registration?.first
+    val keybindIndex = registration?.second ?: -1
+    ShortcutRow(
+        keyContent = {
+            if (enableEdit) {
+                TextButton(
+                    onClick = onEdit,
+                    modifier = Modifier.testTag(buttonTestTag)
+                        .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
+                        .onFocusChanged { state ->
+                            isFocused = state.isFocused
+                            if (state.isFocused && keybindFocusManager != null && keybindIndex >= 0) {
+                                keybindFocusManager.updateIndex(keybindIndex)
+                            }
+                        },
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Text(
+                        text = formatShortcutBindingForDisplay(key),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                if (isFocused && AppSettings.showButtonShortcutHints.value) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                    de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "Enter")
+                }
+            } else {
+                Text(
+                    text = formatShortcutBindingForDisplay(key),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        },
+        description = description,
+        marker = if (isChanged) stringResource(Res.string.shortcut_binding_changed_marker) else null
+    )
+}
+
+@Composable
+private fun ShortcutRow(
+    keyContent: @Composable RowScope.() -> Unit,
+    description: String,
+    marker: String? = null
+) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier.width(100.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            content = keyContent
-        )
         Text(
             text = description,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.weight(1f)
         )
+        Row(
+            modifier = Modifier.widthIn(min = SHORTCUT_KEY_COLUMN_MIN_WIDTH),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End,
+            content = keyContent
+        )
+        if (marker != null) {
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = marker,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.tertiary
+            )
+        }
     }
+}
+
+@Composable
+private fun DirectionalShortcutBindingRow(
+    arrowSymbol: String,
+    key: String,
+    defaultKey: String,
+    description: String,
+    enableEdit: Boolean,
+    onEdit: () -> Unit,
+    buttonTestTag: String
+) {
+    val isChanged = remember(key, defaultKey) {
+        isShortcutBindingChanged(key, defaultKey)
+    }
+    val keybindFocusManager = LocalKeybindFocusManager.current
+    val registration = remember { keybindFocusManager?.register() }
+    val focusRequester = registration?.first
+    val keybindIndex = registration?.second ?: -1
+    var isFocused by remember { mutableStateOf(false) }
+    ShortcutRow(
+        keyContent = {
+            Text(
+                text = arrowSymbol,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            if (enableEdit) {
+                TextButton(
+                    onClick = onEdit,
+                    modifier = Modifier.testTag(buttonTestTag)
+                        .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
+                        .onFocusChanged { state ->
+                            isFocused = state.isFocused
+                            if (state.isFocused && keybindFocusManager != null && keybindIndex >= 0) {
+                                keybindFocusManager.updateIndex(keybindIndex)
+                            }
+                        },
+                    contentPadding = PaddingValues(0.dp)
+                ) {
+                    Text(
+                        text = formatShortcutBindingForDisplay(key),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                if (isFocused && AppSettings.showButtonShortcutHints.value) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                    de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "Enter")
+                }
+            } else {
+                Text(
+                    text = formatShortcutBindingForDisplay(key),
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        },
+        description = description,
+        marker = if (isChanged) stringResource(Res.string.shortcut_binding_changed_marker) else null
+    )
 }

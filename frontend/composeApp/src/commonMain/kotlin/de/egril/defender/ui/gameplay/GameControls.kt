@@ -28,9 +28,21 @@ import defender_of_egril.composeapp.generated.resources.*
 import de.egril.defender.config.LogConfig
 import de.egril.defender.ui.gameplay.defenderButtons.CompactDefenderButton
 import de.egril.defender.ui.gameplay.defenderButtons.DefenderButton
+import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.HeaderTextSize
+import de.egril.defender.ui.settings.formatShortcutBindingForDisplay
 import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.ui.isMobileWebBrowser
 import org.jetbrains.compose.resources.painterResource
+
+@Composable
+private fun turnButtonShortcutHintColor(isPlayerTurn: Boolean, primaryButtonColor: Color): Color {
+    return if (isPlayerTurn) {
+        GamePlayColors.readableContentColor(primaryButtonColor).copy(alpha = 0.75f)
+    } else {
+        MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f)
+    }
+}
 
 @Composable
 fun ColumnScope.TurnButton(
@@ -40,11 +52,21 @@ fun ColumnScope.TurnButton(
     primaryButtonColor: Color = GamePlayColors.WarningDeep,
     highlighted: Boolean = false
     ){
+    val buttonTextSize = when (AppSettings.headerTextSize.value) {
+        HeaderTextSize.SMALL -> GamePlayConstants.TextSizes.Body
+        HeaderTextSize.MEDIUM -> GamePlayConstants.TextSizes.Medium
+        HeaderTextSize.LARGE -> GamePlayConstants.TextSizes.Large
+    }
+    val turnButtonContentColor = GamePlayColors.readableContentColor(primaryButtonColor)
+    val shortcutHintColor = turnButtonShortcutHintColor(isPlayerTurn, primaryButtonColor)
     Button(
         onClick = onPrimaryAction,
         // modifier = Modifier.fillMaxWidth(),
         colors = if (isPlayerTurn) {
-            ButtonDefaults.buttonColors(containerColor = primaryButtonColor)
+            ButtonDefaults.buttonColors(
+                containerColor = primaryButtonColor,
+                contentColor = turnButtonContentColor
+            )
         } else {
             ButtonDefaults.buttonColors()
         },
@@ -53,12 +75,24 @@ fun ColumnScope.TurnButton(
         else null,
         modifier = modifier
     ) {
-        Text(if (isPlayerTurn) stringResource(Res.string.end_turn_button) else stringResource(Res.string.start_battle),
-            style = MaterialTheme.typography.labelMedium,
-            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-            fontSize = 14.sp,
-            maxLines = 1,
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                if (isPlayerTurn) stringResource(Res.string.end_turn_button) else stringResource(Res.string.start_battle),
+                style = MaterialTheme.typography.labelMedium,
+                fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                fontSize = buttonTextSize,
+                maxLines = 1,
+                modifier = Modifier.weight(1f),
             )
+                ShortcutKeyChip(
+                    text = formatShortcutBindingForDisplay(AppSettings.shortcutEndTurnStartBattle.value),
+                    color = shortcutHintColor
+                )
+        }
     }
 }
 
@@ -228,6 +262,7 @@ fun GameControlsPanel(
                                 isSelected = selectedDefenderType == type,
                                 canAfford = coinsState.value >= type.baseCost,
                                 instantTowerActive = gameState.instantTowerSpellActive.value,
+                                shortcutIndex = if (type != DefenderType.DRAGONS_LAIR) index else null,
                                 modifier = compactDefenderButtonModifier,
                                 onClick = {
                                     onSelectDefenderType(if (selectedDefenderType == type) null else type)
@@ -273,6 +308,7 @@ fun GameControlsPanel(
                             canAfford = canAfford,
                             coinsState = coinsState,
                             instantTowerActive = gameState.instantTowerSpellActive.value,
+                            shortcutIndex = index,
                             modifier = Modifier.width(buttonWidth),
                             onClick = {
                                 onSelectDefenderType(if (selectedDefenderType == type) null else type)
@@ -328,7 +364,18 @@ fun GameControlsPanel(
                     ButtonDefaults.buttonColors()
                 }
             ) {
-                Text(primaryButtonText)
+                val shortcutHintColor = turnButtonShortcutHintColor(isPlayerTurn, primaryButtonColor)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(primaryButtonText)
+                        ShortcutKeyChip(
+                            text = formatShortcutBindingForDisplay(AppSettings.shortcutEndTurnStartBattle.value),
+                            color = shortcutHintColor
+                        )
+                }
             }
         }
         } // end inner Column

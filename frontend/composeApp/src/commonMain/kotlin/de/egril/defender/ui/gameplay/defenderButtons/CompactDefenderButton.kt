@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,6 +31,7 @@ import de.egril.defender.ui.animations.SpellInstantTowerColor
 import de.egril.defender.ui.gameplay.GamePlayColors
 import de.egril.defender.ui.getLocalizedShortName
 import de.egril.defender.ui.icon.MoneyIcon
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
@@ -40,6 +42,7 @@ fun CompactDefenderButton(
     isSelected: Boolean,
     canAfford: Boolean,
     instantTowerActive: Boolean = false,
+    shortcutIndex: Int? = null,
     modifier: Modifier,
     onClick: () -> Unit
 ) {
@@ -96,6 +99,15 @@ fun CompactDefenderButton(
                     modifier = Modifier.weight(1f),
                     color = if (isSelected && isDarkMode) Color.White else Color.White  // Ensure bright text
                 )
+                
+                // Shortcut chip right of tower name
+                if (AppSettings.showButtonShortcutHints.value && shortcutIndex != null) {
+                    Spacer(modifier = Modifier.width(2.dp))
+                    ShortcutKeyChip(
+                        text = "${shortcutIndex + 1}",
+                        color = Color.White.copy(alpha = 0.85f)
+                    )
+                }
 
                 Spacer(modifier = Modifier.width(4.dp))
 

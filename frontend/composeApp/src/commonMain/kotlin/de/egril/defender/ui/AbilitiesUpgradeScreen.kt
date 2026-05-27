@@ -1,5 +1,6 @@
 package de.egril.defender.ui
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -9,8 +10,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -27,8 +31,11 @@ import de.egril.defender.ui.icon.StarIcon
 import de.egril.defender.ui.icon.InfoIcon
 import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.settings.SettingsButton
+import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.isShortcutBindingPressed
 import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.ui.gameplay.ScrollableInfoCard
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.gameplay.SpellTargetIcon
 import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.*
@@ -59,7 +66,7 @@ fun AbilitiesUpgradeScreen(
                             onBack()
                             true
                         }
-                        event.key == Key.C && !event.isCtrlPressed && onCheatCode != null -> {
+                        isShortcutBindingPressed(event, AppSettings.shortcutCheat.value) && onCheatCode != null -> {
                             showCheatDialog = true
                             true
                         }
@@ -446,9 +453,10 @@ internal fun AbilityCardWithInfo(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     // Info icon button
+                    val infoLabel = stringResource(Res.string.info)
                     IconButton(
                         onClick = onShowInfo,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(24.dp).semantics { contentDescription = infoLabel }
                     ) {
                         InfoIcon(size = 16.dp)
                     }
@@ -656,7 +664,17 @@ internal fun AbilityCardGrid(
     onUpgrade: () -> Unit,
     icon: @Composable () -> Unit
 ) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+    var isFocused by remember { mutableStateOf(false) }
+    Card(
+        modifier = Modifier.fillMaxWidth()
+            .then(
+                if (isFocused && canUpgrade) Modifier.border(
+                    2.dp,
+                    MaterialTheme.colorScheme.primary,
+                    MaterialTheme.shapes.medium
+                ) else Modifier
+            )
+    ) {
         Column(
             modifier = Modifier.padding(8.dp).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -680,10 +698,15 @@ internal fun AbilityCardGrid(
             Button(
                 onClick = onUpgrade,
                 enabled = canUpgrade,
-                modifier = Modifier.fillMaxWidth().height(32.dp),
+                modifier = Modifier.fillMaxWidth().height(32.dp)
+                    .onFocusChanged { isFocused = it.isFocused },
                 contentPadding = PaddingValues(0.dp)
             ) {
                 Text("+", style = MaterialTheme.typography.titleMedium)
+                if (isFocused && canUpgrade && AppSettings.showButtonShortcutHints.value) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                    ShortcutKeyChip(text = "Enter", color = LocalContentColor.current.copy(alpha = 0.75f))
+                }
             }
         }
     }
@@ -702,7 +725,17 @@ internal fun AbilityCardWithInfoGrid(
     icon: @Composable () -> Unit,
     onShowInfo: () -> Unit
 ) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+    var isFocused by remember { mutableStateOf(false) }
+    Card(
+        modifier = Modifier.fillMaxWidth()
+            .then(
+                if (isFocused && canUpgrade) Modifier.border(
+                    2.dp,
+                    MaterialTheme.colorScheme.primary,
+                    MaterialTheme.shapes.medium
+                ) else Modifier
+            )
+    ) {
         Column(
             modifier = Modifier.padding(8.dp).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -718,7 +751,11 @@ internal fun AbilityCardWithInfoGrid(
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
                 )
-                IconButton(onClick = onShowInfo, modifier = Modifier.size(20.dp)) {
+                val infoLabel = stringResource(Res.string.info)
+                IconButton(
+                    onClick = onShowInfo,
+                    modifier = Modifier.size(20.dp).semantics { contentDescription = infoLabel }
+                ) {
                     InfoIcon(size = 12.dp)
                 }
             }
@@ -731,10 +768,15 @@ internal fun AbilityCardWithInfoGrid(
             Button(
                 onClick = onUpgrade,
                 enabled = canUpgrade,
-                modifier = Modifier.fillMaxWidth().height(32.dp),
+                modifier = Modifier.fillMaxWidth().height(32.dp)
+                    .onFocusChanged { isFocused = it.isFocused },
                 contentPadding = PaddingValues(0.dp)
             ) {
                 Text("+", style = MaterialTheme.typography.titleMedium)
+                if (isFocused && canUpgrade && AppSettings.showButtonShortcutHints.value) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                    ShortcutKeyChip(text = "Enter", color = LocalContentColor.current.copy(alpha = 0.75f))
+                }
             }
         }
     }
@@ -750,8 +792,16 @@ internal fun SpellCardGrid(
     canUnlock: Boolean,
     onUnlock: () -> Unit
 ) {
+    var isFocused by remember { mutableStateOf(false) }
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth()
+            .then(
+                if (isFocused && canUnlock) Modifier.border(
+                    2.dp,
+                    MaterialTheme.colorScheme.primary,
+                    MaterialTheme.shapes.medium
+                ) else Modifier
+            ),
         colors = if (isUnlocked) {
             CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
         } else {
@@ -786,13 +836,18 @@ internal fun SpellCardGrid(
                 Button(
                     onClick = onUnlock,
                     enabled = canUnlock,
-                    modifier = Modifier.fillMaxWidth().height(32.dp),
+                    modifier = Modifier.fillMaxWidth().height(32.dp)
+                        .onFocusChanged { isFocused = it.isFocused },
                     contentPadding = PaddingValues(0.dp)
                 ) {
                     Text(
                         stringResource(Res.string.unlock),
                         style = MaterialTheme.typography.labelSmall
                     )
+                    if (isFocused && canUnlock && AppSettings.showButtonShortcutHints.value) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        ShortcutKeyChip(text = "Enter", color = LocalContentColor.current.copy(alpha = 0.75f))
+                    }
                 }
             }
         }

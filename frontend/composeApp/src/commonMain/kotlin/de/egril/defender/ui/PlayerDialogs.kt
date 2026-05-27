@@ -1,5 +1,6 @@
 package de.egril.defender.ui
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -7,12 +8,20 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.input.key.*
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import de.egril.defender.save.PlayerProfile
 import de.egril.defender.utils.formatTimestamp
 import de.egril.defender.ui.icon.TrashIcon
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
+import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -30,6 +39,7 @@ fun PlayerNameDialog(
 ) {
     var playerName by remember { mutableStateOf(initialName) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    val focusRequester = remember { FocusRequester() }
     
     // Pre-fetch error messages for use in non-composable contexts
     val emptyNameError = stringResource(Res.string.player_name_empty_error)
@@ -37,7 +47,13 @@ fun PlayerNameDialog(
     
     Dialog(onDismissRequest = onDismiss) {
         Surface(
-            modifier = Modifier.widthIn(max = 400.dp),
+            modifier = Modifier.widthIn(max = 400.dp)
+                .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown && event.key == Key.Escape) {
+                        onDismiss()
+                        true
+                    } else false
+                },
             shape = MaterialTheme.shapes.medium,
             color = MaterialTheme.colorScheme.surface
         ) {
@@ -78,8 +94,13 @@ fun PlayerNameDialog(
                     label = { Text(stringResource(Res.string.player_name)) },
                     singleLine = true,
                     isError = errorMessage != null,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester)
                 )
+                
+                // Auto-focus the text field
+                LaunchedEffect(Unit) {
+                    try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+                }
                 
                 if (errorMessage != null) {
                     Spacer(modifier = Modifier.height(8.dp))
@@ -102,6 +123,10 @@ fun PlayerNameDialog(
                             modifier = Modifier.weight(1f)
                         ) {
                             Text(stringResource(Res.string.cancel))
+                            if (AppSettings.showButtonShortcutHints.value) {
+                                Spacer(modifier = Modifier.width(4.dp))
+                                ShortcutKeyChip(text = "Esc", color = LocalContentColor.current.copy(alpha = 0.75f))
+                            }
                         }
                     }
                     
@@ -121,6 +146,10 @@ fun PlayerNameDialog(
                         } else {
                             stringResource(Res.string.create)
                         })
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            ShortcutKeyChip(text = "Enter", color = LocalContentColor.current.copy(alpha = 0.75f))
+                        }
                     }
                 }
             }
@@ -158,12 +187,71 @@ fun SelectPlayerDialog(
     onDeletePlayer: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
+    // Sort players by most recently played
+    val sortedPlayers = remember(players, currentPlayerId) {
+        players.sortedByDescending { it.lastPlayedAt }
+    }
+    val selectablePlayers = remember(sortedPlayers, currentPlayerId) {
+        sortedPlayers.filter { it.id != currentPlayerId }
+    }
+    // Track which player is currently preselected (keyboard focus)
+    var preselectedIndex by remember { mutableStateOf(if (selectablePlayers.isNotEmpty()) 0 else -1) }
+
     Dialog(onDismissRequest = onDismiss) {
+        val dialogFocusRequester = remember { FocusRequester() }
         Surface(
-            modifier = Modifier.widthIn(max = 500.dp).heightIn(max = 600.dp),
+            modifier = Modifier.widthIn(max = 500.dp).heightIn(max = 600.dp)
+                .focusRequester(dialogFocusRequester)
+                .focusTarget()
+                .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown) {
+                        when (event.key) {
+                            Key.Escape, Key.Back -> {
+                                onDismiss()
+                                true
+                            }
+                            Key.DirectionUp -> {
+                                if (selectablePlayers.isNotEmpty()) {
+                                    preselectedIndex = (preselectedIndex - 1).coerceAtLeast(0)
+                                }
+                                true
+                            }
+                            Key.DirectionDown -> {
+                                if (selectablePlayers.isNotEmpty()) {
+                                    preselectedIndex = (preselectedIndex + 1).coerceAtMost(selectablePlayers.size - 1)
+                                }
+                                true
+                            }
+                            Key.Tab -> {
+                                if (!event.isShiftPressed && selectablePlayers.isNotEmpty()) {
+                                    preselectedIndex = (preselectedIndex + 1) % selectablePlayers.size
+                                } else if (event.isShiftPressed && selectablePlayers.isNotEmpty()) {
+                                    preselectedIndex = (preselectedIndex - 1 + selectablePlayers.size) % selectablePlayers.size
+                                }
+                                true
+                            }
+                            Key.Enter -> {
+                                if (preselectedIndex in selectablePlayers.indices) {
+                                    onSelectPlayer(selectablePlayers[preselectedIndex].id)
+                                }
+                                true
+                            }
+                            Key.N -> {
+                                if (!event.isCtrlPressed && !event.isAltPressed) {
+                                    onCreateNewPlayer()
+                                    true
+                                } else false
+                            }
+                            else -> false
+                        }
+                    } else false
+                },
             shape = MaterialTheme.shapes.medium,
             color = MaterialTheme.colorScheme.surface
         ) {
+            LaunchedEffect(Unit) {
+                try { dialogFocusRequester.requestFocus() } catch (_: IllegalStateException) {}
+            }
             Column(
                 modifier = Modifier.padding(24.dp)
             ) {
@@ -186,12 +274,49 @@ fun SelectPlayerDialog(
                         modifier = Modifier.weight(1f),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(players.sortedByDescending { it.lastPlayedAt }) { player ->
+                        items(sortedPlayers) { player ->
+                            val isCurrentPlayer = player.id == currentPlayerId
+                            val selectableIndex = selectablePlayers.indexOfFirst { it.id == player.id }
+                            val isPreselected = !isCurrentPlayer && selectableIndex == preselectedIndex
                             PlayerProfileCard(
                                 player = player,
-                                isSelected = player.id == currentPlayerId,
-                                onSelect = { onSelectPlayer(player.id) },
+                                isSelected = isCurrentPlayer,
+                                isPreselected = isPreselected,
+                                onSelect = { if (!isCurrentPlayer) onSelectPlayer(player.id) },
                                 onDelete = { onDeletePlayer(player.id) }
+                            )
+                        }
+                    }
+                }
+                
+                // Navigation hints
+                if (AppSettings.showButtonShortcutHints.value && selectablePlayers.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            ShortcutKeyChip(text = "\u2191/\u2193")
+                            Text(
+                                text = stringResource(Res.string.keyboard_nav_switch_tab),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            ShortcutKeyChip(text = "Enter")
+                            Text(
+                                text = stringResource(Res.string.select),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -208,6 +333,10 @@ fun SelectPlayerDialog(
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(stringResource(Res.string.close))
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            ShortcutKeyChip(text = "Esc", color = LocalContentColor.current.copy(alpha = 0.75f))
+                        }
                     }
                     
                     Button(
@@ -215,6 +344,10 @@ fun SelectPlayerDialog(
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(stringResource(Res.string.player_new))
+                        if (AppSettings.showButtonShortcutHints.value) {
+                            Spacer(modifier = Modifier.width(4.dp))
+                            ShortcutKeyChip(text = "N", color = LocalContentColor.current.copy(alpha = 0.75f))
+                        }
                     }
                 }
             }
@@ -229,16 +362,27 @@ fun SelectPlayerDialog(
 private fun PlayerProfileCard(
     player: PlayerProfile,
     isSelected: Boolean,
+    isPreselected: Boolean = false,
     onSelect: () -> Unit,
     onDelete: () -> Unit
 ) {
     var showDeleteConfirm by remember { mutableStateOf(false) }
     
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().then(
+            if (isPreselected) Modifier.border(
+                width = 2.dp,
+                color = MaterialTheme.colorScheme.primary,
+                shape = MaterialTheme.shapes.medium
+            ) else Modifier
+        ),
         colors = if (isSelected) {
             CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.primaryContainer
+            )
+        } else if (isPreselected) {
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer
             )
         } else {
             CardDefaults.cardColors()
@@ -276,13 +420,30 @@ private fun PlayerProfileCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 if (!isSelected) {
-                    Button(onClick = onSelect) {
-                        Text(stringResource(Res.string.select))
+                    if (isPreselected && AppSettings.showButtonShortcutHints.value) {
+                        // Show [Enter] to select chip when preselected
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            ShortcutKeyChip(text = "Enter")
+                            Text(
+                                text = stringResource(Res.string.select),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    } else {
+                        Button(onClick = onSelect) {
+                            Text(stringResource(Res.string.select))
+                        }
                     }
                 }
-                
+
+                val deleteLabel = stringResource(Res.string.delete)
                 IconButton(
-                    onClick = { showDeleteConfirm = true }
+                    onClick = { showDeleteConfirm = true },
+                    modifier = Modifier.semantics { contentDescription = deleteLabel }
                 ) {
                     TrashIcon(size = 20.dp)
                 }

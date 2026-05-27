@@ -6,6 +6,7 @@
     <string name="start_game">Spiel starten</string>
     <string name="continue_game">Spiel fortsetzen</string>
     <string name="rules">Regeln</string>
+    <string name="tutorials_and_help">Tutorials &amp; Hilfe</string>
     <string name="exit_game">Spiel beenden</string>
     <string name="exit_game_confirm_title">Spiel beenden?</string>
     <string name="exit_game_confirm_message">Möchten Sie das Spiel wirklich beenden?</string>
@@ -49,7 +50,7 @@
     <string name="tile_smooth_transitions_off">Scharfe Kanten</string>
     <string name="animations">Animationen</string>
     <string name="animations_on">Animationen An</string>
-    <string name="animations_off">Statische Symbole</string>
+    <string name="animations_off">Weniger Bewegung / Statische Symbole</string>
     <string name="header_text_size">Level-Header-Textgröße</string>
     <string name="header_text_size_small">Klein</string>
     <string name="header_text_size_medium">Mittel</string>
@@ -85,6 +86,7 @@
     <string name="upgrade">Aufwerten</string>
     <string name="sell">Verkaufen</string>
     <string name="selected">Ausgewählt</string>
+    <string name="to_select">zum Auswählen</string>
     <string name="attack">Angriff</string>
     <string name="end_turn">Runde beenden</string>
     <string name="next_turn">Nächste Runde</string>
@@ -260,8 +262,11 @@
     <string name="attack_button">ANGRIFF</string>
     <string name="attack_area_button">FLÄCHEN-ANGRIFF</string>
     <string name="undo">Rückgängig</string>
+    <string name="undo_tower_title">Turm entfernen?</string>
+    <string name="undo_tower_message">Möchten Sie den %s wirklich entfernen? Sie erhalten eine vollständige Rückerstattung von %s %s.</string>
     <string name="sell_tower_title">Turm verkaufen?</string>
     <string name="sell_tower_message">Möchten Sie den %s wirklich für %s %s verkaufen?</string>
+    <string name="sell_hold_to_confirm">Verkaufen (gedrückt halten zum Bestätigen)</string>
     <string name="dig">Graben</string>
     <string name="trap">Falle</string>
     <string name="mining_probabilities">Grab-Wahrscheinlichkeiten</string>
@@ -1270,21 +1275,45 @@
     <string name="keyboard_shortcut_key_label">Taste</string>
     <string name="keyboard_shortcut_description_label">Aktion</string>
     <string name="keyboard_shortcut_where_label">Wo</string>
-    <string name="keyboard_shortcut_attack">Ausgewählten Turm angreifen</string>
+    <string name="keyboard_shortcut_attack">Mit ausgewähltem Turm angreifen (Ziel bestätigen)</string>
     <string name="keyboard_shortcut_auto_attack">Alle Türme automatisch angreifen und Runde beenden</string>
     <string name="keyboard_shortcut_cheat">Cheatcode-Dialog öffnen</string>
     <string name="keyboard_shortcut_enemy_list">Feindliste ein-/ausblenden</string>
-    <string name="keyboard_shortcut_end_turn">Runde beenden / Kampf starten</string>
+    <string name="keyboard_shortcut_end_turn">Angriff bestätigen / Runde beenden / Kampf starten / Kauf abbrechen</string>
     <string name="keyboard_shortcut_save">Spiel speichern</string>
     <string name="keyboard_shortcut_pan_up">Karte nach oben schwenken</string>
     <string name="keyboard_shortcut_pan_down">Karte nach unten schwenken</string>
     <string name="keyboard_shortcut_pan_left">Karte nach links schwenken</string>
     <string name="keyboard_shortcut_pan_right">Karte nach rechts schwenken</string>
-    <string name="keyboard_shortcut_tab_next_tower">Nächsten aktionsfähigen Turm auswählen</string>
-    <string name="keyboard_shortcut_shift_tab_prev_tower">Vorherigen aktionsfähigen Turm auswählen</string>
+    <string name="keyboard_shortcut_tab_next_tower">Turmtypen wechseln (Bauphase) / nächsten Turm auswählen (Kampf)</string>
+    <string name="keyboard_shortcut_shift_tab_prev_tower">Turmtypen rückwärts wechseln / vorherigen Turm auswählen</string>
+    <string name="keyboard_shortcut_center_selected_tower">Karte auf ausgewählten Turm zentrieren</string>
+    <string name="keyboard_shortcut_center_next_spawn_point">Karte auf nächsten Spawnpunkt zentrieren</string>
+    <string name="keyboard_shortcut_upgrade_selected_tower">Ausgewählten Turm verbessern</string>
+    <string name="keyboard_shortcut_undo_or_sell_selected_tower">Ausgewählten Turm rückgängig machen oder verkaufen</string>
+    <string name="keyboard_shortcut_toggle_spell_menu">Zaubermenü öffnen/schließen</string>
+    <string name="keyboard_shortcut_switch_to_tower_mode">Zum Turmmodus zurückkehren</string>
     <string name="auto_jump_to_next_tower">Automatisch zum nächsten aktionsfähigen Turm springen</string>
     <string name="keyboard_shortcuts_note">Hinweis: Tastenkürzel sind auf dem Desktop und in der Web-App verfügbar.</string>
     <string name="keyboard_modifier_ctrl">Strg</string>
+    <string name="keyboard_workflow_title">Anleitung: Nur mit Tastatur spielen</string>
+    <string name="keyboard_workflow_build_phase_title">Bauphase (vor dem Kampf)</string>
+    <string name="keyboard_workflow_build_phase">Mit Tab / Umschalt+Tab durch die verfügbaren Turmtypen blättern. Den markierten Typ im Kaufbereich anzeigen. Auf ein grünes Feld auf der Karte klicken, um den Turm zu platzieren. Strg+Enter drücken, um den Kampf zu starten.</string>
+    <string name="keyboard_workflow_battle_phase_title">Kampfphase (eigener Zug)</string>
+    <string name="keyboard_workflow_battle_phase">Mit Tab zum nächsten aktionsfähigen Turm springen. Ein Ziel wird automatisch markiert. F oder Enter drücken, um anzugreifen. U zum Verbessern, X zum Rückgängig/Verkaufen (mit Bestätigung). M zum Öffnen des Zaubermenüs, dann Tab/Umschalt+Tab zum Auswählen eines Zaubers und Enter zum Wirken. T zurück zum Turmmodus. Strg+Enter drücken, um die Runde zu beenden.</string>
+    <string name="keyboard_workflow_map_nav_title">Kartennavigation</string>
+    <string name="keyboard_workflow_map_nav">W/A/S/D (oder Pfeiltasten) zum Schwenken der Karte. R zum Zentrieren auf den ausgewählten Turm, G zum Zentrieren auf den nächsten Spawnpunkt. Mausrad oder Pinch zum Zoomen.</string>
+    <string name="keyboard_nav_next">Weiter</string>
+    <string name="keyboard_nav_prev">Zurück</string>
+    <string name="keyboard_nav_confirm">Bestätigen</string>
+    <string name="keyboard_nav_scroll">Scrollen</string>
+    <string name="keyboard_nav_switch_tab">Tab wechseln</string>
+    <string name="keyboard_nav_navigate_locations">nächster Ort</string>
+    <string name="keyboard_shortcut_next_enemy_target">Nächster erreichbarer Gegner</string>
+    <string name="keyboard_shortcut_prev_enemy_target">Vorheriger erreichbarer Gegner</string>
+    <string name="keyboard_shortcut_next_build_tile">Nächstes Baufeld</string>
+    <string name="keyboard_shortcut_prev_build_tile">Vorheriges Baufeld</string>
+    <string name="keyboard_shortcut_back_to_worldmap">Zurück zur Weltkarte</string>
 
     <!-- License Info -->
     <string name="license_info_title">Lizenzinformationen</string>
@@ -1736,6 +1765,7 @@
     <string name="download_info_error">Download-Links konnten nicht von GitHub geladen werden. Besuche die Releases-Seite, um alle Downloads zu finden.</string>
     <string name="download_info_goto_installation">Installationsanweisungen anzeigen</string>
     <string name="download_info_latest_version">Neueste Version: %1$s</string>
+    <string name="download_nav_hint">Tab/Shift+Tab zum Navigieren zwischen Links, Enter zum \u00d6ffnen. I f\u00fcr Installationsanweisungen.</string>
     <string name="play_store_test_info_title">Google Play-Prerelease-Test</string>
     <string name="play_store_test_info_register_step">Um das Spiel über den Google Play Store zu erhalten, musst du dich zuerst in der Google-Mailingliste registrieren.</string>
     <string name="play_store_test_info_mailing_list_label">Google-Mailingliste:</string>
@@ -1759,6 +1789,34 @@
     <!-- Settings tabs -->
     <string name="general">Allgemein</string>
     <string name="settings_tab_level">Level</string>
+    <string name="settings_tab_shortcuts">Shortcuts</string>
+    <string name="accessibility">Barrierefreiheit</string>
+    <string name="accessibility_high_contrast">Hoher Kontrast</string>
+    <string name="accessibility_high_contrast_info">Erhöht den Kontrast zwischen Vorder- und Hintergrundfarben für bessere Lesbarkeit.</string>
+    <string name="accessibility_color_blind_palette">Farbenblind-Palette</string>
+    <string name="accessibility_color_blind_palette_info">Passt Spielfarben für häufige Farbsehschwächen an.</string>
+    <string name="accessibility_color_blind_off">Aus</string>
+    <string name="accessibility_color_blind_deuteranopia">Deuteranopie</string>
+    <string name="accessibility_color_blind_protanopia">Protanopie</string>
+    <string name="accessibility_color_blind_tritanopia">Tritanopie</string>
+    <string name="accessibility_color_blind_off_description">Kein Farbseh-Filter.</string>
+    <string name="accessibility_color_blind_deuteranopia_description">Optimiert für Grünschwäche (Deuteranopie).</string>
+    <string name="accessibility_color_blind_protanopia_description">Optimiert für Rotschwäche (Protanopie).</string>
+    <string name="accessibility_color_blind_tritanopia_description">Optimiert für Blauschwäche (Tritanopie).</string>
+    <string name="accessibility_captions">Untertitel</string>
+    <string name="accessibility_captions_info">Zeigt Texthinweise für wichtige Soundereignisse.</string>
+    <string name="accessibility_hold_to_confirm">Gedrückt halten zum Bestätigen</string>
+    <string name="accessibility_hold_to_confirm_info">Erfordert das Gedrückthalten bei destruktiven Aktionen, um versehentliche Eingaben zu vermeiden.</string>
+    <string name="accessibility_reduce_motion_setting_info">Schaltet animierte Effekte aus, um Bewegung und visuelle Belastung zu reduzieren.</string>
+    <string name="accessibility_reduce_motion_on">Weniger Bewegung ist aktiv (Animationen sind aus).</string>
+    <string name="accessibility_reduce_motion_off">Weniger Bewegung ist inaktiv (Animationen sind an).</string>
+    <string name="accessibility_reduce_motion_note">Diese Steuerung spiegelt dieselbe Animationseinstellung im Level-Tab wider.</string>
+    <string name="shortcut_bindings_capture_title">Tastenkürzel festlegen</string>
+    <string name="shortcut_bindings_capture_message">Drücke jetzt die neue Taste oder Tastenkombination (z. B. Ctrl+S). Mit Escape abbrechen.</string>
+    <string name="shortcut_bindings_reset_all">Alle Tastenkürzel zurücksetzen</string>
+    <string name="shortcut_bindings_show_on_buttons">Tastenkürzel auf Buttons anzeigen</string>
+    <string name="shortcut_bindings_show_on_buttons_info">Zeigt passende Tastenkürzel in Grau auf Buttons mit derselben Funktion an.</string>
+    <string name="shortcut_binding_changed_marker">Geändert</string>
     <!-- Scroll hint accessibility labels -->
     <string name="scroll_hint_more_tabs_left">Nach links scrollen für mehr Tabs</string>
     <string name="scroll_hint_more_tabs_right">Nach rechts scrollen für mehr Tabs</string>
@@ -1818,5 +1876,21 @@
     <string name="feedback_bug_type_sound_desc">Fehlende Töne, falsches Audio oder Lautstärkeprobleme.</string>
     <string name="feedback_bug_type_crash">Absturz / Einfrieren</string>
     <string name="feedback_bug_type_crash_desc">Das Spiel stürzt ab, friert ein oder reagiert nicht mehr.</string>
+
+    <string name="feedback_form_keyboard_nav_info">Tastaturnavigation: Verwende Tab, um zwischen Feldern und Schaltflächen zu wechseln. In Textfeldern verwende Strg+Tab, um das Feld zu verlassen. Verwende Leertaste zum Umschalten von Kontrollkästchen und Eingabe zum Absenden. Verwende Pfeiltasten Hoch/Runter zum Scrollen.</string>
+    <string name="keyboard_nav_select">Auswählen</string>
+    <string name="keyboard_nav_upgrade">Aufwerten</string>
+    <string name="keyboard_nav_buy">Kaufen</string>
+    <string name="keyboard_nav_skip_locked">Gesperrte überspringen</string>
+    <string name="player_profile_shortcut">P</string>
+    <string name="keyboard_nav_collapse_expand">Ein-/Ausklappen</string>
+    <string name="feedback_field_ctrl_tab_hint">Strg+Tab zum Verlassen des Feldes</string>
+    <string name="keyboard_nav_prev_location">vorheriger Ort</string>
+    <string name="scroll">Scrollen</string>
+    <string name="toggle_setting">Umschalten</string>
+    <string name="cycle">Wechseln</string>
+    <string name="edit_binding_hint">Tab + Enter = Taste ändern</string>
+    <string name="dropdown_keyboard_hint">Up/Down Navigieren, Enter = Auswählen, Esc = Schließen</string>
+    <string name="shortcut_bindings_nav_hint">Tab/Shift+Tab zum Auswählen einer Tastenbelegung, dann Enter zum Ändern. R zum Zurücksetzen aller Belegungen.</string>
 
 </resources>
