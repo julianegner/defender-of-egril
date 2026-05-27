@@ -2383,11 +2383,9 @@ private fun GamePlayScreenContent(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Text(confirmLabel)
-                                if (AppSettings.showButtonShortcutHints.value) {
                                     ShortcutKeyChip(
                                         text = formatShortcutBindingForDisplay(AppSettings.shortcutUndoOrSellSelectedTower.value)
                                     )
-                                }
                             }
                         }
                     },

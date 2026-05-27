@@ -88,12 +88,10 @@ fun ColumnScope.TurnButton(
                 maxLines = 1,
                 modifier = Modifier.weight(1f),
             )
-            if (AppSettings.showButtonShortcutHints.value) {
                 ShortcutKeyChip(
                     text = formatShortcutBindingForDisplay(AppSettings.shortcutEndTurnStartBattle.value),
                     color = shortcutHintColor
                 )
-            }
         }
     }
 }
@@ -373,12 +371,10 @@ fun GameControlsPanel(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(primaryButtonText)
-                    if (AppSettings.showButtonShortcutHints.value) {
                         ShortcutKeyChip(
                             text = formatShortcutBindingForDisplay(AppSettings.shortcutEndTurnStartBattle.value),
                             color = shortcutHintColor
                         )
-                    }
                 }
             }
         }

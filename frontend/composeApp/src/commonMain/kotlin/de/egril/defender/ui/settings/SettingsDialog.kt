@@ -212,9 +212,7 @@ fun SettingsDialog(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        if (AppSettings.showButtonShortcutHints.value) {
                             de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "Esc")
-                        }
                         val closeLabel = stringResource(Res.string.close)
                         IconButton(
                             onClick = onDismiss,
@@ -347,10 +345,8 @@ private fun NumberedSetting(number: Int, content: @Composable () -> Unit) {
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (AppSettings.showButtonShortcutHints.value) {
             de.egril.defender.ui.gameplay.ShortcutKeyChip(text = number.toString())
             Spacer(modifier = Modifier.width(8.dp))
-        }
         Box(modifier = Modifier.weight(1f)) {
             content()
         }
@@ -377,9 +373,7 @@ private fun GeneralTabContent(onDismissSettings: () -> Unit, triggerRestore: Boo
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                if (AppSettings.showButtonShortcutHints.value) {
                     de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "L")
-                }
             }
             LanguageChooser(
                 modifier = Modifier.fillMaxWidth(),
@@ -411,9 +405,7 @@ private fun GeneralTabContent(onDismissSettings: () -> Unit, triggerRestore: Boo
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
-                if (AppSettings.showButtonShortcutHints.value) {
                     de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "D")
-                }
             }
             DifficultyChooser(
                 modifier = Modifier.fillMaxWidth(),
@@ -693,9 +685,7 @@ private fun ColorBlindPaletteChooser(
                 verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                if (AppSettings.showButtonShortcutHints.value) {
                     de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "${index + 5}")
-                }
                 RadioButton(
                     selected = selected == palette,
                     onClick = { onSelected(palette) }
@@ -1012,9 +1002,7 @@ private fun HeaderTextSizeSetting() {
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
-        if (AppSettings.showButtonShortcutHints.value) {
             de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "+/-")
-        }
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(0.dp)

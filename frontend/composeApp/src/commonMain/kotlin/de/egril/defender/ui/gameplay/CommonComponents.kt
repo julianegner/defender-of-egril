@@ -248,6 +248,7 @@ fun ShortcutKeyChip(
     modifier: Modifier = Modifier,
     color: Color = LocalContentColor.current,
 ) {
+    if (!AppSettings.showButtonShortcutHints.value) return
     Box(
         modifier = modifier
             .border(width = 1.dp, color = color, shape = RoundedCornerShape(0.dp))

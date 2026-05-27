@@ -74,9 +74,7 @@ private fun PlayerNameWithIam(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary,
                 )
-                if (AppSettings.showButtonShortcutHints.value) {
                     ShortcutKeyChip(text = "P")
-                }
             }
             // Show Keycloak username below the local player name when logged in
             if (iamState.isAuthenticated && iamState.username != null) {

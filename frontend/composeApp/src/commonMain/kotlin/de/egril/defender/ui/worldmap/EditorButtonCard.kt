@@ -39,9 +39,7 @@ fun EditorButtonCard(
                 text = stringResource(Res.string.level_editor),
                 style = MaterialTheme.typography.bodyMedium
             )
-            if (AppSettings.showButtonShortcutHints.value) {
                 ShortcutKeyChip(text = "O", color = Color.White.copy(alpha = 0.75f))
-            }
         }
     }
 }

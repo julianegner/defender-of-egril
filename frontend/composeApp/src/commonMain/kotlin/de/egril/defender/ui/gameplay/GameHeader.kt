@@ -276,11 +276,9 @@ fun GameHeader(
                                 KeyboardKeyIcon(size = buttonIconSize)
                             }
                         }
-                        if (AppSettings.showButtonShortcutHints.value) {
                             ShortcutKeyChip(
                                 text = "/"
                             )
-                        }
                     }
                 }
 
@@ -333,12 +331,10 @@ fun GameHeader(
                                     size = buttonIconSize,
                                     modifier = Modifier.align(Alignment.CenterVertically)
                                 )
-                                if (AppSettings.showButtonShortcutHints.value) {
                                     ShortcutKeyChip(
                                         text = formatShortcutBindingForDisplay(AppSettings.shortcutSaveGame.value),
                                         color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.75f)
                                     )
-                                }
                             }
                         }
                     }
@@ -355,12 +351,10 @@ fun GameHeader(
                             fontSize = buttonTextSize,
                             modifier = Modifier.align(Alignment.CenterVertically)
                         )
-                        if (AppSettings.showButtonShortcutHints.value) {
                             ShortcutKeyChip(
                                 text = formatShortcutBindingForDisplay(AppSettings.shortcutBackToWorldMap.value),
                                 color = LocalContentColor.current.copy(alpha = 0.75f)
                             )
-                        }
                     }
                 }
 
@@ -392,12 +386,10 @@ fun GameHeader(
                                     TriangleLeftIcon(size = overlayIconSize)
                                 }
                             }
-                            if (AppSettings.showButtonShortcutHints.value) {
                                 ShortcutKeyChip(
                                     text = formatShortcutBindingForDisplay(AppSettings.shortcutToggleEnemyList.value),
                                     color = overlayButtonContentColor.copy(alpha = 0.75f)
                                 )
-                            }
                         }
                     }
                 }
@@ -416,11 +408,9 @@ fun GameHeader(
                             )
                         }
                     }
-                    if (AppSettings.showButtonShortcutHints.value) {
                         ShortcutKeyChip(
                             text = "H"
                         )
-                    }
                 }
             }
         }

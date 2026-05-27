@@ -556,9 +556,7 @@ private fun RowScope.dwarvenMineActionButtonArea(
                     ) {
                         PickIcon(size = 24.dp)
                         Text(stringResource(Res.string.dig), fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                        if (AppSettings.showButtonShortcutHints.value) {
                             ShortcutKeyChip(text = "1")
-                        }
                     }
                 }
             }
@@ -595,9 +593,7 @@ private fun RowScope.dwarvenMineActionButtonArea(
                     ) {
                         TrapIcon(size = 24.dp)
                         Text(stringResource(Res.string.trap), fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                        if (AppSettings.showButtonShortcutHints.value) {
                             ShortcutKeyChip(text = "2")
-                        }
                     }
                 }
             }
@@ -735,9 +731,7 @@ fun GenerateManaButton(
                         maxLines = 1,
                         overflow = TextOverflow.Visible
                     )
-                    if (AppSettings.showButtonShortcutHints.value) {
                         ShortcutKeyChip(text = "1")
-                    }
                 }
             }
         }
@@ -787,9 +781,7 @@ fun MagicalTrapButton(
                         fontSize = if (isOnCooldown) 14.sp else 16.sp,
                         fontWeight = FontWeight.Bold
                     )
-                    if (AppSettings.showButtonShortcutHints.value) {
                         ShortcutKeyChip(text = "2")
-                    }
                 }
                 if (isOnCooldown) {
                     Column(modifier = Modifier.weight(1f)) {
@@ -873,9 +865,7 @@ fun BarricadeButton(
                         maxLines = 1,
                         overflow = TextOverflow.Visible
                     )
-                    if (AppSettings.showButtonShortcutHints.value) {
                         ShortcutKeyChip(text = "1")
-                    }
                 }
             }
         }

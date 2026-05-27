@@ -412,9 +412,7 @@ fun MainMenuScreen(
                                                 ) {
                                                     HelpIcon(size = 28.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
                                                 }
-                                                if (AppSettings.showButtonShortcutHints.value) {
                                                     ShortcutKeyChip(text = "?")
-                                                }
                                             }
                                         }
                                     }
@@ -564,9 +562,7 @@ fun MainMenuScreen(
                                                 ) {
                                                     HelpIcon(size = 28.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
                                                 }
-                                                if (AppSettings.showButtonShortcutHints.value) {
                                                     ShortcutKeyChip(text = "?")
-                                                }
                                             }
                                         }
                                     }
@@ -735,9 +731,7 @@ fun MainMenuScreen(
                             Text(text = stringResource(Res.string.player_name), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Text(text = currentPlayerName, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-                                if (AppSettings.showButtonShortcutHints.value) {
                                     ShortcutKeyChip(text = "P")
-                                }
                             }
                             if (iamState.isAuthenticated && iamState.username != null) {
                                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -781,9 +775,7 @@ fun MainMenuScreen(
                                 IconButton(onClick = onShowBackendInfo, modifier = Modifier.size(34.dp).semantics { contentDescription = backendInfoDesc }) {
                                     HelpIcon(size = 34.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
                                 }
-                                if (AppSettings.showButtonShortcutHints.value) {
                                     ShortcutKeyChip(text = "?")
-                                }
                             }
                         }
                     }
@@ -808,9 +800,7 @@ fun MainMenuScreen(
                         Button(onClick = onStartGame, enabled = isDataLoaded, modifier = Modifier.width(200.dp).height(60.dp)) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
-                                if (AppSettings.showButtonShortcutHints.value) {
                                     ShortcutKeyChip(text = "Enter", color = LocalContentColor.current.copy(alpha = 0.75f))
-                                }
                             }
                         }
                         if (hasAutosave) {
@@ -821,9 +811,7 @@ fun MainMenuScreen(
                             ) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.titleMedium)
-                                    if (AppSettings.showButtonShortcutHints.value) {
                                         ShortcutKeyChip(text = "C", color = LocalContentColor.current.copy(alpha = 0.75f))
-                                    }
                                 }
                             }
                         }
@@ -832,9 +820,7 @@ fun MainMenuScreen(
                     Button(onClick = onShowRules, modifier = Modifier.width(200.dp).height(60.dp)) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
-                            if (AppSettings.showButtonShortcutHints.value) {
                                 ShortcutKeyChip(text = "H", color = LocalContentColor.current.copy(alpha = 0.75f))
-                            }
                         }
                     }
                     if (isPlatformWasm && WithImpressum.withImpressum) {
@@ -956,12 +942,10 @@ fun MainMenuScreen(
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             Text(stringResource(Res.string.exit))
-                            if (AppSettings.showButtonShortcutHints.value) {
                                 ShortcutKeyChip(
                                     text = "Enter",
                                     color = LocalContentColor.current.copy(alpha = 0.75f)
                                 )
-                            }
                         }
                     }
                 },
@@ -972,12 +956,10 @@ fun MainMenuScreen(
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             Text(stringResource(Res.string.cancel))
-                            if (AppSettings.showButtonShortcutHints.value) {
                                 ShortcutKeyChip(
                                     text = "Esc",
                                     color = LocalContentColor.current.copy(alpha = 0.75f)
                                 )
-                            }
                         }
                     }
                 }

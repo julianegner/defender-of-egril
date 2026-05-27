@@ -422,9 +422,7 @@ private fun LoadGameScreenDesktop(
             
                 Button(onClick = onBack) {
                     Text(stringResource(Res.string.back))
-                    if (AppSettings.showButtonShortcutHints.value) {
                         ShortcutKeyChip(text = "Esc")
-                    }
                 }
             
                 Spacer(modifier = Modifier.height(8.dp))
@@ -599,9 +597,7 @@ private fun LoadGameScreenMobile(
                         text = stringResource(Res.string.back),
                         style = MaterialTheme.typography.bodySmall
                     )
-                    if (AppSettings.showButtonShortcutHints.value) {
                         ShortcutKeyChip(text = "Esc")
-                    }
                 }
                 
                 // Display savegame folder path at the bottom

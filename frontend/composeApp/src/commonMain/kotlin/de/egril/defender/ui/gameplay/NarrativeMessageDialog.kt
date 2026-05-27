@@ -183,12 +183,10 @@ fun NarrativeMessageDialog(
                                 text = stringResource(Res.string.ok),
                                 color = Color.White
                             )
-                            if (AppSettings.showButtonShortcutHints.value) {
                                 ShortcutKeyChip(
                                     text = "Enter",
                                     color = Color.White.copy(alpha = 0.75f)
                                 )
-                            }
                         }
                     }
                 }

@@ -274,9 +274,7 @@ fun UnsavedChangesDialog(
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(stringResource(Res.string.cancel))
-                            if (AppSettings.showButtonShortcutHints.value) {
                                 ShortcutKeyChip(text = "Esc")
-                            }
                         }
                     }
                     Button(
@@ -287,17 +285,13 @@ fun UnsavedChangesDialog(
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(stringResource(Res.string.discard_changes))
-                            if (AppSettings.showButtonShortcutHints.value) {
                                 ShortcutKeyChip(text = "D")
-                            }
                         }
                     }
                     Button(onClick = onSaveAndExit) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(stringResource(Res.string.save_and_exit))
-                            if (AppSettings.showButtonShortcutHints.value) {
                                 ShortcutKeyChip(text = "Enter")
-                            }
                         }
                     }
                 }
@@ -351,9 +345,7 @@ fun EndTurnConfirmationDialog(
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(stringResource(Res.string.cancel))
-                            if (AppSettings.showButtonShortcutHints.value) {
                                 ShortcutKeyChip(text = "Esc")
-                            }
                         }
                     }
                     Button(
@@ -364,9 +356,7 @@ fun EndTurnConfirmationDialog(
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(stringResource(Res.string.end_turn_confirm))
-                            if (AppSettings.showButtonShortcutHints.value) {
                                 ShortcutKeyChip(text = "Enter")
-                            }
                         }
                     }
                 }

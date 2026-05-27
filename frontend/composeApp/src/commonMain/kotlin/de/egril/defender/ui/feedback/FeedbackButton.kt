@@ -148,10 +148,8 @@ private fun FeedbackDialog(
                     )
                     val closeLabel = stringResource(Res.string.close)
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (AppSettings.showButtonShortcutHints.value) {
                             ShortcutKeyChip(text = "Esc")
                             Spacer(modifier = Modifier.width(4.dp))
-                        }
                         IconButton(
                             onClick = onDismiss,
                             modifier = Modifier.semantics { contentDescription = closeLabel }
