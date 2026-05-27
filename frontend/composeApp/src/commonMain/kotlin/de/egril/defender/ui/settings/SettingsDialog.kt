@@ -383,13 +383,6 @@ private fun GeneralTabContent(onDismissSettings: () -> Unit, triggerRestore: Boo
                 triggerOpen = triggerOpenLanguage,
                 onTriggerOpenHandled = onOpenLanguageHandled
             )
-            if (AppSettings.showButtonShortcutHints.value) {
-                Text(
-                    text = stringResource(Res.string.dropdown_keyboard_hint),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
         }
 
         HorizontalDivider()
@@ -415,13 +408,6 @@ private fun GeneralTabContent(onDismissSettings: () -> Unit, triggerRestore: Boo
                 triggerOpen = triggerOpenDifficulty,
                 onTriggerOpenHandled = onOpenDifficultyHandled
             )
-            if (AppSettings.showButtonShortcutHints.value) {
-                Text(
-                    text = stringResource(Res.string.dropdown_keyboard_hint),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
             SelectableText(
                 text = stringResource(Res.string.difficulty_info_current_level),
                 style = MaterialTheme.typography.bodySmall,

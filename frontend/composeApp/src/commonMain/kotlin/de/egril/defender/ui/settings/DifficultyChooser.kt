@@ -1,20 +1,13 @@
 package de.egril.defender.ui.settings
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
-import de.egril.defender.ui.icon.TriangleDownIcon
-import de.egril.defender.ui.icon.TriangleUpIcon
+import de.egril.defender.ui.common.DropdownItem
+import de.egril.defender.ui.common.KeyboardNavigableDropdown
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -29,135 +22,41 @@ fun DifficultyChooser(
     triggerOpen: Boolean = false,
     onTriggerOpenHandled: () -> Unit = {}
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    var highlightedIndex by remember { mutableStateOf(-1) }
     val currentDifficulty = AppSettings.difficulty.value
 
-    // Handle external trigger to open dropdown
-    LaunchedEffect(triggerOpen) {
-        if (triggerOpen) {
-            expanded = true
-            onTriggerOpenHandled()
-        }
-    }
-
-    // Reset highlighted index when dropdown opens
-    LaunchedEffect(expanded) {
-        if (expanded) {
-            highlightedIndex = DifficultyLevel.entries.indexOf(currentDifficulty).coerceAtLeast(0)
-        }
-    }
-
-    Box(
-        contentAlignment = Alignment.CenterStart,
-        modifier = modifier
-            .height(56.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RoundedCornerShape(8.dp))
-            .clickable { expanded = !expanded }
-            .onPreviewKeyEvent { event ->
-                if (event.type == KeyEventType.KeyDown) {
-                    when {
-                        expanded && event.key == Key.DirectionDown -> {
-                            highlightedIndex = (highlightedIndex + 1).coerceAtMost(DifficultyLevel.entries.size - 1)
-                            true
-                        }
-                        expanded && event.key == Key.DirectionUp -> {
-                            highlightedIndex = (highlightedIndex - 1).coerceAtLeast(0)
-                            true
-                        }
-                        expanded && event.key == Key.Enter -> {
-                            val level = DifficultyLevel.entries.getOrNull(highlightedIndex)
-                            if (level != null) {
-                                onDifficultyChanged(level)
-                            }
-                            expanded = false
-                            true
-                        }
-                        expanded && event.key == Key.Escape -> {
-                            expanded = false
-                            true
-                        }
-                        !expanded && (event.key == Key.Enter || event.key == Key.Spacebar) -> {
-                            expanded = true
-                            true
-                        }
-                        else -> false
-                    }
-                } else false
+    val items = DifficultyLevel.entries.map { level ->
+        DropdownItem(
+            value = level,
+            content = {
+                Column {
+                    Text(
+                        text = getDifficultyDisplayName(level),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Text(
+                        text = getDifficultyDescription(level),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        )
+    }
+
+    KeyboardNavigableDropdown(
+        items = items,
+        selectedValue = currentDifficulty,
+        onItemSelected = { level -> onDifficultyChanged(level) },
+        selectedContent = {
             Text(
                 text = getDifficultyDisplayName(currentDifficulty),
                 style = MaterialTheme.typography.bodyLarge
             )
-        }
-        
-        // Dropdown arrow icon
-        if (expanded) {
-            TriangleUpIcon(
-                size = 14.dp,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = 16.dp)
-            )
-        } else {
-            TriangleDownIcon(
-                size = 14.dp,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = 16.dp)
-            )
-        }
-        
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            DifficultyLevel.entries.forEachIndexed { index, level ->
-                DropdownMenuItem(
-                    text = {
-                        Column {
-                            Text(
-                                text = getDifficultyDisplayName(level),
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                            Text(
-                                text = getDifficultyDescription(level),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    },
-                    onClick = {
-                        onDifficultyChanged(level)
-                        expanded = false
-                    },
-                    colors = if (index == highlightedIndex) {
-                        MenuDefaults.itemColors(
-                            textColor = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    } else {
-                        MenuDefaults.itemColors()
-                    },
-                    modifier = if (index == highlightedIndex) {
-                        Modifier.border(
-                            BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
-                            RoundedCornerShape(4.dp)
-                        )
-                    } else {
-                        Modifier
-                    }
-                )
-            }
-        }
-    }
+        },
+        modifier = modifier.fillMaxWidth(),
+        triggerOpen = triggerOpen,
+        onTriggerOpenHandled = onTriggerOpenHandled
+    )
 }
 
 /**
