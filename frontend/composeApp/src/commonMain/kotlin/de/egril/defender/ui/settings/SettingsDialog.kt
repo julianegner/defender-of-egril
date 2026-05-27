@@ -1125,10 +1125,10 @@ private fun SoundTabContent(triggerShowDetails: Boolean = false, onShowDetailsHa
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.primary
                             )
-                            Text(
-                                text = "\u25C0",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.primary
+                            dev.vicart.compose.material.symbols.FilledSymbol(
+                                icon = dev.vicart.compose.material.symbols.MaterialSymbols.ARROW_BACK,
+                                size = 12.dp,
+                                tint = MaterialTheme.colorScheme.primary
                             )
                         }
                     }

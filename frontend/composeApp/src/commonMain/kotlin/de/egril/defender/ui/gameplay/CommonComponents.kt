@@ -241,6 +241,8 @@ fun GameStatsDisplay(
  * square border (no corner rounding), small padding, monospace-style text.
  *
  * Used wherever button-shortcut hints are shown (action buttons, dialogs).
+ * Arrow unicode characters (\u2190\u2191\u2192\u2193\u25C0) are rendered as
+ * Material Symbol icons to ensure compatibility on all platforms including wasm.
  */
 @Composable
 fun ShortcutKeyChip(
@@ -255,12 +257,72 @@ fun ShortcutKeyChip(
             .padding(horizontal = 4.dp, vertical = 1.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = text,
-            color = color,
-            fontSize = 10.sp,
-            fontWeight = FontWeight.SemiBold,
-            maxLines = 1,
-        )
+        if (containsArrowUnicode(text)) {
+            ArrowChipContent(text = text, color = color)
+        } else {
+            Text(
+                text = text,
+                color = color,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+            )
+        }
     }
+}
+
+/**
+ * Set of arrow unicode characters that need material symbol rendering for wasm compatibility.
+ */
+private val ARROW_UNICODE_CHARS = setOf('\u2190', '\u2191', '\u2192', '\u2193', '\u25C0')
+
+/**
+ * Returns true if the text contains any arrow unicode characters that need
+ * to be rendered as material symbol icons for wasm compatibility.
+ */
+private fun containsArrowUnicode(text: String): Boolean {
+    return text.any { it in ARROW_UNICODE_CHARS }
+}
+
+/**
+ * Renders chip content that may contain arrow unicode characters as Material Symbol icons.
+ * Non-arrow characters (like "/" separators) are rendered as text.
+ */
+@Composable
+private fun ArrowChipContent(text: String, color: Color) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        for (char in text) {
+            val arrowIcon = charToArrowIcon(char)
+            if (arrowIcon != null) {
+                dev.vicart.compose.material.symbols.FilledSymbol(
+                    icon = arrowIcon,
+                    size = 10.dp,
+                    tint = color
+                )
+            } else {
+                Text(
+                    text = char.toString(),
+                    color = color,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Maps a unicode arrow character to its corresponding Material Symbol icon,
+ * or null if the character is not an arrow.
+ */
+private fun charToArrowIcon(char: Char): String? = when (char) {
+    '\u2190' -> dev.vicart.compose.material.symbols.MaterialSymbols.ARROW_BACK
+    '\u2191' -> dev.vicart.compose.material.symbols.MaterialSymbols.ARROW_UPWARD
+    '\u2192' -> dev.vicart.compose.material.symbols.MaterialSymbols.ARROW_FORWARD
+    '\u2193' -> dev.vicart.compose.material.symbols.MaterialSymbols.ARROW_DOWNWARD
+    '\u25C0' -> dev.vicart.compose.material.symbols.MaterialSymbols.ARROW_BACK
+    else -> null
 }

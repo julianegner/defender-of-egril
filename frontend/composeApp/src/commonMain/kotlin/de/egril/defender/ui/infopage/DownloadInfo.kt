@@ -2,20 +2,28 @@
 
 package de.egril.defender.ui.infopage
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
+import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.*
 import androidx.compose.foundation.text.selection.SelectionContainer
 
@@ -258,19 +266,44 @@ private fun AssetListItem(asset: GithubReleaseAsset) {
 }
 
 @Composable
-private fun DownloadLink(url: String, text: String, modifier: Modifier = Modifier) {
+private fun DownloadLink(url: String, text: String, modifier: Modifier = Modifier, chipText: String = "Enter") {
     val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
-    Text(
-        text = text,
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.primary,
-        textDecoration = TextDecoration.Underline,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
+    var isFocused by remember { mutableStateOf(false) }
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
-            .padding(start = 8.dp)
-            .clickable { uriHandler.openUri(url) }
-    )
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.primary,
+            textDecoration = TextDecoration.Underline,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .padding(start = 8.dp)
+                .then(
+                    if (isFocused) Modifier.border(
+                        BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                        RoundedCornerShape(4.dp)
+                    ).padding(4.dp)
+                    else Modifier
+                )
+                .onFocusChanged { isFocused = it.isFocused }
+                .focusable()
+                .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown && event.key == Key.Enter) {
+                        uriHandler.openUri(url)
+                        true
+                    } else false
+                }
+                .clickable { uriHandler.openUri(url) }
+        )
+        if (isFocused && AppSettings.showButtonShortcutHints.value) {
+            Spacer(modifier = Modifier.width(4.dp))
+            ShortcutKeyChip(text = chipText)
+        }
+    }
 }
 
 private fun GithubReleaseAsset.platform(): String = when {

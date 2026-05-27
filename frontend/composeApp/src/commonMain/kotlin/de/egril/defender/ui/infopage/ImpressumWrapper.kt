@@ -7,6 +7,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.input.key.*
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -17,6 +21,7 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.ui.ImpressumConstants
 import de.egril.defender.WithImpressum
 import androidx.compose.foundation.text.selection.SelectionContainer
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.icon.CrossIcon
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.close
@@ -89,13 +94,29 @@ private fun ImpressumContent() {
  * Only displayed on WASM platform when withImpressum flag is true
  */
 @Composable
-fun ImpressumWrapper(rowModifier: Modifier = Modifier) {
+fun ImpressumWrapper(rowModifier: Modifier = Modifier, triggerOpen: Boolean = false, onTriggerOpenHandled: () -> Unit = {}) {
     // Only show impressum if the compile flag is set
     if (!WithImpressum.withImpressum) {
         return
     }
     
     var displayImpressum by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
+
+    // Handle external trigger to open
+    LaunchedEffect(triggerOpen) {
+        if (triggerOpen) {
+            displayImpressum = true
+            onTriggerOpenHandled()
+        }
+    }
+
+    // Auto-focus when impressum is opened for keyboard navigation
+    LaunchedEffect(displayImpressum) {
+        if (displayImpressum) {
+            try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+        }
+    }
     
     Row(
         verticalAlignment = Alignment.Bottom,
@@ -104,7 +125,16 @@ fun ImpressumWrapper(rowModifier: Modifier = Modifier) {
     ) {
         if (displayImpressum) {
             Card(
-                modifier = Modifier.widthIn(max = 400.dp),
+                modifier = Modifier
+                    .widthIn(max = 400.dp)
+                    .focusRequester(focusRequester)
+                    .focusTarget()
+                    .onPreviewKeyEvent { event ->
+                        if (event.type == KeyEventType.KeyDown && (event.key == Key.Escape || event.key == Key.Back)) {
+                            displayImpressum = false
+                            true
+                        } else false
+                    },
                 shape = RoundedCornerShape(12.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
@@ -121,12 +151,15 @@ fun ImpressumWrapper(rowModifier: Modifier = Modifier) {
                             style = MaterialTheme.typography.titleMedium,
                             fontStyle = FontStyle.Italic
                         )
-                        val closeLabel = stringResource(Res.string.close)
-                        IconButton(
-                            onClick = { displayImpressum = false },
-                            modifier = Modifier.semantics { contentDescription = closeLabel }
-                        ) {
-                            CrossIcon(size = 16.dp)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            ShortcutKeyChip(text = "Esc")
+                            val closeLabel = stringResource(Res.string.close)
+                            IconButton(
+                                onClick = { displayImpressum = false },
+                                modifier = Modifier.semantics { contentDescription = closeLabel }
+                            ) {
+                                CrossIcon(size = 16.dp)
+                            }
                         }
                     }
                     HorizontalDivider()
@@ -134,13 +167,16 @@ fun ImpressumWrapper(rowModifier: Modifier = Modifier) {
                 }
             }
         } else {
-            Text(
-                text = ImpressumConstants.IMPRESSUM_TITLE,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier
-                    .clickable { displayImpressum = true }
-                    .padding(8.dp)
-            )
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    text = ImpressumConstants.IMPRESSUM_TITLE,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                        .clickable { displayImpressum = true }
+                        .padding(8.dp)
+                )
+                ShortcutKeyChip(text = "N")
+            }
         }
     }
 }

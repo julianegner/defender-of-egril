@@ -193,6 +193,7 @@ fun MainMenuScreen(
     // Track keyboard-triggered feedback/settings/iam-logout
     var triggerFeedback by remember { mutableStateOf(false) }
     var triggerSettings by remember { mutableStateOf(false) }
+    var triggerImpressum by remember { mutableStateOf(false) }
     
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) {
@@ -258,6 +259,24 @@ fun MainMenuScreen(
                     event.key == Key.Slash && !event.isCtrlPressed && !event.isAltPressed
                             && !showExitConfirmation -> {
                         onShowBackendInfo()
+                        true
+                    }
+                    // D → Show download page (WASM only)
+                    event.key == Key.D && !event.isCtrlPressed && !event.isAltPressed
+                            && !showExitConfirmation && isPlatformWasm && WithImpressum.withImpressum -> {
+                        onShowDownloadInfo()
+                        true
+                    }
+                    // V → Show commit/version info
+                    event.key == Key.V && !event.isCtrlPressed && !event.isAltPressed
+                            && !showExitConfirmation -> {
+                        showCommitInfo = true
+                        true
+                    }
+                    // N → Show impressum (WASM only)
+                    event.key == Key.N && !event.isCtrlPressed && !event.isAltPressed
+                            && !showExitConfirmation && isPlatformWasm -> {
+                        triggerImpressum = true
                         true
                     }
                     // Esc → show exit confirmation (non-iOS)
@@ -640,6 +659,8 @@ fun MainMenuScreen(
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
                             ) {
                                 Text(stringResource(Res.string.download_button), style = MaterialTheme.typography.labelSmall)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                ShortcutKeyChip(text = "D", color = LocalContentColor.current.copy(alpha = 0.75f))
                             }
                         }
                         if (!isDataLoaded) {
@@ -830,7 +851,10 @@ fun MainMenuScreen(
                             modifier = Modifier.width(200.dp).height(60.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
                         ) {
-                            Text(stringResource(Res.string.download_button), style = MaterialTheme.typography.titleMedium)
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(stringResource(Res.string.download_button), style = MaterialTheme.typography.titleMedium)
+                                ShortcutKeyChip(text = "D", color = LocalContentColor.current.copy(alpha = 0.75f))
+                            }
                         }
                     }
                     if (!isDataLoaded) {
@@ -863,13 +887,16 @@ fun MainMenuScreen(
                         .align(Alignment.BottomStart)
                         .padding(bottom = 8.dp)
                 ) {
-                    Text(
-                        text = "v${AppBuildInfo.VERSION_NAME} (${AppBuildInfo.COMMIT_HASH})",
-                        style = MaterialTheme.typography.bodySmall,
-                        fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.clickable { showCommitInfo = true }
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(
+                            text = "v${AppBuildInfo.VERSION_NAME} (${AppBuildInfo.COMMIT_HASH})",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.clickable { showCommitInfo = true }
+                        )
+                        ShortcutKeyChip(text = "V")
+                    }
                 }
             }
             
@@ -878,7 +905,9 @@ fun MainMenuScreen(
                 ImpressumWrapper(
                     rowModifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 8.dp)
+                        .padding(bottom = 8.dp),
+                    triggerOpen = triggerImpressum,
+                    onTriggerOpenHandled = { triggerImpressum = false }
                 )
             }
             
