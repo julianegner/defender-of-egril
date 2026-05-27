@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -502,12 +503,14 @@ private fun ShortcutBindingRow(
     val isChanged = remember(key, defaultKey) {
         isShortcutBindingChanged(key, defaultKey)
     }
+    var isFocused by remember { mutableStateOf(false) }
     ShortcutRow(
         keyContent = {
             if (enableEdit) {
                 TextButton(
                     onClick = onEdit,
-                    modifier = Modifier.testTag(buttonTestTag),
+                    modifier = Modifier.testTag(buttonTestTag)
+                        .onFocusChanged { isFocused = it.isFocused },
                     contentPadding = PaddingValues(0.dp)
                 ) {
                     Text(
@@ -516,6 +519,10 @@ private fun ShortcutBindingRow(
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary
                     )
+                }
+                if (isFocused && AppSettings.showButtonShortcutHints.value) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                    de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "Enter")
                 }
             } else {
                 Text(

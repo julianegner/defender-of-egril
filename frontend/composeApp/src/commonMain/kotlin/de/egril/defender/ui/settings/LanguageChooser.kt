@@ -29,10 +29,20 @@ import dev.carlsen.flagkit.FlagKit
 @Composable
 fun LanguageChooser(
     modifier: Modifier = Modifier,
-    onLanguageChanged: ((AppLocale) -> Unit)? = null
+    onLanguageChanged: ((AppLocale) -> Unit)? = null,
+    triggerOpen: Boolean = false,
+    onTriggerOpenHandled: () -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
     var highlightedIndex by remember { mutableStateOf(-1) }
+
+    // Handle external trigger to open dropdown
+    LaunchedEffect(triggerOpen) {
+        if (triggerOpen) {
+            expanded = true
+            onTriggerOpenHandled()
+        }
+    }
 
     // Reset highlighted index when dropdown opens
     LaunchedEffect(expanded) {

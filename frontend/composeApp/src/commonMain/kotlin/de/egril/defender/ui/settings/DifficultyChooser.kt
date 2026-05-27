@@ -25,11 +25,21 @@ import defender_of_egril.composeapp.generated.resources.*
 @Composable
 fun DifficultyChooser(
     modifier: Modifier = Modifier,
-    onDifficultyChanged: (DifficultyLevel) -> Unit = {}
+    onDifficultyChanged: (DifficultyLevel) -> Unit = {},
+    triggerOpen: Boolean = false,
+    onTriggerOpenHandled: () -> Unit = {}
 ) {
     var expanded by remember { mutableStateOf(false) }
     var highlightedIndex by remember { mutableStateOf(-1) }
     val currentDifficulty = AppSettings.difficulty.value
+
+    // Handle external trigger to open dropdown
+    LaunchedEffect(triggerOpen) {
+        if (triggerOpen) {
+            expanded = true
+            onTriggerOpenHandled()
+        }
+    }
 
     // Reset highlighted index when dropdown opens
     LaunchedEffect(expanded) {

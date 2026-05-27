@@ -2,6 +2,9 @@
 
 package de.egril.defender.ui.settings
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.rememberScrollState
@@ -69,6 +72,10 @@ fun SettingsDialog(
         // State triggers for keyboard shortcuts that need composable-level state
         var triggerRestoreData by remember { mutableStateOf(false) }
         var triggerShowSoundDetails by remember { mutableStateOf(false) }
+        var triggerOpenLanguage by remember { mutableStateOf(false) }
+        var triggerOpenDifficulty by remember { mutableStateOf(false) }
+        // Track which volume slider is selected for +/- adjustment in Sound tab
+        var selectedVolumeIndex by remember { mutableStateOf(0) } // 0=master, 1=effects, 2=worldmap, 3=gameplay
         LaunchedEffect(Unit) { focusRequester.requestFocus() }
         // Reset scroll when tab changes, and re-request focus to ensure arrow keys work
         LaunchedEffect(selectedTabIndex) {
@@ -120,17 +127,36 @@ fun SettingsDialog(
                                 }
                                 val currentTab = SettingsTab.entries.getOrNull(selectedTabIndex) ?: SettingsTab.GENERAL
                                 if (number != null && !event.isCtrlPressed && !event.isAltPressed) {
-                                    handleSettingsNumberKey(currentTab, number)
+                                    // In Sound tab, numbers 7-9 select volume bars for +/- adjustment
+                                    if (currentTab == SettingsTab.SOUND && number in 7..9) {
+                                        selectedVolumeIndex = number - 6 // 7->1(effects), 8->2(worldmap), 9->3(gameplay)
+                                        true
+                                    } else {
+                                        handleSettingsNumberKey(currentTab, number)
+                                    }
                                 } else if (!event.isCtrlPressed && !event.isAltPressed) {
                                     when {
                                         event.key == Key.X -> {
                                             AppSettings.resetToDefaults(); true
+                                        }
+                                        currentTab == SettingsTab.GENERAL && event.key == Key.L -> {
+                                            triggerOpenLanguage = true; true
+                                        }
+                                        currentTab == SettingsTab.GENERAL && event.key == Key.D -> {
+                                            triggerOpenDifficulty = true; true
                                         }
                                         currentTab == SettingsTab.GENERAL && event.key == Key.R -> {
                                             triggerRestoreData = true; true
                                         }
                                         currentTab == SettingsTab.SOUND && event.key == Key.D -> {
                                             triggerShowSoundDetails = true; true
+                                        }
+                                        // +/- for Sound tab uses selectedVolumeIndex
+                                        currentTab == SettingsTab.SOUND && (event.key == Key.Plus || event.key == Key.Equals) -> {
+                                            adjustSoundVolume(selectedVolumeIndex, increase = true); true
+                                        }
+                                        currentTab == SettingsTab.SOUND && event.key == Key.Minus -> {
+                                            adjustSoundVolume(selectedVolumeIndex, increase = false); true
                                         }
                                         else -> handleSettingsLetterKey(currentTab, event.key)
                                     }
@@ -227,8 +253,6 @@ fun SettingsDialog(
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "Tab")
                     }
                 }
 
@@ -255,10 +279,10 @@ fun SettingsDialog(
                         .fillMaxWidth()
                 ) {
                     when (selectedTabType) {
-                        SettingsTab.GENERAL -> ScrollableSettingsTabContent(settingsScrollState) { GeneralTabContent(onDismissSettings = onDismiss, triggerRestore = triggerRestoreData, onRestoreHandled = { triggerRestoreData = false }) }
+                        SettingsTab.GENERAL -> ScrollableSettingsTabContent(settingsScrollState) { GeneralTabContent(onDismissSettings = onDismiss, triggerRestore = triggerRestoreData, onRestoreHandled = { triggerRestoreData = false }, triggerOpenLanguage = triggerOpenLanguage, onOpenLanguageHandled = { triggerOpenLanguage = false }, triggerOpenDifficulty = triggerOpenDifficulty, onOpenDifficultyHandled = { triggerOpenDifficulty = false }) }
                         SettingsTab.WORLD_MAP -> ScrollableSettingsTabContent(settingsScrollState) { WorldmapTabContent() }
                         SettingsTab.LEVEL -> ScrollableSettingsTabContent(settingsScrollState) { LevelTabContent() }
-                        SettingsTab.SOUND -> ScrollableSettingsTabContent(settingsScrollState) { SoundTabContent(triggerShowDetails = triggerShowSoundDetails, onShowDetailsHandled = { triggerShowSoundDetails = false }) }
+                        SettingsTab.SOUND -> ScrollableSettingsTabContent(settingsScrollState) { SoundTabContent(triggerShowDetails = triggerShowSoundDetails, onShowDetailsHandled = { triggerShowSoundDetails = false }, selectedVolumeIndex = selectedVolumeIndex, onVolumeIndexChanged = { selectedVolumeIndex = it }) }
                         SettingsTab.ACCESSIBILITY -> ScrollableSettingsTabContent(settingsScrollState) { AccessibilityTabContent() }
                         SettingsTab.SHORTCUTS -> ShortcutBindingsTabContent(settingsScrollState)
                     }
@@ -319,7 +343,7 @@ private fun NumberedSetting(number: Int, content: @Composable () -> Unit) {
  * General tab: Language, Difficulty, Dark mode, Check for updates, Debug options.
  */
 @Composable
-private fun GeneralTabContent(onDismissSettings: () -> Unit, triggerRestore: Boolean = false, onRestoreHandled: () -> Unit = {}) {
+private fun GeneralTabContent(onDismissSettings: () -> Unit, triggerRestore: Boolean = false, onRestoreHandled: () -> Unit = {}, triggerOpenLanguage: Boolean = false, onOpenLanguageHandled: () -> Unit = {}, triggerOpenDifficulty: Boolean = false, onOpenDifficultyHandled: () -> Unit = {}) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -337,18 +361,15 @@ private fun GeneralTabContent(onDismissSettings: () -> Unit, triggerRestore: Boo
                 )
                 if (AppSettings.showButtonShortcutHints.value) {
                     de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "L")
-                    Text(
-                        text = stringResource(Res.string.cycle),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                 }
             }
             LanguageChooser(
                 modifier = Modifier.fillMaxWidth(),
                 onLanguageChanged = { locale ->
                     AppSettings.saveLanguage(locale)
-                }
+                },
+                triggerOpen = triggerOpenLanguage,
+                onTriggerOpenHandled = onOpenLanguageHandled
             )
             if (AppSettings.showButtonShortcutHints.value) {
                 Text(
@@ -374,18 +395,15 @@ private fun GeneralTabContent(onDismissSettings: () -> Unit, triggerRestore: Boo
                 )
                 if (AppSettings.showButtonShortcutHints.value) {
                     de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "D")
-                    Text(
-                        text = stringResource(Res.string.cycle),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                 }
             }
             DifficultyChooser(
                 modifier = Modifier.fillMaxWidth(),
                 onDifficultyChanged = { level ->
                     AppSettings.saveDifficulty(level)
-                }
+                },
+                triggerOpen = triggerOpenDifficulty,
+                onTriggerOpenHandled = onOpenDifficultyHandled
             )
             if (AppSettings.showButtonShortcutHints.value) {
                 Text(
@@ -1044,7 +1062,7 @@ private fun CaptionsSetting() {
  * Sound tab: All sound settings.
  */
 @Composable
-private fun SoundTabContent(triggerShowDetails: Boolean = false, onShowDetailsHandled: () -> Unit = {}) {
+private fun SoundTabContent(triggerShowDetails: Boolean = false, onShowDetailsHandled: () -> Unit = {}, selectedVolumeIndex: Int = 0, onVolumeIndexChanged: (Int) -> Unit = {}) {
     var showDetailedSoundSettings by remember { mutableStateOf(false) }
 
     // Handle keyboard trigger for showing details
@@ -1086,7 +1104,14 @@ private fun SoundTabContent(triggerShowDetails: Boolean = false, onShowDetailsHa
         // Master volume slider (only shown when sound is enabled)
         if (AppSettings.isSoundEnabled.value) {
             Column(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
+                    .then(
+                        if (selectedVolumeIndex == 0) Modifier.border(
+                            androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                            RoundedCornerShape(8.dp)
+                        ).padding(4.dp) else Modifier
+                    )
+                    .clickable { onVolumeIndexChanged(0) },
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Row(
@@ -1100,6 +1125,13 @@ private fun SoundTabContent(triggerShowDetails: Boolean = false, onShowDetailsHa
                     )
                     if (AppSettings.showButtonShortcutHints.value) {
                         de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "+/-")
+                        if (selectedVolumeIndex == 0) {
+                            Text(
+                                text = "◀",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                 }
                 Row(
@@ -1168,14 +1200,36 @@ private fun SoundTabContent(triggerShowDetails: Boolean = false, onShowDetailsHa
 
                     if (AppSettings.isEffectsEnabled.value) {
                         Column(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth()
+                                .then(
+                                    if (selectedVolumeIndex == 1) Modifier.border(
+                                        BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                                        RoundedCornerShape(8.dp)
+                                    ).padding(4.dp) else Modifier
+                                )
+                                .clickable { onVolumeIndexChanged(1) },
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            Text(
-                                text = stringResource(Res.string.effects_volume),
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(Res.string.effects_volume),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                if (AppSettings.showButtonShortcutHints.value) {
+                                    de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "7")
+                                    if (selectedVolumeIndex == 1) {
+                                        Text(
+                                            text = "+/-",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                }
+                            }
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -1261,33 +1315,60 @@ private fun SoundTabContent(triggerShowDetails: Boolean = false, onShowDetailsHa
                             }
 
                             if (AppSettings.isWorldMapMusicEnabled.value) {
-                                Text(
-                                    text = stringResource(Res.string.worldmap_music_volume),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
+                                Column(
+                                    modifier = Modifier.fillMaxWidth()
+                                        .then(
+                                            if (selectedVolumeIndex == 2) Modifier.border(
+                                                BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                                                RoundedCornerShape(8.dp)
+                                            ).padding(4.dp) else Modifier
+                                        )
+                                        .clickable { onVolumeIndexChanged(2) },
+                                    verticalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
-                                    SpeakerLowIcon(size = 20.dp)
-                                    Slider(
-                                        value = AppSettings.worldMapMusicVolume.value,
-                                        onValueChange = { volume ->
-                                            AppSettings.saveWorldMapMusicVolume(volume)
-                                            val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getCurrentMusic()
-                                            if (currentMusic == de.egril.defender.audio.BackgroundMusic.WORLD_MAP) {
-                                                de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
-                                                    de.egril.defender.audio.BackgroundMusic.WORLD_MAP,
-                                                    loop = true
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        Text(
+                                            text = stringResource(Res.string.worldmap_music_volume),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        if (AppSettings.showButtonShortcutHints.value) {
+                                            de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "8")
+                                            if (selectedVolumeIndex == 2) {
+                                                Text(
+                                                    text = "+/-",
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    color = MaterialTheme.colorScheme.primary
                                                 )
                                             }
-                                        },
-                                        modifier = Modifier.weight(1f),
-                                        valueRange = 0f..1f
-                                    )
-                                    SpeakerHighIcon(size = 20.dp)
+                                        }
+                                    }
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        SpeakerLowIcon(size = 20.dp)
+                                        Slider(
+                                            value = AppSettings.worldMapMusicVolume.value,
+                                            onValueChange = { volume ->
+                                                AppSettings.saveWorldMapMusicVolume(volume)
+                                                val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getCurrentMusic()
+                                                if (currentMusic == de.egril.defender.audio.BackgroundMusic.WORLD_MAP) {
+                                                    de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
+                                                        de.egril.defender.audio.BackgroundMusic.WORLD_MAP,
+                                                        loop = true
+                                                    )
+                                                }
+                                            },
+                                            modifier = Modifier.weight(1f),
+                                            valueRange = 0f..1f
+                                        )
+                                        SpeakerHighIcon(size = 20.dp)
+                                    }
                                 }
                             }
                         }
@@ -1330,34 +1411,61 @@ private fun SoundTabContent(triggerShowDetails: Boolean = false, onShowDetailsHa
                             }
 
                             if (AppSettings.isGameplayMusicEnabled.value) {
-                                Text(
-                                    text = stringResource(Res.string.gameplay_music_volume),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
+                                Column(
+                                    modifier = Modifier.fillMaxWidth()
+                                        .then(
+                                            if (selectedVolumeIndex == 3) Modifier.border(
+                                                BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                                                RoundedCornerShape(8.dp)
+                                            ).padding(4.dp) else Modifier
+                                        )
+                                        .clickable { onVolumeIndexChanged(3) },
+                                    verticalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
-                                    SpeakerLowIcon(size = 20.dp)
-                                    Slider(
-                                        value = AppSettings.gameplayMusicVolume.value,
-                                        onValueChange = { volume ->
-                                            AppSettings.saveGameplayMusicVolume(volume)
-                                            val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getCurrentMusic()
-                                            if (currentMusic == de.egril.defender.audio.BackgroundMusic.GAMEPLAY_NORMAL ||
-                                                currentMusic == de.egril.defender.audio.BackgroundMusic.GAMEPLAY_LOW_HEALTH) {
-                                                de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
-                                                    currentMusic,
-                                                    loop = true
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        Text(
+                                            text = stringResource(Res.string.gameplay_music_volume),
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        if (AppSettings.showButtonShortcutHints.value) {
+                                            de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "9")
+                                            if (selectedVolumeIndex == 3) {
+                                                Text(
+                                                    text = "+/-",
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    color = MaterialTheme.colorScheme.primary
                                                 )
                                             }
-                                        },
-                                        modifier = Modifier.weight(1f),
-                                        valueRange = 0f..1f
-                                    )
-                                    SpeakerHighIcon(size = 20.dp)
+                                        }
+                                    }
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        SpeakerLowIcon(size = 20.dp)
+                                        Slider(
+                                            value = AppSettings.gameplayMusicVolume.value,
+                                            onValueChange = { volume ->
+                                                AppSettings.saveGameplayMusicVolume(volume)
+                                                val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getCurrentMusic()
+                                                if (currentMusic == de.egril.defender.audio.BackgroundMusic.GAMEPLAY_NORMAL ||
+                                                    currentMusic == de.egril.defender.audio.BackgroundMusic.GAMEPLAY_LOW_HEALTH) {
+                                                    de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
+                                                        currentMusic,
+                                                        loop = true
+                                                    )
+                                                }
+                                            },
+                                            modifier = Modifier.weight(1f),
+                                            valueRange = 0f..1f
+                                        )
+                                        SpeakerHighIcon(size = 20.dp)
+                                    }
                                 }
                             }
                         }
@@ -1487,43 +1595,14 @@ private fun handleSettingsNumberKey(tab: SettingsTab, number: Int): Boolean {
  */
 private fun handleSettingsLetterKey(tab: SettingsTab, key: Key): Boolean {
     return when (tab) {
-        SettingsTab.GENERAL -> when (key) {
-            Key.L -> {
-                // Cycle through languages
-                val locales = com.hyperether.resources.AppLocale.entries
-                val currentIndex = locales.indexOf(com.hyperether.resources.currentLanguage.value)
-                val nextIndex = (currentIndex + 1) % locales.size
-                AppSettings.saveLanguage(locales[nextIndex])
-                true
-            }
-            Key.D -> {
-                // Cycle through difficulty levels
-                val levels = DifficultyLevel.entries
-                val currentIndex = levels.indexOf(AppSettings.difficulty.value)
-                val nextIndex = (currentIndex + 1) % levels.size
-                AppSettings.saveDifficulty(levels[nextIndex])
-                true
-            }
-            else -> false
-        }
+        SettingsTab.GENERAL -> false // L, D, R handled inline in composable
         SettingsTab.SOUND -> when (key) {
             Key.D -> {
                 // Toggle show details - handled via composable state, signal via dummy toggle
                 // This will be handled separately in the composable
                 false
             }
-            Key.Plus, Key.Equals -> {
-                // Increase master volume
-                val newVolume = (AppSettings.soundVolume.value + 0.1f).coerceAtMost(1f)
-                AppSettings.saveSoundVolume(newVolume)
-                true
-            }
-            Key.Minus -> {
-                // Decrease master volume
-                val newVolume = (AppSettings.soundVolume.value - 0.1f).coerceAtLeast(0f)
-                AppSettings.saveSoundVolume(newVolume)
-                true
-            }
+            // +/- now handled inline with selectedVolumeIndex
             else -> false
         }
         SettingsTab.LEVEL -> when (key) {
@@ -1541,6 +1620,48 @@ private fun handleSettingsLetterKey(tab: SettingsTab, key: Key): Boolean {
             else -> false
         }
         else -> false
+    }
+}
+
+/**
+ * Adjusts a sound volume slider based on the selected volume index.
+ * 0=master, 1=effects, 2=worldmap music, 3=gameplay music.
+ */
+private fun adjustSoundVolume(selectedIndex: Int, increase: Boolean) {
+    val step = 0.1f
+    when (selectedIndex) {
+        0 -> {
+            val newVolume = if (increase) (AppSettings.soundVolume.value + step).coerceAtMost(1f)
+                           else (AppSettings.soundVolume.value - step).coerceAtLeast(0f)
+            AppSettings.saveSoundVolume(newVolume)
+        }
+        1 -> {
+            val newVolume = if (increase) (AppSettings.effectsVolume.value + step).coerceAtMost(1f)
+                           else (AppSettings.effectsVolume.value - step).coerceAtLeast(0f)
+            AppSettings.saveEffectsVolume(newVolume)
+            de.egril.defender.audio.GlobalSoundManager.getInstance()?.setVolume(newVolume)
+        }
+        2 -> {
+            val newVolume = if (increase) (AppSettings.worldMapMusicVolume.value + step).coerceAtMost(1f)
+                           else (AppSettings.worldMapMusicVolume.value - step).coerceAtLeast(0f)
+            AppSettings.saveWorldMapMusicVolume(newVolume)
+            val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getCurrentMusic()
+            if (currentMusic == de.egril.defender.audio.BackgroundMusic.WORLD_MAP) {
+                de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
+                    de.egril.defender.audio.BackgroundMusic.WORLD_MAP, loop = true
+                )
+            }
+        }
+        3 -> {
+            val newVolume = if (increase) (AppSettings.gameplayMusicVolume.value + step).coerceAtMost(1f)
+                           else (AppSettings.gameplayMusicVolume.value - step).coerceAtLeast(0f)
+            AppSettings.saveGameplayMusicVolume(newVolume)
+            val currentMusic = de.egril.defender.audio.GlobalBackgroundMusicManager.getCurrentMusic()
+            if (currentMusic == de.egril.defender.audio.BackgroundMusic.GAMEPLAY_NORMAL ||
+                currentMusic == de.egril.defender.audio.BackgroundMusic.GAMEPLAY_LOW_HEALTH) {
+                de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(currentMusic, loop = true)
+            }
+        }
     }
 }
 
