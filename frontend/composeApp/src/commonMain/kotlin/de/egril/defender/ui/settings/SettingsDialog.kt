@@ -15,10 +15,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -67,6 +69,7 @@ fun SettingsDialog(
     }
     Dialog(onDismissRequest = onDismiss) {
         val focusRequester = remember { FocusRequester() }
+        val focusManager = LocalFocusManager.current
         val scope = rememberCoroutineScope()
         val settingsScrollState = rememberScrollState()
         // State triggers for keyboard shortcuts that need composable-level state
@@ -113,13 +116,25 @@ fun SettingsDialog(
                                 true
                             }
                             Key.Tab -> {
-                                // Allow Tab to navigate between settings items within the current tab
-                                // (don't capture it - let default focus traversal work)
-                                false
+                                val currentTab = SettingsTab.entries.getOrNull(selectedTabIndex) ?: SettingsTab.GENERAL
+                                if (currentTab == SettingsTab.SHORTCUTS) {
+                                    // On Shortcuts tab, use moveFocus to cycle through keybind buttons only.
+                                    // Consuming the event prevents default traversal to tabs/X button.
+                                    if (event.isShiftPressed) {
+                                        focusManager.moveFocus(FocusDirection.Previous)
+                                    } else {
+                                        focusManager.moveFocus(FocusDirection.Next)
+                                    }
+                                    true
+                                } else {
+                                    // Allow Tab to navigate between settings items within the current tab
+                                    false
+                                }
                             }
                             else -> {
                                 // Number key shortcuts for toggling settings in current tab
-                                val number = when (event.key) {
+                                val number: Int? = when (event.key) {
+                                    Key.Zero -> 0
                                     Key.One -> 1; Key.Two -> 2; Key.Three -> 3
                                     Key.Four -> 4; Key.Five -> 5; Key.Six -> 6
                                     Key.Seven -> 7; Key.Eight -> 8; Key.Nine -> 9
@@ -127,8 +142,11 @@ fun SettingsDialog(
                                 }
                                 val currentTab = SettingsTab.entries.getOrNull(selectedTabIndex) ?: SettingsTab.GENERAL
                                 if (number != null && !event.isCtrlPressed && !event.isAltPressed) {
-                                    // In Sound tab, numbers 7-9 select volume bars for +/- adjustment
-                                    if (currentTab == SettingsTab.SOUND && number in 7..9) {
+                                    // In Sound tab, number 0 selects master volume, 7-9 select other volume bars
+                                    if (currentTab == SettingsTab.SOUND && number == 0) {
+                                        selectedVolumeIndex = 0 // master volume
+                                        true
+                                    } else if (currentTab == SettingsTab.SOUND && number in 7..9) {
                                         selectedVolumeIndex = number - 6 // 7->1(effects), 8->2(worldmap), 9->3(gameplay)
                                         true
                                     } else {
@@ -1124,8 +1142,13 @@ private fun SoundTabContent(triggerShowDetails: Boolean = false, onShowDetailsHa
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     if (AppSettings.showButtonShortcutHints.value) {
-                        de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "+/-")
+                        de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "0")
                         if (selectedVolumeIndex == 0) {
+                            Text(
+                                text = "+/-",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.primary
+                            )
                             Text(
                                 text = "◀",
                                 style = MaterialTheme.typography.labelSmall,
