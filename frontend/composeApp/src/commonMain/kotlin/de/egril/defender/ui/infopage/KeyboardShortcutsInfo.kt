@@ -56,26 +56,28 @@ class KeybindFocusManager {
     /**
      * Returns the FocusRequester for the next keybind entry in composition order.
      * Creates new ones as needed, reuses existing ones on recomposition.
+     * Returns the FocusRequester and the index assigned to this entry.
      */
-    fun register(): FocusRequester {
-        val index = _registrationIndex++
+    fun register(): Pair<FocusRequester, Int> {
+        val index = _registrationIndex
+        _registrationIndex++
         if (index < _requesters.size) {
-            return _requesters[index]
+            return _requesters[index] to index
         }
         val requester = FocusRequester()
         _requesters.add(requester)
-        return requester
+        return requester to index
     }
 
     fun focusNext() {
         if (_requesters.isEmpty()) return
-        _currentIndex = (_currentIndex + 1).coerceAtMost(_requesters.size - 1)
+        _currentIndex = (_currentIndex + 1) % _requesters.size
         try { _requesters[_currentIndex].requestFocus() } catch (_: Exception) {}
     }
 
     fun focusPrevious() {
         if (_requesters.isEmpty()) return
-        _currentIndex = (_currentIndex - 1).coerceAtLeast(0)
+        _currentIndex = if (_currentIndex <= 0) _requesters.size - 1 else _currentIndex - 1
         try { _requesters[_currentIndex].requestFocus() } catch (_: Exception) {}
     }
 
@@ -561,8 +563,9 @@ private fun ShortcutBindingRow(
     }
     var isFocused by remember { mutableStateOf(false) }
     val keybindFocusManager = LocalKeybindFocusManager.current
-    val focusRequester = remember { keybindFocusManager?.register() }
-    val keybindIndex = remember { keybindFocusManager?.let { it.size - 1 } ?: -1 }
+    val registration = remember { keybindFocusManager?.register() }
+    val focusRequester = registration?.first
+    val keybindIndex = registration?.second ?: -1
     ShortcutRow(
         keyContent = {
             if (enableEdit) {
@@ -650,8 +653,9 @@ private fun DirectionalShortcutBindingRow(
         isShortcutBindingChanged(key, defaultKey)
     }
     val keybindFocusManager = LocalKeybindFocusManager.current
-    val focusRequester = remember { keybindFocusManager?.register() }
-    val keybindIndex = remember { keybindFocusManager?.let { it.size - 1 } ?: -1 }
+    val registration = remember { keybindFocusManager?.register() }
+    val focusRequester = registration?.first
+    val keybindIndex = registration?.second ?: -1
     var isFocused by remember { mutableStateOf(false) }
     ShortcutRow(
         keyContent = {
