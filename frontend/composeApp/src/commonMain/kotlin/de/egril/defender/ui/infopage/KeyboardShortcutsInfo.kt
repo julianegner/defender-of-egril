@@ -33,6 +33,59 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 
 private val SHORTCUT_KEY_COLUMN_MIN_WIDTH = 140.dp
 
+/**
+ * Manages focus cycling through keybind entries only.
+ * Used by SettingsDialog to restrict Tab/Shift+Tab to keybinds on the Shortcuts tab.
+ */
+class KeybindFocusManager {
+    private val _requesters = mutableListOf<FocusRequester>()
+    private var _currentIndex = -1
+    private var _registrationIndex = 0
+
+    val size: Int get() = _requesters.size
+    val currentIndex: Int get() = _currentIndex
+
+    /**
+     * Called before composition starts to reset the registration counter.
+     * Existing FocusRequesters are reused.
+     */
+    fun resetRegistration() {
+        _registrationIndex = 0
+    }
+
+    /**
+     * Returns the FocusRequester for the next keybind entry in composition order.
+     * Creates new ones as needed, reuses existing ones on recomposition.
+     */
+    fun register(): FocusRequester {
+        val index = _registrationIndex++
+        if (index < _requesters.size) {
+            return _requesters[index]
+        }
+        val requester = FocusRequester()
+        _requesters.add(requester)
+        return requester
+    }
+
+    fun focusNext() {
+        if (_requesters.isEmpty()) return
+        _currentIndex = (_currentIndex + 1).coerceAtMost(_requesters.size - 1)
+        try { _requesters[_currentIndex].requestFocus() } catch (_: Exception) {}
+    }
+
+    fun focusPrevious() {
+        if (_requesters.isEmpty()) return
+        _currentIndex = (_currentIndex - 1).coerceAtLeast(0)
+        try { _requesters[_currentIndex].requestFocus() } catch (_: Exception) {}
+    }
+
+    fun updateIndex(index: Int) {
+        _currentIndex = index
+    }
+}
+
+val LocalKeybindFocusManager = staticCompositionLocalOf<KeybindFocusManager?> { null }
+
 private enum class BindingTarget {
     ATTACK_SELECTED_TARGET,
     SELECT_NEXT_TOWER,
@@ -78,6 +131,9 @@ fun KeyboardShortcutsInfo(
         }
     }
     var bindingCaptureTarget by remember { mutableStateOf<BindingTarget?>(null) }
+    
+    // Reset registration counter so keybind entries reuse existing FocusRequesters on recomposition
+    LocalKeybindFocusManager.current?.resetRegistration()
 
     SelectionContainer {
         Column(
@@ -504,13 +560,22 @@ private fun ShortcutBindingRow(
         isShortcutBindingChanged(key, defaultKey)
     }
     var isFocused by remember { mutableStateOf(false) }
+    val keybindFocusManager = LocalKeybindFocusManager.current
+    val focusRequester = remember { keybindFocusManager?.register() }
+    val keybindIndex = remember { keybindFocusManager?.let { it.size - 1 } ?: -1 }
     ShortcutRow(
         keyContent = {
             if (enableEdit) {
                 TextButton(
                     onClick = onEdit,
                     modifier = Modifier.testTag(buttonTestTag)
-                        .onFocusChanged { isFocused = it.isFocused },
+                        .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
+                        .onFocusChanged { state ->
+                            isFocused = state.isFocused
+                            if (state.isFocused && keybindFocusManager != null && keybindIndex >= 0) {
+                                keybindFocusManager.updateIndex(keybindIndex)
+                            }
+                        },
                     contentPadding = PaddingValues(0.dp)
                 ) {
                     Text(
@@ -584,6 +649,10 @@ private fun DirectionalShortcutBindingRow(
     val isChanged = remember(key, defaultKey) {
         isShortcutBindingChanged(key, defaultKey)
     }
+    val keybindFocusManager = LocalKeybindFocusManager.current
+    val focusRequester = remember { keybindFocusManager?.register() }
+    val keybindIndex = remember { keybindFocusManager?.let { it.size - 1 } ?: -1 }
+    var isFocused by remember { mutableStateOf(false) }
     ShortcutRow(
         keyContent = {
             Text(
@@ -596,7 +665,14 @@ private fun DirectionalShortcutBindingRow(
             if (enableEdit) {
                 TextButton(
                     onClick = onEdit,
-                    modifier = Modifier.testTag(buttonTestTag),
+                    modifier = Modifier.testTag(buttonTestTag)
+                        .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
+                        .onFocusChanged { state ->
+                            isFocused = state.isFocused
+                            if (state.isFocused && keybindFocusManager != null && keybindIndex >= 0) {
+                                keybindFocusManager.updateIndex(keybindIndex)
+                            }
+                        },
                     contentPadding = PaddingValues(0.dp)
                 ) {
                     Text(
@@ -605,6 +681,10 @@ private fun DirectionalShortcutBindingRow(
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary
                     )
+                }
+                if (isFocused && AppSettings.showButtonShortcutHints.value) {
+                    Spacer(modifier = Modifier.width(4.dp))
+                    de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "Enter")
                 }
             } else {
                 Text(

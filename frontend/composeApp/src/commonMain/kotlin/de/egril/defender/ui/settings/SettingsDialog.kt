@@ -15,18 +15,18 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.input.key.*
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.RepositoryManager
 import de.egril.defender.ui.infopage.KeyboardShortcutsInfo
+import de.egril.defender.ui.infopage.KeybindFocusManager
+import de.egril.defender.ui.infopage.LocalKeybindFocusManager
 import de.egril.defender.ui.a11y.ColorBlindPalette
 import de.egril.defender.ui.a11y.a11ySemantics
 import dev.vicart.compose.material.symbols.FilledSymbol
@@ -69,7 +69,6 @@ fun SettingsDialog(
     }
     Dialog(onDismissRequest = onDismiss) {
         val focusRequester = remember { FocusRequester() }
-        val focusManager = LocalFocusManager.current
         val scope = rememberCoroutineScope()
         val settingsScrollState = rememberScrollState()
         // State triggers for keyboard shortcuts that need composable-level state
@@ -79,6 +78,8 @@ fun SettingsDialog(
         var triggerOpenDifficulty by remember { mutableStateOf(false) }
         // Track which volume slider is selected for +/- adjustment in Sound tab
         var selectedVolumeIndex by remember { mutableStateOf(0) } // 0=master, 1=effects, 2=worldmap, 3=gameplay
+        // Focus manager for keybind entries on Shortcuts tab
+        val keybindFocusManager = remember { KeybindFocusManager() }
         LaunchedEffect(Unit) { focusRequester.requestFocus() }
         // Reset scroll when tab changes, and re-request focus to ensure arrow keys work
         LaunchedEffect(selectedTabIndex) {
@@ -118,12 +119,11 @@ fun SettingsDialog(
                             Key.Tab -> {
                                 val currentTab = SettingsTab.entries.getOrNull(selectedTabIndex) ?: SettingsTab.GENERAL
                                 if (currentTab == SettingsTab.SHORTCUTS) {
-                                    // On Shortcuts tab, use moveFocus to cycle through keybind buttons only.
-                                    // Consuming the event prevents default traversal to tabs/X button.
+                                    // On Shortcuts tab, cycle focus through keybind buttons only
                                     if (event.isShiftPressed) {
-                                        focusManager.moveFocus(FocusDirection.Previous)
+                                        keybindFocusManager.focusPrevious()
                                     } else {
-                                        focusManager.moveFocus(FocusDirection.Next)
+                                        keybindFocusManager.focusNext()
                                     }
                                     true
                                 } else {
@@ -302,7 +302,7 @@ fun SettingsDialog(
                         SettingsTab.LEVEL -> ScrollableSettingsTabContent(settingsScrollState) { LevelTabContent() }
                         SettingsTab.SOUND -> ScrollableSettingsTabContent(settingsScrollState) { SoundTabContent(triggerShowDetails = triggerShowSoundDetails, onShowDetailsHandled = { triggerShowSoundDetails = false }, selectedVolumeIndex = selectedVolumeIndex, onVolumeIndexChanged = { selectedVolumeIndex = it }) }
                         SettingsTab.ACCESSIBILITY -> ScrollableSettingsTabContent(settingsScrollState) { AccessibilityTabContent() }
-                        SettingsTab.SHORTCUTS -> ShortcutBindingsTabContent(settingsScrollState)
+                        SettingsTab.SHORTCUTS -> ShortcutBindingsTabContent(settingsScrollState, keybindFocusManager)
                     }
                 }
 
@@ -593,7 +593,7 @@ private fun AccessibilityInfoText(text: String) {
 }
 
 @Composable
-private fun ShortcutBindingsTabContent(settingsScrollState: ScrollState = rememberScrollState()) {
+private fun ShortcutBindingsTabContent(settingsScrollState: ScrollState = rememberScrollState(), keybindFocusManager: KeybindFocusManager? = null) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -642,11 +642,13 @@ private fun ShortcutBindingsTabContent(settingsScrollState: ScrollState = rememb
         // Keep shortcuts content in a weighted container so KeyboardShortcutsInfo's internal
         // vertical scroll receives bounded height and avoids infinite-constraints crashes.
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            KeyboardShortcutsInfo(
-                enableBindingEdit = true,
-                showResetButton = true,
-                scrollState = settingsScrollState
-            )
+            CompositionLocalProvider(LocalKeybindFocusManager provides keybindFocusManager) {
+                KeyboardShortcutsInfo(
+                    enableBindingEdit = true,
+                    showResetButton = true,
+                    scrollState = settingsScrollState
+                )
+            }
         }
     }
 }
