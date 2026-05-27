@@ -284,6 +284,10 @@ fun MainMenuScreen(
                             triggerImpressumOpen = true
                         }
                         impressumIsOpen = !impressumIsOpen
+                        // Re-request focus on main surface so shortcuts keep working after close
+                        if (!impressumIsOpen) {
+                            try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+                        }
                         true
                     }
                     // Esc → show exit confirmation (non-iOS)
@@ -917,7 +921,10 @@ fun MainMenuScreen(
                     onTriggerOpenHandled = { triggerImpressumOpen = false },
                     triggerClose = triggerImpressumClose,
                     onTriggerCloseHandled = { triggerImpressumClose = false },
-                    onDismissed = { impressumIsOpen = false }
+                    onDismissed = {
+                        impressumIsOpen = false
+                        try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+                    }
                 )
             }
             

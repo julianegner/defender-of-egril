@@ -34,26 +34,20 @@ import androidx.compose.foundation.text.selection.SelectionContainer
  * Used by InfoPageScreen to restrict Tab/Shift+Tab to links on the Download tab.
  */
 class LinkFocusManager {
-    private val _requesters = mutableListOf<FocusRequester>()
+    private var _requesters = mutableListOf<FocusRequester>()
     private var _currentIndex = -1
-    private var _registrationIndex = 0
 
     val size: Int get() = _requesters.size
     val currentIndex: Int get() = _currentIndex
 
     fun resetRegistration() {
-        _registrationIndex = 0
+        _requesters.clear()
     }
 
-    fun register(): Pair<FocusRequester, Int> {
-        val index = _registrationIndex
-        _registrationIndex++
-        if (index < _requesters.size) {
-            return _requesters[index] to index
-        }
-        val requester = FocusRequester()
+    fun register(requester: FocusRequester): Int {
+        val index = _requesters.size
         _requesters.add(requester)
-        return requester to index
+        return index
     }
 
     fun focusNext() {
@@ -343,10 +337,11 @@ private fun AssetListItem(asset: GithubReleaseAsset, linkFocusManager: LinkFocus
 private fun DownloadLink(url: String, text: String, modifier: Modifier = Modifier, chipText: String = "Enter", linkFocusManager: LinkFocusManager? = null) {
     val uriHandler = androidx.compose.ui.platform.LocalUriHandler.current
     var isFocused by remember { mutableStateOf(false) }
-    val (focusRequester, myIndex) = if (linkFocusManager != null) {
-        linkFocusManager.register()
+    val focusRequester = remember { FocusRequester() }
+    val myIndex = if (linkFocusManager != null) {
+        linkFocusManager.register(focusRequester)
     } else {
-        remember { FocusRequester() } to -1
+        -1
     }
     Row(
         verticalAlignment = Alignment.CenterVertically,

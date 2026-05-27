@@ -122,10 +122,11 @@ fun PlayStorePrereleaseInfo(linkFocusManager: LinkFocusManager? = null) {
 private fun FocusableLink(url: String, text: String, contentDesc: String, linkFocusManager: LinkFocusManager? = null) {
     val uriHandler = LocalUriHandler.current
     var isFocused by remember { mutableStateOf(false) }
-    val (focusRequester, myIndex) = if (linkFocusManager != null) {
-        linkFocusManager.register()
+    val focusRequester = remember { FocusRequester() }
+    val myIndex = if (linkFocusManager != null) {
+        linkFocusManager.register(focusRequester)
     } else {
-        remember { FocusRequester() } to -1
+        -1
     }
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
