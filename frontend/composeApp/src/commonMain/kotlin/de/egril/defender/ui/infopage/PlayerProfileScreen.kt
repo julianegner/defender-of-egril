@@ -421,7 +421,7 @@ fun PlayerProfileScreen(
                                 text = {
                                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                         if (AppSettings.showButtonShortcutHints.value) {
-                                            ShortcutKeyChip(text = "←", color = LocalContentColor.current.copy(alpha = 0.6f))
+                                            ShortcutKeyChip(text = "\u2190", color = LocalContentColor.current.copy(alpha = 0.6f))
                                         }
                                         Text(stringResource(Res.string.achievements))
                                     }
@@ -434,7 +434,7 @@ fun PlayerProfileScreen(
                                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                         Text(stringResource(Res.string.abilities))
                                         if (AppSettings.showButtonShortcutHints.value) {
-                                            ShortcutKeyChip(text = "→", color = LocalContentColor.current.copy(alpha = 0.6f))
+                                            ShortcutKeyChip(text = "\u2192", color = LocalContentColor.current.copy(alpha = 0.6f))
                                         }
                                     }
                                 }

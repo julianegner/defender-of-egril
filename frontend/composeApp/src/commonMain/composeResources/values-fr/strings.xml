@@ -1891,7 +1891,7 @@
     <string name="toggle_setting">Basculer</string>
     <string name="cycle">Changer</string>
     <string name="edit_binding_hint">Tab + Enter = modifier touche</string>
-    <string name="dropdown_keyboard_hint">↑↓ Naviguer, Enter = Sélectionner, Esc = Fermer</string>
+    <string name="dropdown_keyboard_hint">Up/Down Naviguer, Enter = Sélectionner, Esc = Fermer</string>
     <string name="shortcut_bindings_nav_hint">Utilisez Tab/Shift+Tab pour sélectionner un raccourci, puis Enter pour le modifier. R pour réinitialiser tous les raccourcis.</string>
 
 </resources>

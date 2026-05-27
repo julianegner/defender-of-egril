@@ -1890,7 +1890,7 @@
     <string name="toggle_setting">Alternar</string>
     <string name="cycle">Cambiar</string>
     <string name="edit_binding_hint">Tab + Enter = editar tecla</string>
-    <string name="dropdown_keyboard_hint">↑↓ Navegar, Enter = Seleccionar, Esc = Cerrar</string>
+    <string name="dropdown_keyboard_hint">Up/Down Navegar, Enter = Seleccionar, Esc = Cerrar</string>
     <string name="shortcut_bindings_nav_hint">Usa Tab/Shift+Tab para seleccionar un atajo, luego Enter para cambiarlo. R para restablecer todos los atajos.</string>
 
 </resources>

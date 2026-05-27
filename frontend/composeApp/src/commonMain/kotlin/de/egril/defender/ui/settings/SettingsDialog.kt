@@ -248,7 +248,7 @@ fun SettingsDialog(
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "←→")
+                        de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "\u2190\u2192")
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "Tabs",
@@ -264,7 +264,7 @@ fun SettingsDialog(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.width(12.dp))
-                        de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "↑↓")
+                        de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "\u2191\u2193")
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = stringResource(Res.string.scroll),
@@ -630,7 +630,7 @@ private fun ShortcutBindingsTabContent(settingsScrollState: ScrollState = rememb
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "↑↓")
+                de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "\u2191\u2193")
                 Text(
                     text = stringResource(Res.string.scroll),
                     style = MaterialTheme.typography.labelSmall,
@@ -1152,7 +1152,7 @@ private fun SoundTabContent(triggerShowDetails: Boolean = false, onShowDetailsHa
                                 color = MaterialTheme.colorScheme.primary
                             )
                             Text(
-                                text = "◀",
+                                text = "\u25C0",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.primary
                             )

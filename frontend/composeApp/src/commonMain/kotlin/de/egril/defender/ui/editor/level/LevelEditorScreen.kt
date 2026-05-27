@@ -117,7 +117,7 @@ fun LevelEditorScreen(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    ShortcutKeyChip(text = "←")
+                    ShortcutKeyChip(text = "\u2190")
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "/",
@@ -125,7 +125,7 @@ fun LevelEditorScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    ShortcutKeyChip(text = "→")
+                    ShortcutKeyChip(text = "\u2192")
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = stringResource(Res.string.keyboard_nav_switch_tab),
@@ -298,7 +298,7 @@ fun LevelEditorScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                                 ) {
-                                    ShortcutKeyChip(text = "↑↓")
+                                    ShortcutKeyChip(text = "\u2191\u2193")
                                     Text(
                                         text = stringResource(Res.string.scroll),
                                         style = MaterialTheme.typography.labelSmall,
