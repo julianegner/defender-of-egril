@@ -94,7 +94,7 @@ private fun ImpressumContent() {
  * Only displayed on WASM platform when withImpressum flag is true
  */
 @Composable
-fun ImpressumWrapper(rowModifier: Modifier = Modifier, triggerOpen: Boolean = false, onTriggerOpenHandled: () -> Unit = {}) {
+fun ImpressumWrapper(rowModifier: Modifier = Modifier, triggerOpen: Boolean = false, onTriggerOpenHandled: () -> Unit = {}, triggerClose: Boolean = false, onTriggerCloseHandled: () -> Unit = {}, onDismissed: () -> Unit = {}) {
     // Only show impressum if the compile flag is set
     if (!WithImpressum.withImpressum) {
         return
@@ -108,6 +108,14 @@ fun ImpressumWrapper(rowModifier: Modifier = Modifier, triggerOpen: Boolean = fa
         if (triggerOpen) {
             displayImpressum = true
             onTriggerOpenHandled()
+        }
+    }
+
+    // Handle external trigger to close
+    LaunchedEffect(triggerClose) {
+        if (triggerClose) {
+            displayImpressum = false
+            onTriggerCloseHandled()
         }
     }
 
@@ -132,6 +140,7 @@ fun ImpressumWrapper(rowModifier: Modifier = Modifier, triggerOpen: Boolean = fa
                     .onPreviewKeyEvent { event ->
                         if (event.type == KeyEventType.KeyDown && (event.key == Key.Escape || event.key == Key.Back)) {
                             displayImpressum = false
+                            onDismissed()
                             true
                         } else false
                     },
@@ -152,10 +161,10 @@ fun ImpressumWrapper(rowModifier: Modifier = Modifier, triggerOpen: Boolean = fa
                             fontStyle = FontStyle.Italic
                         )
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            ShortcutKeyChip(text = "Esc")
+                            ShortcutKeyChip(text = "N")
                             val closeLabel = stringResource(Res.string.close)
                             IconButton(
-                                onClick = { displayImpressum = false },
+                                onClick = { displayImpressum = false; onDismissed() },
                                 modifier = Modifier.semantics { contentDescription = closeLabel }
                             ) {
                                 CrossIcon(size = 16.dp)

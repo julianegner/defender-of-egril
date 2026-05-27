@@ -193,7 +193,9 @@ fun MainMenuScreen(
     // Track keyboard-triggered feedback/settings/iam-logout
     var triggerFeedback by remember { mutableStateOf(false) }
     var triggerSettings by remember { mutableStateOf(false) }
-    var triggerImpressum by remember { mutableStateOf(false) }
+    var triggerImpressumOpen by remember { mutableStateOf(false) }
+    var triggerImpressumClose by remember { mutableStateOf(false) }
+    var impressumIsOpen by remember { mutableStateOf(false) }
     
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) {
@@ -273,10 +275,15 @@ fun MainMenuScreen(
                         showCommitInfo = true
                         true
                     }
-                    // N → Show impressum (WASM only)
+                    // N → Toggle impressum (WASM only)
                     event.key == Key.N && !event.isCtrlPressed && !event.isAltPressed
                             && !showExitConfirmation && isPlatformWasm -> {
-                        triggerImpressum = true
+                        if (impressumIsOpen) {
+                            triggerImpressumClose = true
+                        } else {
+                            triggerImpressumOpen = true
+                        }
+                        impressumIsOpen = !impressumIsOpen
                         true
                     }
                     // Esc → show exit confirmation (non-iOS)
@@ -906,8 +913,11 @@ fun MainMenuScreen(
                     rowModifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(bottom = 8.dp),
-                    triggerOpen = triggerImpressum,
-                    onTriggerOpenHandled = { triggerImpressum = false }
+                    triggerOpen = triggerImpressumOpen,
+                    onTriggerOpenHandled = { triggerImpressumOpen = false },
+                    triggerClose = triggerImpressumClose,
+                    onTriggerCloseHandled = { triggerImpressumClose = false },
+                    onDismissed = { impressumIsOpen = false }
                 )
             }
             
