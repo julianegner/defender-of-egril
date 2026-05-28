@@ -307,6 +307,24 @@ fun WorldMapScreen(
                             imageMapActiveTab = 2
                             true
                         }
+                        // Arrow Right: cycle tab view when image-map tab overlay is open
+                        event.key == Key.DirectionRight && imageMapActiveTab != null -> {
+                            imageMapActiveTab = when (imageMapActiveTab) {
+                                0 -> 1
+                                1 -> 2
+                                else -> 0
+                            }
+                            true
+                        }
+                        // Arrow Left: cycle tab view backwards when image-map tab overlay is open
+                        event.key == Key.DirectionLeft && imageMapActiveTab != null -> {
+                            imageMapActiveTab = when (imageMapActiveTab) {
+                                0 -> 2
+                                1 -> 0
+                                else -> 1
+                            }
+                            true
+                        }
                         // Tab: Cycle through map locations
                         event.key == Key.Tab && !event.isShiftPressed && imageMapActiveTab == null -> {
                             val locationCount = de.egril.defender.editor.EditorStorage.getWorldMapData().locations.size
@@ -624,6 +642,29 @@ fun WorldMapScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
+                    }
+                }
+            }
+            if (AppSettings.showButtonShortcutHints.value && imageMapActiveTab != null) {
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(bottom = 180.dp, start = 16.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f),
+                    shape = MaterialTheme.shapes.small,
+                    tonalElevation = 2.dp
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        ShortcutKeyChip(text = "←/→")
+                        Text(
+                            text = stringResource(Res.string.keyboard_nav_switch_tab),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
             }
