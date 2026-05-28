@@ -828,27 +828,31 @@ fun MainMenuScreen(
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Spacer(modifier = Modifier.height(24.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        Button(onClick = onStartGame, enabled = isDataLoaded, modifier = Modifier.width(200.dp).height(60.dp)) {
-                            Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
+                    @OptIn(ExperimentalLayoutApi::class)
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Button(onClick = onStartGame, enabled = isDataLoaded, modifier = Modifier.defaultMinSize(minWidth = 200.dp, minHeight = 60.dp)) {
+                            Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium, maxLines = 1)
                             Spacer(modifier = Modifier.width(4.dp))
                             ShortcutKeyChip(text = "Enter", color = LocalContentColor.current.copy(alpha = 0.75f))
                         }
                         if (hasAutosave) {
                             Button(
                                 onClick = onContinueGame,
-                                modifier = Modifier.width(200.dp).height(60.dp),
+                                modifier = Modifier.defaultMinSize(minWidth = 200.dp, minHeight = 60.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
                             ) {
-                                Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.titleMedium)
+                                Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.titleMedium, maxLines = 1)
                                 Spacer(modifier = Modifier.width(4.dp))
                                 ShortcutKeyChip(text = "C", color = LocalContentColor.current.copy(alpha = 0.75f))
                             }
                         }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = onShowRules, modifier = Modifier.width(200.dp).height(60.dp)) {
-                        Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
+                    Button(onClick = onShowRules, modifier = Modifier.defaultMinSize(minWidth = 200.dp, minHeight = 60.dp)) {
+                        Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium, maxLines = 1)
                         Spacer(modifier = Modifier.width(4.dp))
                         ShortcutKeyChip(text = "H", color = LocalContentColor.current.copy(alpha = 0.75f))
                     }
@@ -856,10 +860,10 @@ fun MainMenuScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
                             onClick = onShowDownloadInfo,
-                            modifier = Modifier.width(200.dp).height(60.dp),
+                            modifier = Modifier.defaultMinSize(minWidth = 200.dp, minHeight = 60.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
                         ) {
-                            Text(stringResource(Res.string.download_button), style = MaterialTheme.typography.titleMedium)
+                            Text(stringResource(Res.string.download_button), style = MaterialTheme.typography.titleMedium, maxLines = 1)
                             Spacer(modifier = Modifier.width(4.dp))
                             ShortcutKeyChip(text = "D", color = LocalContentColor.current.copy(alpha = 0.75f))
                         }
