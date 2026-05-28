@@ -58,4 +58,27 @@ class MainMenuLayoutDecisionTest {
             )
         )
     }
+
+    @Test
+    fun narrowDesktopUsesCompactMainMenuLayout() {
+        assertTrue(
+            shouldUseCompactMainMenuLayout(
+                isNativeMobile = false,
+                isMobileWeb = false,
+                isNarrowWindow = true
+            )
+        )
+    }
+
+    @Test
+    fun narrowDesktopUsesStackedLayout() {
+        assertTrue(
+            shouldUseStackedMainMenuLayout(
+                isNativeMobile = false,
+                isMobileWeb = false,
+                isPortrait = false,
+                isNarrowWindow = true
+            )
+        )
+    }
 }
