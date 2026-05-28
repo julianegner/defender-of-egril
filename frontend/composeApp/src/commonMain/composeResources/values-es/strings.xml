@@ -1812,6 +1812,11 @@
     <string name="accessibility_reduce_motion_on">Reducir movimiento está activo (las animaciones están desactivadas).</string>
     <string name="accessibility_reduce_motion_off">Reducir movimiento está inactivo (las animaciones están activadas).</string>
     <string name="accessibility_reduce_motion_note">Este control refleja el mismo ajuste de animaciones de la pestaña Nivel.</string>
+    <string name="accessibility_font_size">Tamaño de fuente</string>
+    <string name="accessibility_font_size_small">Pequeño</string>
+    <string name="accessibility_font_size_medium">Mediano</string>
+    <string name="accessibility_font_size_large">Grande</string>
+    <string name="accessibility_font_size_info">Ajusta el tamaño de la mayoría del texto en el juego. No afecta al título del juego, la cabecera del nivel ni los botones de defensores.</string>
     <string name="shortcut_bindings_capture_title">Establecer atajo</string>
     <string name="shortcut_bindings_capture_message">Pulsa ahora la nueva tecla o combinación (por ejemplo Ctrl+S). Pulsa Escape para cancelar.</string>
     <string name="shortcut_bindings_reset_all">Restablecer todos los atajos</string>

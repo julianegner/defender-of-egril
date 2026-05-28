@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.DefenderType
+import de.egril.defender.ui.a11y.FontSizeUnscaled
 import de.egril.defender.ui.icon.defender.*
 import de.egril.defender.ui.icon.enemy.*
 import de.egril.defender.utils.isPlatformMobile
@@ -41,6 +42,7 @@ fun ApplicationBanner(
     modifier: Modifier = Modifier,
     scale: Float = 1f
 ) {
+    FontSizeUnscaled {
     // Get theme-aware colors
     val lineColor = MaterialTheme.colorScheme.onBackground
     val backgroundColor = MaterialTheme.colorScheme.background
@@ -185,4 +187,5 @@ fun ApplicationBanner(
         )
         }
     }
+    } // FontSizeUnscaled
 }

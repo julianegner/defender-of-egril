@@ -1811,6 +1811,11 @@
     <string name="accessibility_reduce_motion_on">Weniger Bewegung ist aktiv (Animationen sind aus).</string>
     <string name="accessibility_reduce_motion_off">Weniger Bewegung ist inaktiv (Animationen sind an).</string>
     <string name="accessibility_reduce_motion_note">Diese Steuerung spiegelt dieselbe Animationseinstellung im Level-Tab wider.</string>
+    <string name="accessibility_font_size">Schriftgröße</string>
+    <string name="accessibility_font_size_small">Klein</string>
+    <string name="accessibility_font_size_medium">Mittel</string>
+    <string name="accessibility_font_size_large">Groß</string>
+    <string name="accessibility_font_size_info">Passt die Größe der meisten Texte im Spiel an. Beeinflusst nicht den Spieltitel, die Level-Überschrift oder die Verteidiger-Buttons.</string>
     <string name="shortcut_bindings_capture_title">Tastenkürzel festlegen</string>
     <string name="shortcut_bindings_capture_message">Drücke jetzt die neue Taste oder Tastenkombination (z. B. Ctrl+S). Mit Escape abbrechen.</string>
     <string name="shortcut_bindings_reset_all">Alle Tastenkürzel zurücksetzen</string>

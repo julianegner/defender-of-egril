@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -290,6 +291,7 @@ private fun containsArrowUnicode(text: String): Boolean {
  */
 @Composable
 private fun ArrowChipContent(text: String, color: Color) {
+    val iconSize = with(LocalDensity.current) { 10.sp.toDp() }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
@@ -299,7 +301,7 @@ private fun ArrowChipContent(text: String, color: Color) {
             if (arrowIcon != null) {
                 dev.vicart.compose.material.symbols.FilledSymbol(
                     icon = arrowIcon,
-                    size = 10.dp,
+                    size = iconSize,
                     tint = color
                 )
             } else {

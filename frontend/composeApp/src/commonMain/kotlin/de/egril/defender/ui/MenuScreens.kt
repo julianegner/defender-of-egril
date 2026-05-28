@@ -109,7 +109,7 @@ private fun MainMenuButtonRow(
         Button(
             onClick = onStartGame,
             enabled = isDataLoaded,
-            modifier = Modifier.weight(1f).height(buttonHeight),
+            modifier = Modifier.weight(1f).heightIn(min = buttonHeight),
             contentPadding = contentPadding ?: ButtonDefaults.ContentPadding
         ) {
             Text(stringResource(Res.string.start_game), style = textStyle, maxLines = 1)
@@ -125,7 +125,7 @@ private fun MainMenuButtonRow(
         if (hasAutosave) {
             Button(
                 onClick = onContinueGame,
-                modifier = Modifier.weight(1f).height(buttonHeight),
+                modifier = Modifier.weight(1f).heightIn(min = buttonHeight),
                 contentPadding = contentPadding ?: ButtonDefaults.ContentPadding,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.secondary
@@ -144,7 +144,7 @@ private fun MainMenuButtonRow(
 
         Button(
             onClick = onShowRules,
-            modifier = Modifier.weight(1f).height(buttonHeight),
+            modifier = Modifier.weight(1f).heightIn(min = buttonHeight),
             contentPadding = contentPadding ?: ButtonDefaults.ContentPadding
         ) {
             Text(stringResource(Res.string.rules), style = textStyle, maxLines = 1)
@@ -353,7 +353,7 @@ fun MainMenuScreen(
                                 if (showExitGameButton) {
                                     Button(
                                         onClick = { showExitConfirmation = true },
-                                        modifier = Modifier.height(32.dp).widthIn(min = 80.dp),
+                                        modifier = Modifier.heightIn(min = 32.dp).widthIn(min = 80.dp),
                                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                                     ) {
                                         Text(
@@ -503,7 +503,7 @@ fun MainMenuScreen(
                                 if (showExitGameButton) {
                                     Button(
                                         onClick = { showExitConfirmation = true },
-                                        modifier = Modifier.height(32.dp).widthIn(min = 80.dp),
+                                        modifier = Modifier.heightIn(min = 32.dp).widthIn(min = 80.dp),
                                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                                     ) {
                                         Text(
@@ -666,7 +666,7 @@ fun MainMenuScreen(
                             Spacer(modifier = Modifier.height(16.dp))
                             Button(
                                 onClick = onShowDownloadInfo,
-                                modifier = Modifier.width(200.dp).height(34.dp),
+                                modifier = Modifier.width(200.dp).heightIn(min = 34.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
                             ) {
                                 Text(stringResource(Res.string.download_button), style = MaterialTheme.typography.labelSmall)
@@ -737,11 +737,15 @@ fun MainMenuScreen(
                     )
                 }
 
-                // Exit button in top-left corner
+                // Exit button and player name stacked in top-left corner
+                Column(
+                    modifier = Modifier.align(Alignment.TopStart).padding(8.dp),
+                    verticalArrangement = Arrangement.Top
+                ) {
                 if (showExitGameButton) {
                     Button(
                         onClick = { showExitConfirmation = true },
-                        modifier = Modifier.align(Alignment.TopStart).padding(8.dp).height(32.dp).widthIn(min = 80.dp),
+                        modifier = Modifier.heightIn(min = 32.dp).widthIn(min = 80.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                     ) {
                         Text(text = stringResource(Res.string.exit_game), style = MaterialTheme.typography.bodySmall, fontSize = 12.sp)
@@ -755,7 +759,7 @@ fun MainMenuScreen(
                 // Player name and IAM login button below exit button
                 if (currentPlayerName != null) {
                     Row(
-                        modifier = Modifier.align(Alignment.TopStart).padding(start = 8.dp, top = 48.dp, end = 8.dp),
+                        modifier = Modifier.padding(top = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
@@ -774,7 +778,7 @@ fun MainMenuScreen(
                         }
                         if (iamState.isAuthenticated) {
                             TooltipWrapper(text = stringResource(Res.string.tooltip_log_out_from_remote)) {
-                                OutlinedButton(onClick = onIamLogout, modifier = Modifier.height(36.dp)) {
+                                OutlinedButton(onClick = onIamLogout, modifier = Modifier.defaultMinSize(minHeight = 36.dp)) {
                                     LockIcon(size = 14.dp)
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(text = stringResource(Res.string.iam_logout), style = MaterialTheme.typography.bodySmall)
@@ -785,13 +789,13 @@ fun MainMenuScreen(
                                 }
                             }
                         } else if (iamLoginInProgress) {
-                            OutlinedButton(onClick = onIamLoginCancel, modifier = Modifier.height(36.dp)) {
+                            OutlinedButton(onClick = onIamLoginCancel, modifier = Modifier.defaultMinSize(minHeight = 36.dp)) {
                                 CircularProgressIndicator(modifier = Modifier.size(14.dp), strokeWidth = 2.dp)
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(text = stringResource(Res.string.iam_login_waiting), style = MaterialTheme.typography.bodySmall)
                             }
                         } else {
-                            OutlinedButton(onClick = onIamLogin, modifier = Modifier.height(36.dp)) {
+                            OutlinedButton(onClick = onIamLogin, modifier = Modifier.defaultMinSize(minHeight = 36.dp)) {
                                 UnlockIcon(size = 14.dp)
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(text = stringResource(Res.string.iam_login), style = MaterialTheme.typography.bodySmall)
@@ -812,6 +816,7 @@ fun MainMenuScreen(
                         }
                     }
                 }
+                } // end top-left Column
 
                 // Desktop centered column with banner + subtitle + buttons
                 Column(
@@ -828,44 +833,44 @@ fun MainMenuScreen(
                         color = MaterialTheme.colorScheme.onBackground
                     )
                     Spacer(modifier = Modifier.height(24.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                        Button(onClick = onStartGame, enabled = isDataLoaded, modifier = Modifier.width(200.dp).height(60.dp)) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
-                                    ShortcutKeyChip(text = "Enter", color = LocalContentColor.current.copy(alpha = 0.75f))
-                            }
+                    @OptIn(ExperimentalLayoutApi::class)
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Button(onClick = onStartGame, enabled = isDataLoaded, modifier = Modifier.defaultMinSize(minWidth = 200.dp, minHeight = 60.dp)) {
+                            Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium, maxLines = 1)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            ShortcutKeyChip(text = "Enter", color = LocalContentColor.current.copy(alpha = 0.75f))
                         }
                         if (hasAutosave) {
                             Button(
                                 onClick = onContinueGame,
-                                modifier = Modifier.width(200.dp).height(60.dp),
+                                modifier = Modifier.defaultMinSize(minWidth = 200.dp, minHeight = 60.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
                             ) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.titleMedium)
-                                        ShortcutKeyChip(text = "C", color = LocalContentColor.current.copy(alpha = 0.75f))
-                                }
+                                Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.titleMedium, maxLines = 1)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                ShortcutKeyChip(text = "C", color = LocalContentColor.current.copy(alpha = 0.75f))
                             }
                         }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = onShowRules, modifier = Modifier.width(200.dp).height(60.dp)) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
-                                ShortcutKeyChip(text = "H", color = LocalContentColor.current.copy(alpha = 0.75f))
-                        }
+                    Button(onClick = onShowRules, modifier = Modifier.defaultMinSize(minWidth = 200.dp, minHeight = 60.dp)) {
+                        Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium, maxLines = 1)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        ShortcutKeyChip(text = "H", color = LocalContentColor.current.copy(alpha = 0.75f))
                     }
                     if (isPlatformWasm && WithImpressum.withImpressum) {
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
                             onClick = onShowDownloadInfo,
-                            modifier = Modifier.width(200.dp).height(60.dp),
+                            modifier = Modifier.defaultMinSize(minWidth = 200.dp, minHeight = 60.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
                         ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(stringResource(Res.string.download_button), style = MaterialTheme.typography.titleMedium)
-                                ShortcutKeyChip(text = "D", color = LocalContentColor.current.copy(alpha = 0.75f))
-                            }
+                            Text(stringResource(Res.string.download_button), style = MaterialTheme.typography.titleMedium, maxLines = 1)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            ShortcutKeyChip(text = "D", color = LocalContentColor.current.copy(alpha = 0.75f))
                         }
                     }
                     if (!isDataLoaded) {
