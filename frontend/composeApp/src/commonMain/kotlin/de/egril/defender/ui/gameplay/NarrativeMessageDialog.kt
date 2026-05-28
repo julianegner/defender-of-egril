@@ -193,7 +193,7 @@ fun NarrativeMessageDialog(
                             Text(
                                 text = stringResource(Res.string.keyboard_nav_scroll),
                                 style = MaterialTheme.typography.labelSmall,
-                                color = Color(0xFF333333)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }

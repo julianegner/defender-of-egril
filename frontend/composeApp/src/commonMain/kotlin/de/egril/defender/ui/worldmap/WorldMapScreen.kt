@@ -46,6 +46,7 @@ import de.egril.defender.ui.settings.formatShortcutBindingForDisplay
 private val BUTTON_WIDTH_MOBILE_IMAGE_MAP = 133.dp  // ~33% smaller than default for compact mobile layout
 private val BUTTON_WIDTH_MOBILE_WEB_IMAGE_MAP = 140.dp  // 70% of default for mobile web browsers
 private val BUTTON_WIDTH_DEFAULT = 200.dp  // Standard button width for desktop and mobile level cards view
+private const val IMAGE_MAP_TAB_COUNT = 3
 
 /**
  * Displays the local player name with an optional Keycloak username below it.
@@ -309,20 +310,14 @@ fun WorldMapScreen(
                         }
                         // Arrow Right: cycle tab view when image-map tab overlay is open
                         event.key == Key.DirectionRight && imageMapActiveTab != null -> {
-                            imageMapActiveTab = when (imageMapActiveTab) {
-                                0 -> 1
-                                1 -> 2
-                                else -> 0
-                            }
+                            val currentTab = imageMapActiveTab ?: 0
+                            imageMapActiveTab = (currentTab + 1) % IMAGE_MAP_TAB_COUNT
                             true
                         }
                         // Arrow Left: cycle tab view backwards when image-map tab overlay is open
                         event.key == Key.DirectionLeft && imageMapActiveTab != null -> {
-                            imageMapActiveTab = when (imageMapActiveTab) {
-                                0 -> 2
-                                1 -> 0
-                                else -> 1
-                            }
+                            val currentTab = imageMapActiveTab ?: 0
+                            imageMapActiveTab = (currentTab - 1 + IMAGE_MAP_TAB_COUNT) % IMAGE_MAP_TAB_COUNT
                             true
                         }
                         // Tab: Cycle through map locations
