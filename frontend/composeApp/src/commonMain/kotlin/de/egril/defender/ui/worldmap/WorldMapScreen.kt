@@ -314,10 +314,16 @@ fun WorldMapScreen(
                             imageMapActiveTab = (currentTab + 1) % IMAGE_MAP_TAB_COUNT
                             true
                         }
-                        // Arrow Left: cycle tab view backwards when image-map tab overlay is open
+                        // Arrow Left: cycle tab view backwards when image-map tab overlay is open;
+                        // going "left" of the first real tab (Community/User) returns to the world map
                         event.key == Key.DirectionLeft -> {
                             val currentTab = imageMapActiveTab ?: return@onPreviewKeyEvent false
-                            imageMapActiveTab = (currentTab - 1 + IMAGE_MAP_TAB_COUNT) % IMAGE_MAP_TAB_COUNT
+                            val prevTab = currentTab - 1
+                            if (prevTab <= 0) {
+                                imageMapActiveTab = null
+                            } else {
+                                imageMapActiveTab = prevTab
+                            }
                             true
                         }
                         // Tab: Cycle through map locations

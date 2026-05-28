@@ -1113,6 +1113,7 @@ private fun GamePlayScreenContent(
                 }
                 // 1-8: Select defender type by index (only when NOT in tower-selected mode)
                 event.type == KeyEventType.KeyDown &&
+                        event.key in setOf(Key.One, Key.Two, Key.Three, Key.Four, Key.Five, Key.Six, Key.Seven, Key.Eight) &&
                         !event.isCtrlPressed && !event.isAltPressed &&
                         selectedDefenderId == null &&
                         (gameState.phase.value == GamePhase.INITIAL_BUILDING || gameState.phase.value == GamePhase.PLAYER_TURN) &&

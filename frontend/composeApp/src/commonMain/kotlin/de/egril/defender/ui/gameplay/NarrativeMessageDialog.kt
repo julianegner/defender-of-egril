@@ -155,6 +155,21 @@ fun NarrativeMessageDialog(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    // Scroll hint at the top so it is visible before any scrolling
+                    if (AppSettings.showButtonShortcutHints.value) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            ShortcutKeyChip(text = "Up/Down")
+                            Text(
+                                text = stringResource(Res.string.keyboard_nav_scroll),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
                     // For Ewhad type: show Ewhad icon at top center
                     if (type == NarrativeMessageType.EWHAD) {
                         Box(
@@ -185,20 +200,6 @@ fun NarrativeMessageDialog(
                         textAlign = TextAlign.Center,
                         fontSize = bodyFontSize
                     )
-
-                    if (AppSettings.showButtonShortcutHints.value) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            ShortcutKeyChip(text = "Up/Down")
-                            Text(
-                                text = stringResource(Res.string.keyboard_nav_scroll),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
 
                     Spacer(modifier = Modifier.height(4.dp))
 
