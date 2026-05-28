@@ -551,6 +551,8 @@ private fun AccessibilityTabContent() {
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
+        FontSizeSetting()
+
         HeaderTextSizeSetting()
 
         ColorBlindPaletteChooser(
@@ -973,6 +975,57 @@ private fun LevelTabContent() {
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun FontSizeSetting() {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        SelectableText(
+            text = stringResource(Res.string.accessibility_font_size),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SelectableText(
+                text = stringResource(Res.string.accessibility_font_size_small),
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.width(48.dp)
+            )
+            Slider(
+                value = AppSettings.fontSize.value.ordinal.toFloat(),
+                onValueChange = { value ->
+                    val size = when (value.toInt()) {
+                        0 -> FontSize.SMALL
+                        1 -> FontSize.MEDIUM
+                        else -> FontSize.LARGE
+                    }
+                    AppSettings.saveFontSize(size)
+                },
+                modifier = Modifier.weight(1f),
+                valueRange = 0f..2f,
+                steps = 1
+            )
+            SelectableText(
+                text = stringResource(Res.string.accessibility_font_size_large),
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.width(48.dp)
+            )
+        }
+        SelectableText(
+            text = stringResource(Res.string.accessibility_font_size_medium),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
+        AccessibilityInfoText(stringResource(Res.string.accessibility_font_size_info))
     }
 }
 
