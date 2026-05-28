@@ -737,11 +737,15 @@ fun MainMenuScreen(
                     )
                 }
 
-                // Exit button in top-left corner
+                // Exit button and player name stacked in top-left corner
+                Column(
+                    modifier = Modifier.align(Alignment.TopStart).padding(8.dp),
+                    verticalArrangement = Arrangement.Top
+                ) {
                 if (showExitGameButton) {
                     Button(
                         onClick = { showExitConfirmation = true },
-                        modifier = Modifier.align(Alignment.TopStart).padding(8.dp).heightIn(min = 32.dp).widthIn(min = 80.dp),
+                        modifier = Modifier.heightIn(min = 32.dp).widthIn(min = 80.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                     ) {
                         Text(text = stringResource(Res.string.exit_game), style = MaterialTheme.typography.bodySmall, fontSize = 12.sp)
@@ -755,7 +759,7 @@ fun MainMenuScreen(
                 // Player name and IAM login button below exit button
                 if (currentPlayerName != null) {
                     Row(
-                        modifier = Modifier.align(Alignment.TopStart).padding(start = 8.dp, top = 48.dp, end = 8.dp),
+                        modifier = Modifier.padding(top = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
@@ -812,6 +816,7 @@ fun MainMenuScreen(
                         }
                     }
                 }
+                } // end top-left Column
 
                 // Desktop centered column with banner + subtitle + buttons
                 Column(
