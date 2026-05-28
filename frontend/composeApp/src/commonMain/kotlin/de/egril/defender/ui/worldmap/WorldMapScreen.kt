@@ -659,7 +659,7 @@ fun WorldMapScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        ShortcutKeyChip(text = "←/→")
+                        ShortcutKeyChip(text = "Left/Right")
                         Text(
                             text = stringResource(Res.string.keyboard_nav_switch_tab),
                             style = MaterialTheme.typography.labelSmall,

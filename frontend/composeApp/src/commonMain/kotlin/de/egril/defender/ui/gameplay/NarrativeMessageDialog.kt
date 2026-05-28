@@ -189,7 +189,7 @@ fun NarrativeMessageDialog(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
-                            ShortcutKeyChip(text = "↑↓")
+                            ShortcutKeyChip(text = "Up/Down")
                             Text(
                                 text = stringResource(Res.string.keyboard_nav_scroll),
                                 style = MaterialTheme.typography.labelSmall,
