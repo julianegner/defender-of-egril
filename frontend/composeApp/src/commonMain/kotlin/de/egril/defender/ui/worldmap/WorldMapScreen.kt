@@ -319,7 +319,7 @@ fun WorldMapScreen(
                         event.key == Key.DirectionLeft -> {
                             val currentTab = imageMapActiveTab ?: return@onPreviewKeyEvent false
                             val prevTab = currentTab - 1
-                            if (prevTab <= 0) {
+                            if (prevTab == 0) {
                                 imageMapActiveTab = null
                             } else {
                                 imageMapActiveTab = prevTab
