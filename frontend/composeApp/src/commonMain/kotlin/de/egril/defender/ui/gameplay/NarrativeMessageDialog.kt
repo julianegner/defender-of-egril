@@ -41,6 +41,8 @@ enum class NarrativeMessageType {
     EWHAD   // Ewhad message with dark gargoyle frame background
 }
 
+private const val KEYBOARD_SCROLL_STEP = 150
+
 /**
  * A popup dialog for narrative messages (story events and Ewhad events).
  *
@@ -101,13 +103,13 @@ fun NarrativeMessageDialog(
                     when (event.key) {
                         Key.DirectionDown -> {
                             coroutineScope.launch {
-                                scrollState.animateScrollTo((scrollState.value + 150).coerceAtMost(scrollState.maxValue))
+                                scrollState.animateScrollTo((scrollState.value + KEYBOARD_SCROLL_STEP).coerceAtMost(scrollState.maxValue))
                             }
                             true
                         }
                         Key.DirectionUp -> {
                             coroutineScope.launch {
-                                scrollState.animateScrollTo((scrollState.value - 150).coerceAtLeast(0))
+                                scrollState.animateScrollTo((scrollState.value - KEYBOARD_SCROLL_STEP).coerceAtLeast(0))
                             }
                             true
                         }

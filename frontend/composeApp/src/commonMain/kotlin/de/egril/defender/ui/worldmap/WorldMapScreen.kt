@@ -309,14 +309,14 @@ fun WorldMapScreen(
                             true
                         }
                         // Arrow Right: cycle tab view when image-map tab overlay is open
-                        event.key == Key.DirectionRight && imageMapActiveTab != null -> {
-                            val currentTab = imageMapActiveTab!!
+                        event.key == Key.DirectionRight -> {
+                            val currentTab = imageMapActiveTab ?: return@onPreviewKeyEvent false
                             imageMapActiveTab = (currentTab + 1) % IMAGE_MAP_TAB_COUNT
                             true
                         }
                         // Arrow Left: cycle tab view backwards when image-map tab overlay is open
-                        event.key == Key.DirectionLeft && imageMapActiveTab != null -> {
-                            val currentTab = imageMapActiveTab!!
+                        event.key == Key.DirectionLeft -> {
+                            val currentTab = imageMapActiveTab ?: return@onPreviewKeyEvent false
                             imageMapActiveTab = (currentTab - 1 + IMAGE_MAP_TAB_COUNT) % IMAGE_MAP_TAB_COUNT
                             true
                         }
