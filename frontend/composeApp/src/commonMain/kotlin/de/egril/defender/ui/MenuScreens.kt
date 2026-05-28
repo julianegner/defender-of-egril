@@ -109,7 +109,7 @@ private fun MainMenuButtonRow(
         Button(
             onClick = onStartGame,
             enabled = isDataLoaded,
-            modifier = Modifier.weight(1f).height(buttonHeight),
+            modifier = Modifier.weight(1f).heightIn(min = buttonHeight),
             contentPadding = contentPadding ?: ButtonDefaults.ContentPadding
         ) {
             Text(stringResource(Res.string.start_game), style = textStyle, maxLines = 1)
@@ -125,7 +125,7 @@ private fun MainMenuButtonRow(
         if (hasAutosave) {
             Button(
                 onClick = onContinueGame,
-                modifier = Modifier.weight(1f).height(buttonHeight),
+                modifier = Modifier.weight(1f).heightIn(min = buttonHeight),
                 contentPadding = contentPadding ?: ButtonDefaults.ContentPadding,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.secondary
@@ -144,7 +144,7 @@ private fun MainMenuButtonRow(
 
         Button(
             onClick = onShowRules,
-            modifier = Modifier.weight(1f).height(buttonHeight),
+            modifier = Modifier.weight(1f).heightIn(min = buttonHeight),
             contentPadding = contentPadding ?: ButtonDefaults.ContentPadding
         ) {
             Text(stringResource(Res.string.rules), style = textStyle, maxLines = 1)
@@ -353,7 +353,7 @@ fun MainMenuScreen(
                                 if (showExitGameButton) {
                                     Button(
                                         onClick = { showExitConfirmation = true },
-                                        modifier = Modifier.height(32.dp).widthIn(min = 80.dp),
+                                        modifier = Modifier.heightIn(min = 32.dp).widthIn(min = 80.dp),
                                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                                     ) {
                                         Text(
@@ -503,7 +503,7 @@ fun MainMenuScreen(
                                 if (showExitGameButton) {
                                     Button(
                                         onClick = { showExitConfirmation = true },
-                                        modifier = Modifier.height(32.dp).widthIn(min = 80.dp),
+                                        modifier = Modifier.heightIn(min = 32.dp).widthIn(min = 80.dp),
                                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                                     ) {
                                         Text(
@@ -666,7 +666,7 @@ fun MainMenuScreen(
                             Spacer(modifier = Modifier.height(16.dp))
                             Button(
                                 onClick = onShowDownloadInfo,
-                                modifier = Modifier.width(200.dp).height(34.dp),
+                                modifier = Modifier.width(200.dp).heightIn(min = 34.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
                             ) {
                                 Text(stringResource(Res.string.download_button), style = MaterialTheme.typography.labelSmall)
@@ -741,7 +741,7 @@ fun MainMenuScreen(
                 if (showExitGameButton) {
                     Button(
                         onClick = { showExitConfirmation = true },
-                        modifier = Modifier.align(Alignment.TopStart).padding(8.dp).height(32.dp).widthIn(min = 80.dp),
+                        modifier = Modifier.align(Alignment.TopStart).padding(8.dp).heightIn(min = 32.dp).widthIn(min = 80.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                     ) {
                         Text(text = stringResource(Res.string.exit_game), style = MaterialTheme.typography.bodySmall, fontSize = 12.sp)
