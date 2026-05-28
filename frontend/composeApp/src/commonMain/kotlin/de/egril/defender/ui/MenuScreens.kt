@@ -774,7 +774,7 @@ fun MainMenuScreen(
                         }
                         if (iamState.isAuthenticated) {
                             TooltipWrapper(text = stringResource(Res.string.tooltip_log_out_from_remote)) {
-                                OutlinedButton(onClick = onIamLogout, modifier = Modifier.height(36.dp)) {
+                                OutlinedButton(onClick = onIamLogout, modifier = Modifier.defaultMinSize(minHeight = 36.dp)) {
                                     LockIcon(size = 14.dp)
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(text = stringResource(Res.string.iam_logout), style = MaterialTheme.typography.bodySmall)
@@ -785,13 +785,13 @@ fun MainMenuScreen(
                                 }
                             }
                         } else if (iamLoginInProgress) {
-                            OutlinedButton(onClick = onIamLoginCancel, modifier = Modifier.height(36.dp)) {
+                            OutlinedButton(onClick = onIamLoginCancel, modifier = Modifier.defaultMinSize(minHeight = 36.dp)) {
                                 CircularProgressIndicator(modifier = Modifier.size(14.dp), strokeWidth = 2.dp)
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(text = stringResource(Res.string.iam_login_waiting), style = MaterialTheme.typography.bodySmall)
                             }
                         } else {
-                            OutlinedButton(onClick = onIamLogin, modifier = Modifier.height(36.dp)) {
+                            OutlinedButton(onClick = onIamLogin, modifier = Modifier.defaultMinSize(minHeight = 36.dp)) {
                                 UnlockIcon(size = 14.dp)
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(text = stringResource(Res.string.iam_login), style = MaterialTheme.typography.bodySmall)

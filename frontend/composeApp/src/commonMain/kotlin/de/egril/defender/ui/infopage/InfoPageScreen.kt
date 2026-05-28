@@ -141,7 +141,7 @@ fun InfoPageScreen(
                                 false
                             }
                         }
-                        Key.S -> {
+                        Key.Comma -> {
                             if (!event.isCtrlPressed && !event.isAltPressed) {
                                 triggerOpenSettings = true
                                 true
@@ -188,7 +188,7 @@ fun InfoPageScreen(
 
                 // Settings button in top-right corner
                 SettingsButton(
-                    shortcutKey = "S",
+                    shortcutKey = ",",
                     triggerOpen = triggerOpenSettings,
                     onTriggerHandled = { triggerOpenSettings = false }
                 )
@@ -278,7 +278,7 @@ fun InfoPageScreen(
                                 )
                             }
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                ShortcutKeyChip(text = "S")
+                                ShortcutKeyChip(text = ",")
                                 Text(
                                     stringResource(Res.string.settings),
                                     style = MaterialTheme.typography.labelSmall,
