@@ -542,7 +542,7 @@ private fun ShortcutRow(key: String, description: String) {
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.width(100.dp)
+                modifier = Modifier.widthIn(min = 100.dp)
             )
         },
         description = description

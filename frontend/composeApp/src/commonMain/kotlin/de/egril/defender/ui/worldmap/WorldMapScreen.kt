@@ -46,6 +46,7 @@ import de.egril.defender.ui.settings.formatShortcutBindingForDisplay
 private val BUTTON_WIDTH_MOBILE_IMAGE_MAP = 133.dp  // ~33% smaller than default for compact mobile layout
 private val BUTTON_WIDTH_MOBILE_WEB_IMAGE_MAP = 140.dp  // 70% of default for mobile web browsers
 private val BUTTON_WIDTH_DEFAULT = 200.dp  // Standard button width for desktop and mobile level cards view
+private const val IMAGE_MAP_TAB_COUNT = 3
 
 /**
  * Displays the local player name with an optional Keycloak username below it.
@@ -94,7 +95,7 @@ private fun PlayerNameWithIam(
 
         TextButton(
             onClick = onSwitchPlayer,
-            modifier = Modifier.height(36.dp)
+            modifier = Modifier.defaultMinSize(minHeight = 36.dp)
         ) {
             Text(
                 text = stringResource(Res.string.switch_player),
@@ -305,6 +306,24 @@ fun WorldMapScreen(
                         event.key == Key.J && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed
                                 && canShowUserLevelsTab -> {
                             imageMapActiveTab = 2
+                            true
+                        }
+                        // Arrow Right: cycle tab view when image-map tab overlay is open
+                        event.key == Key.DirectionRight -> {
+                            val currentTab = imageMapActiveTab ?: return@onPreviewKeyEvent false
+                            imageMapActiveTab = (currentTab + 1) % IMAGE_MAP_TAB_COUNT
+                            true
+                        }
+                        // Arrow Left: cycle tab view backwards when image-map tab overlay is open;
+                        // going "left" of the first real tab (Community/User) returns to the world map
+                        event.key == Key.DirectionLeft -> {
+                            val currentTab = imageMapActiveTab ?: return@onPreviewKeyEvent false
+                            val prevTab = currentTab - 1
+                            if (prevTab == 0) {
+                                imageMapActiveTab = null
+                            } else {
+                                imageMapActiveTab = prevTab
+                            }
                             true
                         }
                         // Tab: Cycle through map locations
@@ -624,6 +643,29 @@ fun WorldMapScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
+                    }
+                }
+            }
+            if (AppSettings.showButtonShortcutHints.value && imageMapActiveTab != null) {
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(bottom = 180.dp, start = 16.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f),
+                    shape = MaterialTheme.shapes.small,
+                    tonalElevation = 2.dp
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        ShortcutKeyChip(text = "Left/Right")
+                        Text(
+                            text = stringResource(Res.string.keyboard_nav_switch_tab),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
             }

@@ -1813,6 +1813,11 @@
     <string name="accessibility_reduce_motion_on">Réduire les mouvements est actif (les animations sont désactivées).</string>
     <string name="accessibility_reduce_motion_off">Réduire les mouvements est inactif (les animations sont activées).</string>
     <string name="accessibility_reduce_motion_note">Ce contrôle reflète le même réglage d’animations dans l’onglet Niveau.</string>
+    <string name="accessibility_font_size">Taille de la police</string>
+    <string name="accessibility_font_size_small">Petit</string>
+    <string name="accessibility_font_size_medium">Moyen</string>
+    <string name="accessibility_font_size_large">Grand</string>
+    <string name="accessibility_font_size_info">Ajuste la taille de la plupart des textes du jeu. N'affecte pas le titre du jeu, l'en-tête de niveau ni les boutons de défenseurs.</string>
     <string name="shortcut_bindings_capture_title">Définir le raccourci</string>
     <string name="shortcut_bindings_capture_message">Appuie maintenant sur la nouvelle touche ou combinaison (par ex. Ctrl+S). Appuie sur Échap pour annuler.</string>
     <string name="shortcut_bindings_reset_all">Réinitialiser tous les raccourcis</string>

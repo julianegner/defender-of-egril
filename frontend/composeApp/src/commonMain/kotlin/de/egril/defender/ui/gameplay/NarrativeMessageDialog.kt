@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -30,6 +31,7 @@ import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.painterResource
 import androidx.compose.foundation.text.selection.SelectionContainer
+import kotlinx.coroutines.launch
 
 /**
  * The type of narrative message popup.
@@ -38,6 +40,8 @@ enum class NarrativeMessageType {
     STORY,  // Story message with wooden frame background
     EWHAD   // Ewhad message with dark gargoyle frame background
 }
+
+private const val KEYBOARD_SCROLL_STEP = 150
 
 /**
  * A popup dialog for narrative messages (story events and Ewhad events).
@@ -72,6 +76,8 @@ fun NarrativeMessageDialog(
         }
         val bodyFontSize = if (isMobile) 12.sp else MaterialTheme.typography.bodyMedium.fontSize
         val iconSize = if (isMobile) 56.dp else 80.dp
+        val scrollState = rememberScrollState()
+        val coroutineScope = rememberCoroutineScope()
 
         val backgroundPainter = when (type) {
             NarrativeMessageType.STORY -> painterResource(Res.drawable.story_message_background)
@@ -93,13 +99,25 @@ fun NarrativeMessageDialog(
                 .focusRequester(focusRequester)
                 .focusTarget()
                 .onPreviewKeyEvent { event ->
-                    if (event.type == KeyEventType.KeyDown &&
-                        (event.key == Key.Enter || event.key == Key.Escape || event.key == Key.Back)
-                    ) {
-                        onDismiss()
-                        true
-                    } else {
-                        false
+                    if (event.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                    when (event.key) {
+                        Key.DirectionDown -> {
+                            coroutineScope.launch {
+                                scrollState.animateScrollTo((scrollState.value + KEYBOARD_SCROLL_STEP).coerceAtMost(scrollState.maxValue))
+                            }
+                            true
+                        }
+                        Key.DirectionUp -> {
+                            coroutineScope.launch {
+                                scrollState.animateScrollTo((scrollState.value - KEYBOARD_SCROLL_STEP).coerceAtLeast(0))
+                            }
+                            true
+                        }
+                        Key.Enter, Key.Escape, Key.Back -> {
+                            onDismiss()
+                            true
+                        }
+                        else -> false
                     }
                 },
             contentAlignment = Alignment.Center
@@ -133,10 +151,25 @@ fun NarrativeMessageDialog(
                             vertical = verticalPadding
                         )
                         .fillMaxWidth()
-                        .verticalScroll(rememberScrollState()),
+                        .verticalScroll(scrollState),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
+                    // Scroll hint at the top so it is visible before any scrolling
+                    if (AppSettings.showButtonShortcutHints.value) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            ShortcutKeyChip(text = "Up/Down")
+                            Text(
+                                text = stringResource(Res.string.keyboard_nav_scroll),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+
                     // For Ewhad type: show Ewhad icon at top center
                     if (type == NarrativeMessageType.EWHAD) {
                         Box(

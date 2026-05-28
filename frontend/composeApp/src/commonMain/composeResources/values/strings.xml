@@ -1818,6 +1818,11 @@
     <string name="accessibility_reduce_motion_on">Reduce motion is active (animations are off).</string>
     <string name="accessibility_reduce_motion_off">Reduce motion is inactive (animations are on).</string>
     <string name="accessibility_reduce_motion_note">This control mirrors the same Animations setting in the Level tab.</string>
+    <string name="accessibility_font_size">Font Size</string>
+    <string name="accessibility_font_size_small">Small</string>
+    <string name="accessibility_font_size_medium">Medium</string>
+    <string name="accessibility_font_size_large">Large</string>
+    <string name="accessibility_font_size_info">Adjusts the size of most text in the game. Does not affect the game title, level header, or defender buttons.</string>
     <string name="shortcut_bindings_capture_title">Set Shortcut Binding</string>
     <string name="shortcut_bindings_capture_message">Press the new key or key combination now (for example Ctrl+S). Press Escape to cancel.</string>
     <string name="shortcut_bindings_reset_all">Reset all shortcut bindings</string>

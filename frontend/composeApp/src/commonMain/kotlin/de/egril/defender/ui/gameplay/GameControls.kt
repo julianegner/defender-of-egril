@@ -125,6 +125,7 @@ fun GameControlsPanel(
     onShowDragonInfo: () -> Unit = {},  // Add dragon info callback
     highlightEndTurnButton: Boolean = false  // Visually highlight the End Turn button (keyboard focus)
 ) {
+    de.egril.defender.ui.a11y.FontSizeUnscaled {
     // Automatically fold buy panel when a defender, attacker, or barricade is selected
     val compactBuyPanel = selectedDefenderId != null || selectedAttackerId != null || selectedBarricadePosition != null
 
@@ -381,6 +382,7 @@ fun GameControlsPanel(
         } // end inner Column
         } // end BoxWithConstraints
     }
+    } // FontSizeUnscaled
 }
 
 @Composable

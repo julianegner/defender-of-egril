@@ -235,7 +235,7 @@ fun PlayerProfileScreen(
                         // Expand button
                         TextButton(
                             onClick = { headerCollapsed = false },
-                            modifier = Modifier.height(28.dp)
+                            modifier = Modifier.defaultMinSize(minHeight = 28.dp)
                         ) {
                             Text(
                                 text = stringResource(Res.string.expand),
@@ -249,7 +249,7 @@ fun PlayerProfileScreen(
                         // Switch player button
                         OutlinedButton(
                             onClick = onSelectPlayer,
-                            modifier = Modifier.height(28.dp)
+                            modifier = Modifier.defaultMinSize(minHeight = 28.dp)
                         ) {
                             Text(
                                 text = stringResource(Res.string.switch_player),
@@ -295,7 +295,7 @@ fun PlayerProfileScreen(
                         // Collapse button
                         TextButton(
                             onClick = { headerCollapsed = true },
-                            modifier = Modifier.height(headerButtonHeight)
+                            modifier = Modifier.defaultMinSize(minHeight = headerButtonHeight)
                         ) {
                             Text(
                                 text = stringResource(Res.string.collapse),
@@ -309,7 +309,7 @@ fun PlayerProfileScreen(
                         // Switch player button
                         OutlinedButton(
                             onClick = onSelectPlayer,
-                            modifier = Modifier.height(headerButtonHeight)
+                            modifier = Modifier.defaultMinSize(minHeight = headerButtonHeight)
                         ) {
                             Text(
                                 text = stringResource(Res.string.switch_player),
@@ -591,7 +591,7 @@ private fun PlayerInfoCard(
                 
                 OutlinedButton(
                     onClick = onEditName,
-                    modifier = Modifier.height(36.dp)
+                    modifier = Modifier.defaultMinSize(minHeight = 36.dp)
                 ) {
                     Text(
                         text = stringResource(Res.string.edit),
@@ -1084,7 +1084,7 @@ private fun UserAccountCard(
                             ) {
                                 OutlinedButton(
                                     onClick = onManageAccount,
-                                    modifier = Modifier.height(36.dp)
+                                    modifier = Modifier.defaultMinSize(minHeight = 36.dp)
                                 ) {
                                     ToolsIcon(size = 14.dp)
                                     Spacer(modifier = Modifier.width(4.dp))
@@ -1099,7 +1099,7 @@ private fun UserAccountCard(
                                 }
                                 OutlinedButton(
                                     onClick = onIamLogout,
-                                    modifier = Modifier.height(36.dp)
+                                    modifier = Modifier.defaultMinSize(minHeight = 36.dp)
                                 ) {
                                     LockIcon(size = 14.dp)
                                     Spacer(modifier = Modifier.width(4.dp))
@@ -1156,7 +1156,7 @@ private fun UserAccountCard(
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 OutlinedButton(
                                     onClick = onManageAccount,
-                                    modifier = Modifier.height(36.dp)
+                                    modifier = Modifier.defaultMinSize(minHeight = 36.dp)
                                 ) {
                                     ToolsIcon(size = 14.dp)
                                     Spacer(modifier = Modifier.width(4.dp))
@@ -1171,7 +1171,7 @@ private fun UserAccountCard(
                                 }
                                 OutlinedButton(
                                     onClick = onIamLogout,
-                                    modifier = Modifier.height(36.dp)
+                                    modifier = Modifier.defaultMinSize(minHeight = 36.dp)
                                 ) {
                                     LockIcon(size = 14.dp)
                                     Spacer(modifier = Modifier.width(4.dp))

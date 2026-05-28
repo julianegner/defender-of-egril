@@ -69,6 +69,7 @@ fun GameHeader(
     externalShowSettings: Boolean = false,
     onExternalShowSettingsHandled: () -> Unit = {}
 ) {
+    de.egril.defender.ui.a11y.FontSizeUnscaled {
     val headerTextSize = de.egril.defender.ui.settings.AppSettings.headerTextSize.value
     var showDebugMenu by remember { mutableStateOf(false) }
     val showDebugOptions = AppSettings.showDebugOptions.value
@@ -548,6 +549,7 @@ fun GameHeader(
             }
         }
     }
+    } // FontSizeUnscaled
 }
 
 @Composable

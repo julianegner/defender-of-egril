@@ -1814,6 +1814,11 @@
     <string name="accessibility_reduce_motion_on">Riduzione movimento attiva (animazioni disattivate).</string>
     <string name="accessibility_reduce_motion_off">Riduzione movimento non attiva (animazioni attive).</string>
     <string name="accessibility_reduce_motion_note">Questo controllo rispecchia la stessa impostazione Animazioni nella scheda Livello.</string>
+    <string name="accessibility_font_size">Dimensione del carattere</string>
+    <string name="accessibility_font_size_small">Piccolo</string>
+    <string name="accessibility_font_size_medium">Medio</string>
+    <string name="accessibility_font_size_large">Grande</string>
+    <string name="accessibility_font_size_info">Regola la dimensione della maggior parte del testo nel gioco. Non influisce sul titolo del gioco, sull'intestazione del livello o sui pulsanti dei difensori.</string>
     <string name="shortcut_bindings_capture_title">Imposta scorciatoia</string>
     <string name="shortcut_bindings_capture_message">Premi ora il nuovo tasto o combinazione (ad esempio Ctrl+S). Premi Esc per annullare.</string>
     <string name="shortcut_bindings_reset_all">Reimposta tutte le scorciatoie</string>

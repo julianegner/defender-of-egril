@@ -40,6 +40,22 @@ enum class HeaderTextSize {
 }
 
 /**
+ * Accessibility font size options.
+ * Controls the scale of most text in the app (except game title, level header, and defender buttons).
+ */
+enum class FontSize(val scale: Float) {
+    SMALL(0.85f),
+    MEDIUM(1.0f),
+    LARGE(1.15f),
+    EXTRA_LARGE(1.30f),
+    HUGE(1.45f);
+
+    companion object {
+        val DEFAULT = MEDIUM
+    }
+}
+
+/**
  * Manages application settings using multiplatform-settings library
  * Persists dark mode preference, language selection, sound settings, control pad visibility, difficulty level, and world map style
  */
@@ -75,6 +91,7 @@ object AppSettings {
     private const val KEY_COLOR_BLIND_PALETTE = "color_blind_palette"
     private const val KEY_CAPTIONS_ENABLED = "captions_enabled"
     private const val KEY_HOLD_TO_CONFIRM = "hold_to_confirm"
+    private const val KEY_FONT_SIZE = "font_size"
     private const val KEY_SHOW_BUTTON_SHORTCUT_HINTS = "show_button_shortcut_hints"
     private const val KEY_SHORTCUT_ATTACK_SELECTED_TARGET = "shortcut_attack_selected_target"
     private const val KEY_SHORTCUT_SELECT_NEXT_TOWER = "shortcut_select_next_tower"
@@ -330,6 +347,17 @@ object AppSettings {
      */
     val holdToConfirmEnabled: MutableState<Boolean> = mutableStateOf(
         settings.getBoolean(KEY_HOLD_TO_CONFIRM, false)
+    )
+
+    /**
+     * Accessibility: font size scale.
+     */
+    val fontSize: MutableState<FontSize> = mutableStateOf(
+        try {
+            FontSize.valueOf(settings[KEY_FONT_SIZE, FontSize.DEFAULT.name])
+        } catch (_: Exception) {
+            FontSize.DEFAULT
+        }
     )
 
     /**
@@ -839,6 +867,12 @@ object AppSettings {
         onPersist?.invoke()
     }
 
+    fun saveFontSize(size: FontSize) {
+        fontSize.value = size
+        settings[KEY_FONT_SIZE] = size.name
+        onPersist?.invoke()
+    }
+
     fun saveShowButtonShortcutHints(enabled: Boolean) {
         showButtonShortcutHints.value = enabled
         settings.putBoolean(KEY_SHOW_BUTTON_SHORTCUT_HINTS, enabled)
@@ -1089,6 +1123,7 @@ object AppSettings {
         put(KEY_COLOR_BLIND_PALETTE, colorBlindPalette.value.name)
         put(KEY_CAPTIONS_ENABLED, captionsEnabled.value.toString())
         put(KEY_HOLD_TO_CONFIRM, holdToConfirmEnabled.value.toString())
+        put(KEY_FONT_SIZE, fontSize.value.name)
         put(KEY_SHOW_BUTTON_SHORTCUT_HINTS, showButtonShortcutHints.value.toString())
         put(KEY_SHORTCUT_ATTACK_SELECTED_TARGET, shortcutAttackSelectedTarget.value)
         put(KEY_SHORTCUT_SELECT_NEXT_TOWER, shortcutSelectNextTower.value)
@@ -1159,6 +1194,9 @@ object AppSettings {
             }
             map[KEY_CAPTIONS_ENABLED]?.toBooleanStrictOrNull()?.let { saveCaptionsEnabled(it) }
             map[KEY_HOLD_TO_CONFIRM]?.toBooleanStrictOrNull()?.let { saveHoldToConfirmEnabled(it) }
+            map[KEY_FONT_SIZE]?.let { name ->
+                try { saveFontSize(FontSize.valueOf(name)) } catch (_: Exception) {}
+            }
             map[KEY_SHOW_BUTTON_SHORTCUT_HINTS]?.toBooleanStrictOrNull()?.let { saveShowButtonShortcutHints(it) }
             map[KEY_SHORTCUT_ATTACK_SELECTED_TARGET]?.let { saveShortcutAttackSelectedTarget(it) }
             map[KEY_SHORTCUT_SELECT_NEXT_TOWER]?.let { saveShortcutSelectNextTower(it) }
@@ -1241,6 +1279,7 @@ object AppSettings {
         saveColorBlindPalette(ColorBlindPalette.OFF)
         saveCaptionsEnabled(false)
         saveHoldToConfirmEnabled(false)
+        saveFontSize(FontSize.DEFAULT)
         saveShowButtonShortcutHints(false)
         resetShortcutBindings()
         

@@ -263,11 +263,12 @@ fun UnsavedChangesDialog(
                     }
                 }
             } else {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
                         onClick = onCancel,
+                        modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.secondary
                         )
@@ -279,6 +280,7 @@ fun UnsavedChangesDialog(
                     }
                     Button(
                         onClick = onDiscardChanges,
+                        modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.error
                         )
@@ -288,7 +290,10 @@ fun UnsavedChangesDialog(
                                 ShortcutKeyChip(text = "D")
                         }
                     }
-                    Button(onClick = onSaveAndExit) {
+                    Button(
+                        onClick = onSaveAndExit,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(stringResource(Res.string.save_and_exit))
                                 ShortcutKeyChip(text = "Enter")

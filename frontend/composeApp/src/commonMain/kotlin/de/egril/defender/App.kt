@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import de.egril.defender.ui.*
 import de.egril.defender.ui.animations.AnimationTestScreen
 import de.egril.defender.ui.editor.level.LevelEditorScreen
@@ -43,6 +45,16 @@ fun App() {
     val colorScheme = AppTheme.applyColorBlindPalette(baseColorScheme, colorBlindPalette)
     
     MaterialTheme(colorScheme = colorScheme) {
+        // Apply accessibility font size scaling via LocalDensity
+        val fontSizeScale by AppSettings.fontSize
+        val currentDensity = LocalDensity.current
+        val scaledDensity = remember(currentDensity, fontSizeScale) {
+            Density(
+                density = currentDensity.density,
+                fontScale = currentDensity.fontScale * fontSizeScale.scale
+            )
+        }
+        CompositionLocalProvider(LocalDensity provides scaledDensity) {
         // Track repository data error
         var repositoryDataError by remember { mutableStateOf<de.egril.defender.editor.MissingRepositoryDataException?>(null) }
         
@@ -65,12 +77,12 @@ fun App() {
                     // User needs to reinstall or restore data
                 }
             )
-            return@MaterialTheme
+            return@CompositionLocalProvider
         }
         
         // Null check for viewModel (should not happen if no exception was thrown)
         if (viewModel == null) {
-            return@MaterialTheme
+            return@CompositionLocalProvider
         }
         
         val currentScreen by viewModel.currentScreen.collectAsState()
@@ -623,5 +635,6 @@ fun App() {
                 )
             }
         }
+        } // CompositionLocalProvider
     }
 }

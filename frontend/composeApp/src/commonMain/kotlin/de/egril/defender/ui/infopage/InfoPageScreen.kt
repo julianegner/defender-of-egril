@@ -88,6 +88,7 @@ fun InfoPageScreen(
     
     val focusRequester = remember { FocusRequester() }
     val linkFocusManager = remember { LinkFocusManager() }
+    var triggerOpenSettings by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { focusRequester.requestFocus() }
     
     Surface(
@@ -140,6 +141,14 @@ fun InfoPageScreen(
                                 false
                             }
                         }
+                        Key.Comma -> {
+                            if (!event.isCtrlPressed && !event.isAltPressed) {
+                                triggerOpenSettings = true
+                                true
+                            } else {
+                                false
+                            }
+                        }
                         else -> false
                     }
                 } else {
@@ -178,7 +187,11 @@ fun InfoPageScreen(
                 }
 
                 // Settings button in top-right corner
-                SettingsButton()
+                SettingsButton(
+                    shortcutKey = ",",
+                    triggerOpen = triggerOpenSettings,
+                    onTriggerHandled = { triggerOpenSettings = false }
+                )
             }
             
             Column(
@@ -260,6 +273,14 @@ fun InfoPageScreen(
                                 ShortcutKeyChip(text = "\u2190\u2192")
                                 Text(
                                     stringResource(Res.string.keyboard_nav_switch_tab),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                ShortcutKeyChip(text = ",")
+                                Text(
+                                    stringResource(Res.string.settings),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
