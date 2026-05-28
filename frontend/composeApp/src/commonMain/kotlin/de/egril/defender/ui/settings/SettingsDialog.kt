@@ -1051,7 +1051,7 @@ private fun FontSizeSetting(isSelected: Boolean = false, onSelect: () -> Unit = 
                     sliderValue = value
                 },
                 onValueChangeFinished = {
-                    val size = FontSize.entries.getOrElse(sliderValue.toInt()) { FontSize.MEDIUM }
+                    val size = FontSize.entries[sliderValue.toInt().coerceIn(0, FontSize.entries.lastIndex)]
                     AppSettings.saveFontSize(size)
                 },
                 modifier = Modifier.weight(1f),
