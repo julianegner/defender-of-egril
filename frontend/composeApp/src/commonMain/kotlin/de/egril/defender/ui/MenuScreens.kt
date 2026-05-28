@@ -830,10 +830,9 @@ fun MainMenuScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                         Button(onClick = onStartGame, enabled = isDataLoaded, modifier = Modifier.width(200.dp).height(60.dp)) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
-                                    ShortcutKeyChip(text = "Enter", color = LocalContentColor.current.copy(alpha = 0.75f))
-                            }
+                            Text(stringResource(Res.string.start_game), style = MaterialTheme.typography.titleMedium)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            ShortcutKeyChip(text = "Enter", color = LocalContentColor.current.copy(alpha = 0.75f))
                         }
                         if (hasAutosave) {
                             Button(
@@ -841,19 +840,17 @@ fun MainMenuScreen(
                                 modifier = Modifier.width(200.dp).height(60.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
                             ) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.titleMedium)
-                                        ShortcutKeyChip(text = "C", color = LocalContentColor.current.copy(alpha = 0.75f))
-                                }
+                                Text(stringResource(Res.string.continue_game), style = MaterialTheme.typography.titleMedium)
+                                Spacer(modifier = Modifier.width(4.dp))
+                                ShortcutKeyChip(text = "C", color = LocalContentColor.current.copy(alpha = 0.75f))
                             }
                         }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(onClick = onShowRules, modifier = Modifier.width(200.dp).height(60.dp)) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
-                                ShortcutKeyChip(text = "H", color = LocalContentColor.current.copy(alpha = 0.75f))
-                        }
+                        Text(stringResource(Res.string.rules), style = MaterialTheme.typography.titleMedium)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        ShortcutKeyChip(text = "H", color = LocalContentColor.current.copy(alpha = 0.75f))
                     }
                     if (isPlatformWasm && WithImpressum.withImpressum) {
                         Spacer(modifier = Modifier.height(16.dp))
@@ -862,10 +859,9 @@ fun MainMenuScreen(
                             modifier = Modifier.width(200.dp).height(60.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
                         ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(stringResource(Res.string.download_button), style = MaterialTheme.typography.titleMedium)
-                                ShortcutKeyChip(text = "D", color = LocalContentColor.current.copy(alpha = 0.75f))
-                            }
+                            Text(stringResource(Res.string.download_button), style = MaterialTheme.typography.titleMedium)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            ShortcutKeyChip(text = "D", color = LocalContentColor.current.copy(alpha = 0.75f))
                         }
                     }
                     if (!isDataLoaded) {

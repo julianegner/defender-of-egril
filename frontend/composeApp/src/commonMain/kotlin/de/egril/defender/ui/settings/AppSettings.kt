@@ -46,7 +46,9 @@ enum class HeaderTextSize {
 enum class FontSize(val scale: Float) {
     SMALL(0.85f),
     MEDIUM(1.0f),
-    LARGE(1.15f);
+    LARGE(1.15f),
+    EXTRA_LARGE(1.30f),
+    HUGE(1.45f);
 
     companion object {
         val DEFAULT = MEDIUM

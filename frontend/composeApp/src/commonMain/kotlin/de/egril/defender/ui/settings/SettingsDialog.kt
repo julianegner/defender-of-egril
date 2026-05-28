@@ -78,6 +78,8 @@ fun SettingsDialog(
         var triggerOpenDifficulty by remember { mutableStateOf(false) }
         // Track which volume slider is selected for +/- adjustment in Sound tab
         var selectedVolumeIndex by remember { mutableStateOf(0) } // 0=master, 1=effects, 2=worldmap, 3=gameplay
+        // Track which slider is selected for +/- adjustment in Accessibility tab
+        var selectedA11ySliderIndex by remember { mutableStateOf(0) } // 0=font size, 1=header text size
         // Focus manager for keybind entries on Shortcuts tab
         val keybindFocusManager = remember { KeybindFocusManager() }
         LaunchedEffect(Unit) { focusRequester.requestFocus() }
@@ -175,6 +177,19 @@ fun SettingsDialog(
                                         }
                                         currentTab == SettingsTab.SOUND && event.key == Key.Minus -> {
                                             adjustSoundVolume(selectedVolumeIndex, increase = false); true
+                                        }
+                                        // F/T select slider, +/- adjust selected slider in Accessibility tab
+                                        currentTab == SettingsTab.ACCESSIBILITY && event.key == Key.F -> {
+                                            selectedA11ySliderIndex = 0; true
+                                        }
+                                        currentTab == SettingsTab.ACCESSIBILITY && event.key == Key.T -> {
+                                            selectedA11ySliderIndex = 1; true
+                                        }
+                                        currentTab == SettingsTab.ACCESSIBILITY && (event.key == Key.Plus || event.key == Key.Equals) -> {
+                                            adjustA11ySlider(selectedA11ySliderIndex, increase = true); true
+                                        }
+                                        currentTab == SettingsTab.ACCESSIBILITY && event.key == Key.Minus -> {
+                                            adjustA11ySlider(selectedA11ySliderIndex, increase = false); true
                                         }
                                         else -> handleSettingsLetterKey(currentTab, event.key)
                                     }
@@ -299,7 +314,7 @@ fun SettingsDialog(
                         SettingsTab.WORLD_MAP -> ScrollableSettingsTabContent(settingsScrollState) { WorldmapTabContent() }
                         SettingsTab.LEVEL -> ScrollableSettingsTabContent(settingsScrollState) { LevelTabContent() }
                         SettingsTab.SOUND -> ScrollableSettingsTabContent(settingsScrollState) { SoundTabContent(triggerShowDetails = triggerShowSoundDetails, onShowDetailsHandled = { triggerShowSoundDetails = false }, selectedVolumeIndex = selectedVolumeIndex, onVolumeIndexChanged = { selectedVolumeIndex = it }) }
-                        SettingsTab.ACCESSIBILITY -> ScrollableSettingsTabContent(settingsScrollState) { AccessibilityTabContent() }
+                        SettingsTab.ACCESSIBILITY -> ScrollableSettingsTabContent(settingsScrollState) { AccessibilityTabContent(selectedSliderIndex = selectedA11ySliderIndex, onSliderIndexChanged = { selectedA11ySliderIndex = it }) }
                         SettingsTab.SHORTCUTS -> ShortcutBindingsTabContent(settingsScrollState, keybindFocusManager)
                     }
                 }
@@ -485,7 +500,7 @@ private fun GeneralTabContent(onDismissSettings: () -> Unit, triggerRestore: Boo
 }
 
 @Composable
-private fun AccessibilityTabContent() {
+private fun AccessibilityTabContent(selectedSliderIndex: Int = 0, onSliderIndexChanged: (Int) -> Unit = {}) {
     val accessibilityPreferences = AppSettings.getAccessibilityPreferences()
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         SelectableText(
@@ -551,9 +566,15 @@ private fun AccessibilityTabContent() {
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        FontSizeSetting()
+        FontSizeSetting(
+            isSelected = selectedSliderIndex == 0,
+            onSelect = { onSliderIndexChanged(0) }
+        )
 
-        HeaderTextSizeSetting()
+        HeaderTextSizeSetting(
+            isSelected = selectedSliderIndex == 1,
+            onSelect = { onSliderIndexChanged(1) }
+        )
 
         ColorBlindPaletteChooser(
             selected = AppSettings.colorBlindPalette.value,
@@ -979,16 +1000,38 @@ private fun LevelTabContent() {
 }
 
 @Composable
-private fun FontSizeSetting() {
+private fun FontSizeSetting(isSelected: Boolean = false, onSelect: () -> Unit = {}) {
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth()
+            .then(
+                if (isSelected) Modifier.border(
+                    BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                    RoundedCornerShape(8.dp)
+                ).padding(4.dp) else Modifier
+            )
+            .clickable { onSelect() },
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        SelectableText(
-            text = stringResource(Res.string.accessibility_font_size),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            SelectableText(
+                text = stringResource(Res.string.accessibility_font_size),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            if (AppSettings.showButtonShortcutHints.value) {
+                de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "F")
+                if (isSelected) {
+                    Text(
+                        text = "+/-",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -999,19 +1042,21 @@ private fun FontSizeSetting() {
                 style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.width(48.dp)
             )
+            var sliderValue by remember(AppSettings.fontSize.value) {
+                mutableStateOf(AppSettings.fontSize.value.ordinal.toFloat())
+            }
             Slider(
-                value = AppSettings.fontSize.value.ordinal.toFloat(),
+                value = sliderValue,
                 onValueChange = { value ->
-                    val size = when (value.toInt()) {
-                        0 -> FontSize.SMALL
-                        1 -> FontSize.MEDIUM
-                        else -> FontSize.LARGE
-                    }
+                    sliderValue = value
+                },
+                onValueChangeFinished = {
+                    val size = FontSize.entries.getOrElse(sliderValue.toInt()) { FontSize.MEDIUM }
                     AppSettings.saveFontSize(size)
                 },
                 modifier = Modifier.weight(1f),
-                valueRange = 0f..2f,
-                steps = 1
+                valueRange = 0f..(FontSize.entries.size - 1).toFloat(),
+                steps = FontSize.entries.size - 2
             )
             SelectableText(
                 text = stringResource(Res.string.accessibility_font_size_large),
@@ -1019,20 +1064,21 @@ private fun FontSizeSetting() {
                 modifier = Modifier.width(48.dp)
             )
         }
-        SelectableText(
-            text = stringResource(Res.string.accessibility_font_size_medium),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
         AccessibilityInfoText(stringResource(Res.string.accessibility_font_size_info))
     }
 }
 
 @Composable
-private fun HeaderTextSizeSetting() {
+private fun HeaderTextSizeSetting(isSelected: Boolean = false, onSelect: () -> Unit = {}) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth()
+            .then(
+                if (isSelected) Modifier.border(
+                    BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                    RoundedCornerShape(8.dp)
+                ).padding(4.dp) else Modifier
+            )
+            .clickable { onSelect() },
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -1041,7 +1087,16 @@ private fun HeaderTextSizeSetting() {
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
-            de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "+/-")
+        if (AppSettings.showButtonShortcutHints.value) {
+            de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "T")
+            if (isSelected) {
+                Text(
+                    text = "+/-",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(0.dp)
@@ -1662,11 +1717,7 @@ private fun handleSettingsLetterKey(tab: SettingsTab, key: Key): Boolean {
             Key.Minus -> { adjustHeaderTextSize(increase = false); true }
             else -> false
         }
-        SettingsTab.ACCESSIBILITY -> when (key) {
-            Key.Plus, Key.Equals -> { adjustHeaderTextSize(increase = true); true }
-            Key.Minus -> { adjustHeaderTextSize(increase = false); true }
-            else -> false
-        }
+        SettingsTab.ACCESSIBILITY -> false
         SettingsTab.SHORTCUTS -> when (key) {
             Key.R -> { AppSettings.resetShortcutBindings(); true }
             else -> false
@@ -1736,4 +1787,19 @@ private fun adjustHeaderTextSize(increase: Boolean) {
         }
     }
     AppSettings.saveHeaderTextSize(next)
+}
+
+private fun adjustFontSize(increase: Boolean) {
+    val entries = FontSize.entries
+    val currentIndex = entries.indexOf(AppSettings.fontSize.value)
+    val nextIndex = if (increase) (currentIndex + 1).coerceAtMost(entries.lastIndex)
+                    else (currentIndex - 1).coerceAtLeast(0)
+    AppSettings.saveFontSize(entries[nextIndex])
+}
+
+private fun adjustA11ySlider(selectedIndex: Int, increase: Boolean) {
+    when (selectedIndex) {
+        0 -> adjustFontSize(increase)
+        1 -> adjustHeaderTextSize(increase)
+    }
 }
