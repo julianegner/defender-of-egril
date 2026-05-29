@@ -572,6 +572,7 @@ Add to `LevelData.createLevels()` with:
 - Pan and Zoom: All platforms support panning (drag) and zooming (mouse wheel/pinch, 0.5x to 3x)
 - Minimap: Automatically appears when zoomed in to show current viewport position
 - Localization: Supports English (default), German, Spanish, French, and Italian. Language can be switched via Settings button on all screens. Uses `compose-multiplatform-localize` plugin for string resource management.
+- Web SEO: When changing web content and `frontend/composeApp/src/wasmJsMain/resources/sitemap.xml`, update `<lastmod>` to the current change date if it differs.
 
 ## Resources
 
