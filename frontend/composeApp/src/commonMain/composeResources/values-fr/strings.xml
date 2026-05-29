@@ -69,6 +69,10 @@
     <string name="settings_hint_title">Paramètres Disponibles</string>
     <string name="settings_hint_message">Cliquez sur l'icône des paramètres pour personnaliser votre expérience. Les paramètres disponibles incluent :</string>
     <string name="settings_hint_dismiss">Compris !</string>
+    <string name="accessibility_banner_title">Paramètres d'accessibilité disponibles</string>
+    <string name="accessibility_banner_message">Ce jeu inclut des paramètres d'accessibilité pour divers besoins : visuel (contraste élevé, modes daltonisme, taille de police), auditif (sous-titres) et moteur (maintenir pour confirmer, réduire les animations). Ouvrez Paramètres > Accessibilité pour explorer toutes les options.</string>
+    <string name="accessibility_banner_open_settings">Ouvrir les paramètres d'accessibilité</string>
+    <string name="accessibility_banner_dismiss">Compris !</string>
     
     <!-- Common Actions -->
     <string name="back">Retour</string>

@@ -24,6 +24,8 @@ class SettingsHintBoxTest {
     fun setup() {
         // Reset settings hint shown state before each test
         AppSettings.settingsHintShown.value = false
+        // Suppress accessibility banner so it doesn't interfere with settings hint box tests
+        AppSettings.accessibilityBannerShown.value = true
     }
     
     @Test

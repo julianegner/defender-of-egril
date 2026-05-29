@@ -69,6 +69,10 @@
     <string name="settings_hint_title">Einstellungen verfügbar</string>
     <string name="settings_hint_message">Klicken Sie auf das Einstellungssymbol, um Ihre Erfahrung anzupassen. Verfügbare Einstellungen umfassen:</string>
     <string name="settings_hint_dismiss">Verstanden!</string>
+    <string name="accessibility_banner_title">Barrierefreiheits-Einstellungen verfügbar</string>
+    <string name="accessibility_banner_message">Dieses Spiel enthält Barrierefreiheitseinstellungen für verschiedene Bedürfnisse, z. B. visuell (hoher Kontrast, Farbenblind-Modi, Schriftgröße), auditiv (Untertitel) und motorisch (Halten zum Bestätigen, Bewegung reduzieren). Öffnen Sie Einstellungen > Barrierefreiheit, um alle Optionen zu erkunden.</string>
+    <string name="accessibility_banner_open_settings">Barrierefreiheits-Einstellungen öffnen</string>
+    <string name="accessibility_banner_dismiss">Verstanden!</string>
     
     <!-- Common Actions -->
     <string name="back">Zurück</string>
