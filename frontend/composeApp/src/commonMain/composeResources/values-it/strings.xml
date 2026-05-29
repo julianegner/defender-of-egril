@@ -70,7 +70,7 @@
     <string name="settings_hint_message">Clicca sull'icona delle impostazioni per personalizzare la tua esperienza. Le impostazioni disponibili includono:</string>
     <string name="settings_hint_dismiss">Capito!</string>
     <string name="accessibility_banner_title">Impostazioni di accessibilità disponibili</string>
-    <string name="accessibility_banner_message">Questo gioco include impostazioni di accessibilità per varie esigenze: visiva (alto contrasto, modalità daltonismo, dimensione del testo), uditiva (sottotitoli) e motoria (tieni premuto per confermare, riduci animazioni). Apri Impostazioni > Accessibilità per esplorare tutte le opzioni.</string>
+    <string name="accessibility_banner_message">Questo gioco offre opzioni di accessibilità per esigenze visive (alto contrasto, daltonismo, dimensione del testo), uditive (sottotitoli) e motorie (tieni premuto per confermare, riduci animazioni). Apri la scheda Accessibilità nelle Impostazioni.</string>
     <string name="accessibility_banner_open_settings">Apri impostazioni di accessibilità</string>
     <string name="accessibility_banner_dismiss">Capito!</string>
     

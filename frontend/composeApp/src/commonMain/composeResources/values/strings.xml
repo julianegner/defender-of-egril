@@ -70,7 +70,7 @@
     <string name="settings_hint_message">Click the settings icon to customize your experience. Available settings include:</string>
     <string name="settings_hint_dismiss">Got it!</string>
     <string name="accessibility_banner_title">Accessibility Settings Available</string>
-    <string name="accessibility_banner_message">This game includes accessibility settings to support a variety of needs, including visual (high contrast, color blind modes, font size), hearing (captions), and motor (hold to confirm, reduce motion). Open Settings > Accessibility to explore all options.</string>
+    <string name="accessibility_banner_message">This game has accessibility options for visual (high contrast, color blind modes, font size), hearing (captions), and motor needs (hold to confirm, reduce motion). Open the Accessibility tab in Settings to explore them.</string>
     <string name="accessibility_banner_open_settings">Open Accessibility Settings</string>
     <string name="accessibility_banner_dismiss">Got it!</string>
     

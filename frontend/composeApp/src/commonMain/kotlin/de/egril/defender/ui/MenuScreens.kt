@@ -200,6 +200,8 @@ fun MainMenuScreen(
     var triggerFeedback by remember { mutableStateOf(false) }
     var triggerSettings by remember { mutableStateOf(false) }
     var triggerOpenAccessibilitySettings by remember { mutableStateOf(false) }
+    // Computed value used by all three SettingsButton instances to open the Accessibility tab
+    val accessibilityTabTrigger: SettingsTab? = if (triggerOpenAccessibilitySettings) SettingsTab.ACCESSIBILITY else null
     var triggerImpressumOpen by remember { mutableStateOf(false) }
     var triggerImpressumClose by remember { mutableStateOf(false) }
     var impressumIsOpen by remember { mutableStateOf(false) }
@@ -497,7 +499,7 @@ fun MainMenuScreen(
                                     shortcutKey = ",",
                                     triggerOpen = triggerSettings,
                                     onTriggerHandled = { triggerSettings = false },
-                                    triggerOpenWithTab = if (triggerOpenAccessibilitySettings) SettingsTab.ACCESSIBILITY else null,
+                                    triggerOpenWithTab = accessibilityTabTrigger,
                                     onTriggerWithTabHandled = { triggerOpenAccessibilitySettings = false }
                                 )
                             }
@@ -644,7 +646,7 @@ fun MainMenuScreen(
                                     shortcutKey = ",",
                                     triggerOpen = triggerSettings,
                                     onTriggerHandled = { triggerSettings = false },
-                                    triggerOpenWithTab = if (triggerOpenAccessibilitySettings) SettingsTab.ACCESSIBILITY else null,
+                                    triggerOpenWithTab = accessibilityTabTrigger,
                                     onTriggerWithTabHandled = { triggerOpenAccessibilitySettings = false }
                                 )
                             }
@@ -764,7 +766,7 @@ fun MainMenuScreen(
                         shortcutKey = ",",
                         triggerOpen = triggerSettings,
                         onTriggerHandled = { triggerSettings = false },
-                        triggerOpenWithTab = if (triggerOpenAccessibilitySettings) SettingsTab.ACCESSIBILITY else null,
+                        triggerOpenWithTab = accessibilityTabTrigger,
                         onTriggerWithTabHandled = { triggerOpenAccessibilitySettings = false }
                     )
                 }

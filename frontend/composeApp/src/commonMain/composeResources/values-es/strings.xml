@@ -70,7 +70,7 @@
     <string name="settings_hint_message">Haga clic en el icono de configuración para personalizar su experiencia. La configuración disponible incluye:</string>
     <string name="settings_hint_dismiss">¡Entendido!</string>
     <string name="accessibility_banner_title">Configuración de accesibilidad disponible</string>
-    <string name="accessibility_banner_message">Este juego incluye configuraciones de accesibilidad para diversas necesidades: visual (alto contraste, modos de daltonismo, tamaño de fuente), auditivo (subtítulos) y motor (mantener para confirmar, reducir animaciones). Abra Configuración > Accesibilidad para explorar todas las opciones.</string>
+    <string name="accessibility_banner_message">Este juego ofrece opciones de accesibilidad para necesidades visuales (alto contraste, daltonismo, tamaño de fuente), auditivas (subtítulos) y motoras (mantener para confirmar, reducir animaciones). Abra la pestaña Accesibilidad en Configuración.</string>
     <string name="accessibility_banner_open_settings">Abrir configuración de accesibilidad</string>
     <string name="accessibility_banner_dismiss">¡Entendido!</string>
     
