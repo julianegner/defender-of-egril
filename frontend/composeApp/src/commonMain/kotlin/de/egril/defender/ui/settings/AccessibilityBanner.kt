@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -65,10 +66,12 @@ fun AccessibilityBanner(
                             .size(32.dp)
                             .semantics { contentDescription = closeDescription }
                     ) {
-                        FilledSymbol(
-                            icon = MaterialSymbols.CLOSE,
-                            tint = MaterialTheme.colorScheme.inverseOnSurface
-                        )
+                        Box(modifier = Modifier.clearAndSetSemantics { }) {
+                            FilledSymbol(
+                                icon = MaterialSymbols.CLOSE,
+                                tint = MaterialTheme.colorScheme.inverseOnSurface
+                            )
+                        }
                     }
                 }
 
