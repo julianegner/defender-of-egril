@@ -63,13 +63,15 @@ import org.jetbrains.compose.resources.painterResource
 internal fun shouldUseStackedMainMenuLayout(
     isNativeMobile: Boolean,
     isMobileWeb: Boolean,
-    isPortrait: Boolean
-): Boolean = isNativeMobile || (isMobileWeb && isPortrait)
+    isPortrait: Boolean,
+    isNarrowWindow: Boolean = false
+): Boolean = isNativeMobile || (isMobileWeb && isPortrait) || isNarrowWindow
 
 internal fun shouldUseCompactMainMenuLayout(
     isNativeMobile: Boolean,
-    isMobileWeb: Boolean
-): Boolean = isNativeMobile || isMobileWeb
+    isMobileWeb: Boolean,
+    isNarrowWindow: Boolean = false
+): Boolean = isNativeMobile || isMobileWeb || isNarrowWindow
 
 /** Returns true when LevelComplete screen should use a compact, scrollable mobile layout. */
 internal fun shouldUseMobileLevelCompleteLayout(
@@ -318,14 +320,17 @@ fun MainMenuScreen(
         ) {
             val isMobileWeb = isMobileWebBrowser()
             val isPortrait = maxHeight > maxWidth
+            val isNarrowWindow = maxWidth < 900.dp
             val usesStackedLayout = shouldUseStackedMainMenuLayout(
                 isNativeMobile = isPlatformMobile,
                 isMobileWeb = isMobileWeb,
-                isPortrait = isPortrait
+                isPortrait = isPortrait,
+                isNarrowWindow = isNarrowWindow
             )
             val usesCompactLayout = shouldUseCompactMainMenuLayout(
                 isNativeMobile = isPlatformMobile,
-                isMobileWeb = isMobileWeb
+                isMobileWeb = isMobileWeb,
+                isNarrowWindow = isNarrowWindow
             )
             val showExitGameButton = isPlatformDesktop
             // Pre-compute at BoxWithConstraints scope where maxHeight/maxWidth are in scope
@@ -442,7 +447,8 @@ fun MainMenuScreen(
                                                 ) {
                                                     HelpIcon(size = 28.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
                                                 }
-                                                    ShortcutKeyChip(text = "?")
+                                                Spacer(modifier = Modifier.width(4.dp))
+                                                ShortcutKeyChip(text = "?")
                                             }
                                         }
                                     }
@@ -469,7 +475,7 @@ fun MainMenuScreen(
                                             FilledSymbol(icon = MaterialSymbols.INFO, size = 28.dp)
                                         }
                                         if (AppSettings.showButtonShortcutHints.value) {
-                                            Spacer(modifier = Modifier.width(2.dp))
+                                            Spacer(modifier = Modifier.width(4.dp))
                                             ShortcutKeyChip(text = "I")
                                         }
                                     }
@@ -592,7 +598,8 @@ fun MainMenuScreen(
                                                 ) {
                                                     HelpIcon(size = 28.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
                                                 }
-                                                    ShortcutKeyChip(text = "?")
+                                                Spacer(modifier = Modifier.width(4.dp))
+                                                ShortcutKeyChip(text = "?")
                                             }
                                         }
                                     }
@@ -613,7 +620,7 @@ fun MainMenuScreen(
                                             FilledSymbol(icon = MaterialSymbols.INFO, size = 28.dp)
                                         }
                                         if (AppSettings.showButtonShortcutHints.value) {
-                                            Spacer(modifier = Modifier.width(2.dp))
+                                            Spacer(modifier = Modifier.width(4.dp))
                                             ShortcutKeyChip(text = "I")
                                         }
                                     }
@@ -666,7 +673,7 @@ fun MainMenuScreen(
                             Spacer(modifier = Modifier.height(16.dp))
                             Button(
                                 onClick = onShowDownloadInfo,
-                                modifier = Modifier.width(200.dp).heightIn(min = 34.dp),
+                                modifier = Modifier.fillMaxWidth().widthIn(max = 280.dp).heightIn(min = 34.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiary)
                             ) {
                                 Text(stringResource(Res.string.download_button), style = MaterialTheme.typography.labelSmall)
@@ -717,7 +724,7 @@ fun MainMenuScreen(
                                 FilledSymbol(icon = MaterialSymbols.INFO, size = 32.dp)
                             }
                             if (AppSettings.showButtonShortcutHints.value) {
-                                Spacer(modifier = Modifier.width(2.dp))
+                                Spacer(modifier = Modifier.width(4.dp))
                                 ShortcutKeyChip(text = "I")
                             }
                         }
@@ -811,7 +818,8 @@ fun MainMenuScreen(
                                 IconButton(onClick = onShowBackendInfo, modifier = Modifier.size(34.dp).semantics { contentDescription = backendInfoDesc }) {
                                     HelpIcon(size = 34.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
                                 }
-                                    ShortcutKeyChip(text = "?")
+                                Spacer(modifier = Modifier.width(4.dp))
+                                ShortcutKeyChip(text = "?")
                             }
                         }
                     }
