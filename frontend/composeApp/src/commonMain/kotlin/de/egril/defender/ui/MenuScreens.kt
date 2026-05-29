@@ -51,6 +51,7 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.ui.icon.HeartIcon
 import de.egril.defender.ui.icon.HelpIcon
 import de.egril.defender.ui.gameplay.ShortcutKeyChip
+import de.egril.defender.ui.settings.AppSettings.isDarkMode
 import de.egril.defender.utils.isPlatformIos
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
@@ -444,7 +445,7 @@ fun MainMenuScreen(
                                                     onClick = onShowBackendInfo,
                                                     modifier = Modifier.size(28.dp).semantics { contentDescription = backendInfoDesc }
                                                 ) {
-                                                    HelpIcon(size = 28.dp, tint = MaterialTheme.colorScheme.primary)
+                                                    HelpIcon(size = 28.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
                                                 }
                                                 Spacer(modifier = Modifier.width(4.dp))
                                                 ShortcutKeyChip(text = "?")
@@ -595,7 +596,7 @@ fun MainMenuScreen(
                                                     onClick = onShowBackendInfo,
                                                     modifier = Modifier.size(28.dp).semantics { contentDescription = backendInfoDesc }
                                                 ) {
-                                                    HelpIcon(size = 28.dp, tint = MaterialTheme.colorScheme.primary)
+                                                    HelpIcon(size = 28.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
                                                 }
                                                 Spacer(modifier = Modifier.width(4.dp))
                                                 ShortcutKeyChip(text = "?")
@@ -815,7 +816,7 @@ fun MainMenuScreen(
                         TooltipWrapper(text = backendInfoDesc) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 IconButton(onClick = onShowBackendInfo, modifier = Modifier.size(34.dp).semantics { contentDescription = backendInfoDesc }) {
-                                    HelpIcon(size = 34.dp, tint = MaterialTheme.colorScheme.primary)
+                                    HelpIcon(size = 34.dp, tint = if (isDarkMode.value) Color(0xFFB3E5FC) else Color.Blue)
                                 }
                                 Spacer(modifier = Modifier.width(4.dp))
                                 ShortcutKeyChip(text = "?")
