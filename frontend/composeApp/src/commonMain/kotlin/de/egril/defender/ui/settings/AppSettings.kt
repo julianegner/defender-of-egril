@@ -765,7 +765,11 @@ object AppSettings {
      */
     fun markSettingsHintShown() {
         settingsHintShown.value = true
-        settings.putBoolean(KEY_SETTINGS_HINT_SHOWN, true)
+        try {
+            settings.putBoolean(KEY_SETTINGS_HINT_SHOWN, true)
+        } catch (_: Throwable) {
+            // localStorage quota exceeded or unavailable; in-memory state is already updated
+        }
     }
     
     /**
@@ -773,7 +777,11 @@ object AppSettings {
      */
     fun markAccessibilityBannerShown() {
         accessibilityBannerShown.value = true
-        settings.putBoolean(KEY_ACCESSIBILITY_BANNER_SHOWN, true)
+        try {
+            settings.putBoolean(KEY_ACCESSIBILITY_BANNER_SHOWN, true)
+        } catch (_: Throwable) {
+            // localStorage quota exceeded or unavailable; in-memory state is already updated
+        }
     }
     
     /**
