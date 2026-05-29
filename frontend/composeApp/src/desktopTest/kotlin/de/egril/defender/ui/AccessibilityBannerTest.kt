@@ -44,12 +44,11 @@ class AccessibilityBannerTest {
         composeTestRule.waitForIdle()
 
         // Title must be present
-        composeTestRule.onNodeWithText("Accessibility Settings Available", substring = true, ignoreCase = true)
+        composeTestRule.onNodeWithText("Accessibility Settings", substring = false, ignoreCase = true)
             .assertExists()
 
-        // Both action buttons must exist
-        composeTestRule.onAllNodesWithText("Got it!", substring = true, ignoreCase = true)
-            .onFirst()
+        // Close (X) button must exist
+        composeTestRule.onNodeWithContentDescription("Close", substring = true, ignoreCase = true)
             .assertHasClickAction()
 
         composeTestRule.onNodeWithText("Open Accessibility Settings", substring = true, ignoreCase = true)
@@ -75,7 +74,7 @@ class AccessibilityBannerTest {
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("Accessibility Settings Available", substring = true, ignoreCase = true)
+        composeTestRule.onNodeWithText("Accessibility Settings", substring = false, ignoreCase = true)
             .assertDoesNotExist()
     }
 
@@ -96,18 +95,17 @@ class AccessibilityBannerTest {
         composeTestRule.waitForIdle()
 
         // Banner is initially visible
-        composeTestRule.onNodeWithText("Accessibility Settings Available", substring = true, ignoreCase = true)
+        composeTestRule.onNodeWithText("Accessibility Settings", substring = false, ignoreCase = true)
             .assertExists()
 
-        // Click the dismiss button (first "Got it!" button on screen)
-        composeTestRule.onAllNodesWithText("Got it!", substring = true, ignoreCase = true)
-            .onFirst()
+        // Click the X (close) button
+        composeTestRule.onNodeWithContentDescription("Close", substring = true, ignoreCase = true)
             .performClick()
 
         composeTestRule.waitForIdle()
 
         // Banner is gone after dismissal
-        composeTestRule.onNodeWithText("Accessibility Settings Available", substring = true, ignoreCase = true)
+        composeTestRule.onNodeWithText("Accessibility Settings", substring = false, ignoreCase = true)
             .assertDoesNotExist()
 
         // State is persisted
@@ -138,7 +136,7 @@ class AccessibilityBannerTest {
         composeTestRule.waitForIdle()
 
         // Banner should be dismissed after clicking the link
-        composeTestRule.onNodeWithText("Accessibility Settings Available", substring = true, ignoreCase = true)
+        composeTestRule.onNodeWithText("Accessibility Settings", substring = false, ignoreCase = true)
             .assertDoesNotExist()
 
         // State is persisted

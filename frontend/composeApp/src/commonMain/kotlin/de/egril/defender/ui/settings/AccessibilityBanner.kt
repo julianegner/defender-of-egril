@@ -11,6 +11,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.a11y.FontSizeMaximum
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
+import dev.vicart.compose.material.symbols.FilledSymbol
+import dev.vicart.compose.material.symbols.MaterialSymbols
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -18,6 +21,7 @@ import defender_of_egril.composeapp.generated.resources.*
  * Positioned at the bottom of the start page, above version and impressum.
  * High contrast, large font to ensure readability.
  * Informs users about accessibility settings and provides a direct link.
+ * Dismissed via the X button (upper right) or the X keyboard shortcut.
  */
 @Composable
 fun AccessibilityBanner(
@@ -26,6 +30,7 @@ fun AccessibilityBanner(
     modifier: Modifier = Modifier
 ) {
     val bannerDescription = stringResource(Res.string.accessibility_banner_title)
+    val closeDescription = stringResource(Res.string.close)
     FontSizeMaximum {
         Card(
             modifier = modifier.semantics { contentDescription = bannerDescription },
@@ -41,12 +46,31 @@ fun AccessibilityBanner(
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = stringResource(Res.string.accessibility_banner_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.inverseOnSurface
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(Res.string.accessibility_banner_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.inverseOnSurface,
+                        modifier = Modifier.weight(1f)
+                    )
+                    ShortcutKeyChip(text = "X")
+                    Spacer(modifier = Modifier.width(4.dp))
+                    IconButton(
+                        onClick = onDismiss,
+                        modifier = Modifier
+                            .size(32.dp)
+                            .semantics { contentDescription = closeDescription }
+                    ) {
+                        FilledSymbol(
+                            icon = MaterialSymbols.CLOSE,
+                            tint = MaterialTheme.colorScheme.inverseOnSurface
+                        )
+                    }
+                }
 
                 Text(
                     text = stringResource(Res.string.accessibility_banner_message),
@@ -56,20 +80,8 @@ fun AccessibilityBanner(
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
-                    verticalAlignment = Alignment.CenterVertically
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    TextButton(
-                        onClick = onDismiss,
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.colorScheme.inverseOnSurface
-                        )
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.accessibility_banner_dismiss),
-                            style = MaterialTheme.typography.labelMedium
-                        )
-                    }
                     Button(
                         onClick = onOpenAccessibilitySettings,
                         colors = ButtonDefaults.buttonColors(

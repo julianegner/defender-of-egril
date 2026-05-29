@@ -69,10 +69,9 @@
     <string name="settings_hint_title">Impostazioni Disponibili</string>
     <string name="settings_hint_message">Clicca sull'icona delle impostazioni per personalizzare la tua esperienza. Le impostazioni disponibili includono:</string>
     <string name="settings_hint_dismiss">Capito!</string>
-    <string name="accessibility_banner_title">Impostazioni di accessibilità disponibili</string>
-    <string name="accessibility_banner_message">Opzioni per esigenze visive, uditive e motorie disponibili.</string>
+    <string name="accessibility_banner_title">Impostazioni di accessibilità</string>
+    <string name="accessibility_banner_message">Opzioni per esigenze visive, uditive e motorie.</string>
     <string name="accessibility_banner_open_settings">Apri impostazioni di accessibilità</string>
-    <string name="accessibility_banner_dismiss">Capito!</string>
     
     <!-- Common Actions -->
     <string name="back">Indietro</string>

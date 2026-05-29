@@ -299,6 +299,12 @@ fun MainMenuScreen(
                         }
                         true
                     }
+                    // X → Dismiss accessibility banner (when banner is visible)
+                    event.key == Key.X && !event.isCtrlPressed && !event.isAltPressed
+                            && !showAccessibilityBanner && !showExitConfirmation -> {
+                        AppSettings.markAccessibilityBannerShown()
+                        true
+                    }
                     // Esc → show exit confirmation (non-iOS)
                     (event.key == Key.Escape || event.key == Key.Back)
                             && !isPlatformIos && !showExitConfirmation -> {

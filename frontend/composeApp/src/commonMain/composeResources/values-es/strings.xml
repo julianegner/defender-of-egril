@@ -69,10 +69,9 @@
     <string name="settings_hint_title">Configuración Disponible</string>
     <string name="settings_hint_message">Haga clic en el icono de configuración para personalizar su experiencia. La configuración disponible incluye:</string>
     <string name="settings_hint_dismiss">¡Entendido!</string>
-    <string name="accessibility_banner_title">Configuración de accesibilidad disponible</string>
-    <string name="accessibility_banner_message">Opciones para necesidades visuales, auditivas y motoras disponibles.</string>
+    <string name="accessibility_banner_title">Configuración de accesibilidad</string>
+    <string name="accessibility_banner_message">Opciones para necesidades visuales, auditivas y motoras.</string>
     <string name="accessibility_banner_open_settings">Abrir configuración de accesibilidad</string>
-    <string name="accessibility_banner_dismiss">¡Entendido!</string>
     
     <!-- Common Actions -->
     <string name="back">Atrás</string>
