@@ -273,6 +273,23 @@ fun ImageWorldMapView(
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Fit
             )
+
+            // Animated overlays (waves on the sea, river flow along the rivers).
+            // Lottie compositions share the worldmap image's aspect ratio and use
+            // ContentScale.Fit, so they line up pixel-for-pixel with the background.
+            // LottieAnimation internally short-circuits when AppSettings.enableAnimations is false.
+            de.egril.defender.ui.animations.LottieAnimation(
+                animationType = de.egril.defender.ui.animations.AnimationType.WORLD_MAP_WAVES,
+                modifier = Modifier.fillMaxSize(),
+                iterations = io.github.alexzhirkevich.compottie.Compottie.IterateForever,
+                contentScale = ContentScale.Fit
+            )
+            de.egril.defender.ui.animations.LottieAnimation(
+                animationType = de.egril.defender.ui.animations.AnimationType.WORLD_MAP_RIVERS,
+                modifier = Modifier.fillMaxSize(),
+                iterations = io.github.alexzhirkevich.compottie.Compottie.IterateForever,
+                contentScale = ContentScale.Fit
+            )
             
             // Draw road connections between locations
             RoadConnectionsOverlay(
