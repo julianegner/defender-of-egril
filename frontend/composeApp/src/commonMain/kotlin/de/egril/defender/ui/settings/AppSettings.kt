@@ -77,6 +77,7 @@ object AppSettings {
     private const val KEY_DIFFICULTY = "difficulty"
     private const val KEY_USE_LEVEL_CARDS = "use_level_cards"
     private const val KEY_SETTINGS_HINT_SHOWN = "settings_hint_shown"
+    private const val KEY_ACCESSIBILITY_BANNER_SHOWN = "accessibility_banner_shown"
     private const val KEY_USE_TILE_IMAGES = "use_tile_images"
     private const val KEY_USE_TILE_SMOOTH_TRANSITIONS = "use_tile_smooth_transitions"
     private const val KEY_SHOW_TESTING_LEVELS = "show_testing_levels"
@@ -238,6 +239,14 @@ object AppSettings {
      */
     val settingsHintShown: MutableState<Boolean> = mutableStateOf(
         settings.getBoolean(KEY_SETTINGS_HINT_SHOWN, false)
+    )
+    
+    /**
+     * Accessibility banner shown state - track if first-time accessibility banner has been shown
+     * Default is false (banner should be shown on first run)
+     */
+    val accessibilityBannerShown: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_ACCESSIBILITY_BANNER_SHOWN, false)
     )
     
     /**
@@ -756,7 +765,23 @@ object AppSettings {
      */
     fun markSettingsHintShown() {
         settingsHintShown.value = true
-        settings.putBoolean(KEY_SETTINGS_HINT_SHOWN, true)
+        try {
+            settings.putBoolean(KEY_SETTINGS_HINT_SHOWN, true)
+        } catch (_: Throwable) {
+            // localStorage quota exceeded or unavailable; in-memory state is already updated
+        }
+    }
+    
+    /**
+     * Mark accessibility banner as shown
+     */
+    fun markAccessibilityBannerShown() {
+        accessibilityBannerShown.value = true
+        try {
+            settings.putBoolean(KEY_ACCESSIBILITY_BANNER_SHOWN, true)
+        } catch (_: Throwable) {
+            // localStorage quota exceeded or unavailable; in-memory state is already updated
+        }
     }
     
     /**

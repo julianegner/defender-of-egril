@@ -69,6 +69,9 @@
     <string name="settings_hint_title">Settings Available</string>
     <string name="settings_hint_message">Click the settings icon to customize your experience. Available settings include:</string>
     <string name="settings_hint_dismiss">Got it!</string>
+    <string name="accessibility_banner_title">Accessibility Settings</string>
+    <string name="accessibility_banner_message">Visual, hearing, and motor accessibility options.</string>
+    <string name="accessibility_banner_open_settings">Open Accessibility Settings</string>
     
     <!-- Common Actions -->
     <string name="back">Back</string>

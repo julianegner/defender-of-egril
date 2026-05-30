@@ -31,14 +31,18 @@ fun SettingsButton(
     onInitialOpenHandled: (() -> Unit)? = null,
     shortcutKey: String? = null,
     triggerOpen: Boolean = false,
-    onTriggerHandled: (() -> Unit)? = null
+    onTriggerHandled: (() -> Unit)? = null,
+    triggerOpenWithTab: SettingsTab? = null,
+    onTriggerWithTabHandled: (() -> Unit)? = null
 ) {
     var showSettings by remember { mutableStateOf(false) }
     var autoOpenConsumed by remember { mutableStateOf(false) }
+    var activeTab by remember { mutableStateOf(initialTab) }
     val settingsLabel = stringResource(Res.string.settings)
 
     LaunchedEffect(initiallyOpen, autoOpenConsumed) {
         if (initiallyOpen && !autoOpenConsumed) {
+            activeTab = initialTab
             showSettings = true
             autoOpenConsumed = true
             onInitialOpenHandled?.invoke()
@@ -47,15 +51,27 @@ fun SettingsButton(
 
     LaunchedEffect(triggerOpen) {
         if (triggerOpen) {
+            activeTab = initialTab
             showSettings = true
             onTriggerHandled?.invoke()
+        }
+    }
+
+    LaunchedEffect(triggerOpenWithTab) {
+        if (triggerOpenWithTab != null) {
+            activeTab = triggerOpenWithTab
+            showSettings = true
+            onTriggerWithTabHandled?.invoke()
         }
     }
 
     TooltipWrapper(text = settingsLabel) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(
-                onClick = { showSettings = true },
+                onClick = {
+                    activeTab = initialTab
+                    showSettings = true
+                },
                 modifier = modifier.semantics { contentDescription = settingsLabel }
             ) {
                 FilledSymbol(
@@ -74,7 +90,7 @@ fun SettingsButton(
     if (showSettings) {
         SettingsDialog(
             onDismiss = { showSettings = false },
-            initialTab = initialTab
+            initialTab = activeTab
         )
     }
 }

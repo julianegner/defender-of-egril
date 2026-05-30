@@ -35,6 +35,7 @@ import de.egril.defender.ui.icon.TrophyIcon
 import dev.vicart.compose.material.symbols.FilledSymbol
 import dev.vicart.compose.material.symbols.MaterialSymbols
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.AccessibilityBanner
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.SettingsHintBox
 import de.egril.defender.ui.settings.SettingsTab
@@ -186,6 +187,9 @@ fun MainMenuScreen(
     // Track if settings hint should be shown
     val showSettingsHint by AppSettings.settingsHintShown
     
+    // Track if accessibility banner should be shown
+    val showAccessibilityBanner by AppSettings.accessibilityBannerShown
+    
     // Track if commit info dialog should be shown
     var showCommitInfo by remember { mutableStateOf(false) }
     
@@ -195,6 +199,9 @@ fun MainMenuScreen(
     // Track keyboard-triggered feedback/settings/iam-logout
     var triggerFeedback by remember { mutableStateOf(false) }
     var triggerSettings by remember { mutableStateOf(false) }
+    var triggerOpenAccessibilitySettings by remember { mutableStateOf(false) }
+    // Computed value used by all three SettingsButton instances to open the Accessibility tab
+    val accessibilityTabTrigger: SettingsTab? = if (triggerOpenAccessibilitySettings) SettingsTab.ACCESSIBILITY else null
     var triggerImpressumOpen by remember { mutableStateOf(false) }
     var triggerImpressumClose by remember { mutableStateOf(false) }
     var impressumIsOpen by remember { mutableStateOf(false) }
@@ -290,6 +297,12 @@ fun MainMenuScreen(
                         if (!impressumIsOpen) {
                             try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
                         }
+                        true
+                    }
+                    // X → Dismiss accessibility banner (when banner is visible)
+                    event.key == Key.X && !event.isCtrlPressed && !event.isAltPressed
+                            && !showAccessibilityBanner && !showExitConfirmation -> {
+                        AppSettings.markAccessibilityBannerShown()
                         true
                     }
                     // Esc → show exit confirmation (non-iOS)
@@ -491,7 +504,9 @@ fun MainMenuScreen(
                                     onInitialOpenHandled = onSettingsInitialOpenHandled,
                                     shortcutKey = ",",
                                     triggerOpen = triggerSettings,
-                                    onTriggerHandled = { triggerSettings = false }
+                                    onTriggerHandled = { triggerSettings = false },
+                                    triggerOpenWithTab = accessibilityTabTrigger,
+                                    onTriggerWithTabHandled = { triggerOpenAccessibilitySettings = false }
                                 )
                             }
                         }
@@ -636,7 +651,9 @@ fun MainMenuScreen(
                                     onInitialOpenHandled = onSettingsInitialOpenHandled,
                                     shortcutKey = ",",
                                     triggerOpen = triggerSettings,
-                                    onTriggerHandled = { triggerSettings = false }
+                                    onTriggerHandled = { triggerSettings = false },
+                                    triggerOpenWithTab = accessibilityTabTrigger,
+                                    onTriggerWithTabHandled = { triggerOpenAccessibilitySettings = false }
                                 )
                             }
                         }
@@ -703,6 +720,20 @@ fun MainMenuScreen(
                                 }
                             }
                         }
+                        // Accessibility banner - shown only on first run, above bottom spacer
+                        if (!showAccessibilityBanner) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            AccessibilityBanner(
+                                onOpenAccessibilitySettings = {
+                                    AppSettings.markAccessibilityBannerShown()
+                                    triggerOpenAccessibilitySettings = true
+                                },
+                                onDismiss = {
+                                    AppSettings.markAccessibilityBannerShown()
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                         // Bottom spacer for version/impressum overlay clearance
                         Spacer(modifier = Modifier.height(28.dp))
                     }
@@ -740,7 +771,9 @@ fun MainMenuScreen(
                         onInitialOpenHandled = onSettingsInitialOpenHandled,
                         shortcutKey = ",",
                         triggerOpen = triggerSettings,
-                        onTriggerHandled = { triggerSettings = false }
+                        onTriggerHandled = { triggerSettings = false },
+                        triggerOpenWithTab = accessibilityTabTrigger,
+                        onTriggerWithTabHandled = { triggerOpenAccessibilitySettings = false }
                     )
                 }
 
@@ -899,6 +932,20 @@ fun MainMenuScreen(
                                 )
                             }
                         }
+                    }
+                    // Accessibility banner - shown only on first run, below buttons/above version info
+                    if (!showAccessibilityBanner) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        AccessibilityBanner(
+                            onOpenAccessibilitySettings = {
+                                AppSettings.markAccessibilityBannerShown()
+                                triggerOpenAccessibilitySettings = true
+                            },
+                            onDismiss = {
+                                AppSettings.markAccessibilityBannerShown()
+                            },
+                            modifier = Modifier.widthIn(max = 600.dp)
+                        )
                     }
                 }
             }
