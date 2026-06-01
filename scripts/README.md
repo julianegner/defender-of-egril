@@ -138,6 +138,62 @@ Test mode (`--test` flag) generates 200+ sample dragon names without accessing t
 - **Execution Time**: ~30-60 seconds (depending on website speed)
 - **Rate Limiting**: Built-in delays between requests (300-1500ms)
 
+## River Tile Auto-Detection
+
+### Overview
+
+`detect_river_tiles.py` detects likely river hexes from an existing map PNG and map JSON.
+It samples colors around each hex center and classifies tiles by blue dominance.
+
+The script is intended for review workflows: it generates a candidate list and a preview
+overlay so you can quickly agree which tiles should be `RIVER` before refining flow
+direction/speed animations.
+
+### Requirements
+
+- Python 3.10+
+- Pillow
+
+Install Pillow:
+
+```bash
+python -m pip install pillow
+```
+
+### Usage
+
+```bash
+python scripts/detect_river_tiles.py \
+  --map-json frontend/composeApp/src/commonMain/composeResources/files/repository/maps/map_the_river.json
+```
+
+Optional output map (applies detection into a separate JSON for review):
+
+```bash
+python scripts/detect_river_tiles.py \
+  --map-json frontend/composeApp/src/commonMain/composeResources/files/repository/maps/map_the_river.json \
+  --output-map /tmp/map_the_river_detected.json
+```
+
+### Output
+
+By default, next to the input map JSON:
+
+- `*_river_candidates.json` with:
+  - detected river tile keys
+  - newly detected tiles
+  - missing tiles compared to current map
+  - per-tile color scores
+- `*_river_preview.png` overlay:
+  - **cyan** = already river and detected
+  - **yellow** = newly detected
+  - **red** = currently river but not detected
+
+### Tunable Parameters
+
+- `--threshold` (default: `30`) controls strictness for blue dominance detection
+- `--min-river-neighbors` (default: `1`) removes isolated single-tile false positives
+
 ### Example Session
 
 ```bash
