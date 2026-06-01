@@ -19,6 +19,9 @@ VERTICAL_SPACING = HEX_HEIGHT * 0.75
 HORIZONTAL_SPACING = -10.0
 ODD_ROW_OFFSET_RATIO = 0.42
 PADDING = 20.0
+POINT_IN_POLYGON_EPSILON = 1e-9
+HEX_SAMPLE_BORDER_OFFSET = 2.0
+PREVIEW_HEX_INSET = 5.0
 
 TileKey = Tuple[int, int]
 
@@ -117,7 +120,7 @@ def point_in_polygon(px: float, py: float, polygon: List[Tuple[float, float]]) -
     inside = False
     for i, (x1, y1) in enumerate(polygon):
         x2, y2 = polygon[(i + 1) % len(polygon)]
-        divisor = (y2 - y1) if (y2 - y1) != 0 else 1e-9
+        divisor = (y2 - y1) if (y2 - y1) != 0 else POINT_IN_POLYGON_EPSILON
         intersects = ((y1 > py) != (y2 > py)) and (
             px < (x2 - x1) * (py - y1) / divisor + x1
         )
@@ -127,7 +130,7 @@ def point_in_polygon(px: float, py: float, polygon: List[Tuple[float, float]]) -
 
 
 def hex_sample_offsets(sample_radius: int, sample_step: int) -> List[Tuple[int, int]]:
-    polygon = hex_polygon(0.0, 0.0, min(float(sample_radius), HEX_SIZE - 2.0))
+    polygon = hex_polygon(0.0, 0.0, min(float(sample_radius), HEX_SIZE - HEX_SAMPLE_BORDER_OFFSET))
     offsets = []
     for dx in range(-sample_radius, sample_radius + 1, sample_step):
         for dy in range(-sample_radius, sample_radius + 1, sample_step):
@@ -349,7 +352,7 @@ def write_preview(
         x_str, y_str = key.split(",")
         x, y = int(x_str), int(y_str)
         cx, cy = hex_center(x, y)
-        polygon = hex_polygon(cx, cy, HEX_SIZE - 5.0)
+        polygon = hex_polygon(cx, cy, HEX_SIZE - PREVIEW_HEX_INSET)
 
         in_current = key in current_rivers
         in_detected = key in candidate_keys
