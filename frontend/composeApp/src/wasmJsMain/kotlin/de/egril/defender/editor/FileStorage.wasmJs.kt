@@ -197,6 +197,10 @@ class OPFSFileStorage : FileStorage {
                         textCache[path] = content
                     }
                 }
+                // Clean up any leftover localStorage entries from a prior migration run
+                // that retained the copies (older app version). This frees quota for
+                // app settings which still use localStorage.
+                cleanUpLocalStorageLegacyEntries()
             }
         } catch (e: Throwable) {
             println("OPFSFileStorage: initializeAsync error – ${e.message}")
@@ -220,8 +224,8 @@ class OPFSFileStorage : FileStorage {
 
     /**
      * One-time migration: copies every "defender-of-egril:" localStorage entry
-     * into OPFS and the in-memory cache. The localStorage copies are retained for
-     * backwards compatibility but are no longer the primary storage.
+     * into OPFS and the in-memory cache, then removes the localStorage copies to
+     * free quota for app settings.
      */
     private suspend fun migrateFromLocalStorage() {
         val entries = mutableListOf<Pair<String, String>>()
@@ -234,6 +238,8 @@ class OPFSFileStorage : FileStorage {
         for ((path, content) in entries) {
             try {
                 jsOpfsWriteOne(OPFS_APP_DIR, path, content).await<JsAny?>()
+                // Remove from localStorage after a successful OPFS write to free quota.
+                localStorage.removeItem(LS_PREFIX + path)
             } catch (e: Throwable) {
                 println("OPFSFileStorage: migration failed for $path – ${e.message}")
             }
@@ -245,6 +251,21 @@ class OPFSFileStorage : FileStorage {
         }
         if (entries.isNotEmpty()) {
             println("OPFSFileStorage: migrated ${entries.size} entries from localStorage to OPFS")
+        }
+    }
+
+    /**
+     * Removes any leftover "defender-of-egril:" localStorage entries that were not
+     * cleaned up during a previous migration run (e.g. when migrating with an older
+     * version of the app that retained the copies).
+     */
+    private fun cleanUpLocalStorageLegacyEntries() {
+        val keys = (0 until localStorage.length)
+            .mapNotNull { localStorage.key(it) }
+            .filter { it.startsWith(LS_PREFIX) }
+        keys.forEach { localStorage.removeItem(it) }
+        if (keys.isNotEmpty()) {
+            println("OPFSFileStorage: removed ${keys.size} legacy localStorage entries to free quota")
         }
     }
 
