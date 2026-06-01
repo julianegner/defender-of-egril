@@ -6,8 +6,9 @@ from __future__ import annotations
 import argparse
 import json
 import math
+from collections import deque
 from pathlib import Path
-from typing import Dict, Iterable, List, Tuple
+from typing import Dict, Iterable, List, Set, Tuple
 
 from PIL import Image, ImageDraw
 
@@ -25,8 +26,8 @@ TileKey = Tuple[int, int]
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Detect likely river tiles by sampling map image colors at hex centers and "
-            "comparing blue dominance against a threshold."
+            "Detect likely river tiles by sampling blue pixel coverage inside each hex and "
+            "expanding outward from known river seeds."
         )
     )
     parser.add_argument("--map-json", required=True, type=Path, help="Path to map_*.json")
@@ -39,19 +40,37 @@ def parse_args() -> argparse.Namespace:
         "--threshold",
         type=float,
         default=30.0,
-        help="Blue-dominance threshold (meanBlue - max(meanRed, meanGreen)); default: 30",
+        help="Blue-dominance threshold used to classify sampled pixels as blue; default: 30",
     )
     parser.add_argument(
         "--sample-radius",
         type=int,
-        default=8,
-        help="Pixel radius around center for color sampling; default: 8",
+        default=32,
+        help="Pixel radius around center for hex-footprint sampling; default: 32",
     )
     parser.add_argument(
         "--sample-step",
         type=int,
+        default=3,
+        help="Sampling step in pixels inside the hex footprint; default: 3",
+    )
+    parser.add_argument(
+        "--min-blue-ratio",
+        type=float,
+        default=0.2,
+        help="Minimum ratio of blue samples in a hex to classify it as river; default: 0.2",
+    )
+    parser.add_argument(
+        "--expand-blue-ratio",
+        type=float,
+        default=0.08,
+        help="Lower blue-sample ratio allowed when expanding outward from known river tiles; default: 0.08",
+    )
+    parser.add_argument(
+        "--max-expansion-neighbors",
+        type=int,
         default=4,
-        help="Sampling step in pixels; default: 4",
+        help="Avoid expanding into open-water tiles with more than this many blue neighbors; default: 4",
     )
     parser.add_argument(
         "--min-river-neighbors",
@@ -84,6 +103,38 @@ def hex_center(gx: int, gy: int) -> Tuple[float, float]:
     return cx, cy
 
 
+def hex_polygon(cx: float, cy: float, radius: float) -> List[Tuple[float, float]]:
+    return [
+        (
+            cx + radius * math.cos(math.radians(60 * i - 90)),
+            cy + radius * math.sin(math.radians(60 * i - 90)),
+        )
+        for i in range(6)
+    ]
+
+
+def point_in_polygon(px: float, py: float, polygon: List[Tuple[float, float]]) -> bool:
+    inside = False
+    for i, (x1, y1) in enumerate(polygon):
+        x2, y2 = polygon[(i + 1) % len(polygon)]
+        intersects = ((y1 > py) != (y2 > py)) and (
+            px < (x2 - x1) * (py - y1) / ((y2 - y1) or 1e-9) + x1
+        )
+        if intersects:
+            inside = not inside
+    return inside
+
+
+def hex_sample_offsets(sample_radius: int, sample_step: int) -> List[Tuple[int, int]]:
+    polygon = hex_polygon(0.0, 0.0, min(float(sample_radius), HEX_SIZE - 2.0))
+    offsets = []
+    for dx in range(-sample_radius, sample_radius + 1, sample_step):
+        for dy in range(-sample_radius, sample_radius + 1, sample_step):
+            if point_in_polygon(float(dx), float(dy), polygon):
+                offsets.append((dx, dy))
+    return offsets or [(0, 0)]
+
+
 def in_bounds(x: int, y: int, width: int, height: int) -> bool:
     return 0 <= x < width and 0 <= y < height
 
@@ -102,34 +153,118 @@ def tile_scores(
     map_height: int,
     sample_radius: int,
     sample_step: int,
+    threshold: float,
 ) -> Dict[TileKey, Dict[str, float]]:
     rgb = image.convert("RGB")
     px = rgb.load()
     scores: Dict[TileKey, Dict[str, float]] = {}
+    offsets = hex_sample_offsets(sample_radius, sample_step)
 
     for x in range(map_width):
         for y in range(map_height):
             cx, cy = hex_center(x, y)
             samples = []
-            for dx in range(-sample_radius, sample_radius + 1, sample_step):
-                for dy in range(-sample_radius, sample_radius + 1, sample_step):
-                    sx = max(0, min(rgb.width - 1, int(round(cx + dx))))
-                    sy = max(0, min(rgb.height - 1, int(round(cy + dy))))
-                    samples.append(px[sx, sy])
+            for dx, dy in offsets:
+                sx = max(0, min(rgb.width - 1, int(round(cx + dx))))
+                sy = max(0, min(rgb.height - 1, int(round(cy + dy))))
+                sample = px[sx, sy]
+                samples.append(sample)
 
             mean_r = sum(s[0] for s in samples) / len(samples)
             mean_g = sum(s[1] for s in samples) / len(samples)
             mean_b = sum(s[2] for s in samples) / len(samples)
             blue_dominance = mean_b - max(mean_r, mean_g)
+            strong_blue_sample_count = sum(
+                1 for sample in samples if is_blue_pixel(sample, threshold)
+            )
+            blue_pixel_ratio = strong_blue_sample_count / len(samples)
 
             scores[(x, y)] = {
                 "meanR": mean_r,
                 "meanG": mean_g,
                 "meanB": mean_b,
                 "blueDominance": blue_dominance,
+                "bluePixelRatio": blue_pixel_ratio,
+                "blueSampleCount": strong_blue_sample_count,
+                "sampleCount": len(samples),
             }
 
     return scores
+
+
+def is_blue_pixel(sample: Tuple[int, int, int], threshold: float) -> bool:
+    r, g, b = sample
+    return b - max(r, g) >= threshold
+
+
+def current_river_seed_tiles(current_rivers: Set[str], map_width: int, map_height: int) -> Set[TileKey]:
+    seeds = set()
+    for key in current_rivers:
+        x_str, y_str = key.split(",")
+        x, y = int(x_str), int(y_str)
+        if in_bounds(x, y, map_width, map_height):
+            seeds.add((x, y))
+    return seeds
+
+
+def should_expand_into(
+    pos: TileKey,
+    scores: Dict[TileKey, Dict[str, float]],
+    expand_blue_ratio: float,
+    max_expansion_neighbors: int,
+    protected: Set[TileKey],
+    candidate_pool: Set[TileKey],
+) -> bool:
+    if pos in protected:
+        return True
+    if scores[pos]["bluePixelRatio"] < expand_blue_ratio:
+        return False
+    blue_neighbor_count = sum(1 for neighbor in hex_neighbors(*pos) if neighbor in candidate_pool)
+    return blue_neighbor_count <= max_expansion_neighbors
+
+
+def expand_from_seed_rivers(
+    seeds: Set[TileKey],
+    scores: Dict[TileKey, Dict[str, float]],
+    map_width: int,
+    map_height: int,
+    min_blue_ratio: float,
+    expand_blue_ratio: float,
+    max_expansion_neighbors: int,
+) -> Set[TileKey]:
+    candidate_pool = {
+        pos
+        for pos, score in scores.items()
+        if score["bluePixelRatio"] >= expand_blue_ratio
+    }
+    strong_blue_tiles = {
+        pos
+        for pos, score in scores.items()
+        if score["bluePixelRatio"] >= min_blue_ratio
+    }
+    if not seeds:
+        return strong_blue_tiles
+
+    detected = set(seeds)
+    queue = deque(seeds)
+
+    while queue:
+        x, y = queue.popleft()
+        for neighbor in hex_neighbors(x, y):
+            if not in_bounds(neighbor[0], neighbor[1], map_width, map_height) or neighbor in detected:
+                continue
+            if should_expand_into(
+                neighbor,
+                scores,
+                expand_blue_ratio,
+                max_expansion_neighbors,
+                seeds,
+                candidate_pool,
+            ):
+                detected.add(neighbor)
+                queue.append(neighbor)
+
+    return detected | {pos for pos in strong_blue_tiles if any(n in detected for n in hex_neighbors(*pos))}
 
 
 def refine_with_neighbor_rule(
@@ -137,13 +272,18 @@ def refine_with_neighbor_rule(
     map_width: int,
     map_height: int,
     min_neighbors: int,
+    protected: Set[TileKey] | None = None,
 ) -> List[TileKey]:
     if min_neighbors <= 0:
         return sorted(candidates)
 
     candidate_set = set(candidates)
+    protected = protected or set()
     refined = []
     for x, y in sorted(candidate_set):
+        if (x, y) in protected:
+            refined.append((x, y))
+            continue
         neighbor_count = sum(
             1
             for nx, ny in hex_neighbors(x, y)
@@ -178,6 +318,9 @@ def write_candidates(
             {
                 "key": path_key(x, y),
                 "blueDominance": round(scores[(x, y)]["blueDominance"], 3),
+                "bluePixelRatio": round(scores[(x, y)]["bluePixelRatio"], 3),
+                "blueSampleCount": int(scores[(x, y)]["blueSampleCount"]),
+                "sampleCount": int(scores[(x, y)]["sampleCount"]),
                 "meanR": round(scores[(x, y)]["meanR"], 3),
                 "meanG": round(scores[(x, y)]["meanG"], 3),
                 "meanB": round(scores[(x, y)]["meanB"], 3),
@@ -204,7 +347,7 @@ def write_preview(
         x_str, y_str = key.split(",")
         x, y = int(x_str), int(y_str)
         cx, cy = hex_center(x, y)
-        bbox = [cx - 7, cy - 7, cx + 7, cy + 7]
+        polygon = hex_polygon(cx, cy, HEX_SIZE - 5.0)
 
         in_current = key in current_rivers
         in_detected = key in candidate_keys
@@ -216,7 +359,7 @@ def write_preview(
         else:
             fill, outline = (255, 80, 80, 170), (255, 80, 80, 255)  # red
 
-        draw.ellipse(bbox, fill=fill, outline=outline, width=2)
+        draw.polygon(polygon, fill=fill, outline=outline, width=2)
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     preview.save(output_path)
@@ -275,18 +418,33 @@ def main() -> None:
     tiles: Dict[str, str] = data["tiles"]
 
     current_rivers = {k for k, v in tiles.items() if v == "RIVER"}
+    seed_tiles = current_river_seed_tiles(current_rivers, map_width, map_height)
 
     image = Image.open(map_image_path)
-    scores = tile_scores(image, map_width, map_height, args.sample_radius, args.sample_step)
+    scores = tile_scores(
+        image,
+        map_width,
+        map_height,
+        args.sample_radius,
+        args.sample_step,
+        args.threshold,
+    )
 
-    raw_candidates = [
-        pos for pos, score in scores.items() if score["blueDominance"] >= args.threshold
-    ]
+    raw_candidates = expand_from_seed_rivers(
+        seed_tiles,
+        scores,
+        map_width,
+        map_height,
+        args.min_blue_ratio,
+        args.expand_blue_ratio,
+        args.max_expansion_neighbors,
+    )
     candidates = refine_with_neighbor_rule(
         raw_candidates,
         map_width,
         map_height,
         args.min_river_neighbors,
+        protected=seed_tiles,
     )
 
     candidate_keys = {path_key(x, y) for x, y in candidates}
@@ -304,7 +462,12 @@ def main() -> None:
         write_output_map(args.output_map, payload, candidates)
 
     print(f"Map: {map_id} ({map_width}x{map_height})")
-    print(f"Threshold: {args.threshold:.2f}, minRiverNeighbors: {args.min_river_neighbors}")
+    print(
+        "Threshold: "
+        f"{args.threshold:.2f}, minBlueRatio: {args.min_blue_ratio:.2f}, "
+        f"expandBlueRatio: {args.expand_blue_ratio:.2f}, "
+        f"minRiverNeighbors: {args.min_river_neighbors}"
+    )
     print(f"Current river tiles: {len(current_rivers)}")
     print(f"Detected river tiles: {len(candidate_keys)}")
     print(f"Newly detected (not currently RIVER): {len(added)}")

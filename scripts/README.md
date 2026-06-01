@@ -143,10 +143,11 @@ Test mode (`--test` flag) generates 200+ sample dragon names without accessing t
 ### Overview
 
 `detect_river_tiles.py` detects likely river hexes from an existing map PNG and map JSON.
-It samples colors around each hex center and classifies tiles by blue dominance.
+It samples many pixels across each hex footprint, measures blue-pixel coverage, and then
+expands outward from already-known river tiles to keep following connected river channels.
 
 The script is intended for review workflows: it generates a candidate list and a preview
-overlay so you can quickly agree which tiles should be `RIVER` before refining flow
+overlay so you can quickly agree which hex areas should be `RIVER` before refining flow
 direction/speed animations.
 
 ### Requirements
@@ -183,15 +184,19 @@ By default, next to the input map JSON:
   - detected river tile keys
   - newly detected tiles
   - missing tiles compared to current map
-  - per-tile color scores
+  - per-tile color scores, blue pixel ratio, and sampled-pixel counts
 - `*_river_preview.png` overlay:
+  - fills the whole hex area instead of drawing only a small center marker
   - **cyan** = already river and detected
   - **yellow** = newly detected
   - **red** = currently river but not detected
 
 ### Tunable Parameters
 
-- `--threshold` (default: `30`) controls strictness for blue dominance detection
+- `--threshold` (default: `30`) controls when an individual sampled pixel counts as blue
+- `--min-blue-ratio` (default: `0.2`) controls how much of a hex must be blue to classify it as river
+- `--expand-blue-ratio` (default: `0.08`) allows weaker blue coverage while following connected river channels from existing river seeds
+- `--max-expansion-neighbors` (default: `4`) helps stop expansion into broad open-water regions
 - `--min-river-neighbors` (default: `1`) removes isolated single-tile false positives
 
 ### Example Session
