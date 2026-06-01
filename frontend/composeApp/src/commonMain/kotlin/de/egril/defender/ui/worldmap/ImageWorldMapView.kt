@@ -274,20 +274,16 @@ fun ImageWorldMapView(
                 contentScale = ContentScale.Fit
             )
 
-            // Animated overlays (waves on the sea, river flow along the rivers).
+            // Animated overlay: river flow along the rivers at 2/3 of base speed.
+            // Wave animation is suppressed for now (TODO: revisit wave animation later).
             // Lottie compositions share the worldmap image's aspect ratio and use
             // ContentScale.Fit, so they line up pixel-for-pixel with the background.
             // LottieAnimation internally short-circuits when AppSettings.enableAnimations is false.
             de.egril.defender.ui.animations.LottieAnimation(
-                animationType = de.egril.defender.ui.animations.AnimationType.WORLD_MAP_WAVES,
-                modifier = Modifier.fillMaxSize(),
-                iterations = io.github.alexzhirkevich.compottie.Compottie.IterateForever,
-                contentScale = ContentScale.Fit
-            )
-            de.egril.defender.ui.animations.LottieAnimation(
                 animationType = de.egril.defender.ui.animations.AnimationType.WORLD_MAP_RIVERS,
                 modifier = Modifier.fillMaxSize(),
                 iterations = io.github.alexzhirkevich.compottie.Compottie.IterateForever,
+                speed = 2f / 3f,
                 contentScale = ContentScale.Fit
             )
             
