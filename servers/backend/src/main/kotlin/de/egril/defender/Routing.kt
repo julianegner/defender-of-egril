@@ -1074,8 +1074,7 @@ internal fun hasClientRole(authHeader: String?, clientId: String, role: String):
 internal fun extractJsonStringValue(json: String, key: String): String? =
     Regex("\"${Regex.escape(key)}\"\\s*:\\s*\"([^\"]+)\"").find(json)?.groupValues?.get(1)
 
-private fun isValidFeedbackId(value: String): Boolean =
-    runCatching { UUID.fromString(value) }.isSuccess
+private fun isValidFeedbackId(value: String): Boolean = isValidUuid(value)
 
 private fun isValidUuid(value: String): Boolean =
     runCatching { UUID.fromString(value) }.isSuccess

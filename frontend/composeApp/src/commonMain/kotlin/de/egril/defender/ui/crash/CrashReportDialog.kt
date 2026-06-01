@@ -200,11 +200,10 @@ fun CrashReportDialog(
                 ) {
                     if (submitting) {
                         CircularProgressIndicator(
-                            modifier = Modifier
-                                .size(20.dp)
-                                .padding(end = 8.dp),
+                            modifier = Modifier.size(20.dp),
                             strokeWidth = 2.dp
                         )
+                        Spacer(modifier = Modifier.width(8.dp))
                     }
                     Button(
                         onClick = confirm,
