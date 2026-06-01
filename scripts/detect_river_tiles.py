@@ -96,6 +96,11 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         help="Optional map JSON with RIVER tiles + riverTiles updated from detection",
     )
+    parser.add_argument(
+        "--output-pixel-preview",
+        type=Path,
+        help="Where to write PNG showing each individually sampled pixel that was classified as blue (river); defaults to <mapname>_river_pixel_preview.png",
+    )
     return parser.parse_args()
 
 
@@ -370,6 +375,36 @@ def write_preview(
     preview.save(output_path)
 
 
+def write_pixel_preview(
+    output_path: Path,
+    source_image: Image.Image,
+    map_width: int,
+    map_height: int,
+    sample_radius: int,
+    sample_step: int,
+    threshold: float,
+) -> None:
+    """Write a PNG where every sampled pixel classified as blue (river) is drawn in bright magenta."""
+    rgb = source_image.convert("RGB")
+    preview = source_image.convert("RGBA")
+    px = rgb.load()
+    draw = ImageDraw.Draw(preview, "RGBA")
+    offsets = hex_sample_offsets(sample_radius, sample_step)
+
+    for x in range(map_width):
+        for y in range(map_height):
+            cx, cy = hex_center(x, y)
+            for dx, dy in offsets:
+                sx = max(0, min(rgb.width - 1, int(round(cx + dx))))
+                sy = max(0, min(rgb.height - 1, int(round(cy + dy))))
+                sample = px[sx, sy]
+                if is_blue_pixel(sample, threshold):
+                    draw.rectangle([sx - 1, sy - 1, sx + 1, sy + 1], fill=(255, 0, 255, 220))
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    preview.save(output_path)
+
+
 def write_output_map(
     output_path: Path,
     map_payload: dict,
@@ -459,9 +494,19 @@ def main() -> None:
     default_base = map_json_path.with_suffix("")
     output_candidates = args.output_candidates or default_base.with_name(f"{default_base.name}_river_candidates.json")
     output_preview = args.output_preview or default_base.with_name(f"{default_base.name}_river_preview.png")
+    output_pixel_preview = args.output_pixel_preview or default_base.with_name(f"{default_base.name}_river_pixel_preview.png")
 
     write_candidates(output_candidates, map_id, candidates, current_rivers, scores)
     write_preview(output_preview, image, candidates, current_rivers)
+    write_pixel_preview(
+        output_pixel_preview,
+        image,
+        map_width,
+        map_height,
+        args.sample_radius,
+        args.sample_step,
+        args.threshold,
+    )
 
     if args.output_map:
         write_output_map(args.output_map, payload, candidates)
@@ -479,6 +524,7 @@ def main() -> None:
     print(f"Missing vs current (currently RIVER but not detected): {len(removed)}")
     print(f"Candidates JSON: {output_candidates}")
     print(f"Preview image:   {output_preview}")
+    print(f"Pixel preview:   {output_pixel_preview}")
     if args.output_map:
         print(f"Updated map JSON: {args.output_map}")
 
