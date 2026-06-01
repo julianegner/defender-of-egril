@@ -117,8 +117,9 @@ def point_in_polygon(px: float, py: float, polygon: List[Tuple[float, float]]) -
     inside = False
     for i, (x1, y1) in enumerate(polygon):
         x2, y2 = polygon[(i + 1) % len(polygon)]
+        divisor = (y2 - y1) if (y2 - y1) != 0 else 1e-9
         intersects = ((y1 > py) != (y2 > py)) and (
-            px < (x2 - x1) * (py - y1) / ((y2 - y1) or 1e-9) + x1
+            px < (x2 - x1) * (py - y1) / divisor + x1
         )
         if intersects:
             inside = not inside
@@ -251,7 +252,8 @@ def expand_from_seed_rivers(
     while queue:
         x, y = queue.popleft()
         for neighbor in hex_neighbors(x, y):
-            if not in_bounds(neighbor[0], neighbor[1], map_width, map_height) or neighbor in detected:
+            nx, ny = neighbor
+            if not in_bounds(nx, ny, map_width, map_height) or neighbor in detected:
                 continue
             if should_expand_into(
                 neighbor,
