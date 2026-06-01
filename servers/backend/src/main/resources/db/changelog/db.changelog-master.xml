@@ -20,5 +20,6 @@
     <include file="db/changelog/migrations/013-player-feedback.sql"/>
     <include file="db/changelog/migrations/014-player-feedback-current-settings-json.sql"/>
     <include file="db/changelog/migrations/015-events-difficulty.sql"/>
+    <include file="db/changelog/migrations/016-crash-reports.sql"/>
 
 </databaseChangeLog>

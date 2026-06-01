@@ -206,6 +206,81 @@ class ApplicationTest {
     }
 
     // ---------------------------------------------------------------------------
+    // Crash report endpoint tests
+    // ---------------------------------------------------------------------------
+
+    @Test
+    fun testPostCrashNoDatabaseReturns503() = testApplication {
+        application { module() }
+        client.post("/api/crash") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                """
+                {
+                  "crashId":"33333333-3333-4333-8333-333333333333",
+                  "errorType":"java.lang.IllegalStateException",
+                  "errorMessage":"boom",
+                  "platform":"WEB"
+                }
+                """.trimIndent()
+            )
+        }.apply {
+            assertEquals(HttpStatusCode.ServiceUnavailable, status)
+        }
+    }
+
+    @Test
+    fun testPostCrashInvalidUuidReturns400() = testApplication {
+        application { module() }
+        client.post("/api/crash") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                """
+                {
+                  "crashId":"not-a-uuid",
+                  "errorType":"java.lang.IllegalStateException",
+                  "platform":"WEB"
+                }
+                """.trimIndent()
+            )
+        }.apply {
+            assertEquals(HttpStatusCode.BadRequest, status)
+            assertContains(bodyAsText(), "UUID")
+        }
+    }
+
+    @Test
+    fun testPostCrashBlankErrorTypeReturns400() = testApplication {
+        application { module() }
+        client.post("/api/crash") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                """
+                {
+                  "crashId":"44444444-4444-4444-8444-444444444444",
+                  "errorType":"",
+                  "platform":"WEB"
+                }
+                """.trimIndent()
+            )
+        }.apply {
+            assertEquals(HttpStatusCode.BadRequest, status)
+            assertContains(bodyAsText(), "errorType")
+        }
+    }
+
+    @Test
+    fun testPostCrashMalformedJsonReturns400() = testApplication {
+        application { module() }
+        client.post("/api/crash") {
+            contentType(ContentType.Application.Json)
+            setBody("not valid json")
+        }.apply {
+            assertEquals(HttpStatusCode.BadRequest, status)
+        }
+    }
+
+    // ---------------------------------------------------------------------------
     // Savefile endpoint tests
     // ---------------------------------------------------------------------------
 

@@ -1908,4 +1908,9 @@
     <string name="dropdown_keyboard_hint">Up/Down Navigate, Enter = Select, Esc = Close</string>
     <string name="shortcut_bindings_nav_hint">Use Tab/Shift+Tab to select a keybind, then Enter to change it. Press R to reset all bindings.</string>
 
+    <!-- Global crash / unhandled error dialog -->
+    <string name="crash_dialog_title">An unexpected error occurred</string>
+    <string name="crash_dialog_message">Something went wrong inside the game. You can press OK to dismiss this message and keep playing. If the error report is sent, the maintainer will receive the technical error details, your current settings and the in-game log to help fix it.</string>
+    <string name="crash_dialog_send_info_checkbox">Send error information to the maintainer</string>
+
 </resources>
