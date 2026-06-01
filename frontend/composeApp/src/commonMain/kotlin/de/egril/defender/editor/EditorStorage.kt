@@ -100,6 +100,10 @@ object EditorStorage {
     ) {
         if (initialized) return
 
+        // Pre-populate the in-memory cache from the platform's async backing store
+        // (e.g. OPFS on WASM/browser) before checking the fingerprint fast path.
+        fileStorage.initializeAsync()
+
         if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
         println("Initializing EditorStorage asynchronously - loading repository files...")
         }
@@ -146,6 +150,10 @@ object EditorStorage {
             onFirstLevelReady()
             return
         }
+
+        // Pre-populate the in-memory cache from the platform's async backing store
+        // (e.g. OPFS on WASM/browser) before checking the fingerprint fast path.
+        fileStorage.initializeAsync()
 
         if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
         println("Initializing EditorStorage asynchronously (priority mode) - loading first level first...")
