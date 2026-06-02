@@ -1516,7 +1516,7 @@
     <!-- Cheat code descriptions -->
     <string name="cheat_help_desc">Mostra questa schermata di aiuto</string>
     <string name="cheat_platform_desc">Mostra informazioni sulla piattaforma</string>
-    <string name="cheat_crash_dialog_desc">Mostra un\'anteprima della finestra di crash</string>
+    <string name="cheat_crash_dialog_desc">Mostra un\'anteprima del dialogo di crash</string>
     <string name="cheat_cash_desc">Aggiungi 1.000 monete</string>
     <string name="cheat_mmmoney_desc">Aggiungi 1.000.000 di monete</string>
     <string name="cheat_emptypocket_desc">Imposta monete a 0</string>
