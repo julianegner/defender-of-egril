@@ -8,6 +8,7 @@ class BackendCrashServiceTest {
 
     @Test
     fun buildCrashReportUploadJson_includesRequiredFields() {
+        val currentPlatform = de.egril.defender.utils.getPlatform()
         val payload = buildCrashReportUploadJson(
             CrashReportSubmitRequest(
                 crashId = "123e4567-e89b-12d3-a456-426614174000",
@@ -28,6 +29,12 @@ class BackendCrashServiceTest {
         // Standard client info contributed by appendClientInfo
         assertContains(payload, "\"platform\":")
         assertContains(payload, "\"platformLong\":")
+        val osName = currentPlatform.osName
+        if (osName != null) {
+            assertContains(payload, "\"osName\":\"${escapeJsonString(osName)}\"")
+        } else {
+            assertTrue("\"osName\":" !in payload)
+        }
         assertContains(payload, "\"versionName\":")
         assertContains(payload, "\"commitHash\":")
     }
