@@ -32,6 +32,10 @@ import kotlinx.serialization.json.jsonPrimitive
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import kotlin.math.sqrt
 
+// Default stroke width used when the Lottie layer doesn't declare one; value is in
+// Lottie coordinate units (0–2048 x 0–1622). Actual river widths range from 4 to 8.
+private const val DEFAULT_LOTTIE_STROKE_WIDTH = 5f
+
 private data class RiverPath(
     val points: List<Offset>,
     val strokeWidth: Float,
@@ -51,14 +55,16 @@ private fun parseRiverPaths(json: String): List<RiverPath> {
     return try {
         val doc = Json.parseToJsonElement(json).jsonObject
         val layers = doc["layers"]?.jsonArray ?: return emptyList()
-        // Layers come in staggered groups of 3 for the snake animation; take one per group
+        // The Lottie file contains 45 layers = 15 rivers × 3 layers each.
+        // The 3 layers per river are staggered "snake" Trim Paths animations.
+        // All 3 share identical path vertices, so we take one representative per group.
         layers.filterIndexed { index, _ -> index % 3 == 0 }.mapNotNull { elem ->
             val layer = elem.jsonObject
             val shapes = layer["shapes"]?.jsonArray ?: return@mapNotNull null
             val shape = shapes.firstOrNull()?.jsonObject ?: return@mapNotNull null
             val items = shape["it"]?.jsonArray ?: return@mapNotNull null
             var points: List<Offset>? = null
-            var strokeWidth = 5f
+            var strokeWidth = DEFAULT_LOTTIE_STROKE_WIDTH
             for (item in items) {
                 val o = item.jsonObject
                 when (o["ty"]?.jsonPrimitive?.content) {
@@ -69,13 +75,15 @@ private fun parseRiverPaths(json: String): List<RiverPath> {
                             Offset(arr[0].jsonPrimitive.float, arr[1].jsonPrimitive.float)
                         }
                     }
-                    "st" -> strokeWidth = o["w"]?.jsonObject?.get("k")?.jsonPrimitive?.float ?: 5f
+                    "st" -> strokeWidth = o["w"]?.jsonObject?.get("k")?.jsonPrimitive?.float
+                        ?: DEFAULT_LOTTIE_STROKE_WIDTH
                 }
             }
             val pts = points?.takeIf { it.size >= 2 } ?: return@mapNotNull null
             RiverPath(pts, strokeWidth)
         }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        println("WorldMapRiverFlowAnimation: failed to parse river paths — ${e.message}")
         emptyList()
     }
 }
