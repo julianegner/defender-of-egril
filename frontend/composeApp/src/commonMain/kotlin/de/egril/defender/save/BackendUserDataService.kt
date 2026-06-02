@@ -56,13 +56,15 @@ expect object BackendUserDataService {
 
 /** Builds the JSON payload for a user-data upload request. */
 internal fun buildUserDataUploadJson(jsonData: String): String = buildString {
+    val currentPlatform = de.egril.defender.utils.getPlatform()
     val platform = de.egril.defender.utils.getClientPlatformName()
-    val platformLong = de.egril.defender.utils.getPlatform().name
+    val platformLong = currentPlatform.name
+    val osName = currentPlatform.osName
     val versionName = de.egril.defender.AppBuildInfo.VERSION_NAME
     val commitHash = de.egril.defender.AppBuildInfo.COMMIT_HASH
     append("{")
     append("\"data\":\"${escapeJsonString(jsonData)}\",")
-    appendClientInfo(platform, platformLong, versionName, commitHash)
+    appendClientInfo(platform, platformLong, versionName, commitHash, osName)
     append("}")
 }
 

@@ -80,7 +80,7 @@ internal fun StringBuilder.appendClientInfo(
     platformLong: String,
     versionName: String,
     commitHash: String,
-    osName: String? = de.egril.defender.utils.getPlatform().osName
+    osName: String?
 ) {
     append("\"platform\":\"${escapeJsonString(platform)}\",")
     append("\"platformLong\":\"${escapeJsonString(platformLong)}\",")
@@ -93,14 +93,16 @@ internal fun StringBuilder.appendClientInfo(
 
 /** Builds the JSON payload for a savefile upload request. */
 internal fun buildUploadJson(saveId: String, jsonData: String): String = buildString {
+    val currentPlatform = de.egril.defender.utils.getPlatform()
     val platform = de.egril.defender.utils.getClientPlatformName()
-    val platformLong = de.egril.defender.utils.getPlatform().name
+    val platformLong = currentPlatform.name
+    val osName = currentPlatform.osName
     val versionName = de.egril.defender.AppBuildInfo.VERSION_NAME
     val commitHash = de.egril.defender.AppBuildInfo.COMMIT_HASH
     append("{")
     append("\"saveId\":\"${escapeJsonString(saveId)}\",")
     append("\"data\":\"${escapeJsonString(jsonData)}\",")
-    appendClientInfo(platform, platformLong, versionName, commitHash)
+    appendClientInfo(platform, platformLong, versionName, commitHash, osName)
     append("}")
 }
 
