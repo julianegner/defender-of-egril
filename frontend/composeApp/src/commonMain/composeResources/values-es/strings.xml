@@ -1514,6 +1514,7 @@
     <!-- Cheat code descriptions -->
     <string name="cheat_help_desc">Mostrar esta pantalla de ayuda</string>
     <string name="cheat_platform_desc">Mostrar información de la plataforma</string>
+    <string name="cheat_crash_dialog_desc">Mostrar una vista previa del diálogo de error</string>
     <string name="cheat_cash_desc">Agregar 1,000 monedas</string>
     <string name="cheat_mmmoney_desc">Agregar 1,000,000 de monedas</string>
     <string name="cheat_emptypocket_desc">Establecer monedas en 0</string>
@@ -1901,5 +1902,8 @@
     <string name="edit_binding_hint">Tab + Enter = editar tecla</string>
     <string name="dropdown_keyboard_hint">Up/Down Navegar, Enter = Seleccionar, Esc = Cerrar</string>
     <string name="shortcut_bindings_nav_hint">Usa Tab/Shift+Tab para seleccionar un atajo, luego Enter para cambiarlo. R para restablecer todos los atajos.</string>
+    <string name="crash_dialog_title">Se produjo un error inesperado</string>
+    <string name="crash_dialog_message">Algo salió mal dentro del juego. Puedes pulsar Aceptar para cerrar este mensaje y seguir jugando. Si se envía el informe de error, el responsable del proyecto recibirá los detalles técnicos del error, tu configuración actual y el registro del juego para ayudar a corregirlo.</string>
+    <string name="crash_dialog_send_info_checkbox">Enviar información del error al responsable del proyecto</string>
 
 </resources>

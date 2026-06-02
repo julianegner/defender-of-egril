@@ -26,6 +26,18 @@ import org.jetbrains.skia.Image
 import java.awt.Dimension
 
 fun main() = application {
+    // Install a process-wide uncaught-exception handler so any throwable
+    // bubbling out of background threads is funnelled into the global
+    // CrashReporter (and surfaced via the error boundary dialog) rather
+    // than terminating the Compose application silently.
+    Thread.setDefaultUncaughtExceptionHandler { _, throwable ->
+        try {
+            de.egril.defender.utils.CrashReporter.report(throwable)
+        } catch (_: Throwable) {
+            // Last-resort: swallow so we never recurse on a handler failure.
+        }
+    }
+
     val iconPainter by produceState<BitmapPainter?>(null) {
         val iconBytes = Thread.currentThread().contextClassLoader
             .getResourceAsStream("drawable/black-shield.png")

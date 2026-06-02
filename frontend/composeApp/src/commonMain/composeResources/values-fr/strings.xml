@@ -1515,6 +1515,7 @@
     <!-- Cheat code descriptions -->
     <string name="cheat_help_desc">Afficher cet écran d\'aide</string>
     <string name="cheat_platform_desc">Afficher les informations de la plateforme</string>
+    <string name="cheat_crash_dialog_desc">Afficher un aperçu d\'une boîte de dialogue de plantage</string>
     <string name="cheat_cash_desc">Ajouter 1 000 pièces</string>
     <string name="cheat_mmmoney_desc">Ajouter 1 000 000 de pièces</string>
     <string name="cheat_emptypocket_desc">Mettre les pièces à 0</string>
@@ -1902,5 +1903,8 @@
     <string name="edit_binding_hint">Tab + Enter = modifier touche</string>
     <string name="dropdown_keyboard_hint">Up/Down Naviguer, Enter = Sélectionner, Esc = Fermer</string>
     <string name="shortcut_bindings_nav_hint">Utilisez Tab/Shift+Tab pour sélectionner un raccourci, puis Enter pour le modifier. R pour réinitialiser tous les raccourcis.</string>
+    <string name="crash_dialog_title">Une erreur inattendue s\'est produite</string>
+    <string name="crash_dialog_message">Quelque chose s\'est mal passé dans le jeu. Vous pouvez appuyer sur OK pour fermer ce message et continuer à jouer. Si le rapport d\'erreur est envoyé, le mainteneur recevra les détails techniques de l\'erreur, vos paramètres actuels et le journal du jeu pour aider à la corriger.</string>
+    <string name="crash_dialog_send_info_checkbox">Envoyer les informations d\'erreur au mainteneur</string>
 
 </resources>

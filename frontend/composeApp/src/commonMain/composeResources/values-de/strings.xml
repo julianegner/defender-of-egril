@@ -1513,6 +1513,7 @@
     <!-- Cheat code descriptions -->
     <string name="cheat_help_desc">Diese Hilfe anzeigen</string>
     <string name="cheat_platform_desc">Plattforminformationen anzeigen</string>
+    <string name="cheat_crash_dialog_desc">Eine Beispiel-Absturzmeldung zur Vorschau anzeigen</string>
     <string name="cheat_cash_desc">1.000 Münzen hinzufügen</string>
     <string name="cheat_mmmoney_desc">1.000.000 Münzen hinzufügen</string>
     <string name="cheat_emptypocket_desc">Münzen auf 0 setzen</string>
@@ -1900,5 +1901,8 @@
     <string name="edit_binding_hint">Tab + Enter = Taste ändern</string>
     <string name="dropdown_keyboard_hint">Up/Down Navigieren, Enter = Auswählen, Esc = Schließen</string>
     <string name="shortcut_bindings_nav_hint">Tab/Shift+Tab zum Auswählen einer Tastenbelegung, dann Enter zum Ändern. R zum Zurücksetzen aller Belegungen.</string>
+    <string name="crash_dialog_title">Ein unerwarteter Fehler ist aufgetreten</string>
+    <string name="crash_dialog_message">Im Spiel ist etwas schiefgelaufen. Du kannst OK drücken, um diese Meldung zu schließen und weiterzuspielen. Wenn der Fehlerbericht gesendet wird, erhält der Maintainer die technischen Fehlerdetails, deine aktuellen Einstellungen und das Spielprotokoll, um das Problem zu beheben.</string>
+    <string name="crash_dialog_send_info_checkbox">Fehlerinformationen an den Maintainer senden</string>
 
 </resources>

@@ -18,6 +18,7 @@ private val userDataLogger = LoggerFactory.getLogger("UserData")
 private val settingsLogger = LoggerFactory.getLogger("Settings")
 private val iamLogger = LoggerFactory.getLogger("IAM")
 private val feedbackRoutingLogger = LoggerFactory.getLogger("FeedbackRouting")
+private val crashRoutingLogger = LoggerFactory.getLogger("CrashRouting")
 
 fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
     routing {
@@ -274,6 +275,83 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                 } catch (e: Exception) {
                     feedbackRoutingLogger.error("Failed to store feedback: ${e.message}", e)
                     call.respond(HttpStatusCode.InternalServerError, "Failed to store feedback")
+                }
+            }
+        }
+
+        /**
+         * Receive a crash / unhandled-error report from the frontend.
+         *
+         * Stores the error type and (non-localized) message, optional stack trace,
+         * the in-memory game log, the current settings JSON, the standard client
+         * identification (version, commit hash, platform info) and – when an
+         * Authorization ****** is present – the authenticated user id/name.
+         *
+         * Idempotent on `crashId` (UUID). Returns 200 with `duplicate=true` when
+         * a report with the same id has already been stored.
+         */
+        post("/api/crash") {
+            val request = try {
+                call.receive<CrashReportRequest>()
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid crash payload: ${e.message}")
+                return@post
+            }
+            if (!isValidUuid(request.crashId)) {
+                call.respond(HttpStatusCode.BadRequest, "crashId must be a valid UUID")
+                return@post
+            }
+            if (request.errorType.isBlank()) {
+                call.respond(HttpStatusCode.BadRequest, "errorType must not be blank")
+                return@post
+            }
+
+            val ds = dataSourceRef.get() ?: run {
+                call.respond(HttpStatusCode.ServiceUnavailable, "Database not available")
+                return@post
+            }
+
+            val authHeader = call.request.header(HttpHeaders.Authorization)
+            val userId = extractUserIdFromBearerToken(authHeader)
+            val userName = extractUsernameFromBearerToken(authHeader)
+            ds.connection.use { conn ->
+                try {
+                    val affectedRows = conn.prepareStatement(
+                        """
+                        INSERT INTO crash_reports (
+                            crash_uuid, error_type, error_message, stack_trace, game_log, settings_json,
+                            platform, platform_long, platform_extended, os_name, version_name, commit_hash,
+                            user_id, user_name
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ON CONFLICT (crash_uuid) DO NOTHING
+                        """.trimIndent()
+                    ).use { stmt ->
+                        stmt.setObject(1, UUID.fromString(request.crashId))
+                        stmt.setString(2, request.errorType.take(512))
+                        stmt.setString(3, request.errorMessage)
+                        stmt.setString(4, request.stackTrace)
+                        stmt.setString(5, request.gameLog)
+                        stmt.setString(6, request.settingsJson)
+                        stmt.setString(7, request.platform)
+                        stmt.setString(8, request.platformLong)
+                        stmt.setString(9, request.platformExtended)
+                        stmt.setString(10, request.osName)
+                        stmt.setString(11, request.versionName)
+                        stmt.setString(12, request.commitHash)
+                        stmt.setString(13, userId)
+                        stmt.setString(14, userName)
+                        stmt.executeUpdate()
+                    }
+
+                    if (affectedRows == 0) {
+                        call.respond(HttpStatusCode.OK, CrashReportResponse(accepted = true, duplicate = true))
+                    } else {
+                        crashRoutingLogger.info("Crash stored: crashId=${request.crashId} errorType=${request.errorType}")
+                        call.respond(HttpStatusCode.OK, CrashReportResponse(accepted = true, duplicate = false))
+                    }
+                } catch (e: Exception) {
+                    crashRoutingLogger.error("Failed to store crash report: ${e.message}", e)
+                    call.respond(HttpStatusCode.InternalServerError, "Failed to store crash report")
                 }
             }
         }
@@ -996,7 +1074,9 @@ internal fun hasClientRole(authHeader: String?, clientId: String, role: String):
 internal fun extractJsonStringValue(json: String, key: String): String? =
     Regex("\"${Regex.escape(key)}\"\\s*:\\s*\"([^\"]+)\"").find(json)?.groupValues?.get(1)
 
-private fun isValidFeedbackId(value: String): Boolean =
+private fun isValidFeedbackId(value: String): Boolean = isValidUuid(value)
+
+private fun isValidUuid(value: String): Boolean =
     runCatching { UUID.fromString(value) }.isSuccess
 
 private fun parseFeedbackType(value: String): FeedbackType? =

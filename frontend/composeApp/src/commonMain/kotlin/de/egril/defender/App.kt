@@ -23,6 +23,7 @@ import de.egril.defender.iam.initPlatformIam
 
 @Composable
 fun App() {
+    de.egril.defender.ui.crash.ErrorBoundary {
     // Initialize settings, sound, and IAM on app start
     LaunchedEffect(Unit) {
         AppSettings.initialize()
@@ -637,4 +638,5 @@ fun App() {
         }
         } // CompositionLocalProvider
     }
+    } // ErrorBoundary
 }
