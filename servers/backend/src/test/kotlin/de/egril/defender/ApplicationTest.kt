@@ -36,6 +36,19 @@ class ApplicationTest {
     }
 
     @Test
+    fun testPostEventAppStartedWithUrl() = testApplication {
+        application {
+            module()
+        }
+        client.post("/api/events") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"event":"APP_STARTED","platform":"WEB","url":"https://egril.de/game"}""")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+    }
+
+    @Test
     fun testPostEventLevelStarted() = testApplication {
         application {
             module()
