@@ -77,3 +77,6 @@ servers/keycloak/theme/dist/
 servers/keycloak/theme/dist_keycloak/
 
 egril-realm-backup-*.json
+
+# Temporary working files
+.tmp/

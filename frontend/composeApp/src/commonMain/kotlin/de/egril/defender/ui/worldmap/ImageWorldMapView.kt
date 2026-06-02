@@ -274,18 +274,10 @@ fun ImageWorldMapView(
                 contentScale = ContentScale.Fit
             )
 
-            // Animated overlay: river flow along the rivers at 2/3 of base speed.
-            // Wave animation is suppressed for now (TODO: revisit wave animation later).
-            // Lottie compositions share the worldmap image's aspect ratio and use
-            // ContentScale.Fit, so they line up pixel-for-pixel with the background.
-            // LottieAnimation internally short-circuits when AppSettings.enableAnimations is false.
-            de.egril.defender.ui.animations.LottieAnimation(
-                animationType = de.egril.defender.ui.animations.AnimationType.WORLD_MAP_RIVERS,
-                modifier = Modifier.fillMaxSize(),
-                iterations = io.github.alexzhirkevich.compottie.Compottie.IterateForever,
-                speed = 2f / 3f,
-                contentScale = ContentScale.Fit
-            )
+            // Canvas-based river flow animation. Paths are loaded from world_map_rivers.json
+            // and rendered with animated flowing dashes that give the impression of running water.
+            // Only active when AppSettings.enableAnimations is true.
+            WorldMapRiverFlowAnimation(modifier = Modifier.fillMaxSize())
             
             // Draw road connections between locations
             RoadConnectionsOverlay(
