@@ -1515,6 +1515,7 @@
     <!-- Cheat code descriptions -->
     <string name="cheat_help_desc">Afficher cet écran d\'aide</string>
     <string name="cheat_platform_desc">Afficher les informations de la plateforme</string>
+    <string name="cheat_crash_dialog_desc">Afficher un aperçu d\'une boîte de dialogue de plantage</string>
     <string name="cheat_cash_desc">Ajouter 1 000 pièces</string>
     <string name="cheat_mmmoney_desc">Ajouter 1 000 000 de pièces</string>
     <string name="cheat_emptypocket_desc">Mettre les pièces à 0</string>

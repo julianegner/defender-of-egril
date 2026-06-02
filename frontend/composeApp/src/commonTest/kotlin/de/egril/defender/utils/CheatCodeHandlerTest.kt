@@ -275,6 +275,33 @@ class CheatCodeHandlerTest {
     }
 
     @Test
+    fun testCrashDialogCheatCode() {
+        CrashReporter.clear()
+        try {
+            val (success, digOutcome) = CheatCodeHandler.applyCheatCode(
+                code = "crashdialog",
+                addCoins = { },
+                setCoins = { },
+                performMineDigWithOutcome = { null },
+                spawnEnemy = { _, _ -> }
+            )
+
+            assertTrue(success, "Crash dialog cheat code should be recognized")
+            assertEquals(null, digOutcome, "Crash dialog cheat should not return dig outcome")
+            assertEquals(
+                "de.egril.defender.ui.crash.CheatCodePreviewException",
+                CrashReporter.current.value?.errorType
+            )
+            assertEquals(
+                "Example crash dialog preview triggered by the cheat code. Uncheck reporting unless you want to test backend ingestion.",
+                CrashReporter.current.value?.errorMessage
+            )
+        } finally {
+            CrashReporter.clear()
+        }
+    }
+
+    @Test
     fun testUnlockCheatCode() {
         val testCases = listOf("unlock", "unlockall", "unlock all")
         
@@ -415,6 +442,29 @@ class CheatCodeHandlerTest {
         
         assertFalse(success, "Invalid world map cheat code should not be recognized")
         assertFalse(unlockCalled, "Invalid cheat code should not call unlockAllLevels")
+    }
+
+    @Test
+    fun testCrashDialogWorldMapCheatCode() {
+        CrashReporter.clear()
+        try {
+            val success = CheatCodeHandler.applyWorldMapCheatCode(
+                code = "crash",
+                unlockAllLevels = { }
+            )
+
+            assertTrue(success, "Crash dialog world map cheat code should be recognized")
+            assertEquals(
+                "de.egril.defender.ui.crash.CheatCodePreviewException",
+                CrashReporter.current.value?.errorType
+            )
+            assertEquals(
+                "Example crash dialog preview triggered by the cheat code. Uncheck reporting unless you want to test backend ingestion.",
+                CrashReporter.current.value?.errorMessage
+            )
+        } finally {
+            CrashReporter.clear()
+        }
     }
     
     @Test

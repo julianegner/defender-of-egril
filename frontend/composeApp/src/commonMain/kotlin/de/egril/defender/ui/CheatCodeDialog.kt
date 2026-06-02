@@ -26,6 +26,7 @@ import defender_of_egril.composeapp.generated.resources.cheat_stat_types
 import defender_of_egril.composeapp.generated.resources.cheat_help_desc
 import defender_of_egril.composeapp.generated.resources.cheat_platform_desc
 import defender_of_egril.composeapp.generated.resources.cheat_cash_desc
+import defender_of_egril.composeapp.generated.resources.cheat_crash_dialog_desc
 import defender_of_egril.composeapp.generated.resources.cheat_mmmoney_desc
 import defender_of_egril.composeapp.generated.resources.cheat_emptypocket_desc
 import defender_of_egril.composeapp.generated.resources.cheat_addmana_desc
@@ -204,6 +205,7 @@ fun CheatCodeHelpScreen(
             CheatSection(stringResource(Res.string.cheat_section_general)) {
                 CheatCodeItem("cheat / cheats / help", stringResource(Res.string.cheat_help_desc))
                 CheatCodeItem("platform", stringResource(Res.string.cheat_platform_desc))
+                CheatCodeItem("crash / crashdialog", stringResource(Res.string.cheat_crash_dialog_desc))
             }
             
             if (isInGameplay) {

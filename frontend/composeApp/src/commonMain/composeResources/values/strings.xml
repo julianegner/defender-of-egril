@@ -1517,6 +1517,7 @@
     <!-- Cheat code descriptions -->
     <string name="cheat_help_desc">Show this help screen</string>
     <string name="cheat_platform_desc">Show platform information</string>
+    <string name="cheat_crash_dialog_desc">Show an example crash dialog preview</string>
     <string name="cheat_cash_desc">Add 1,000 coins</string>
     <string name="cheat_mmmoney_desc">Add 1,000,000 coins</string>
     <string name="cheat_emptypocket_desc">Set coins to 0</string>

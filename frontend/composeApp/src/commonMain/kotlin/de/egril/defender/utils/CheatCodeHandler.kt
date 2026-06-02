@@ -10,6 +10,11 @@ import de.egril.defender.model.WorldLevel
  * Separates cheat code logic from the GameViewModel.
  */
 object CheatCodeHandler {
+
+    private const val CRASH_DIALOG_PREVIEW_ERROR_TYPE =
+        "de.egril.defender.ui.crash.CheatCodePreviewException"
+    private const val CRASH_DIALOG_PREVIEW_ERROR_MESSAGE =
+        "Example crash dialog preview triggered by the cheat code. Uncheck reporting unless you want to test backend ingestion."
     
     /**
      * Apply a cheat code during gameplay.
@@ -66,6 +71,13 @@ object CheatCodeHandler {
             }
             "platform" -> {
                 showPlatformInfo?.invoke()
+                return Pair(true, null)
+            }
+            "crash", "crashdialog" -> {
+                CrashReporter.report(
+                    errorType = CRASH_DIALOG_PREVIEW_ERROR_TYPE,
+                    errorMessage = CRASH_DIALOG_PREVIEW_ERROR_MESSAGE
+                )
                 return Pair(true, null)
             }
             "bighead" -> {
@@ -186,6 +198,13 @@ object CheatCodeHandler {
             }
             "platform" -> {
                 showPlatformInfo?.invoke()
+                return true
+            }
+            "crash", "crashdialog" -> {
+                CrashReporter.report(
+                    errorType = CRASH_DIALOG_PREVIEW_ERROR_TYPE,
+                    errorMessage = CRASH_DIALOG_PREVIEW_ERROR_MESSAGE
+                )
                 return true
             }
             "cheat", "cheats", "help" -> {
