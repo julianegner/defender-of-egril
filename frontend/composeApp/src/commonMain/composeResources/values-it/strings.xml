@@ -1903,5 +1903,8 @@
     <string name="edit_binding_hint">Tab + Enter = modifica tasto</string>
     <string name="dropdown_keyboard_hint">Up/Down Naviga, Enter = Seleziona, Esc = Chiudi</string>
     <string name="shortcut_bindings_nav_hint">Usa Tab/Shift+Tab per selezionare un tasto, poi Enter per modificarlo. R per ripristinare tutti i tasti.</string>
+    <string name="crash_dialog_title">Si è verificato un errore imprevisto</string>
+    <string name="crash_dialog_message">Qualcosa è andato storto nel gioco. Puoi premere OK per chiudere questo messaggio e continuare a giocare. Se il rapporto di errore viene inviato, il manutentore riceverà i dettagli tecnici dell\'errore, le tue impostazioni attuali e il registro di gioco per aiutare a risolverlo.</string>
+    <string name="crash_dialog_send_info_checkbox">Invia informazioni sull\'errore al manutentore</string>
 
 </resources>
