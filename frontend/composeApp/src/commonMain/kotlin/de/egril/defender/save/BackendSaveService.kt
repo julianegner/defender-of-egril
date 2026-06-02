@@ -64,18 +64,29 @@ internal fun escapeJsonString(s: String): String = buildString {
 }
 
 /**
- * Appends the shared client information JSON fields (platform, platformLong, versionName, commitHash)
- * to this [StringBuilder]. The fields are written without a trailing comma.
+ * Appends the shared client information JSON fields (platform, platformLong, versionName,
+ * commitHash, optional osName) to this [StringBuilder]. The fields are written without a
+ * trailing comma.
  *
  * @param platform     Short platform identifier (e.g. "WEB", "DESKTOP", "ANDROID", "IOS")
  * @param platformLong Long platform name from [de.egril.defender.utils.Platform.name]
  *                     (e.g. "Web with Kotlin/Wasm Mozilla/5.0 (...)")
  * @param versionName  Frontend version name (e.g. "1.0")
  * @param commitHash   Short git commit hash of the frontend build
+ * @param osName       Optional operating system name/version from [de.egril.defender.utils.Platform.osName]
  */
-internal fun StringBuilder.appendClientInfo(platform: String, platformLong: String, versionName: String, commitHash: String) {
+internal fun StringBuilder.appendClientInfo(
+    platform: String,
+    platformLong: String,
+    versionName: String,
+    commitHash: String,
+    osName: String? = de.egril.defender.utils.getPlatform().osName
+) {
     append("\"platform\":\"${escapeJsonString(platform)}\",")
     append("\"platformLong\":\"${escapeJsonString(platformLong)}\",")
+    if (osName != null) {
+        append("\"osName\":\"${escapeJsonString(osName)}\",")
+    }
     append("\"versionName\":\"${escapeJsonString(versionName)}\",")
     append("\"commitHash\":\"${escapeJsonString(commitHash)}\"")
 }

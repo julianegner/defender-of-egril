@@ -28,6 +28,12 @@ class BackendCrashServiceTest {
         // Standard client info contributed by appendClientInfo
         assertContains(payload, "\"platform\":")
         assertContains(payload, "\"platformLong\":")
+        val osName = de.egril.defender.utils.getPlatform().osName
+        if (osName != null) {
+            assertContains(payload, "\"osName\":\"${escapeJsonString(osName)}\"")
+        } else {
+            assertTrue("\"osName\":" !in payload)
+        }
         assertContains(payload, "\"versionName\":")
         assertContains(payload, "\"commitHash\":")
     }
