@@ -40,6 +40,14 @@ private const val DEFAULT_LOTTIE_STROKE_WIDTH = 6f
 private const val FLOW_CYCLE_MILLIS = 3500
 private const val SHIMMER_CYCLE_MILLIS = 5000
 
+// Rendering thresholds
+private const val MINIMUM_VISIBLE_PATH_LENGTH = 1f // paths shorter than 1px are invisible
+
+// Highlight layer animation parameters
+private const val HIGHLIGHT_SPEED_MULTIPLIER = 1.3f // faster than base flow
+private const val HIGHLIGHT_STAGGER_COUNT = 2f // number of staggered streaks
+private const val HIGHLIGHT_PATTERN_REPEATS = 3f // pattern repeats along path
+
 // Water appearance: multiple layered strokes for a richer look
 private val WATER_BASE_COLOR = Color(0.35f, 0.65f, 0.88f, 0.35f)
 private val WATER_MIDTONE_COLOR = Color(0.45f, 0.75f, 0.95f, 0.50f)
@@ -171,7 +179,7 @@ fun WorldMapRiverFlowAnimation(modifier: Modifier = Modifier) {
             }
 
             val totalLen = scaledPts.pathLength()
-            if (totalLen < 1f) continue
+            if (totalLen < MINIMUM_VISIBLE_PATH_LENGTH) continue
 
             val sw = river.strokeWidth * scale
 
@@ -210,7 +218,8 @@ fun WorldMapRiverFlowAnimation(modifier: Modifier = Modifier) {
             val highlightDash = totalLen * 0.15f
             val highlightGap = totalLen * 0.18f
             for (streak in 0..1) {
-                val p = ((flowPhase * 1.3f + streak / 2f) % 1f) * (highlightDash + highlightGap) * 3f
+                val p = ((flowPhase * HIGHLIGHT_SPEED_MULTIPLIER + streak / HIGHLIGHT_STAGGER_COUNT) % 1f) *
+                    (highlightDash + highlightGap) * HIGHLIGHT_PATTERN_REPEATS
                 drawPath(
                     path = path,
                     color = WATER_HIGHLIGHT_COLOR,
