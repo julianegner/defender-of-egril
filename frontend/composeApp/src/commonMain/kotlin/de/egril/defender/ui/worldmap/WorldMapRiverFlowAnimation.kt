@@ -49,7 +49,6 @@ private const val HIGHLIGHT_STAGGER_COUNT = 2f // number of staggered streaks
 private const val HIGHLIGHT_PATTERN_REPEATS = 3f // pattern repeats along path
 
 // Water appearance: multiple layered strokes for a richer look
-private val WATER_BASE_COLOR = Color(0.35f, 0.65f, 0.88f, 0.35f)
 private val WATER_MIDTONE_COLOR = Color(0.45f, 0.75f, 0.95f, 0.50f)
 private val WATER_HIGHLIGHT_COLOR = Color(0.70f, 0.90f, 1.0f, 0.75f)
 private val WATER_SHIMMER_COLOR = Color(0.85f, 0.95f, 1.0f, 0.60f)
@@ -111,14 +110,13 @@ private fun parseRiverPaths(json: String): List<RiverPath> {
  * Paths are scaled to the actual canvas size using the same ContentScale.Fit logic as the
  * background image, so they line up pixel-for-pixel with the rivers on the map.
  *
- * Each river is rendered with multiple layered strokes to simulate flowing water:
- * 1. A wide, semi-transparent base stroke (the river bed/channel)
- * 2. A mid-tone flowing layer with long dashes that scroll continuously
- * 3. Brighter highlight dashes (shorter, faster) giving a sparkle/current effect
- * 4. A subtle shimmer layer with a secondary animation speed
+ * Each river is rendered with animated layered strokes on top of the map's existing blue rivers:
+ * 1. A mid-tone flowing layer with long dashes that scroll continuously
+ * 2. Brighter highlight dashes (shorter, faster) giving a sparkle/current effect
+ * 3. A subtle shimmer layer with a secondary animation speed
  *
  * The combination of these layers with different dash lengths and animation speeds
- * produces the appearance of continuously flowing water rather than simple colored lines.
+ * produces the appearance of continuously flowing water on top of the static river artwork.
  *
  * The animation is only active when [AppSettings.enableAnimations] is true.
  */
@@ -183,18 +181,7 @@ fun WorldMapRiverFlowAnimation(modifier: Modifier = Modifier) {
 
             val sw = river.strokeWidth * scale
 
-            // --- Layer 1: Wide base channel (always visible, gives body to the river) ---
-            drawPath(
-                path = path,
-                color = WATER_BASE_COLOR,
-                style = Stroke(
-                    width = sw * 1.6f,
-                    cap = StrokeCap.Round,
-                    join = StrokeJoin.Round,
-                ),
-            )
-
-            // --- Layer 2: Mid-tone flowing current (long dashes, smooth scroll) ---
+            // --- Layer 1: Mid-tone flowing current (long dashes, smooth scroll) ---
             // Dashes cover ~40% of the path with 10% gaps, creating a continuous feel
             val midDash = totalLen * 0.4f
             val midGap = totalLen * 0.1f
@@ -213,7 +200,7 @@ fun WorldMapRiverFlowAnimation(modifier: Modifier = Modifier) {
                 ),
             )
 
-            // --- Layer 3: Highlight streaks (shorter, faster dashes for current) ---
+            // --- Layer 2: Highlight streaks (shorter, faster dashes for current) ---
             // Two staggered highlight dashes give a rippling effect
             val highlightDash = totalLen * 0.15f
             val highlightGap = totalLen * 0.18f
@@ -235,7 +222,7 @@ fun WorldMapRiverFlowAnimation(modifier: Modifier = Modifier) {
                 )
             }
 
-            // --- Layer 4: Shimmer/sparkle (very short bright flashes at different speed) ---
+            // --- Layer 3: Shimmer/sparkle (very short bright flashes at different speed) ---
             val shimmerDash = totalLen * 0.05f
             val shimmerGap = totalLen * 0.45f
             val shimmerOffset = shimmerPhase * (shimmerDash + shimmerGap) * 2f
