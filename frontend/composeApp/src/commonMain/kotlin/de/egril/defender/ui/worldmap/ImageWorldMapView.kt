@@ -274,10 +274,6 @@ fun ImageWorldMapView(
                 contentScale = ContentScale.Fit
             )
 
-            // Ocean wave animation. Tilde-shaped marks fade in, drift, and fade out
-            // across the sea areas. Only active when AppSettings.enableAnimations is true.
-            WorldMapWaveAnimation(modifier = Modifier.fillMaxSize())
-
             // Canvas-based river flow animation. Paths are loaded from world_map_rivers.json
             // and rendered with animated flowing dashes that give the impression of running water.
             // Only active when AppSettings.enableAnimations is true.
