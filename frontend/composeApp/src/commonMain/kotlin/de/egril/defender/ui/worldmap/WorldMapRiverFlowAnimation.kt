@@ -33,8 +33,18 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import kotlin.math.sqrt
 
 // Default stroke width used when the Lottie layer doesn't declare one; value is in
-// Lottie coordinate units (0–2048 x 0–1622). Actual river widths range from 4 to 8.
-private const val DEFAULT_LOTTIE_STROKE_WIDTH = 5f
+// Lottie coordinate units (0–2048 x 0–1622). Actual river widths range from 4 to 12.
+private const val DEFAULT_LOTTIE_STROKE_WIDTH = 6f
+
+// Animation timing
+private const val FLOW_CYCLE_MILLIS = 3500
+private const val SHIMMER_CYCLE_MILLIS = 5000
+
+// Water appearance: multiple layered strokes for a richer look
+private val WATER_BASE_COLOR = Color(0.35f, 0.65f, 0.88f, 0.35f)
+private val WATER_MIDTONE_COLOR = Color(0.45f, 0.75f, 0.95f, 0.50f)
+private val WATER_HIGHLIGHT_COLOR = Color(0.70f, 0.90f, 1.0f, 0.75f)
+private val WATER_SHIMMER_COLOR = Color(0.85f, 0.95f, 1.0f, 0.60f)
 
 private data class RiverPath(
     val points: List<Offset>,
@@ -55,10 +65,8 @@ private fun parseRiverPaths(json: String): List<RiverPath> {
     return try {
         val doc = Json.parseToJsonElement(json).jsonObject
         val layers = doc["layers"]?.jsonArray ?: return emptyList()
-        // The Lottie file contains 45 layers = 15 rivers × 3 layers each.
-        // The 3 layers per river are staggered "snake" Trim Paths animations.
-        // All 3 share identical path vertices, so we take one representative per group.
-        layers.filterIndexed { index, _ -> index % 3 == 0 }.mapNotNull { elem ->
+        // Each layer is one river path with shape and stroke data.
+        layers.mapNotNull { elem ->
             val layer = elem.jsonObject
             val shapes = layer["shapes"]?.jsonArray ?: return@mapNotNull null
             val shape = shapes.firstOrNull()?.jsonObject ?: return@mapNotNull null
@@ -95,10 +103,14 @@ private fun parseRiverPaths(json: String): List<RiverPath> {
  * Paths are scaled to the actual canvas size using the same ContentScale.Fit logic as the
  * background image, so they line up pixel-for-pixel with the rivers on the map.
  *
- * Each river is rendered as:
- * - A faint semi-transparent blue stroke showing the river channel
- * - Three flowing "snake" dashes staggered by 1/3 phase each, giving the impression of
- *   water continuously flowing downstream
+ * Each river is rendered with multiple layered strokes to simulate flowing water:
+ * 1. A wide, semi-transparent base stroke (the river bed/channel)
+ * 2. A mid-tone flowing layer with long dashes that scroll continuously
+ * 3. Brighter highlight dashes (shorter, faster) giving a sparkle/current effect
+ * 4. A subtle shimmer layer with a secondary animation speed
+ *
+ * The combination of these layers with different dash lengths and animation speeds
+ * produces the appearance of continuously flowing water rather than simple colored lines.
  *
  * The animation is only active when [AppSettings.enableAnimations] is true.
  */
@@ -119,14 +131,27 @@ fun WorldMapRiverFlowAnimation(modifier: Modifier = Modifier) {
     if (riverPaths.isEmpty()) return
 
     val infiniteTransition = rememberInfiniteTransition(label = "riverFlow")
-    val phase by infiniteTransition.animateFloat(
+
+    // Primary flow phase – drives the main current
+    val flowPhase by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 4500, easing = LinearEasing),
+            animation = tween(durationMillis = FLOW_CYCLE_MILLIS, easing = LinearEasing),
             repeatMode = RepeatMode.Restart,
         ),
-        label = "riverPhase",
+        label = "riverFlowPhase",
+    )
+
+    // Secondary shimmer phase – slightly slower, creates visual depth
+    val shimmerPhase by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = SHIMMER_CYCLE_MILLIS, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "riverShimmerPhase",
     )
 
     Canvas(modifier = modifier) {
@@ -146,39 +171,78 @@ fun WorldMapRiverFlowAnimation(modifier: Modifier = Modifier) {
             }
 
             val totalLen = scaledPts.pathLength()
-            val sw = river.strokeWidth * scale
-            // Each "snake" occupies 1/4 of the path length; the remaining 3/4 is gap.
-            val dashLen = totalLen / 4f
-            val gapLen = totalLen * 3f / 4f
+            if (totalLen < 1f) continue
 
-            // Faint base channel so the river is always perceptible
+            val sw = river.strokeWidth * scale
+
+            // --- Layer 1: Wide base channel (always visible, gives body to the river) ---
             drawPath(
                 path = path,
-                color = Color(0.50f, 0.78f, 0.96f, 0.22f),
+                color = WATER_BASE_COLOR,
                 style = Stroke(
-                    width = sw * 1.5f,
+                    width = sw * 1.6f,
                     cap = StrokeCap.Round,
                     join = StrokeJoin.Round,
                 ),
             )
 
-            // Three flowing snakes at 0, 1/3 and 2/3 phase offset
-            for (snake in 0..2) {
-                val p = ((phase + snake / 3f) % 1f) * totalLen
+            // --- Layer 2: Mid-tone flowing current (long dashes, smooth scroll) ---
+            // Dashes cover ~40% of the path with 10% gaps, creating a continuous feel
+            val midDash = totalLen * 0.4f
+            val midGap = totalLen * 0.1f
+            val midPhaseOffset = flowPhase * (midDash + midGap)
+            drawPath(
+                path = path,
+                color = WATER_MIDTONE_COLOR,
+                style = Stroke(
+                    width = sw * 1.2f,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    pathEffect = PathEffect.dashPathEffect(
+                        intervals = floatArrayOf(midDash, midGap),
+                        phase = midPhaseOffset,
+                    ),
+                ),
+            )
+
+            // --- Layer 3: Highlight streaks (shorter, faster dashes for current) ---
+            // Two staggered highlight dashes give a rippling effect
+            val highlightDash = totalLen * 0.15f
+            val highlightGap = totalLen * 0.18f
+            for (streak in 0..1) {
+                val p = ((flowPhase * 1.3f + streak / 2f) % 1f) * (highlightDash + highlightGap) * 3f
                 drawPath(
                     path = path,
-                    color = Color(0.62f, 0.87f, 1.0f, 0.82f),
+                    color = WATER_HIGHLIGHT_COLOR,
                     style = Stroke(
-                        width = sw,
+                        width = sw * 0.7f,
                         cap = StrokeCap.Round,
                         join = StrokeJoin.Round,
                         pathEffect = PathEffect.dashPathEffect(
-                            intervals = floatArrayOf(dashLen, gapLen),
+                            intervals = floatArrayOf(highlightDash, highlightGap),
                             phase = p,
                         ),
                     ),
                 )
             }
+
+            // --- Layer 4: Shimmer/sparkle (very short bright flashes at different speed) ---
+            val shimmerDash = totalLen * 0.05f
+            val shimmerGap = totalLen * 0.45f
+            val shimmerOffset = shimmerPhase * (shimmerDash + shimmerGap) * 2f
+            drawPath(
+                path = path,
+                color = WATER_SHIMMER_COLOR,
+                style = Stroke(
+                    width = sw * 0.4f,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    pathEffect = PathEffect.dashPathEffect(
+                        intervals = floatArrayOf(shimmerDash, shimmerGap),
+                        phase = shimmerOffset,
+                    ),
+                ),
+            )
         }
     }
 }
