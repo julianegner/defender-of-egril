@@ -15,6 +15,12 @@ sealed class DeepLink {
     object None : DeepLink()
 }
 
+enum class MobileOrientationOverlayMode {
+    NONE,
+    LANDSCAPE_REQUIRED,
+    PORTRAIT_REQUIRED
+}
+
 /**
  * Platform-specific function to get the current URL pathname.
  * On WASM/Web: returns window.location.pathname
@@ -29,11 +35,17 @@ expect fun getCurrentPathname(): String?
 expect fun updateBrowserUrl(path: String)
 
 /**
- * Adds or removes a CSS class on <body> to suppress the portrait-rotation overlay
- * while an info page is shown (WASM/Web only).
+ * Legacy helper kept for compatibility with existing call sites.
+ * Internally maps to [setMobileOrientationOverlayMode] on WASM/Web.
  * No-op on other platforms.
  */
 expect fun setInfoPageActive(active: Boolean)
+
+/**
+ * Controls the mobile orientation overlay mode (WASM/Web only).
+ * No-op on other platforms.
+ */
+expect fun setMobileOrientationOverlayMode(mode: MobileOrientationOverlayMode)
 
 /**
  * Maps an InfoTab to its URL slug.

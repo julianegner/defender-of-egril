@@ -26,7 +26,6 @@ import de.egril.defender.ui.isEditorAvailable
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.utils.isPlatformWasm
-import de.egril.defender.utils.setInfoPageActive
 import de.egril.defender.utils.toUrlSlug
 import de.egril.defender.utils.updateBrowserUrl
 import defender_of_egril.composeapp.generated.resources.*
@@ -73,15 +72,12 @@ fun InfoPageScreen(
     val contentScrollState = rememberScrollState()
     val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
 
-    // Suppress the HTML portrait-rotation overlay while on the info page and update the URL.
+    // Keep the browser URL in sync with the selected tab.
     DisposableEffect(Unit) {
-        setInfoPageActive(true)
         onDispose {
-            setInfoPageActive(false)
             updateBrowserUrl("/")
         }
     }
-    // Keep the browser URL in sync with the selected tab.
     LaunchedEffect(selectedTab) {
         updateBrowserUrl("/info/${selectedTab.toUrlSlug()}")
     }
