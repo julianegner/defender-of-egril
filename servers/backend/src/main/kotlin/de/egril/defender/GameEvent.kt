@@ -16,6 +16,7 @@ import kotlinx.serialization.Serializable
  * @param username The Keycloak username of the authenticated player, optional (only present when logged in)
  * @param turnNumber The current game turn number at the time of the event, optional (present for LEVEL_LOADED, LEVEL_WON, LEVEL_LOST, LEVEL_LEFT)
  * @param difficulty The selected game difficulty (BABY, EASY, MEDIUM, HARD, NIGHTMARE), optional
+ * @param url The full URL of the web page at the time of the event (web platform, APP_STARTED only), optional
  */
 @Serializable
 data class GameEvent(
@@ -29,5 +30,6 @@ data class GameEvent(
     val commitHash: String? = null,
     val username: String? = null,
     val turnNumber: Int? = null,
-    val difficulty: String? = null
+    val difficulty: String? = null,
+    val url: String? = null
 )

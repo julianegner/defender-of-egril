@@ -4,7 +4,7 @@
   "annotations": {
     "list": []
   },
-  "description": "Defender of Egril \u2013 events, users, and Hetzner server health",
+  "description": "Defender of Egril – events, users, and Hetzner server health",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -20,7 +20,7 @@
         "y": 0
       },
       "id": 100,
-      "title": "\ud83d\udcca Game Activity",
+      "title": "📊 Game Activity",
       "type": "row"
     },
     {
@@ -592,15 +592,162 @@
       ]
     },
     {
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres-app"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "created_at"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 200
+              },
+              {
+                "id": "unit",
+                "value": "dateTimeAsLocal"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "platform"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "os_name"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 180
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "user_name"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "url"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 350
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "platform_extended"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 250
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "commit_hash"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "platform_long"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 250
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
+      "id": 8,
+      "options": {
+        "footer": {
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "created_at"
+          }
+        ]
+      },
+      "title": "APP_STARTED Events (Last 100)",
+      "type": "table",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres-app"
+          },
+          "format": "table",
+          "rawSql": "SELECT id, platform, os_name, version_name, commit_hash, user_name, url, platform_extended, platform_long, created_at FROM events WHERE event_type = 'APP_STARTED' ORDER BY created_at DESC LIMIT 100",
+          "refId": "A"
+        }
+      ]
+    },
+    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 27
+        "y": 37
       },
       "id": 101,
-      "title": "\ud83d\udda5\ufe0f Hetzner Server Metrics",
+      "title": "🖥️ Hetzner Server Metrics",
       "type": "row"
     },
     {
@@ -640,7 +787,7 @@
         "h": 5,
         "w": 8,
         "x": 0,
-        "y": 28
+        "y": 38
       },
       "id": 10,
       "options": {
@@ -706,7 +853,7 @@
         "h": 5,
         "w": 8,
         "x": 8,
-        "y": 28
+        "y": 38
       },
       "id": 11,
       "options": {
@@ -772,7 +919,7 @@
         "h": 5,
         "w": 8,
         "x": 16,
-        "y": 28
+        "y": 38
       },
       "id": 12,
       "options": {
@@ -838,7 +985,7 @@
         "h": 5,
         "w": 8,
         "x": 0,
-        "y": 33
+        "y": 43
       },
       "id": 20,
       "options": {
@@ -904,7 +1051,7 @@
         "h": 5,
         "w": 8,
         "x": 8,
-        "y": 33
+        "y": 43
       },
       "id": 21,
       "options": {
@@ -970,7 +1117,7 @@
         "h": 5,
         "w": 8,
         "x": 16,
-        "y": 33
+        "y": 43
       },
       "id": 22,
       "options": {
@@ -1036,7 +1183,7 @@
         "h": 5,
         "w": 8,
         "x": 0,
-        "y": 38
+        "y": 48
       },
       "id": 30,
       "options": {
@@ -1102,7 +1249,7 @@
         "h": 5,
         "w": 8,
         "x": 8,
-        "y": 38
+        "y": 48
       },
       "id": 31,
       "options": {
@@ -1168,7 +1315,7 @@
         "h": 5,
         "w": 8,
         "x": 16,
-        "y": 38
+        "y": 48
       },
       "id": 32,
       "options": {
@@ -1203,10 +1350,10 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 43
+        "y": 53
       },
       "id": 102,
-      "title": "\u26a0\ufe0f Backend Errors",
+      "title": "⚠️ Backend Errors",
       "type": "row"
     },
     {
@@ -1312,7 +1459,7 @@
         "h": 4,
         "w": 6,
         "x": 0,
-        "y": 44
+        "y": 54
       },
       "id": 51,
       "options": {
@@ -1364,7 +1511,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 48
+        "y": 58
       },
       "id": 52,
       "options": {
@@ -1462,7 +1609,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 56
+        "y": 66
       },
       "id": 53,
       "options": {
@@ -1497,10 +1644,10 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 66
+        "y": 76
       },
       "id": 103,
-      "title": "\ud83d\udcdd Player Feedback",
+      "title": "📝 Player Feedback",
       "type": "row"
     },
     {
@@ -1638,7 +1785,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 67
+        "y": 77
       },
       "id": 303,
       "options": {
@@ -1691,7 +1838,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 75
+        "y": 85
       },
       "id": 304,
       "options": {
@@ -1733,10 +1880,10 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 85
+        "y": 95
       },
       "id": 104,
-      "title": "\ud83d\udca5 Frontend Crash Reports",
+      "title": "💥 Frontend Crash Reports",
       "type": "row"
     },
     {
@@ -1767,7 +1914,7 @@
         "h": 4,
         "w": 6,
         "x": 0,
-        "y": 86
+        "y": 96
       },
       "id": 401,
       "options": {
@@ -1826,7 +1973,7 @@
         "h": 4,
         "w": 6,
         "x": 6,
-        "y": 86
+        "y": 96
       },
       "id": 402,
       "options": {
@@ -1874,7 +2021,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 90
+        "y": 100
       },
       "id": 403,
       "options": {
@@ -1922,7 +2069,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Defender of Egril \u2013 Overview",
+  "title": "Defender of Egril – Overview",
   "uid": "defender-overview",
   "version": 4,
   "weekStart": "",
