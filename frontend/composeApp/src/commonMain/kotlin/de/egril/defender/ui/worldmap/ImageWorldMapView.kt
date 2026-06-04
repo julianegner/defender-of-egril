@@ -274,6 +274,11 @@ fun ImageWorldMapView(
                 contentScale = ContentScale.Fit
             )
 
+            // Tide animation: the lighter blue coastal water slowly expands into the
+            // darker blue ocean and retreats, simulating a gentle tide cycle.
+            // Only active when AppSettings.enableAnimations is true.
+            WorldMapTideAnimation(modifier = Modifier.fillMaxSize())
+
             // Canvas-based river flow animation. Paths are loaded from world_map_rivers.json
             // and rendered with animated flowing dashes that give the impression of running water.
             // Only active when AppSettings.enableAnimations is true.
