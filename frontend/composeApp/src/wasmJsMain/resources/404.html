@@ -380,9 +380,13 @@
                     titleElement.textContent = localized.title || fallback.title;
                 }
                 if (subtitleElement) {
-                    subtitleElement.textContent = effectiveMode === 'portrait'
-                        ? (localized.portraitSubtitle || fallback.portraitSubtitle)
-                        : (localized.landscapeSubtitle || fallback.landscapeSubtitle);
+                    if (effectiveMode === 'portrait') {
+                        subtitleElement.textContent = localized.portraitSubtitle || fallback.portraitSubtitle;
+                    } else if (effectiveMode === 'landscape') {
+                        subtitleElement.textContent = localized.landscapeSubtitle || fallback.landscapeSubtitle;
+                    } else {
+                        subtitleElement.textContent = '';
+                    }
                 }
             };
 

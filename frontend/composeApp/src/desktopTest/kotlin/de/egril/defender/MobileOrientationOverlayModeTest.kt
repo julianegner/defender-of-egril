@@ -43,6 +43,14 @@ class MobileOrientationOverlayModeTest {
         )
         assertEquals(
             MobileOrientationOverlayMode.NONE,
+            mobileOrientationOverlayModeForScreen(Screen.Rules)
+        )
+        assertEquals(
+            MobileOrientationOverlayMode.NONE,
+            mobileOrientationOverlayModeForScreen(Screen.LoadGame)
+        )
+        assertEquals(
+            MobileOrientationOverlayMode.NONE,
             mobileOrientationOverlayModeForScreen(Screen.LevelComplete(levelId = 1, won = true, isLastLevel = false))
         )
     }
