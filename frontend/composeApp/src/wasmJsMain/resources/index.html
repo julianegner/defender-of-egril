@@ -397,7 +397,12 @@
             window.setOrientationOverlayMode = function(mode) {
                 var body = document.body;
                 if (!body) return;
-                var effectiveMode = mode === 'landscape' || mode === 'portrait' ? mode : 'none';
+                var effectiveMode = 'none';
+                if (mode === 'landscape') {
+                    effectiveMode = 'landscape';
+                } else if (mode === 'portrait') {
+                    effectiveMode = 'portrait';
+                }
                 body.classList.remove(landscapeClass, portraitClass);
                 if (effectiveMode === 'landscape') {
                     body.classList.add(landscapeClass);

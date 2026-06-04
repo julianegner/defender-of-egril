@@ -23,6 +23,12 @@ import kotlinx.coroutines.delay
 
 import de.egril.defender.iam.initPlatformIam
 
+/**
+ * Maps app screens to the mobile browser orientation overlay behavior:
+ * - Gameplay requires landscape orientation.
+ * - Main menu and info pages prefer portrait orientation.
+ * - All other screens do not force an orientation hint.
+ */
 internal fun mobileOrientationOverlayModeForScreen(screen: Screen): MobileOrientationOverlayMode = when (screen) {
     is Screen.GamePlay -> MobileOrientationOverlayMode.LANDSCAPE_REQUIRED
     is Screen.MainMenu,
