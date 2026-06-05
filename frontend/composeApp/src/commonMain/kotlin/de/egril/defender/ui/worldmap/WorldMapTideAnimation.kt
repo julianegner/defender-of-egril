@@ -20,8 +20,8 @@ import defender_of_egril.composeapp.generated.resources.world_map_tide_band2
 import defender_of_egril.composeapp.generated.resources.world_map_tide_band3
 import org.jetbrains.compose.resources.painterResource
 
-// Total animation cycle: expand (3s) → hold (1.5s) → shrink (3s) → hold (1.5s) = 9s
-private const val TIDE_CYCLE_MILLIS = 9000
+// Total animation cycle: expand (12s) → hold (6s) → shrink (12s) → hold (6s) = 36s
+private const val TIDE_CYCLE_MILLIS = 36000
 
 /**
  * Draws an animated tide effect over the world map ocean.
@@ -55,9 +55,9 @@ fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
             animation = keyframes {
                 durationMillis = TIDE_CYCLE_MILLIS
                 0f at 0 using EaseInOut
-                1f at 1000 using EaseInOut        // fully visible by 1s
-                1f at 4500 using EaseInOut        // hold through expansion + hold
-                0f at 7500 using EaseInOut        // disappear by 7.5s
+                1f at 4000 using EaseInOut        // fully visible by 4s
+                1f at 18000 using EaseInOut       // hold through expansion + hold
+                0f at 30000 using EaseInOut       // disappear by 30s
                 0f at TIDE_CYCLE_MILLIS
             },
             repeatMode = RepeatMode.Restart,
@@ -73,10 +73,10 @@ fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
             animation = keyframes {
                 durationMillis = TIDE_CYCLE_MILLIS
                 0f at 0 using EaseInOut
-                0f at 500 using EaseInOut          // starts after band 1
-                1f at 2000 using EaseInOut         // fully visible by 2s
-                1f at 4500 using EaseInOut         // hold
-                0f at 6500 using EaseInOut         // disappear by 6.5s
+                0f at 2000 using EaseInOut         // starts after band 1
+                1f at 8000 using EaseInOut         // fully visible by 8s
+                1f at 18000 using EaseInOut        // hold
+                0f at 26000 using EaseInOut        // disappear by 26s
                 0f at TIDE_CYCLE_MILLIS
             },
             repeatMode = RepeatMode.Restart,
@@ -92,10 +92,10 @@ fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
             animation = keyframes {
                 durationMillis = TIDE_CYCLE_MILLIS
                 0f at 0 using EaseInOut
-                0f at 1000 using EaseInOut         // starts after band 2
-                1f at 3000 using EaseInOut         // fully visible by 3s
-                1f at 4500 using EaseInOut         // hold
-                0f at 5500 using EaseInOut         // disappear by 5.5s
+                0f at 4000 using EaseInOut         // starts after band 2
+                1f at 12000 using EaseInOut        // fully visible by 12s
+                1f at 18000 using EaseInOut        // hold
+                0f at 22000 using EaseInOut        // disappear by 22s
                 0f at TIDE_CYCLE_MILLIS
             },
             repeatMode = RepeatMode.Restart,
