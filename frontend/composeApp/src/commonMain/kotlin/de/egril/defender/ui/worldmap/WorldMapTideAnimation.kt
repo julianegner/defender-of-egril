@@ -10,6 +10,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import de.egril.defender.ui.settings.AppSettings
@@ -19,6 +22,13 @@ import org.jetbrains.compose.resources.painterResource
 
 // Total animation cycle: expand (3s) → hold (1.5s) → shrink (3s) → hold (1.5s) = 9s
 private const val TIDE_CYCLE_MILLIS = 9000
+
+// ──────────────────────────────────────────────────────────────────────────────
+// DEBUG: Set to true to render the overlay in solid red at full opacity so you
+// can verify the overlay is positioned/sized correctly.
+// Once verified, set back to false to restore normal tide animation behaviour.
+private const val DEBUG_RED_OVERLAY = true
+// ──────────────────────────────────────────────────────────────────────────────
 
 /**
  * Draws an animated tide effect over the world map ocean.
@@ -59,10 +69,21 @@ fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
         label = "tideAlpha",
     )
 
-    Image(
-        painter = painterResource(Res.drawable.world_map_tide_overlay),
-        contentDescription = null,
-        modifier = modifier.graphicsLayer(alpha = tideAlpha),
-        contentScale = ContentScale.Fit,
-    )
+    if (DEBUG_RED_OVERLAY) {
+        // Debug mode: render overlay in solid red at full alpha to confirm visibility
+        Image(
+            painter = painterResource(Res.drawable.world_map_tide_overlay),
+            contentDescription = null,
+            modifier = modifier,
+            contentScale = ContentScale.Fit,
+            colorFilter = ColorFilter.tint(Color.Red, BlendMode.SrcAtop),
+        )
+    } else {
+        Image(
+            painter = painterResource(Res.drawable.world_map_tide_overlay),
+            contentDescription = null,
+            modifier = modifier.graphicsLayer(alpha = tideAlpha),
+            contentScale = ContentScale.Fit,
+        )
+    }
 }
