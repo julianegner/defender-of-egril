@@ -6,19 +6,16 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.drawscope.scale
-import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.world_map_tide_overlay
-import org.jetbrains.compose.resources.imageResource
+import org.jetbrains.compose.resources.painterResource
 
 // Total animation cycle: expand (3s) → hold (1.5s) → shrink (3s) → hold (1.5s) = 9s
 private const val TIDE_CYCLE_MILLIS = 9000
@@ -32,16 +29,15 @@ private const val TIDE_CYCLE_MILLIS = 9000
  *
  * The overlay image is pre-computed with an alpha gradient that is strongest near
  * the coastline and fades toward the outer expansion limit (50% of the darker
- * blue band width). Combined with the animated global alpha, this produces the
- * visual appearance of an expanding and contracting water edge.
+ * blue band width). The composable animates the layer alpha of the entire overlay
+ * image using a graphicsLayer, producing the visual appearance of an expanding
+ * and contracting water edge.
  *
  * Only active when [AppSettings.enableAnimations] is true.
  */
 @Composable
 fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
     if (!AppSettings.enableAnimations.value) return
-
-    val tideOverlay: ImageBitmap = imageResource(Res.drawable.world_map_tide_overlay)
 
     val infiniteTransition = rememberInfiniteTransition(label = "tide")
 
@@ -63,25 +59,10 @@ fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
         label = "tideAlpha",
     )
 
-    Canvas(modifier = modifier) {
-        // Match ContentScale.Fit logic used by the background Image composable
-        val imgW = tideOverlay.width.toFloat()
-        val imgH = tideOverlay.height.toFloat()
-        val scale = minOf(size.width / imgW, size.height / imgH)
-        val dx = (size.width - imgW * scale) / 2f
-        val dy = (size.height - imgH * scale) / 2f
-
-        translate(left = dx, top = dy) {
-            scale(scaleX = scale, scaleY = scale, pivot = androidx.compose.ui.geometry.Offset.Zero) {
-                drawImage(
-                    image = tideOverlay,
-                    srcOffset = IntOffset.Zero,
-                    srcSize = IntSize(tideOverlay.width, tideOverlay.height),
-                    dstOffset = IntOffset.Zero,
-                    dstSize = IntSize(tideOverlay.width, tideOverlay.height),
-                    alpha = tideAlpha,
-                )
-            }
-        }
-    }
+    Image(
+        painter = painterResource(Res.drawable.world_map_tide_overlay),
+        contentDescription = null,
+        modifier = modifier.graphicsLayer(alpha = tideAlpha),
+        contentScale = ContentScale.Fit,
+    )
 }
