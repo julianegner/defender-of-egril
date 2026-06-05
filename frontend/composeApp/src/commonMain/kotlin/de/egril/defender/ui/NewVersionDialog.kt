@@ -44,7 +44,11 @@ fun NewVersionDialog(
 
     LaunchedEffect(Unit) {
         yield()
-        try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+        try {
+            focusRequester.requestFocus()
+        } catch (_: IllegalStateException) {
+            // Dialog content may not be attached on the first frame in some environments.
+        }
     }
 
     AlertDialog(

@@ -33,6 +33,8 @@ class NewVersionDialogTest {
             }
 
             composeTestRule.waitForIdle()
+            composeTestRule.onNodeWithText("Go to Download", substring = true, ignoreCase = true).assertExists()
+            composeTestRule.onNodeWithText("Close", substring = true, ignoreCase = true).assertExists()
             composeTestRule.onNodeWithText("Enter").assertDoesNotExist()
             composeTestRule.onNodeWithText("Esc").assertDoesNotExist()
 
