@@ -38,20 +38,17 @@ private const val DEFAULT_LOTTIE_STROKE_WIDTH = 6f
 
 // Animation timing
 private const val FLOW_CYCLE_MILLIS = 3500
-private const val SHIMMER_CYCLE_MILLIS = 5000
 
 // Rendering thresholds
 private const val MINIMUM_VISIBLE_PATH_LENGTH = 1f // paths shorter than 1px are invisible
 
 // Highlight layer animation parameters
 private const val HIGHLIGHT_SPEED_MULTIPLIER = 1.3f // faster than base flow
-private const val HIGHLIGHT_STAGGER_COUNT = 2f // number of staggered streaks
-private const val HIGHLIGHT_PATTERN_REPEATS = 3f // pattern repeats along path
 
-// Water appearance: multiple layered strokes for a richer look
-private val WATER_MIDTONE_COLOR = Color(0.45f, 0.75f, 0.95f, 0.50f)
-private val WATER_HIGHLIGHT_COLOR = Color(0.70f, 0.90f, 1.0f, 0.75f)
-private val WATER_SHIMMER_COLOR = Color(0.85f, 0.95f, 1.0f, 0.60f)
+// Water appearance: subtle animated streaks that overlay the map's own blue rivers
+// without adding a visible background color
+private val WATER_FLOW_COLOR = Color(0.75f, 0.92f, 1.0f, 0.35f)
+private val WATER_HIGHLIGHT_COLOR = Color(0.85f, 0.95f, 1.0f, 0.45f)
 
 private data class RiverPath(
     val points: List<Offset>,
@@ -110,13 +107,9 @@ private fun parseRiverPaths(json: String): List<RiverPath> {
  * Paths are scaled to the actual canvas size using the same ContentScale.Fit logic as the
  * background image, so they line up pixel-for-pixel with the rivers on the map.
  *
- * Each river is rendered with animated layered strokes on top of the map's existing blue rivers:
- * 1. A mid-tone flowing layer with long dashes that scroll continuously
- * 2. Brighter highlight dashes (shorter, faster) giving a sparkle/current effect
- * 3. A subtle shimmer layer with a secondary animation speed
- *
- * The combination of these layers with different dash lengths and animation speeds
- * produces the appearance of continuously flowing water on top of the static river artwork.
+ * Each river is rendered as short "snake" segments that travel along the path,
+ * modeled after the water_flow.json Trim Paths approach. Two staggered snakes per river
+ * create the illusion of a continuously flowing stream without adding any static coloring.
  *
  * The animation is only active when [AppSettings.enableAnimations] is true.
  */
@@ -149,17 +142,6 @@ fun WorldMapRiverFlowAnimation(modifier: Modifier = Modifier) {
         label = "riverFlowPhase",
     )
 
-    // Secondary shimmer phase – slightly slower, creates visual depth
-    val shimmerPhase by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = SHIMMER_CYCLE_MILLIS, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "riverShimmerPhase",
-    )
-
     Canvas(modifier = modifier) {
         val lottieW = 2048f
         val lottieH = 1622f
@@ -181,61 +163,58 @@ fun WorldMapRiverFlowAnimation(modifier: Modifier = Modifier) {
 
             val sw = river.strokeWidth * scale
 
-            // --- Layer 1: Mid-tone flowing current (long dashes, smooth scroll) ---
-            // Dashes cover ~40% of the path with 10% gaps, creating a continuous feel
-            val midDash = totalLen * 0.4f
-            val midGap = totalLen * 0.1f
-            val midPhaseOffset = flowPhase * (midDash + midGap)
+            // Snake segments: short visible dashes that travel along the path.
+            // Each snake is ~15% of the path length with ~85% gap, creating
+            // distinct traveling segments rather than a continuous fill.
+            val snakeDash = totalLen * 0.15f
+            val snakeGap = totalLen * 0.85f
+
+            // --- Snake 1: primary flow segment ---
+            val phase1 = flowPhase * (snakeDash + snakeGap)
             drawPath(
                 path = path,
-                color = WATER_MIDTONE_COLOR,
+                color = WATER_FLOW_COLOR,
                 style = Stroke(
-                    width = sw * 1.2f,
+                    width = sw * 0.8f,
                     cap = StrokeCap.Round,
                     join = StrokeJoin.Round,
                     pathEffect = PathEffect.dashPathEffect(
-                        intervals = floatArrayOf(midDash, midGap),
-                        phase = midPhaseOffset,
+                        intervals = floatArrayOf(snakeDash, snakeGap),
+                        phase = phase1,
                     ),
                 ),
             )
 
-            // --- Layer 2: Highlight streaks (shorter, faster dashes for current) ---
-            // Two staggered highlight dashes give a rippling effect
-            val highlightDash = totalLen * 0.15f
-            val highlightGap = totalLen * 0.18f
-            for (streak in 0..1) {
-                val p = ((flowPhase * HIGHLIGHT_SPEED_MULTIPLIER + streak / HIGHLIGHT_STAGGER_COUNT) % 1f) *
-                    (highlightDash + highlightGap) * HIGHLIGHT_PATTERN_REPEATS
-                drawPath(
-                    path = path,
-                    color = WATER_HIGHLIGHT_COLOR,
-                    style = Stroke(
-                        width = sw * 0.7f,
-                        cap = StrokeCap.Round,
-                        join = StrokeJoin.Round,
-                        pathEffect = PathEffect.dashPathEffect(
-                            intervals = floatArrayOf(highlightDash, highlightGap),
-                            phase = p,
-                        ),
-                    ),
-                )
-            }
-
-            // --- Layer 3: Shimmer/sparkle (very short bright flashes at different speed) ---
-            val shimmerDash = totalLen * 0.05f
-            val shimmerGap = totalLen * 0.45f
-            val shimmerOffset = shimmerPhase * (shimmerDash + shimmerGap) * 2f
+            // --- Snake 2: staggered second segment (offset by half cycle) ---
+            val phase2 = ((flowPhase + 0.5f) % 1f) * (snakeDash + snakeGap)
             drawPath(
                 path = path,
-                color = WATER_SHIMMER_COLOR,
+                color = WATER_FLOW_COLOR,
                 style = Stroke(
-                    width = sw * 0.4f,
+                    width = sw * 0.8f,
                     cap = StrokeCap.Round,
                     join = StrokeJoin.Round,
                     pathEffect = PathEffect.dashPathEffect(
-                        intervals = floatArrayOf(shimmerDash, shimmerGap),
-                        phase = shimmerOffset,
+                        intervals = floatArrayOf(snakeDash, snakeGap),
+                        phase = phase2,
+                    ),
+                ),
+            )
+
+            // --- Highlight: a brighter, thinner, faster snake for sparkle ---
+            val highlightDash = totalLen * 0.08f
+            val highlightGap = totalLen * 0.92f
+            val highlightPhase = ((flowPhase * HIGHLIGHT_SPEED_MULTIPLIER) % 1f) * (highlightDash + highlightGap)
+            drawPath(
+                path = path,
+                color = WATER_HIGHLIGHT_COLOR,
+                style = Stroke(
+                    width = sw * 0.5f,
+                    cap = StrokeCap.Round,
+                    join = StrokeJoin.Round,
+                    pathEffect = PathEffect.dashPathEffect(
+                        intervals = floatArrayOf(highlightDash, highlightGap),
+                        phase = highlightPhase,
                     ),
                 ),
             )
