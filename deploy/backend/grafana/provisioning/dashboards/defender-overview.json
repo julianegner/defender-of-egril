@@ -745,7 +745,7 @@
             "uid": "postgres-app"
           },
           "format": "table",
-          "rawSql": "SELECT id, platform, os_name, version_name, commit_hash, user_name, url, platform_extended, platform_long, created_at FROM events WHERE event_type = 'APP_STARTED' OR url IS NOT NULL ORDER BY created_at DESC LIMIT 100",
+          "rawSql": "SELECT id, platform, os_name, version_name, commit_hash, user_name, url, platform_extended, platform_long, created_at FROM events WHERE event_type = 'APP_STARTED' AND platform = 'WEB' ORDER BY created_at DESC LIMIT 100",
           "refId": "A"
         }
       ]
