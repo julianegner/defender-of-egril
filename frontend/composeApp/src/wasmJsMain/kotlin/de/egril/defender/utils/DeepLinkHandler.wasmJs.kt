@@ -3,7 +3,6 @@ package de.egril.defender.utils
 
 import kotlinx.browser.document
 import kotlinx.browser.window
-import kotlin.js.JsFun
 
 /**
  * WASM implementation: Extract current URL pathname from browser.
