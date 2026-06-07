@@ -58,6 +58,7 @@ sealed class Screen {
     object FinalCredits : Screen()
     object AnimationTest : Screen()  // Developer cheat: animation test/preview screen
     object TutorialDeepLink : Screen()  // Web-only: /tutorial URL shows loading while data/player are prepared
+    object DemoDeepLink : Screen()  // Web-only: /demo URL shows loading while data/player are prepared
     data class GamePlay(val levelId: Int) : Screen()
     data class LevelComplete(
         val levelId: Int,
@@ -121,6 +122,10 @@ class GameViewModel {
     // Tutorial deep link state – set when the user visits /tutorial on the web version
     private val _pendingTutorialDeepLink = MutableStateFlow(false)
     val pendingTutorialDeepLink: StateFlow<Boolean> = _pendingTutorialDeepLink.asStateFlow()
+
+    // Demo deep link state – set when the user visits /demo on the web version
+    private val _pendingDemoDeepLink = MutableStateFlow(false)
+    val pendingDemoDeepLink: StateFlow<Boolean> = _pendingDemoDeepLink.asStateFlow()
 
     // Settings deep link state – set when the user visits /settings on the web version
     private val _pendingSettingsDeepLink = MutableStateFlow(false)
@@ -1841,6 +1846,7 @@ class GameViewModel {
     // -------------------------------------------------------------------------
 
     fun startDemoMode() {
+        _pendingDemoDeepLink.value = false
         _isDemoMode.value = true
         demoLevelIndex = 0
         loadDemoLevel(0)
@@ -3901,6 +3907,11 @@ class GameViewModel {
                 // Show a loading screen; App.kt will start the tutorial once data + player are ready
                 _currentScreen.value = Screen.TutorialDeepLink
                 _pendingTutorialDeepLink.value = true
+            }
+            DeepLink.Demo -> {
+                // Show a loading screen; App.kt will start demo mode once data + player are ready
+                _currentScreen.value = Screen.DemoDeepLink
+                _pendingDemoDeepLink.value = true
             }
             DeepLink.Settings -> {
                 _currentScreen.value = Screen.MainMenu

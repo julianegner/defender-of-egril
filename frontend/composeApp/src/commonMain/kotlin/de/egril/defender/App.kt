@@ -118,6 +118,7 @@ fun App() {
         val loadingProgress by viewModel.loadingProgress.collectAsState()
         val pendingTutorialDeepLink by viewModel.pendingTutorialDeepLink.collectAsState()
         val pendingSettingsDeepLink by viewModel.pendingSettingsDeepLink.collectAsState()
+        val pendingDemoDeepLink by viewModel.pendingDemoDeepLink.collectAsState()
 
         val remoteCommunityLevelsMeta by viewModel.remoteCommunityLevelsMeta.collectAsState()
         val remoteCommunityMapsMeta by viewModel.remoteCommunityMapsMeta.collectAsState()
@@ -203,6 +204,14 @@ fun App() {
                 } else {
                     viewModel.startTutorialLevel()
                 }
+            }
+        }
+
+        // When arriving via /demo deep link, start demo mode as soon as data is loaded
+        // and a player profile exists (player created by the flow above).
+        LaunchedEffect(pendingDemoDeepLink, isDataLoaded, needsPlayerSelection) {
+            if (pendingDemoDeepLink && isDataLoaded && !needsPlayerSelection) {
+                viewModel.startDemoMode()
             }
         }
         
@@ -627,6 +636,12 @@ fun App() {
             is Screen.TutorialDeepLink -> {
                 // Show the loading screen while data is loading / player is being set up.
                 // The LaunchedEffect above will call startTutorialLevel() once everything is ready.
+                LevelLoadingScreen(modifier = Modifier.fillMaxSize())
+            }
+
+            is Screen.DemoDeepLink -> {
+                // Show the loading screen while data is loading / player is being set up.
+                // The LaunchedEffect above will call startDemoMode() once everything is ready.
                 LevelLoadingScreen(modifier = Modifier.fillMaxSize())
             }
 

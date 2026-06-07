@@ -90,6 +90,28 @@ class DeepLinkHandlerTest {
         assertIs<DeepLink.Tutorial>(result)
     }
 
+    // ---------------------------------------------------------------
+    // parseDeepLink – demo route
+    // ---------------------------------------------------------------
+
+    @Test
+    fun `parseDeepLink demo`() {
+        val result = parseDeepLink("/demo")
+        assertIs<DeepLink.Demo>(result)
+    }
+
+    @Test
+    fun `parseDeepLink demo is case insensitive`() {
+        val result = parseDeepLink("/Demo")
+        assertIs<DeepLink.Demo>(result)
+    }
+
+    @Test
+    fun `parseDeepLink demo with trailing slash`() {
+        val result = parseDeepLink("/demo/")
+        assertIs<DeepLink.Demo>(result)
+    }
+
     @Test
     fun `parseDeepLink settings`() {
         val result = parseDeepLink("/settings")

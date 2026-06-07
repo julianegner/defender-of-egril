@@ -5,12 +5,13 @@ import de.egril.defender.ui.infopage.InfoTab
 
 /**
  * Represents a deep link parsed from a URL.
- * Supports data-privacy, info-page, and tutorial routes on web platform.
+ * Supports data-privacy, info-page, tutorial, demo, and settings routes on web platform.
  */
 sealed class DeepLink {
     data class DataPrivacy(val language: AppLocale) : DeepLink()
     data class InfoPage(val tab: InfoTab) : DeepLink()
     object Tutorial : DeepLink()
+    object Demo : DeepLink()
     object Settings : DeepLink()
     object None : DeepLink()
 }
@@ -88,6 +89,7 @@ fun parseLanguageFromCode(code: String?): AppLocale? {
  *   /data-privacy/{language}   → DataPrivacy deep link
  *   /info/{tab-slug}           → InfoPage deep link (e.g. /info/installation)
  *   /info                      → InfoPage deep link (defaults to INSTALLATION tab)
+ *   /demo                      → Start demo mode
  *   /settings                  → Open main menu with settings dialog
  *
  * @param path The URL path to parse (e.g., from window.location.pathname)
@@ -120,6 +122,11 @@ fun parseDeepLink(path: String): DeepLink {
     // Check if it's the tutorial deep link
     if (trimmedPath == "tutorial") {
         return DeepLink.Tutorial
+    }
+
+    // Check if it's the demo deep link
+    if (trimmedPath == "demo") {
+        return DeepLink.Demo
     }
 
     // Check if it's the settings deep link
