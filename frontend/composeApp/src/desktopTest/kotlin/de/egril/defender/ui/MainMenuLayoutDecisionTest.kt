@@ -81,4 +81,52 @@ class MainMenuLayoutDecisionTest {
             )
         )
     }
+
+    @Test
+    fun stackedNativeMobileShowsInlineVersionInfo() {
+        assertTrue(
+            shouldShowInlineMainMenuVersionInfo(
+                usesStackedLayout = true,
+                isMobileWeb = false
+            )
+        )
+        assertFalse(
+            shouldShowOverlayMainMenuVersionInfo(
+                usesStackedLayout = true,
+                isMobileWeb = false
+            )
+        )
+    }
+
+    @Test
+    fun stackedMobileWebKeepsBottomVersionInfo() {
+        assertFalse(
+            shouldShowInlineMainMenuVersionInfo(
+                usesStackedLayout = true,
+                isMobileWeb = true
+            )
+        )
+        assertTrue(
+            shouldShowOverlayMainMenuVersionInfo(
+                usesStackedLayout = true,
+                isMobileWeb = true
+            )
+        )
+    }
+
+    @Test
+    fun desktopKeepsBottomVersionInfo() {
+        assertFalse(
+            shouldShowInlineMainMenuVersionInfo(
+                usesStackedLayout = false,
+                isMobileWeb = false
+            )
+        )
+        assertTrue(
+            shouldShowOverlayMainMenuVersionInfo(
+                usesStackedLayout = false,
+                isMobileWeb = false
+            )
+        )
+    }
 }
