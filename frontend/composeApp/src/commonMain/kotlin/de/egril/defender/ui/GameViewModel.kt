@@ -3901,6 +3901,10 @@ class GameViewModel {
                 // Show a loading screen; App.kt will start the tutorial once data + player are ready
                 _currentScreen.value = Screen.TutorialDeepLink
                 _pendingTutorialDeepLink.value = true
+                de.egril.defender.analytics.reportEvent(
+                    de.egril.defender.analytics.GameEventType.TUTORIAL_DEEP_LINK,
+                    null
+                )
             }
             DeepLink.Settings -> {
                 _currentScreen.value = Screen.MainMenu
