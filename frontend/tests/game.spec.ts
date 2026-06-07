@@ -99,6 +99,15 @@ async function clickCanvas(page: Page, x: number, y: number) {
   await page.waitForTimeout(500); // Wait for UI to update
 }
 
+test.describe('Defender of Egril - Direct links', () => {
+  test('should use the app title on the direct tutorial link', async ({ page }) => {
+    await page.goto('/tutorial');
+    await waitForGameLoad(page);
+
+    await expect(page).toHaveTitle('Defender of Egril');
+  });
+});
+
 test.describe('Defender of Egril - Tutorial Level Playthrough', () => {
   test.setTimeout(FULL_GAME_TIMEOUT);
 
