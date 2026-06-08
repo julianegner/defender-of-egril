@@ -74,6 +74,16 @@ internal fun shouldUseCompactMainMenuLayout(
     isNarrowWindow: Boolean = false
 ): Boolean = isNativeMobile || isMobileWeb || isNarrowWindow
 
+internal fun shouldShowOverlayMainMenuVersionInfo(
+    usesStackedLayout: Boolean,
+    isMobileWeb: Boolean
+): Boolean = !usesStackedLayout || isMobileWeb
+
+internal fun shouldShowInlineMainMenuVersionInfo(
+    usesStackedLayout: Boolean,
+    isMobileWeb: Boolean
+): Boolean = usesStackedLayout && !isMobileWeb
+
 /** Returns true when LevelComplete screen should use a compact, scrollable mobile layout. */
 internal fun shouldUseMobileLevelCompleteLayout(
     isNativeMobile: Boolean,
@@ -158,6 +168,31 @@ private fun MainMenuButtonRow(
                     color = LocalContentColor.current.copy(alpha = 0.75f)
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun MainMenuVersionInfo(
+    modifier: Modifier = Modifier,
+    onShowCommitInfo: () -> Unit
+) {
+    TooltipWrapper(
+        text = stringResource(Res.string.commit_info_title),
+        modifier = modifier
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = "v${AppBuildInfo.VERSION_NAME} (${AppBuildInfo.COMMIT_HASH})",
+                style = MaterialTheme.typography.bodySmall,
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.clickable { onShowCommitInfo() }
+            )
+            ShortcutKeyChip(text = "V")
         }
     }
 }
@@ -734,6 +769,10 @@ fun MainMenuScreen(
                                 modifier = Modifier.fillMaxWidth()
                             )
                         }
+                        if (shouldShowInlineMainMenuVersionInfo(usesStackedLayout, isMobileWeb)) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            MainMenuVersionInfo(onShowCommitInfo = { showCommitInfo = true })
+                        }
                         // Bottom spacer for version/impressum overlay clearance
                         Spacer(modifier = Modifier.height(28.dp))
                     }
@@ -951,24 +990,13 @@ fun MainMenuScreen(
             }
             
             // Version info at the bottom on desktop/mobile-web - clickable to show commit info
-            if (!usesStackedLayout || isMobileWeb) {
-                TooltipWrapper(
-                    text = stringResource(Res.string.commit_info_title),
+            if (shouldShowOverlayMainMenuVersionInfo(usesStackedLayout, isMobileWeb)) {
+                MainMenuVersionInfo(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
-                        .padding(bottom = 8.dp)
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(
-                            text = "v${AppBuildInfo.VERSION_NAME} (${AppBuildInfo.COMMIT_HASH})",
-                            style = MaterialTheme.typography.bodySmall,
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.clickable { showCommitInfo = true }
-                        )
-                        ShortcutKeyChip(text = "V")
-                    }
-                }
+                        .padding(bottom = 8.dp),
+                    onShowCommitInfo = { showCommitInfo = true }
+                )
             }
             
             // Impressum at bottom center (WASM only, when flag is enabled)
