@@ -11,8 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import de.egril.defender.ui.settings.AppSettings
@@ -33,21 +31,20 @@ import org.jetbrains.compose.resources.painterResource
 
 private const val TIDE_CYCLE_MILLIS = 36000
 private const val TIDE_SLICE_COUNT = 12
-private val TIDE_EXPANSION_COLOR = Color(0xFFFF0000)
 
 private val tideSliceResources = listOf(
-    Res.drawable.world_map_tide_band12,
-    Res.drawable.world_map_tide_band11,
-    Res.drawable.world_map_tide_band10,
-    Res.drawable.world_map_tide_band09,
-    Res.drawable.world_map_tide_band08,
-    Res.drawable.world_map_tide_band07,
-    Res.drawable.world_map_tide_band06,
-    Res.drawable.world_map_tide_band05,
-    Res.drawable.world_map_tide_band04,
-    Res.drawable.world_map_tide_band03,
-    Res.drawable.world_map_tide_band02,
     Res.drawable.world_map_tide_band01,
+    Res.drawable.world_map_tide_band02,
+    Res.drawable.world_map_tide_band03,
+    Res.drawable.world_map_tide_band04,
+    Res.drawable.world_map_tide_band05,
+    Res.drawable.world_map_tide_band06,
+    Res.drawable.world_map_tide_band07,
+    Res.drawable.world_map_tide_band08,
+    Res.drawable.world_map_tide_band09,
+    Res.drawable.world_map_tide_band10,
+    Res.drawable.world_map_tide_band11,
+    Res.drawable.world_map_tide_band12,
 )
 
 @Composable
@@ -82,7 +79,6 @@ fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Fit,
                     alpha = sliceAlpha,
-                    colorFilter = ColorFilter.tint(TIDE_EXPANSION_COLOR),
                 )
             }
         }
