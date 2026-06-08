@@ -32,13 +32,10 @@ import defender_of_egril.composeapp.generated.resources.world_map_tide_band12
 import org.jetbrains.compose.resources.painterResource
 
 private const val TIDE_CYCLE_MILLIS = 36000
-private const val OUTER_TIDE_SLICE_COUNT = 12
-private const val MIDDLE_TIDE_SLICE_COUNT = 6
-private const val INNER_TIDE_SLICE_COUNT = 3
-private val MIDDLE_TIDE_COLOR = Color(0xFF4D91D1)
-private val INNER_TIDE_COLOR = Color(0xFF63AEF4)
+private val OUTER_TIDE_COLOR = Color(0xFF4D91D1)
+private val MIDDLE_TIDE_COLOR = Color(0xFF63AEF4)
 
-private val outerTideSliceResources = listOf(
+private val allTideSliceResources = listOf(
     Res.drawable.world_map_tide_band01,
     Res.drawable.world_map_tide_band02,
     Res.drawable.world_map_tide_band03,
@@ -53,8 +50,9 @@ private val outerTideSliceResources = listOf(
     Res.drawable.world_map_tide_band12,
 )
 
-private val middleTideSliceResources = outerTideSliceResources.take(MIDDLE_TIDE_SLICE_COUNT)
-private val innerTideSliceResources = outerTideSliceResources.take(INNER_TIDE_SLICE_COUNT)
+private val innerTideSliceResources = allTideSliceResources.drop(1).take(3)
+private val middleTideSliceResources = allTideSliceResources.drop(4).take(3)
+private val outerTideSliceResources = allTideSliceResources.drop(7)
 
 @Composable
 fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
@@ -68,8 +66,8 @@ fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
             animation = keyframes {
                 durationMillis = TIDE_CYCLE_MILLIS
                 0f at 0 using EaseInOut
-                OUTER_TIDE_SLICE_COUNT.toFloat() at 12000 using EaseInOut
-                OUTER_TIDE_SLICE_COUNT.toFloat() at 18000 using EaseInOut
+                outerTideSliceResources.size.toFloat() at 12000 using EaseInOut
+                outerTideSliceResources.size.toFloat() at 18000 using EaseInOut
                 0f at 30000 using EaseInOut
                 0f at TIDE_CYCLE_MILLIS
             },
@@ -84,8 +82,8 @@ fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
             animation = keyframes {
                 durationMillis = TIDE_CYCLE_MILLIS
                 0f at 0 using EaseInOut
-                INNER_TIDE_SLICE_COUNT.toFloat() at 12000 using EaseInOut
-                INNER_TIDE_SLICE_COUNT.toFloat() at 18000 using EaseInOut
+                innerTideSliceResources.size.toFloat() at 12000 using EaseInOut
+                innerTideSliceResources.size.toFloat() at 18000 using EaseInOut
                 0f at 30000 using EaseInOut
                 0f at TIDE_CYCLE_MILLIS
             },
@@ -100,8 +98,8 @@ fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
             animation = keyframes {
                 durationMillis = TIDE_CYCLE_MILLIS
                 0f at 0 using EaseInOut
-                MIDDLE_TIDE_SLICE_COUNT.toFloat() at 12000 using EaseInOut
-                MIDDLE_TIDE_SLICE_COUNT.toFloat() at 18000 using EaseInOut
+                middleTideSliceResources.size.toFloat() at 12000 using EaseInOut
+                middleTideSliceResources.size.toFloat() at 18000 using EaseInOut
                 0f at 30000 using EaseInOut
                 0f at TIDE_CYCLE_MILLIS
             },
@@ -114,6 +112,7 @@ fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
         TideBandLayer(
             resources = outerTideSliceResources,
             visibleSliceProgress = outerVisibleSliceProgress,
+            colorFilter = ColorFilter.tint(OUTER_TIDE_COLOR),
         )
         TideBandLayer(
             resources = middleTideSliceResources,
@@ -123,7 +122,6 @@ fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
         TideBandLayer(
             resources = innerTideSliceResources,
             visibleSliceProgress = innerVisibleSliceProgress,
-            colorFilter = ColorFilter.tint(INNER_TIDE_COLOR),
         )
     }
 }
