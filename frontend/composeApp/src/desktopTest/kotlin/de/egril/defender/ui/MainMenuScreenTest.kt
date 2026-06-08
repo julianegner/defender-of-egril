@@ -4,6 +4,9 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import de.egril.defender.AppBuildInfo
 import de.egril.defender.ui.ScreenshotTestUtils
+import de.egril.defender.ui.settings.AppSettings
+import com.hyperether.resources.AppLocale
+import com.hyperether.resources.currentLanguage
 import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertTrue
@@ -296,5 +299,71 @@ class MainMenuScreenTest {
         // Verify dialog is dismissed
         composeTestRule.onNodeWithText("Build Information", substring = true, ignoreCase = true)
             .assertDoesNotExist()
+    }
+
+    @Test
+    fun testStartupButtonsAndClickableIconsShowShortcutHintsOnlyWhenEnabled() {
+        AppSettings.resetToDefaults()
+        try {
+            currentLanguage.value = AppLocale.DEFAULT
+            AppSettings.markSettingsHintShown()
+            AppSettings.markAccessibilityBannerShown()
+
+            composeTestRule.setContent {
+                MainMenuScreen(
+                    onStartGame = {},
+                    onContinueGame = {},
+                    hasAutosave = false,
+                    onShowRules = {},
+                    onShowInstallationInfo = {},
+                    onEditPlayerName = {},
+                    currentPlayerName = null
+                )
+            }
+
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText("Enter").assertDoesNotExist()
+            composeTestRule.onNodeWithText("H").assertDoesNotExist()
+            composeTestRule.onNodeWithText("Esc").assertDoesNotExist()
+            composeTestRule.onNodeWithText("I").assertDoesNotExist()
+            composeTestRule.onNodeWithText(".").assertDoesNotExist()
+            composeTestRule.onNodeWithText(",").assertDoesNotExist()
+            composeTestRule.onNodeWithText("V").assertDoesNotExist()
+
+            composeTestRule.runOnIdle {
+                AppSettings.showButtonShortcutHints.value = true
+            }
+            composeTestRule.waitForIdle()
+
+            composeTestRule.onNodeWithText("Start Game", substring = true, ignoreCase = true)
+                .assertExists()
+                .assertHasClickAction()
+            composeTestRule.onNodeWithText("Rules", substring = true, ignoreCase = true)
+                .assertExists()
+                .assertHasClickAction()
+            composeTestRule.onNodeWithText("Exit Game", substring = true, ignoreCase = true)
+                .assertExists()
+                .assertHasClickAction()
+            composeTestRule.onNodeWithContentDescription("Info about installation, license and privacy")
+                .assertExists()
+                .assertHasClickAction()
+            composeTestRule.onNodeWithContentDescription("Send feedback")
+                .assertExists()
+                .assertHasClickAction()
+            composeTestRule.onNodeWithContentDescription("Settings")
+                .assertExists()
+                .assertHasClickAction()
+
+            composeTestRule.onNodeWithText("Enter").assertExists()
+            composeTestRule.onNodeWithText("H").assertExists()
+            composeTestRule.onNodeWithText("Esc").assertExists()
+            composeTestRule.onNodeWithText("I").assertExists()
+            composeTestRule.onNodeWithText(".").assertExists()
+            composeTestRule.onNodeWithText(",").assertExists()
+            composeTestRule.onNodeWithText("V").assertExists()
+        } finally {
+            AppSettings.resetToDefaults()
+        }
     }
 }
