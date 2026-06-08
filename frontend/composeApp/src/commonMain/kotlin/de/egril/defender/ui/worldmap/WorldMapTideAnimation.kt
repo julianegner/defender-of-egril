@@ -32,8 +32,13 @@ import defender_of_egril.composeapp.generated.resources.world_map_tide_band12
 import org.jetbrains.compose.resources.painterResource
 
 private const val TIDE_CYCLE_MILLIS = 36000
-private val OUTER_TIDE_COLOR = Color(0xFF4D91D1)
-private val MIDDLE_TIDE_COLOR = Color(0xFF63AEF4)
+private const val INNER_TIDE_START_INDEX = 1
+private const val INNER_TIDE_SLICE_COUNT = 3
+private const val MIDDLE_TIDE_START_INDEX = 4
+private const val MIDDLE_TIDE_SLICE_COUNT = 3
+private const val OUTER_TIDE_START_INDEX = 7
+private val OCEAN2_TIDE_COLOR = Color(0xFF4D91D1)
+private val OCEAN1_TIDE_COLOR = Color(0xFF63AEF4)
 
 private val allTideSliceResources = listOf(
     Res.drawable.world_map_tide_band01,
@@ -50,9 +55,13 @@ private val allTideSliceResources = listOf(
     Res.drawable.world_map_tide_band12,
 )
 
-private val innerTideSliceResources = allTideSliceResources.drop(1).take(3)
-private val middleTideSliceResources = allTideSliceResources.drop(4).take(3)
-private val outerTideSliceResources = allTideSliceResources.drop(7)
+private val innerTideSliceResources = allTideSliceResources
+    .drop(INNER_TIDE_START_INDEX)
+    .take(INNER_TIDE_SLICE_COUNT)
+private val middleTideSliceResources = allTideSliceResources
+    .drop(MIDDLE_TIDE_START_INDEX)
+    .take(MIDDLE_TIDE_SLICE_COUNT)
+private val outerTideSliceResources = allTideSliceResources.drop(OUTER_TIDE_START_INDEX)
 
 @Composable
 fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
@@ -112,12 +121,12 @@ fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
         TideBandLayer(
             resources = outerTideSliceResources,
             visibleSliceProgress = outerVisibleSliceProgress,
-            colorFilter = ColorFilter.tint(OUTER_TIDE_COLOR),
+            colorFilter = ColorFilter.tint(OCEAN2_TIDE_COLOR),
         )
         TideBandLayer(
             resources = middleTideSliceResources,
             visibleSliceProgress = middleVisibleSliceProgress,
-            colorFilter = ColorFilter.tint(MIDDLE_TIDE_COLOR),
+            colorFilter = ColorFilter.tint(OCEAN1_TIDE_COLOR),
         )
         TideBandLayer(
             resources = innerTideSliceResources,
