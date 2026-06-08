@@ -18,120 +18,41 @@ import androidx.compose.ui.layout.ContentScale
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.world_map_tide_band01
-import defender_of_egril.composeapp.generated.resources.world_map_tide_band02
-import defender_of_egril.composeapp.generated.resources.world_map_tide_band03
-import defender_of_egril.composeapp.generated.resources.world_map_tide_band04
-import defender_of_egril.composeapp.generated.resources.world_map_tide_band05
-import defender_of_egril.composeapp.generated.resources.world_map_tide_band06
-import defender_of_egril.composeapp.generated.resources.world_map_tide_band07
-import defender_of_egril.composeapp.generated.resources.world_map_tide_band08
-import defender_of_egril.composeapp.generated.resources.world_map_tide_band09
-import defender_of_egril.composeapp.generated.resources.world_map_tide_band10
-import defender_of_egril.composeapp.generated.resources.world_map_tide_band11
-import defender_of_egril.composeapp.generated.resources.world_map_tide_band12
 import org.jetbrains.compose.resources.painterResource
 
 private const val TIDE_CYCLE_MILLIS = 36000
-private const val INNER_TIDE_START_INDEX = 1
-private const val INNER_TIDE_SLICE_COUNT = 3
-private const val MIDDLE_TIDE_START_INDEX = 4
-private const val MIDDLE_TIDE_SLICE_COUNT = 3
-private const val OUTER_TIDE_START_INDEX = 7
 private val INNER_TIDE_COLOR = Color(0xFF7CC6FF)
-private val OCEAN2_TIDE_COLOR = Color(0xFF4D91D1)
-private val OCEAN1_TIDE_COLOR = Color(0xFF63AEF4)
 
-private val allTideSliceResources = listOf(
+private val shorelineTideSliceResources = listOf(
     Res.drawable.world_map_tide_band01,
-    Res.drawable.world_map_tide_band02,
-    Res.drawable.world_map_tide_band03,
-    Res.drawable.world_map_tide_band04,
-    Res.drawable.world_map_tide_band05,
-    Res.drawable.world_map_tide_band06,
-    Res.drawable.world_map_tide_band07,
-    Res.drawable.world_map_tide_band08,
-    Res.drawable.world_map_tide_band09,
-    Res.drawable.world_map_tide_band10,
-    Res.drawable.world_map_tide_band11,
-    Res.drawable.world_map_tide_band12,
 )
-
-private val innerTideSliceResources = allTideSliceResources
-    .drop(INNER_TIDE_START_INDEX)
-    .take(INNER_TIDE_SLICE_COUNT)
-private val middleTideSliceResources = allTideSliceResources
-    .drop(MIDDLE_TIDE_START_INDEX)
-    .take(MIDDLE_TIDE_SLICE_COUNT)
-private val outerTideSliceResources = allTideSliceResources.drop(OUTER_TIDE_START_INDEX)
 
 @Composable
 fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
     if (!AppSettings.enableAnimations.value) return
 
     val infiniteTransition = rememberInfiniteTransition(label = "tide")
-    val outerVisibleSliceProgress by infiniteTransition.animateFloat(
+    val shorelineVisibleSliceProgress by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 0f,
         animationSpec = infiniteRepeatable(
             animation = keyframes {
                 durationMillis = TIDE_CYCLE_MILLIS
                 0f at 0 using EaseInOut
-                outerTideSliceResources.size.toFloat() at 12000 using EaseInOut
-                outerTideSliceResources.size.toFloat() at 18000 using EaseInOut
+                shorelineTideSliceResources.size.toFloat() at 12000 using EaseInOut
+                shorelineTideSliceResources.size.toFloat() at 18000 using EaseInOut
                 0f at 30000 using EaseInOut
                 0f at TIDE_CYCLE_MILLIS
             },
             repeatMode = RepeatMode.Restart,
         ),
-        label = "outerVisibleSliceProgress",
-    )
-    val innerVisibleSliceProgress by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            animation = keyframes {
-                durationMillis = TIDE_CYCLE_MILLIS
-                0f at 0 using EaseInOut
-                innerTideSliceResources.size.toFloat() at 12000 using EaseInOut
-                innerTideSliceResources.size.toFloat() at 18000 using EaseInOut
-                0f at 30000 using EaseInOut
-                0f at TIDE_CYCLE_MILLIS
-            },
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "innerVisibleSliceProgress",
-    )
-    val middleVisibleSliceProgress by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            animation = keyframes {
-                durationMillis = TIDE_CYCLE_MILLIS
-                0f at 0 using EaseInOut
-                middleTideSliceResources.size.toFloat() at 12000 using EaseInOut
-                middleTideSliceResources.size.toFloat() at 18000 using EaseInOut
-                0f at 30000 using EaseInOut
-                0f at TIDE_CYCLE_MILLIS
-            },
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "middleVisibleSliceProgress",
+        label = "shorelineVisibleSliceProgress",
     )
 
     Box(modifier = modifier) {
         TideBandLayer(
-            resources = outerTideSliceResources,
-            visibleSliceProgress = outerVisibleSliceProgress,
-            colorFilter = ColorFilter.tint(OCEAN2_TIDE_COLOR),
-        )
-        TideBandLayer(
-            resources = middleTideSliceResources,
-            visibleSliceProgress = middleVisibleSliceProgress,
-            colorFilter = ColorFilter.tint(OCEAN1_TIDE_COLOR),
-        )
-        TideBandLayer(
-            resources = innerTideSliceResources,
-            visibleSliceProgress = innerVisibleSliceProgress,
+            resources = shorelineTideSliceResources,
+            visibleSliceProgress = shorelineVisibleSliceProgress,
             colorFilter = ColorFilter.tint(INNER_TIDE_COLOR),
         )
     }
