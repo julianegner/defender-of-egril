@@ -72,6 +72,8 @@ fun InfoPageScreen(
             showEditorHowToTab = editorAvailable
         )
     }
+    // Defensive guard: keep behavior safe if future tab visibility rules are tightened.
+    require(visibleTabs.isNotEmpty()) { "InfoPageScreen requires at least one visible tab" }
 
     // If the initial tab is not visible (e.g. hidden on this platform), fall back to the first visible tab
     if (selectedTab !in visibleTabs) {
@@ -145,8 +147,10 @@ fun InfoPageScreen(
                             if (selectedTab == InfoTab.DOWNLOAD && !event.isCtrlPressed && !event.isAltPressed) {
                                 if (InfoTab.INSTALLATION in visibleTabs) {
                                     selectedTab = InfoTab.INSTALLATION
+                                    true
+                                } else {
+                                    false
                                 }
-                                true
                             } else {
                                 false
                             }
