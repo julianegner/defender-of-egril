@@ -33,7 +33,9 @@ import org.jetbrains.compose.resources.painterResource
 
 private const val TIDE_CYCLE_MILLIS = 36000
 private const val OUTER_TIDE_SLICE_COUNT = 12
-private const val INNER_TIDE_SLICE_COUNT = 4
+private const val MIDDLE_TIDE_SLICE_COUNT = 6
+private const val INNER_TIDE_SLICE_COUNT = 3
+private val MIDDLE_TIDE_COLOR = Color(0xFF4D91D1)
 private val INNER_TIDE_COLOR = Color(0xFF63AEF4)
 
 private val outerTideSliceResources = listOf(
@@ -51,6 +53,7 @@ private val outerTideSliceResources = listOf(
     Res.drawable.world_map_tide_band12,
 )
 
+private val middleTideSliceResources = outerTideSliceResources.take(MIDDLE_TIDE_SLICE_COUNT)
 private val innerTideSliceResources = outerTideSliceResources.take(INNER_TIDE_SLICE_COUNT)
 
 @Composable
@@ -90,11 +93,32 @@ fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
         ),
         label = "innerVisibleSliceProgress",
     )
+    val middleVisibleSliceProgress by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 0f,
+        animationSpec = infiniteRepeatable(
+            animation = keyframes {
+                durationMillis = TIDE_CYCLE_MILLIS
+                0f at 0 using EaseInOut
+                MIDDLE_TIDE_SLICE_COUNT.toFloat() at 12000 using EaseInOut
+                MIDDLE_TIDE_SLICE_COUNT.toFloat() at 18000 using EaseInOut
+                0f at 30000 using EaseInOut
+                0f at TIDE_CYCLE_MILLIS
+            },
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "middleVisibleSliceProgress",
+    )
 
     Box(modifier = modifier) {
         TideBandLayer(
             resources = outerTideSliceResources,
             visibleSliceProgress = outerVisibleSliceProgress,
+        )
+        TideBandLayer(
+            resources = middleTideSliceResources,
+            visibleSliceProgress = middleVisibleSliceProgress,
+            colorFilter = ColorFilter.tint(MIDDLE_TIDE_COLOR),
         )
         TideBandLayer(
             resources = innerTideSliceResources,
