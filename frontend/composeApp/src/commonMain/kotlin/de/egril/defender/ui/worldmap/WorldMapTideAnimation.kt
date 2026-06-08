@@ -37,6 +37,7 @@ private const val INNER_TIDE_SLICE_COUNT = 3
 private const val MIDDLE_TIDE_START_INDEX = 4
 private const val MIDDLE_TIDE_SLICE_COUNT = 3
 private const val OUTER_TIDE_START_INDEX = 7
+private val INNER_TIDE_COLOR = Color(0xFF7CC6FF)
 private val OCEAN2_TIDE_COLOR = Color(0xFF4D91D1)
 private val OCEAN1_TIDE_COLOR = Color(0xFF63AEF4)
 
@@ -131,6 +132,7 @@ fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
         TideBandLayer(
             resources = innerTideSliceResources,
             visibleSliceProgress = innerVisibleSliceProgress,
+            colorFilter = ColorFilter.tint(INNER_TIDE_COLOR),
         )
     }
 }
