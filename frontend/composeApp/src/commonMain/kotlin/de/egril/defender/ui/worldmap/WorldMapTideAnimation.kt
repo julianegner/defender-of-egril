@@ -33,18 +33,18 @@ private const val TIDE_CYCLE_MILLIS = 36000
 private const val TIDE_SLICE_COUNT = 12
 
 private val tideSliceResources = listOf(
-    Res.drawable.world_map_tide_band01,
-    Res.drawable.world_map_tide_band02,
-    Res.drawable.world_map_tide_band03,
-    Res.drawable.world_map_tide_band04,
-    Res.drawable.world_map_tide_band05,
-    Res.drawable.world_map_tide_band06,
-    Res.drawable.world_map_tide_band07,
-    Res.drawable.world_map_tide_band08,
-    Res.drawable.world_map_tide_band09,
-    Res.drawable.world_map_tide_band10,
-    Res.drawable.world_map_tide_band11,
     Res.drawable.world_map_tide_band12,
+    Res.drawable.world_map_tide_band11,
+    Res.drawable.world_map_tide_band10,
+    Res.drawable.world_map_tide_band09,
+    Res.drawable.world_map_tide_band08,
+    Res.drawable.world_map_tide_band07,
+    Res.drawable.world_map_tide_band06,
+    Res.drawable.world_map_tide_band05,
+    Res.drawable.world_map_tide_band04,
+    Res.drawable.world_map_tide_band03,
+    Res.drawable.world_map_tide_band02,
+    Res.drawable.world_map_tide_band01,
 )
 
 @Composable
