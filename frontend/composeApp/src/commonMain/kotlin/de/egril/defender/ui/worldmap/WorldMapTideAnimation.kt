@@ -33,7 +33,7 @@ import org.jetbrains.compose.resources.painterResource
 
 private const val TIDE_CYCLE_MILLIS = 36000
 private const val TIDE_SLICE_COUNT = 12
-private val TideExpansionColor = Color(0xFF395FA7)
+private val TIDE_EXPANSION_COLOR = Color(0xFF395FA7)
 
 private val tideSliceResources = listOf(
     Res.drawable.world_map_tide_band12,
@@ -82,7 +82,7 @@ fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Fit,
                     alpha = sliceAlpha,
-                    colorFilter = ColorFilter.tint(TideExpansionColor),
+                    colorFilter = ColorFilter.tint(TIDE_EXPANSION_COLOR),
                 )
             }
         }
