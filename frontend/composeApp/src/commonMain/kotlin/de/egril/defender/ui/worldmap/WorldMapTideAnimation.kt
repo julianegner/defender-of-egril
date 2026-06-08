@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import de.egril.defender.ui.settings.AppSettings
@@ -31,6 +33,7 @@ import org.jetbrains.compose.resources.painterResource
 
 private const val TIDE_CYCLE_MILLIS = 36000
 private const val TIDE_SLICE_COUNT = 12
+private val TideExpansionColor = Color(0xFF395FA7)
 
 private val tideSliceResources = listOf(
     Res.drawable.world_map_tide_band12,
@@ -69,16 +72,19 @@ fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
         label = "visibleSliceProgress",
     )
 
-    val visibleSliceCount = visibleSliceProgress.toInt().coerceIn(0, TIDE_SLICE_COUNT)
-
     Box(modifier = modifier) {
-        tideSliceResources.take(visibleSliceCount).forEach { resource ->
-            Image(
-                painter = painterResource(resource),
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Fit,
-            )
+        tideSliceResources.forEachIndexed { index, resource ->
+            val sliceAlpha = (visibleSliceProgress - index).coerceIn(0f, 1f)
+            if (sliceAlpha > 0f) {
+                Image(
+                    painter = painterResource(resource),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Fit,
+                    alpha = sliceAlpha,
+                    colorFilter = ColorFilter.tint(TideExpansionColor),
+                )
+            }
         }
     }
 }
