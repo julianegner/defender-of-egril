@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
@@ -30,9 +32,11 @@ import defender_of_egril.composeapp.generated.resources.world_map_tide_band12
 import org.jetbrains.compose.resources.painterResource
 
 private const val TIDE_CYCLE_MILLIS = 36000
-private const val TIDE_SLICE_COUNT = 12
+private const val OUTER_TIDE_SLICE_COUNT = 12
+private const val INNER_TIDE_SLICE_COUNT = 4
+private val INNER_TIDE_COLOR = Color(0xFF63AEF4)
 
-private val tideSliceResources = listOf(
+private val outerTideSliceResources = listOf(
     Res.drawable.world_map_tide_band01,
     Res.drawable.world_map_tide_band02,
     Res.drawable.world_map_tide_band03,
@@ -47,40 +51,76 @@ private val tideSliceResources = listOf(
     Res.drawable.world_map_tide_band12,
 )
 
+private val innerTideSliceResources = outerTideSliceResources.take(INNER_TIDE_SLICE_COUNT)
+
 @Composable
 fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
     if (!AppSettings.enableAnimations.value) return
 
     val infiniteTransition = rememberInfiniteTransition(label = "tide")
-    val visibleSliceProgress by infiniteTransition.animateFloat(
+    val outerVisibleSliceProgress by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 0f,
         animationSpec = infiniteRepeatable(
             animation = keyframes {
                 durationMillis = TIDE_CYCLE_MILLIS
                 0f at 0 using EaseInOut
-                TIDE_SLICE_COUNT.toFloat() at 12000 using EaseInOut
-                TIDE_SLICE_COUNT.toFloat() at 18000 using EaseInOut
+                OUTER_TIDE_SLICE_COUNT.toFloat() at 12000 using EaseInOut
+                OUTER_TIDE_SLICE_COUNT.toFloat() at 18000 using EaseInOut
                 0f at 30000 using EaseInOut
                 0f at TIDE_CYCLE_MILLIS
             },
             repeatMode = RepeatMode.Restart,
         ),
-        label = "visibleSliceProgress",
+        label = "outerVisibleSliceProgress",
+    )
+    val innerVisibleSliceProgress by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 0f,
+        animationSpec = infiniteRepeatable(
+            animation = keyframes {
+                durationMillis = TIDE_CYCLE_MILLIS
+                0f at 0 using EaseInOut
+                INNER_TIDE_SLICE_COUNT.toFloat() at 12000 using EaseInOut
+                INNER_TIDE_SLICE_COUNT.toFloat() at 18000 using EaseInOut
+                0f at 30000 using EaseInOut
+                0f at TIDE_CYCLE_MILLIS
+            },
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "innerVisibleSliceProgress",
     )
 
     Box(modifier = modifier) {
-        tideSliceResources.forEachIndexed { index, resource ->
-            val sliceAlpha = (visibleSliceProgress - index).coerceIn(0f, 1f)
-            if (sliceAlpha > 0f) {
-                Image(
-                    painter = painterResource(resource),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Fit,
-                    alpha = sliceAlpha,
-                )
-            }
+        TideBandLayer(
+            resources = outerTideSliceResources,
+            visibleSliceProgress = outerVisibleSliceProgress,
+        )
+        TideBandLayer(
+            resources = innerTideSliceResources,
+            visibleSliceProgress = innerVisibleSliceProgress,
+            colorFilter = ColorFilter.tint(INNER_TIDE_COLOR),
+        )
+    }
+}
+
+@Composable
+private fun TideBandLayer(
+    resources: List<org.jetbrains.compose.resources.DrawableResource>,
+    visibleSliceProgress: Float,
+    colorFilter: ColorFilter? = null,
+) {
+    resources.forEachIndexed { index, resource ->
+        val sliceAlpha = (visibleSliceProgress - index).coerceIn(0f, 1f)
+        if (sliceAlpha > 0f) {
+            Image(
+                painter = painterResource(resource),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Fit,
+                alpha = sliceAlpha,
+                colorFilter = colorFilter,
+            )
         }
     }
 }
