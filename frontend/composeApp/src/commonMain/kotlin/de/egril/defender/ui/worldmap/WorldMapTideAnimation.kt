@@ -18,6 +18,17 @@ import androidx.compose.ui.layout.ContentScale
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.world_map_tide_band01
+import defender_of_egril.composeapp.generated.resources.world_map_tide_band02
+import defender_of_egril.composeapp.generated.resources.world_map_tide_band03
+import defender_of_egril.composeapp.generated.resources.world_map_tide_band04
+import defender_of_egril.composeapp.generated.resources.world_map_tide_band05
+import defender_of_egril.composeapp.generated.resources.world_map_tide_band06
+import defender_of_egril.composeapp.generated.resources.world_map_tide_band07
+import defender_of_egril.composeapp.generated.resources.world_map_tide_band08
+import defender_of_egril.composeapp.generated.resources.world_map_tide_band09
+import defender_of_egril.composeapp.generated.resources.world_map_tide_band10
+import defender_of_egril.composeapp.generated.resources.world_map_tide_band11
+import defender_of_egril.composeapp.generated.resources.world_map_tide_band12
 import org.jetbrains.compose.resources.painterResource
 
 private const val TIDE_CYCLE_MILLIS = 36000
@@ -25,6 +36,17 @@ private val INNER_TIDE_COLOR = Color(0xFF7CC6FF)
 
 private val shorelineTideSliceResources = listOf(
     Res.drawable.world_map_tide_band01,
+    Res.drawable.world_map_tide_band02,
+    Res.drawable.world_map_tide_band03,
+    Res.drawable.world_map_tide_band04,
+    Res.drawable.world_map_tide_band05,
+    Res.drawable.world_map_tide_band06,
+    Res.drawable.world_map_tide_band07,
+    Res.drawable.world_map_tide_band08,
+    Res.drawable.world_map_tide_band09,
+    Res.drawable.world_map_tide_band10,
+    Res.drawable.world_map_tide_band11,
+    Res.drawable.world_map_tide_band12,
 )
 
 @Composable
