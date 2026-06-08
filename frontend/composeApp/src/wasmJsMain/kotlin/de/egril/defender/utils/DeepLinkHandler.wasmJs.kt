@@ -27,20 +27,13 @@ actual fun updateBrowserUrl(path: String) {
 }
 
 /**
- * WASM implementation: Add/remove the "info-page-active" class on <body> so that
- * the CSS portrait-rotation overlay is suppressed while an info page is shown.
+ * WASM implementation (legacy helper): map old info-page active flag to the
+ * new orientation overlay mode.
  */
 actual fun setInfoPageActive(active: Boolean) {
-    try {
-        val body = document.body ?: return
-        if (active) {
-            body.classList.add("info-page-active")
-        } else {
-            body.classList.remove("info-page-active")
-        }
-    } catch (e: Exception) {
-        // Ignore
-    }
+    setMobileOrientationOverlayMode(
+        if (active) MobileOrientationOverlayMode.PORTRAIT_REQUIRED else MobileOrientationOverlayMode.NONE
+    )
 }
 
 actual fun detectSupportedLanguage(): String {
@@ -54,4 +47,22 @@ actual fun detectSupportedLanguage(): String {
         .map { it.substringBefore('-').lowercase() }
         .firstOrNull { it in supported }
     return lang ?: "en"
+}
+
+@JsFun(
+    "(mode) => { if (typeof window !== 'undefined' && typeof window.setOrientationOverlayMode === 'function') { window.setOrientationOverlayMode(mode); } }"
+)
+private external fun setOrientationOverlayModeJs(mode: String)
+
+actual fun setMobileOrientationOverlayMode(mode: MobileOrientationOverlayMode) {
+    val jsMode = when (mode) {
+        MobileOrientationOverlayMode.NONE -> "none"
+        MobileOrientationOverlayMode.LANDSCAPE_REQUIRED -> "landscape"
+        MobileOrientationOverlayMode.PORTRAIT_REQUIRED -> "portrait"
+    }
+    try {
+        setOrientationOverlayModeJs(jsMode)
+    } catch (e: Exception) {
+        // Ignore
+    }
 }

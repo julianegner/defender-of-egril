@@ -16,10 +16,26 @@ import de.egril.defender.ui.loadgame.LoadGameScreen
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsTab
 import de.egril.defender.ui.worldmap.WorldMapScreen
+import de.egril.defender.utils.MobileOrientationOverlayMode
 import de.egril.defender.utils.WindowCloseHandler
+import de.egril.defender.utils.setMobileOrientationOverlayMode
 import kotlinx.coroutines.delay
 
 import de.egril.defender.iam.initPlatformIam
+
+/**
+ * Maps app screens to the mobile browser orientation overlay behavior:
+ * - Gameplay requires landscape orientation.
+ * - Main menu and info pages prefer portrait orientation.
+ * - All other screens do not force an orientation hint.
+ */
+internal fun mobileOrientationOverlayModeForScreen(screen: Screen): MobileOrientationOverlayMode = when (screen) {
+    is Screen.GamePlay -> MobileOrientationOverlayMode.LANDSCAPE_REQUIRED
+    is Screen.MainMenu,
+    is Screen.InstallationInfo,
+    is Screen.InstallationInfoAtTab -> MobileOrientationOverlayMode.PORTRAIT_REQUIRED
+    else -> MobileOrientationOverlayMode.NONE
+}
 
 @Composable
 fun App() {
@@ -218,6 +234,7 @@ fun App() {
         
         // Register unsaved changes checker for window close handling
         LaunchedEffect(currentScreen) {
+            setMobileOrientationOverlayMode(mobileOrientationOverlayModeForScreen(currentScreen))
             when (currentScreen) {
                 is Screen.GamePlay -> {
                     WindowCloseHandler.setUnsavedChangesChecker { viewModel.hasUnsavedChanges() }
