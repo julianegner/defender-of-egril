@@ -538,10 +538,10 @@ private fun AccessibilityTabContent(selectedSliderIndex: Int = 0, onSliderIndexC
         AccessibilityInfoText(stringResource(Res.string.accessibility_hold_to_confirm_info))
 
         NumberedSetting(4) {
-            DualLabelSwitch(
+            GenericSwitch(
                 state = AppSettings.enableAnimations,
-                leftText = stringResource(Res.string.level_animations_off),
-                rightText = stringResource(Res.string.level_animations_on),
+                checkedText = stringResource(Res.string.level_animations),
+                uncheckedText = stringResource(Res.string.level_animations),
                 onCheckedChange = { enabled ->
                     AppSettings.saveEnableAnimations(enabled)
                 },
@@ -551,10 +551,10 @@ private fun AccessibilityTabContent(selectedSliderIndex: Int = 0, onSliderIndexC
         AccessibilityInfoText(stringResource(Res.string.accessibility_reduce_motion_level_setting_info))
 
         NumberedSetting(5) {
-            DualLabelSwitch(
+            GenericSwitch(
                 state = AppSettings.enableWorldMapAnimations,
-                leftText = stringResource(Res.string.world_map_animations_off),
-                rightText = stringResource(Res.string.world_map_animations_on),
+                checkedText = stringResource(Res.string.world_map_animations),
+                uncheckedText = stringResource(Res.string.world_map_animations),
                 onCheckedChange = { enabled ->
                     AppSettings.saveEnableWorldMapAnimations(enabled)
                 },
@@ -846,7 +846,7 @@ private fun RestoreGameDataSection(onDismissSettings: () -> Unit, triggerRestore
 }
 
 /**
- * Worldmap UI tab: World map style, Show testing levels.
+ * Worldmap UI tab: World map style, world map animations, show testing levels.
  */
 @Composable
 private fun WorldmapTabContent() {
@@ -871,8 +871,21 @@ private fun WorldmapTabContent() {
             )
         }
 
-        // Show testing levels switch
+        // World map animation switch
         NumberedSetting(2) {
+            GenericSwitch(
+                state = AppSettings.enableWorldMapAnimations,
+                checkedText = stringResource(Res.string.world_map_animations),
+                uncheckedText = stringResource(Res.string.world_map_animations),
+                onCheckedChange = { enabled ->
+                    AppSettings.saveEnableWorldMapAnimations(enabled)
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        // Show testing levels switch
+        NumberedSetting(3) {
             GenericSwitch(
                 state = AppSettings.showTestingLevels,
                 checkedText = stringResource(Res.string.show_testing_levels),
@@ -944,21 +957,8 @@ private fun LevelTabContent() {
                 )
             }
 
-            // World map tide/river animation switch
-            NumberedSetting(4) {
-                DualLabelSwitch(
-                    state = AppSettings.enableWorldMapAnimations,
-                    leftText = stringResource(Res.string.world_map_animations_off),
-                    rightText = stringResource(Res.string.world_map_animations_on),
-                    onCheckedChange = { enabled ->
-                        AppSettings.saveEnableWorldMapAnimations(enabled)
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-
             // Level map image switch
-            NumberedSetting(5) {
+            NumberedSetting(4) {
                 GenericSwitch(
                     state = AppSettings.useLevelMapImage,
                     checkedText = stringResource(Res.string.level_map_image),
@@ -971,7 +971,7 @@ private fun LevelTabContent() {
             }
 
             // Unit/tower background color switch
-            NumberedSetting(6) {
+            NumberedSetting(5) {
                 DualLabelSwitch(
                     state = AppSettings.showUnitTowerBackground,
                     leftText = stringResource(Res.string.unit_tower_background_off),
@@ -997,7 +997,7 @@ private fun LevelTabContent() {
             )
 
             // Control pad switch
-            NumberedSetting(7) {
+            NumberedSetting(6) {
                 GenericSwitch(
                     state = AppSettings.showControlPad,
                     checkedText = stringResource(Res.string.control_pad_enabled),
@@ -1010,7 +1010,7 @@ private fun LevelTabContent() {
             }
 
             // Auto-jump to next actionable tower switch
-            NumberedSetting(8) {
+            NumberedSetting(7) {
                 GenericSwitch(
                     state = AppSettings.autoJumpToNextTower,
                     checkedText = stringResource(Res.string.auto_jump_to_next_tower),
@@ -1623,18 +1623,18 @@ private fun handleSettingsNumberKey(tab: SettingsTab, number: Int): Boolean {
         }
         SettingsTab.WORLD_MAP -> when (number) {
             1 -> { AppSettings.saveUseLevelCards(!AppSettings.useLevelCards.value); true }
-            2 -> { AppSettings.saveShowTestingLevels(!AppSettings.showTestingLevels.value); true }
+            2 -> { AppSettings.saveEnableWorldMapAnimations(!AppSettings.enableWorldMapAnimations.value); true }
+            3 -> { AppSettings.saveShowTestingLevels(!AppSettings.showTestingLevels.value); true }
             else -> false
         }
         SettingsTab.LEVEL -> when (number) {
             1 -> { AppSettings.saveUseTileImages(!AppSettings.useTileImages.value); true }
             2 -> { if (AppSettings.useTileImages.value) { AppSettings.saveUseTileSmoothTransitions(!AppSettings.useTileSmoothTransitions.value) }; true }
             3 -> { AppSettings.saveEnableAnimations(!AppSettings.enableAnimations.value); true }
-            4 -> { AppSettings.saveEnableWorldMapAnimations(!AppSettings.enableWorldMapAnimations.value); true }
-            5 -> { AppSettings.saveUseLevelMapImage(!AppSettings.useLevelMapImage.value); true }
-            6 -> { AppSettings.saveShowUnitTowerBackground(!AppSettings.showUnitTowerBackground.value); true }
-            7 -> { AppSettings.saveShowControlPad(!AppSettings.showControlPad.value); true }
-            8 -> { AppSettings.saveAutoJumpToNextTower(!AppSettings.autoJumpToNextTower.value); true }
+            4 -> { AppSettings.saveUseLevelMapImage(!AppSettings.useLevelMapImage.value); true }
+            5 -> { AppSettings.saveShowUnitTowerBackground(!AppSettings.showUnitTowerBackground.value); true }
+            6 -> { AppSettings.saveShowControlPad(!AppSettings.showControlPad.value); true }
+            7 -> { AppSettings.saveAutoJumpToNextTower(!AppSettings.autoJumpToNextTower.value); true }
             else -> false
         }
         SettingsTab.SOUND -> when (number) {

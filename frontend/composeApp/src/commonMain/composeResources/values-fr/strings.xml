@@ -53,8 +53,10 @@
     <string name="animations_off">Mouvement réduit / Icônes statiques</string>
     <string name="level_animations_on">Animations de niveau activées</string>
     <string name="level_animations_off">Animations de niveau désactivées</string>
+    <string name="level_animations">Animations de niveau</string>
     <string name="world_map_animations_on">Animations de la carte activées</string>
     <string name="world_map_animations_off">Animations de la carte désactivées</string>
+    <string name="world_map_animations">Animations de la carte</string>
     <string name="header_text_size">Taille du Texte de l'En-tête du Niveau</string>
     <string name="header_text_size_small">Petit</string>
     <string name="header_text_size_medium">Moyen</string>

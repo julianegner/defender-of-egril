@@ -53,8 +53,10 @@
     <string name="animations_off">Weniger Bewegung / Statische Symbole</string>
     <string name="level_animations_on">Level-Animationen An</string>
     <string name="level_animations_off">Level-Animationen Aus</string>
+    <string name="level_animations">Level-Animationen</string>
     <string name="world_map_animations_on">Weltkarten-Animationen An</string>
     <string name="world_map_animations_off">Weltkarten-Animationen Aus</string>
+    <string name="world_map_animations">Weltkarten-Animationen</string>
     <string name="header_text_size">Level-Header-Textgröße</string>
     <string name="header_text_size_small">Klein</string>
     <string name="header_text_size_medium">Mittel</string>

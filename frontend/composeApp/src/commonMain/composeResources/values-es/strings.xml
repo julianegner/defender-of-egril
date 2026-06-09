@@ -53,8 +53,10 @@
     <string name="animations_off">Movimiento Reducido / Iconos Estáticos</string>
     <string name="level_animations_on">Animaciones de nivel activadas</string>
     <string name="level_animations_off">Animaciones de nivel desactivadas</string>
+    <string name="level_animations">Animaciones de nivel</string>
     <string name="world_map_animations_on">Animaciones del mapa activadas</string>
     <string name="world_map_animations_off">Animaciones del mapa desactivadas</string>
+    <string name="world_map_animations">Animaciones del mapa</string>
     <string name="header_text_size">Tamaño de Texto del Encabezado del Nivel</string>
     <string name="header_text_size_small">Pequeño</string>
     <string name="header_text_size_medium">Mediano</string>
