@@ -540,15 +540,28 @@ private fun AccessibilityTabContent(selectedSliderIndex: Int = 0, onSliderIndexC
         NumberedSetting(4) {
             DualLabelSwitch(
                 state = AppSettings.enableAnimations,
-                leftText = stringResource(Res.string.animations_off),
-                rightText = stringResource(Res.string.animations_on),
+                leftText = stringResource(Res.string.level_animations_off),
+                rightText = stringResource(Res.string.level_animations_on),
                 onCheckedChange = { enabled ->
                     AppSettings.saveEnableAnimations(enabled)
                 },
                 modifier = Modifier.fillMaxWidth()
             )
         }
-        AccessibilityInfoText(stringResource(Res.string.accessibility_reduce_motion_setting_info))
+        AccessibilityInfoText(stringResource(Res.string.accessibility_reduce_motion_level_setting_info))
+
+        NumberedSetting(5) {
+            DualLabelSwitch(
+                state = AppSettings.enableWorldMapAnimations,
+                leftText = stringResource(Res.string.animations_off),
+                rightText = stringResource(Res.string.animations_on),
+                onCheckedChange = { enabled ->
+                    AppSettings.saveEnableWorldMapAnimations(enabled)
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        AccessibilityInfoText(stringResource(Res.string.accessibility_reduce_motion_worldmap_setting_info))
 
         SelectableText(
             text = if (accessibilityPreferences.reduceMotionEnabled) {
@@ -694,7 +707,7 @@ private fun ColorBlindPaletteChooser(
                 verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                    de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "${index + 5}")
+                    de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "${index + 6}")
                 RadioButton(
                     selected = selected == palette,
                     onClick = { onSelected(palette) }
@@ -922,8 +935,8 @@ private fun LevelTabContent() {
             NumberedSetting(3) {
                 DualLabelSwitch(
                     state = AppSettings.enableAnimations,
-                    leftText = stringResource(Res.string.animations_off),
-                    rightText = stringResource(Res.string.animations_on),
+                    leftText = stringResource(Res.string.level_animations_off),
+                    rightText = stringResource(Res.string.level_animations_on),
                     onCheckedChange = { enabled ->
                         AppSettings.saveEnableAnimations(enabled)
                     },
@@ -931,8 +944,21 @@ private fun LevelTabContent() {
                 )
             }
 
-            // Level map image switch
+            // World map tide/river animation switch
             NumberedSetting(4) {
+                DualLabelSwitch(
+                    state = AppSettings.enableWorldMapAnimations,
+                    leftText = stringResource(Res.string.world_map_animations_off),
+                    rightText = stringResource(Res.string.world_map_animations_on),
+                    onCheckedChange = { enabled ->
+                        AppSettings.saveEnableWorldMapAnimations(enabled)
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            // Level map image switch
+            NumberedSetting(5) {
                 GenericSwitch(
                     state = AppSettings.useLevelMapImage,
                     checkedText = stringResource(Res.string.level_map_image),
@@ -945,7 +971,7 @@ private fun LevelTabContent() {
             }
 
             // Unit/tower background color switch
-            NumberedSetting(5) {
+            NumberedSetting(6) {
                 DualLabelSwitch(
                     state = AppSettings.showUnitTowerBackground,
                     leftText = stringResource(Res.string.unit_tower_background_off),
@@ -971,7 +997,7 @@ private fun LevelTabContent() {
             )
 
             // Control pad switch
-            NumberedSetting(6) {
+            NumberedSetting(7) {
                 GenericSwitch(
                     state = AppSettings.showControlPad,
                     checkedText = stringResource(Res.string.control_pad_enabled),
@@ -984,7 +1010,7 @@ private fun LevelTabContent() {
             }
 
             // Auto-jump to next actionable tower switch
-            NumberedSetting(7) {
+            NumberedSetting(8) {
                 GenericSwitch(
                     state = AppSettings.autoJumpToNextTower,
                     checkedText = stringResource(Res.string.auto_jump_to_next_tower),
@@ -1604,10 +1630,11 @@ private fun handleSettingsNumberKey(tab: SettingsTab, number: Int): Boolean {
             1 -> { AppSettings.saveUseTileImages(!AppSettings.useTileImages.value); true }
             2 -> { if (AppSettings.useTileImages.value) { AppSettings.saveUseTileSmoothTransitions(!AppSettings.useTileSmoothTransitions.value) }; true }
             3 -> { AppSettings.saveEnableAnimations(!AppSettings.enableAnimations.value); true }
-            4 -> { AppSettings.saveUseLevelMapImage(!AppSettings.useLevelMapImage.value); true }
-            5 -> { AppSettings.saveShowUnitTowerBackground(!AppSettings.showUnitTowerBackground.value); true }
-            6 -> { AppSettings.saveShowControlPad(!AppSettings.showControlPad.value); true }
-            7 -> { AppSettings.saveAutoJumpToNextTower(!AppSettings.autoJumpToNextTower.value); true }
+            4 -> { AppSettings.saveEnableWorldMapAnimations(!AppSettings.enableWorldMapAnimations.value); true }
+            5 -> { AppSettings.saveUseLevelMapImage(!AppSettings.useLevelMapImage.value); true }
+            6 -> { AppSettings.saveShowUnitTowerBackground(!AppSettings.showUnitTowerBackground.value); true }
+            7 -> { AppSettings.saveShowControlPad(!AppSettings.showControlPad.value); true }
+            8 -> { AppSettings.saveAutoJumpToNextTower(!AppSettings.autoJumpToNextTower.value); true }
             else -> false
         }
         SettingsTab.SOUND -> when (number) {
@@ -1683,10 +1710,11 @@ private fun handleSettingsNumberKey(tab: SettingsTab, number: Int): Boolean {
             2 -> { AppSettings.saveCaptionsEnabled(!AppSettings.captionsEnabled.value); true }
             3 -> { AppSettings.saveHoldToConfirmEnabled(!AppSettings.holdToConfirmEnabled.value); true }
             4 -> { AppSettings.saveEnableAnimations(!AppSettings.enableAnimations.value); true }
-            5 -> { AppSettings.saveColorBlindPalette(ColorBlindPalette.OFF); true }
-            6 -> { AppSettings.saveColorBlindPalette(ColorBlindPalette.DEUTERANOPIA); true }
-            7 -> { AppSettings.saveColorBlindPalette(ColorBlindPalette.PROTANOPIA); true }
-            8 -> { AppSettings.saveColorBlindPalette(ColorBlindPalette.TRITANOPIA); true }
+            5 -> { AppSettings.saveEnableWorldMapAnimations(!AppSettings.enableWorldMapAnimations.value); true }
+            6 -> { AppSettings.saveColorBlindPalette(ColorBlindPalette.OFF); true }
+            7 -> { AppSettings.saveColorBlindPalette(ColorBlindPalette.DEUTERANOPIA); true }
+            8 -> { AppSettings.saveColorBlindPalette(ColorBlindPalette.PROTANOPIA); true }
+            9 -> { AppSettings.saveColorBlindPalette(ColorBlindPalette.TRITANOPIA); true }
             else -> false
         }
         SettingsTab.SHORTCUTS -> when (number) {

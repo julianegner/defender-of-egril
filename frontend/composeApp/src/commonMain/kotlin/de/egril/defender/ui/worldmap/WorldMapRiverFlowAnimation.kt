@@ -111,12 +111,12 @@ private fun parseRiverPaths(json: String): List<RiverPath> {
  * modeled after the water_flow.json Trim Paths approach. Two staggered snakes per river
  * create the illusion of a continuously flowing stream without adding any static coloring.
  *
- * The animation is only active when [AppSettings.enableAnimations] is true.
+ * The animation is only active when [AppSettings.enableWorldMapAnimations] is true.
  */
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun WorldMapRiverFlowAnimation(modifier: Modifier = Modifier) {
-    if (!AppSettings.enableAnimations.value) return
+    if (!AppSettings.enableWorldMapAnimations.value) return
 
     var riverPaths by remember { mutableStateOf<List<RiverPath>>(emptyList()) }
     LaunchedEffect(Unit) {

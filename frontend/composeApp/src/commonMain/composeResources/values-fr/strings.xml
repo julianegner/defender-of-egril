@@ -51,6 +51,10 @@
     <string name="animations">Animations</string>
     <string name="animations_on">Animations Activées</string>
     <string name="animations_off">Mouvement réduit / Icônes statiques</string>
+    <string name="level_animations_on">Animations de niveau activées</string>
+    <string name="level_animations_off">Animations de niveau désactivées</string>
+    <string name="world_map_animations_on">Animations de la carte activées</string>
+    <string name="world_map_animations_off">Animations de la carte désactivées</string>
     <string name="header_text_size">Taille du Texte de l'En-tête du Niveau</string>
     <string name="header_text_size_small">Petit</string>
     <string name="header_text_size_medium">Moyen</string>
@@ -1813,6 +1817,8 @@
     <string name="accessibility_hold_to_confirm">Maintenir pour confirmer</string>
     <string name="accessibility_hold_to_confirm_info">Nécessite un maintien pour les actions destructives afin d’éviter les clics ou appuis accidentels.</string>
     <string name="accessibility_reduce_motion_setting_info">Désactive les effets animés pour réduire les mouvements et la fatigue visuelle.</string>
+    <string name="accessibility_reduce_motion_level_setting_info">Animations de niveau : désactive les effets animés pendant le niveau pour réduire les mouvements et la fatigue visuelle.</string>
+    <string name="accessibility_reduce_motion_worldmap_setting_info">Animations de la carte du monde : désactive les animations des rivières et des marées sur la carte du monde.</string>
     <string name="accessibility_reduce_motion_on">Réduire les mouvements est actif (les animations sont désactivées).</string>
     <string name="accessibility_reduce_motion_off">Réduire les mouvements est inactif (les animations sont activées).</string>
     <string name="accessibility_reduce_motion_note">Ce contrôle reflète le même réglage d’animations dans l’onglet Niveau.</string>

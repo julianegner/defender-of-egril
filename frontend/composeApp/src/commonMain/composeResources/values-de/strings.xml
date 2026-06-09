@@ -51,6 +51,10 @@
     <string name="animations">Animationen</string>
     <string name="animations_on">Animationen An</string>
     <string name="animations_off">Weniger Bewegung / Statische Symbole</string>
+    <string name="level_animations_on">Level-Animationen An</string>
+    <string name="level_animations_off">Level-Animationen Aus</string>
+    <string name="world_map_animations_on">Weltkarten-Animationen An</string>
+    <string name="world_map_animations_off">Weltkarten-Animationen Aus</string>
     <string name="header_text_size">Level-Header-Textgröße</string>
     <string name="header_text_size_small">Klein</string>
     <string name="header_text_size_medium">Mittel</string>
@@ -1811,6 +1815,8 @@
     <string name="accessibility_hold_to_confirm">Gedrückt halten zum Bestätigen</string>
     <string name="accessibility_hold_to_confirm_info">Erfordert das Gedrückthalten bei destruktiven Aktionen, um versehentliche Eingaben zu vermeiden.</string>
     <string name="accessibility_reduce_motion_setting_info">Schaltet animierte Effekte aus, um Bewegung und visuelle Belastung zu reduzieren.</string>
+    <string name="accessibility_reduce_motion_level_setting_info">Level-Animationen: Schaltet animierte Effekte im Level aus, um Bewegung und visuelle Belastung zu reduzieren.</string>
+    <string name="accessibility_reduce_motion_worldmap_setting_info">Weltkarten-Animationen: Schaltet Fluss- und Gezeitenanimationen auf der Weltkarte aus.</string>
     <string name="accessibility_reduce_motion_on">Weniger Bewegung ist aktiv (Animationen sind aus).</string>
     <string name="accessibility_reduce_motion_off">Weniger Bewegung ist inaktiv (Animationen sind an).</string>
     <string name="accessibility_reduce_motion_note">Diese Steuerung spiegelt dieselbe Animationseinstellung im Level-Tab wider.</string>

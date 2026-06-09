@@ -51,7 +51,7 @@ private val shorelineTideSliceResources = listOf(
 
 @Composable
 fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
-    if (!AppSettings.enableAnimations.value) return
+    if (!AppSettings.enableWorldMapAnimations.value) return
 
     val infiniteTransition = rememberInfiniteTransition(label = "tide")
     val shorelineVisibleSliceProgress by infiniteTransition.animateFloat(

@@ -51,6 +51,10 @@
     <string name="animations">Animations</string>
     <string name="animations_on">Animations On</string>
     <string name="animations_off">Reduced Motion / Static Icons</string>
+    <string name="level_animations_on">Level Animations On</string>
+    <string name="level_animations_off">Level Animations Off</string>
+    <string name="world_map_animations_on">World Map Animations On</string>
+    <string name="world_map_animations_off">World Map Animations Off</string>
     <string name="header_text_size">Level Header Text Size</string>
     <string name="header_text_size_small">Small</string>
     <string name="header_text_size_medium">Medium</string>
@@ -1818,6 +1822,8 @@
     <string name="accessibility_hold_to_confirm">Hold to Confirm</string>
     <string name="accessibility_hold_to_confirm_info">Requires holding confirmation controls for destructive actions to prevent accidental taps or clicks.</string>
     <string name="accessibility_reduce_motion_setting_info">Turns off animated effects to reduce motion and visual strain.</string>
+    <string name="accessibility_reduce_motion_level_setting_info">Level animations: turns off animated effects in level gameplay to reduce motion and visual strain.</string>
+    <string name="accessibility_reduce_motion_worldmap_setting_info">World map animations: turns off river and tide animations on the world map.</string>
     <string name="accessibility_reduce_motion_on">Reduce motion is active (animations are off).</string>
     <string name="accessibility_reduce_motion_off">Reduce motion is inactive (animations are on).</string>
     <string name="accessibility_reduce_motion_note">This control mirrors the same Animations setting in the Level tab.</string>
