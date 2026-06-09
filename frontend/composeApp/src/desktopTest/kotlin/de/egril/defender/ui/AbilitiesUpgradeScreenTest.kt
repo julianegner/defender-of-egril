@@ -5,6 +5,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.currentLanguage
 import de.egril.defender.model.PlayerAbilities
+import de.egril.defender.model.SpellType
 import de.egril.defender.save.PlayerProfile
 import de.egril.defender.ui.ScreenshotTestUtils
 import org.junit.Before
@@ -113,5 +114,29 @@ class AbilitiesUpgradeScreenTest {
             width = 1200,
             height = 800
         )
+    }
+
+    @Test
+    fun spellCardGridShowsDescriptionOnCardClick() {
+        val spell = SpellType.ATTACK_AREA
+        val spellDescription = spell.getLocalizedDescription()
+
+        composeTestRule.setContent {
+            SpellCardGrid(
+                spell = spell,
+                isUnlocked = false,
+                canUnlock = false,
+                onUnlock = {}
+            )
+        }
+
+        composeTestRule.waitForIdle()
+        composeTestRule.onNodeWithText(spellDescription).assertDoesNotExist()
+
+        composeTestRule.onNodeWithText(spell.getLocalizedName()).performClick()
+        composeTestRule.onNodeWithText(spellDescription).assertExists()
+
+        composeTestRule.onNodeWithText(spell.getLocalizedName()).performClick()
+        composeTestRule.onNodeWithText(spellDescription).assertDoesNotExist()
     }
 }
