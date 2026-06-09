@@ -36,11 +36,15 @@ class MobileOrientationOverlayModeTest {
     }
 
     @Test
-    fun `world map and other screens do not force orientation overlay`() {
+    fun `world map requires portrait overlay`() {
         assertEquals(
-            MobileOrientationOverlayMode.NONE,
+            MobileOrientationOverlayMode.PORTRAIT_REQUIRED,
             mobileOrientationOverlayModeForScreen(Screen.WorldMap)
         )
+    }
+
+    @Test
+    fun `other screens do not force orientation overlay`() {
         assertEquals(
             MobileOrientationOverlayMode.NONE,
             mobileOrientationOverlayModeForScreen(Screen.Rules)

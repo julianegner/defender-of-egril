@@ -26,12 +26,13 @@ import de.egril.defender.iam.initPlatformIam
 /**
  * Maps app screens to the mobile browser orientation overlay behavior:
  * - Gameplay requires landscape orientation.
- * - Main menu and info pages prefer portrait orientation.
+ * - Main menu, world map, and info pages prefer portrait orientation.
  * - All other screens do not force an orientation hint.
  */
 internal fun mobileOrientationOverlayModeForScreen(screen: Screen): MobileOrientationOverlayMode = when (screen) {
     is Screen.GamePlay -> MobileOrientationOverlayMode.LANDSCAPE_REQUIRED
     is Screen.MainMenu,
+    is Screen.WorldMap,
     is Screen.InstallationInfo,
     is Screen.InstallationInfoAtTab -> MobileOrientationOverlayMode.PORTRAIT_REQUIRED
     else -> MobileOrientationOverlayMode.NONE
