@@ -16,13 +16,30 @@ import de.egril.defender.ui.loadgame.LoadGameScreen
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsTab
 import de.egril.defender.ui.worldmap.WorldMapScreen
+import de.egril.defender.utils.MobileOrientationOverlayMode
 import de.egril.defender.utils.WindowCloseHandler
+import de.egril.defender.utils.setMobileOrientationOverlayMode
 import kotlinx.coroutines.delay
 
 import de.egril.defender.iam.initPlatformIam
 
+/**
+ * Maps app screens to the mobile browser orientation overlay behavior:
+ * - Gameplay requires landscape orientation.
+ * - Main menu and info pages prefer portrait orientation.
+ * - All other screens do not force an orientation hint.
+ */
+internal fun mobileOrientationOverlayModeForScreen(screen: Screen): MobileOrientationOverlayMode = when (screen) {
+    is Screen.GamePlay -> MobileOrientationOverlayMode.LANDSCAPE_REQUIRED
+    is Screen.MainMenu,
+    is Screen.InstallationInfo,
+    is Screen.InstallationInfoAtTab -> MobileOrientationOverlayMode.PORTRAIT_REQUIRED
+    else -> MobileOrientationOverlayMode.NONE
+}
+
 @Composable
 fun App() {
+    de.egril.defender.ui.crash.ErrorBoundary {
     // Initialize settings, sound, and IAM on app start
     LaunchedEffect(Unit) {
         AppSettings.initialize()
@@ -117,6 +134,7 @@ fun App() {
         val loadingProgress by viewModel.loadingProgress.collectAsState()
         val pendingTutorialDeepLink by viewModel.pendingTutorialDeepLink.collectAsState()
         val pendingSettingsDeepLink by viewModel.pendingSettingsDeepLink.collectAsState()
+        val pendingDemoDeepLink by viewModel.pendingDemoDeepLink.collectAsState()
 
         val remoteCommunityLevelsMeta by viewModel.remoteCommunityLevelsMeta.collectAsState()
         val remoteCommunityMapsMeta by viewModel.remoteCommunityMapsMeta.collectAsState()
@@ -204,6 +222,14 @@ fun App() {
                 }
             }
         }
+
+        // When arriving via /demo deep link, start demo mode as soon as data is loaded
+        // and a player profile exists (player created by the flow above).
+        LaunchedEffect(pendingDemoDeepLink, isDataLoaded, needsPlayerSelection) {
+            if (pendingDemoDeepLink && isDataLoaded && !needsPlayerSelection) {
+                viewModel.startDemoMode()
+            }
+        }
         
         // Register official data change checker for window close handling
         // This runs once at app start and checks if OfficialEditMode is enabled
@@ -217,6 +243,7 @@ fun App() {
         
         // Register unsaved changes checker for window close handling
         LaunchedEffect(currentScreen) {
+            setMobileOrientationOverlayMode(mobileOrientationOverlayModeForScreen(currentScreen))
             when (currentScreen) {
                 is Screen.GamePlay -> {
                     WindowCloseHandler.setUnsavedChangesChecker { viewModel.hasUnsavedChanges() }
@@ -629,6 +656,12 @@ fun App() {
                 LevelLoadingScreen(modifier = Modifier.fillMaxSize())
             }
 
+            is Screen.DemoDeepLink -> {
+                // Show the loading screen while data is loading / player is being set up.
+                // The LaunchedEffect above will call startDemoMode() once everything is ready.
+                LevelLoadingScreen(modifier = Modifier.fillMaxSize())
+            }
+
             is Screen.AnimationTest -> {
                 AnimationTestScreen(
                     onBack = { viewModel.navigateToWorldMap() }
@@ -637,4 +670,5 @@ fun App() {
         }
         } // CompositionLocalProvider
     }
+    } // ErrorBoundary
 }

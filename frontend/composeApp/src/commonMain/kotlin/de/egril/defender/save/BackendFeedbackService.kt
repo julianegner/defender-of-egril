@@ -27,8 +27,10 @@ expect object BackendFeedbackService {
 }
 
 internal fun buildFeedbackUploadJson(request: FeedbackSubmitRequest): String = buildString {
+    val currentPlatform = de.egril.defender.utils.getPlatform()
     val platform = de.egril.defender.utils.getClientPlatformName()
-    val platformLong = de.egril.defender.utils.getPlatform().name
+    val platformLong = currentPlatform.name
+    val osName = currentPlatform.osName
     val versionName = de.egril.defender.AppBuildInfo.VERSION_NAME
     val commitHash = de.egril.defender.AppBuildInfo.COMMIT_HASH
 
@@ -63,7 +65,7 @@ internal fun buildFeedbackUploadJson(request: FeedbackSubmitRequest): String = b
         append("}")
     }
     append("],")
-    appendClientInfo(platform, platformLong, versionName, commitHash)
+    appendClientInfo(platform, platformLong, versionName, commitHash, osName)
     append("}")
 }
 

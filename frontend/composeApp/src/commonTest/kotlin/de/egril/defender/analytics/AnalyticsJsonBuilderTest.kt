@@ -22,7 +22,20 @@ class AnalyticsJsonBuilderTest {
     }
 
     @Test
-    fun `buildEventJson omits difficulty when not provided`() {
+    fun `buildEventJson includes url when provided`() {
+        IamService.state.value = IamState()
+        val json = buildEventJson(
+            eventType = GameEventType.APP_STARTED,
+            levelName = null,
+            platform = "WEB",
+            url = "https://egril.de/game?level=1"
+        )
+
+        assertContains(json, "\"url\":\"https://egril.de/game?level=1\"")
+    }
+
+    @Test
+    fun `buildEventJson omits url when not provided`() {
         IamService.state.value = IamState()
         val json = buildEventJson(
             eventType = GameEventType.APP_STARTED,
@@ -30,6 +43,6 @@ class AnalyticsJsonBuilderTest {
             platform = "WEB"
         )
 
-        assertFalse(json.contains("\"difficulty\":"))
+        assertFalse(json.contains("\"url\":"))
     }
 }

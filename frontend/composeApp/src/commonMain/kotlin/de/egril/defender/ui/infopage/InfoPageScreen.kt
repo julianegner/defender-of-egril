@@ -26,7 +26,6 @@ import de.egril.defender.ui.isEditorAvailable
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.utils.isPlatformWasm
-import de.egril.defender.utils.setInfoPageActive
 import de.egril.defender.utils.toUrlSlug
 import de.egril.defender.utils.updateBrowserUrl
 import defender_of_egril.composeapp.generated.resources.*
@@ -41,6 +40,22 @@ internal fun shouldUseCompactInfoHeaderLayout(
     isLandscape: Boolean
 ): Boolean = isMobileWeb && isLandscape
 
+internal fun buildVisibleInfoTabs(
+    showDownloadTab: Boolean,
+    showInstallationTab: Boolean,
+    showEditorHowToTab: Boolean
+): List<InfoTab> = buildList {
+    if (showDownloadTab) add(InfoTab.DOWNLOAD)
+    if (showInstallationTab) add(InfoTab.INSTALLATION)
+    add(InfoTab.HOW_TO_PLAY)
+    add(InfoTab.KEYBOARD_SHORTCUTS)
+    add(InfoTab.AUDIO_LICENSES)
+    add(InfoTab.LICENSE)
+    add(InfoTab.BACKEND)
+    add(InfoTab.FEEDBACK)
+    if (showEditorHowToTab) add(InfoTab.EDITOR_HOWTO)
+}
+
 @Composable
 fun InfoPageScreen(
     onBack: () -> Unit,
@@ -48,23 +63,21 @@ fun InfoPageScreen(
 ) {
     var selectedTab by remember { mutableStateOf(initialTab) }
 
-    val visibleTabs = remember(isEditorAvailable()) {
-        buildList {
-            if (isPlatformWasm && WithImpressum.withImpressum) add(InfoTab.DOWNLOAD)
-            add(InfoTab.INSTALLATION)
-            add(InfoTab.HOW_TO_PLAY)
-            add(InfoTab.KEYBOARD_SHORTCUTS)
-            add(InfoTab.AUDIO_LICENSES)
-            add(InfoTab.LICENSE)
-            add(InfoTab.BACKEND)
-            add(InfoTab.FEEDBACK)
-            if (isEditorAvailable()) add(InfoTab.EDITOR_HOWTO)
-        }
+    val editorAvailable = isEditorAvailable()
+    val showInstallationTab = isPlatformWasm
+    val visibleTabs = remember(editorAvailable, showInstallationTab) {
+        buildVisibleInfoTabs(
+            showDownloadTab = isPlatformWasm && WithImpressum.withImpressum,
+            showInstallationTab = showInstallationTab,
+            showEditorHowToTab = editorAvailable
+        )
     }
+    // Defensive guard: keep behavior safe if future tab visibility rules are tightened.
+    require(visibleTabs.isNotEmpty()) { "InfoPageScreen requires at least one visible tab" }
 
-    // If the initial tab is not visible (e.g. EDITOR_HOWTO on mobile), fall back to INSTALLATION
+    // If the initial tab is not visible (e.g. hidden on this platform), fall back to the first visible tab
     if (selectedTab !in visibleTabs) {
-        selectedTab = InfoTab.INSTALLATION
+        selectedTab = visibleTabs.first()
     }
 
     val selectedTabIndex = visibleTabs.indexOf(selectedTab).coerceAtLeast(0)
@@ -73,15 +86,12 @@ fun InfoPageScreen(
     val contentScrollState = rememberScrollState()
     val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
 
-    // Suppress the HTML portrait-rotation overlay while on the info page and update the URL.
+    // Keep the browser URL in sync with the selected tab.
     DisposableEffect(Unit) {
-        setInfoPageActive(true)
         onDispose {
-            setInfoPageActive(false)
             updateBrowserUrl("/")
         }
     }
-    // Keep the browser URL in sync with the selected tab.
     LaunchedEffect(selectedTab) {
         updateBrowserUrl("/info/${selectedTab.toUrlSlug()}")
     }
@@ -135,8 +145,12 @@ fun InfoPageScreen(
                         }
                         Key.I -> {
                             if (selectedTab == InfoTab.DOWNLOAD && !event.isCtrlPressed && !event.isAltPressed) {
-                                selectedTab = InfoTab.INSTALLATION
-                                true
+                                if (InfoTab.INSTALLATION in visibleTabs) {
+                                    selectedTab = InfoTab.INSTALLATION
+                                    true
+                                } else {
+                                    false
+                                }
                             } else {
                                 false
                             }
@@ -249,7 +263,15 @@ fun InfoPageScreen(
                         InfoTab.BACKEND -> BackendInfo(scrollState = contentScrollState)
                         InfoTab.FEEDBACK -> FeedbackInfo(scrollState = contentScrollState)
                         InfoTab.EDITOR_HOWTO -> EditorHowToContent(scrollState = contentScrollState)
-                        InfoTab.DOWNLOAD -> DownloadInfo(onNavigateToInstallation = { selectedTab = InfoTab.INSTALLATION }, scrollState = contentScrollState, linkFocusManager = linkFocusManager)
+                        InfoTab.DOWNLOAD -> DownloadInfo(
+                            onNavigateToInstallation = {
+                                if (InfoTab.INSTALLATION in visibleTabs) {
+                                    selectedTab = InfoTab.INSTALLATION
+                                }
+                            },
+                            scrollState = contentScrollState,
+                            linkFocusManager = linkFocusManager
+                        )
                     }
                 }
                 

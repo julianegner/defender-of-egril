@@ -108,7 +108,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Portrait mode overlay for mobile browsers */
+        /* Orientation hint overlay for mobile browsers */
         #portrait-overlay {
             display: none;
             position: fixed;
@@ -125,26 +125,38 @@
             box-sizing: border-box;
         }
 
-        /* Show the overlay only on touch devices in portrait mode */
-        @media (orientation: portrait) and (hover: none) and (pointer: coarse) {
-            #portrait-overlay {
+        /* Level/gameplay: ask for landscape when the device is currently portrait */
+        @media (hover: none) and (pointer: coarse) and (orientation: portrait) {
+            body.orientation-overlay-landscape-required #portrait-overlay {
                 display: flex;
             }
         }
 
-        /* Suppress the overlay when an info page is active (set by Kotlin/WASM via JS) */
-        body.info-page-active #portrait-overlay {
-            display: none !important;
+        /* Main menu/info: ask for portrait when the device is currently landscape */
+        @media (hover: none) and (pointer: coarse) and (orientation: landscape) {
+            body.orientation-overlay-portrait-required #portrait-overlay {
+                display: flex;
+            }
         }
 
         #portrait-overlay .phone-icon {
-            animation: rotate-phone 2.5s ease-in-out infinite;
+            animation: rotate-phone-to-landscape 2.5s ease-in-out infinite;
         }
 
-        @keyframes rotate-phone {
+        body.orientation-overlay-portrait-required #portrait-overlay .phone-icon {
+            animation-name: rotate-phone-to-portrait;
+        }
+
+        @keyframes rotate-phone-to-landscape {
             0%, 20% { transform: rotate(0deg); }
             60%, 80% { transform: rotate(90deg); }
             100% { transform: rotate(0deg); }
+        }
+
+        @keyframes rotate-phone-to-portrait {
+            0%, 20% { transform: rotate(90deg); }
+            60%, 80% { transform: rotate(0deg); }
+            100% { transform: rotate(90deg); }
         }
 
         #portrait-overlay h2 {
@@ -162,7 +174,7 @@
     </style>
 </head>
 <body>
-    <!-- Portrait mode overlay: shown only on touch devices in portrait orientation -->
+    <!-- Orientation hint overlay for mobile/touch devices -->
     <div id="portrait-overlay">
         <div class="phone-icon">
             <svg width="72" height="72" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -338,49 +350,93 @@
         });
     </script>
     <script>
-        // Localize the portrait overlay message using the browser language.
-        // This runs immediately in HTML — before the Kotlin/WASM bundle is downloaded and
-        // initialized — so we cannot use the in-app localization system here. The translations
-        // are kept intentionally minimal (two short phrases) for easy maintenance.
-        (function localizePortraitOverlay() {
+        // Localize and configure the orientation hint overlay using browser language and route.
+        // This runs before Kotlin/WASM starts so the initial state is already correct.
+        (function setupOrientationOverlay() {
             var messages = {
                 'de': {
                     title: 'Bitte Gerät drehen',
-                    subtitle: 'Dieses Spiel funktioniert am besten im Querformat'
+                    landscapeSubtitle: 'Dieses Spiel funktioniert am besten im Querformat',
+                    portraitSubtitle: 'Dieser Bildschirm funktioniert am besten im Hochformat'
                 },
                 'es': {
                     title: 'Por favor, gira tu dispositivo',
-                    subtitle: 'Este juego funciona mejor en modo horizontal'
+                    landscapeSubtitle: 'Este juego funciona mejor en modo horizontal',
+                    portraitSubtitle: 'Esta pantalla funciona mejor en modo vertical'
                 },
                 'fr': {
                     title: 'Veuillez tourner votre appareil',
-                    subtitle: 'Ce jeu fonctionne mieux en mode paysage'
+                    landscapeSubtitle: 'Ce jeu fonctionne mieux en mode paysage',
+                    portraitSubtitle: 'Cet écran fonctionne mieux en mode portrait'
                 },
                 'it': {
                     title: 'Ruota il dispositivo',
-                    subtitle: 'Questo gioco funziona meglio in modalità orizzontale'
+                    landscapeSubtitle: 'Questo gioco funziona meglio in modalità orizzontale',
+                    portraitSubtitle: 'Questa schermata funziona meglio in modalità verticale'
                 }
             };
+            var fallback = {
+                title: 'Please rotate your device',
+                landscapeSubtitle: 'This game works best in landscape mode',
+                portraitSubtitle: 'This screen works best in portrait mode'
+            };
+            var localized = fallback;
             try {
                 var lang = (navigator.language || '').split('-')[0].toLowerCase();
                 var msg = messages[lang];
                 if (msg) {
-                    document.getElementById('portrait-title').textContent = msg.title;
-                    document.getElementById('portrait-subtitle').textContent = msg.subtitle;
+                    localized = msg;
                 }
             } catch (e) { /* use default English text */ }
-        })();
 
-        // Suppress the portrait overlay immediately when the user navigates directly to an info page.
-        // The Kotlin/WASM app will call setInfoPageActive(true) once loaded, but this prevents
-        // the overlay from flickering in the meantime.
-        (function suppressPortraitOverlayOnInfoPage() {
+            var titleElement = document.getElementById('portrait-title');
+            var subtitleElement = document.getElementById('portrait-subtitle');
+            var landscapeClass = 'orientation-overlay-landscape-required';
+            var portraitClass = 'orientation-overlay-portrait-required';
+
+            window.setOrientationOverlayMode = function(mode) {
+                var body = document.body;
+                if (!body) return;
+                var effectiveMode = 'none';
+                if (mode === 'landscape') {
+                    effectiveMode = 'landscape';
+                } else if (mode === 'portrait') {
+                    effectiveMode = 'portrait';
+                }
+                body.classList.remove(landscapeClass, portraitClass);
+                if (effectiveMode === 'landscape') {
+                    body.classList.add(landscapeClass);
+                } else if (effectiveMode === 'portrait') {
+                    body.classList.add(portraitClass);
+                }
+
+                if (titleElement) {
+                    titleElement.textContent = localized.title || fallback.title;
+                }
+                if (subtitleElement) {
+                    if (effectiveMode === 'portrait') {
+                        subtitleElement.textContent = localized.portraitSubtitle || fallback.portraitSubtitle;
+                    } else if (effectiveMode === 'landscape') {
+                        subtitleElement.textContent = localized.landscapeSubtitle || fallback.landscapeSubtitle;
+                    } else {
+                        subtitleElement.textContent = '';
+                    }
+                }
+            };
+
+            // Initial mode:
+            // - /info pages should hint portrait immediately (before Kotlin bootstraps)
+            // - all other routes start with no hint (main menu/world map are okay without forcing orientation)
             try {
                 var p = window.location.pathname;
                 if (p === '/info' || p.indexOf('/info/') === 0) {
-                    document.body.classList.add('info-page-active');
+                    window.setOrientationOverlayMode('portrait');
+                } else {
+                    window.setOrientationOverlayMode('none');
                 }
-            } catch (e) { /* ignore */ }
+            } catch (e) {
+                window.setOrientationOverlayMode('none');
+            }
         })();
     </script>
 </body>

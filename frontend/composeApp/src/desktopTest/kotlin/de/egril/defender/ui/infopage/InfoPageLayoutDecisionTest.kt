@@ -35,4 +35,26 @@ class InfoPageLayoutDecisionTest {
             )
         )
     }
+
+    @Test
+    fun installationTabIsHiddenWhenPlatformIsNotWeb() {
+        val tabs = buildVisibleInfoTabs(
+            showDownloadTab = false,
+            showInstallationTab = false,
+            showEditorHowToTab = false
+        )
+
+        assertFalse(InfoTab.INSTALLATION in tabs)
+    }
+
+    @Test
+    fun installationTabIsShownOnWeb() {
+        val tabs = buildVisibleInfoTabs(
+            showDownloadTab = true,
+            showInstallationTab = true,
+            showEditorHowToTab = false
+        )
+
+        assertTrue(InfoTab.INSTALLATION in tabs)
+    }
 }

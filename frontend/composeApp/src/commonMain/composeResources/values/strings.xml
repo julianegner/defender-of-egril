@@ -1523,6 +1523,7 @@
     <!-- Cheat code descriptions -->
     <string name="cheat_help_desc">Show this help screen</string>
     <string name="cheat_platform_desc">Show platform information</string>
+    <string name="cheat_crash_dialog_desc">Show an example crash dialog preview</string>
     <string name="cheat_cash_desc">Add 1,000 coins</string>
     <string name="cheat_mmmoney_desc">Add 1,000,000 coins</string>
     <string name="cheat_emptypocket_desc">Set coins to 0</string>
@@ -1915,5 +1916,10 @@
     <string name="edit_binding_hint">Tab + Enter = edit binding</string>
     <string name="dropdown_keyboard_hint">Up/Down Navigate, Enter = Select, Esc = Close</string>
     <string name="shortcut_bindings_nav_hint">Use Tab/Shift+Tab to select a keybind, then Enter to change it. Press R to reset all bindings.</string>
+
+    <!-- Global crash / unhandled error dialog -->
+    <string name="crash_dialog_title">An unexpected error occurred</string>
+    <string name="crash_dialog_message">Something went wrong inside the game. You can press OK to dismiss this message and keep playing. If the error report is sent, the maintainer will receive the technical error details, your current settings and the in-game log to help fix it.</string>
+    <string name="crash_dialog_send_info_checkbox">Send error information to the maintainer</string>
 
 </resources>

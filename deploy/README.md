@@ -205,6 +205,7 @@ The pre-provisioned **Defender of Egril – Overview** dashboard shows:
 | Events by Type | Bar chart of event counts grouped by `event_type` (all time) |
 | Events per Day | Time series of daily event volume for the past 90 days |
 | Recent Events | Table of the 100 most recent events with all fields |
+| web page views – APP_STARTED Events (Last 100) | Table of the 100 most recent `APP_STARTED` events on the `WEB` platform, including the `url` field |
 | CPU / Memory / Disk | Gauge panels for all three Hetzner servers with colour thresholds: green (0–70 %), yellow (70–85 %), red (85–100 %) |
 | Backend Errors Today | Count of HTTP 5xx errors recorded today (green = 0, orange ≥ 1, red ≥ 5) |
 | Backend Errors (Last 7 Days) | Count of HTTP 5xx errors over the past 7 days (green = 0, yellow ≥ 1, red ≥ 10) |

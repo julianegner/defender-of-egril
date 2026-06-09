@@ -12,7 +12,8 @@ internal fun buildEventJson(
     levelName: String?,
     platform: String,
     turnNumber: Int? = null,
-    difficulty: String? = null
+    difficulty: String? = null,
+    url: String? = null
 ): String = buildString {
     val currentPlatform = getPlatform()
     val platformLong = currentPlatform.name
@@ -56,6 +57,11 @@ internal fun buildEventJson(
     if (difficulty != null) {
         append(",\"difficulty\":\"")
         append(escapeJson(difficulty))
+        append("\"")
+    }
+    if (url != null) {
+        append(",\"url\":\"")
+        append(escapeJson(url))
         append("\"")
     }
     append("}")

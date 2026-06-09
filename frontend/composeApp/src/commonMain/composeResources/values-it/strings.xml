@@ -1522,6 +1522,7 @@
     <!-- Cheat code descriptions -->
     <string name="cheat_help_desc">Mostra questa schermata di aiuto</string>
     <string name="cheat_platform_desc">Mostra informazioni sulla piattaforma</string>
+    <string name="cheat_crash_dialog_desc">Mostra un\'anteprima del dialogo di crash</string>
     <string name="cheat_cash_desc">Aggiungi 1.000 monete</string>
     <string name="cheat_mmmoney_desc">Aggiungi 1.000.000 di monete</string>
     <string name="cheat_emptypocket_desc">Imposta monete a 0</string>
@@ -1911,5 +1912,8 @@
     <string name="edit_binding_hint">Tab + Enter = modifica tasto</string>
     <string name="dropdown_keyboard_hint">Up/Down Naviga, Enter = Seleziona, Esc = Chiudi</string>
     <string name="shortcut_bindings_nav_hint">Usa Tab/Shift+Tab per selezionare un tasto, poi Enter per modificarlo. R per ripristinare tutti i tasti.</string>
+    <string name="crash_dialog_title">Si è verificato un errore imprevisto</string>
+    <string name="crash_dialog_message">Qualcosa è andato storto nel gioco. Puoi premere OK per chiudere questo messaggio e continuare a giocare. Se il rapporto di errore viene inviato, il manutentore riceverà i dettagli tecnici dell\'errore, le tue impostazioni attuali e il registro di gioco per aiutare a risolverlo.</string>
+    <string name="crash_dialog_send_info_checkbox">Invia informazioni sull\'errore al manutentore</string>
 
 </resources>

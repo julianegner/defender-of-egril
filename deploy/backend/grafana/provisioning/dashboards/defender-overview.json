@@ -599,6 +599,165 @@
         "x": 0,
         "y": 27
       },
+      "id": 9,
+      "title": "Web Page Views",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres-app"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "created_at"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 200
+              },
+              {
+                "id": "unit",
+                "value": "dateTimeAsLocal"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "platform"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "os_name"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 180
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "user_name"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 150
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "url"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 350
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "platform_extended"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 250
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "commit_hash"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "platform_long"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 250
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 28
+      },
+      "id": 8,
+      "options": {
+        "footer": {
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "created_at"
+          }
+        ]
+      },
+      "title": "APP_STARTED Events (Last 100)",
+      "type": "table",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres-app"
+          },
+          "format": "table",
+          "rawSql": "SELECT id, platform, os_name, version_name, commit_hash, user_name, url, platform_extended, platform_long, created_at FROM events WHERE event_type = 'APP_STARTED' AND platform = 'WEB' ORDER BY created_at DESC LIMIT 100",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 38
+      },
       "id": 101,
       "title": "\ud83d\udda5\ufe0f Hetzner Server Metrics",
       "type": "row"
@@ -640,7 +799,7 @@
         "h": 5,
         "w": 8,
         "x": 0,
-        "y": 28
+        "y": 39
       },
       "id": 10,
       "options": {
@@ -706,7 +865,7 @@
         "h": 5,
         "w": 8,
         "x": 8,
-        "y": 28
+        "y": 39
       },
       "id": 11,
       "options": {
@@ -772,7 +931,7 @@
         "h": 5,
         "w": 8,
         "x": 16,
-        "y": 28
+        "y": 39
       },
       "id": 12,
       "options": {
@@ -838,7 +997,7 @@
         "h": 5,
         "w": 8,
         "x": 0,
-        "y": 33
+        "y": 44
       },
       "id": 20,
       "options": {
@@ -904,7 +1063,7 @@
         "h": 5,
         "w": 8,
         "x": 8,
-        "y": 33
+        "y": 44
       },
       "id": 21,
       "options": {
@@ -970,7 +1129,7 @@
         "h": 5,
         "w": 8,
         "x": 16,
-        "y": 33
+        "y": 44
       },
       "id": 22,
       "options": {
@@ -1036,7 +1195,7 @@
         "h": 5,
         "w": 8,
         "x": 0,
-        "y": 38
+        "y": 49
       },
       "id": 30,
       "options": {
@@ -1102,7 +1261,7 @@
         "h": 5,
         "w": 8,
         "x": 8,
-        "y": 38
+        "y": 49
       },
       "id": 31,
       "options": {
@@ -1168,7 +1327,7 @@
         "h": 5,
         "w": 8,
         "x": 16,
-        "y": 38
+        "y": 49
       },
       "id": 32,
       "options": {
@@ -1203,7 +1362,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 43
+        "y": 54
       },
       "id": 102,
       "title": "\u26a0\ufe0f Backend Errors",
@@ -1312,7 +1471,7 @@
         "h": 4,
         "w": 6,
         "x": 0,
-        "y": 44
+        "y": 55
       },
       "id": 51,
       "options": {
@@ -1364,7 +1523,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 48
+        "y": 59
       },
       "id": 52,
       "options": {
@@ -1462,7 +1621,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 56
+        "y": 67
       },
       "id": 53,
       "options": {
@@ -1497,7 +1656,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 66
+        "y": 77
       },
       "id": 103,
       "title": "\ud83d\udcdd Player Feedback",
@@ -1638,7 +1797,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 67
+        "y": 78
       },
       "id": 303,
       "options": {
@@ -1691,7 +1850,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 75
+        "y": 86
       },
       "id": 304,
       "options": {
@@ -1723,6 +1882,189 @@
           },
           "format": "table",
           "rawSql": "SELECT created_at, feedback_uuid, feedback_type, bug_types, message, player_name, email, platform, app_version, language, has_screenshot, screenshot_name, has_savegame, savegame_name FROM player_feedback ORDER BY created_at DESC LIMIT 100",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 96
+      },
+      "id": 104,
+      "title": "\ud83d\udca5 Frontend Crash Reports",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres-app"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 97
+      },
+      "id": 401,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "Total Crash Reports",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres-app"
+          },
+          "format": "table",
+          "rawSql": "SELECT COUNT(*) AS value FROM crash_reports",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres-app"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "orange",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 97
+      },
+      "id": 402,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "title": "Crash Reports Today",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres-app"
+          },
+          "format": "table",
+          "rawSql": "SELECT COUNT(*) AS value FROM crash_reports WHERE created_at >= CURRENT_DATE",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "postgres-app"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 101
+      },
+      "id": 403,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": true,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "created_at"
+          }
+        ]
+      },
+      "title": "Crash Reports (Latest 100)",
+      "type": "table",
+      "targets": [
+        {
+          "datasource": {
+            "type": "postgres",
+            "uid": "postgres-app"
+          },
+          "format": "table",
+          "rawSql": "SELECT created_at, crash_uuid, error_type, error_message, platform, os_name, version_name, commit_hash, user_name FROM crash_reports ORDER BY created_at DESC LIMIT 100",
           "refId": "A"
         }
       ]

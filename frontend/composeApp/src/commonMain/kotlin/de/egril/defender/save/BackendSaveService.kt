@@ -64,32 +64,45 @@ internal fun escapeJsonString(s: String): String = buildString {
 }
 
 /**
- * Appends the shared client information JSON fields (platform, platformLong, versionName, commitHash)
- * to this [StringBuilder]. The fields are written without a trailing comma.
+ * Appends the shared client information JSON fields (platform, platformLong, versionName,
+ * commitHash, optional osName) to this [StringBuilder]. The fields are written without a
+ * trailing comma.
  *
  * @param platform     Short platform identifier (e.g. "WEB", "DESKTOP", "ANDROID", "IOS")
  * @param platformLong Long platform name from [de.egril.defender.utils.Platform.name]
  *                     (e.g. "Web with Kotlin/Wasm Mozilla/5.0 (...)")
  * @param versionName  Frontend version name (e.g. "1.0")
  * @param commitHash   Short git commit hash of the frontend build
+ * @param osName       Optional operating system name/version from [de.egril.defender.utils.Platform.osName]
  */
-internal fun StringBuilder.appendClientInfo(platform: String, platformLong: String, versionName: String, commitHash: String) {
+internal fun StringBuilder.appendClientInfo(
+    platform: String,
+    platformLong: String,
+    versionName: String,
+    commitHash: String,
+    osName: String?
+) {
     append("\"platform\":\"${escapeJsonString(platform)}\",")
     append("\"platformLong\":\"${escapeJsonString(platformLong)}\",")
+    if (osName != null) {
+        append("\"osName\":\"${escapeJsonString(osName)}\",")
+    }
     append("\"versionName\":\"${escapeJsonString(versionName)}\",")
     append("\"commitHash\":\"${escapeJsonString(commitHash)}\"")
 }
 
 /** Builds the JSON payload for a savefile upload request. */
 internal fun buildUploadJson(saveId: String, jsonData: String): String = buildString {
+    val currentPlatform = de.egril.defender.utils.getPlatform()
     val platform = de.egril.defender.utils.getClientPlatformName()
-    val platformLong = de.egril.defender.utils.getPlatform().name
+    val platformLong = currentPlatform.name
+    val osName = currentPlatform.osName
     val versionName = de.egril.defender.AppBuildInfo.VERSION_NAME
     val commitHash = de.egril.defender.AppBuildInfo.COMMIT_HASH
     append("{")
     append("\"saveId\":\"${escapeJsonString(saveId)}\",")
     append("\"data\":\"${escapeJsonString(jsonData)}\",")
-    appendClientInfo(platform, platformLong, versionName, commitHash)
+    appendClientInfo(platform, platformLong, versionName, commitHash, osName)
     append("}")
 }
 

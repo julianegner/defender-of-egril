@@ -16,6 +16,15 @@ interface FileStorage {
     fun getAbsolutePath(path: String): String
     fun writeBinaryFile(path: String, content: ByteArray)
     fun readBinaryFile(path: String): ByteArray?
+
+    /**
+     * Optional async initialisation step. Called once before the first storage
+     * operation when the platform needs to pre-populate an in-memory cache from an
+     * asynchronous backing store (e.g. OPFS on WASM/browser). The default
+     * implementation is a no-op so existing non-WASM implementations require no
+     * changes.
+     */
+    suspend fun initializeAsync() {}
 }
 
 expect fun getFileStorage(): FileStorage
