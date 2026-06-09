@@ -1821,7 +1821,7 @@
     <string name="accessibility_reduce_motion_worldmap_setting_info">Animations de la carte du monde : désactive les animations des rivières et des marées sur la carte du monde.</string>
     <string name="accessibility_reduce_motion_on">Réduire les mouvements est actif (les animations sont désactivées).</string>
     <string name="accessibility_reduce_motion_off">Réduire les mouvements est inactif (les animations sont activées).</string>
-    <string name="accessibility_reduce_motion_note">Ce contrôle reflète le même réglage d’animations dans l’onglet Niveau.</string>
+    <string name="accessibility_reduce_motion_note">Utilisez ci-dessus les réglages séparés pour les animations de niveau et de la carte du monde.</string>
     <string name="accessibility_font_size">Taille de la police</string>
     <string name="accessibility_font_size_small">Petit</string>
     <string name="accessibility_font_size_medium">Moyen</string>

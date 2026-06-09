@@ -553,8 +553,8 @@ private fun AccessibilityTabContent(selectedSliderIndex: Int = 0, onSliderIndexC
         NumberedSetting(5) {
             DualLabelSwitch(
                 state = AppSettings.enableWorldMapAnimations,
-                leftText = stringResource(Res.string.animations_off),
-                rightText = stringResource(Res.string.animations_on),
+                leftText = stringResource(Res.string.world_map_animations_off),
+                rightText = stringResource(Res.string.world_map_animations_on),
                 onCheckedChange = { enabled ->
                     AppSettings.saveEnableWorldMapAnimations(enabled)
                 },

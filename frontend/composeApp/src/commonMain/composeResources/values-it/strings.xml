@@ -1822,7 +1822,7 @@
     <string name="accessibility_reduce_motion_worldmap_setting_info">Animazioni mappa del mondo: disattiva le animazioni di fiumi e maree sulla mappa del mondo.</string>
     <string name="accessibility_reduce_motion_on">Riduzione movimento attiva (animazioni disattivate).</string>
     <string name="accessibility_reduce_motion_off">Riduzione movimento non attiva (animazioni attive).</string>
-    <string name="accessibility_reduce_motion_note">Questo controllo rispecchia la stessa impostazione Animazioni nella scheda Livello.</string>
+    <string name="accessibility_reduce_motion_note">Usa sopra i controlli separati per le animazioni del livello e della mappa del mondo.</string>
     <string name="accessibility_font_size">Dimensione del carattere</string>
     <string name="accessibility_font_size_small">Piccolo</string>
     <string name="accessibility_font_size_medium">Medio</string>

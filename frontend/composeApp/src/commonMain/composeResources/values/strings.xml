@@ -1826,7 +1826,7 @@
     <string name="accessibility_reduce_motion_worldmap_setting_info">World map animations: turns off river and tide animations on the world map.</string>
     <string name="accessibility_reduce_motion_on">Reduce motion is active (animations are off).</string>
     <string name="accessibility_reduce_motion_off">Reduce motion is inactive (animations are on).</string>
-    <string name="accessibility_reduce_motion_note">This control mirrors the same Animations setting in the Level tab.</string>
+    <string name="accessibility_reduce_motion_note">Use the separate Level Animations and World Map Animations controls above.</string>
     <string name="accessibility_font_size">Font Size</string>
     <string name="accessibility_font_size_small">Small</string>
     <string name="accessibility_font_size_medium">Medium</string>

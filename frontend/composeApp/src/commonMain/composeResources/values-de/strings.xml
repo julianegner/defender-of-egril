@@ -1819,7 +1819,7 @@
     <string name="accessibility_reduce_motion_worldmap_setting_info">Weltkarten-Animationen: Schaltet Fluss- und Gezeitenanimationen auf der Weltkarte aus.</string>
     <string name="accessibility_reduce_motion_on">Weniger Bewegung ist aktiv (Animationen sind aus).</string>
     <string name="accessibility_reduce_motion_off">Weniger Bewegung ist inaktiv (Animationen sind an).</string>
-    <string name="accessibility_reduce_motion_note">Diese Steuerung spiegelt dieselbe Animationseinstellung im Level-Tab wider.</string>
+    <string name="accessibility_reduce_motion_note">Nutze oben die getrennten Einstellungen für Level-Animationen und Weltkarten-Animationen.</string>
     <string name="accessibility_font_size">Schriftgröße</string>
     <string name="accessibility_font_size_small">Klein</string>
     <string name="accessibility_font_size_medium">Mittel</string>
