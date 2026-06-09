@@ -72,6 +72,15 @@ jobs:
             exit 1
           fi
 
+          # Reject versions starting with 1.8. or 1.9. – these are reserved for the
+          # macOS compatibility remapping of 0.8.x and 0.9.x releases (macOS requires
+          # a minimum major version of 1, so 0.8.x was published as 1.8.x on that
+          # platform).  Allowing new releases in this range would cause version conflicts.
+          if echo "$VERSION" | grep -qE '^1\.[89]\.'; then
+            echo "::error::Version '$VERSION' starts with 1.8. or 1.9., which is reserved for the macOS compatibility remapping of 0.8.x / 0.9.x releases. Please use a different version number."
+            exit 1
+          fi
+
           MAJOR=$(echo "$VERSION" | cut -d. -f1)
           MINOR=$(echo "$VERSION" | cut -d. -f2)
           PATCH=$(echo "$VERSION" | cut -d. -f3)
