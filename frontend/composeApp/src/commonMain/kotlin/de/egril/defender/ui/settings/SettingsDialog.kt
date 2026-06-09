@@ -946,10 +946,10 @@ private fun LevelTabContent() {
 
             // Animations switch
             NumberedSetting(3) {
-                DualLabelSwitch(
+                GenericSwitch(
                     state = AppSettings.enableAnimations,
-                    leftText = stringResource(Res.string.level_animations_off),
-                    rightText = stringResource(Res.string.level_animations_on),
+                    checkedText = stringResource(Res.string.level_animations),
+                    uncheckedText = stringResource(Res.string.level_animations),
                     onCheckedChange = { enabled ->
                         AppSettings.saveEnableAnimations(enabled)
                     },
