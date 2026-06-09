@@ -832,6 +832,7 @@ internal fun SpellCardGrid(
                 Text(
                     text = spell.getLocalizedDescription(),
                     style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
             }
