@@ -538,17 +538,30 @@ private fun AccessibilityTabContent(selectedSliderIndex: Int = 0, onSliderIndexC
         AccessibilityInfoText(stringResource(Res.string.accessibility_hold_to_confirm_info))
 
         NumberedSetting(4) {
-            DualLabelSwitch(
+            GenericSwitch(
                 state = AppSettings.enableAnimations,
-                leftText = stringResource(Res.string.animations_off),
-                rightText = stringResource(Res.string.animations_on),
+                checkedText = stringResource(Res.string.level_animations),
+                uncheckedText = stringResource(Res.string.level_animations),
                 onCheckedChange = { enabled ->
                     AppSettings.saveEnableAnimations(enabled)
                 },
                 modifier = Modifier.fillMaxWidth()
             )
         }
-        AccessibilityInfoText(stringResource(Res.string.accessibility_reduce_motion_setting_info))
+        AccessibilityInfoText(stringResource(Res.string.accessibility_reduce_motion_level_setting_info))
+
+        NumberedSetting(5) {
+            GenericSwitch(
+                state = AppSettings.enableWorldMapAnimations,
+                checkedText = stringResource(Res.string.world_map_animations),
+                uncheckedText = stringResource(Res.string.world_map_animations),
+                onCheckedChange = { enabled ->
+                    AppSettings.saveEnableWorldMapAnimations(enabled)
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        AccessibilityInfoText(stringResource(Res.string.accessibility_reduce_motion_worldmap_setting_info))
 
         SelectableText(
             text = if (accessibilityPreferences.reduceMotionEnabled) {
@@ -694,7 +707,7 @@ private fun ColorBlindPaletteChooser(
                 verticalAlignment = Alignment.Top,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                    de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "${index + 5}")
+                    de.egril.defender.ui.gameplay.ShortcutKeyChip(text = "${index + 6}")
                 RadioButton(
                     selected = selected == palette,
                     onClick = { onSelected(palette) }
@@ -833,7 +846,7 @@ private fun RestoreGameDataSection(onDismissSettings: () -> Unit, triggerRestore
 }
 
 /**
- * Worldmap UI tab: World map style, Show testing levels.
+ * Worldmap UI tab: World map style, world map animations, show testing levels.
  */
 @Composable
 private fun WorldmapTabContent() {
@@ -858,8 +871,21 @@ private fun WorldmapTabContent() {
             )
         }
 
-        // Show testing levels switch
+        // World map animation switch
         NumberedSetting(2) {
+            GenericSwitch(
+                state = AppSettings.enableWorldMapAnimations,
+                checkedText = stringResource(Res.string.world_map_animations),
+                uncheckedText = stringResource(Res.string.world_map_animations),
+                onCheckedChange = { enabled ->
+                    AppSettings.saveEnableWorldMapAnimations(enabled)
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        // Show testing levels switch
+        NumberedSetting(3) {
             GenericSwitch(
                 state = AppSettings.showTestingLevels,
                 checkedText = stringResource(Res.string.show_testing_levels),
@@ -920,10 +946,10 @@ private fun LevelTabContent() {
 
             // Animations switch
             NumberedSetting(3) {
-                DualLabelSwitch(
+                GenericSwitch(
                     state = AppSettings.enableAnimations,
-                    leftText = stringResource(Res.string.animations_off),
-                    rightText = stringResource(Res.string.animations_on),
+                    checkedText = stringResource(Res.string.level_animations),
+                    uncheckedText = stringResource(Res.string.level_animations),
                     onCheckedChange = { enabled ->
                         AppSettings.saveEnableAnimations(enabled)
                     },
@@ -1597,7 +1623,8 @@ private fun handleSettingsNumberKey(tab: SettingsTab, number: Int): Boolean {
         }
         SettingsTab.WORLD_MAP -> when (number) {
             1 -> { AppSettings.saveUseLevelCards(!AppSettings.useLevelCards.value); true }
-            2 -> { AppSettings.saveShowTestingLevels(!AppSettings.showTestingLevels.value); true }
+            2 -> { AppSettings.saveEnableWorldMapAnimations(!AppSettings.enableWorldMapAnimations.value); true }
+            3 -> { AppSettings.saveShowTestingLevels(!AppSettings.showTestingLevels.value); true }
             else -> false
         }
         SettingsTab.LEVEL -> when (number) {
@@ -1683,10 +1710,11 @@ private fun handleSettingsNumberKey(tab: SettingsTab, number: Int): Boolean {
             2 -> { AppSettings.saveCaptionsEnabled(!AppSettings.captionsEnabled.value); true }
             3 -> { AppSettings.saveHoldToConfirmEnabled(!AppSettings.holdToConfirmEnabled.value); true }
             4 -> { AppSettings.saveEnableAnimations(!AppSettings.enableAnimations.value); true }
-            5 -> { AppSettings.saveColorBlindPalette(ColorBlindPalette.OFF); true }
-            6 -> { AppSettings.saveColorBlindPalette(ColorBlindPalette.DEUTERANOPIA); true }
-            7 -> { AppSettings.saveColorBlindPalette(ColorBlindPalette.PROTANOPIA); true }
-            8 -> { AppSettings.saveColorBlindPalette(ColorBlindPalette.TRITANOPIA); true }
+            5 -> { AppSettings.saveEnableWorldMapAnimations(!AppSettings.enableWorldMapAnimations.value); true }
+            6 -> { AppSettings.saveColorBlindPalette(ColorBlindPalette.OFF); true }
+            7 -> { AppSettings.saveColorBlindPalette(ColorBlindPalette.DEUTERANOPIA); true }
+            8 -> { AppSettings.saveColorBlindPalette(ColorBlindPalette.PROTANOPIA); true }
+            9 -> { AppSettings.saveColorBlindPalette(ColorBlindPalette.TRITANOPIA); true }
             else -> false
         }
         SettingsTab.SHORTCUTS -> when (number) {

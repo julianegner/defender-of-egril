@@ -68,6 +68,7 @@ package-lock.json
 
 # Scripts directory - generated files
 scripts/node_modules/
+scripts/__pycache__/
 scripts/package-lock.json
 scripts/.scraper_temp.js
 scripts/package.json
@@ -77,3 +78,6 @@ servers/keycloak/theme/dist/
 servers/keycloak/theme/dist_keycloak/
 
 egril-realm-backup-*.json
+
+# Temporary working files
+.tmp/

@@ -51,6 +51,12 @@
     <string name="animations">Animaciones</string>
     <string name="animations_on">Animaciones Activadas</string>
     <string name="animations_off">Movimiento Reducido / Iconos Estáticos</string>
+    <string name="level_animations_on">Animaciones de nivel activadas</string>
+    <string name="level_animations_off">Animaciones de nivel desactivadas</string>
+    <string name="level_animations">Animaciones de nivel</string>
+    <string name="world_map_animations_on">Animaciones del mapa activadas</string>
+    <string name="world_map_animations_off">Animaciones del mapa desactivadas</string>
+    <string name="world_map_animations">Animaciones del mapa</string>
     <string name="header_text_size">Tamaño de Texto del Encabezado del Nivel</string>
     <string name="header_text_size_small">Pequeño</string>
     <string name="header_text_size_medium">Mediano</string>
@@ -1813,9 +1819,11 @@
     <string name="accessibility_hold_to_confirm">Mantener pulsado para confirmar</string>
     <string name="accessibility_hold_to_confirm_info">Requiere mantener pulsado en acciones destructivas para evitar clics o toques accidentales.</string>
     <string name="accessibility_reduce_motion_setting_info">Desactiva efectos animados para reducir movimiento y fatiga visual.</string>
+    <string name="accessibility_reduce_motion_level_setting_info">Animaciones de nivel: desactiva efectos animados durante el nivel para reducir movimiento y fatiga visual.</string>
+    <string name="accessibility_reduce_motion_worldmap_setting_info">Animaciones del mapa mundial: desactiva animaciones de ríos y mareas en el mapa mundial.</string>
     <string name="accessibility_reduce_motion_on">Reducir movimiento está activo (las animaciones están desactivadas).</string>
     <string name="accessibility_reduce_motion_off">Reducir movimiento está inactivo (las animaciones están activadas).</string>
-    <string name="accessibility_reduce_motion_note">Este control refleja el mismo ajuste de animaciones de la pestaña Nivel.</string>
+    <string name="accessibility_reduce_motion_note">Usa arriba los controles separados para animaciones de nivel y del mapa mundial.</string>
     <string name="accessibility_font_size">Tamaño de fuente</string>
     <string name="accessibility_font_size_small">Pequeño</string>
     <string name="accessibility_font_size_medium">Mediano</string>

@@ -85,6 +85,7 @@ object AppSettings {
     private const val KEY_USE_LEVEL_MAP_IMAGE = "use_level_map_image"
     private const val KEY_SHOW_DEBUG_OPTIONS = "show_debug_options"
     private const val KEY_ENABLE_ANIMATIONS = "enable_animations"
+    private const val KEY_ENABLE_WORLDMAP_ANIMATIONS = "enable_worldmap_animations"
     private const val KEY_CHECK_FOR_UPDATES = "check_for_updates"
     private const val KEY_AUTO_JUMP_TO_NEXT_TOWER = "auto_jump_to_next_tower"
     private const val KEY_SHOW_UNIT_TOWER_BACKGROUND = "show_unit_tower_background"
@@ -296,6 +297,14 @@ object AppSettings {
      */
     val enableAnimations: MutableState<Boolean> = mutableStateOf(
         settings.getBoolean(KEY_ENABLE_ANIMATIONS, true)
+    )
+
+    /**
+     * Enable world map animations - controls river flow and tide movement overlays on world map.
+     * Default is true (animations ON)
+     */
+    val enableWorldMapAnimations: MutableState<Boolean> = mutableStateOf(
+        settings.getBoolean(KEY_ENABLE_WORLDMAP_ANIMATIONS, true)
     )
 
     /**
@@ -842,6 +851,15 @@ object AppSettings {
     }
 
     /**
+     * Save world map animations preference
+     */
+    fun saveEnableWorldMapAnimations(enabled: Boolean) {
+        enableWorldMapAnimations.value = enabled
+        settings.putBoolean(KEY_ENABLE_WORLDMAP_ANIMATIONS, enabled)
+        onPersist?.invoke()
+    }
+
+    /**
      * Save check for updates preference
      */
     fun saveCheckForUpdates(enabled: Boolean) {
@@ -1141,6 +1159,7 @@ object AppSettings {
         put(KEY_HEADER_TEXT_SIZE, headerTextSize.value.name)
         put(KEY_USE_LEVEL_MAP_IMAGE, useLevelMapImage.value.toString())
         put(KEY_ENABLE_ANIMATIONS, enableAnimations.value.toString())
+        put(KEY_ENABLE_WORLDMAP_ANIMATIONS, enableWorldMapAnimations.value.toString())
         put(KEY_CHECK_FOR_UPDATES, checkForUpdates.value.toString())
         put(KEY_AUTO_JUMP_TO_NEXT_TOWER, autoJumpToNextTower.value.toString())
         put(KEY_SHOW_UNIT_TOWER_BACKGROUND, showUnitTowerBackground.value.toString())
@@ -1210,6 +1229,7 @@ object AppSettings {
             }
             map[KEY_USE_LEVEL_MAP_IMAGE]?.toBooleanStrictOrNull()?.let { saveUseLevelMapImage(it) }
             map[KEY_ENABLE_ANIMATIONS]?.toBooleanStrictOrNull()?.let { saveEnableAnimations(it) }
+            map[KEY_ENABLE_WORLDMAP_ANIMATIONS]?.toBooleanStrictOrNull()?.let { saveEnableWorldMapAnimations(it) }
             map[KEY_CHECK_FOR_UPDATES]?.toBooleanStrictOrNull()?.let { saveCheckForUpdates(it) }
             map[KEY_AUTO_JUMP_TO_NEXT_TOWER]?.toBooleanStrictOrNull()?.let { saveAutoJumpToNextTower(it) }
             map[KEY_SHOW_UNIT_TOWER_BACKGROUND]?.toBooleanStrictOrNull()?.let { saveShowUnitTowerBackground(it) }
@@ -1292,6 +1312,7 @@ object AppSettings {
         
         // Reset animations to ON
         saveEnableAnimations(true)
+        saveEnableWorldMapAnimations(true)
         
         // Reset check for updates to ON
         saveCheckForUpdates(true)

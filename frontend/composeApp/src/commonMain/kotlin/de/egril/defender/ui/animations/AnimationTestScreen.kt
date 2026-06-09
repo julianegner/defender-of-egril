@@ -345,4 +345,6 @@ private fun AnimationType.displayName(): String = when (this) {
     AnimationType.PIKE_ATTACK                -> "Pike Attack (Pike Extend)"
     AnimationType.WIZARD_ATTACK              -> "Wizard Attack (Fireball)"
     AnimationType.ALCHEMY_ATTACK             -> "Alchemy Attack (Acid Vial)"
+    AnimationType.WORLD_MAP_WAVES            -> "World Map Waves"
+    AnimationType.WORLD_MAP_RIVERS           -> "World Map Rivers"
 }

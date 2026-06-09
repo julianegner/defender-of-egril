@@ -51,7 +51,9 @@ enum class AnimationType {
     SPEAR_ATTACK,
     PIKE_ATTACK,
     WIZARD_ATTACK,
-    ALCHEMY_ATTACK
+    ALCHEMY_ATTACK,
+    WORLD_MAP_WAVES,
+    WORLD_MAP_RIVERS
 }
 
 /**
@@ -105,6 +107,8 @@ fun LottieAnimation(
         AnimationType.PIKE_ATTACK -> "files/animations/arrow_attack.json"
         AnimationType.WIZARD_ATTACK -> "files/animations/tower_attack_impact.json"
         AnimationType.ALCHEMY_ATTACK -> "files/animations/tower_attack_impact.json"
+        AnimationType.WORLD_MAP_WAVES -> "files/animations/world_map_waves.json"
+        AnimationType.WORLD_MAP_RIVERS -> "files/animations/world_map_rivers.json"
     }
     
     // Load the animation JSON asynchronously
@@ -179,6 +183,8 @@ fun LottieAnimation(
                     AnimationType.PIKE_ATTACK -> "Pike extend animation"
                     AnimationType.WIZARD_ATTACK -> "Wizard fireball animation"
                     AnimationType.ALCHEMY_ATTACK -> "Alchemy acid vial animation"
+                    AnimationType.WORLD_MAP_WAVES -> "World map sea wave animation"
+                    AnimationType.WORLD_MAP_RIVERS -> "World map river flow animation"
                 },
                 contentScale = contentScale,
                 modifier = Modifier.fillMaxSize()
