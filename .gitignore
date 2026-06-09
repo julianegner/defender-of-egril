@@ -68,6 +68,7 @@ package-lock.json
 
 # Scripts directory - generated files
 scripts/node_modules/
+scripts/__pycache__/
 scripts/package-lock.json
 scripts/.scraper_temp.js
 scripts/package.json
