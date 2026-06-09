@@ -32,7 +32,7 @@ actual object BackendSaveService {
         suspendCancellableCoroutine { continuation ->
             try {
                 val xhr = XMLHttpRequest()
-                xhr.open("GET", "/api/savefiles", async = true)
+                xhr.open("GET", "$backendUrl/api/savefiles", async = true)
                 xhr.setRequestHeader("Authorization", "Bearer $token")
                 xhr.onload = {
                     if (xhr.status.toInt() in 200..299) {

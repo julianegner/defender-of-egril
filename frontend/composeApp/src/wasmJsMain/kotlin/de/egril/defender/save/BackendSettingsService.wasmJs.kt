@@ -32,7 +32,7 @@ actual object BackendSettingsService {
         suspendCancellableCoroutine { continuation ->
             try {
                 val xhr = XMLHttpRequest()
-                xhr.open("GET", "/api/settings", async = true)
+                xhr.open("GET", "$backendUrl/api/settings", async = true)
                 xhr.setRequestHeader("Authorization", "Bearer $token")
                 xhr.onload = {
                     if (xhr.status.toInt() in 200..299) {
