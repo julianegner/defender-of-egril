@@ -1129,7 +1129,7 @@ object AppSettings {
             colorBlindPalette = colorBlindPalette.value,
             captionsEnabled = captionsEnabled.value,
             holdToConfirmEnabled = holdToConfirmEnabled.value,
-            reduceMotionEnabled = !enableAnimations.value || !enableWorldMapAnimations.value
+            reduceMotionEnabled = !enableAnimations.value
         )
     }
 
