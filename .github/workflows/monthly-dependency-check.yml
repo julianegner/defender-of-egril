@@ -1,0 +1,51 @@
+name: Monthly Dependency Check
+
+on:
+  schedule:
+    - cron: '0 8 1 * *'  # First day of every month at 08:00 UTC
+  workflow_dispatch:  # Allow manual triggering
+
+permissions:
+  issues: write
+
+jobs:
+  create-dependency-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create monthly dependency check issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const today = new Date().toISOString().split('T')[0];
+            const title = `Monthly Dependency Check – ${today}`;
+            const body = `## Monthly Dependency Check
+
+            This is an automatically created monthly reminder to check and upgrade dependencies.
+
+            ### Tasks
+
+            - [ ] Review and upgrade Gradle wrapper version if a newer version is available
+            - [ ] Review and upgrade plugin versions in \`build.gradle.kts\` / \`libs.versions.toml\`
+            - [ ] Review and upgrade library dependency versions
+            - [ ] Review and upgrade GitHub Actions versions used in workflows (e.g. \`actions/checkout\`, \`actions/setup-java\`, \`gradle/gradle-build-action\`, etc.)
+            - [ ] Check for any security advisories on current dependencies
+
+            ### After upgrading
+
+            Run the **"run basic tests"** GitHub Actions workflow to verify that all tests still pass:
+            1. Go to [Actions → run basic tests](../../actions/workflows/basic_tests.yml)
+            2. Click **Run workflow** to trigger it manually
+
+            ### If tests fail
+
+            - Investigate the failing test(s) and fix any compatibility issues introduced by the upgraded dependency.
+            - If a fix is not feasible, revert the problematic dependency to the latest known-good version and document the reason in a comment on this issue.
+            `;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              assignees: ['app/copilot']
+            });
