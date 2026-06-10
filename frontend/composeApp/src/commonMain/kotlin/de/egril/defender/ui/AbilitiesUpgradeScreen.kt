@@ -795,6 +795,7 @@ internal fun SpellCardGrid(
     var isFocused by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier.fillMaxWidth()
+            .height(170.dp)
             .then(
                 if (isFocused && canUnlock) Modifier.border(
                     2.dp,
@@ -824,6 +825,12 @@ internal fun SpellCardGrid(
                 text = stringResource(Res.string.spell_mana_cost, spell.manaCost),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = spell.getLocalizedDescription(),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
             )
             if (isUnlocked) {
                 Text(
