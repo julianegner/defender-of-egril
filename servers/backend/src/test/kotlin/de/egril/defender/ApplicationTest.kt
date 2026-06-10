@@ -101,6 +101,19 @@ class ApplicationTest {
     }
 
     @Test
+    fun testPostEventGameWon() = testApplication {
+        application {
+            module()
+        }
+        client.post("/api/events") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"event":"GAME_WON","levelName":"The Final Stand","platform":"WEB"}""")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+    }
+
+    @Test
     fun testPostEventWithUnknownFields() = testApplication {
         application {
             module()

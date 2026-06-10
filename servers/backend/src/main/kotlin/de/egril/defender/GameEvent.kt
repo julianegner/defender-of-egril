@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 /**
  * Represents a game lifecycle event sent by the frontend.
  *
- * @param event One of: APP_STARTED, TUTORIAL_DEEP_LINK, LEVEL_STARTED, LEVEL_LOADED, LEVEL_WON, LEVEL_LOST, LEVEL_LEFT
+ * @param event One of: APP_STARTED, TUTORIAL_DEEP_LINK, LEVEL_STARTED, LEVEL_LOADED, LEVEL_WON, LEVEL_LOST, LEVEL_LEFT, GAME_WON
  * @param levelName Display name of the level, present for all events except APP_STARTED
  * @param platform The short frontend platform identifier (e.g. WEB, DESKTOP, ANDROID, IOS)
  * @param platformLong The full platform name including user agent for web (e.g. "Web with Kotlin/Wasm Mozilla/5.0 ..."), optional

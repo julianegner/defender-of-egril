@@ -1630,6 +1630,15 @@ class GameViewModel {
         
         val isLastLevel = _worldLevels.value.firstOrNull { it.level.id == levelId }?.level?.editorLevelId == OfficialContent.FINAL_LEVEL_ID
 
+        if (won && isLastLevel) {
+            de.egril.defender.analytics.reportEvent(
+                de.egril.defender.analytics.GameEventType.GAME_WON,
+                levelName,
+                turnNumber,
+                _gameState.value?.difficulty?.name ?: AppSettings.difficulty.value.name
+            )
+        }
+
         // Find the current level's index once; reused for both next-level computation and status update below
         val currentLevelIndex = _worldLevels.value.indexOfFirst { it.level.id == levelId }
 
