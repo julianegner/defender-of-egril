@@ -23,13 +23,16 @@ jobs:
 
       - name: Create Gradle init script for versions plugin
         run: |
-          cat > /tmp/init-versions.gradle << 'EOF'
+          # Plugin version: update this periodically alongside other dependencies.
+          # See https://github.com/ben-manes/gradle-versions-plugin/releases
+          PLUGIN_VERSION="0.52.0"
+          cat > /tmp/init-versions.gradle << EOF
           initscript {
               repositories {
                   gradlePluginPortal()
               }
               dependencies {
-                  classpath("com.github.ben-manes:gradle-versions-plugin:0.52.0")
+                  classpath("com.github.ben-manes:gradle-versions-plugin:\${PLUGIN_VERSION}")
               }
           }
           allprojects {
@@ -45,17 +48,28 @@ jobs:
           EOF
 
       - name: Run dependency updates check
-        run: ./gradlew dependencyUpdates --init-script /tmp/init-versions.gradle -q --continue || true
+        run: |
+          ./gradlew dependencyUpdates --init-script /tmp/init-versions.gradle -q --continue
+          EXIT_CODE=$?
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "::warning::Gradle dependencyUpdates task exited with code $EXIT_CODE. Dependency report may be incomplete."
+          fi
+          exit 0
 
       - name: Collect dependency reports
         id: collect
         run: |
           python3 - << 'PYEOF'
-          import json, os, glob
+          import json, os, glob, sys
 
           merged = {"current": [], "outdated": [], "gradle": None}
+          report_files = glob.glob("**/build/dependencyUpdates/report.json", recursive=True)
 
-          for path in glob.glob("**/build/dependencyUpdates/report.json", recursive=True):
+          if not report_files:
+              print("::warning::No dependency report files found. The dependency table will be unavailable.")
+              sys.exit(0)
+
+          for path in report_files:
               try:
                   with open(path) as f:
                       data = json.load(f)
@@ -64,7 +78,7 @@ jobs:
                   if merged["gradle"] is None and data.get("gradle"):
                       merged["gradle"] = data["gradle"]
               except Exception as e:
-                  print(f"Warning: could not parse {path}: {e}")
+                  print(f"::warning::Could not parse {path}: {e}")
 
           # Deduplicate by group:name, preferring outdated entries
           seen = {}
@@ -75,6 +89,10 @@ jobs:
               key = f"{dep['group']}:{dep['name']}"
               if key not in seen:
                   seen[key] = ("current", dep)
+
+          if not seen:
+              print("::warning::Dependency reports were found but contained no dependency entries.")
+              sys.exit(0)
 
           rows = []
           for key, (status, dep) in sorted(seen.items()):
