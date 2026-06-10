@@ -1915,4 +1915,11 @@
     <string name="crash_dialog_message">Quelque chose s\'est mal passé dans le jeu. Vous pouvez appuyer sur OK pour fermer ce message et continuer à jouer. Si le rapport d\'erreur est envoyé, le mainteneur recevra les détails techniques de l\'erreur, vos paramètres actuels et le journal du jeu pour aider à la corriger.</string>
     <string name="crash_dialog_send_info_checkbox">Envoyer les informations d\'erreur au mainteneur</string>
 
+    <!-- Barricade construction hint -->
+    <string name="barricade_construction_hint_title">Amélioration de Construction requise</string>
+    <string name="barricade_construction_hint_message">Cette tour a atteint le niveau pour construire des barricades, mais votre capacité de Construction doit d\'abord être améliorée.\nAméliorez Construction au niveau %1$d sur la page des Capacités pour débloquer les barricades pour cette tour.</string>
+
+    <!-- Abilities page savegame info -->
+    <string name="abilities_savegame_info">Les modifications des capacités n\'affectent pas les sauvegardes existantes. Seules les nouvelles parties utiliseront les valeurs de capacités mises à jour.</string>
+
 </resources>

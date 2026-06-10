@@ -797,6 +797,13 @@ private fun StatsAndAbilitiesContent(
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
+        // Info text: changes do not affect savegames
+        Text(
+            text = stringResource(Res.string.abilities_savegame_info),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(vertical = 4.dp)
+        )
         // Keyboard navigation hint for abilities/spells
         if (AppSettings.showButtonShortcutHints.value && stats.availableAbilityPoints > 0) {
             Surface(

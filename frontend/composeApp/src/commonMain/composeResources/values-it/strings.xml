@@ -1916,4 +1916,11 @@
     <string name="crash_dialog_message">Qualcosa è andato storto nel gioco. Puoi premere OK per chiudere questo messaggio e continuare a giocare. Se il rapporto di errore viene inviato, il manutentore riceverà i dettagli tecnici dell\'errore, le tue impostazioni attuali e il registro di gioco per aiutare a risolverlo.</string>
     <string name="crash_dialog_send_info_checkbox">Invia informazioni sull\'errore al manutentore</string>
 
+    <!-- Barricade construction hint -->
+    <string name="barricade_construction_hint_title">Aggiornamento Costruzione richiesto</string>
+    <string name="barricade_construction_hint_message">Questa torre ha raggiunto il livello per costruire barricate, ma la tua abilità di Costruzione deve essere prima migliorata.\nMigliora Costruzione al livello %1$d nella pagina delle Abilità per sbloccare le barricate per questa torre.</string>
+
+    <!-- Abilities page savegame info -->
+    <string name="abilities_savegame_info">Le modifiche alle abilità non influenzano i salvataggi esistenti. Solo le nuove partite utilizzeranno i valori delle abilità aggiornati.</string>
+
 </resources>

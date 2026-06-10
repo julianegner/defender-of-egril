@@ -138,6 +138,14 @@ fun AbilitiesUpgradeScreen(
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
                     
+                    // Info text: changes do not affect savegames
+                    Text(
+                        text = stringResource(Res.string.abilities_savegame_info),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+                    
                     // Abilities Grid (3 columns)
                     var showConstructionInfo by remember { mutableStateOf(false) }
                     Row(

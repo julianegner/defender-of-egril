@@ -1913,4 +1913,11 @@
     <string name="crash_dialog_message">Im Spiel ist etwas schiefgelaufen. Du kannst OK drücken, um diese Meldung zu schließen und weiterzuspielen. Wenn der Fehlerbericht gesendet wird, erhält der Maintainer die technischen Fehlerdetails, deine aktuellen Einstellungen und das Spielprotokoll, um das Problem zu beheben.</string>
     <string name="crash_dialog_send_info_checkbox">Fehlerinformationen an den Maintainer senden</string>
 
+    <!-- Barricade construction hint -->
+    <string name="barricade_construction_hint_title">Konstruktions-Upgrade erforderlich</string>
+    <string name="barricade_construction_hint_message">Dieser Turm hat die Stufe für Barrikaden erreicht, aber deine Konstruktions-Fähigkeit muss zuerst verbessert werden.\nUpgrade Konstruktion auf Stufe %1$d auf der Fähigkeiten-Seite, um Barrikaden für diesen Turm freizuschalten.</string>
+
+    <!-- Abilities page savegame info -->
+    <string name="abilities_savegame_info">Änderungen an Fähigkeiten wirken sich nicht auf bestehende Spielstände aus. Nur neue Spiele verwenden die aktualisierten Fähigkeitswerte.</string>
+
 </resources>

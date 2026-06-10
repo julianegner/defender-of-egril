@@ -19,6 +19,7 @@ import de.egril.defender.ui.*
 import de.egril.defender.ui.animations.SpellDoubleLevelColor
 import de.egril.defender.ui.animations.SpellDoubleReachColor
 import de.egril.defender.ui.icon.InfoIcon
+import de.egril.defender.ui.icon.HammerIcon
 import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.PickIcon
 import de.egril.defender.ui.icon.SwordIcon
@@ -1090,6 +1091,31 @@ private fun getTowerInfoMessages(defender: Defender, gameState: GameState): List
                 message = stringResource(Res.string.barricade_info_message),
                 icon = { WoodIcon(size = 32.dp) },
                 color = Color(0xFF795548)  // Brown
+            )
+        )
+    }
+    
+    // Barricade hint: tower has level but construction ability is insufficient
+    val needsConstructionUpgrade = when (defender.type) {
+        DefenderType.SPIKE_TOWER -> 
+            defender.level.value >= 20 && 
+            gameState.constructionLevel < PlayerAbilities.CONSTRUCTION_LEVEL_2
+        DefenderType.SPEAR_TOWER -> 
+            defender.level.value >= 10 && 
+            gameState.constructionLevel < PlayerAbilities.CONSTRUCTION_LEVEL_1
+        else -> false
+    }
+    if (needsConstructionUpgrade) {
+        val requiredLevel = when (defender.type) {
+            DefenderType.SPIKE_TOWER -> PlayerAbilities.CONSTRUCTION_LEVEL_2
+            else -> PlayerAbilities.CONSTRUCTION_LEVEL_1
+        }
+        messages.add(0,
+            TowerInfoMessage(
+                title = stringResource(Res.string.barricade_construction_hint_title),
+                message = stringResource(Res.string.barricade_construction_hint_message, requiredLevel),
+                icon = { HammerIcon(size = 32.dp) },
+                color = Color(0xFFFF9800)  // Orange (warning)
             )
         )
     }
