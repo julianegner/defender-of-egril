@@ -1110,7 +1110,8 @@ private fun getTowerInfoMessages(defender: Defender, gameState: GameState): List
             DefenderType.SPIKE_TOWER -> PlayerAbilities.CONSTRUCTION_LEVEL_2
             else -> PlayerAbilities.CONSTRUCTION_LEVEL_1
         }
-        messages.add(0,
+        messages.add(
+            0,
             TowerInfoMessage(
                 title = stringResource(Res.string.barricade_construction_hint_title),
                 message = stringResource(Res.string.barricade_construction_hint_message, requiredLevel),
