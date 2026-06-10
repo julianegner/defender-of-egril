@@ -44,7 +44,6 @@ on:
         type: string
 
 permissions:
-  actions: write
   contents: write
 
 jobs:
@@ -1003,6 +1002,8 @@ jobs:
       - prepare
       - release
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
 
     steps:
       - name: Dispatch GitHub Pages workflow for the release tag
