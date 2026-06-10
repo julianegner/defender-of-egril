@@ -16,7 +16,6 @@ import androidx.compose.ui.input.key.*
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -796,7 +795,7 @@ internal fun SpellCardGrid(
     var isFocused by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier.fillMaxWidth()
-            .height(140.dp)
+            .height(170.dp)
             .then(
                 if (isFocused && canUnlock) Modifier.border(
                     2.dp,
@@ -831,9 +830,7 @@ internal fun SpellCardGrid(
                 text = spell.getLocalizedDescription(),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis
+                textAlign = TextAlign.Center
             )
             if (isUnlocked) {
                 Text(
