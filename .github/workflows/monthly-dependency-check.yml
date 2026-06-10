@@ -6,46 +6,151 @@ on:
   workflow_dispatch:  # Allow manual triggering
 
 permissions:
+  contents: read
   issues: write
 
 jobs:
   create-dependency-issue:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 24
+        uses: actions/setup-java@v4
+        with:
+          java-version: '24'
+          distribution: 'temurin'
+
+      - name: Create Gradle init script for versions plugin
+        run: |
+          cat > /tmp/init-versions.gradle << 'EOF'
+          initscript {
+              repositories {
+                  gradlePluginPortal()
+              }
+              dependencies {
+                  classpath("com.github.ben-manes:gradle-versions-plugin:0.52.0")
+              }
+          }
+          allprojects {
+              apply plugin: com.github.benmanes.gradle.versions.VersionsPlugin
+              tasks.withType(com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask).configureEach {
+                  outputFormatter = "json"
+                  rejectVersionIf {
+                      def v = it.candidate.version
+                      v ==~ /.*[.-](alpha|beta|rc|cr|m|preview|b|ea|eap)[.\d-]*/
+                  }
+              }
+          }
+          EOF
+
+      - name: Run dependency updates check
+        run: ./gradlew dependencyUpdates --init-script /tmp/init-versions.gradle -q --continue || true
+
+      - name: Collect dependency reports
+        id: collect
+        run: |
+          python3 - << 'PYEOF'
+          import json, os, glob
+
+          merged = {"current": [], "outdated": [], "gradle": None}
+
+          for path in glob.glob("**/build/dependencyUpdates/report.json", recursive=True):
+              try:
+                  with open(path) as f:
+                      data = json.load(f)
+                  merged["current"].extend(data.get("current", {}).get("dependencies", []))
+                  merged["outdated"].extend(data.get("outdated", {}).get("dependencies", []))
+                  if merged["gradle"] is None and data.get("gradle"):
+                      merged["gradle"] = data["gradle"]
+              except Exception as e:
+                  print(f"Warning: could not parse {path}: {e}")
+
+          # Deduplicate by group:name, preferring outdated entries
+          seen = {}
+          for dep in merged["outdated"]:
+              key = f"{dep['group']}:{dep['name']}"
+              seen[key] = ("outdated", dep)
+          for dep in merged["current"]:
+              key = f"{dep['group']}:{dep['name']}"
+              if key not in seen:
+                  seen[key] = ("current", dep)
+
+          rows = []
+          for key, (status, dep) in sorted(seen.items()):
+              if status == "outdated":
+                  latest = (dep.get("available") or {})
+                  latest_ver = latest.get("release") or latest.get("milestone") or latest.get("integration") or "?"
+                  rows.append(f"| `{key}` | {dep['version']} | **{latest_ver}** ⬆️ |")
+              else:
+                  rows.append(f"| `{key}` | {dep['version']} | ✅ up to date |")
+
+          gradle_row = ""
+          gradle = merged.get("gradle")
+          if gradle and gradle.get("enabled"):
+              running = (gradle.get("running") or {}).get("version", "?")
+              latest_g = (gradle.get("release") or gradle.get("current") or {}).get("version", "?")
+              if running == latest_g:
+                  gradle_row = f"| Gradle wrapper | {running} | ✅ up to date |\n"
+              else:
+                  gradle_row = f"| Gradle wrapper | {running} | **{latest_g}** ⬆️ |\n"
+
+          table = "| Dependency | Current Version | Latest Version |\n|---|---|---|\n" + gradle_row + "\n".join(rows)
+
+          with open(os.environ["GITHUB_ENV"], "a") as f:
+              f.write("DEPENDENCY_TABLE<<DEPEOF\n")
+              f.write(table + "\n")
+              f.write("DEPEOF\n")
+          PYEOF
+
       - name: Create monthly dependency check issue
         uses: actions/github-script@v7
         with:
           script: |
             const today = new Date().toISOString().split('T')[0];
             const title = `Monthly Dependency Check – ${today}`;
+            const depTable = process.env.DEPENDENCY_TABLE
+              || '_Could not generate dependency report automatically. Please check `gradle/libs.versions.toml` manually._';
+
             const body = `## Monthly Dependency Check
 
-            This is an automatically created monthly reminder to check and upgrade dependencies.
+### Dependency Versions
 
-            ### Tasks
+${depTable}
 
-            - [ ] Review and upgrade Gradle wrapper version if a newer version is available
-            - [ ] Review and upgrade plugin versions in \`build.gradle.kts\` / \`libs.versions.toml\`
-            - [ ] Review and upgrade library dependency versions
-            - [ ] Review and upgrade GitHub Actions versions used in workflows (e.g. \`actions/checkout\`, \`actions/setup-java\`, \`gradle/gradle-build-action\`, etc.)
-            - [ ] Check for any security advisories on current dependencies
+### Tasks
 
-            ### After upgrading
+- [ ] Upgrade all outdated dependencies (⬆️) listed above in \`gradle/libs.versions.toml\`
+- [ ] Review and upgrade GitHub Actions versions used in workflows (e.g. \`actions/checkout\`, \`actions/setup-java\`, \`gradle/gradle-build-action\`, etc.)
+- [ ] Check for any security advisories on current dependencies
 
-            Run the **"run basic tests"** GitHub Actions workflow to verify that all tests still pass:
-            1. Go to [Actions → run basic tests](../../actions/workflows/basic_tests.yml)
-            2. Click **Run workflow** to trigger it manually
+### After upgrading
 
-            ### If tests fail
+Run the **"run basic tests"** GitHub Actions workflow to verify that all tests still pass:
+1. Go to [Actions → run basic tests](../../actions/workflows/basic_tests.yml)
+2. Click **Run workflow** to trigger it manually
 
-            - Investigate the failing test(s) and fix any compatibility issues introduced by the upgraded dependency.
-            - If a fix is not feasible, revert the problematic dependency to the latest known-good version and document the reason in a comment on this issue.
-            `;
+### If tests fail
 
-            await github.rest.issues.create({
+- Investigate the failing test(s) and fix any compatibility issues introduced by the upgraded dependency.
+- If a fix is not feasible, revert the problematic dependency to the latest known-good version and document the reason in a comment on this issue.
+`;
+
+            const issue = await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: title,
-              body: body,
-              assignees: ['app/copilot']
+              body: body
             });
+
+            // Try to assign to Copilot; log a warning if not possible
+            try {
+              await github.rest.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.data.number,
+                assignees: ['copilot']
+              });
+            } catch (e) {
+              console.log(`Note: could not assign to copilot (${e.message}). Issue was still created: ${issue.data.html_url}`);
+            }
