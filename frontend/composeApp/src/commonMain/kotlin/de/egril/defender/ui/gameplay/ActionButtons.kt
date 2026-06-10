@@ -257,8 +257,10 @@ private fun TowerActionButtonContent(
                     Spacer(modifier = Modifier.width(GamePlayConstants.Spacing.IconText))
                     Text(
                         label,
-                        fontSize = GamePlayConstants.TextSizes.Medium,
-                        fontWeight = FontWeight.Bold
+                        fontSize = GamePlayConstants.TextSizes.Body,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
                 Spacer(modifier = Modifier.height(GamePlayConstants.Spacing.Items))
