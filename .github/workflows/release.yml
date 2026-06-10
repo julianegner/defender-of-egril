@@ -1003,7 +1003,6 @@ jobs:
       - prepare
       - release
     runs-on: ubuntu-latest
-    if: ${{ needs.prepare.result == 'success' && needs.release.result == 'success' }}
 
     steps:
       - name: Dispatch GitHub Pages workflow for the release tag
