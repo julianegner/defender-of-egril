@@ -44,6 +44,7 @@ on:
         type: string
 
 permissions:
+  actions: write
   contents: write
 
 jobs:
@@ -991,3 +992,26 @@ jobs:
             git tag -a "$TAG" -m "Release $TAG"
             git push origin "$TAG"
           fi
+
+  # ---------------------------------------------------------------------------
+  # Trigger the GitHub Pages deployment workflow only after the release and tag
+  # have both been created successfully.
+  # ---------------------------------------------------------------------------
+  deploy_github_pages:
+    name: Trigger GitHub Pages deployment
+    needs:
+      - prepare
+      - release
+    runs-on: ubuntu-latest
+    if: ${{ needs.prepare.result == 'success' && needs.release.result == 'success' }}
+
+    steps:
+      - name: Dispatch GitHub Pages workflow for the release tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.prepare.outputs.version_tag }}
+        run: |
+          gh api \
+            repos/${{ github.repository }}/actions/workflows/deploy_wasm_to_github_pages.yml/dispatches \
+            -X POST \
+            -f ref="${TAG}"

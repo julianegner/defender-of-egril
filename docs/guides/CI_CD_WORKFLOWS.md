@@ -39,7 +39,6 @@ WASM browser tests are not currently run in CI because the common test suite use
 
 **Jobs:**
 - `prepare`: Validate version string, verify it is strictly greater than the latest release, and compute Android `versionCode`
-- `tag`: Create and push git tag `v<version>` on the current commit
 - `build_android`: Build Android APK and AAB (signed if secrets are configured, debug otherwise)
 - `build_linux_deb`: Build Linux DEB package
 - `build_linux_snap`: Build Linux Snap package (optional, built from DEB artifact)
@@ -51,6 +50,7 @@ WASM browser tests are not currently run in CI because the common test suite use
 - `build_windows_msi`: Build Windows MSI installer
 - `build_wasm`: Build WebAssembly bundle
 - `release`: Create GitHub Release with all artifacts attached
+- `deploy_github_pages`: Trigger the GitHub Pages workflow after the release succeeds and the tag is pushed
 
 **Build Artifacts (attached to the GitHub Release):**
 - Android APK: `de.egril.defender-productionRelease.apk` (or debug suffix without signing)
@@ -108,7 +108,7 @@ WASM browser tests are not currently run in CI because the common test suite use
 
 ### 4. Deploy WASM to GitHub Pages (`deploy_wasm_to_github_pages.yml`)
 
-**Trigger:** Manual dispatch only (commented out auto-deploy on main branch)
+**Trigger:** Manual dispatch, plus automatic dispatch from the `Release` workflow after a successful release/tag publish
 
 **Purpose:** Deploy the WebAssembly version to GitHub Pages
 
@@ -218,9 +218,10 @@ Use the **Release** workflow (`release.yml`) to create a new release:
 
 The workflow will:
 - Validate the version string.
-- Create and push a git tag `v<version>` for the current commit.
 - Build all platform artifacts in parallel (Android, Linux, macOS, Windows, WASM; iOS when signing secrets are configured).
 - Create a GitHub Release tagged with the version and attach all artifacts for download.
+- Create and push a git tag `v<version>` after the release workflow finishes its release bookkeeping.
+- Trigger the **Deploy WasmJS App to GitHub Pages** workflow after the release job succeeds and the tag has been pushed.
 
 #### Configuring Signing (optional)
 
