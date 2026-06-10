@@ -103,9 +103,10 @@ val generateBuildConfig by tasks.registering {
                 logger.warn("git command exited with code $exitCode")
                 "unknown"
             } else {
-                // Escape quotes and newlines for Kotlin string
+                // Escape quotes, newlines, and dollar signs for Kotlin string literal
                 message.replace("\\", "\\\\")
                     .replace("\"", "\\\"")
+                    .replace("\$", "\\\$")
                     .replace("\n", "\\n")
             }
         } catch (e: Exception) {

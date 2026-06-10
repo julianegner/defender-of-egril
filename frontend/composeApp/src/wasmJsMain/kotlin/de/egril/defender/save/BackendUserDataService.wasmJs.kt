@@ -32,7 +32,7 @@ actual object BackendUserDataService {
         suspendCancellableCoroutine { continuation ->
             try {
                 val xhr = XMLHttpRequest()
-                xhr.open("GET", "/api/userdata", async = true)
+                xhr.open("GET", "$backendUrl/api/userdata", async = true)
                 xhr.setRequestHeader("Authorization", "Bearer $token")
                 xhr.onload = {
                     if (xhr.status.toInt() in 200..299) {
