@@ -1008,7 +1008,7 @@ jobs:
     steps:
       - name: Dispatch GitHub Pages workflow for the release tag
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
           TAG: ${{ needs.prepare.outputs.version_tag }}
         run: |
           gh api \
