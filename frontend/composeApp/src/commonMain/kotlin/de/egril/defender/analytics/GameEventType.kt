@@ -13,5 +13,6 @@ enum class GameEventType(val apiValue: String) {
     LEVEL_LOADED("LEVEL_LOADED"),
     LEVEL_WON("LEVEL_WON"),
     LEVEL_LOST("LEVEL_LOST"),
-    LEVEL_LEFT("LEVEL_LEFT")
+    LEVEL_LEFT("LEVEL_LEFT"),
+    GAME_WON("GAME_WON")
 }
