@@ -1,42 +1,17 @@
-VERTEIDIGE EGRIL - DAS LETZTE GEFECHT AUF DEN WIESEN
+Defender of Egril ist ein rundenbasiertes Tower-Defense-Spiel in einer Fantasy-Welt.
 
-Der böse Kriegsherr Ewhad hat die Horden von Gleid Thyae versammelt und zielt auf Egrils friedliche Wiesen. Nur dein taktisches Geschick und eine gut platzierte Verteidigungslinie können das Land retten.
+Baue Türme wie Speer-, Bogen- oder Zauberertürme, um dich gegen Goblins, Orks und böse Magier zu verteidigen, die Dämonen beschwören können. Du entscheidest selbst, welcher Turm auf welchen Gegner zielt, und lässt die automatische Zielauswahl den Rest übernehmen.
 
-Defender of Egril ist ein rundenbasiertes Tower Defense-Strategiespiel. Sorgfältige Planung, kluges Aufrüsten und präzises Zielen führen zum Sieg.
+Für besiegte Feinde erhältst du Münzen, mit denen du neue Türme kaufst oder bestehende aufrüstest.
 
---- SPIELMECHANIK ---
+Später im Spiel können Zwergenminen Gold und Edelsteine ausgraben - aber sie können auch einen Drachen wecken, der Minen zerstört und feindliche Einheiten verschlingt. Außerdem kannst du zusätzlich zu Türmen Flöße auf dem Wasser bauen, und diese Flöße treiben mit der Strömung.
 
-* Platziere und rüste Türme vor und während jeder Welle auf
-* Wähle manuell, welchen Feind jeder Turm angreift
-* Verwalte Aktionspunkte: Jeder Turm kann pro Runde nur begrenzt angreifen
-* Verdiene Gold durch das Besiegen von Feinden und investiere es in neue Türme oder Upgrades
-* Überlebe alle Angriffswellen, um auf der Weltkarte das nächste Level freizuschalten
+Böse Zauberer beschwören Dämonen und Skelette. Rote Hexen deaktivieren Türme, Grüne Hexen heilen feindliche Einheiten, und am Ende erscheint Ewhad höchstpersönlich und erschafft alle 3 Runden mächtige Dämonen, die immer stärker werden.
 
---- TÜRME ---
+Rüste deine Türme auf, um neue Möglichkeiten freizuschalten, darunter Barrikaden, die so stabil sind, dass sogar ein Turm darauf gebaut werden kann.
 
-Stachelturm - Nahkampf, günstig und zuverlässig
-Bogenturm - Weitreichende Bogenschießkunst für entfernte Feinde
-Speertrum - Mittlere Reichweite mit durchdringender Kraft
-Zaubererturm - Flächenschaden durch Feuerbälle, trifft mehrere Feinde gleichzeitig
-Alchemieturm - Säure-Angriffe mit anhaltendem Schaden
-Ballistaturm - Extremreichweiten-Belagerungswaffe mit Mindestreichweite
-Zwergenbergwerk - Erzeugt Goldmünzen durch Abbauaktionen
+Durch XP erhältst du Fähigkeitspunkte, mit denen du Zauber wie Feuerball und Bombe sowie passive Fähigkeiten wie mehr Startgeld, mehr Lebenspunkte oder höhere Belohnungen für besiegte Gegner freischalten kannst.
 
---- DEINE FEINDE ---
+Das Spiel ist kostenlos und wird es auch bleiben, ohne In-App-Käufe oder Werbung, und es ist Open Source. Der Quellcode ist hier: https://github.com/julianegner/defender-of-egril
 
-Begegne immer größeren Horden: flinke Goblins, gepanzerte Orks, massive Oger, Skelette, böse Zauberer die Dämonen beschwören, Rote Hexen die Türme deaktivieren, Grüne Hexen die Verbündete heilen - und und am Ende der mächtige Ewhad.
-
---- FEATURES ---
-
-* Rundenbasierte Strategie
-* Weltkarte mit freischaltbaren Leveln und steigendem Schwierigkeitsgrad
-* Erfahrungspunkte nutzen, um Fähigkeiten und Zauber freizuschalten.
-* Spielstand jederzeit speichern und laden
-* Schlachtfeld schwenken und zoomen mit automatischer Minikarte
-* Vollständig lokalisiert: Englisch, Deutsch, Spanisch, Französisch und Italienisch
-* Level-Editor in der Desktopversion
-* Ein optionaler remote-Account bietet Speichern auf dem Server und Wechsel zwischen Geräten mit dem gleichen Spielstand.
-
-Lade Defender of Egril herunter - kostenlos spielen, für immer.
-
-Defender of Egril ist Open Source. Der Sourcecode liegt hier: https://github.com/julianegner/defender-of-egril
+Lade Defender of Egril herunter - kostenlos spielbar, für immer.

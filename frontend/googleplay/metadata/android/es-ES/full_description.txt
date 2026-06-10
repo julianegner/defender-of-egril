@@ -1,42 +1,17 @@
-DEFIENDE EGRIL - LA ÚLTIMA BATALLA EN LOS PRADOS
+Defender of Egril es un juego de defensa de torres por turnos ambientado en un mundo de fantasía.
 
-El malvado señor de la guerra Ewhad ha reunido las Hordas de Gleid Thyae y tiene los ojos puestos en los pacíficos prados de Egril. Solo tu habilidad táctica y una sólida línea de defensa pueden salvar estas tierras.
+Construye torres de lanza, arco o magia para defenderte de goblins, orcos y magos malvados capaces de invocar demonios. Tú decides qué torre apunta a qué enemigo y dejas que la selección automática se encargue del resto.
 
-Defender of Egril es un juego de estrategia de defensa de torres por turnos. La planificación cuidadosa, las mejoras inteligentes y la precisión al apuntar son la clave de la victoria.
+Gana monedas al derrotar enemigos y utilízalas para comprar nuevas torres o mejorar las que ya tienes.
 
---- MECÁNICAS DE JUEGO ---
+Más adelante en la partida, las minas enanas pueden extraer oro y gemas, pero también pueden despertar a un dragón que destruye minas y devora unidades enemigas. Además de las torres, también podrás construir balsas sobre el agua, y esas balsas se moverán con la corriente.
 
-* Coloca y mejora torres antes y durante cada oleada
-* Elige manualmente qué enemigo ataca cada torre
-* Gestiona los puntos de acción: cada torre tiene ataques limitados por turno
-* Gana monedas de oro derrotando enemigos e inviértelas en torres nuevas o mejoras
-* Sobrevive a todas las oleadas para desbloquear el siguiente nivel en el mapa del mundo
+Los magos malvados invocan demonios y esqueletos. Las Brujas Rojas desactivan torres, las Brujas Verdes curan unidades enemigas y, al final, el mismísimo Ewhad aparece y hace surgir poderosos demonios cada 3 turnos, cada vez más fuertes.
 
---- TORRES ---
+Mejora tus torres para desbloquear nuevas opciones, incluidas barricadas tan resistentes que incluso se puede construir una torre sobre ellas.
 
-Torre de Pinchos - Cuerpo a cuerpo, económica y fiable
-Torre de Arqueros - Arquería de largo alcance para amenazas distantes
-Torre de Lanzas - Alcance medio con poder perforante
-Torre del Mago - Bolas de fuego de área que golpean a varios enemigos
-Torre de Alquimia - Ataques de ácido con daño continuo
-Torre de Ballesta - Arma de asedio de alcance extremo con alcance mínimo
-Mina Enana - Genera monedas de oro mediante acciones de excavación
+La XP te da puntos de habilidad que puedes usar para aprender hechizos como bola de fuego y bomba, o habilidades pasivas como más dinero inicial, más salud o mayores recompensas por derrotar unidades enemigas.
 
---- TUS ENEMIGOS ---
+El juego es y siempre será gratuito, sin compras integradas ni anuncios, y además es de código abierto. El código fuente está aquí: https://github.com/julianegner/defender-of-egril
 
-Enfrenta hordas cada vez mayores: veloces Duendes, Orcos acorazados, enormes Ogros, Esqueletos, Magos malvados que invocan demonios, Brujas Rojas que desactivan torres, Brujas Verdes que curan aliados - y al final, el poderoso Ewhad.
-
---- CARACTERÍSTICAS ---
-
-* Estrategia por turnos
-* Mapa del mundo con niveles desbloqueables y dificultad creciente
-* Usa puntos de experiencia para desbloquear habilidades y hechizos
-* Guarda y carga tu progreso en cualquier momento
-* Desplázate y amplía el campo de batalla con un minimapa automático
-* Totalmente localizado: inglés, alemán, español, francés e italiano
-* Editor de niveles en la versión de escritorio
-* Una cuenta remota opcional permite guardar en el servidor y cambiar entre dispositivos con el mismo progreso.
-
-Descarga Defender of Egril - gratis para siempre.
-
-Defender of Egril es de código abierto. El código fuente está aquí: https://github.com/julianegner/defender-of-egril
+Descarga Defender of Egril: gratis para jugar, para siempre.
