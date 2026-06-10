@@ -1,7 +1,6 @@
 package de.egril.defender.ui
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -17,6 +16,7 @@ import androidx.compose.ui.input.key.*
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -794,10 +794,9 @@ internal fun SpellCardGrid(
     onUnlock: () -> Unit
 ) {
     var isFocused by remember { mutableStateOf(false) }
-    var showDescription by remember { mutableStateOf(false) }
     Card(
         modifier = Modifier.fillMaxWidth()
-            .clickable { showDescription = !showDescription }
+            .height(140.dp)
             .then(
                 if (isFocused && canUnlock) Modifier.border(
                     2.dp,
@@ -828,14 +827,14 @@ internal fun SpellCardGrid(
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            if (showDescription) {
-                Text(
-                    text = spell.getLocalizedDescription(),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
-            }
+            Text(
+                text = spell.getLocalizedDescription(),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis
+            )
             if (isUnlocked) {
                 Text(
                     text = stringResource(Res.string.spell_unlocked),

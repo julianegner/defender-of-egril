@@ -117,7 +117,7 @@ class AbilitiesUpgradeScreenTest {
     }
 
     @Test
-    fun spellCardGridShowsDescriptionOnCardClick() {
+    fun spellCardGridShowsDescriptionByDefault() {
         val spell = SpellType.ATTACK_AREA
         val spellDescription = spell.getLocalizedDescription()
 
@@ -131,12 +131,6 @@ class AbilitiesUpgradeScreenTest {
         }
 
         composeTestRule.waitForIdle()
-        composeTestRule.onNodeWithText(spellDescription).assertDoesNotExist()
-
-        composeTestRule.onNodeWithText(spell.getLocalizedName()).performClick()
         composeTestRule.onNodeWithText(spellDescription).assertExists()
-
-        composeTestRule.onNodeWithText(spell.getLocalizedName()).performClick()
-        composeTestRule.onNodeWithText(spellDescription).assertDoesNotExist()
     }
 }
