@@ -1914,4 +1914,11 @@
     <string name="crash_dialog_message">Algo salió mal dentro del juego. Puedes pulsar Aceptar para cerrar este mensaje y seguir jugando. Si se envía el informe de error, el responsable del proyecto recibirá los detalles técnicos del error, tu configuración actual y el registro del juego para ayudar a corregirlo.</string>
     <string name="crash_dialog_send_info_checkbox">Enviar información del error al responsable del proyecto</string>
 
+    <!-- Barricade construction hint -->
+    <string name="barricade_construction_hint_title">Mejora de Construcción requerida</string>
+    <string name="barricade_construction_hint_message">Esta torre ha alcanzado el nivel para construir barricadas, pero tu habilidad de Construcción necesita ser mejorada primero.\nMejora Construcción al nivel %1$d en la página de Habilidades para desbloquear barricadas para esta torre.</string>
+
+    <!-- Abilities page savegame info -->
+    <string name="abilities_savegame_info">Los cambios en las habilidades no afectan a las partidas guardadas existentes. Solo los juegos nuevos usarán los valores de habilidades actualizados.</string>
+
 </resources>

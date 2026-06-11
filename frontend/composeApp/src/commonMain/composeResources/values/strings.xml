@@ -1922,4 +1922,11 @@
     <string name="crash_dialog_message">Something went wrong inside the game. You can press OK to dismiss this message and keep playing. If the error report is sent, the maintainer will receive the technical error details, your current settings and the in-game log to help fix it.</string>
     <string name="crash_dialog_send_info_checkbox">Send error information to the maintainer</string>
 
+    <!-- Barricade construction hint -->
+    <string name="barricade_construction_hint_title">Construction Upgrade Required</string>
+    <string name="barricade_construction_hint_message">This tower has reached the level to build barricades, but your Construction ability needs to be upgraded first.\nUpgrade Construction to level %1$d on the Abilities page to unlock barricades for this tower.</string>
+
+    <!-- Abilities page savegame info -->
+    <string name="abilities_savegame_info">Changes to abilities do not affect existing savegames. Only new games will use the updated ability values.</string>
+
 </resources>
