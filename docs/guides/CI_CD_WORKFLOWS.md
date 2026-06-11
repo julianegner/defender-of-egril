@@ -50,7 +50,7 @@ WASM browser tests are not currently run in CI because the common test suite use
 - `build_windows_msi`: Build Windows MSI installer
 - `build_wasm`: Build WebAssembly bundle
 - `release`: Create GitHub Release with all artifacts attached
-- `deploy_github_pages`: Trigger the GitHub Pages workflow after the release succeeds and the tag is pushed
+- `deploy_github_pages`: Trigger the GitHub Pages workflow on `main` branch after the release succeeds
 
 **Build Artifacts (attached to the GitHub Release):**
 - Android APK: `de.egril.defender-productionRelease.apk` (or debug suffix without signing)
@@ -221,7 +221,7 @@ The workflow will:
 - Build all platform artifacts in parallel (Android, Linux, macOS, Windows, WASM; iOS when signing secrets are configured).
 - Create a GitHub Release tagged with the version and attach all artifacts for download.
 - Create and push a git tag `v<version>` after the release workflow finishes its release bookkeeping.
-- Trigger the **Deploy WasmJS App to GitHub Pages** workflow after the release job succeeds and the tag has been pushed.
+- Trigger the **Deploy WasmJS App to GitHub Pages** workflow on the `main` branch after the release job succeeds.
 
 #### Configuring Signing (optional)
 

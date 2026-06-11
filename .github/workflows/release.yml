@@ -1006,12 +1006,11 @@ jobs:
       actions: write
 
     steps:
-      - name: Dispatch GitHub Pages workflow for the release tag
+      - name: Dispatch GitHub Pages workflow on main branch
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ needs.prepare.outputs.version_tag }}
         run: |
           gh api \
             repos/${{ github.repository }}/actions/workflows/deploy_wasm_to_github_pages.yml/dispatches \
             -X POST \
-            -f ref="${TAG}"
+            -f ref="main"
