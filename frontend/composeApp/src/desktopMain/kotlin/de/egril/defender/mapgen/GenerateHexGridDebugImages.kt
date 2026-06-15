@@ -35,12 +35,20 @@ object GenerateHexGridDebugImages {
     private val HEX_WIDTH = HEX_SIZE * SQRT3      // ~69.28 px  (flat-to-flat width)
     private const val HEX_HEIGHT = HEX_SIZE * 2.0  // 80 px      (point-to-point height)
 
-    // Row-to-row vertical step: HEX_HEIGHT * 0.75 + VERTICAL_SPACING_ADJUSTMENT
+    // Row-to-row layout step: HEX_HEIGHT * 0.75 + VERTICAL_SPACING_ADJUSTMENT
     // Must match HexagonalGridConstants: VERTICAL_SPACING_ADJUSTMENT = -7f
     // Game computes: spacedBy(-hexHeight + verticalSpacing + adj) → cell-to-cell = hexHeight + spacing
     //   = 80 + (-80 + 60 + (-7)) = 80 - 27 = 53
     private const val VERTICAL_SPACING_ADJUSTMENT = -7.0   // matches HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT
-    private val EFFECTIVE_ROW_STEP = HEX_HEIGHT * 0.75 + VERTICAL_SPACING_ADJUSTMENT  // 53 px
+    private val EFFECTIVE_ROW_STEP = HEX_HEIGHT * 0.75 + VERTICAL_SPACING_ADJUSTMENT  // 53 px (layout step)
+
+    // HexagonalMapView applies a per-row visual correction: .offset(y = (-(y - 1)).dp)
+    // This shifts row y by -(y-1) dp from its layout position, so visual top of row y is:
+    //   y * EFFECTIVE_ROW_STEP - (y - 1) = y * (EFFECTIVE_ROW_STEP - 1) + 1
+    // Visual row-to-row step = EFFECTIVE_ROW_STEP - 1 = 52 px
+    // Row 0 is at visual y = 1 px (not 0)
+    private val VISUAL_ROW_STEP = EFFECTIVE_ROW_STEP - 1.0  // 52 px
+    private const val ROW_ZERO_VISUAL_OFFSET = 1.0           // row 0 is shifted 1 px down
 
     private const val HORIZONTAL_SPACING = -10.0            // matches HexagonalGridConstants.HORIZONTAL_SPACING
     private const val ODD_ROW_OFFSET_RATIO = 0.42           // matches HexagonalGridConstants.ODD_ROW_OFFSET_RATIO
@@ -83,16 +91,20 @@ object GenerateHexGridDebugImages {
 
     /**
      * Returns the pixel centre of tile ([gx], [gy]) in the game grid coordinate system
-     * (no padding; first cell top-left is at 0,0).
+     * (no padding; first cell visual top is at y=1 due to the per-row offset correction).
      *
      * Mirrors the Compose layout in HexagonalMapView:
      *   cx = gx * (HEX_WIDTH + HORIZONTAL_SPACING) + oddRowOffset + HEX_WIDTH/2
-     *   cy = gy * EFFECTIVE_ROW_STEP + HEX_HEIGHT/2
+     *   cy = gy * VISUAL_ROW_STEP + ROW_ZERO_VISUAL_OFFSET + HEX_HEIGHT/2
+     *
+     * The VISUAL_ROW_STEP (52) differs from the layout step EFFECTIVE_ROW_STEP (53) because
+     * HexagonalMapView applies .offset(y = (-(y-1)).dp) per row, which compresses the visual
+     * row spacing by 1 px per row while also shifting row 0 down by 1 px.
      */
     private fun hexCenter(gx: Int, gy: Int): Pair<Double, Double> {
         val rowOffset = if (gy % 2 == 1) HEX_WIDTH * ODD_ROW_OFFSET_RATIO else 0.0
         val cx = gx * (HEX_WIDTH + HORIZONTAL_SPACING) + rowOffset + HEX_WIDTH / 2
-        val cy = gy * EFFECTIVE_ROW_STEP + HEX_HEIGHT / 2
+        val cy = gy * VISUAL_ROW_STEP + ROW_ZERO_VISUAL_OFFSET + HEX_HEIGHT / 2
         return Pair(cx, cy)
     }
 
