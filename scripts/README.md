@@ -2,6 +2,77 @@
 
 This directory contains utility scripts for the Defender of Egril project.
 
+## Hex Grid Debug Image Generator
+
+### Overview
+
+`generate_hex_grid_debug_images.py` reads the map JSON + background PNG files
+from the repository and produces overlay images where each hexagonal tile cell
+is tinted with its in-game colour.  The images are useful for visually
+verifying tile placement and for using as a reference layer when enhancing map
+background images in external tools.
+
+Output is written to `scripts/map-debug-images/` which is gitignored so the
+generated files never become part of the release build.
+
+### Requirements
+
+- **Python 3.8+**
+- **Pillow**: `pip install Pillow`
+
+### Usage
+
+```bash
+# Generate light-mode overlay images (default)
+python3 scripts/generate_hex_grid_debug_images.py
+
+# Generate dark-mode overlay images
+python3 scripts/generate_hex_grid_debug_images.py --dark
+
+# Custom output directory
+python3 scripts/generate_hex_grid_debug_images.py --output /path/to/output
+
+# Adjust overlay transparency (0-255)
+python3 scripts/generate_hex_grid_debug_images.py --fill-alpha 60 --border-alpha 220
+```
+
+### Options
+
+| Option | Default | Description |
+|---|---|---|
+| `--dark` | off | Use dark-mode tile colours |
+| `--output <dir>` | `scripts/map-debug-images` | Output directory |
+| `--fill-alpha N` | 80 | Opacity of tile fill (0 = transparent, 255 = opaque) |
+| `--border-alpha N` | 200 | Opacity of hex border lines |
+
+### Output
+
+One PNG per map is written to the output directory, named
+`<map_id>_hex_grid_light.png` (or `_dark.png` with `--dark`).
+
+Tile-type colours match `getTileColor()` in `TileUtils.kt`:
+
+| Tile type | Light colour | Dark colour |
+|---|---|---|
+| PATH | Brown `#8B4513` | Dark brown `#4A2F1A` |
+| BUILD_AREA | Light green `#90EE90` | Dark green `#456C2E` |
+| NO_PLAY | Dark grey `#404040` | Near-black `#1A1A1A` |
+| SPAWN_POINT | Red `#FF0000` | Dark red `#8B0000` |
+| TARGET | Blue `#0000FF` | Dark blue `#00008B` |
+| RIVER | Steel blue `#4682B4` | Dark steel blue `#1E3A5F` |
+
+### How It Works
+
+1. Locates all `*.json` map files in `frontend/.../files/repository/maps/`
+2. For each map, opens the corresponding `*.png` background image
+3. Calculates hex cell centres using the same geometry as `MapImageGenerator.kt`:
+   - `HEX_SIZE = 40 px`, pointy-top hexagons
+   - `HORIZONTAL_SPACING = -10 px` (slight column overlap)
+   - Odd rows offset right by `HEX_WIDTH × 0.42`
+   - 20 px padding around the whole grid
+4. Draws a semi-transparent coloured fill and border for each tile
+5. Composites the overlay onto the background and saves the result
+
 ## Build Windows EXE
 
 ### Overview
