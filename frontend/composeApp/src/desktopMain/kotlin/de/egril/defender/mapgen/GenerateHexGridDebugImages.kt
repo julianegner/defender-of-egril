@@ -157,7 +157,7 @@ object GenerateHexGridDebugImages {
         for (gy in 0..maxGy) {
             for (gx in 0..maxGx) {
                 val tileType = tiles["$gx,$gy"] ?: TileType.NO_PLAY
-                val color = colorMap[tileType] ?: colorMap[TileType.NO_PLAY]!!
+                val color = colorMap[tileType] ?: colorMap[TileType.NO_PLAY] ?: Color.DARK_GRAY
                 val (cx, cy) = hexCenter(gx, gy)
                 val verts = hexVertices(cx, cy)
                 val xPoints = IntArray(6) { verts[it][0] }
@@ -173,7 +173,7 @@ object GenerateHexGridDebugImages {
         for (gy in 0..maxGy) {
             for (gx in 0..maxGx) {
                 val tileType = tiles["$gx,$gy"] ?: TileType.NO_PLAY
-                val color = colorMap[tileType] ?: colorMap[TileType.NO_PLAY]!!
+                val color = colorMap[tileType] ?: colorMap[TileType.NO_PLAY] ?: Color.DARK_GRAY
                 val (cx, cy) = hexCenter(gx, gy)
                 val verts = hexVertices(cx, cy)
                 val xPoints = IntArray(6) { verts[it][0] }

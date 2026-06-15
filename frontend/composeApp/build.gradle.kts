@@ -479,6 +479,9 @@ dependencies {
     debugImplementation(libs.compose.ui.tooling)
 }
 
+// Shared path to the repository maps directory used by mapgen tasks
+val repositoryMapsDir = layout.projectDirectory.dir("src/commonMain/composeResources/files/repository/maps").asFile.absolutePath
+
 // Task to generate map PNG images from map JSON files using the Kotlin MapImageGenerator
 tasks.register<JavaExec>("generateMapImages") {
     group = "mapgen"
@@ -493,9 +496,7 @@ tasks.register<JavaExec>("generateMapImages") {
     )
     mainClass.set("de.egril.defender.mapgen.GenerateMapImagesKt")
     workingDir = rootDir
-    args = listOf(
-        layout.projectDirectory.dir("src/commonMain/composeResources/files/repository/maps").asFile.absolutePath
-    )
+    args = listOf(repositoryMapsDir)
     // After regenerating map images, also regenerate the hex-grid debug overlays
     finalizedBy("generateHexGridDebugImages")
 }
@@ -516,9 +517,7 @@ tasks.register<JavaExec>("generateHexGridDebugImages") {
     )
     mainClass.set("de.egril.defender.mapgen.GenerateHexGridDebugImagesKt")
     workingDir = rootDir
-    args = listOf(
-        layout.projectDirectory.dir("src/commonMain/composeResources/files/repository/maps").asFile.absolutePath
-    )
+    args = listOf(repositoryMapsDir)
 }
 
 // Workaround for Gradle 9.x: Compose resource tasks declare output files that may not exist
