@@ -36,6 +36,13 @@ object GenerateHexGridDebugImages {
     private const val ODD_ROW_OFFSET_RATIO = 0.42
     private const val PADDING = 20.0
 
+    // Drawing circumradius — must match HexagonShape.createOutline():
+    //   radius = min(HEX_WIDTH, HEX_HEIGHT) / 2 = HEX_WIDTH / 2 ≈ 34.64
+    // Using HEX_SIZE (40) instead makes adjacent hexes overlap by ~10 px horizontally,
+    // causing each hex's border to draw inside its neighbours and producing a false
+    // "second grid" artefact.
+    private val HEX_DRAW_RADIUS = HEX_WIDTH / 2.0  // ≈ 34.64 px
+
     // Opacity of the tile fill composite (0.0 = transparent, 1.0 = opaque)
     private const val FILL_ALPHA = 0.30f
     // Opacity of the hex border lines
@@ -80,8 +87,8 @@ object GenerateHexGridDebugImages {
         return Array(6) { i ->
             val angle = PI * (60.0 * i - 30.0) / 180.0
             intArrayOf(
-                (cx + HEX_SIZE * cos(angle)).toInt(),
-                (cy + HEX_SIZE * sin(angle)).toInt()
+                (cx + HEX_DRAW_RADIUS * cos(angle)).toInt(),
+                (cy + HEX_DRAW_RADIUS * sin(angle)).toInt()
             )
         }
     }
