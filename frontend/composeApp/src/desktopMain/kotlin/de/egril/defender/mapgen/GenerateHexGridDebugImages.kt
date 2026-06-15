@@ -10,6 +10,7 @@ import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
 import kotlin.math.PI
+import kotlin.math.ceil
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -18,30 +19,35 @@ import kotlin.math.sin
  * map background PNG.  The output images are committed to git alongside the map sources but are
  * placed outside `composeResources` so they are never part of any build or release.
  *
- * Hex geometry is intentionally identical to [MapImageGenerator] so the grid is pixel-perfect.
+ * Hex geometry matches the in-game rendering (HexagonalMapView + HexagonalGridConstants) so the
+ * overlay is pixel-perfect against what the player actually sees.  The background PNG is scaled
+ * to the game grid dimensions before the overlay is applied.
  *
  * Both light-mode and dark-mode colour variants are produced.
  */
 object GenerateHexGridDebugImages {
 
     // ---------------------------------------------------------------------------
-    // Hex grid geometry — must exactly match MapImageGenerator
+    // Hex grid geometry — must match HexagonalMapView / HexagonalGridConstants
     // ---------------------------------------------------------------------------
     private const val HEX_SIZE = 40.0
     private val SQRT3 = kotlin.math.sqrt(3.0)
-    private val HEX_WIDTH = HEX_SIZE * SQRT3      // ~69.28 px
-    private const val HEX_HEIGHT = HEX_SIZE * 2.0  // 80 px
-    private const val VERTICAL_SPACING = HEX_HEIGHT * 0.75
-    private const val HORIZONTAL_SPACING = -10.0
-    private const val ODD_ROW_OFFSET_RATIO = 0.42
-    private const val PADDING = 20.0
+    private val HEX_WIDTH = HEX_SIZE * SQRT3      // ~69.28 px  (flat-to-flat width)
+    private const val HEX_HEIGHT = HEX_SIZE * 2.0  // 80 px      (point-to-point height)
+
+    // Row-to-row vertical step: HEX_HEIGHT * 0.75 + VERTICAL_SPACING_ADJUSTMENT
+    // Must match HexagonalGridConstants: VERTICAL_SPACING_ADJUSTMENT = -7f
+    // Game computes: spacedBy(-hexHeight + verticalSpacing + adj) → cell-to-cell = hexHeight + spacing
+    //   = 80 + (-80 + 60 + (-7)) = 80 - 27 = 53
+    private const val VERTICAL_SPACING_ADJUSTMENT = -7.0   // matches HexagonalGridConstants.VERTICAL_SPACING_ADJUSTMENT
+    private val EFFECTIVE_ROW_STEP = HEX_HEIGHT * 0.75 + VERTICAL_SPACING_ADJUSTMENT  // 53 px
+
+    private const val HORIZONTAL_SPACING = -10.0            // matches HexagonalGridConstants.HORIZONTAL_SPACING
+    private const val ODD_ROW_OFFSET_RATIO = 0.42           // matches HexagonalGridConstants.ODD_ROW_OFFSET_RATIO
 
     // Drawing circumradius — must match HexagonShape.createOutline():
     //   radius = min(HEX_WIDTH, HEX_HEIGHT) / 2 = HEX_WIDTH / 2 ≈ 34.64
-    // Using HEX_SIZE (40) instead makes adjacent hexes overlap by ~10 px horizontally,
-    // causing each hex's border to draw inside its neighbours and producing a false
-    // "second grid" artefact.
-    private val HEX_DRAW_RADIUS = HEX_WIDTH / 2.0  // ≈ 34.64 px
+    private val HEX_DRAW_RADIUS = HEX_WIDTH / 2.0           // ≈ 34.64 px
 
     // Opacity of the tile fill composite (0.0 = transparent, 1.0 = opaque)
     private const val FILL_ALPHA = 0.30f
@@ -75,11 +81,30 @@ object GenerateHexGridDebugImages {
     // Geometry helpers
     // ---------------------------------------------------------------------------
 
+    /**
+     * Returns the pixel centre of tile ([gx], [gy]) in the game grid coordinate system
+     * (no padding; first cell top-left is at 0,0).
+     *
+     * Mirrors the Compose layout in HexagonalMapView:
+     *   cx = gx * (HEX_WIDTH + HORIZONTAL_SPACING) + oddRowOffset + HEX_WIDTH/2
+     *   cy = gy * EFFECTIVE_ROW_STEP + HEX_HEIGHT/2
+     */
     private fun hexCenter(gx: Int, gy: Int): Pair<Double, Double> {
         val rowOffset = if (gy % 2 == 1) HEX_WIDTH * ODD_ROW_OFFSET_RATIO else 0.0
-        val cx = gx * (HEX_WIDTH + HORIZONTAL_SPACING) + rowOffset + HEX_WIDTH / 2 + PADDING
-        val cy = gy * VERTICAL_SPACING + HEX_HEIGHT / 2 + PADDING
+        val cx = gx * (HEX_WIDTH + HORIZONTAL_SPACING) + rowOffset + HEX_WIDTH / 2
+        val cy = gy * EFFECTIVE_ROW_STEP + HEX_HEIGHT / 2
         return Pair(cx, cy)
+    }
+
+    /**
+     * Computes the pixel dimensions of the game grid canvas for a map of [gridWidth] × [gridHeight]
+     * tiles, using the same formula as [de.egril.defender.ui.gameplay.GameMap] `hexMapSizePx`.
+     */
+    private fun gameGridSize(gridWidth: Int, gridHeight: Int): Pair<Int, Int> {
+        val oddOffset = if (gridHeight > 1) HEX_WIDTH * ODD_ROW_OFFSET_RATIO else 0.0
+        val w = ceil(gridWidth * HEX_WIDTH + (gridWidth - 1) * HORIZONTAL_SPACING + oddOffset).toInt()
+        val h = ceil((gridHeight - 1) * EFFECTIVE_ROW_STEP + HEX_HEIGHT).toInt()
+        return Pair(w, h)
     }
 
     /** Returns the 6 vertices of a pointy-top hexagon centred at (cx, cy). */
@@ -123,13 +148,14 @@ object GenerateHexGridDebugImages {
 
             outputDir.mkdirs()
 
+            val (gameW, gameH) = gameGridSize(map.width, map.height)
             val lightOut = File(outputDir, "${map.id}_hex_grid_light.png")
             val darkOut = File(outputDir, "${map.id}_hex_grid_dark.png")
 
-            renderOverlay(background, map.tiles, TILE_COLORS_LIGHT, lightOut)
-            renderOverlay(background, map.tiles, TILE_COLORS_DARK, darkOut)
+            renderOverlay(background, map.tiles, map.width, map.height, TILE_COLORS_LIGHT, lightOut)
+            renderOverlay(background, map.tiles, map.width, map.height, TILE_COLORS_DARK, darkOut)
 
-            println(" OK (${background.width}x${background.height}px)")
+            println(" OK (${background.width}x${background.height}px → ${gameW}x${gameH}px)")
             true
         } catch (e: Exception) {
             println(" FAILED: ${e.message}")
@@ -140,29 +166,27 @@ object GenerateHexGridDebugImages {
     private fun renderOverlay(
         background: BufferedImage,
         tiles: Map<String, TileType>,
+        gridWidth: Int,
+        gridHeight: Int,
         colorMap: Map<TileType, Color>,
         outFile: File
     ) {
-        // Work on a copy so we don't mutate the shared background
-        val result = BufferedImage(background.width, background.height, BufferedImage.TYPE_INT_RGB)
+        val (gameW, gameH) = gameGridSize(gridWidth, gridHeight)
+
+        // Create output at game grid dimensions
+        val result = BufferedImage(gameW, gameH, BufferedImage.TYPE_INT_RGB)
         val g = result.createGraphics()
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
+        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
 
-        // Draw background
-        g.drawImage(background, 0, 0, null)
+        // Scale background to game grid dimensions (matches in-game FillBounds behaviour)
+        g.drawImage(background, 0, 0, gameW, gameH, null)
 
-        // Determine grid extents from existing tiles
-        val allCoords = tiles.keys.map { key ->
-            val (xs, ys) = key.split(",")
-            xs.toInt() to ys.toInt()
-        }
-        val maxGx = (allCoords.maxOfOrNull { it.first } ?: 0)
-        val maxGy = (allCoords.maxOfOrNull { it.second } ?: 0)
-
-        // Draw hex fills (semi-transparent)
+        // Draw hex fills (semi-transparent) — only tiles within the declared map bounds
         g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, FILL_ALPHA)
-        for (gy in 0..maxGy) {
-            for (gx in 0..maxGx) {
+        for (gy in 0 until gridHeight) {
+            for (gx in 0 until gridWidth) {
                 val tileType = tiles["$gx,$gy"] ?: TileType.NO_PLAY
                 val color = colorMap[tileType] ?: colorMap[TileType.NO_PLAY] ?: Color.DARK_GRAY
                 val (cx, cy) = hexCenter(gx, gy)
@@ -177,8 +201,8 @@ object GenerateHexGridDebugImages {
         // Draw hex borders (slightly more opaque)
         g.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, BORDER_ALPHA)
         g.stroke = BasicStroke(BORDER_STROKE)
-        for (gy in 0..maxGy) {
-            for (gx in 0..maxGx) {
+        for (gy in 0 until gridHeight) {
+            for (gx in 0 until gridWidth) {
                 val tileType = tiles["$gx,$gy"] ?: TileType.NO_PLAY
                 val color = colorMap[tileType] ?: colorMap[TileType.NO_PLAY] ?: Color.DARK_GRAY
                 val (cx, cy) = hexCenter(gx, gy)
