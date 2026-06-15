@@ -493,6 +493,32 @@ tasks.register<JavaExec>("generateMapImages") {
     )
     mainClass.set("de.egril.defender.mapgen.GenerateMapImagesKt")
     workingDir = rootDir
+    args = listOf(
+        layout.projectDirectory.dir("src/commonMain/composeResources/files/repository/maps").asFile.absolutePath
+    )
+    // After regenerating map images, also regenerate the hex-grid debug overlays
+    finalizedBy("generateHexGridDebugImages")
+}
+
+// Task to generate hex-grid debug overlay images on top of map background PNGs.
+// Outputs go to files/repository/map-debug-images/ which is gitignored.
+// Runs automatically after generateMapImages and can also be invoked standalone.
+tasks.register<JavaExec>("generateHexGridDebugImages") {
+    group = "mapgen"
+    description = "Generate hex-grid debug overlay images for all map background PNGs (output is gitignored)"
+    dependsOn("compileKotlinDesktop")
+    classpath = files(
+        kotlin.targets.named("desktop").map { target ->
+            (target as org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget)
+                .compilations["main"].output.classesDirs
+        },
+        configurations.named("desktopRuntimeClasspath")
+    )
+    mainClass.set("de.egril.defender.mapgen.GenerateHexGridDebugImagesKt")
+    workingDir = rootDir
+    args = listOf(
+        layout.projectDirectory.dir("src/commonMain/composeResources/files/repository/maps").asFile.absolutePath
+    )
 }
 
 // Workaround for Gradle 9.x: Compose resource tasks declare output files that may not exist

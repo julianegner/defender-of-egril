@@ -38,13 +38,29 @@ The generated image dimensions match the exact hexagonal grid layout:
 - Uses the same coordinate formulas as `HexUtils.kt`
 - Pixel coordinates match the tile center positions from the game engine
 
-## Usage
+## Gradle Tasks
 
-```kotlin
-// Generate PNG bytes for a map
-val (pixels, width, height) = MapImageGenerator.generatePixels(editorMap)
-val pngBytes = MapImageEncoder.encodeToPng(pixels, width, height)
+| Task | Description |
+|---|---|
+| `./gradlew :composeApp:generateMapImages` | Regenerate all map background PNGs from JSON. Also triggers `generateHexGridDebugImages` automatically. |
+| `./gradlew :composeApp:generateHexGridDebugImages` | Generate hex-grid debug overlay images (see below). |
+
+## Hex Grid Debug Overlays
+
+`GenerateHexGridDebugImages.kt` composites a semi-transparent hex grid (tiles
+coloured by type, matching `TileUtils.getTileColor()`) on top of the map
+background PNGs.  Two variants are produced per map: light-mode and dark-mode.
+
+```bash
+# Generate debug overlays for all maps (incremental — skips up-to-date images)
+./gradlew :composeApp:generateHexGridDebugImages
+
+# Force-regenerate all
+./gradlew :composeApp:generateHexGridDebugImages --args="--force"
 ```
+
+Output goes to `files/repository/map-debug-images/` which is gitignored — these
+files are never committed or included in any build or release.
 
 ## Platform Support
 
