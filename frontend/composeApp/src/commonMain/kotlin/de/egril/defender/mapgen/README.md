@@ -59,8 +59,10 @@ background PNGs.  Two variants are produced per map: light-mode and dark-mode.
 ./gradlew :composeApp:generateHexGridDebugImages --args="--force"
 ```
 
-Output goes to `files/repository/map-debug-images/` which is gitignored — these
-files are never committed or included in any build or release.
+Output goes to `map-debug-images/` inside the `composeApp` module directory
+(i.e. `frontend/composeApp/map-debug-images/`) — committed to git alongside
+the map sources, but outside `composeResources` so images are never included
+in any build or release.
 
 ## Platform Support
 

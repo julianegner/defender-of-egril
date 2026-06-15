@@ -481,6 +481,8 @@ dependencies {
 
 // Shared path to the repository maps directory used by mapgen tasks
 val repositoryMapsDir = layout.projectDirectory.dir("src/commonMain/composeResources/files/repository/maps").asFile.absolutePath
+// Debug overlay output — outside composeResources so images are tracked in git but not compiled into the app
+val mapDebugImagesDir = layout.projectDirectory.dir("map-debug-images").asFile.absolutePath
 
 // Task to generate map PNG images from map JSON files using the Kotlin MapImageGenerator
 tasks.register<JavaExec>("generateMapImages") {
@@ -502,11 +504,11 @@ tasks.register<JavaExec>("generateMapImages") {
 }
 
 // Task to generate hex-grid debug overlay images on top of map background PNGs.
-// Outputs go to files/repository/map-debug-images/ which is gitignored.
+// Outputs go to map-debug-images/ (committed to git, outside composeResources so not compiled into the app).
 // Runs automatically after generateMapImages and can also be invoked standalone.
 tasks.register<JavaExec>("generateHexGridDebugImages") {
     group = "mapgen"
-    description = "Generate hex-grid debug overlay images for all map background PNGs (output is gitignored)"
+    description = "Generate hex-grid debug overlay images for all map background PNGs (committed to git)"
     dependsOn("compileKotlinDesktop")
     classpath = files(
         kotlin.targets.named("desktop").map { target ->
@@ -517,7 +519,7 @@ tasks.register<JavaExec>("generateHexGridDebugImages") {
     )
     mainClass.set("de.egril.defender.mapgen.GenerateHexGridDebugImagesKt")
     workingDir = rootDir
-    args = listOf(repositoryMapsDir)
+    args = listOf(repositoryMapsDir, mapDebugImagesDir)
 }
 
 // Workaround for Gradle 9.x: Compose resource tasks declare output files that may not exist

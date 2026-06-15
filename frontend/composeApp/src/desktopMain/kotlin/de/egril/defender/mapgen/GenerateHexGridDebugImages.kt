@@ -15,8 +15,8 @@ import kotlin.math.sin
 
 /**
  * Generates debug overlay images by drawing the hex grid (tiles coloured by type) on top of the
- * map background PNG.  The output images are written to a `map-debug-images` folder next to the
- * maps directory and are gitignored — they are never part of any build or release.
+ * map background PNG.  The output images are committed to git alongside the map sources but are
+ * placed outside `composeResources` so they are never part of any build or release.
  *
  * Hex geometry is intentionally identical to [MapImageGenerator] so the grid is pixel-perfect.
  *
@@ -262,17 +262,25 @@ object GenerateHexGridDebugImages {
  *
  * Arguments:
  *   [0] = path to the maps directory (optional, defaults to repository maps directory)
- *   [1] = "--force" to regenerate all images even if already up-to-date (optional)
+ *   [1] = path to the output directory (optional, defaults to `map-debug-images/` next to maps dir)
+ *   [--force] = regenerate all images even if already up-to-date (optional, any position)
  */
 fun main(args: Array<String>) {
-    val mapsDir = if (args.isNotEmpty() && args[0] != "--force") {
-        File(args[0])
+    val positionalArgs = args.filter { it != "--force" }
+    val force = args.any { it == "--force" }
+
+    val mapsDir = if (positionalArgs.isNotEmpty()) {
+        File(positionalArgs[0])
     } else {
         val projectRoot = File(System.getProperty("user.dir"))
         File(projectRoot, "composeApp/src/commonMain/composeResources/files/repository/maps")
     }
 
-    val force = args.any { it == "--force" }
+    val outputDir = if (positionalArgs.size >= 2) {
+        File(positionalArgs[1])
+    } else {
+        File(mapsDir.parentFile, "map-debug-images")
+    }
 
-    GenerateHexGridDebugImages.generateAll(mapsDir, forceRegenerate = force)
+    GenerateHexGridDebugImages.generateAll(mapsDir, outputDir = outputDir, forceRegenerate = force)
 }
