@@ -27,10 +27,10 @@
     "defenders": [
       {"type": "BOW_TOWER", "position": {"x": 15, "y": 25}, "level": 1},
       {"type": "BOW_TOWER", "position": {"x": 13, "y": 25}, "level": 1},
-      {"type": "BOW_TOWER", "position": {"x": 24, "y": 24}, "level": 1},
-      {"type": "BOW_TOWER", "position": {"x": 24, "y": 6}, "level": 1},
-      {"type": "BOW_TOWER", "position": {"x": 6, "y": 6}, "level": 1},
-      {"type": "BOW_TOWER", "position": {"x": 6, "y": 24}, "level": 1}
+      {"type": "BOW_TOWER", "position": {"x": 24, "y": 25}, "level": 1},
+      {"type": "BOW_TOWER", "position": {"x": 5, "y": 25}, "level": 1},
+      {"type": "BOW_TOWER", "position": {"x": 5, "y": 5}, "level": 1},
+      {"type": "BOW_TOWER", "position": {"x": 24, "y": 5}, "level": 1}
     ],
     "attackers": [
       {"type": "GOBLIN", "position": {"x": 11, "y": 9}, "level": 2},
