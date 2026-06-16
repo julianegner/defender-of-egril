@@ -32,7 +32,6 @@ object LocationIconUtils {
         "prison",
         "prison2",
         "river",
-        "hex_tower",
         "round_tower",
         "scroll",
         "spiral",
@@ -69,7 +68,6 @@ object LocationIconUtils {
             "location_prison" -> Res.drawable.location_prison
             "location_prison2" -> Res.drawable.location_prison2
             "location_river" -> Res.drawable.location_river
-            "location_hex_tower" -> Res.drawable.location_hex_tower
             "location_round_tower" -> Res.drawable.location_round_tower
             "location_scroll" -> Res.drawable.location_scroll
             "location_spiral" -> Res.drawable.location_spiral
@@ -90,7 +88,6 @@ object LocationIconUtils {
             "prison" -> Res.drawable.location_prison
             "prison2" -> Res.drawable.location_prison2
             "river" -> Res.drawable.location_river
-            "hex_tower" -> Res.drawable.location_hex_tower
             "round_tower" -> Res.drawable.location_round_tower
             "scroll" -> Res.drawable.location_scroll
             "spiral" -> Res.drawable.location_spiral

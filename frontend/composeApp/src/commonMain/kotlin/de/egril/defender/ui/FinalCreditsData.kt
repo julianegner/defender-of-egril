@@ -149,7 +149,6 @@ object FinalCreditsData {
         "ewhad_message_background",
         "story_message_background",
         "location_fortress",
-        "location_hex_tower",
         "location_round_tower",
         "location_square_tower",
         "location_forest",
