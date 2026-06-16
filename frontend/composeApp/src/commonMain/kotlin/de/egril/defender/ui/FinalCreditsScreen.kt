@@ -98,6 +98,7 @@ private fun drawableResourceByName(name: String): DrawableResource? = when (name
     "ewhad_message_background" -> Res.drawable.ewhad_message_background
     "story_message_background" -> Res.drawable.story_message_background
     "location_fortress" -> Res.drawable.location_fortress
+    "location_hex_tower" -> Res.drawable.location_hex_tower
     "location_round_tower" -> Res.drawable.location_round_tower
     "location_square_tower" -> Res.drawable.location_square_tower
     "location_forest" -> Res.drawable.location_forest
