@@ -167,7 +167,7 @@ object GenerateHexGridDebugImages {
             renderOverlay(background, map.tiles, map.width, map.height, TILE_COLORS_LIGHT, lightOut)
             renderOverlay(background, map.tiles, map.width, map.height, TILE_COLORS_DARK, darkOut)
 
-            println(" OK (${background.width}x${background.height}px → ${gameW}x${gameH}px)")
+            println(" OK (${background.width}x${background.height}px -> ${gameW}x${gameH}px)")
             true
         } catch (e: Exception) {
             println(" FAILED: ${e.message}")
@@ -259,7 +259,7 @@ object GenerateHexGridDebugImages {
             return
         }
 
-        println("GenerateHexGridDebugImages: Processing ${jsonFiles.size} map(s) → ${outputDir.absolutePath}")
+        println("GenerateHexGridDebugImages: Processing ${jsonFiles.size} map(s) -> ${outputDir.absolutePath}")
 
         var generated = 0
         var skipped = 0
