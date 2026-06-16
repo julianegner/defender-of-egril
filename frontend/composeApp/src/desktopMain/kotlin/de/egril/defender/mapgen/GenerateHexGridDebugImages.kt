@@ -26,6 +26,7 @@ import kotlin.math.sin
  * Both light-mode and dark-mode colour variants are produced.
  */
 object GenerateHexGridDebugImages {
+    private const val FORTRESS_MAP_ID = "map_the_fortress"
 
     // ---------------------------------------------------------------------------
     // Hex grid geometry — must match HexagonalMapView / HexagonalGridConstants
@@ -163,9 +164,20 @@ object GenerateHexGridDebugImages {
             val (gameW, gameH) = gameGridSize(map.width, map.height)
             val lightOut = File(outputDir, "${map.id}_hex_grid_light.png")
             val darkOut = File(outputDir, "${map.id}_hex_grid_dark.png")
+            val sourceTime = pngFile.lastModified()
 
-            renderOverlay(background, map.tiles, map.width, map.height, TILE_COLORS_LIGHT, lightOut)
-            renderOverlay(background, map.tiles, map.width, map.height, TILE_COLORS_DARK, darkOut)
+            if (!lightOut.exists() || lightOut.lastModified() < sourceTime) {
+                renderOverlay(background, map.tiles, map.width, map.height, TILE_COLORS_LIGHT, lightOut)
+            }
+            if (!darkOut.exists() || darkOut.lastModified() < sourceTime) {
+                renderOverlay(background, map.tiles, map.width, map.height, TILE_COLORS_DARK, darkOut)
+            }
+            if (map.id == FORTRESS_MAP_ID) {
+                val fortressLightOut = File(outputDir, "${map.id}_light.png")
+                if (!fortressLightOut.exists() || fortressLightOut.lastModified() < sourceTime) {
+                    renderBackgroundOnly(background, map.width, map.height, fortressLightOut)
+                }
+            }
 
             println(" OK (${background.width}x${background.height}px -> ${gameW}x${gameH}px)")
             true
@@ -230,6 +242,22 @@ object GenerateHexGridDebugImages {
         ImageIO.write(result, "PNG", outFile)
     }
 
+    private fun renderBackgroundOnly(
+        background: BufferedImage,
+        gridWidth: Int,
+        gridHeight: Int,
+        outFile: File
+    ) {
+        val (gameW, gameH) = gameGridSize(gridWidth, gridHeight)
+        val result = BufferedImage(gameW, gameH, BufferedImage.TYPE_INT_RGB)
+        val g = result.createGraphics()
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR)
+        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY)
+        g.drawImage(background, 0, 0, gameW, gameH, null)
+        g.dispose()
+        ImageIO.write(result, "PNG", outFile)
+    }
+
     // ---------------------------------------------------------------------------
     // Batch generation
     // ---------------------------------------------------------------------------
@@ -280,10 +308,15 @@ object GenerateHexGridDebugImages {
                 if (mapId != null) {
                     val lightOut = File(outputDir, "${mapId}_hex_grid_light.png")
                     val darkOut = File(outputDir, "${mapId}_hex_grid_dark.png")
+                    val fortressLightOut = File(outputDir, "${mapId}_light.png")
                     val sourceTime = pngFile.lastModified()
+                    val hasFortressLight = mapId != FORTRESS_MAP_ID || (
+                        fortressLightOut.exists() && fortressLightOut.lastModified() >= sourceTime
+                    )
                     if (lightOut.exists() && darkOut.exists()
                         && lightOut.lastModified() >= sourceTime
                         && darkOut.lastModified() >= sourceTime
+                        && hasFortressLight
                     ) {
                         println("  Skipping (up-to-date): ${pngFile.name}")
                         skipped++
