@@ -1,0 +1,105 @@
+# Renew TLS certificates for all production servers.
+#
+# This workflow runs automatically on the 1st of every month and can also be
+# triggered manually.  It SSHes into each production server, stops nginx
+# briefly so certbot can bind to port 80 (standalone challenge), renews any
+# certificate that is within 30 days of expiry (or already expired), then
+# restarts nginx so the updated certificate is served immediately.
+#
+# Servers covered:
+#   sso.julianegner.de      – Keycloak on ubuntu-8gb-nbg1-2 (178.104.79.60)
+#   defender-backend.egril.de – Backend  on ubuntu-8gb-nbg1-3 (178.104.84.83)
+#
+# Required GitHub Secrets (same as the deploy workflows):
+#   PROD_SSH_PRIVATE_KEY    – SSH private key for both production servers
+#   PROD_SSH_KEY_PASSPHRASE – Passphrase protecting the key (leave empty if none)
+
+name: Renew TLS Certificates
+
+on:
+  schedule:
+    - cron: '0 3 1 * *'  # First day of every month at 03:00 UTC
+  workflow_dispatch:      # Allow manual triggering at any time
+
+jobs:
+  renew-keycloak-cert:
+    name: Renew sso.julianegner.de
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: "🔒 Renew TLS certificate on Keycloak server"
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 178.104.79.60
+          username: root
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
+          script: |
+            set -euo pipefail
+            DOMAIN="sso.julianegner.de"
+
+            echo "=== Current certificate status for ${DOMAIN} ==="
+            certbot certificates --domain "${DOMAIN}" 2>/dev/null || echo "(certbot query failed)"
+
+            # Ensure Docker Compose V2 plugin is available.
+            if ! docker compose version >/dev/null 2>&1; then
+              apt-get update -qq && apt-get install -y docker-compose-v2
+            fi
+
+            # Stop nginx so certbot standalone can bind to port 80.
+            # The trap ensures nginx is restarted whether certbot succeeds or fails.
+            cd /opt/keycloak
+            docker compose stop nginx
+            trap 'docker compose start nginx' EXIT
+
+            # Renew the certificate.  certbot renews when the cert is within
+            # 30 days of expiry or already expired; it is a no-op otherwise.
+            certbot renew --standalone --non-interactive
+
+            echo ""
+            echo "=== Updated certificate status for ${DOMAIN} ==="
+            certbot certificates --domain "${DOMAIN}" 2>/dev/null || echo "(certbot query failed)"
+            echo "✅ Certificate check/renewal complete for ${DOMAIN}"
+
+  renew-backend-cert:
+    name: Renew defender-backend.egril.de
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: "🔒 Renew TLS certificate on backend server"
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 178.104.84.83
+          username: root
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.PROD_SSH_KEY_PASSPHRASE }}
+          script: |
+            set -euo pipefail
+            DOMAIN="defender-backend.egril.de"
+
+            echo "=== Current certificate status for ${DOMAIN} ==="
+            certbot certificates --domain "${DOMAIN}" 2>/dev/null || echo "(certbot query failed)"
+
+            # Ensure Docker Compose V2 plugin is available.
+            if ! docker compose version >/dev/null 2>&1; then
+              apt-get update -qq && apt-get install -y docker-compose-v2
+            fi
+
+            # Stop nginx so certbot standalone can bind to port 80.
+            # The trap ensures nginx is restarted whether certbot succeeds or fails.
+            cd /opt/defender-of-egril/backend
+            docker compose stop nginx
+            trap 'docker compose start nginx' EXIT
+
+            # Renew the certificate.  certbot renews when the cert is within
+            # 30 days of expiry or already expired; it is a no-op otherwise.
+            certbot renew --standalone --non-interactive
+
+            echo ""
+            echo "=== Updated certificate status for ${DOMAIN} ==="
+            certbot certificates --domain "${DOMAIN}" 2>/dev/null || echo "(certbot query failed)"
+            echo "✅ Certificate check/renewal complete for ${DOMAIN}"

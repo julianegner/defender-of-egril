@@ -180,7 +180,28 @@ When this is configured the `deploy` job will pause and wait for approval after 
 
 Without the environment the upload proceeds automatically after the version check.
 
-### 7. Debug Android ProGuard (`debug-proguard.yml`)
+### 7. Renew TLS Certificates (`renew-tls-certificates.yml`)
+
+**Trigger:** Scheduled (1st of every month at 03:00 UTC) or manual dispatch
+
+**Purpose:** Renew Let's Encrypt TLS certificates for all production servers before they expire
+
+**Jobs (run in parallel):**
+- `renew-keycloak-cert`: Renews the certificate for `sso.julianegner.de` on the Keycloak server (178.104.79.60)
+- `renew-backend-cert`: Renews the certificate for `defender-backend.egril.de` on the backend server (178.104.84.83)
+
+**How it works:**
+1. Temporarily stops the nginx Docker container on the target server (to free port 80 for certbot's standalone ACME challenge)
+2. Runs `certbot renew --standalone --non-interactive` (no-op if cert is more than 30 days from expiry)
+3. Restarts nginx so it serves the updated certificate immediately
+
+**Required Secrets (same as the deploy workflows):**
+- `PROD_SSH_PRIVATE_KEY` – SSH private key for the production servers
+- `PROD_SSH_KEY_PASSPHRASE` – Passphrase protecting the key (empty if none)
+
+**Note:** Let's Encrypt certificates are valid for 90 days.  This workflow runs monthly, ensuring certificates are always renewed well before they expire.  Run it manually to force an immediate renewal (e.g. after a certificate has already expired).
+
+### 8. Debug Android ProGuard (`debug-proguard.yml`)
 
 **Trigger:** Manual dispatch only
 
