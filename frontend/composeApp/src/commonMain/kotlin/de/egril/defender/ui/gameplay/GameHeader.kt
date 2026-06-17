@@ -624,7 +624,6 @@ private fun InGameLevelCardDialog(
                     Box(
                         modifier = Modifier
                             .weight(2f)
-                            .height(120.dp)
                     ) {
                         HexagonMinimap(
                             level = level,

@@ -47,7 +47,7 @@ data class EditorMap(
     val isCommunity: Boolean = false,  // True if map is a community-shared map from the backend
     val communityAuthorUsername: String = "",  // Username of the community author (only set if isCommunity == true)
     val targetInfoMap: Map<String, EditorTargetInfo> = emptyMap(),  // "x,y" -> EditorTargetInfo for TARGET tiles
-    val mapToolingInfo: String = DEFAULT_MAP_TOOLING_INFO  // Free-form map creation/tooling attribution
+    val mapToolingInfo: String = DEFAULT_MAP_TOOLING_INFO  // Free-form map tooling text; known standard values are localized at runtime
 ) {
     fun getTileType(x: Int, y: Int): TileType {
         return tiles["$x,$y"] ?: TileType.NO_PLAY
