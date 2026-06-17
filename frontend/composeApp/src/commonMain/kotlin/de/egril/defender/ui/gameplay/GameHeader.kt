@@ -160,7 +160,7 @@ fun GameHeader(
                     )
                 }
             } else {
-                Text(
+                SelectableText(
                     text = gameState.level.getLocalizedTitle(locale),
                     fontSize = titleFontSize,
                     fontWeight = FontWeight.Bold,
