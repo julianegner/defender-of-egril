@@ -199,7 +199,9 @@ fun FinalCreditsScreen(
     }
 
     LaunchedEffect(Unit) {
-        try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+        try { focusRequester.requestFocus() } catch (_: IllegalStateException) {
+            // Ignore transient focus attachment races during initial composition.
+        }
     }
 
     Box(
