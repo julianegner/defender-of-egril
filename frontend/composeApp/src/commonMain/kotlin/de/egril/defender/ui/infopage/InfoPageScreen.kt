@@ -25,6 +25,9 @@ import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.ui.isEditorAvailable
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.SettingsButton
+import de.egril.defender.utils.DeepLink
+import de.egril.defender.utils.observeBrowserPathChanges
+import de.egril.defender.utils.parseDeepLink
 import de.egril.defender.utils.isPlatformWasm
 import de.egril.defender.utils.toUrlSlug
 import de.egril.defender.utils.updateBrowserUrl
@@ -54,6 +57,26 @@ internal fun buildVisibleInfoTabs(
     add(InfoTab.BACKEND)
     add(InfoTab.FEEDBACK)
     if (showEditorHowToTab) add(InfoTab.EDITOR_HOWTO)
+}
+
+internal sealed interface InfoPageBrowserNavigation {
+    data class SelectTab(val tab: InfoTab) : InfoPageBrowserNavigation
+    data object NavigateBack : InfoPageBrowserNavigation
+}
+
+internal fun resolveInfoPageBrowserNavigation(path: String, visibleTabs: List<InfoTab>): InfoPageBrowserNavigation {
+    val fallbackTab = visibleTabs.first()
+    return when (val deepLink = parseDeepLink(path)) {
+        is DeepLink.InfoPage -> {
+            val tab = if (deepLink.tab in visibleTabs) deepLink.tab else fallbackTab
+            InfoPageBrowserNavigation.SelectTab(tab)
+        }
+        is DeepLink.DataPrivacy -> {
+            val tab = if (InfoTab.BACKEND in visibleTabs) InfoTab.BACKEND else fallbackTab
+            InfoPageBrowserNavigation.SelectTab(tab)
+        }
+        DeepLink.Tutorial, DeepLink.Demo, DeepLink.Settings, DeepLink.None -> InfoPageBrowserNavigation.NavigateBack
+    }
 }
 
 @Composable
@@ -86,9 +109,19 @@ fun InfoPageScreen(
     val contentScrollState = rememberScrollState()
     val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
 
+    val currentOnBack by rememberUpdatedState(onBack)
+    val currentVisibleTabs by rememberUpdatedState(visibleTabs)
+
     // Keep the browser URL in sync with the selected tab.
     DisposableEffect(Unit) {
+        val unsubscribe = observeBrowserPathChanges { path ->
+            when (val navigation = resolveInfoPageBrowserNavigation(path, currentVisibleTabs)) {
+                is InfoPageBrowserNavigation.SelectTab -> selectedTab = navigation.tab
+                InfoPageBrowserNavigation.NavigateBack -> currentOnBack()
+            }
+        }
         onDispose {
+            unsubscribe()
             updateBrowserUrl("/")
         }
     }

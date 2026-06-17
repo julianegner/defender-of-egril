@@ -12,6 +12,8 @@ actual fun updateBrowserUrl(path: String) {
     // No-op on JVM/Desktop
 }
 
+actual fun observeBrowserPathChanges(onPathChanged: (String) -> Unit): () -> Unit = { }
+
 actual fun setInfoPageActive(active: Boolean) {
     // No-op on JVM/Desktop
 }
