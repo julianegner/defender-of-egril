@@ -198,6 +198,19 @@
         <canvas id="ComposeTarget"></canvas>
     </div>
     <script>
+        // SPA path restoration: when a /data-privacy/* page redirects here via sessionStorage,
+        // restore the original path before the Kotlin/Wasm app boots so it can read the correct
+        // pathname and open the Account & Privacy screen.
+        (function restoreSpaRedirectPath() {
+            try {
+                var redirectPath = sessionStorage.getItem('spaRedirectPath');
+                if (redirectPath) {
+                    sessionStorage.removeItem('spaRedirectPath');
+                    window.history.replaceState(null, '', redirectPath);
+                }
+            } catch (e) {}
+        })();
+
         // Use the actual visible viewport height on mobile browsers where 100vh includes URL bars.
         (function syncAppHeight() {
             let lastViewportHeight = -1;
@@ -426,10 +439,12 @@
 
             // Initial mode:
             // - /info pages should hint portrait immediately (before Kotlin bootstraps)
+            // - /data-privacy pages also use portrait mode
             // - all other routes start with no hint (main menu/world map are okay without forcing orientation)
             try {
                 var p = window.location.pathname;
-                if (p === '/info' || p.indexOf('/info/') === 0) {
+                if (p === '/info' || p.indexOf('/info/') === 0 ||
+                    p === '/data-privacy' || p.indexOf('/data-privacy/') === 0) {
                     window.setOrientationOverlayMode('portrait');
                 } else {
                     window.setOrientationOverlayMode('none');

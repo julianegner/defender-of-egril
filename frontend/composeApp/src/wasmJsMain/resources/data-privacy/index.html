@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Defender of Egril – Account &amp; Privacy</title>
+    <meta name="robots" content="noindex, follow">
+    <script>
+        // SPA redirect: store the requested path and navigate to root.
+        // index.html will restore this path via history.replaceState before the
+        // Kotlin/Wasm app boots, so the app opens the Account & Privacy page.
+        try {
+            sessionStorage.setItem('spaRedirectPath', window.location.pathname);
+        } catch (e) {}
+        window.location.replace('/');
+    </script>
+</head>
+<body></body>
+</html>
