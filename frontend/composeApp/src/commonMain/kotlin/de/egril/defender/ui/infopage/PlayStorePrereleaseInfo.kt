@@ -38,8 +38,6 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
-import defender_of_egril.composeapp.generated.resources.play_store_test_info_play_store_label
-import defender_of_egril.composeapp.generated.resources.play_store_test_info_register_step
 import defender_of_egril.composeapp.generated.resources.play_store_test_info_search_hint
 import defender_of_egril.composeapp.generated.resources.play_store_test_info_title
 
@@ -65,16 +63,6 @@ fun PlayStoreInfo(linkFocusManager: LinkFocusManager? = null) {
                 Text(
                     text = stringResource(Res.string.play_store_test_info_title),
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-                Text(
-                    text = stringResource(Res.string.play_store_test_info_register_step),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-                Text(
-                    text = stringResource(Res.string.play_store_test_info_play_store_label),
-                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
                 FocusableLink(
