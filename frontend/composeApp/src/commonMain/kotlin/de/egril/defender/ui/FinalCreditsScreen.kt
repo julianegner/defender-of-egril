@@ -169,7 +169,6 @@ fun FinalCreditsScreen(
     animationsEnabled: Boolean = true
 ) {
     val scrollState = rememberScrollState()
-    val coroutineScope = rememberCoroutineScope()
     val focusRequester = remember { FocusRequester() }
 
     // Start background music when entering final credits
@@ -200,7 +199,8 @@ fun FinalCreditsScreen(
 
     LaunchedEffect(Unit) {
         try { focusRequester.requestFocus() } catch (_: IllegalStateException) {
-            // Ignore transient focus attachment races during initial composition.
+            // The node may not yet be attached when first composed; keyboard dismissal
+            // still works once focus settles and pointer dismissal always remains available.
         }
     }
 
@@ -214,14 +214,14 @@ fun FinalCreditsScreen(
                 if (event.type == KeyEventType.KeyDown) {
                     when (event.key) {
                         Key.Enter, Key.NumPadEnter, Key.Escape, Key.Back -> {
-                            coroutineScope.launch { onDismiss() }
+                            onDismiss()
                             true
                         }
                         else -> false
                     }
                 } else false
             }
-            .clickable { coroutineScope.launch { onDismiss() } }
+            .clickable { onDismiss() }
     ) {
         // ── Lower layer: animated background images ───────────────────────────
         if (animationsEnabled) {
