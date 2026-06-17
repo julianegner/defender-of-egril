@@ -130,29 +130,30 @@ jobs:
             const depTable = process.env.DEPENDENCY_TABLE
               || '_Could not generate dependency report automatically. Please check `gradle/libs.versions.toml` manually._';
 
-            const body = `## Monthly Dependency Check
-
-### Dependency Versions
-
-${depTable}
-
-### Tasks
-
-- [ ] Upgrade all outdated dependencies (⬆️) listed above in \`gradle/libs.versions.toml\`
-- [ ] Review and upgrade GitHub Actions versions used in workflows (e.g. \`actions/checkout\`, \`actions/setup-java\`, \`gradle/gradle-build-action\`, etc.)
-- [ ] Check for any security advisories on current dependencies
-
-### After upgrading
-
-Run the **"run basic tests"** GitHub Actions workflow to verify that all tests still pass:
-1. Go to [Actions → run basic tests](../../actions/workflows/basic_tests.yml)
-2. Click **Run workflow** to trigger it manually
-
-### If tests fail
-
-- Investigate the failing test(s) and fix any compatibility issues introduced by the upgraded dependency.
-- If a fix is not feasible, revert the problematic dependency to the latest known-good version and document the reason in a comment on this issue.
-`;
+            const body = [
+              '## Monthly Dependency Check',
+              '',
+              '### Dependency Versions',
+              '',
+              depTable,
+              '',
+              '### Tasks',
+              '',
+              '- [ ] Upgrade all outdated dependencies (⬆️) listed above in `gradle/libs.versions.toml`',
+              '- [ ] Review and upgrade GitHub Actions versions used in workflows (e.g. `actions/checkout`, `actions/setup-java`, `gradle/gradle-build-action`, etc.)',
+              '- [ ] Check for any security advisories on current dependencies',
+              '',
+              '### After upgrading',
+              '',
+              'Run the **"run basic tests"** GitHub Actions workflow to verify that all tests still pass:',
+              '1. Go to [Actions → run basic tests](../../actions/workflows/basic_tests.yml)',
+              '2. Click **Run workflow** to trigger it manually',
+              '',
+              '### If tests fail',
+              '',
+              '- Investigate the failing test(s) and fix any compatibility issues introduced by the upgraded dependency.',
+              '- If a fix is not feasible, revert the problematic dependency to the latest known-good version and document the reason in a comment on this issue.',
+            ].join('\n');
 
             const issue = await github.rest.issues.create({
               owner: context.repo.owner,
