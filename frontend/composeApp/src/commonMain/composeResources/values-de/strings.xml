@@ -379,6 +379,7 @@
     <string name="level_title">Level-Titel</string>
     <string name="subtitle_optional">Untertitel (optional)</string>
     <string name="author_optional">Autor (optional)</string>
+    <string name="map_tooling_info">Infos zur Kartenerstellung</string>
     <string name="width">Breite</string>
     <string name="height">Höhe</string>
     <string name="select_map_to_edit">Wähle eine Karte zum Bearbeiten:</string>
@@ -1658,6 +1659,10 @@
     <string name="credits_section_background_music">Hintergrundmusik</string>
     <string name="credits_section_contributors">Mitwirkende</string>
     <string name="credits_section_software_used">Verwendete Software</string>
+    <string name="map_tooling_info_label">Kartenerstellung: %1$s</string>
+    <string name="map_tooling_info_procedural_generation">prozedurale Generierung</string>
+    <string name="map_tooling_info_procedural_generation_canvas_of_kings">prozedurale Generierung, mit Canvas of Kings verfeinert</string>
+    <string name="map_tooling_info_made_with_canvas_of_kings">mit Canvas of Kings erstellt</string>
     <string name="credits_section_special_thanks">Besonderer Dank</string>
     <string name="credits_thank_you">Danke fürs Spielen!</string>
     <string name="credits_click_to_skip">Klicken um zur Weltkarte zurückzukehren</string>

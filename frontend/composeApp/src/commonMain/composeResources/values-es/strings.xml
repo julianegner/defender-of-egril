@@ -379,6 +379,7 @@
     <string name="level_title">Título del nivel</string>
     <string name="subtitle_optional">Subtítulo (opcional)</string>
     <string name="author_optional">Autor (opcional)</string>
+    <string name="map_tooling_info">Información de creación del mapa</string>
     <string name="width">Ancho</string>
     <string name="height">Alto</string>
     <string name="select_map_to_edit">Seleccionar un mapa para editar:</string>
@@ -1659,6 +1660,10 @@
     <string name="credits_section_background_music">Música de Fondo</string>
     <string name="credits_section_contributors">Colaboradores</string>
     <string name="credits_section_software_used">Software Utilizado</string>
+    <string name="map_tooling_info_label">Creación del mapa: %1$s</string>
+    <string name="map_tooling_info_procedural_generation">generación procedimental</string>
+    <string name="map_tooling_info_procedural_generation_canvas_of_kings">generación procedimental, mejorada con Canvas of Kings</string>
+    <string name="map_tooling_info_made_with_canvas_of_kings">hecho con Canvas of Kings</string>
     <string name="credits_section_special_thanks">Agradecimientos Especiales</string>
     <string name="credits_thank_you">¡Gracias por jugar!</string>
     <string name="credits_click_to_skip">Haz clic para volver al mapa del mundo</string>

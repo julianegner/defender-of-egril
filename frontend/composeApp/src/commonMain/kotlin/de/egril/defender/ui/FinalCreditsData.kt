@@ -117,6 +117,10 @@ object FinalCreditsData {
         SoftwareCreditEntry(
             "Black Forest Labs – FLUX.2-dev",
             "AI image generation (huggingface.co/black-forest-labs/FLUX.2-dev)"
+        ),
+        SoftwareCreditEntry(
+            "Canvas of Kings",
+            "Map image enhancement and creation support"
         )
     )
 

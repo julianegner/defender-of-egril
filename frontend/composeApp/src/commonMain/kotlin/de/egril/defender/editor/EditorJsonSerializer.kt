@@ -44,6 +44,8 @@ object EditorJsonSerializer {
         val authorJson = if (map.author.isNotEmpty()) {
             ",\n  \"author\": \"${map.author}\""
         } else ""
+
+        val mapToolingInfoJson = ",\n  \"mapToolingInfo\": \"${map.mapToolingInfo}\""
         
         val targetInfoJson = if (map.targetInfoMap.isNotEmpty()) {
             val targetData = map.targetInfoMap.entries.joinToString(",\n    ") { (pos, info) ->
@@ -58,7 +60,7 @@ object EditorJsonSerializer {
   "width": ${map.width},
   "height": ${map.height},
   "readyToUse": ${map.readyToUse},
-  "isOfficial": ${map.isOfficial}$worldMapPositionJson$authorJson,
+  "isOfficial": ${map.isOfficial}$worldMapPositionJson$authorJson$mapToolingInfoJson,
   "tiles": {
     $tilesJson
   }$riverTilesJson$targetInfoJson
@@ -98,6 +100,11 @@ object EditorJsonSerializer {
                 JsonUtils.extractValue(dataJson, "author")
             } catch (e: Exception) {
                 ""  // Optional field
+            }
+            val mapToolingInfo = try {
+                JsonUtils.extractValue(dataJson, "mapToolingInfo").ifBlank { DEFAULT_MAP_TOOLING_INFO }
+            } catch (e: Exception) {
+                DEFAULT_MAP_TOOLING_INFO  // Optional field with default for backward compatibility
             }
             
             // Parse optional world map position
@@ -232,7 +239,21 @@ object EditorJsonSerializer {
                 // targetInfo is optional, continue without it
             }
             
-            return EditorMap(id, name, nameKey, width, height, tiles, readyToUse, worldMapPosition, riverTiles, isOfficial, author, targetInfoMap = targetInfoMap)
+            return EditorMap(
+                id = id,
+                name = name,
+                nameKey = nameKey,
+                width = width,
+                height = height,
+                tiles = tiles,
+                readyToUse = readyToUse,
+                worldMapPosition = worldMapPosition,
+                riverTiles = riverTiles,
+                isOfficial = isOfficial,
+                author = author,
+                targetInfoMap = targetInfoMap,
+                mapToolingInfo = mapToolingInfo
+            )
         } catch (e: Exception) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
             println("Error deserializing map: ${e.message}")

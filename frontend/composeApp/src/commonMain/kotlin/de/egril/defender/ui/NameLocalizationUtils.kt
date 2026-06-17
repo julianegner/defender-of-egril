@@ -187,3 +187,17 @@ fun LevelInfoEnemiesLevelData.getLocalizedSubtitle(locale: AppLocale = currentLa
         subtitle
     }
 }
+
+private val KNOWN_MAP_TOOLING_INFO_KEYS: Map<String, String> = mapOf(
+    "procedural generation" to "map_tooling_info_procedural_generation",
+    "procedural generation, enhanced with Canvas of Kings" to "map_tooling_info_procedural_generation_canvas_of_kings",
+    "made with Canvas of Kings" to "map_tooling_info_made_with_canvas_of_kings"
+)
+
+/**
+ * Localizes known map tooling descriptions and returns custom free-form text unchanged.
+ */
+fun localizeMapToolingInfo(text: String, locale: AppLocale = currentLanguage.value): String {
+    val key = KNOWN_MAP_TOOLING_INFO_KEYS[text] ?: return text
+    return LocalizedStrings.get(key, locale)
+}

@@ -12,6 +12,7 @@
   "readyToUse": true,
   "isOfficial": true,
   "author": "jegner",
+  "mapToolingInfo": "procedural generation, enhanced with Canvas of Kings",
   "tiles": {
     "0,-3": "PATH",
     "0,-2": "PATH",

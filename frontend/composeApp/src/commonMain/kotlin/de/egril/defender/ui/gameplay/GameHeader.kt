@@ -23,8 +23,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
+import de.egril.defender.editor.DEFAULT_MAP_TOOLING_INFO
+import de.egril.defender.editor.EditorStorage
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
+import de.egril.defender.ui.common.LevelInfoEnemiesColumn
+import de.egril.defender.ui.hexagon.HexagonMinimap
+import de.egril.defender.ui.hexagon.MinimapConfig
 import de.egril.defender.ui.icon.KeyboardKeyIcon
 import de.egril.defender.ui.icon.HelpIcon
 import de.egril.defender.ui.icon.SaveIcon
@@ -75,6 +80,7 @@ fun GameHeader(
     val showDebugOptions = AppSettings.showDebugOptions.value
     var showShortcutsDialog by remember { mutableStateOf(false) }
     var showTutorialsHelpDialog by remember { mutableStateOf(false) }
+    var showLevelCardDialog by remember { mutableStateOf(false) }
     
     // Handle externally triggered dialogs
     LaunchedEffect(externalShowShortcuts) {
@@ -154,11 +160,13 @@ fun GameHeader(
                     )
                 }
             } else {
-                SelectableText(
+                Text(
                     text = gameState.level.getLocalizedTitle(locale),
                     fontSize = titleFontSize,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { showLevelCardDialog = true },
                     textAlign = TextAlign.Center
                 )
             }
@@ -549,7 +557,105 @@ fun GameHeader(
             }
         }
     }
+
+    if (showLevelCardDialog) {
+        InGameLevelCardDialog(
+            gameState = gameState,
+            onDismiss = { showLevelCardDialog = false }
+        )
+    }
     } // FontSizeUnscaled
+}
+
+@Composable
+private fun InGameLevelCardDialog(
+    gameState: GameState,
+    onDismiss: () -> Unit
+) {
+    val currentDifficulty = AppSettings.difficulty.value
+    val level = gameState.level
+    val locale = com.hyperether.resources.currentLanguage.value
+    val mapToolingInfo = remember(level.mapId) {
+        val mapId = level.mapId
+        if (mapId == null) {
+            DEFAULT_MAP_TOOLING_INFO
+        } else {
+            EditorStorage.getMap(mapId)?.mapToolingInfo
+                ?: EditorStorage.getCommunityMap(mapId)?.mapToolingInfo
+                ?: DEFAULT_MAP_TOOLING_INFO
+        }
+    }
+    val localizedMapToolingInfo = localizeMapToolingInfo(mapToolingInfo, locale)
+
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = level.getLocalizedTitle(locale),
+                    style = MaterialTheme.typography.headlineSmall
+                )
+                val localizedSubtitle = level.getLocalizedSubtitle(locale)
+                if (localizedSubtitle.isNotBlank()) {
+                    Text(
+                        text = localizedSubtitle,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    LevelInfoEnemiesColumn(
+                        level = level.toLevelInfoEnemiesLevelData(currentDifficulty),
+                        textColor = MaterialTheme.colorScheme.onSurface
+                    )
+                    Box(
+                        modifier = Modifier
+                            .weight(2f)
+                            .height(120.dp)
+                    ) {
+                        HexagonMinimap(
+                            level = level,
+                            config = MinimapConfig(
+                                showSpawnPoints = true,
+                                showTarget = true,
+                                showTowers = false,
+                                showEnemies = false,
+                                showViewport = false
+                            ),
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
+
+                Text(
+                    text = stringResource(Res.string.map_tooling_info_label, localizedMapToolingInfo),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onDismiss) {
+                        Text(stringResource(Res.string.close))
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable

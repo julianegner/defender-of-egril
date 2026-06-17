@@ -10,6 +10,7 @@
     "width": 40,
     "height": 30,
     "readyToUse": true,
+    "mapToolingInfo": "procedural generation, enhanced with Canvas of Kings",
     "tiles": {
       "0,7": "SPAWN_POINT",
       "0,15": "SPAWN_POINT",

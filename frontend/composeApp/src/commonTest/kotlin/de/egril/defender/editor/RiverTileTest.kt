@@ -7,6 +7,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
+import kotlin.test.assertFalse
 
 class RiverTileTest {
     
@@ -202,5 +203,53 @@ class RiverTileTest {
         assertNotNull(river3)
         assertEquals(RiverFlow.SOUTH_WEST, river3.flowDirection)
         assertEquals(2, river3.flowSpeed)
+    }
+
+    @Test
+    fun testMapToolingInfoSerializationRoundTrip() {
+        val map = EditorMap(
+            id = "test_map_tooling_info",
+            name = "Tooling Map",
+            width = 5,
+            height = 5,
+            tiles = mapOf("0,0" to TileType.SPAWN_POINT, "4,4" to TileType.TARGET),
+            mapToolingInfo = "made with Canvas of Kings"
+        )
+
+        val json = EditorJsonSerializer.serializeMap(map)
+        val deserializedMap = EditorJsonSerializer.deserializeMap(json)
+
+        assertNotNull(deserializedMap)
+        assertEquals("made with Canvas of Kings", deserializedMap.mapToolingInfo)
+    }
+
+    @Test
+    fun testMapToolingInfoDefaultsForLegacyMaps() {
+        val legacyJson = """
+            {
+              "metadata": {
+                "program": "Defender of Egril",
+                "type": "map"
+              },
+              "data": {
+                "id": "legacy_map",
+                "name": "Legacy Map",
+                "width": 2,
+                "height": 2,
+                "readyToUse": false,
+                "isOfficial": false,
+                "tiles": {
+                  "0,0": "SPAWN_POINT",
+                  "1,1": "TARGET"
+                }
+              }
+            }
+        """.trimIndent()
+
+        val deserializedMap = EditorJsonSerializer.deserializeMap(legacyJson)
+
+        assertNotNull(deserializedMap)
+        assertFalse(deserializedMap.mapToolingInfo.isBlank())
+        assertEquals(DEFAULT_MAP_TOOLING_INFO, deserializedMap.mapToolingInfo)
     }
 }
