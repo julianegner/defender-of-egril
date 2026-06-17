@@ -226,8 +226,13 @@ object SaveJsonSerializer {
         val dataJson = de.egril.defender.utils.JsonUtils.extractDataSection(json)
         try {
             val id = JsonUtils.extractValue(dataJson, "id")
-            val timestamp = JsonUtils.extractValue(dataJson, "timestamp").toLongOrNull()
-                ?: currentTimeMillis()
+            val rawTimestamp = JsonUtils.extractValue(dataJson, "timestamp")
+            val timestamp = rawTimestamp.toLongOrNull() ?: run {
+                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Invalid or missing timestamp in save '$id': '$rawTimestamp'. Using current time.")
+                }
+                currentTimeMillis()
+            }
             val levelId = JsonUtils.extractValue(dataJson, "levelId").toInt()
             val levelName = JsonUtils.extractValue(dataJson, "levelName")
             val turnNumber = JsonUtils.extractValue(dataJson, "turnNumber").toInt()

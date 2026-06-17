@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import kotlin.test.assertEquals
 import androidx.compose.runtime.mutableStateOf
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 import androidx.compose.runtime.mutableStateOf
 
 /**
@@ -438,7 +439,7 @@ class SaveDataTest {
         val deserialized = SaveJsonSerializer.deserializeSavedGame(oldSaveJson)
         assertNotNull(deserialized)
         assertEquals("old_save_blank_timestamp", deserialized.id)
-        assert(deserialized.timestamp > 0L)
+        assertTrue(deserialized.timestamp > 0L)
     }
     
     @Test
