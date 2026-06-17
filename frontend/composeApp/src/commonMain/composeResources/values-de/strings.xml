@@ -1781,12 +1781,10 @@
     <string name="download_info_goto_installation">Installationsanweisungen anzeigen</string>
     <string name="download_info_latest_version">Neueste Version: %1$s</string>
     <string name="download_nav_hint">Tab/Shift+Tab zum Navigieren zwischen Links, Enter zum \u00d6ffnen. I f\u00fcr Installationsanweisungen.</string>
-    <string name="play_store_test_info_title">Google Play-Prerelease-Test</string>
-    <string name="play_store_test_info_register_step">Um das Spiel über den Google Play Store zu erhalten, musst du dich zuerst in der Google-Mailingliste registrieren.</string>
-    <string name="play_store_test_info_mailing_list_label">Google-Mailingliste:</string>
-    <string name="play_store_test_info_after_registration">Wenn das erledigt ist (!), nutze diesen Link:</string>
-    <string name="play_store_test_info_play_store_label">Google-Play-Store-Link:</string>
-    <string name="play_store_test_info_search_hint">Oder suche im Play Store nach "de.egril.defender".</string>
+    <string name="play_store_test_info_title">Android-App bei Google Play</string>
+    <string name="play_store_test_info_register_step">Die Android-App ist öffentlich bei Google Play verfügbar:</string>
+    <string name="play_store_test_info_play_store_label">Google Play Store:</string>
+    <string name="play_store_test_info_search_hint">Du kannst auch im Play Store nach "de.egril.defender" suchen.</string>
     <string name="new_version_available_title">Neue Version verfügbar</string>
     <string name="new_version_available_message">Version %1$s ist zum Download verfügbar.</string>
     <string name="new_version_go_to_releases">Zum Download</string>

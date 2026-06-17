@@ -38,20 +38,15 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
-import defender_of_egril.composeapp.generated.resources.play_store_test_info_after_registration
-import defender_of_egril.composeapp.generated.resources.play_store_test_info_mailing_list_label
 import defender_of_egril.composeapp.generated.resources.play_store_test_info_play_store_label
 import defender_of_egril.composeapp.generated.resources.play_store_test_info_register_step
 import defender_of_egril.composeapp.generated.resources.play_store_test_info_search_hint
 import defender_of_egril.composeapp.generated.resources.play_store_test_info_title
 
-private const val GOOGLE_MAILING_LIST = "https://groups.google.com/g/defender-of-egril"
 private const val GOOGLE_PLAY_STORE = "https://play.google.com/store/apps/details?id=de.egril.defender"
 
 @Composable
 fun PlayStorePrereleaseInfo(linkFocusManager: LinkFocusManager? = null) {
-    val uriHandler = LocalUriHandler.current
-
     SelectionContainer {
         Card(
             modifier = Modifier
@@ -74,22 +69,6 @@ fun PlayStorePrereleaseInfo(linkFocusManager: LinkFocusManager? = null) {
                 )
                 Text(
                     text = stringResource(Res.string.play_store_test_info_register_step),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-                Text(
-                    text = stringResource(Res.string.play_store_test_info_mailing_list_label),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-                FocusableLink(
-                    url = GOOGLE_MAILING_LIST,
-                    text = GOOGLE_MAILING_LIST,
-                    contentDesc = GOOGLE_MAILING_LIST,
-                    linkFocusManager = linkFocusManager
-                )
-                Text(
-                    text = stringResource(Res.string.play_store_test_info_after_registration),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
