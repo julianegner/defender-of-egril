@@ -1782,8 +1782,8 @@
     <string name="download_info_goto_installation">Ver instrucciones de instalación</string>
     <string name="download_info_latest_version">Última versión: %1$s</string>
     <string name="download_nav_hint">Tab/Shift+Tab para navegar entre enlaces, Enter para abrir. I para instrucciones de instalaci\u00f3n.</string>
-    <string name="play_store_test_info_title">Aplicación Android en Google Play</string>
-    <string name="play_store_test_info_search_hint">También puedes buscar "de.egril.defender" en Play Store.</string>
+    <string name="play_store_test_info_title">Google Play Store</string>
+    <string name="play_store_test_info_search_hint">O busca "Defender of Egril" en Play Store.</string>
     <string name="new_version_available_title">Nueva versión disponible</string>
     <string name="new_version_available_message">La versión %1$s está disponible para descargar.</string>
     <string name="new_version_go_to_releases">Ir a la descarga</string>
