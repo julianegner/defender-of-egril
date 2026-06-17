@@ -48,6 +48,7 @@ jobs:
           EOF
 
       - name: Run dependency updates check
+        continue-on-error: true
         run: |
           ./gradlew dependencyUpdates --init-script /tmp/init-versions.gradle -q --continue
           EXIT_CODE=$?
