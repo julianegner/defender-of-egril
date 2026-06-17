@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.model.*
 import de.egril.defender.utils.JsonUtils
 import de.egril.defender.config.LogConfig
+import de.egril.defender.utils.currentTimeMillis
 
 /**
  * JSON serialization for save data
@@ -225,7 +226,13 @@ object SaveJsonSerializer {
         val dataJson = de.egril.defender.utils.JsonUtils.extractDataSection(json)
         try {
             val id = JsonUtils.extractValue(dataJson, "id")
-            val timestamp = JsonUtils.extractValue(dataJson, "timestamp").toLong()
+            val rawTimestamp = JsonUtils.extractValue(dataJson, "timestamp")
+            val timestamp = rawTimestamp.toLongOrNull() ?: run {
+                if (LogConfig.ENABLE_SAVE_LOAD_LOGGING) {
+                    println("Invalid or missing timestamp in save '$id': '$rawTimestamp'. Using current time.")
+                }
+                currentTimeMillis()
+            }
             val levelId = JsonUtils.extractValue(dataJson, "levelId").toInt()
             val levelName = JsonUtils.extractValue(dataJson, "levelName")
             val turnNumber = JsonUtils.extractValue(dataJson, "turnNumber").toInt()

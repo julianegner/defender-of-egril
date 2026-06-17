@@ -12,6 +12,7 @@
   "readyToUse": true,
   "isOfficial": true,
   "author": "Julian Egner",
+  "mapToolingInfo": "made with Canvas of Kings",
   "tiles": {
     "0,0": "PATH",
     "0,1": "PATH",

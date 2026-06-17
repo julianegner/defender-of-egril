@@ -6,6 +6,8 @@ import de.egril.defender.model.Position
 import de.egril.defender.model.TargetType
 import de.egril.defender.ui.common.LevelInfoEnemiesLevelData
 
+const val DEFAULT_MAP_TOOLING_INFO = "procedural generation"
+
 /**
  * Represents tile types in the map editor
  */
@@ -44,7 +46,8 @@ data class EditorMap(
     val author: String = "",  // Optional author name
     val isCommunity: Boolean = false,  // True if map is a community-shared map from the backend
     val communityAuthorUsername: String = "",  // Username of the community author (only set if isCommunity == true)
-    val targetInfoMap: Map<String, EditorTargetInfo> = emptyMap()  // "x,y" -> EditorTargetInfo for TARGET tiles
+    val targetInfoMap: Map<String, EditorTargetInfo> = emptyMap(),  // "x,y" -> EditorTargetInfo for TARGET tiles
+    val mapToolingInfo: String = DEFAULT_MAP_TOOLING_INFO  // Free-form map tooling text; known standard values are localized at runtime
 ) {
     fun getTileType(x: Int, y: Int): TileType {
         return tiles["$x,$y"] ?: TileType.NO_PLAY
@@ -582,4 +585,3 @@ data class LevelSequence(
 class MissingRepositoryDataException(
     val missingCategories: List<String>
 ) : Exception("Missing or empty repository data categories: ${missingCategories.joinToString(", ")}")
-

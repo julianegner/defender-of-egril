@@ -69,6 +69,7 @@ fun MapEditorView(
     var editTargetKey by remember { mutableStateOf<String?>(null) }  // Key of a tile being edited in the inline dialog
     var mapName by remember { mutableStateOf(map.name) }
     var mapAuthor by remember { mutableStateOf(map.author) }
+    var mapToolingInfo by remember { mutableStateOf(map.mapToolingInfo) }
     var showSaveAsDialog by remember { mutableStateOf(false) }
     var showChangeAllDialog by remember { mutableStateOf(false) }
     var showRiverPropertiesDialog by remember { mutableStateOf(false) }
@@ -87,8 +88,13 @@ fun MapEditorView(
     var actualContentSize by remember { mutableStateOf(IntSize.Zero) }
     
     // Create updated map for minimap that reflects current tiles state
-    val currentMap = remember(tiles, riverTiles, targetInfoMap) {
-        map.copy(tiles = tiles.toMap(), riverTiles = riverTiles.toMap(), targetInfoMap = targetInfoMap.toMap())
+    val currentMap = remember(tiles, riverTiles, targetInfoMap, mapToolingInfo) {
+        map.copy(
+            tiles = tiles.toMap(),
+            riverTiles = riverTiles.toMap(),
+            targetInfoMap = targetInfoMap.toMap(),
+            mapToolingInfo = mapToolingInfo
+        )
     }
     
     // Hexagon dimensions - using same constants as game (40.dp)
@@ -397,6 +403,7 @@ fun MapEditorView(
                             id = newId,
                             name = mapName,
                             author = mapAuthor,
+                            mapToolingInfo = mapToolingInfo,
                             tiles = tiles.toMap(),
                             riverTiles = riverTiles.toMap(),
                             targetInfoMap = targetInfoMap.toMap()
@@ -429,11 +436,12 @@ fun MapEditorView(
             // Community upload button - only shown for non-official maps when user is authenticated
             val iamState by de.egril.defender.iam.IamService.state
             if (!map.isOfficial && iamState.isAuthenticated) {
-                val currentMapJson = remember(map.id, map.hashCode(), tiles.hashCode(), riverTiles.hashCode()) {
+                val currentMapJson = remember(map.id, map.hashCode(), tiles.hashCode(), riverTiles.hashCode(), mapToolingInfo) {
                     val updatedMap = map.copy(
                         tiles = tiles.toMap(),
                         riverTiles = riverTiles.toMap(),
-                        targetInfoMap = targetInfoMap.toMap()
+                        targetInfoMap = targetInfoMap.toMap(),
+                        mapToolingInfo = mapToolingInfo
                     )
                     de.egril.defender.editor.EditorJsonSerializer.serializeMap(updatedMap)
                 }
@@ -453,7 +461,12 @@ fun MapEditorView(
                         val success = de.egril.defender.save.BackendCommunityService
                             .uploadCommunityFile("MAP", map.id, currentMapJson, token)
                         if (success) {
-                            val updatedMap = map.copy(tiles = tiles.toMap(), riverTiles = riverTiles.toMap(), targetInfoMap = targetInfoMap.toMap())
+                            val updatedMap = map.copy(
+                                tiles = tiles.toMap(),
+                                riverTiles = riverTiles.toMap(),
+                                targetInfoMap = targetInfoMap.toMap(),
+                                mapToolingInfo = mapToolingInfo
+                            )
                             de.egril.defender.editor.EditorStorage.saveCommunityMap(
                                 updatedMap,
                                 iamState.username ?: ""
@@ -531,6 +544,8 @@ fun MapEditorView(
             onMapNameChange = { mapName = it },
             mapAuthor = mapAuthor,
             onMapAuthorChange = { mapAuthor = it },
+            mapToolingInfo = mapToolingInfo,
+            onMapToolingInfoChange = { mapToolingInfo = it },
             selectedTileType = selectedTileType,
             onTileTypeChange = { selectedTileType = it },
             selectedRiverFlow = selectedRiverFlow,
@@ -565,6 +580,7 @@ fun MapEditorView(
                     id = newId,
                     name = newName,
                     author = mapAuthor,
+                    mapToolingInfo = mapToolingInfo,
                     tiles = tiles.toMap(),
                     riverTiles = riverTiles.toMap(),
                     targetInfoMap = targetInfoMap.toMap(),

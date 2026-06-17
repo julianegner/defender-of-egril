@@ -12,6 +12,7 @@
   "readyToUse": true,
   "isOfficial": true,
   "author": "Julian Egner",
+  "mapToolingInfo": "procedural generation, enhanced with Canvas of Kings",
   "tiles": {
     "0,0": "PATH",
     "0,1": "PATH",
