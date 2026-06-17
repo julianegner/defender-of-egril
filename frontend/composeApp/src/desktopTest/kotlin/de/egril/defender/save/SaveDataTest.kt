@@ -410,6 +410,36 @@ class SaveDataTest {
         assertEquals("old_save_no_map", deserialized.id)
         assertEquals(null, deserialized.mapId)  // Should default to null for old saves
     }
+
+    @Test
+    fun testBackwardCompatibilityWithBlankTimestamp() {
+        // Test that saves with blank timestamp can still be loaded
+        val oldSaveJson = """{
+  "id": "old_save_blank_timestamp",
+  "timestamp": "",
+  "levelId": 1,
+  "levelName": "Test Level",
+  "turnNumber": 5,
+  "coins": 100,
+  "healthPoints": 10,
+  "phase": "PLAYER_TURN",
+  "defenders": [],
+  "attackers": [],
+  "nextDefenderId": 1,
+  "nextAttackerId": 1,
+  "currentWaveIndex": 0,
+  "spawnCounter": 0,
+  "attackersToSpawn": [],
+  "fieldEffects": [],
+  "traps": [],
+  "comment": null
+}"""
+
+        val deserialized = SaveJsonSerializer.deserializeSavedGame(oldSaveJson)
+        assertNotNull(deserialized)
+        assertEquals("old_save_blank_timestamp", deserialized.id)
+        assert(deserialized.timestamp > 0L)
+    }
     
     @Test
     fun testSavedGameWithMapId() {

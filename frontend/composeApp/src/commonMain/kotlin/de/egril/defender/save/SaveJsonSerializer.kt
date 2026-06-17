@@ -225,7 +225,8 @@ object SaveJsonSerializer {
         val dataJson = de.egril.defender.utils.JsonUtils.extractDataSection(json)
         try {
             val id = JsonUtils.extractValue(dataJson, "id")
-            val timestamp = JsonUtils.extractValue(dataJson, "timestamp").toLong()
+            val timestamp = JsonUtils.extractValue(dataJson, "timestamp").toLongOrNull()
+                ?: de.egril.defender.utils.currentTimeMillis()
             val levelId = JsonUtils.extractValue(dataJson, "levelId").toInt()
             val levelName = JsonUtils.extractValue(dataJson, "levelName")
             val turnNumber = JsonUtils.extractValue(dataJson, "turnNumber").toInt()
