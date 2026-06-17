@@ -174,7 +174,7 @@ fun parseDeepLink(path: String): DeepLink {
 
 /**
  * Reads and clears the SPA deep link path stored by root index.html when the app
- * was reached via a /data-privacy/* server-side redirect.
+ * was reached via a /data-privacy/{lang} server-side redirect.
  * On WASM/Web: reads and clears window._spaDeepLinkPath.
  * On all other platforms: always returns null.
  */
@@ -183,7 +183,7 @@ expect fun consumeSpaDeepLinkPath(): String?
 /**
  * Extracts and returns the current deep link, if any.
  * Checks the SPA deep link path stored by index.html first (used when navigating
- * from a /data-privacy/* URL via the sessionStorage redirect mechanism), then falls
+ * from a /data-privacy/{lang} URL via the sessionStorage redirect mechanism), then falls
  * back to the current browser URL.
  * Only processes deep links on platforms that support URL routing (WASM/Web).
  */
