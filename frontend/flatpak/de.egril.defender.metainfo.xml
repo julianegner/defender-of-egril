@@ -25,6 +25,7 @@
     <content_attribute id="violence-fantasy">mild</content_attribute>
   </content_rating>
   <releases>
+    <release version="0.9.33" date="2026-06-16"/>
     <release version="0.9.32" date="2026-06-11"/>
     <release version="0.9.31" date="2026-06-10"/>
     <release version="0.9.30" date="2026-06-09"/>
