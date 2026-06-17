@@ -3,6 +3,7 @@ package de.egril.defender.utils
 
 import kotlinx.browser.document
 import kotlinx.browser.window
+import org.w3c.dom.events.Event
 
 /**
  * WASM implementation: Extract current URL pathname from browser.
@@ -20,9 +21,26 @@ actual fun getCurrentPathname(): String? {
  */
 actual fun updateBrowserUrl(path: String) {
     try {
-        window.history.pushState(null, "", path)
+        if (window.location.pathname != path) {
+            window.history.pushState(null, "", path)
+        }
     } catch (e: Exception) {
         // Ignore – e.g. when running in a sandboxed iframe
+    }
+}
+
+actual fun observeBrowserPathChanges(onPathChanged: (String) -> Unit): () -> Unit {
+    val listener: (Event) -> Unit = {
+        onPathChanged(window.location.pathname)
+    }
+    return try {
+        window.addEventListener("popstate", listener, false)
+        val unsubscribe: () -> Unit = {
+            window.removeEventListener("popstate", listener, false)
+        }
+        unsubscribe
+    } catch (e: Exception) {
+        {}
     }
 }
 

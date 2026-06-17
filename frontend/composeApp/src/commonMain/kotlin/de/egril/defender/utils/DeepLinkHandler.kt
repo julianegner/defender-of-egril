@@ -36,6 +36,13 @@ expect fun getCurrentPathname(): String?
 expect fun updateBrowserUrl(path: String)
 
 /**
+ * Registers a browser history listener (WASM/Web only).
+ * Invokes [onPathChanged] when browser back/forward navigation changes the path.
+ * Returns an unsubscribe function.
+ */
+expect fun observeBrowserPathChanges(onPathChanged: (String) -> Unit): () -> Unit
+
+/**
  * Legacy helper kept for compatibility with existing call sites.
  * Internally maps to [setMobileOrientationOverlayMode] on WASM/Web.
  * No-op on other platforms.
