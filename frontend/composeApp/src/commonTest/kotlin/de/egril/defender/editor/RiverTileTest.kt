@@ -213,14 +213,14 @@ class RiverTileTest {
             width = 5,
             height = 5,
             tiles = mapOf("0,0" to TileType.SPAWN_POINT, "4,4" to TileType.TARGET),
-            mapToolingInfo = "made with Canvas of Kings"
+            mapToolingInfo = "procedural generation, enhanced with Canvas of Kings"
         )
 
         val json = EditorJsonSerializer.serializeMap(map)
         val deserializedMap = EditorJsonSerializer.deserializeMap(json)
 
         assertNotNull(deserializedMap)
-        assertEquals("made with Canvas of Kings", deserializedMap.mapToolingInfo)
+        assertEquals("procedural generation, enhanced with Canvas of Kings", deserializedMap.mapToolingInfo)
     }
 
     @Test

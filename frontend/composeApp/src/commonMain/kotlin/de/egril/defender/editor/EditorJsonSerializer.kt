@@ -102,7 +102,7 @@ object EditorJsonSerializer {
                 ""  // Optional field
             }
             val mapToolingInfo = try {
-                JsonUtils.extractValue(dataJson, "mapToolingInfo").ifBlank { DEFAULT_MAP_TOOLING_INFO }
+                JsonUtils.extractStringValue(dataJson, "mapToolingInfo").ifBlank { DEFAULT_MAP_TOOLING_INFO }
             } catch (e: Exception) {
                 DEFAULT_MAP_TOOLING_INFO  // Optional field with default for backward compatibility
             }
