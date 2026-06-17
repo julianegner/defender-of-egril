@@ -84,3 +84,14 @@ actual fun setMobileOrientationOverlayMode(mode: MobileOrientationOverlayMode) {
         // Ignore
     }
 }
+
+@JsFun("() => { try { var p = window._spaDeepLinkPath; if (p) { window._spaDeepLinkPath = null; return p; } } catch(e) {} return null; }")
+private external fun readAndClearSpaDeepLinkPathJs(): String?
+
+actual fun consumeSpaDeepLinkPath(): String? {
+    return try {
+        readAndClearSpaDeepLinkPathJs()
+    } catch (e: Exception) {
+        null
+    }
+}
