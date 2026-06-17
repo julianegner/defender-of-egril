@@ -199,14 +199,20 @@
     </div>
     <script>
         // SPA path restoration: when a /data-privacy/* page redirects here via sessionStorage,
-        // restore the original path before the Kotlin/Wasm app boots so it can read the correct
-        // pathname and open the Account & Privacy screen.
+        // pass the original path to the Kotlin/Wasm app via a global variable.
+        // We intentionally do NOT call history.replaceState to the original path, because
+        // restoring the URL to a path that has a server-side redirect file (e.g. /data-privacy/de)
+        // causes infinite reload loops on mobile browsers: when the browser reloads the page
+        // (due to WebGL context loss, memory pressure, or tab restore) it hits the server URL
+        // /data-privacy/de which redirects back to /, which restores the URL, which reloads,
+        // and so on. Keeping the URL at / breaks this loop; the WASM app reads the deep link
+        // path from window._spaDeepLinkPath and then updates the URL to /info/backend itself.
         (function restoreSpaRedirectPath() {
             try {
                 var redirectPath = sessionStorage.getItem('spaRedirectPath');
                 if (redirectPath) {
                     sessionStorage.removeItem('spaRedirectPath');
-                    window.history.replaceState(null, '', redirectPath);
+                    window._spaDeepLinkPath = redirectPath;
                 }
             } catch (e) {}
         })();

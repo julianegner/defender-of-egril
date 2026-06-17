@@ -23,3 +23,5 @@ actual fun detectSupportedLanguage(): String = "en"
 actual fun setMobileOrientationOverlayMode(mode: MobileOrientationOverlayMode) {
     // No-op on this platform
 }
+
+actual fun consumeSpaDeepLinkPath(): String? = null
