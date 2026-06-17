@@ -59,7 +59,7 @@ jobs:
       version_tag: ${{ steps.parse.outputs.version_tag }}
       version_code: ${{ steps.parse.outputs.version_code }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Parse and validate version
         id: parse
@@ -169,16 +169,16 @@ jobs:
       APP_VERSION: ${{ needs.prepare.outputs.version }}
       VERSION_CODE: ${{ needs.prepare.outputs.version_code }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up JDK 24
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '24'
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       # Decode keystore when signing secrets are present
       - name: Decode Android keystore
@@ -254,14 +254,14 @@ jobs:
           ls -lh artifacts/apk/ artifacts/aab/
 
       - name: Upload Android APK artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: android-apk-build
           path: artifacts/apk/
           if-no-files-found: error
 
       - name: Upload Android AAB artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: android-aab-build
           path: artifacts/aab/
@@ -277,22 +277,22 @@ jobs:
     env:
       APP_VERSION: ${{ needs.prepare.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up JDK 24
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '24'
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Build DEB package
         run: ./gradlew :composeApp:packageDeb -PappVersion="${APP_VERSION}"
 
       - name: Upload Linux DEB artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux-deb-build
           path: frontend/composeApp/build/compose/binaries/main/deb/defender-of-egril_*_amd64.deb
@@ -308,16 +308,16 @@ jobs:
     env:
       APP_VERSION: ${{ needs.prepare.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up JDK 24
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '24'
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Build macOS DMG
         run: ./gradlew :composeApp:packageDmg -PappVersion="${APP_VERSION}"
@@ -326,7 +326,7 @@ jobs:
 
       - name: Upload macOS DMG artifact
         if: steps.build_dmg.outcome == 'success'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: macos-build
           path: frontend/composeApp/build/compose/binaries/main/dmg/
@@ -345,10 +345,10 @@ jobs:
     env:
       APP_VERSION: ${{ needs.prepare.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Download DEB artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: linux-deb-build
           path: frontend/snap/deb
@@ -364,7 +364,7 @@ jobs:
           path: frontend/snap
 
       - name: Upload Snap artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux-snap-build
           path: ${{ steps.snapcraft.outputs.snap }}
@@ -383,10 +383,10 @@ jobs:
     env:
       APP_VERSION: ${{ needs.prepare.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Download DEB artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: linux-deb-build
           path: frontend/flatpak-deb
@@ -420,7 +420,7 @@ jobs:
             de.egril.defender
 
       - name: Upload Flatpak artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux-flatpak-build
           path: de.egril.defender-*.flatpak
@@ -444,10 +444,10 @@ jobs:
       - name: Install system dependencies
         run: pacman -Sy --noconfirm git base-devel binutils
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Download DEB artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: linux-deb-build
           path: arch-deb
@@ -474,7 +474,7 @@ jobs:
           cp /tmp/pkg/*.pkg.tar.zst arch-pkg/
 
       - name: Upload Arch Linux artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux-arch-build
           path: arch-pkg/*.pkg.tar.zst
@@ -493,10 +493,10 @@ jobs:
     env:
       APP_VERSION: ${{ needs.prepare.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Download DEB artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: linux-deb-build
           path: appimage-deb
@@ -542,7 +542,7 @@ jobs:
             AppDir "defender-of-egril-${APP_VERSION}-x86_64.AppImage"
 
       - name: Upload AppImage artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux-appimage-build
           path: defender-of-egril-*-x86_64.AppImage
@@ -575,19 +575,19 @@ jobs:
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         if: steps.check_secrets.outputs.skip != 'true'
 
       - name: Set up JDK 24
         if: steps.check_secrets.outputs.skip != 'true'
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '24'
           distribution: 'temurin'
 
       - name: Setup Gradle
         if: steps.check_secrets.outputs.skip != 'true'
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Install Apple signing certificate
         if: steps.check_secrets.outputs.skip != 'true'
@@ -662,7 +662,7 @@ jobs:
 
       - name: Upload iOS IPA artifact
         if: steps.check_secrets.outputs.skip != 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ios-build
           path: ${{ runner.temp }}/ipa/*.ipa
@@ -678,23 +678,23 @@ jobs:
     env:
       APP_VERSION: ${{ needs.prepare.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up JDK 24
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '24'
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Build Windows EXE
         run: ./gradlew :composeApp:packageExe -PappVersion="$env:APP_VERSION"
         shell: pwsh
 
       - name: Upload Windows EXE artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: windows-exe-build
           path: frontend\composeApp\build\compose\binaries\main\exe\*.exe
@@ -710,23 +710,23 @@ jobs:
     env:
       APP_VERSION: ${{ needs.prepare.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up JDK 24
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '24'
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Build Windows MSI
         run: ./gradlew :composeApp:packageMsi -PappVersion="$env:APP_VERSION"
         shell: pwsh
 
       - name: Upload Windows MSI artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: windows-msi-build
           path: frontend\composeApp\build\compose\binaries\main\msi\*.msi
@@ -742,16 +742,16 @@ jobs:
   #  env:
   #    APP_VERSION: ${{ needs.prepare.outputs.version }}
   #  steps:
-  #    - uses: actions/checkout@v4
+  #    - uses: actions/checkout@v5
   #
   #    - name: Set up JDK 24
-  #      uses: actions/setup-java@v4
+  #      uses: actions/setup-java@v5
   #      with:
   #        java-version: '24'
   #        distribution: 'temurin'
   #
   #    - name: Setup Gradle
-  #      uses: gradle/actions/setup-gradle@v4
+  #      uses: gradle/actions/setup-gradle@v6
   #
   #    - name: Build WASM distribution
   #      run: ./gradlew :composeApp:wasmJsBrowserDistribution -PappVersion="${APP_VERSION}"
@@ -762,7 +762,7 @@ jobs:
   #        zip -r "defender-of-egril-${APP_VERSION}-wasm.zip" productionExecutable
   #
   #    - name: Upload WASM artifact
-  #      uses: actions/upload-artifact@v4
+  #      uses: actions/upload-artifact@v7
   #      with:
   #        name: wasm-build
   #        path: frontend/composeApp/build/dist/wasmJs/defender-of-egril-*-wasm.zip
@@ -802,28 +802,28 @@ jobs:
     steps:
       - name: Download Android APK artifact
         if: needs.build_android.result == 'success'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: android-apk-build
           path: release-assets/android
 
       - name: Download Android AAB artifact
         if: needs.build_android.result == 'success'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: android-aab-build
           path: release-assets/android
 
       - name: Download Linux DEB artifact
         if: needs.build_linux_deb.result == 'success'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: linux-deb-build
           path: release-assets/linux
 
       - name: Download Linux Snap artifact
         if: needs.build_linux_snap.result == 'success'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: linux-snap-build
           path: release-assets/linux
@@ -831,7 +831,7 @@ jobs:
 
       - name: Download Linux Flatpak artifact
         if: needs.build_linux_flatpak.result == 'success'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: linux-flatpak-build
           path: release-assets/linux
@@ -839,7 +839,7 @@ jobs:
 
       - name: Download Linux Arch artifact
         if: needs.build_linux_arch.result == 'success'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: linux-arch-build
           path: release-assets/linux
@@ -847,7 +847,7 @@ jobs:
 
       - name: Download Linux AppImage artifact
         if: needs.build_linux_appimage.result == 'success'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: linux-appimage-build
           path: release-assets/linux
@@ -855,7 +855,7 @@ jobs:
 
       - name: Download macOS artifact
         if: needs.build_macos.result == 'success'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: macos-build
           path: release-assets/macos
@@ -863,7 +863,7 @@ jobs:
 
       - name: Download iOS artifact
         if: needs.build_ios.result == 'success'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ios-build
           path: release-assets/ios
@@ -871,21 +871,21 @@ jobs:
 
       - name: Download Windows EXE artifact
         if: needs.build_windows_exe.result == 'success'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: windows-exe-build
           path: release-assets/windows
 
       - name: Download Windows MSI artifact
         if: needs.build_windows_msi.result == 'success'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: windows-msi-build
           path: release-assets/windows
 
       #- name: Download WASM artifact
       #  if: needs.build_wasm.result == 'success'
-      #  uses: actions/download-artifact@v4
+      #  uses: actions/download-artifact@v8
       #  with:
       #    name: wasm-build
       #    path: release-assets/wasm
@@ -943,7 +943,7 @@ jobs:
           echo "_Optional builds (macOS DMG, Linux Snap, Linux Flatpak, Linux Arch, Linux AppImage, iOS) are shown only when they succeeded._" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 

@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: "🔒 Renew TLS certificate on Keycloak server"
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: 178.104.79.60
           username: root
@@ -71,7 +71,7 @@ jobs:
 
     steps:
       - name: "🔒 Renew TLS certificate on backend server"
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: 178.104.84.83
           username: root
