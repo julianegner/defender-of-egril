@@ -46,7 +46,7 @@ import defender_of_egril.composeapp.generated.resources.play_store_test_info_tit
 private const val GOOGLE_PLAY_STORE = "https://play.google.com/store/apps/details?id=de.egril.defender"
 
 @Composable
-fun PlayStorePrereleaseInfo(linkFocusManager: LinkFocusManager? = null) {
+fun PlayStoreInfo(linkFocusManager: LinkFocusManager? = null) {
     SelectionContainer {
         Card(
             modifier = Modifier
@@ -88,6 +88,12 @@ fun PlayStorePrereleaseInfo(linkFocusManager: LinkFocusManager? = null) {
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
+            }
+
+            @Deprecated("Use PlayStoreInfo instead")
+            @Composable
+            fun PlayStorePrereleaseInfo(linkFocusManager: LinkFocusManager? = null) {
+                PlayStoreInfo(linkFocusManager = linkFocusManager)
             }
         }
     }

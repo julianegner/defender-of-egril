@@ -64,7 +64,7 @@ fun InstallationInfo(scrollState: ScrollState = rememberScrollState()) {
             PlatformSection(
                 title = stringResource(Res.string.installation_android_title),
                 content = {
-                    PlayStorePrereleaseInfo()
+                    PlayStoreInfo()
                     InstallationStep(stringResource(Res.string.installation_android_step1))
                     InstallationSubStep(stringResource(Res.string.installation_android_step1a))
                     InstallationSubStep(stringResource(Res.string.installation_android_step1b))

@@ -214,7 +214,7 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}, scrollState: android
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            PlayStorePrereleaseInfo(linkFocusManager = linkFocusManager)
+            PlayStoreInfo(linkFocusManager = linkFocusManager)
 
             // Android sideloading instructions
             Text(
