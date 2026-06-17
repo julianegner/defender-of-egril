@@ -1667,7 +1667,7 @@
     <string name="map_tooling_info_made_with_canvas_of_kings">créé avec Canvas of Kings</string>
     <string name="credits_section_special_thanks">Remerciements Spéciaux</string>
     <string name="credits_thank_you">Merci d'avoir joué !</string>
-    <string name="credits_click_to_skip">Cliquez pour revenir à la carte du monde</string>
+    <string name="credits_click_to_skip">Cliquez ou appuyez sur Échap pour revenir à la carte du monde</string>
     <!-- IAM / Keycloak -->
     <string name="iam_login">Connexion</string>
     <string name="iam_logout">Déconnexion</string>

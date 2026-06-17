@@ -1671,7 +1671,7 @@
     <string name="map_tooling_info_made_with_canvas_of_kings">made with Canvas of Kings</string>
     <string name="credits_section_special_thanks">Special Thanks</string>
     <string name="credits_thank_you">Thank you for playing!</string>
-    <string name="credits_click_to_skip">Click anywhere to return to the world map</string>
+    <string name="credits_click_to_skip">Click anywhere or press Esc to return to the world map</string>
 
     <!-- IAM / Keycloak -->
     <string name="iam_login">Login</string>
