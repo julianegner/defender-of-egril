@@ -45,16 +45,7 @@ gradlew.bat :composeApp:run
 
 ## Android
 
-### Method 1: Installing from Google Play Store
-
-The Android app is publicly available on Google Play:
-
-1. Open the listing: [https://play.google.com/store/apps/details?id=de.egril.defender](https://play.google.com/store/apps/details?id=de.egril.defender)
-2. Tap **Install**
-
-You can also search for **de.egril.defender** directly in the Play Store app.
-
-### Method 2: Installing via GitHub Releases (Sideloading)
+### Method 1: Installing via GitHub Releases (Sideloading)
 
 #### Step 1: Enable Installation from Unknown Sources
 
@@ -96,6 +87,15 @@ For security reasons, you should disable the "Unknown sources" permission after 
 
 1. Return to the settings used in Step 1
 2. Toggle OFF the permission for the app you used to install the APK
+
+### Method 2: Installing from Google Play Store
+
+The Android app is publicly available on Google Play:
+
+1. Open the listing: [https://play.google.com/store/apps/details?id=de.egril.defender](https://play.google.com/store/apps/details?id=de.egril.defender)
+2. Tap **Install**
+
+You can also search for **de.egril.defender** directly in the Play Store app.
 
 ### Method 3: Building from Source
 
