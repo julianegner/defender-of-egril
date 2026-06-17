@@ -1785,8 +1785,6 @@
     <string name="download_info_latest_version">Ultima versione: %1$s</string>
     <string name="download_nav_hint">Tab/Shift+Tab per navigare tra i link, Invio per aprire. I per le istruzioni di installazione.</string>
     <string name="play_store_test_info_title">App Android su Google Play</string>
-    <string name="play_store_test_info_register_step">L\'app Android è disponibile pubblicamente su Google Play:</string>
-    <string name="play_store_test_info_play_store_label">Google Play Store:</string>
     <string name="play_store_test_info_search_hint">Puoi anche cercare "de.egril.defender" nel Play Store.</string>
     <string name="new_version_available_title">Nuova versione disponibile</string>
     <string name="new_version_available_message">La versione %1$s è disponibile per il download.</string>
