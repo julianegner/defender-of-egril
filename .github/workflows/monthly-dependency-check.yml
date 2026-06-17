@@ -32,7 +32,7 @@ jobs:
                   gradlePluginPortal()
               }
               dependencies {
-                  classpath("com.github.ben-manes:gradle-versions-plugin:\${PLUGIN_VERSION}")
+                  classpath("com.github.ben-manes:gradle-versions-plugin:${PLUGIN_VERSION}")
               }
           }
           allprojects {
