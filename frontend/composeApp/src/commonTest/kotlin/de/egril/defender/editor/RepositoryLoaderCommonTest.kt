@@ -3,6 +3,7 @@ package de.egril.defender.editor
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -210,6 +211,46 @@ class RepositoryLoaderCommonTest {
                     "Repository sync should skip rewriting files when the fingerprint already matches"
                 )
             }
+        }
+    }
+
+    @Test
+    fun testRepositorySyncFastPathRefreshesMapToolingInfoWhenDifferent() = runTest {
+        val bundledVersion = RepositoryLoader.loadVersion()
+        val bundledFingerprint = RepositoryLoader.loadFingerprint()
+        val bundledMap = RepositoryLoader.loadMap("map_the_fortress")
+
+        if (bundledVersion != null && bundledFingerprint != null && bundledMap != null) {
+            val storage = TestFileStorage().apply {
+                writeFile("gamedata/version.txt", bundledVersion)
+                writeFile("gamedata/repository_fingerprint.txt", bundledFingerprint)
+                writeFile(
+                    "gamedata/official/maps/map_the_fortress.json",
+                    EditorJsonSerializer.serializeMap(
+                        bundledMap.copy(
+                            isOfficial = true,
+                            mapToolingInfo = DEFAULT_MAP_TOOLING_INFO
+                        )
+                    )
+                )
+            }
+
+            val success = RepositoryLoader.loadAndSaveRepositoryFiles(storage)
+
+            assertTrue(success, "Repository sync fast path should report success")
+            val refreshedJson = storage.readFile("gamedata/official/maps/map_the_fortress.json")
+            val refreshedMap = refreshedJson?.let { EditorJsonSerializer.deserializeMap(it) }
+            assertNotNull(refreshedMap, "Expected refreshed official map to remain readable")
+            assertNotEquals(
+                DEFAULT_MAP_TOOLING_INFO,
+                refreshedMap.mapToolingInfo,
+                "Fast path should refresh stale official map tooling info from repository"
+            )
+            assertEquals(
+                bundledMap.mapToolingInfo,
+                refreshedMap.mapToolingInfo,
+                "Fast path should align map tooling info with bundled repository data"
+            )
         }
     }
 }

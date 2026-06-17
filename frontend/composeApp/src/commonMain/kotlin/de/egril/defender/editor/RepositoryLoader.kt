@@ -264,6 +264,36 @@ object RepositoryLoader {
     }
 
     /**
+     * Refreshes official map JSON files in [storage] when the bundled mapToolingInfo differs.
+     *
+     * This keeps existing installations consistent when official map metadata changes while
+     * the fast-path sync is active (version + fingerprint match).
+     */
+    private suspend fun refreshOfficialMapToolingInfoInStorage(storage: FileStorage) {
+        val sequence = loadSequence() ?: return
+        val mapIds = mutableSetOf<String>()
+        for (levelId in sequence.sequence) {
+            val level = loadLevel(levelId) ?: continue
+            mapIds.add(level.mapId)
+        }
+
+        for (mapId in mapIds) {
+            val bundledMap = loadMap(mapId) ?: continue
+            val storedMapJson = storage.readFile("gamedata/official/maps/$mapId.json") ?: continue
+            val storedMap = EditorJsonSerializer.deserializeMap(storedMapJson) ?: continue
+            if (storedMap.mapToolingInfo != bundledMap.mapToolingInfo) {
+                storage.writeFile(
+                    "gamedata/official/maps/$mapId.json",
+                    EditorJsonSerializer.serializeMap(bundledMap.copy(isOfficial = true))
+                )
+                if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
+                    println("Refreshed official map tooling info for $mapId from repository (fast path)")
+                }
+            }
+        }
+    }
+
+    /**
      * Load all repository files and save them to file storage.
      * Skips the full reload if the stored version already matches the bundled version.
      * @param storage File storage to save to
@@ -304,6 +334,7 @@ object RepositoryLoader {
                     // current. It may have been lost due to a storage quota overflow, or modified
                     // via the Level Editor, so we overwrite it here regardless of the fast path.
                     refreshWorldMapInStorage(storage)
+                    refreshOfficialMapToolingInfoInStorage(storage)
                     return true
                 }
                 if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
@@ -487,6 +518,7 @@ object RepositoryLoader {
                     // current. It may have been lost due to a storage quota overflow, or modified
                     // via the Level Editor, so we overwrite it here regardless of the fast path.
                     refreshWorldMapInStorage(storage)
+                    refreshOfficialMapToolingInfoInStorage(storage)
                     onFirstLevelReady()
                     return true
                 }
