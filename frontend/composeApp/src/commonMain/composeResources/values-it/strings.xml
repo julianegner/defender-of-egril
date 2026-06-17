@@ -1663,7 +1663,7 @@
     <string name="credits_section_software_used">Software Utilizzato</string>
     <string name="credits_section_special_thanks">Ringraziamenti Speciali</string>
     <string name="credits_thank_you">Grazie per aver giocato!</string>
-    <string name="credits_click_to_skip">Clicca per tornare alla mappa del mondo</string>
+    <string name="credits_click_to_skip">Clicca o premi Esc per tornare alla mappa del mondo</string>
     <!-- IAM / Keycloak -->
     <string name="iam_login">Accedi</string>
     <string name="iam_logout">Disconnetti</string>

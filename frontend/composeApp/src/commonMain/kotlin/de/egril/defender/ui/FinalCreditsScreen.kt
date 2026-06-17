@@ -13,9 +13,17 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -162,6 +170,7 @@ fun FinalCreditsScreen(
 ) {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
+    val focusRequester = remember { FocusRequester() }
 
     // Start background music when entering final credits
     LaunchedEffect(Unit) {
@@ -189,10 +198,27 @@ fun FinalCreditsScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(CREDITS_BACKGROUND_COLOR)
+            .focusRequester(focusRequester)
+            .focusTarget()
+            .onPreviewKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown) {
+                    when (event.key) {
+                        Key.Enter, Key.NumPadEnter, Key.Escape, Key.Back -> {
+                            coroutineScope.launch { onDismiss() }
+                            true
+                        }
+                        else -> false
+                    }
+                } else false
+            }
             .clickable { coroutineScope.launch { onDismiss() } }
     ) {
         // ── Lower layer: animated background images ───────────────────────────
@@ -480,4 +506,3 @@ private fun CreditsThankYou() {
         textAlign = TextAlign.Center
     )
 }
-

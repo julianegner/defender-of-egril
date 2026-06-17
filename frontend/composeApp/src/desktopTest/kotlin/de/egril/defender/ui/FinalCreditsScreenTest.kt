@@ -2,6 +2,7 @@ package de.egril.defender.ui
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.input.key.Key
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.currentLanguage
 import org.junit.Before
@@ -147,6 +148,40 @@ class FinalCreditsScreenTest {
         composeTestRule.waitForIdle()
 
         assert(dismissed) { "Clicking the credits screen should invoke onDismiss" }
+    }
+
+    @Test
+    fun testFinalCreditsScreenDismissCallbackWithEscapeKey() {
+        var dismissed = false
+
+        composeTestRule.setContent {
+            FinalCreditsScreen(onDismiss = { dismissed = true }, animationsEnabled = false)
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onRoot().performKeyInput { pressKey(Key.Escape) }
+
+        composeTestRule.waitForIdle()
+
+        assert(dismissed) { "Pressing Escape should invoke onDismiss" }
+    }
+
+    @Test
+    fun testFinalCreditsScreenDismissCallbackWithEnterKey() {
+        var dismissed = false
+
+        composeTestRule.setContent {
+            FinalCreditsScreen(onDismiss = { dismissed = true }, animationsEnabled = false)
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onRoot().performKeyInput { pressKey(Key.Enter) }
+
+        composeTestRule.waitForIdle()
+
+        assert(dismissed) { "Pressing Enter should invoke onDismiss" }
     }
 
     @Test
