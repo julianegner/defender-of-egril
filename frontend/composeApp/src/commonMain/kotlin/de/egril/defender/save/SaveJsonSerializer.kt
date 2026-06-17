@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.model.*
 import de.egril.defender.utils.JsonUtils
 import de.egril.defender.config.LogConfig
+import de.egril.defender.utils.currentTimeMillis
 
 /**
  * JSON serialization for save data
@@ -226,7 +227,7 @@ object SaveJsonSerializer {
         try {
             val id = JsonUtils.extractValue(dataJson, "id")
             val timestamp = JsonUtils.extractValue(dataJson, "timestamp").toLongOrNull()
-                ?: de.egril.defender.utils.currentTimeMillis()
+                ?: currentTimeMillis()
             val levelId = JsonUtils.extractValue(dataJson, "levelId").toInt()
             val levelName = JsonUtils.extractValue(dataJson, "levelName")
             val turnNumber = JsonUtils.extractValue(dataJson, "turnNumber").toInt()
