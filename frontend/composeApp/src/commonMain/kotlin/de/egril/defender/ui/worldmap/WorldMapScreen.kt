@@ -413,6 +413,7 @@ fun WorldMapScreen(
         val windowSize = remember(maxWidth, maxHeight) {
             "Window: ${maxWidth.value.toInt()} x ${maxHeight.value.toInt()} dp"
         }
+        val isLandscape = maxWidth > maxHeight
         
         Surface(
             modifier = Modifier
@@ -839,15 +840,14 @@ fun WorldMapScreen(
             // Daily hint banner — shown once per calendar day until dismissed
             val hint = activeDailyHint
             if (hint != null) {
-                val isLandscape = maxWidth > maxHeight
                 if (isLandscape) {
                     DailyHintBanner(
                         messageRes = hint.hint.messageRes,
                         onDismiss = { activeDailyHint = null },
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
-                            .width(280.dp)
                             .padding(end = 16.dp)
+                            .width(280.dp)
                     )
                 } else {
                     DailyHintBanner(
@@ -855,8 +855,8 @@ fun WorldMapScreen(
                         onDismiss = { activeDailyHint = null },
                         modifier = Modifier
                             .align(Alignment.TopCenter)
-                            .fillMaxWidth()
                             .padding(top = 80.dp, start = 16.dp, end = 16.dp)
+                            .fillMaxWidth()
                     )
                 }
             }
