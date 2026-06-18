@@ -1923,4 +1923,27 @@
     <!-- Abilities page savegame info -->
     <string name="abilities_savegame_info">Les modifications des capacités n\'affectent pas les sauvegardes existantes. Seules les nouvelles parties utiliseront les valeurs de capacités mises à jour.</string>
 
+    <!-- Daily hints (world map) -->
+    <string name="daily_hint_title">Astuce du jour</string>
+    <string name="daily_hint_account_message">Crée un compte Egril gratuit pour sauvegarder ta progression dans le cloud et continuer à jouer sur tous tes appareils. Touche le nom du joueur en haut pour te connecter ou t\'inscrire.</string>
+    <string name="daily_hint_save_load_message">Avec un compte Egril, tes sauvegardes sont synchronisées entre ordinateur, mobile et web. Utilise Sauvegarder en jeu et Charger une partie sur la carte du monde pour reprendre.</string>
+    <string name="daily_hint_shortcuts_message">La plupart des actions ont des raccourcis clavier. Ouvre les Paramètres pour les voir et les personnaliser. Active "Afficher les puces de raccourci" pour voir la touche directement sur chaque bouton.</string>
+    <string name="daily_hint_xp_spells_message">Gagne des batailles pour obtenir de l\'XP et des points de capacité. Dépense ces points dans des sorts (comme Boule de feu ou Soin) que tu peux lancer en combat.</string>
+    <string name="daily_hint_xp_ability_construction_message">Dépense des points de capacité dans les capacités de Construction pour débloquer de nouveaux types de tours et améliorations, élargissant tes défenses.</string>
+    <string name="daily_hint_xp_other_abilities_message">Les points de capacité débloquent aussi des avantages passifs : plus d\'or, tours moins chères, barricades renforcées et plus. Consulte l\'écran des Capacités.</string>
+    <string name="daily_hint_tower_range_message">Améliorer une tour augmente sa portée, lui permettant de frapper les ennemis plus loin sur le chemin.</string>
+    <string name="daily_hint_tower_actions_message">Certaines tours gagnent des attaques supplémentaires par tour en montant en niveau — à savoir les tours Pieu et Lance. Plus d\'actions signifie plus de dégâts par tour.</string>
+    <string name="daily_hint_tower_damage_message">Chaque amélioration de tour ajoute des dégâts. Investir dans les améliorations est souvent plus efficace que construire une autre tour de bas niveau du même type.</string>
+    <string name="daily_hint_barricade_message">Les tours de haut niveau peuvent poser des Barricades sur les cases voisines, bloquant les chemins ennemis et les forçant à emprunter des routes plus longues.</string>
+    <string name="daily_hint_barricade_details_message">Les PV d\'une barricade dépendent du niveau de la tour qui la construit. Les ennemis qui atteignent une barricade l\'attaquent pour des dégâts égaux à leur niveau (les dragons frappent bien plus fort !). Renforce les barricades clés en reconstruisant sur la même case, ou clique sur l\'une d\'elles pour la retirer.</string>
+    <string name="daily_hint_magical_trap_message">Les tours de Mage de haut niveau peuvent déployer des Pièges magiques. Quand un ennemi marche sur un piège, il est téléporté à son point d\'apparition — parfait pour gagner du temps aux goulets durant les vagues difficiles.</string>
+    <string name="daily_hint_mine_message">La Mine naine génère des pièces en creusant. Elle ne fait pas de dégâts, mais une mine paye plusieurs tours supplémentaires par niveau.</string>
+    <string name="daily_hint_mine_dragon_message">Les Mines naines et les dragons ne font pas bon ménage : les dragons cupides traquent les mines pour s\'emparer du trésor, et creuser trop profond peut même invoquer un nouveau dragon. Réfléchis bien avant d\'investir beaucoup de pièces dans les mines.</string>
+    <string name="daily_hint_barge_message">Construis des tours directement sur la rivière grâce aux Barges — toutes les tours fonctionnent sauf la Mine naine, qui exige un sol ferme. Les barges dérivent avec le courant à chaque tour, leur position change donc en permanence.</string>
+    <string name="daily_hint_placement_message">Place les tours sur les zones de construction près du chemin. Elles couvrent des cases hexagonales dans leur portée — les coins et virages sont parfaits pour une couverture maximale.</string>
+    <string name="daily_hint_combine_towers_message">Mélange les types de tours : les Pieux peu coûteux ralentissent les ennemis au corps-à-corps tandis que les Arcs et Balistes les abattent à distance. Une défense en couches est bien plus solide.</string>
+    <string name="daily_hint_aoe_message">Les tours de Mage infligent des dégâts de zone. Place-les là où les ennemis se regroupent — près des points d\'apparition ou derrière des barricades — pour toucher plusieurs cibles.</string>
+    <string name="daily_hint_min_range_message">La Baliste a une portée minimale de 3 — elle ne peut pas frapper les ennemis juste à côté. Associe-la à des tours de mêlée (Pieu, Lance) pour couvrir le corps-à-corps.</string>
+    <string name="daily_hint_immunities_message">Certains ennemis sont immunisés à certaines attaques : les Démons rouges résistent aux boules de feu, les Démons bleus résistent à l\'acide. Surveille la prochaine vague et varie tes tours.</string>
+
 </resources>

@@ -1930,4 +1930,27 @@
     <!-- Abilities page savegame info -->
     <string name="abilities_savegame_info">Changes to abilities do not affect existing savegames. Only new games will use the updated ability values.</string>
 
+    <!-- Daily hints (world map) -->
+    <string name="daily_hint_title">Daily Hint</string>
+    <string name="daily_hint_account_message">Create a free Egril account to save your progress in the cloud and continue playing on any device. Tap the player name at the top to log in or sign up.</string>
+    <string name="daily_hint_save_load_message">With an Egril account your saves sync across desktop, mobile and web. Use Save in-game and Load Game on the world map to pick up where you left off.</string>
+    <string name="daily_hint_shortcuts_message">Most actions have keyboard shortcuts. Open Settings to view and customize them. Turn on "Show shortcut chips" to see the key for each button right on its label.</string>
+    <string name="daily_hint_xp_spells_message">Win battles to earn XP and ability points. Spend ability points on spells (like Fireball or Healing) that you can cast during battle.</string>
+    <string name="daily_hint_xp_ability_construction_message">Spend ability points on Construction abilities to unlock new tower types and upgrades, expanding the defenses you can build.</string>
+    <string name="daily_hint_xp_other_abilities_message">Ability points also unlock passive perks: faster gold gain, cheaper towers, stronger barricades and more. Browse the Abilities screen to plan your build.</string>
+    <string name="daily_hint_tower_range_message">Leveling up a tower extends its attack range, letting it strike enemies further along the path.</string>
+    <string name="daily_hint_tower_actions_message">Some towers gain extra attacks per turn when leveled up — namely the Spike and Spear towers. More actions means more damage output per round.</string>
+    <string name="daily_hint_tower_damage_message">Every tower upgrade adds damage. Investing coins in upgrades is often more effective than building another low-level tower of the same type.</string>
+    <string name="daily_hint_barricade_message">High-level towers can place Barricades on neighboring tiles, blocking enemy paths and forcing them onto longer routes through your defenses.</string>
+    <string name="daily_hint_barricade_details_message">Barricade HP scales with the building tower\'s level. Enemies reaching a barricade attack it for damage equal to their level (dragons hit much harder!). Reinforce key barricades by building on the same tile, or click one to remove it.</string>
+    <string name="daily_hint_magical_trap_message">High-level Wizard towers can deploy Magical Traps. When an enemy steps on a trap, it is teleported back to its spawn point — great for buying time at chokepoints during tough waves.</string>
+    <string name="daily_hint_mine_message">The Dwarven Mine generates coins through digging. It deals no damage, but a mine pays for several extra towers each level.</string>
+    <string name="daily_hint_mine_dragon_message">Dwarven Mines and dragons don\'t mix: greedy dragons hunt mines down to claim the treasure, and digging too deep can even summon a new dragon. Plan ahead before sinking lots of coins into mines.</string>
+    <string name="daily_hint_barge_message">Build towers right on the river using Barges — any tower works except the Dwarven Mine, which needs solid ground. Barges drift along the water flow each turn, so their position keeps changing.</string>
+    <string name="daily_hint_placement_message">Place towers on Build Areas next to the path. Towers cover hexagonal tiles within their range, so corners and bends are excellent spots for maximum coverage.</string>
+    <string name="daily_hint_combine_towers_message">Mix tower types: cheap Spike towers slow enemies in melee while Bow and Ballista towers pick them off from afar. Layered defenses are far stronger than a single tower type.</string>
+    <string name="daily_hint_aoe_message">Wizard towers deal area-of-effect damage. Place them where enemies bunch up — near spawn points or behind barricades — to hit multiple targets at once.</string>
+    <string name="daily_hint_min_range_message">The Ballista has a minimum range of 3 — it cannot hit enemies right next to it. Pair it with melee towers (Spike, Spear) to cover the close-range gap.</string>
+    <string name="daily_hint_immunities_message">Some enemies are immune to certain attacks: Red Demons resist fireballs, Blue Demons resist acid. Watch the upcoming wave and bring a varied set of towers.</string>
+
 </resources>
