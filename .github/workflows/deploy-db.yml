@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: "✅ Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: "🔍 Validate SSH key (show fingerprint)"
         env:
@@ -62,7 +62,7 @@ jobs:
           rm -f "$TMPKEY"
 
       - name: "📂 Upload compose file"
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1.0.0
         with:
           host: 178.104.64.170
           username: root
@@ -73,7 +73,7 @@ jobs:
           strip_components: 2
 
       - name: "📂 Upload DB init scripts"
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1.0.0
         with:
           host: 178.104.64.170
           username: root
@@ -84,7 +84,7 @@ jobs:
           strip_components: 2
 
       - name: "🚀 Start / update PostgreSQL"
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: 178.104.64.170
           username: root

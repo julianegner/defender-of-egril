@@ -53,7 +53,7 @@ jobs:
 
     steps:
       - name: "✅ Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: "🔐 Log in to GitHub Container Registry"
         uses: docker/login-action@v3
@@ -64,7 +64,7 @@ jobs:
 
       - name: "🏷️ Extract Docker metadata (tags & labels)"
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
@@ -72,7 +72,7 @@ jobs:
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
       - name: "🛠️ Build and push Docker image"
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: servers/backend/Dockerfile
@@ -90,10 +90,10 @@ jobs:
 
     steps:
       - name: "✅ Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: "📂 Upload compose file and nginx config"
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1.0.0
         with:
           host: 178.104.84.83
           username: root
@@ -104,7 +104,7 @@ jobs:
           strip_components: 2
 
       - name: "📂 Upload Grafana provisioning config"
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1.0.0
         with:
           host: 178.104.84.83
           username: root
@@ -115,7 +115,7 @@ jobs:
           strip_components: 2
 
       - name: "📂 Upload Prometheus config"
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1.0.0
         with:
           host: 178.104.84.83
           username: root
@@ -126,7 +126,7 @@ jobs:
           strip_components: 2
 
       - name: "🚀 Pull new image and restart backend"
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: 178.104.84.83
           username: root

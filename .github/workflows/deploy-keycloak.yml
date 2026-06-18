@@ -38,15 +38,15 @@ jobs:
 
     steps:
       - name: "✅ Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: "⚙️ Set up Node 20"
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "20"
 
       - name: "⚙️ Set up Java (Maven is needed by Keycloakify)"
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
@@ -58,7 +58,7 @@ jobs:
           npm run build
 
       - name: "📤 Upload theme JAR artifact"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: keycloak-theme-jar
           # Keycloakify places the built JAR in dist_keycloak/
@@ -74,16 +74,16 @@ jobs:
 
     steps:
       - name: "✅ Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: "📥 Download theme JAR artifact"
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: keycloak-theme-jar
           path: keycloak-theme-jar
 
       - name: "📂 Upload compose file, realm JSON, and nginx config"
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1.0.0
         with:
           host: 178.104.79.60
           username: root
@@ -94,7 +94,7 @@ jobs:
           strip_components: 2
 
       - name: "📂 Upload theme JAR"
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1.0.0
         with:
           host: 178.104.79.60
           username: root
@@ -105,7 +105,7 @@ jobs:
           strip_components: 1
 
       - name: "🚀 Start / update Keycloak and nginx"
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: 178.104.79.60
           username: root
@@ -156,7 +156,7 @@ jobs:
             echo "✅ Keycloak and nginx deployed"
 
       - name: "🔧 Apply Keycloak client configuration via Admin API"
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: 178.104.79.60
           username: root

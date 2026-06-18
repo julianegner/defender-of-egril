@@ -22,18 +22,18 @@ jobs:
     steps:
       # 1. Checkout the repository
       - name: "✅ Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # 2. Set up JDK 24
       - name: "⚙️ Set up JDK 24"
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '24'
 
       # 3. Set up Gradle
       - name: "⚙️ Setup Gradle"
-        uses: gradle/actions/setup-gradle@v3
+        uses: gradle/actions/setup-gradle@v6
 
       # 4. Build the WasmJS App
       - name: "🛠️ Build WasmJS App"
@@ -41,17 +41,17 @@ jobs:
 
       # 5. Set up GitHub Pages
       - name: "📄 Configure GitHub Pages"
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
         with:
           enablement: true  # Automatically enable Pages if not already enabled
 
       # 6. Upload the built artifact to Pages
       - name: "📤 Upload GitHub Pages artifact"
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: ./frontend/composeApp/build/dist/wasmJs/productionExecutable
 
       # 7. Deploy to GitHub Pages
       - name: "🚀 Deploy to GitHub Pages"
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
