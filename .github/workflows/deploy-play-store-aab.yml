@@ -105,7 +105,7 @@ jobs:
     environment: google-play
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Download AAB from GitHub Release
         run: |
