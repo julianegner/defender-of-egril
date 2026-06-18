@@ -1881,7 +1881,7 @@
             "uid": "postgres-app"
           },
           "format": "table",
-          "rawSql": "SELECT created_at, feedback_uuid, feedback_type, bug_types, message, player_name, email, platform, app_version, language, has_screenshot, screenshot_name, has_savegame, savegame_name FROM player_feedback ORDER BY created_at DESC LIMIT 100",
+          "rawSql": "SELECT created_at, feedback_uuid, feedback_type, bug_types, message, user_name, contact_email, platform, version_name, os_name, source_context, (screenshot_png IS NOT NULL) AS has_screenshot FROM player_feedback ORDER BY created_at DESC LIMIT 100",
           "refId": "A"
         }
       ]
