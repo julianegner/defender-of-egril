@@ -1790,6 +1790,7 @@
     <string name="download_nav_hint">Use Tab/Shift+Tab to navigate between links, Enter to open the selected link. Press I for installation instructions.</string>
     <string name="play_store_test_info_title">Google Play Store</string>
     <string name="play_store_test_info_search_hint">Or search for "Defender of Egril" in the Play Store.</string>
+    <string name="play_store_qr_code_content_description">QR code for the Google Play Store</string>
     <string name="new_version_available_title">New Version Available</string>
     <string name="new_version_available_message">Version %1$s is available for download.</string>
     <string name="new_version_go_to_releases">Go to Download</string>
