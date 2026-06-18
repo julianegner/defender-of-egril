@@ -139,6 +139,19 @@ fun WorldMapScreen(
     var triggerFeedback by remember { mutableStateOf(false) }
     var triggerSettings by remember { mutableStateOf(false) }
 
+    // Daily hint: shown once per calendar day on world map entry
+    val today = remember { todayLocalDateString() }
+    var activeDailyHint by remember { mutableStateOf<SelectedDailyHint?>(null) }
+    LaunchedEffect(today) {
+        if (AppSettings.dailyHintLastShownDate.value != today) {
+            val selected = selectDailyHint(AppSettings.dailyHintLastIndex.value, iamState)
+            if (selected != null) {
+                AppSettings.markDailyHintShown(today, selected.index)
+                activeDailyHint = selected
+            }
+        }
+    }
+
     // ID of the community level currently being downloaded on-demand (null if none)
     var downloadingLevelId by remember { mutableStateOf<String?>(null) }
 
@@ -382,6 +395,12 @@ fun WorldMapScreen(
                         event.key == Key.Q && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed
                                 && onSwitchPlayer != null -> {
                             onSwitchPlayer.invoke()
+                            true
+                        }
+                        // X → Dismiss daily hint banner
+                        event.key == Key.X && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed
+                                && activeDailyHint != null -> {
+                            activeDailyHint = null
                             true
                         }
                         else -> false
@@ -814,6 +833,31 @@ fun WorldMapScreen(
                 } else if (isEditorAvailable()) {
                     // Just Editor Button (when no user/community levels or already in tab view)
                     EditorButtonCard(onClick = onOpenEditor)
+                }
+            }
+
+            // Daily hint banner — shown once per calendar day until dismissed
+            val hint = activeDailyHint
+            if (hint != null) {
+                val isLandscape = maxWidth > maxHeight
+                if (isLandscape) {
+                    DailyHintBanner(
+                        messageRes = hint.hint.messageRes,
+                        onDismiss = { activeDailyHint = null },
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .width(280.dp)
+                            .padding(end = 16.dp)
+                    )
+                } else {
+                    DailyHintBanner(
+                        messageRes = hint.hint.messageRes,
+                        onDismiss = { activeDailyHint = null },
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .fillMaxWidth()
+                            .padding(top = 80.dp, start = 16.dp, end = 16.dp)
+                    )
                 }
             }
         }
