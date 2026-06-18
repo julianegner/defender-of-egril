@@ -2,7 +2,12 @@ package de.egril.defender.ui
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import com.hyperether.resources.AppLocale
+import com.hyperether.resources.currentLanguage
 import de.egril.defender.AppBuildInfo
+import de.egril.defender.ui.settings.AppSettings
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
@@ -16,6 +21,17 @@ class CommitInfoDialogTest {
     
     @get:Rule
     val composeTestRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        AppSettings.resetToDefaults()
+        currentLanguage.value = AppLocale.DEFAULT
+    }
+
+    @After
+    fun tearDown() {
+        AppSettings.resetToDefaults()
+    }
     
     @Test
     fun testCommitInfoDialogRendersCorrectly() {
