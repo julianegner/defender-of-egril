@@ -15,8 +15,11 @@ import defender_of_egril.composeapp.generated.resources.daily_hint_tower_range_m
 import defender_of_egril.composeapp.generated.resources.daily_hint_tower_actions_message
 import defender_of_egril.composeapp.generated.resources.daily_hint_tower_damage_message
 import defender_of_egril.composeapp.generated.resources.daily_hint_barricade_message
+import defender_of_egril.composeapp.generated.resources.daily_hint_barricade_details_message
 import defender_of_egril.composeapp.generated.resources.daily_hint_magical_trap_message
 import defender_of_egril.composeapp.generated.resources.daily_hint_mine_message
+import defender_of_egril.composeapp.generated.resources.daily_hint_mine_dragon_message
+import defender_of_egril.composeapp.generated.resources.daily_hint_barge_message
 import defender_of_egril.composeapp.generated.resources.daily_hint_placement_message
 import defender_of_egril.composeapp.generated.resources.daily_hint_combine_towers_message
 import defender_of_egril.composeapp.generated.resources.daily_hint_immunities_message
@@ -71,9 +74,13 @@ val DAILY_HINTS: List<DailyHint> = listOf(
     DailyHint(id = "tower_damage", messageRes = Res.string.daily_hint_tower_damage_message),
     // High-level abilities.
     DailyHint(id = "barricade", messageRes = Res.string.daily_hint_barricade_message),
+    DailyHint(id = "barricade_details", messageRes = Res.string.daily_hint_barricade_details_message),
     DailyHint(id = "magical_trap", messageRes = Res.string.daily_hint_magical_trap_message),
     // Mine.
     DailyHint(id = "mine", messageRes = Res.string.daily_hint_mine_message),
+    DailyHint(id = "mine_dragon", messageRes = Res.string.daily_hint_mine_dragon_message),
+    // Barge / rivers.
+    DailyHint(id = "barge", messageRes = Res.string.daily_hint_barge_message),
     // Tower placement / usage tips.
     DailyHint(id = "placement", messageRes = Res.string.daily_hint_placement_message),
     DailyHint(id = "combine_towers", messageRes = Res.string.daily_hint_combine_towers_message),

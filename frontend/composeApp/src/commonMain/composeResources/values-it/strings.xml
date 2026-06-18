@@ -1924,4 +1924,27 @@
     <!-- Abilities page savegame info -->
     <string name="abilities_savegame_info">Le modifiche alle abilità non influenzano i salvataggi esistenti. Solo le nuove partite utilizzeranno i valori delle abilità aggiornati.</string>
 
+    <!-- Daily hints (world map) -->
+    <string name="daily_hint_title">Suggerimento del giorno</string>
+    <string name="daily_hint_account_message">Crea un account Egril gratuito per salvare i tuoi progressi nel cloud e continuare a giocare su qualsiasi dispositivo. Tocca il nome del giocatore in alto per accedere o registrarti.</string>
+    <string name="daily_hint_save_load_message">Con un account Egril i tuoi salvataggi vengono sincronizzati tra desktop, mobile e web. Usa Salva durante la partita e Carica partita sulla mappa del mondo per riprendere da dove avevi lasciato.</string>
+    <string name="daily_hint_shortcuts_message">La maggior parte delle azioni ha scorciatoie da tastiera. Apri Impostazioni per vederle e personalizzarle. Attiva "Mostra etichette scorciatoie" per vedere il tasto direttamente su ogni pulsante.</string>
+    <string name="daily_hint_xp_spells_message">Vinci le battaglie per ottenere XP e punti abilità. Spendi i punti abilità in incantesimi (come Palla di fuoco o Cura) che puoi lanciare durante la battaglia.</string>
+    <string name="daily_hint_xp_ability_construction_message">Spendi i punti abilità in abilità di Costruzione per sbloccare nuovi tipi di torri e potenziamenti, ampliando le difese che puoi costruire.</string>
+    <string name="daily_hint_xp_other_abilities_message">I punti abilità sbloccano anche vantaggi passivi: più oro, torri più economiche, barricate più resistenti e altro. Consulta la schermata Abilità.</string>
+    <string name="daily_hint_tower_range_message">Migliorare una torre ne aumenta la portata d\'attacco, permettendole di colpire i nemici più lontani lungo il percorso.</string>
+    <string name="daily_hint_tower_actions_message">Alcune torri ottengono attacchi extra per turno salendo di livello — in particolare le torri Picca e Lancia. Più azioni significano più danni per round.</string>
+    <string name="daily_hint_tower_damage_message">Ogni potenziamento aggiunge danno. Investire monete nei potenziamenti è spesso più efficace che costruire un\'altra torre dello stesso tipo a basso livello.</string>
+    <string name="daily_hint_barricade_message">Le torri di alto livello possono piazzare Barricate sulle caselle adiacenti, bloccando i percorsi nemici e costringendoli a prendere strade più lunghe.</string>
+    <string name="daily_hint_barricade_details_message">I PV di una barricata scalano con il livello della torre che la costruisce. I nemici che la raggiungono la attaccano con danno pari al loro livello (i draghi colpiscono molto più forte!). Rinforza le barricate chiave costruendo di nuovo sulla stessa casella, oppure clicca una barricata per rimuoverla.</string>
+    <string name="daily_hint_magical_trap_message">Le torri di Mago di alto livello possono piazzare Trappole Magiche. Quando un nemico calpesta una trappola, viene teletrasportato al suo punto di apparizione — perfetto per guadagnare tempo nei colli di bottiglia durante ondate difficili.</string>
+    <string name="daily_hint_mine_message">La Miniera dei Nani genera monete scavando. Non infligge danni, ma una miniera ripaga il costo di diverse torri extra per livello.</string>
+    <string name="daily_hint_mine_dragon_message">Miniere dei Nani e draghi non vanno d\'accordo: i draghi avidi danno la caccia alle miniere per impadronirsi del tesoro, e scavare troppo in profondità può persino evocare un nuovo drago. Pianifica bene prima di investire molte monete nelle miniere.</string>
+    <string name="daily_hint_barge_message">Costruisci torri direttamente sul fiume usando le Chiatte — vanno bene tutte le torri tranne la Miniera dei Nani, che richiede terreno solido. Le chiatte si spostano con la corrente ogni turno, quindi la loro posizione cambia continuamente.</string>
+    <string name="daily_hint_placement_message">Piazza le torri sulle Aree di Costruzione vicino al percorso. Le torri coprono caselle esagonali entro la loro portata, quindi angoli e curve sono ottimi punti per la massima copertura.</string>
+    <string name="daily_hint_combine_towers_message">Mescola i tipi di torre: le economiche torri Picca rallentano i nemici in mischia mentre Arco e Balista li abbattono da lontano. Le difese stratificate sono molto più forti di un solo tipo.</string>
+    <string name="daily_hint_aoe_message">Le torri di Mago infliggono danni ad area. Piazzale dove i nemici si raggruppano — vicino ai punti di apparizione o dietro le barricate — per colpire più bersagli contemporaneamente.</string>
+    <string name="daily_hint_min_range_message">La Balista ha una portata minima di 3 — non può colpire i nemici proprio accanto a sé. Abbinala a torri da mischia (Picca, Lancia) per coprire la corta distanza.</string>
+    <string name="daily_hint_immunities_message">Alcuni nemici sono immuni a certi attacchi: i Demoni Rossi resistono alle palle di fuoco, i Demoni Blu resistono all\'acido. Osserva l\'ondata in arrivo e porta torri di tipi diversi.</string>
+
 </resources>
