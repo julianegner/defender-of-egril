@@ -1,6 +1,7 @@
 package de.egril.defender.ui.infopage
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
@@ -8,7 +9,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -36,8 +39,11 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.settings.AppSettings
 import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.play_store_qr_code_content_description
 import defender_of_egril.composeapp.generated.resources.play_store_test_info_search_hint
 import defender_of_egril.composeapp.generated.resources.play_store_test_info_title
+import defender_of_egril.composeapp.generated.resources.qr_code_defender_play_store
+import org.jetbrains.compose.resources.painterResource
 
 private const val GOOGLE_PLAY_STORE = "https://play.google.com/store/apps/details?id=de.egril.defender"
 
@@ -67,6 +73,12 @@ fun PlayStoreInfo(linkFocusManager: LinkFocusManager? = null) {
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(top = 4.dp)
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Image(
+                painter = painterResource(Res.drawable.qr_code_defender_play_store),
+                contentDescription = stringResource(Res.string.play_store_qr_code_content_description),
+                modifier = Modifier.size(160.dp)
             )
         }
     }

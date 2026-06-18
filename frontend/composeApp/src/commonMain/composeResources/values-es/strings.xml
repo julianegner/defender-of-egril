@@ -1784,6 +1784,7 @@
     <string name="download_nav_hint">Tab/Shift+Tab para navegar entre enlaces, Enter para abrir. I para instrucciones de instalaci\u00f3n.</string>
     <string name="play_store_test_info_title">Google Play Store</string>
     <string name="play_store_test_info_search_hint">O busca "Defender of Egril" en Play Store.</string>
+    <string name="play_store_qr_code_content_description">Código QR de Google Play Store</string>
     <string name="new_version_available_title">Nueva versión disponible</string>
     <string name="new_version_available_message">La versión %1$s está disponible para descargar.</string>
     <string name="new_version_go_to_releases">Ir a la descarga</string>
