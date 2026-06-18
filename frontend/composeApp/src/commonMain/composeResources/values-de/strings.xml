@@ -1921,4 +1921,24 @@
     <!-- Abilities page savegame info -->
     <string name="abilities_savegame_info">Änderungen an Fähigkeiten wirken sich nicht auf bestehende Spielstände aus. Nur neue Spiele verwenden die aktualisierten Fähigkeitswerte.</string>
 
+    <!-- Daily hints (world map) -->
+    <string name="daily_hint_title">Tipp des Tages</string>
+    <string name="daily_hint_account_message">Erstelle ein kostenloses Egril-Konto, um deinen Fortschritt in der Cloud zu sichern und auf jedem Gerät weiterzuspielen. Tippe oben auf den Spielernamen, um dich anzumelden oder zu registrieren.</string>
+    <string name="daily_hint_save_load_message">Mit einem Egril-Konto werden deine Spielstände zwischen Desktop, Mobilgerät und Web synchronisiert. Nutze "Speichern" im Spiel und "Spiel laden" auf der Weltkarte, um weiterzuspielen.</string>
+    <string name="daily_hint_shortcuts_message">Die meisten Aktionen haben Tastenkürzel. Öffne die Einstellungen, um sie anzusehen und anzupassen. Aktiviere "Tastenkürzel-Chips anzeigen", um die Taste direkt am jeweiligen Button zu sehen.</string>
+    <string name="daily_hint_xp_spells_message">Gewinne Schlachten, um XP und Fähigkeitspunkte zu erhalten. Setze Fähigkeitspunkte für Angriffszauber (wie Feuerball oder Heilung) ein, die du im Kampf wirken kannst.</string>
+    <string name="daily_hint_xp_ability_construction_message">Setze Fähigkeitspunkte in Konstruktions-Fähigkeiten ein, um neue Turmtypen und Verbesserungen freizuschalten und deine Verteidigung zu erweitern.</string>
+    <string name="daily_hint_xp_other_abilities_message">Mit Fähigkeitspunkten kannst du auch passive Boni freischalten: schnellerer Goldgewinn, günstigere Türme, stärkere Barrikaden und mehr. Schau in den Fähigkeiten-Bildschirm.</string>
+    <string name="daily_hint_tower_range_message">Wenn du einen Turm aufrüstest, vergrößert sich seine Reichweite und er trifft Gegner weiter entlang des Pfades.</string>
+    <string name="daily_hint_tower_actions_message">Einige Türme erhalten beim Aufrüsten zusätzliche Aktionen pro Runde — vor allem Spieß-, Speer-, Bogen- und Ballistatürme. Mehr Aktionen bedeuten mehr Schaden pro Runde.</string>
+    <string name="daily_hint_tower_damage_message">Jede Turm-Aufwertung erhöht den Schaden. Münzen in Aufwertungen zu investieren ist oft effektiver, als einen weiteren Turm desselben Typs auf Stufe 1 zu bauen.</string>
+    <string name="daily_hint_barricade_message">Hochstufige Türme können auf Nachbarfeldern Barrikaden errichten, die Gegnerpfade blockieren und sie auf längere Routen durch deine Verteidigung zwingen.</string>
+    <string name="daily_hint_magical_trap_message">Hochstufige Magiertürme können Magische Fallen platzieren, die explodieren, wenn Gegner sie betreten — ideal für Engstellen und harte Wellen.</string>
+    <string name="daily_hint_mine_message">Die Zwergenmine erzeugt durch Graben Münzen. Sie verursacht keinen Schaden, aber eine gut platzierte Mine bezahlt sich mit mehreren zusätzlichen Türmen pro Level.</string>
+    <string name="daily_hint_placement_message">Platziere Türme auf Bauflächen direkt am Pfad. Türme decken sechseckige Felder in ihrer Reichweite ab — Ecken und Kurven sind ideal für maximale Abdeckung.</string>
+    <string name="daily_hint_combine_towers_message">Kombiniere Turmtypen: günstige Spießtürme bremsen Gegner im Nahkampf, während Bogen- und Ballistatürme sie aus der Distanz ausschalten. Geschichtete Verteidigung schlägt einen einzelnen Typ.</string>
+    <string name="daily_hint_aoe_message">Magiertürme verursachen Flächenschaden. Platziere sie dort, wo sich Gegner ballen — nahe Spawnpunkten oder hinter Barrikaden — um mehrere Ziele gleichzeitig zu treffen.</string>
+    <string name="daily_hint_min_range_message">Die Ballista hat eine Mindestreichweite von 3 — sie kann Gegner direkt neben sich nicht treffen. Kombiniere sie mit Nahkampftürmen (Spieß, Speer), um die Lücke zu schließen.</string>
+    <string name="daily_hint_immunities_message">Manche Gegner sind gegen bestimmte Angriffe immun: Rote Dämonen widerstehen Feuerbällen, Blaue Dämonen sind säureresistent. Beobachte die nächste Welle und baue verschiedene Turmtypen.</string>
+
 </resources>

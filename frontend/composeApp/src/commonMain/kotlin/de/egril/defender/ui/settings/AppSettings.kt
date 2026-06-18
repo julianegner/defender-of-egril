@@ -78,6 +78,8 @@ object AppSettings {
     private const val KEY_USE_LEVEL_CARDS = "use_level_cards"
     private const val KEY_SETTINGS_HINT_SHOWN = "settings_hint_shown"
     private const val KEY_ACCESSIBILITY_BANNER_SHOWN = "accessibility_banner_shown"
+    private const val KEY_DAILY_HINT_LAST_SHOWN_DATE = "daily_hint_last_shown_date"
+    private const val KEY_DAILY_HINT_LAST_INDEX = "daily_hint_last_index"
     private const val KEY_USE_TILE_IMAGES = "use_tile_images"
     private const val KEY_USE_TILE_SMOOTH_TRANSITIONS = "use_tile_smooth_transitions"
     private const val KEY_SHOW_TESTING_LEVELS = "show_testing_levels"
@@ -248,6 +250,23 @@ object AppSettings {
      */
     val accessibilityBannerShown: MutableState<Boolean> = mutableStateOf(
         settings.getBoolean(KEY_ACCESSIBILITY_BANNER_SHOWN, false)
+    )
+
+    /**
+     * Date (YYYY-MM-DD) when the daily hint banner on the world map was last shown.
+     * Empty string means it has never been shown. Used to ensure the banner appears
+     * at most once per calendar day.
+     */
+    val dailyHintLastShownDate: MutableState<String> = mutableStateOf(
+        settings[KEY_DAILY_HINT_LAST_SHOWN_DATE, ""]
+    )
+
+    /**
+     * Index of the daily hint that was last shown. The next eligible hint is selected
+     * starting from (lastIndex + 1) modulo hint count, so users see hints in rotation.
+     */
+    val dailyHintLastIndex: MutableState<Int> = mutableStateOf(
+        settings.getInt(KEY_DAILY_HINT_LAST_INDEX, -1)
     )
     
     /**
@@ -788,6 +807,23 @@ object AppSettings {
         accessibilityBannerShown.value = true
         try {
             settings.putBoolean(KEY_ACCESSIBILITY_BANNER_SHOWN, true)
+        } catch (_: Throwable) {
+            // localStorage quota exceeded or unavailable; in-memory state is already updated
+        }
+    }
+
+    /**
+     * Record that the daily hint banner has been shown today.
+     *
+     * @param date YYYY-MM-DD calendar date when the banner was shown.
+     * @param index Index of the hint that was selected so the next call can rotate.
+     */
+    fun markDailyHintShown(date: String, index: Int) {
+        dailyHintLastShownDate.value = date
+        dailyHintLastIndex.value = index
+        try {
+            settings[KEY_DAILY_HINT_LAST_SHOWN_DATE] = date
+            settings.putInt(KEY_DAILY_HINT_LAST_INDEX, index)
         } catch (_: Throwable) {
             // localStorage quota exceeded or unavailable; in-memory state is already updated
         }
