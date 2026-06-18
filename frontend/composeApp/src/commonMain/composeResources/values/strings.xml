@@ -1101,7 +1101,7 @@
     <string name="installation_windows_step3a">• Click "More info"</string>
     <string name="installation_windows_step3b">• Then click "Run anyway"</string>
     <string name="installation_windows_note">This warning appears because the game is not signed with a commercial certificate. The game is safe to install.</string>
-    <string name="installation_android_title">Android (Sideloading)</string>
+    <string name="installation_android_title">Android</string>
     <string name="installation_android_step1">1. Enable "Install unknown apps" in Settings:</string>
     <string name="installation_android_step1a">• Go to Settings > Apps > Special app access > Install unknown apps</string>
     <string name="installation_android_step1b">• Select your browser and enable "Allow from this source"</string>
@@ -1788,12 +1788,8 @@
     <string name="download_info_goto_installation">View Installation Instructions</string>
     <string name="download_info_latest_version">Latest version: %1$s</string>
     <string name="download_nav_hint">Use Tab/Shift+Tab to navigate between links, Enter to open the selected link. Press I for installation instructions.</string>
-    <string name="play_store_test_info_title">Google Play prerelease test</string>
-    <string name="play_store_test_info_register_step">To get the game from the Google Play Store, you have to first register at the Google mailing list.</string>
-    <string name="play_store_test_info_mailing_list_label">Google mailing list:</string>
-    <string name="play_store_test_info_after_registration">After that is done (!), use this link:</string>
-    <string name="play_store_test_info_play_store_label">Google Play Store link:</string>
-    <string name="play_store_test_info_search_hint">Or search for "de.egril.defender" in the Play Store.</string>
+    <string name="play_store_test_info_title">Google Play Store</string>
+    <string name="play_store_test_info_search_hint">Or search for "Defender of Egril" in the Play Store.</string>
     <string name="new_version_available_title">New Version Available</string>
     <string name="new_version_available_message">Version %1$s is available for download.</string>
     <string name="new_version_go_to_releases">Go to Download</string>

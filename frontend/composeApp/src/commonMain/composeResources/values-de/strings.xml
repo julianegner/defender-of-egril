@@ -1099,7 +1099,7 @@
     <string name="installation_windows_step3a">• Auf "Weitere Informationen" klicken</string>
     <string name="installation_windows_step3b">• Dann auf "Trotzdem ausführen" klicken</string>
     <string name="installation_windows_note">Diese Warnung erscheint, weil das Spiel nicht mit einem kommerziellen Zertifikat signiert ist. Das Spiel ist sicher zu installieren.</string>
-    <string name="installation_android_title">Android (Sideloading)</string>
+    <string name="installation_android_title">Android</string>
     <string name="installation_android_step1">1. "Unbekannte Apps installieren" in den Einstellungen aktivieren:</string>
     <string name="installation_android_step1a">• Gehe zu Einstellungen > Apps > Spezieller App-Zugriff > Unbekannte Apps installieren</string>
     <string name="installation_android_step1b">• Wähle deinen Browser und aktiviere "Aus dieser Quelle zulassen"</string>
@@ -1781,12 +1781,8 @@
     <string name="download_info_goto_installation">Installationsanweisungen anzeigen</string>
     <string name="download_info_latest_version">Neueste Version: %1$s</string>
     <string name="download_nav_hint">Tab/Shift+Tab zum Navigieren zwischen Links, Enter zum \u00d6ffnen. I f\u00fcr Installationsanweisungen.</string>
-    <string name="play_store_test_info_title">Google Play-Prerelease-Test</string>
-    <string name="play_store_test_info_register_step">Um das Spiel über den Google Play Store zu erhalten, musst du dich zuerst in der Google-Mailingliste registrieren.</string>
-    <string name="play_store_test_info_mailing_list_label">Google-Mailingliste:</string>
-    <string name="play_store_test_info_after_registration">Wenn das erledigt ist (!), nutze diesen Link:</string>
-    <string name="play_store_test_info_play_store_label">Google-Play-Store-Link:</string>
-    <string name="play_store_test_info_search_hint">Oder suche im Play Store nach "de.egril.defender".</string>
+    <string name="play_store_test_info_title">Google Play Store</string>
+    <string name="play_store_test_info_search_hint">Oder suche im Play Store nach "Defender of Egril".</string>
     <string name="new_version_available_title">Neue Version verfügbar</string>
     <string name="new_version_available_message">Version %1$s ist zum Download verfügbar.</string>
     <string name="new_version_go_to_releases">Zum Download</string>
