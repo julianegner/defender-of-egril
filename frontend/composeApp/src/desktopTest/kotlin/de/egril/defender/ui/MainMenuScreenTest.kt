@@ -7,6 +7,8 @@ import de.egril.defender.ui.ScreenshotTestUtils
 import de.egril.defender.ui.settings.AppSettings
 import com.hyperether.resources.AppLocale
 import com.hyperether.resources.currentLanguage
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertTrue
@@ -21,6 +23,17 @@ class MainMenuScreenTest {
     
     @get:Rule
     val composeTestRule = createComposeRule()
+
+    @Before
+    fun setUp() {
+        AppSettings.resetToDefaults()
+        currentLanguage.value = AppLocale.DEFAULT
+    }
+
+    @After
+    fun tearDown() {
+        AppSettings.resetToDefaults()
+    }
     
     @Test
     fun testMainMenuScreenRendersCorrectly() {
