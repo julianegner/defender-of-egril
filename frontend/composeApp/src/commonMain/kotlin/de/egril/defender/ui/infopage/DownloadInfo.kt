@@ -214,6 +214,10 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}, scrollState: android
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            PlayStoreInfo(linkFocusManager = linkFocusManager)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             // Android sideloading instructions
             Text(
                 text = stringResource(Res.string.download_info_sideload_title),
@@ -273,10 +277,6 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}, scrollState: android
                     modifier = Modifier.padding(12.dp)
                 )
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            PlayStoreInfo(linkFocusManager = linkFocusManager)
 
             // Link to installation instructions
             Spacer(modifier = Modifier.height(16.dp))

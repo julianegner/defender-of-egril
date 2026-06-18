@@ -64,6 +64,15 @@ fun InstallationInfo(scrollState: ScrollState = rememberScrollState()) {
             PlatformSection(
                 title = stringResource(Res.string.installation_android_title),
                 content = {
+                    PlayStoreInfo()
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = stringResource(Res.string.download_info_sideload_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
                     InstallationStep(stringResource(Res.string.installation_android_step1))
                     InstallationSubStep(stringResource(Res.string.installation_android_step1a))
                     InstallationSubStep(stringResource(Res.string.installation_android_step1b))
@@ -71,7 +80,6 @@ fun InstallationInfo(scrollState: ScrollState = rememberScrollState()) {
                     InstallationStep(stringResource(Res.string.installation_android_step3))
                     InstallationStep(stringResource(Res.string.installation_android_step4))
                     InstallationNote(stringResource(Res.string.installation_android_note))
-                    PlayStoreInfo()
                 }
             )
             

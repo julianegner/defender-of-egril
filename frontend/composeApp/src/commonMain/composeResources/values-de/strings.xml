@@ -1099,7 +1099,7 @@
     <string name="installation_windows_step3a">• Auf "Weitere Informationen" klicken</string>
     <string name="installation_windows_step3b">• Dann auf "Trotzdem ausführen" klicken</string>
     <string name="installation_windows_note">Diese Warnung erscheint, weil das Spiel nicht mit einem kommerziellen Zertifikat signiert ist. Das Spiel ist sicher zu installieren.</string>
-    <string name="installation_android_title">Android (Sideloading)</string>
+    <string name="installation_android_title">Android</string>
     <string name="installation_android_step1">1. "Unbekannte Apps installieren" in den Einstellungen aktivieren:</string>
     <string name="installation_android_step1a">• Gehe zu Einstellungen > Apps > Spezieller App-Zugriff > Unbekannte Apps installieren</string>
     <string name="installation_android_step1b">• Wähle deinen Browser und aktiviere "Aus dieser Quelle zulassen"</string>

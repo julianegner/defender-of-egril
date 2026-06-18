@@ -1100,7 +1100,7 @@
     <string name="installation_windows_step3a">• Fai clic su "Ulteriori informazioni"</string>
     <string name="installation_windows_step3b">• Poi fai clic su "Esegui comunque"</string>
     <string name="installation_windows_note">Questo avviso appare perché il gioco non è firmato con un certificato commerciale. Il gioco è sicuro da installare.</string>
-    <string name="installation_android_title">Android (Installazione manuale)</string>
+    <string name="installation_android_title">Android</string>
     <string name="installation_android_step1">1. Abilita "Installa app sconosciute" nelle Impostazioni:</string>
     <string name="installation_android_step1a">• Vai a Impostazioni > App > Accesso speciale > Installa app sconosciute</string>
     <string name="installation_android_step1b">• Seleziona il tuo browser e abilita "Consenti da questa fonte"</string>

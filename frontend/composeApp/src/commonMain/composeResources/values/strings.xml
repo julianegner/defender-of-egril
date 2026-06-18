@@ -1101,7 +1101,7 @@
     <string name="installation_windows_step3a">• Click "More info"</string>
     <string name="installation_windows_step3b">• Then click "Run anyway"</string>
     <string name="installation_windows_note">This warning appears because the game is not signed with a commercial certificate. The game is safe to install.</string>
-    <string name="installation_android_title">Android (Sideloading)</string>
+    <string name="installation_android_title">Android</string>
     <string name="installation_android_step1">1. Enable "Install unknown apps" in Settings:</string>
     <string name="installation_android_step1a">• Go to Settings > Apps > Special app access > Install unknown apps</string>
     <string name="installation_android_step1b">• Select your browser and enable "Allow from this source"</string>

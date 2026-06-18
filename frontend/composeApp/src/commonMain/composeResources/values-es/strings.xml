@@ -1100,7 +1100,7 @@
     <string name="installation_windows_step3a">• Haz clic en "Más información"</string>
     <string name="installation_windows_step3b">• Luego haz clic en "Ejecutar de todas formas"</string>
     <string name="installation_windows_note">Esta advertencia aparece porque el juego no está firmado con un certificado comercial. El juego es seguro de instalar.</string>
-    <string name="installation_android_title">Android (Instalación manual)</string>
+    <string name="installation_android_title">Android</string>
     <string name="installation_android_step1">1. Habilita "Instalar aplicaciones desconocidas" en Ajustes:</string>
     <string name="installation_android_step1a">• Ve a Ajustes > Aplicaciones > Acceso especial > Instalar aplicaciones desconocidas</string>
     <string name="installation_android_step1b">• Selecciona tu navegador y habilita "Permitir desde esta fuente"</string>

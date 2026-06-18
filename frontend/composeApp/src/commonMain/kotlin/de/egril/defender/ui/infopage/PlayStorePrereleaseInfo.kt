@@ -4,7 +4,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,8 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,45 +43,37 @@ private const val GOOGLE_PLAY_STORE = "https://play.google.com/store/apps/detail
 @Composable
 fun PlayStoreInfo(linkFocusManager: LinkFocusManager? = null) {
     SelectionContainer {
-        Card(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer
-            )
+                .padding(vertical = 8.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Text(
-                    text = stringResource(Res.string.play_store_test_info_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-                FocusableLink(
-                    url = GOOGLE_PLAY_STORE,
-                    text = GOOGLE_PLAY_STORE,
-                    contentDesc = GOOGLE_PLAY_STORE,
-                    linkFocusManager = linkFocusManager
-                )
-                Text(
-                    text = stringResource(Res.string.play_store_test_info_search_hint),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-            }
-
-            @Deprecated("Use PlayStoreInfo instead")
-            @Composable
-            fun PlayStorePrereleaseInfo(linkFocusManager: LinkFocusManager? = null) {
-                PlayStoreInfo(linkFocusManager = linkFocusManager)
-            }
+            Text(
+                text = stringResource(Res.string.play_store_test_info_title),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            FocusableLink(
+                url = GOOGLE_PLAY_STORE,
+                text = GOOGLE_PLAY_STORE,
+                contentDesc = GOOGLE_PLAY_STORE,
+                linkFocusManager = linkFocusManager
+            )
+            Text(
+                text = stringResource(Res.string.play_store_test_info_search_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onBackground,
+                modifier = Modifier.padding(top = 4.dp)
+            )
         }
     }
+}
+
+@Deprecated("Use PlayStoreInfo instead")
+@Composable
+fun PlayStorePrereleaseInfo(linkFocusManager: LinkFocusManager? = null) {
+    PlayStoreInfo(linkFocusManager = linkFocusManager)
 }
 
 /**

@@ -1100,7 +1100,7 @@
     <string name="installation_windows_step3a">• Cliquez sur "Plus d\'informations"</string>
     <string name="installation_windows_step3b">• Puis cliquez sur "Exécuter quand même"</string>
     <string name="installation_windows_note">Cet avertissement apparaît car le jeu n\'est pas signé avec un certificat commercial. Le jeu est sûr à installer.</string>
-    <string name="installation_android_title">Android (Installation manuelle)</string>
+    <string name="installation_android_title">Android</string>
     <string name="installation_android_step1">1. Activez "Installer des applications inconnues" dans les Paramètres :</string>
     <string name="installation_android_step1a">• Allez dans Paramètres > Applications > Accès spécial > Installer des applications inconnues</string>
     <string name="installation_android_step1b">• Sélectionnez votre navigateur et activez "Autoriser depuis cette source"</string>
