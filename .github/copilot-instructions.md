@@ -555,6 +555,11 @@ Add to `LevelData.createLevels()` with:
 - Update documentation for new features
 - Ensure all tests pass
 - Do not change the PR title after initial naming; only removing a leading [WIP] is allowed
+- **Always include closing keywords** in the PR description for every issue the PR resolves, so GitHub auto-closes the issue on merge. Use the format `Closes #<issue-number>` (one per line if multiple). Example:
+  ```
+  Closes #42
+  Closes #57
+  ```
 
 ## Important Notes
 
