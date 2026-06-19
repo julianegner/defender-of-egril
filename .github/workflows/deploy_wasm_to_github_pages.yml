@@ -22,7 +22,9 @@ jobs:
     steps:
       # 1. Checkout the repository
       - name: "✅ Checkout code"
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       # 2. Set up JDK 24
       - name: "⚙️ Set up JDK 24"
