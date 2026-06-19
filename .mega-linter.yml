@@ -26,7 +26,7 @@ ENABLE_LINTERS:
   - KOTLIN_KTLINT
 
 # Paths and files to exclude from linting (build artefacts, generated files, etc.)
-FILTER_REGEX_EXCLUDE: "(\.gradle/|/build/|\.idea/|node_modules/|\.kotlin/|META-INF/|frontend/composeApp/build/|servers/keycloak/theme/node_modules/|servers/keycloak/theme/dist/|servers/keycloak/theme/dist_keycloak/|gradle/wrapper/gradle-wrapper\.jar|\.tmp/|frontend/test-screenshots/|kotlin-js-store/)"
+FILTER_REGEX_EXCLUDE: '(\.gradle/|/build/|\.idea/|node_modules/|\.kotlin/|META-INF/|frontend/composeApp/build/|servers/keycloak/theme/node_modules/|servers/keycloak/theme/dist/|servers/keycloak/theme/dist_keycloak/|gradle/wrapper/gradle-wrapper\.jar|\.tmp/|frontend/test-screenshots/|kotlin-js-store/)'
 
 # yamllint uses a project-level config file (created alongside this file)
 YAML_YAMLLINT_CONFIG_FILE: .yamllint.yml
@@ -36,7 +36,7 @@ MARKDOWN_MARKDOWNLINT_CONFIG_FILE: .markdownlint.yml
 
 # ktlint: exclude generated / build directories (already covered above, but
 # be explicit for clarity)
-KOTLIN_KTLINT_FILTER_REGEX_EXCLUDE: (build/|\.gradle/)
+KOTLIN_KTLINT_FILTER_REGEX_EXCLUDE: '(build/|\.gradle/)'
 
 # JSON: validate syntax only; skip the level / worldmap data files that use a
 # custom single-line compact style (they are valid JSON, just not prettified)
