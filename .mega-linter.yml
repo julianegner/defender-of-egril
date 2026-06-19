@@ -1,0 +1,53 @@
+# MegaLinter configuration
+# Documentation: https://megalinter.io/latest/config-file/
+# Schema: https://megalinter.io/json-schemas/configuration.html
+
+# Validate all sources when pushing to main; only changed files for PRs
+# This is set dynamically in the workflow via VALIDATE_ALL_CODEBASE env var
+
+# Linters to run — curated for this Kotlin Multiplatform / polyglot project.
+# Additional linters can be enabled over time as code is brought into
+# compliance.
+ENABLE_LINTERS:
+  # GitHub Actions workflows
+  - ACTION_ACTIONLINT
+  # YAML files (workflows, docker-compose, configs)
+  - YAML_YAMLLINT
+  # Shell scripts
+  - BASH_SHELLCHECK
+  - BASH_SHFMT
+  # Dockerfile
+  - DOCKERFILE_HADOLINT
+  # Markdown documentation
+  - MARKDOWN_MARKDOWNLINT
+  # JSON syntax validation (not formatting — project uses custom JSON style)
+  - JSON_JSONLINT
+  # Kotlin code
+  - KOTLIN_KTLINT
+
+# Paths and files to exclude from linting (build artefacts, generated files, etc.)
+FILTER_REGEX_EXCLUDE: "(\.gradle/|/build/|\.idea/|node_modules/|\.kotlin/|META-INF/|frontend/composeApp/build/|servers/keycloak/theme/node_modules/|servers/keycloak/theme/dist/|servers/keycloak/theme/dist_keycloak/|gradle/wrapper/gradle-wrapper\.jar|\.tmp/|frontend/test-screenshots/|kotlin-js-store/)"
+
+# yamllint uses a project-level config file (created alongside this file)
+YAML_YAMLLINT_CONFIG_FILE: .yamllint.yml
+
+# markdownlint uses a project-level config file
+MARKDOWN_MARKDOWNLINT_CONFIG_FILE: .markdownlint.yml
+
+# ktlint: exclude generated / build directories (already covered above, but
+# be explicit for clarity)
+KOTLIN_KTLINT_FILTER_REGEX_EXCLUDE: (build/|\.gradle/)
+
+# JSON: validate syntax only; skip the level / worldmap data files that use a
+# custom single-line compact style (they are valid JSON, just not prettified)
+JSON_JSONLINT_FILTER_REGEX_EXCLUDE: (build/)
+
+# Shell: only lint scripts that are clearly shell files (scripts/ and deploy/)
+BASH_SHELLCHECK_FILTER_REGEX_INCLUDE: (scripts/|deploy/|servers/)
+BASH_SHFMT_FILTER_REGEX_INCLUDE: (scripts/|deploy/|servers/)
+
+# Reporting: console + text file; GitHub status checks are added by the workflow
+REPORTERS:
+  - consolereporter
+  - textreporter
+  - githubstatusreporter
