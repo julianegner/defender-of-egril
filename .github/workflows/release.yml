@@ -59,7 +59,7 @@ jobs:
       version_tag: ${{ steps.parse.outputs.version_tag }}
       version_code: ${{ steps.parse.outputs.version_code }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
 
@@ -171,7 +171,7 @@ jobs:
       APP_VERSION: ${{ needs.prepare.outputs.version }}
       VERSION_CODE: ${{ needs.prepare.outputs.version_code }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
 
@@ -281,7 +281,7 @@ jobs:
     env:
       APP_VERSION: ${{ needs.prepare.outputs.version }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
 
@@ -314,7 +314,7 @@ jobs:
     env:
       APP_VERSION: ${{ needs.prepare.outputs.version }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
 
@@ -353,7 +353,7 @@ jobs:
     env:
       APP_VERSION: ${{ needs.prepare.outputs.version }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
 
@@ -393,7 +393,7 @@ jobs:
     env:
       APP_VERSION: ${{ needs.prepare.outputs.version }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
 
@@ -456,7 +456,7 @@ jobs:
       - name: Install system dependencies
         run: pacman -Sy --noconfirm git base-devel binutils
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
 
@@ -507,7 +507,7 @@ jobs:
     env:
       APP_VERSION: ${{ needs.prepare.outputs.version }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
 
@@ -591,7 +591,7 @@ jobs:
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
         if: steps.check_secrets.outputs.skip != 'true'
@@ -696,7 +696,7 @@ jobs:
     env:
       APP_VERSION: ${{ needs.prepare.outputs.version }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
 
@@ -730,7 +730,7 @@ jobs:
     env:
       APP_VERSION: ${{ needs.prepare.outputs.version }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
 
@@ -764,7 +764,7 @@ jobs:
   #  env:
   #    APP_VERSION: ${{ needs.prepare.outputs.version }}
   #  steps:
-  #    - uses: actions/checkout@v5
+  #    - uses: actions/checkout@v6
   #
   #    - name: Set up JDK 24
   #      uses: actions/setup-java@v5
@@ -965,7 +965,7 @@ jobs:
           echo "_Optional builds (macOS DMG, Linux Snap, Linux Flatpak, Linux Arch, Linux AppImage, iOS) are shown only when they succeeded._" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
           fetch-depth: 0

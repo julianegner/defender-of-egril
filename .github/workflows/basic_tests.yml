@@ -15,7 +15,7 @@ jobs:
   run_tests_jvm_linux:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Set up JDK 24
@@ -31,7 +31,7 @@ jobs:
   run_tests_android:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Set up JDK 24
@@ -47,7 +47,7 @@ jobs:
   run_tests_wasmjs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Set up JDK 24
@@ -63,7 +63,7 @@ jobs:
   run_tests_backend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
       - name: Set up JDK 24
