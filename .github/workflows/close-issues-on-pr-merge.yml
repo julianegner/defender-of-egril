@@ -17,17 +17,21 @@ jobs:
         with:
           script: |
             const body = context.payload.pull_request.body || '';
-            const closingKeywords = /(?:closes?|fixes?|resolves?)\s+#(\d+)/gi;
+            const closingKeywords = /(?:close(?:s|d)?|fix(?:e[sd])?|resolve(?:s|d)?)\s+#(\d+)/gi;
             const matches = [...body.matchAll(closingKeywords)];
 
             for (const match of matches) {
               const issueNumber = parseInt(match[1], 10);
               console.log(`Closing issue #${issueNumber}`);
-              await github.rest.issues.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber,
-                state: 'closed',
-                state_reason: 'completed'
-              });
+              try {
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  state: 'closed',
+                  state_reason: 'completed'
+                });
+              } catch (error) {
+                console.error(`Failed to close issue #${issueNumber}: ${error.message}`);
+              }
             }
