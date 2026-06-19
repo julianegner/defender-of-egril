@@ -13,9 +13,11 @@ on:
   workflow_dispatch:
 
 permissions:
-  # Allow MegaLinter to post status checks
+  # Allow MegaLinter to post status checks and PR comments
   contents: read
   statuses: write
+  pull-requests: write
+  issues: write
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -29,6 +31,8 @@ jobs:
     permissions:
       contents: read
       statuses: write
+      pull-requests: write
+      issues: write
 
     steps:
       - name: Checkout Code
