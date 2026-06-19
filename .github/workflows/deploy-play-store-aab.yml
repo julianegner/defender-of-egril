@@ -106,6 +106,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
 
       - name: Download AAB from GitHub Release
         run: |
