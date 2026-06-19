@@ -304,7 +304,7 @@ class MainMenuScreenTest {
             .assertExists()
         
         // Click close button
-        composeTestRule.onNodeWithText("Close", substring = true, ignoreCase = true)
+        composeTestRule.onNodeWithText("Close", ignoreCase = true)
             .performClick()
         
         composeTestRule.waitForIdle()

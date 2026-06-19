@@ -68,7 +68,7 @@ class CommitInfoDialogTest {
             .assertExists()
         
         // Verify close button exists
-        composeTestRule.onNodeWithText("Close", substring = true, ignoreCase = true)
+        composeTestRule.onNodeWithText("Close", ignoreCase = true)
             .assertExists()
             .assertHasClickAction()
     }
@@ -87,7 +87,7 @@ class CommitInfoDialogTest {
         composeTestRule.waitForIdle()
         
         // Click the close button
-        composeTestRule.onNodeWithText("Close", substring = true, ignoreCase = true)
+        composeTestRule.onNodeWithText("Close", ignoreCase = true)
             .performClick()
         
         composeTestRule.waitForIdle()
