@@ -45,12 +45,8 @@ jobs:
         uses: oxsecurity/megalinter@v9
         id: ml
         env:
-          # Validate all sources when pushing to main; only changed files for PRs
-          VALIDATE_ALL_CODEBASE: >-
-            ${{
-              github.event_name == 'push' &&
-              github.ref == 'refs/heads/main'
-            }}
+          # Validate all sources on push to main or manual dispatch; only diff for PRs
+          VALIDATE_ALL_CODEBASE: ${{ github.event_name != 'pull_request' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload MegaLinter reports
