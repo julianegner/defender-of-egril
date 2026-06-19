@@ -1,0 +1,22 @@
+---
+# yamllint configuration for the Defender of Egril project.
+# Documentation: https://yamllint.readthedocs.io/
+
+extends: default
+
+rules:
+  # GitHub Actions workflows and docker-compose files often have long lines
+  line-length:
+    max: 160
+    level: warning
+
+  # Allow both true/false and yes/no as boolean values
+  truthy:
+    allowed-values: ["true", "false"]
+    check-keys: false
+
+  # Workflow files use multi-line strings with >- which adds indentation
+  indentation:
+    spaces: 2
+    indent-sequences: true
+    check-multi-line-strings: false

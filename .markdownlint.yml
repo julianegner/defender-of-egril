@@ -1,0 +1,14 @@
+---
+# markdownlint configuration for the Defender of Egril project.
+# Documentation: https://github.com/DavidAnson/markdownlint#rules--aliases
+
+default: true
+
+# MD013 - Line length: disabled (documentation files use longer lines)
+MD013: false
+
+# MD033 - Inline HTML: disabled (used in README and docs for formatting)
+MD033: false
+
+# MD041 - First line should be a heading: disabled (some docs start with badges)
+MD041: false

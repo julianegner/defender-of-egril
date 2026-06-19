@@ -1,0 +1,59 @@
+---
+name: MegaLinter
+
+# Run on every push to main and on all pull requests targeting main.
+# More info at https://megalinter.io
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  # Allow MegaLinter to post status checks and PR comments
+  contents: read
+  statuses: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  megalinter:
+    name: MegaLinter
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      statuses: write
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v5
+        with:
+          # Full history so MegaLinter can compare against the target branch
+          fetch-depth: 0
+
+      - name: MegaLinter
+        uses: oxsecurity/megalinter@v9
+        id: ml
+        env:
+          # Validate all sources on push to main or manual dispatch; only diff for PRs
+          VALIDATE_ALL_CODEBASE: ${{ github.event_name != 'pull_request' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload MegaLinter reports
+        uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: MegaLinter reports
+          path: |
+            megalinter-reports
+            mega-linter.log
