@@ -6,6 +6,7 @@ on:
 
 permissions:
   issues: write
+  pull-requests: read
 
 jobs:
   close_referenced_issues:
@@ -17,7 +18,7 @@ jobs:
         with:
           script: |
             const body = context.payload.pull_request.body || '';
-            const closingKeywords = /(?:close(?:s|d)?|fix(?:e[sd])?|resolve(?:s|d)?)\s+#(\d+)/gi;
+            const closingKeywords = /(?:close(?:s|d)?|fix(?:e[sd])?|resolve(?:s|d)?)\s+(?:[a-zA-Z0-9_.-]+\/[a-zA-Z0-9_.-]+#|#)(\d+)/gi;
             const matches = [...body.matchAll(closingKeywords)];
 
             for (const match of matches) {
