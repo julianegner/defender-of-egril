@@ -1,0 +1,33 @@
+name: Close issues on PR merge
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  issues: write
+
+jobs:
+  close_referenced_issues:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close issues referenced in PR description
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.pull_request.body || '';
+            const closingKeywords = /(?:closes?|fixes?|resolves?)\s+#(\d+)/gi;
+            const matches = [...body.matchAll(closingKeywords)];
+
+            for (const match of matches) {
+              const issueNumber = parseInt(match[1], 10);
+              console.log(`Closing issue #${issueNumber}`);
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                state: 'closed',
+                state_reason: 'completed'
+              });
+            }
