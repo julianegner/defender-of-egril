@@ -23,10 +23,10 @@ jobs:
         with:
           java-version: '24'
           distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@v3
-        with:
-          arguments: :composeApp:desktopTest
+        run: ./gradlew :composeApp:desktopTest
 
   run_tests_android:
     runs-on: ubuntu-latest
@@ -39,10 +39,10 @@ jobs:
         with:
           java-version: '24'
           distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@v3
-        with:
-          arguments: :composeApp:testProductionDebugUnitTest
+        run: ./gradlew :composeApp:testProductionDebugUnitTest
 
   run_tests_wasmjs:
     runs-on: ubuntu-latest
@@ -55,10 +55,10 @@ jobs:
         with:
           java-version: '24'
           distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
       - name: Run WASM tests
-        uses: gradle/gradle-build-action@v3
-        with:
-          arguments: :composeApp:wasmJsBrowserTest
+        run: ./gradlew :composeApp:wasmJsBrowserTest
 
   run_tests_backend:
     runs-on: ubuntu-latest
@@ -71,7 +71,7 @@ jobs:
         with:
           java-version: '24'
           distribution: 'temurin'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
       - name: Run backend tests
-        uses: gradle/gradle-build-action@v3
-        with:
-          arguments: :server:test
+        run: ./gradlew :server:test

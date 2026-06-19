@@ -29,18 +29,18 @@ jobs:
         run: |
           ls -l frontend/composeApp/defender-of-egril-android-release.jks
           keytool -list -v -keystore frontend/composeApp/defender-of-egril-android-release.jks -storepass ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@v3
         env:
           storePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           keyPassword: ${{ secrets.ANDROID_KEY_PASSWORD }}
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        with:
-          arguments: >-
-            :composeApp:packageReleaseApk
-            -PstorePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-            -PkeyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
-            -Pandroid.injected.signing.store.password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
-            -Pandroid.injected.signing.key.alias=${{ secrets.ANDROID_KEY_ALIAS }}
-            -Pandroid.injected.signing.key.password=${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: >
+          ./gradlew :composeApp:packageReleaseApk
+          -PstorePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          -PkeyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          -Pandroid.injected.signing.store.password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          -Pandroid.injected.signing.key.alias=${{ secrets.ANDROID_KEY_ALIAS }}
+          -Pandroid.injected.signing.key.password=${{ secrets.ANDROID_KEY_PASSWORD }}

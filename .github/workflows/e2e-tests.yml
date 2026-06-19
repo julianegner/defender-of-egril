@@ -33,10 +33,10 @@ jobs:
       - name: Pre-pull Keycloak image
         run: docker pull quay.io/keycloak/keycloak:24.0
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
       - name: Run end-to-end tests
-        uses: gradle/gradle-build-action@v3
-        with:
-          arguments: :server:e2eTest
+        run: ./gradlew :server:e2eTest
 
       - name: Upload test results
         if: always()
