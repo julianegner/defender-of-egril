@@ -143,7 +143,7 @@ jobs:
               '### Tasks',
               '',
               '- [ ] Upgrade all outdated dependencies (⬆️) listed above in `gradle/libs.versions.toml`',
-              '- [ ] Review and upgrade GitHub Actions versions used in workflows (e.g. `actions/checkout`, `actions/setup-java`, `gradle/gradle-build-action`, etc.)',
+              '- [ ] Review and upgrade GitHub Actions versions used in workflows (e.g. `actions/checkout`, `actions/setup-java`, `gradle/actions/setup-gradle`, etc.)',
               '- [ ] Check for any security advisories on current dependencies',
               '',
               '### After upgrading',

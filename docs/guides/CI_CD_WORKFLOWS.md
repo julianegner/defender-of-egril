@@ -371,7 +371,7 @@ Ensure GitHub Pages is enabled in repository settings:
 The workflows use specific versions of GitHub Actions:
 - `actions/checkout@v4`
 - `actions/setup-java@v4`
-- `gradle/gradle-build-action@v3`
+- `gradle/actions/setup-gradle@v6`
 - `actions/upload-artifact@v4`
 - `actions/download-artifact@v4`
 - `actions/configure-pages@v5`
