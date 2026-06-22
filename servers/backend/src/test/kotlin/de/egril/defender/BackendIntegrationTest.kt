@@ -710,7 +710,7 @@ class BackendIntegrationTest {
     }
 
     @Test
-    fun `POST app closed event persists authenticated token username`() = withRealDatabase {
+    fun `POST app closed event ignores forged username and uses authenticated token username`() = withRealDatabase {
         val levelName = "close-event-level-auth"
         val url = "https://egril.de/game?level=close-event-auth"
         val token = fakeToken("user-event-app-closed", "player_close_auth")
