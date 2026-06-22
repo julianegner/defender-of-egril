@@ -446,11 +446,13 @@
             // Initial mode:
             // - /info pages should hint portrait immediately (before Kotlin bootstraps)
             // - /data-privacy pages also use portrait mode
+            // - /download page also uses portrait mode
             // - all other routes start with no hint (main menu/world map are okay without forcing orientation)
             try {
                 var p = window.location.pathname;
                 if (p === '/info' || p.indexOf('/info/') === 0 ||
-                    p === '/data-privacy' || p.indexOf('/data-privacy/') === 0) {
+                    p === '/data-privacy' || p.indexOf('/data-privacy/') === 0 ||
+                    p === '/download') {
                     window.setOrientationOverlayMode('portrait');
                 } else {
                     window.setOrientationOverlayMode('none');
