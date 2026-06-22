@@ -129,7 +129,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
             // Optionally extract the authenticated username from the Bearer token.
             // Authentication is not required – the token is only used for audit logging.
             val authUser = extractUsernameFromBearerToken(call.request.header(HttpHeaders.Authorization))
-            val resolvedUsername = authUser ?: event.username
+            val effectiveUsername = authUser ?: event.username
 
             val message = buildString {
                 append("[${event.event}] platform=${event.platform}")
@@ -141,7 +141,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                 if (event.turnNumber != null) append(" turn=${event.turnNumber}")
                 if (event.difficulty != null) append(" difficulty=${event.difficulty}")
                 if (event.url != null) append(" url=${event.url}")
-                if (resolvedUsername != null) append(" user=$resolvedUsername")
+                if (effectiveUsername != null) append(" user=$effectiveUsername")
             }
             analyticsLogger.info(message)
 
@@ -158,7 +158,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                         stmt.setString(6, event.levelName)
                         stmt.setString(7, event.versionName)
                         stmt.setString(8, event.commitHash)
-                        stmt.setString(9, resolvedUsername)
+                        stmt.setString(9, effectiveUsername)
                         if (event.turnNumber != null) stmt.setInt(10, event.turnNumber) else stmt.setNull(10, java.sql.Types.INTEGER)
                         stmt.setString(11, event.difficulty)
                         stmt.setString(12, event.url)

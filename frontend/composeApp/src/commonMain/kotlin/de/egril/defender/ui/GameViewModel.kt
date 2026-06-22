@@ -242,8 +242,6 @@ class GameViewModel {
     private val _remoteCommunityMapsMeta = MutableStateFlow<List<de.egril.defender.save.CommunityFileInfo>>(emptyList())
     val remoteCommunityMapsMeta: StateFlow<List<de.egril.defender.save.CommunityFileInfo>> = _remoteCommunityMapsMeta.asStateFlow()
 
-    private var hasReportedAppClosed = false
-
     init {
         de.egril.defender.analytics.reportEvent(
             de.egril.defender.analytics.GameEventType.APP_STARTED,
@@ -724,9 +722,6 @@ class GameViewModel {
     }
 
     fun reportAppClosed() {
-        if (hasReportedAppClosed) return
-        hasReportedAppClosed = true
-
         val isGameplayScreen = _currentScreen.value is Screen.GamePlay
         val currentState = _gameState.value
         val levelName = if (isGameplayScreen) currentState?.level?.name else null
