@@ -1781,6 +1781,7 @@
     <string name="download_info_error">No se pudieron cargar los enlaces de descarga desde GitHub. Visita la página de versiones para encontrar todas las descargas.</string>
     <string name="download_info_goto_installation">Ver instrucciones de instalación</string>
     <string name="download_info_latest_version">Última versión: %1$s</string>
+    <string name="download_info_your_platform">Descargas para tu plataforma (%1$s):</string>
     <string name="download_nav_hint">Tab/Shift+Tab para navegar entre enlaces, Enter para abrir. I para instrucciones de instalaci\u00f3n.</string>
     <string name="play_store_test_info_title">Google Play Store</string>
     <string name="play_store_test_info_search_hint">O busca "Defender of Egril" en Play Store.</string>

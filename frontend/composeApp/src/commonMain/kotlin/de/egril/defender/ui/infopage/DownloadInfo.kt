@@ -22,10 +22,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.utils.getPlatform
 import defender_of_egril.composeapp.generated.resources.*
 import androidx.compose.foundation.text.selection.SelectionContainer
 
@@ -124,6 +126,38 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}, scrollState: android
                 .fillMaxWidth()
                 .verticalScroll(scrollState)
         ) {
+            // Highlighted box for current-platform downloads (shown when assets are loaded and platform is detected)
+            val currentPlatform = remember { detectCurrentPlatform() }
+            val currentPlatformAssets = release?.assets?.filter { it.platform() == currentPlatform }
+            if (currentPlatform != null && !currentPlatformAssets.isNullOrEmpty()) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Column(modifier = Modifier.padding(12.dp)) {
+                        Text(
+                            text = stringResource(Res.string.download_info_your_platform, currentPlatform),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        currentPlatformAssets.forEach { asset ->
+                            AssetListItem(
+                                asset = asset,
+                                linkFocusManager = linkFocusManager,
+                                textColor = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
+                }
+            }
+
             // Navigation hint area (only when shortcut chips are ON)
             if (AppSettings.showButtonShortcutHints.value) {
                 Surface(
@@ -303,7 +337,7 @@ fun DownloadInfo(onNavigateToInstallation: () -> Unit = {}, scrollState: android
 }
 
 @Composable
-private fun AssetListItem(asset: GithubReleaseAsset, linkFocusManager: LinkFocusManager? = null) {
+private fun AssetListItem(asset: GithubReleaseAsset, linkFocusManager: LinkFocusManager? = null, textColor: Color = MaterialTheme.colorScheme.onBackground) {
     val platform = asset.platform()
     val fileType = asset.fileType()
 
@@ -317,7 +351,7 @@ private fun AssetListItem(asset: GithubReleaseAsset, linkFocusManager: LinkFocus
             text = platform,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = textColor,
             modifier = Modifier.width(90.dp)
         )
         // Fixed minimum width so the file-type label always stays on one line
@@ -325,7 +359,7 @@ private fun AssetListItem(asset: GithubReleaseAsset, linkFocusManager: LinkFocus
         Text(
             text = fileType,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = textColor,
             modifier = Modifier.widthIn(min = 60.dp)
         )
         // Download link fills remaining space; long filenames are truncated with ellipsis
@@ -399,6 +433,23 @@ private fun GithubReleaseAsset.platform(): String = when {
     name.endsWith(".dmg", ignoreCase = true) -> "macOS"
     name.endsWith(".ipa", ignoreCase = true) -> "iOS"
     else -> "Other"
+}
+
+/**
+ * Maps the current platform's OS name (from getPlatform().osName) to the
+ * platform label used by GithubReleaseAsset.platform(). Returns null if the
+ * platform cannot be determined or does not have dedicated release assets.
+ */
+private fun detectCurrentPlatform(): String? {
+    val osName = getPlatform().osName ?: return null
+    return when {
+        osName.startsWith("Android", ignoreCase = true) -> "Android"
+        osName.startsWith("iOS", ignoreCase = true) -> "iOS"
+        osName.startsWith("Windows", ignoreCase = true) -> "Windows"
+        osName.startsWith("macOS", ignoreCase = true) -> "macOS"
+        osName.startsWith("Linux", ignoreCase = true) || osName.equals("ChromeOS", ignoreCase = true) -> "Linux"
+        else -> null
+    }
 }
 
 private fun GithubReleaseAsset.fileType(): String = when {

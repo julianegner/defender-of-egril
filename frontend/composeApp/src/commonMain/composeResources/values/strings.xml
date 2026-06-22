@@ -1787,6 +1787,7 @@
     <string name="download_info_error">Could not load download links from GitHub. Visit the releases page to find all downloads.</string>
     <string name="download_info_goto_installation">View Installation Instructions</string>
     <string name="download_info_latest_version">Latest version: %1$s</string>
+    <string name="download_info_your_platform">Downloads for your platform (%1$s):</string>
     <string name="download_nav_hint">Use Tab/Shift+Tab to navigate between links, Enter to open the selected link. Press I for installation instructions.</string>
     <string name="play_store_test_info_title">Google Play Store</string>
     <string name="play_store_test_info_search_hint">Or search for "Defender of Egril" in the Play Store.</string>
