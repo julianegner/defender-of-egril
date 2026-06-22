@@ -8,6 +8,7 @@ package de.egril.defender.analytics
  */
 enum class GameEventType(val apiValue: String) {
     APP_STARTED("APP_STARTED"),
+    APP_CLOSED("APP_CLOSED"),
     TUTORIAL_DEEP_LINK("TUTORIAL_DEEP_LINK"),
     LEVEL_STARTED("LEVEL_STARTED"),
     LEVEL_LOADED("LEVEL_LOADED"),

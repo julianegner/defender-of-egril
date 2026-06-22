@@ -49,6 +49,19 @@ class ApplicationTest {
     }
 
     @Test
+    fun testPostEventAppClosed() = testApplication {
+        application {
+            module()
+        }
+        client.post("/api/events") {
+            contentType(ContentType.Application.Json)
+            setBody("""{"event":"APP_CLOSED","levelName":"Welcome to Egril","platform":"WEB","turnNumber":7,"difficulty":"HARD","url":"https://egril.de/game"}""")
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+    }
+
+    @Test
     fun testPostEventLevelStarted() = testApplication {
         application {
             module()

@@ -141,6 +141,19 @@ class BackendIntegrationTest {
                     }
                 }
             }
+
+        private fun latestEventField(levelName: String, eventType: String, columnName: String): String? =
+            testDataSource.connection.use { conn ->
+                conn.prepareStatement(
+                    "SELECT $columnName FROM events WHERE level_name = ? AND event_type = ? ORDER BY id DESC LIMIT 1"
+                ).use { stmt ->
+                    stmt.setString(1, levelName)
+                    stmt.setString(2, eventType)
+                    stmt.executeQuery().use { rs ->
+                        if (rs.next()) rs.getString(1) else null
+                    }
+                }
+            }
     }
 
     // -------------------------------------------------------------------------
@@ -617,14 +630,16 @@ class BackendIntegrationTest {
     }
 
     @Test
-    fun `POST events with username and turnNumber persists when authenticated`() = withRealDatabase {
+    fun `POST events with turnNumber persists authenticated token username`() = withRealDatabase {
         val token = fakeToken("user-event-auth", "player_one")
         client.post("/api/events") {
             contentType(ContentType.Application.Json)
             header(HttpHeaders.Authorization, "Bearer $token")
-            setBody("""{"event":"LEVEL_WON","levelName":"Tutorial","platform":"WEB","username":"player_one","turnNumber":42}""")
+            // Include an unknown username field to verify the backend ignores frontend-supplied usernames.
+            setBody("""{"event":"LEVEL_WON","levelName":"Tutorial","platform":"WEB","username":"forged_name","turnNumber":42}""")
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
+            assertEquals("player_one", latestEventField("Tutorial", "LEVEL_WON", "user_name"))
         }
     }
 
@@ -639,14 +654,16 @@ class BackendIntegrationTest {
     }
 
     @Test
-    fun `POST events with authenticated username and no turnNumber succeeds`() = withRealDatabase {
+    fun `POST events with authenticated token username and no turnNumber succeeds`() = withRealDatabase {
         val token = fakeToken("user-event-auth-noturn", "player_two")
         client.post("/api/events") {
             contentType(ContentType.Application.Json)
             header(HttpHeaders.Authorization, "Bearer $token")
-            setBody("""{"event":"LEVEL_STARTED","levelName":"Tutorial","platform":"WEB","username":"player_two"}""")
+            // Include an unknown username field to verify the backend ignores frontend-supplied usernames.
+            setBody("""{"event":"LEVEL_STARTED","levelName":"Tutorial","platform":"WEB","username":"forged_name"}""")
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
+            assertEquals("player_two", latestEventField("Tutorial", "LEVEL_STARTED", "user_name"))
         }
     }
 
@@ -672,6 +689,44 @@ class BackendIntegrationTest {
             assertEquals(HttpStatusCode.OK, status)
         }
         assertEquals(null, latestEventDifficulty(levelName))
+    }
+
+    @Test
+    fun `POST app closed event ignores payload username and persists url`() = withRealDatabase {
+        val levelName = "close-event-level"
+        val url = "https://egril.de/game?level=close-event"
+        client.post("/api/events") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                """{"event":"APP_CLOSED","levelName":"$levelName","platform":"WEB","turnNumber":9,"difficulty":"MEDIUM","url":"$url","username":"player_close"}"""
+            )
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+
+        assertEquals(null, latestEventField(levelName, "APP_CLOSED", "user_name"))
+        assertEquals(url, latestEventField(levelName, "APP_CLOSED", "url"))
+        assertEquals("MEDIUM", latestEventDifficulty(levelName))
+    }
+
+    @Test
+    fun `POST app closed event ignores forged username and uses authenticated token username`() = withRealDatabase {
+        val levelName = "close-event-level-auth"
+        val url = "https://egril.de/game?level=close-event-auth"
+        val token = fakeToken("user-event-app-closed", "player_close_auth")
+        client.post("/api/events") {
+            contentType(ContentType.Application.Json)
+            header(HttpHeaders.Authorization, "Bearer " + token)
+            setBody(
+                """{"event":"APP_CLOSED","levelName":"$levelName","platform":"WEB","turnNumber":10,"difficulty":"HARD","url":"$url","username":"forged_name"}"""
+            )
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+
+        assertEquals("player_close_auth", latestEventField(levelName, "APP_CLOSED", "user_name"))
+        assertEquals(url, latestEventField(levelName, "APP_CLOSED", "url"))
+        assertEquals("HARD", latestEventDifficulty(levelName))
     }
 
     @Test

@@ -720,6 +720,30 @@ class GameViewModel {
         stopTimeTracking()
         _currentScreen.value = Screen.MainMenu
     }
+
+    fun reportAppClosed() {
+        val isGameplayScreen = _currentScreen.value is Screen.GamePlay
+        val currentState = _gameState.value
+        val levelName: String?
+        val turnNumber: Int?
+        val difficulty: String?
+        if (isGameplayScreen) {
+            levelName = currentState?.level?.name
+            turnNumber = currentState?.turnNumber?.value
+            difficulty = currentState?.difficulty?.name
+        } else {
+            levelName = null
+            turnNumber = null
+            difficulty = null
+        }
+
+        de.egril.defender.analytics.reportEvent(
+            de.egril.defender.analytics.GameEventType.APP_CLOSED,
+            levelName,
+            turnNumber,
+            difficulty
+        )
+    }
     
     fun navigateToWorldMap() {
         if (_currentScreen.value is Screen.GamePlay) {

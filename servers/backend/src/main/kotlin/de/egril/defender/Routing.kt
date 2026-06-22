@@ -127,7 +127,8 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
             }
 
             // Optionally extract the authenticated username from the Bearer token.
-            // Authentication is not required – the token is only used for audit logging.
+            // Authentication is not required, but when a token is present its username is used for
+            // analytics/audit logging. Any frontend payload username field is ignored entirely.
             val authUser = extractUsernameFromBearerToken(call.request.header(HttpHeaders.Authorization))
 
             val message = buildString {
