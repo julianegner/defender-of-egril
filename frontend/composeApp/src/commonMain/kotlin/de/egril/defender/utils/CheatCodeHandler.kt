@@ -88,7 +88,7 @@ object CheatCodeHandler {
                 setBigHeadMode?.invoke(false)
                 return Pair(true, null)
             }
-            "cheat", "cheats", "help" -> {
+            "cheat", "cheats", "help", "list" -> {
                 showCheatHelp?.invoke()
                 return Pair(true, null)
             }
@@ -207,7 +207,7 @@ object CheatCodeHandler {
                 )
                 return true
             }
-            "cheat", "cheats", "help" -> {
+            "cheat", "cheats", "help", "list" -> {
                 showCheatHelp?.invoke()
                 return true
             }

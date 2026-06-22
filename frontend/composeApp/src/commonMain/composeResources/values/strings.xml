@@ -1525,6 +1525,14 @@
     <string name="cheat_help_desc">Show this help screen</string>
     <string name="cheat_platform_desc">Show platform information</string>
     <string name="cheat_crash_dialog_desc">Show an example crash dialog preview</string>
+    <string name="cheat_bighead_smallhead_desc">Enable/disable big head mode</string>
+    <string name="cheat_breakreminder_desc">Show break reminder immediately</string>
+    <string name="cheat_sleepreminder_desc">Show sleep reminder immediately</string>
+    <string name="cheat_demo_desc">Start automated world map demo mode</string>
+    <string name="cheat_sticker_desc">Open the sticker screen</string>
+    <string name="cheat_spinner_desc">Show loading spinner demo</string>
+    <string name="cheat_credits_desc">Open the final credits screen</string>
+    <string name="cheat_animation_desc">Open animation preview screen</string>
     <string name="cheat_cash_desc">Add 1,000 coins</string>
     <string name="cheat_mmmoney_desc">Add 1,000,000 coins</string>
     <string name="cheat_emptypocket_desc">Set coins to 0</string>

@@ -1522,6 +1522,14 @@
     <string name="cheat_help_desc">Mostrar esta pantalla de ayuda</string>
     <string name="cheat_platform_desc">Mostrar información de la plataforma</string>
     <string name="cheat_crash_dialog_desc">Mostrar una vista previa del diálogo de error</string>
+    <string name="cheat_bighead_smallhead_desc">Activar/desactivar modo de cabeza grande</string>
+    <string name="cheat_breakreminder_desc">Mostrar recordatorio de descanso de inmediato</string>
+    <string name="cheat_sleepreminder_desc">Mostrar recordatorio de sueño de inmediato</string>
+    <string name="cheat_demo_desc">Iniciar modo demo automático del mapa mundial</string>
+    <string name="cheat_sticker_desc">Abrir la pantalla de stickers</string>
+    <string name="cheat_spinner_desc">Mostrar demostración del spinner de carga</string>
+    <string name="cheat_credits_desc">Abrir pantalla de créditos finales</string>
+    <string name="cheat_animation_desc">Abrir pantalla de vista previa de animaciones</string>
     <string name="cheat_cash_desc">Agregar 1,000 monedas</string>
     <string name="cheat_mmmoney_desc">Agregar 1,000,000 de monedas</string>
     <string name="cheat_emptypocket_desc">Establecer monedas en 0</string>
