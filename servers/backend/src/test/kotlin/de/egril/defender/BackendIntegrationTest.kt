@@ -710,6 +710,26 @@ class BackendIntegrationTest {
     }
 
     @Test
+    fun `POST app closed event persists authenticated token username`() = withRealDatabase {
+        val levelName = "close-event-level-auth"
+        val url = "https://egril.de/game?level=close-event-auth"
+        val token = fakeToken("user-event-app-closed", "player_close_auth")
+        client.post("/api/events") {
+            contentType(ContentType.Application.Json)
+            header(HttpHeaders.Authorization, "Bearer " + token)
+            setBody(
+                """{"event":"APP_CLOSED","levelName":"$levelName","platform":"WEB","turnNumber":10,"difficulty":"HARD","url":"$url","username":"forged_name"}"""
+            )
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+
+        assertEquals("player_close_auth", latestEventField(levelName, "APP_CLOSED", "user_name"))
+        assertEquals(url, latestEventField(levelName, "APP_CLOSED", "url"))
+        assertEquals("HARD", latestEventDifficulty(levelName))
+    }
+
+    @Test
     fun `POST feedback stores once and deduplicates by feedback UUID`() = withRealDatabase {
         val feedbackId = "33333333-3333-4333-8333-333333333333"
         val payload = """
