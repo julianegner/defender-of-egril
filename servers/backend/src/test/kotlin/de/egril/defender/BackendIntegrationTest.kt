@@ -635,6 +635,7 @@ class BackendIntegrationTest {
         client.post("/api/events") {
             contentType(ContentType.Application.Json)
             header(HttpHeaders.Authorization, "Bearer $token")
+            // Include an unknown username field to verify the backend ignores frontend-supplied usernames.
             setBody("""{"event":"LEVEL_WON","levelName":"Tutorial","platform":"WEB","username":"forged_name","turnNumber":42}""")
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
@@ -658,6 +659,7 @@ class BackendIntegrationTest {
         client.post("/api/events") {
             contentType(ContentType.Application.Json)
             header(HttpHeaders.Authorization, "Bearer $token")
+            // Include an unknown username field to verify the backend ignores frontend-supplied usernames.
             setBody("""{"event":"LEVEL_STARTED","levelName":"Tutorial","platform":"WEB","username":"forged_name"}""")
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
