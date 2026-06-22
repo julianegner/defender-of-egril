@@ -12,6 +12,13 @@ import de.egril.defender.iam.IamService
 @JsFun("(url, body, token) => { const headers = { 'Content-Type': 'application/json' }; if (token) { headers['Authorization'] = 'Bearer ' + token; } fetch(url, { method: 'POST', headers: headers, body: body }).catch(() => {}); }")
 private external fun postJson(url: String, body: String, token: String?)
 
+/**
+ * Sends analytics during browser page shutdown.
+ *
+ * Browsers may cancel normal asynchronous requests while a tab is closing, so
+ * this prefers `navigator.sendBeacon()` when available. A `fetch(..., { keepalive: true })`
+ * fallback is kept for environments where `sendBeacon` is unavailable.
+ */
 @JsFun(
     """(url, body) => {
         try {
@@ -37,8 +44,12 @@ private external fun getCurrentUrl(): String?
 
 private const val PLATFORM = "WEB"
 
+private fun shouldIncludeCurrentUrl(eventType: GameEventType): Boolean {
+    return eventType == GameEventType.APP_STARTED || eventType == GameEventType.APP_CLOSED
+}
+
 actual fun reportEvent(eventType: GameEventType, levelName: String?, turnNumber: Int?, difficulty: String?) {
-    val url = if (eventType == GameEventType.APP_STARTED || eventType == GameEventType.APP_CLOSED) getCurrentUrl() else null
+    val url = if (shouldIncludeCurrentUrl(eventType)) getCurrentUrl() else null
     val json = buildEventJson(eventType, levelName, PLATFORM, turnNumber, difficulty, url)
     if (eventType == GameEventType.APP_CLOSED) {
         postJsonOnPageHide("$backendUrl/api/events", json)
