@@ -108,6 +108,7 @@ fun parseLanguageFromCode(code: String?): AppLocale? {
  *   /data-privacy/{language}   → DataPrivacy deep link
  *   /info/{tab-slug}           → InfoPage deep link (e.g. /info/installation)
  *   /info                      → InfoPage deep link (defaults to INSTALLATION tab)
+ *   /download                  → InfoPage deep link (DOWNLOAD tab, shortcut for /info/download)
  *   /demo                      → Start demo mode
  *   /settings                  → Open main menu with settings dialog
  *
@@ -151,6 +152,11 @@ fun parseDeepLink(path: String): DeepLink {
     // Check if it's the settings deep link
     if (trimmedPath == "settings") {
         return DeepLink.Settings
+    }
+
+    // Check if it's the direct download deep link
+    if (trimmedPath == "download") {
+        return DeepLink.InfoPage(InfoTab.DOWNLOAD)
     }
 
     // Check if it's an info page route: /info or /info/{tab-slug}

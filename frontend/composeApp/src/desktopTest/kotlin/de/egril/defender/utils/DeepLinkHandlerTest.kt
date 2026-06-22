@@ -213,6 +213,27 @@ class DeepLinkHandlerTest {
     }
 
     @Test
+    fun `parseDeepLink direct download route`() {
+        val result = parseDeepLink("/download")
+        assertIs<DeepLink.InfoPage>(result)
+        assertEquals(InfoTab.DOWNLOAD, result.tab)
+    }
+
+    @Test
+    fun `parseDeepLink direct download route is case insensitive`() {
+        val result = parseDeepLink("/Download")
+        assertIs<DeepLink.InfoPage>(result)
+        assertEquals(InfoTab.DOWNLOAD, result.tab)
+    }
+
+    @Test
+    fun `parseDeepLink direct download route with trailing slash`() {
+        val result = parseDeepLink("/download/")
+        assertIs<DeepLink.InfoPage>(result)
+        assertEquals(InfoTab.DOWNLOAD, result.tab)
+    }
+
+    @Test
     fun `parseDeepLink info tab is case insensitive`() {
         val result = parseDeepLink("/Info/Backend")
         assertIs<DeepLink.InfoPage>(result)
