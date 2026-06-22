@@ -128,8 +128,7 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
 
             // Optionally extract the authenticated username from the Bearer token.
             // Authentication is not required – the token is only used for audit logging.
-            val authUser = extractUsernameFromBearerToken(call.request.header(HttpHeaders.Authorization))
-            val effectiveUsername = authUser ?: event.username
+            val effectiveUsername = extractUsernameFromBearerToken(call.request.header(HttpHeaders.Authorization))
 
             val message = buildString {
                 append("[${event.event}] platform=${event.platform}")

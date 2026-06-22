@@ -20,7 +20,7 @@ private external fun postJson(url: String, body: String, token: String?)
  * fallback is kept for environments where `sendBeacon` is unavailable.
  *
  * `sendBeacon()` cannot attach custom Authorization headers, so shutdown events
- * rely on the JSON payload itself for any optional username context.
+ * are sent without authenticated user context.
  *
  * Returns `true` when `sendBeacon()` accepted the payload for delivery.
  * Returns `false` when `sendBeacon()` is unavailable or when the code falls

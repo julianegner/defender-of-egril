@@ -55,7 +55,7 @@ class ApplicationTest {
         }
         client.post("/api/events") {
             contentType(ContentType.Application.Json)
-            setBody("""{"event":"APP_CLOSED","levelName":"Welcome to Egril","platform":"WEB","turnNumber":7,"difficulty":"HARD","url":"https://egril.de/game","username":"player_close"}""")
+            setBody("""{"event":"APP_CLOSED","levelName":"Welcome to Egril","platform":"WEB","turnNumber":7,"difficulty":"HARD","url":"https://egril.de/game"}""")
         }.apply {
             assertEquals(HttpStatusCode.OK, status)
         }

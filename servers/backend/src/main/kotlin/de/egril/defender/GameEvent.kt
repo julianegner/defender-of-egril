@@ -13,7 +13,6 @@ import kotlinx.serialization.Serializable
  * @param osName The operating system name and version (e.g. "Ubuntu 22.04.5 LTS", "Android 14", "iOS 17.0", "Windows 10/11"), optional
  * @param versionName The version name of the frontend (e.g. "1.0"), optional
  * @param commitHash The short git commit hash of the frontend build, optional
- * @param username The Keycloak username of the authenticated player, optional (only present when logged in)
  * @param turnNumber The current game turn number at the time of the event, optional
  * @param difficulty The selected game difficulty (BABY, EASY, MEDIUM, HARD, NIGHTMARE), optional
  * @param url The full URL of the web page at the time of the event (web platform, APP_STARTED and APP_CLOSED), optional
@@ -28,7 +27,6 @@ data class GameEvent(
     val osName: String? = null,
     val versionName: String? = null,
     val commitHash: String? = null,
-    val username: String? = null,
     val turnNumber: Int? = null,
     val difficulty: String? = null,
     val url: String? = null

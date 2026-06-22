@@ -1,7 +1,6 @@
 package de.egril.defender.analytics
 
 import de.egril.defender.AppBuildInfo
-import de.egril.defender.iam.IamService
 import de.egril.defender.utils.getPlatform
 
 /**
@@ -19,8 +18,6 @@ internal fun buildEventJson(
     val platformLong = currentPlatform.name
     val platformExtended = currentPlatform.platformExtended
     val osName = currentPlatform.osName
-    val iamState = IamService.state.value
-    val username = if (iamState.isAuthenticated) iamState.username else null
     append("{\"event\":\"")
     append(escapeJson(eventType.apiValue))
     append("\",\"platform\":\"")
@@ -43,11 +40,6 @@ internal fun buildEventJson(
     if (levelName != null) {
         append(",\"levelName\":\"")
         append(escapeJson(levelName))
-        append("\"")
-    }
-    if (username != null) {
-        append(",\"username\":\"")
-        append(escapeJson(username))
         append("\"")
     }
     if (turnNumber != null) {
