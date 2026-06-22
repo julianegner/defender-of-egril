@@ -21,6 +21,10 @@ private external fun postJson(url: String, body: String, token: String?)
  *
  * `sendBeacon()` cannot attach custom Authorization headers, so shutdown events
  * rely on the JSON payload itself for any optional username context.
+ *
+ * Returns `true` when `sendBeacon()` accepted the payload for delivery.
+ * Returns `false` when `sendBeacon()` is unavailable or when the code falls
+ * back to `fetch(..., { keepalive: true })`.
  */
 @JsFun(
     """(url, body) => {
@@ -51,12 +55,8 @@ private external fun getCurrentUrl(): String?
 
 private const val PLATFORM = "WEB"
 
-private fun shouldIncludeUrlInEvent(eventType: GameEventType): Boolean {
-    return eventType == GameEventType.APP_STARTED || eventType == GameEventType.APP_CLOSED
-}
-
 actual fun reportEvent(eventType: GameEventType, levelName: String?, turnNumber: Int?, difficulty: String?) {
-    val url = if (shouldIncludeUrlInEvent(eventType)) getCurrentUrl() else null
+    val url = if (eventType == GameEventType.APP_STARTED || eventType == GameEventType.APP_CLOSED) getCurrentUrl() else null
     val json = buildEventJson(eventType, levelName, PLATFORM, turnNumber, difficulty, url)
     if (eventType == GameEventType.APP_CLOSED) {
         postJsonOnPageHide("$backendUrl/api/events", json)

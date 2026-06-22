@@ -730,7 +730,7 @@ class GameViewModel {
         if (isGameplayScreen) {
             levelName = currentState?.level?.name
             turnNumber = currentState?.turnNumber?.value
-            difficulty = currentState?.difficulty?.name ?: AppSettings.difficulty.value.name
+            difficulty = currentState?.difficulty?.name
         } else {
             levelName = null
             turnNumber = null
