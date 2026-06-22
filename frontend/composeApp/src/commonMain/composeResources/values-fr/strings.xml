@@ -1523,6 +1523,14 @@
     <string name="cheat_help_desc">Afficher cet écran d\'aide</string>
     <string name="cheat_platform_desc">Afficher les informations de la plateforme</string>
     <string name="cheat_crash_dialog_desc">Afficher un aperçu d\'une boîte de dialogue de plantage</string>
+    <string name="cheat_bighead_smallhead_desc">Activer/désactiver le mode grosse tête</string>
+    <string name="cheat_breakreminder_desc">Afficher immédiatement le rappel de pause</string>
+    <string name="cheat_sleepreminder_desc">Afficher immédiatement le rappel de sommeil</string>
+    <string name="cheat_demo_desc">Démarrer le mode démo automatisé de la carte du monde</string>
+    <string name="cheat_sticker_desc">Ouvrir l\'écran des autocollants</string>
+    <string name="cheat_spinner_desc">Afficher la démo du spinner de chargement</string>
+    <string name="cheat_credits_desc">Ouvrir l\'écran des crédits de fin</string>
+    <string name="cheat_animation_desc">Ouvrir l\'écran d\'aperçu des animations</string>
     <string name="cheat_cash_desc">Ajouter 1 000 pièces</string>
     <string name="cheat_mmmoney_desc">Ajouter 1 000 000 de pièces</string>
     <string name="cheat_emptypocket_desc">Mettre les pièces à 0</string>

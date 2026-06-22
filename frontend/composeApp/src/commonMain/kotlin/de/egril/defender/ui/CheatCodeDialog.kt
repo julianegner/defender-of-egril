@@ -25,6 +25,14 @@ import defender_of_egril.composeapp.generated.resources.cheat_spell_types
 import defender_of_egril.composeapp.generated.resources.cheat_stat_types
 import defender_of_egril.composeapp.generated.resources.cheat_help_desc
 import defender_of_egril.composeapp.generated.resources.cheat_platform_desc
+import defender_of_egril.composeapp.generated.resources.cheat_bighead_smallhead_desc
+import defender_of_egril.composeapp.generated.resources.cheat_breakreminder_desc
+import defender_of_egril.composeapp.generated.resources.cheat_sleepreminder_desc
+import defender_of_egril.composeapp.generated.resources.cheat_demo_desc
+import defender_of_egril.composeapp.generated.resources.cheat_sticker_desc
+import defender_of_egril.composeapp.generated.resources.cheat_spinner_desc
+import defender_of_egril.composeapp.generated.resources.cheat_credits_desc
+import defender_of_egril.composeapp.generated.resources.cheat_animation_desc
 import defender_of_egril.composeapp.generated.resources.cheat_cash_desc
 import defender_of_egril.composeapp.generated.resources.cheat_crash_dialog_desc
 import defender_of_egril.composeapp.generated.resources.cheat_mmmoney_desc
@@ -178,7 +186,7 @@ fun CheatCodeDialog(
 
 /**
  * Cheat code help screen showing all available cheat codes.
- * Opens when user enters "cheat", "cheats", or "help" as a cheat code.
+ * Opens when user enters "cheat", "cheats", "help", or "list" as a cheat code.
  */
 @Composable
 fun CheatCodeHelpScreen(
@@ -203,9 +211,20 @@ fun CheatCodeHelpScreen(
         ) {
             // General cheat codes
             CheatSection(stringResource(Res.string.cheat_section_general)) {
-                CheatCodeItem("cheat / cheats / help", stringResource(Res.string.cheat_help_desc))
+                CheatCodeItem("cheat / cheats / help / list", stringResource(Res.string.cheat_help_desc))
                 CheatCodeItem("platform", stringResource(Res.string.cheat_platform_desc))
                 CheatCodeItem("crash / crashdialog", stringResource(Res.string.cheat_crash_dialog_desc))
+                if (isInGameplay) {
+                    CheatCodeItem("bighead / smallhead", stringResource(Res.string.cheat_bighead_smallhead_desc))
+                    CheatCodeItem("breakreminder / break", stringResource(Res.string.cheat_breakreminder_desc))
+                    CheatCodeItem("sleepreminder / sleep", stringResource(Res.string.cheat_sleepreminder_desc))
+                } else {
+                    CheatCodeItem("demo", stringResource(Res.string.cheat_demo_desc))
+                    CheatCodeItem("sticker", stringResource(Res.string.cheat_sticker_desc))
+                    CheatCodeItem("spinner", stringResource(Res.string.cheat_spinner_desc))
+                    CheatCodeItem("credits", stringResource(Res.string.cheat_credits_desc))
+                    CheatCodeItem("animation", stringResource(Res.string.cheat_animation_desc))
+                }
             }
             
             if (isInGameplay) {

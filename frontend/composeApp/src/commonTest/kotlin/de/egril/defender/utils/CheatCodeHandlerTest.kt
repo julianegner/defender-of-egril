@@ -788,4 +788,42 @@ class CheatCodeHandlerTest {
             assertTrue(platformInfoShown, "Platform cheat code '$code' should call showPlatformInfo")
         }
     }
+
+    @Test
+    fun testCheatHelpCodesGameplay() {
+        val testCases = listOf("cheat", "cheats", "help", "list")
+
+        for (code in testCases) {
+            var cheatHelpShown = false
+            val (success, digOutcome) = CheatCodeHandler.applyCheatCode(
+                code = code,
+                addCoins = { },
+                setCoins = { },
+                performMineDigWithOutcome = { null },
+                spawnEnemy = { _, _ -> },
+                showCheatHelp = { cheatHelpShown = true }
+            )
+
+            assertTrue(success, "Cheat help code '$code' should be recognized in gameplay")
+            assertTrue(cheatHelpShown, "Cheat help code '$code' should show cheat help in gameplay")
+            assertEquals(null, digOutcome, "Cheat help code should not return dig outcome")
+        }
+    }
+
+    @Test
+    fun testCheatHelpCodesWorldMap() {
+        val testCases = listOf("cheat", "cheats", "help", "list")
+
+        for (code in testCases) {
+            var cheatHelpShown = false
+            val success = CheatCodeHandler.applyWorldMapCheatCode(
+                code = code,
+                unlockAllLevels = { },
+                showCheatHelp = { cheatHelpShown = true }
+            )
+
+            assertTrue(success, "Cheat help code '$code' should be recognized on world map")
+            assertTrue(cheatHelpShown, "Cheat help code '$code' should show cheat help on world map")
+        }
+    }
 }
