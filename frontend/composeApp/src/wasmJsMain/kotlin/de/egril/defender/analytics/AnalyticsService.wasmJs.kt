@@ -28,7 +28,9 @@ private external fun postJson(url: String, body: String, token: String?)
             if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
                 return navigator.sendBeacon(url, new Blob([body], { type: 'application/json' }));
             }
-        } catch (e) {}
+        } catch (e) {
+            // Errors during page unload are intentionally ignored.
+        }
         try {
             fetch(url, {
                 method: 'POST',
@@ -36,7 +38,9 @@ private external fun postJson(url: String, body: String, token: String?)
                 body: body,
                 keepalive: true
             }).catch(() => {});
-        } catch (e) {}
+        } catch (e) {
+            // Errors during page unload are intentionally ignored.
+        }
         return false;
     }"""
 )
@@ -47,12 +51,12 @@ private external fun getCurrentUrl(): String?
 
 private const val PLATFORM = "WEB"
 
-private fun shouldIncludeCurrentUrl(eventType: GameEventType): Boolean {
+private fun shouldIncludeUrlInEvent(eventType: GameEventType): Boolean {
     return eventType == GameEventType.APP_STARTED || eventType == GameEventType.APP_CLOSED
 }
 
 actual fun reportEvent(eventType: GameEventType, levelName: String?, turnNumber: Int?, difficulty: String?) {
-    val url = if (shouldIncludeCurrentUrl(eventType)) getCurrentUrl() else null
+    val url = if (shouldIncludeUrlInEvent(eventType)) getCurrentUrl() else null
     val json = buildEventJson(eventType, levelName, PLATFORM, turnNumber, difficulty, url)
     if (eventType == GameEventType.APP_CLOSED) {
         postJsonOnPageHide("$backendUrl/api/events", json)
