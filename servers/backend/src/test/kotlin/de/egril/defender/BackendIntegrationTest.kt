@@ -142,23 +142,10 @@ class BackendIntegrationTest {
                 }
             }
 
-        private fun latestEventUsername(levelName: String, eventType: String): String? =
+        private fun latestEventField(levelName: String, eventType: String, columnName: String): String? =
             testDataSource.connection.use { conn ->
                 conn.prepareStatement(
-                    "SELECT user_name FROM events WHERE level_name = ? AND event_type = ? ORDER BY id DESC LIMIT 1"
-                ).use { stmt ->
-                    stmt.setString(1, levelName)
-                    stmt.setString(2, eventType)
-                    stmt.executeQuery().use { rs ->
-                        if (rs.next()) rs.getString(1) else null
-                    }
-                }
-            }
-
-        private fun latestEventUrl(levelName: String, eventType: String): String? =
-            testDataSource.connection.use { conn ->
-                conn.prepareStatement(
-                    "SELECT url FROM events WHERE level_name = ? AND event_type = ? ORDER BY id DESC LIMIT 1"
+                    "SELECT $columnName FROM events WHERE level_name = ? AND event_type = ? ORDER BY id DESC LIMIT 1"
                 ).use { stmt ->
                     stmt.setString(1, levelName)
                     stmt.setString(2, eventType)
@@ -713,8 +700,8 @@ class BackendIntegrationTest {
             assertEquals(HttpStatusCode.OK, status)
         }
 
-        assertEquals("player_close", latestEventUsername(levelName, "APP_CLOSED"))
-        assertEquals(url, latestEventUrl(levelName, "APP_CLOSED"))
+        assertEquals("player_close", latestEventField(levelName, "APP_CLOSED", "user_name"))
+        assertEquals(url, latestEventField(levelName, "APP_CLOSED", "url"))
         assertEquals("MEDIUM", latestEventDifficulty(levelName))
     }
 
