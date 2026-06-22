@@ -726,7 +726,11 @@ class GameViewModel {
         val currentState = _gameState.value
         val levelName = if (isGameplayScreen) currentState?.level?.name else null
         val turnNumber = if (isGameplayScreen) currentState?.turnNumber?.value else null
-        val difficulty = currentState?.difficulty?.name ?: AppSettings.difficulty.value.name
+        val difficulty = if (isGameplayScreen) {
+            currentState?.difficulty?.name ?: AppSettings.difficulty.value.name
+        } else {
+            null
+        }
 
         de.egril.defender.analytics.reportEvent(
             de.egril.defender.analytics.GameEventType.APP_CLOSED,

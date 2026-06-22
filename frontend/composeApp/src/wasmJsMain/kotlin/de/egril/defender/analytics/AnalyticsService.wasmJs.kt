@@ -18,6 +18,9 @@ private external fun postJson(url: String, body: String, token: String?)
  * Browsers may cancel normal asynchronous requests while a tab is closing, so
  * this prefers `navigator.sendBeacon()` when available. A `fetch(..., { keepalive: true })`
  * fallback is kept for environments where `sendBeacon` is unavailable.
+ *
+ * `sendBeacon()` cannot attach custom Authorization headers, so shutdown events
+ * rely on the JSON payload itself for any optional username context.
  */
 @JsFun(
     """(url, body) => {
