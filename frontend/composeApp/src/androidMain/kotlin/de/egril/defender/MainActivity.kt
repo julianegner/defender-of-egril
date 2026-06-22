@@ -75,6 +75,7 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         if (isFinishing) {
+            WindowCloseHandler.reportAppClosed()
             // Release audio resources only when the Activity is truly finishing (not just recreating).
             GlobalBackgroundMusicManager.release()
         }

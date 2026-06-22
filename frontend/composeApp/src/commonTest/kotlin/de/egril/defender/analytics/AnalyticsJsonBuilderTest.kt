@@ -45,4 +45,24 @@ class AnalyticsJsonBuilderTest {
 
         assertFalse(json.contains("\"url\":"))
     }
+
+    @Test
+    fun `buildEventJson includes app closed gameplay context`() {
+        IamService.state.value = IamState(isAuthenticated = true, username = "player_close")
+        val json = buildEventJson(
+            eventType = GameEventType.APP_CLOSED,
+            levelName = "Tutorial",
+            platform = "WEB",
+            turnNumber = 12,
+            difficulty = "HARD",
+            url = "https://egril.de/game?level=tutorial"
+        )
+
+        assertContains(json, "\"event\":\"APP_CLOSED\"")
+        assertContains(json, "\"levelName\":\"Tutorial\"")
+        assertContains(json, "\"turnNumber\":12")
+        assertContains(json, "\"difficulty\":\"HARD\"")
+        assertContains(json, "\"url\":\"https://egril.de/game?level=tutorial\"")
+        assertContains(json, "\"username\":\"player_close\"")
+    }
 }

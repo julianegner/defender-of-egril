@@ -30,6 +30,13 @@ object WindowCloseHandler {
     private var backgroundSaveCallback: (() -> Unit)? = null
 
     /**
+     * Callback to report that the app is closing.
+     */
+    private var appCloseCallback: (() -> Unit)? = null
+
+    private var hasReportedAppClose: Boolean = false
+
+    /**
      * Set the callback to check for unsaved changes.
      */
     fun setUnsavedChangesChecker(checker: (() -> Boolean)?) {
@@ -58,11 +65,28 @@ object WindowCloseHandler {
     }
 
     /**
+     * Set the callback to report that the app is closing.
+     */
+    fun setAppCloseCallback(callback: (() -> Unit)?) {
+        appCloseCallback = callback
+    }
+
+    /**
      * Save the game to the background save slot.
      * Should be called when the app is paused (goes to background).
      */
     fun saveOnBackground() {
         backgroundSaveCallback?.invoke()
+    }
+
+    /**
+     * Report that the app is closing.
+     * The callback is invoked at most once per app process.
+     */
+    fun reportAppClosed() {
+        if (hasReportedAppClose) return
+        hasReportedAppClose = true
+        appCloseCallback?.invoke()
     }
 
     /**

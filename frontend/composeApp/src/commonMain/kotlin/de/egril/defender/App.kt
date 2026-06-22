@@ -239,6 +239,7 @@ fun App() {
                     de.egril.defender.editor.OfficialDataChangeTracker.hasModifiedOfficialData()
                 }
             }
+            WindowCloseHandler.setAppCloseCallback { viewModel.reportAppClosed() }
         }
         
         // Register unsaved changes checker for window close handling

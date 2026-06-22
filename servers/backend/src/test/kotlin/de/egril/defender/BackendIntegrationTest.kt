@@ -141,6 +141,32 @@ class BackendIntegrationTest {
                     }
                 }
             }
+
+        private fun latestEventUsername(levelName: String, eventType: String): String? =
+            testDataSource.connection.use { conn ->
+                conn.prepareStatement(
+                    "SELECT user_name FROM events WHERE level_name = ? AND event_type = ? ORDER BY id DESC LIMIT 1"
+                ).use { stmt ->
+                    stmt.setString(1, levelName)
+                    stmt.setString(2, eventType)
+                    stmt.executeQuery().use { rs ->
+                        if (rs.next()) rs.getString(1) else null
+                    }
+                }
+            }
+
+        private fun latestEventUrl(levelName: String, eventType: String): String? =
+            testDataSource.connection.use { conn ->
+                conn.prepareStatement(
+                    "SELECT url FROM events WHERE level_name = ? AND event_type = ? ORDER BY id DESC LIMIT 1"
+                ).use { stmt ->
+                    stmt.setString(1, levelName)
+                    stmt.setString(2, eventType)
+                    stmt.executeQuery().use { rs ->
+                        if (rs.next()) rs.getString(1) else null
+                    }
+                }
+            }
     }
 
     // -------------------------------------------------------------------------
@@ -672,6 +698,24 @@ class BackendIntegrationTest {
             assertEquals(HttpStatusCode.OK, status)
         }
         assertEquals(null, latestEventDifficulty(levelName))
+    }
+
+    @Test
+    fun `POST app closed event persists payload username and url`() = withRealDatabase {
+        val levelName = "close-event-level"
+        val url = "https://egril.de/game?level=close-event"
+        client.post("/api/events") {
+            contentType(ContentType.Application.Json)
+            setBody(
+                """{"event":"APP_CLOSED","levelName":"$levelName","platform":"WEB","turnNumber":9,"difficulty":"MEDIUM","url":"$url","username":"player_close"}"""
+            )
+        }.apply {
+            assertEquals(HttpStatusCode.OK, status)
+        }
+
+        assertEquals("player_close", latestEventUsername(levelName, "APP_CLOSED"))
+        assertEquals(url, latestEventUrl(levelName, "APP_CLOSED"))
+        assertEquals("MEDIUM", latestEventDifficulty(levelName))
     }
 
     @Test

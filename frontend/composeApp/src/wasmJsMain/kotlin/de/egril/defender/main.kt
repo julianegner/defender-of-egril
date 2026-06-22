@@ -1,3 +1,5 @@
+@file:OptIn(kotlin.js.ExperimentalWasmJsInterop::class)
+
 package de.egril.defender
 
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -12,6 +14,7 @@ fun main() {
     
     // Set up beforeunload event handler for browser
     setupBeforeUnloadHandler()
+    setupPageHideHandler()
     
     ComposeViewport(body) {
         App()
@@ -31,5 +34,14 @@ private fun setupBeforeUnloadHandler() {
         } else {
             null
         }
+    }
+}
+
+@JsFun("(callback) => { window.addEventListener('pagehide', () => callback()); }")
+private external fun addPageHideListener(callback: () -> Unit)
+
+private fun setupPageHideHandler() {
+    addPageHideListener {
+        WindowCloseHandler.reportAppClosed()
     }
 }

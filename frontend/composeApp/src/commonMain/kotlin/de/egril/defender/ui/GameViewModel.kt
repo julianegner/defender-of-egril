@@ -242,6 +242,8 @@ class GameViewModel {
     private val _remoteCommunityMapsMeta = MutableStateFlow<List<de.egril.defender.save.CommunityFileInfo>>(emptyList())
     val remoteCommunityMapsMeta: StateFlow<List<de.egril.defender.save.CommunityFileInfo>> = _remoteCommunityMapsMeta.asStateFlow()
 
+    private var hasReportedAppClosed = false
+
     init {
         de.egril.defender.analytics.reportEvent(
             de.egril.defender.analytics.GameEventType.APP_STARTED,
@@ -719,6 +721,28 @@ class GameViewModel {
     fun navigateToMainMenu() {
         stopTimeTracking()
         _currentScreen.value = Screen.MainMenu
+    }
+
+    fun reportAppClosed() {
+        if (hasReportedAppClosed) return
+        hasReportedAppClosed = true
+
+        val isGameplayScreen = _currentScreen.value is Screen.GamePlay
+        val currentState = _gameState.value
+        val levelName = if (isGameplayScreen) currentState?.level?.name else null
+        val turnNumber = if (isGameplayScreen) currentState?.turnNumber?.value else null
+        val difficulty = if (isGameplayScreen) {
+            currentState?.difficulty?.name ?: AppSettings.difficulty.value.name
+        } else {
+            AppSettings.difficulty.value.name
+        }
+
+        de.egril.defender.analytics.reportEvent(
+            de.egril.defender.analytics.GameEventType.APP_CLOSED,
+            levelName,
+            turnNumber,
+            difficulty
+        )
     }
     
     fun navigateToWorldMap() {

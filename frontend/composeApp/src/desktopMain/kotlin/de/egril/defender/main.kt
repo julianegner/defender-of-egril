@@ -53,6 +53,11 @@ fun main() = application {
     
     // State to control whether to show official data changed dialog
     var showOfficialDataChangedDialog by remember { mutableStateOf(false) }
+
+    fun closeApplication() {
+        WindowCloseHandler.reportAppClosed()
+        exitApplication()
+    }
     
     Window(
         onCloseRequest = {
@@ -63,7 +68,7 @@ fun main() = application {
                 // Check for unsaved changes before closing
                 showUnsavedChangesDialog = true
             } else {
-                exitApplication()
+                closeApplication()
             }
         },
         title = "Defender of Egril",
@@ -107,7 +112,7 @@ fun main() = application {
                         Button(
                             onClick = {
                                 showUnsavedChangesDialog = false
-                                exitApplication()
+                                closeApplication()
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.error
@@ -119,7 +124,7 @@ fun main() = application {
                             onClick = {
                                 WindowCloseHandler.saveGame()
                                 showUnsavedChangesDialog = false
-                                exitApplication()
+                                closeApplication()
                             }
                         ) {
                             Text(stringResource(Res.string.save_and_exit))
@@ -143,7 +148,7 @@ fun main() = application {
                     if (WindowCloseHandler.hasUnsavedChanges()) {
                         showUnsavedChangesDialog = true
                     } else {
-                        exitApplication()
+                        closeApplication()
                     }
                 }
             )
