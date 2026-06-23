@@ -29,5 +29,5 @@ data class GameEvent(
     val commitHash: String? = null,
     val turnNumber: Int? = null,
     val difficulty: String? = null,
-    val url: String? = null
+    val url: String? = null,
 )

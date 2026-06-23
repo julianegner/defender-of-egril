@@ -30,11 +30,11 @@ data class CrashReportRequest(
     val platformExtended: String? = null,
     val osName: String? = null,
     val versionName: String? = null,
-    val commitHash: String? = null
+    val commitHash: String? = null,
 )
 
 @Serializable
 data class CrashReportResponse(
     val accepted: Boolean,
-    val duplicate: Boolean = false
+    val duplicate: Boolean = false,
 )
