@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class FeedbackAttachmentDto(
     val filename: String,
     val mimeType: String,
-    val base64Content: String
+    val base64Content: String,
 )
 
 @Serializable
@@ -30,13 +30,13 @@ data class FeedbackSubmissionRequest(
     val gameStateJson: String? = null,
     val gameLog: String? = null,
     val screenshotBase64: String? = null,
-    val attachments: List<FeedbackAttachmentDto> = emptyList()
+    val attachments: List<FeedbackAttachmentDto> = emptyList(),
 )
 
 @Serializable
 data class FeedbackSubmissionResponse(
     val accepted: Boolean,
-    val duplicate: Boolean = false
+    val duplicate: Boolean = false,
 )
 
 internal enum class FeedbackType {
@@ -46,7 +46,7 @@ internal enum class FeedbackType {
     ADDITIONAL_LANGUAGE_REQUEST,
     INFO_REQUEST,
     LEGAL_PROBLEM,
-    OTHER
+    OTHER,
 }
 
 internal enum class BugType {
@@ -55,5 +55,5 @@ internal enum class BugType {
     GAMEPLAY,
     PERFORMANCE,
     SOUND,
-    CRASH
+    CRASH,
 }

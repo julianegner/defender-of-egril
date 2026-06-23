@@ -17,7 +17,7 @@ data class SettingsUploadRequest(
     val platform: String? = null,
     val platformLong: String? = null,
     val versionName: String? = null,
-    val commitHash: String? = null
+    val commitHash: String? = null,
 )
 
 /**
@@ -29,5 +29,5 @@ data class SettingsUploadRequest(
 @Serializable
 data class SettingsResponse(
     val data: String,
-    val updatedAt: String
+    val updatedAt: String,
 )
