@@ -5,7 +5,8 @@
 The Straight Map is 45 tiles wide but only 11 tiles tall, creating an extreme aspect ratio.
 
 ### Map Dimensions
-```
+
+```text
 Width:  45 tiles  ████████████████████████████████████████████████
 Height: 11 tiles  ████
                   ████
@@ -25,7 +26,8 @@ Height: 11 tiles  ████
 When viewing the Straight Map at a zoom level where the height fits fully but width extends beyond viewport:
 
 ### Game Viewport (Visual Representation)
-```
+
+```text
 ┌─────────────────────────────────────────────────────┐
 │ [Visible portion of map - height fits, width clips] │
 │                                                       │
@@ -44,7 +46,8 @@ When viewing the Straight Map at a zoom level where the height fits fully but wi
 ```
 
 ### Minimap Display
-```
+
+```text
      ┌──────────────┐
      │   Minimap    │
      │              │
@@ -57,7 +60,8 @@ When viewing the Straight Map at a zoom level where the height fits fully but wi
 ```
 
 ### Calculation Values
-```
+
+```text
 viewportWidthRatio  = 0.6  (60% of width visible)  < 1.0 ✓
 viewportHeightRatio = 1.0  (100% of height visible) = 1.0 ✗
 
@@ -66,7 +70,9 @@ Result: Dragging DISABLED even though horizontal scrolling is needed!
 ```
 
 ### User Experience - BEFORE
+
 ❌ **Problem**: User tries to drag the minimap viewport indicator
+
 - Click and drag on minimap
 - Nothing happens! 🚫
 - Viewport doesn't move
@@ -76,8 +82,9 @@ Result: Dragging DISABLED even though horizontal scrolling is needed!
 
 Same scenario with the OR condition:
 
-### Calculation Values
-```
+### Updated Calculation Values
+
+```text
 viewportWidthRatio  = 0.6  (60% of width visible)  < 1.0 ✓
 viewportHeightRatio = 1.0  (100% of height visible) = 1.0 ✗
 
@@ -86,7 +93,9 @@ Result: Dragging ENABLED because horizontal scrolling is needed!
 ```
 
 ### User Experience - AFTER
+
 ✅ **Fixed**: User tries to drag the minimap viewport indicator
+
 - Click and drag on minimap
 - Viewport moves horizontally! 🎯
 - Can quickly navigate to any part of the map
@@ -94,15 +103,16 @@ Result: Dragging ENABLED because horizontal scrolling is needed!
 
 ## Complete Scenario Matrix
 
-| Map Type | Width Scrollable? | Height Scrollable? | Viewport Ratios | OLD (AND) | NEW (OR) |
-|----------|-------------------|--------------------|-----------------|-----------| ---------|
-| Fully zoomed out | No | No | (1.0, 1.0) | ❌ Disabled | ✅ Disabled |
-| Square map zoomed in | Yes | Yes | (0.5, 0.5) | ✅ Enabled | ✅ Enabled |
-| Wide map (Straight) | Yes | No | (0.6, 1.0) | ❌ **BROKEN** | ✅ **FIXED** |
-| Tall map | No | Yes | (1.0, 0.7) | ❌ **BROKEN** | ✅ **FIXED** |
-| Highly zoomed | Yes | Yes | (0.2, 0.2) | ✅ Enabled | ✅ Enabled |
+| Map Type             | Width Scrollable? | Height Scrollable? | Viewport Ratios | OLD (AND)     | NEW (OR)      |
+| -------------------- | ----------------- | ------------------ | --------------- | ------------- | ------------- |
+| Fully zoomed out     | No                | No                 | (1.0, 1.0)      | ❌ Disabled   | ✅ Disabled   |
+| Square map zoomed in | Yes               | Yes                | (0.5, 0.5)      | ✅ Enabled    | ✅ Enabled    |
+| Wide map (Straight)  | Yes               | No                 | (0.6, 1.0)      | ❌ **BROKEN** | ✅ **FIXED**  |
+| Tall map             | No                | Yes                | (1.0, 0.7)      | ❌ **BROKEN** | ✅ **FIXED**  |
+| Highly zoomed        | Yes               | Yes                | (0.2, 0.2)      | ✅ Enabled    | ✅ Enabled    |
 
 Legend:
+
 - ✅ = Correct behavior
 - ❌ = Incorrect behavior
 
@@ -111,6 +121,7 @@ Legend:
 ### Why the AND condition was wrong
 
 The AND condition required BOTH dimensions to need scrolling:
+
 ```kotlin
 // OLD - INCORRECT
 if (viewportWidthRatio < 1.0f && viewportHeightRatio < 1.0f) {
@@ -119,6 +130,7 @@ if (viewportWidthRatio < 1.0f && viewportHeightRatio < 1.0f) {
 ```
 
 This made sense for square maps but failed for maps with extreme aspect ratios because:
+
 1. When one dimension fits fully (ratio = 1.0), the AND condition fails
 2. But users still need to scroll the other dimension!
 3. Example: Straight map needs horizontal scrolling even when vertical fits
@@ -126,6 +138,7 @@ This made sense for square maps but failed for maps with extreme aspect ratios b
 ### Why the OR condition is correct
 
 The OR condition enables dragging when EITHER dimension needs scrolling:
+
 ```kotlin
 // NEW - CORRECT
 if (viewportWidthRatio < 1.0f || viewportHeightRatio < 1.0f) {
@@ -134,6 +147,7 @@ if (viewportWidthRatio < 1.0f || viewportHeightRatio < 1.0f) {
 ```
 
 This works because:
+
 1. If width needs scrolling → enable dragging (horizontal navigation)
 2. If height needs scrolling → enable dragging (vertical navigation)
 3. If both need scrolling → enable dragging (both directions)
@@ -142,6 +156,7 @@ This works because:
 ### Edge Case: Dragging in only one direction
 
 When only one dimension needs scrolling, the drag gesture handler automatically:
+
 - Ignores drag input in the non-scrolling direction
 - The `maxOffset` for the non-scrolling dimension is minimal (0.01f)
 - This effectively prevents movement in that direction
@@ -164,6 +179,7 @@ When only one dimension needs scrolling, the drag gesture handler automatically:
 ## Affected Levels
 
 These levels use the "Straight Map" (45×11) and now have working minimap navigation:
+
 1. **The First Wave** - Tutorial level
 2. **Mixed Forces** - Early game
 3. **The Ork Invasion** - Mid game
@@ -173,13 +189,15 @@ These levels use the "Straight Map" (45×11) and now have working minimap naviga
 ## Testing Coverage
 
 ### Existing Tests (Still Pass)
+
 1. ✅ Square maps with both dimensions scrollable
 2. ✅ Fully zoomed out (no scrolling needed)
 3. ✅ High zoom (both dimensions scrollable)
 4. ✅ Drag constraints and boundaries
 
 ### New Tests (Added)
-5. ✅ Wide map (width scrollable, height fits) - **NEW**
-6. ✅ Tall map (height scrollable, width fits) - **NEW**
+
+1. ✅ Wide map (width scrollable, height fits) - **NEW**
+2. ✅ Tall map (height scrollable, width fits) - **NEW**
 
 All 6 tests pass, confirming the fix works correctly for all scenarios!
