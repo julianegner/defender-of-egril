@@ -11,7 +11,7 @@ echo ""
 
 # Navigate to project root if running from scripts directory
 if [ -d "../composeApp" ]; then
-    cd ..
+	cd ..
 fi
 
 # Run the Gradle task

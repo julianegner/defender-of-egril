@@ -92,11 +92,11 @@ HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
   }')
 
 if [ "$HTTP_STATUS" = "201" ]; then
-  echo "SUCCESS: Client 'defender-of-egril-cli' created."
-  echo ""
-  echo "You can now run the API client script:"
-  echo "  kotlinc -script scripts/api-client/backend-api-client.main.kts"
+	echo "SUCCESS: Client 'defender-of-egril-cli' created."
+	echo ""
+	echo "You can now run the API client script:"
+	echo "  kotlinc -script scripts/api-client/backend-api-client.main.kts"
 else
-  echo "ERROR: Failed to create client (HTTP $HTTP_STATUS)"
-  exit 1
+	echo "ERROR: Failed to create client (HTTP $HTTP_STATUS)"
+	exit 1
 fi
