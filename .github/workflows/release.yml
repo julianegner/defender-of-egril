@@ -32,6 +32,7 @@
 #     package version adjusted automatically in build.gradle.kts.
 #   - Linux Snap, Flatpak, Arch Linux and AppImage builds are optional and do not block the release.
 
+---
 name: Release
 
 on:
@@ -78,7 +79,8 @@ jobs:
           # a minimum major version of 1, so 0.8.x was published as 1.8.x on that
           # platform).  Allowing new releases in this range would cause version conflicts.
           if echo "$VERSION" | grep -qE '^1\.[89]\.'; then
-            echo "::error::Version '$VERSION' starts with 1.8. or 1.9., which is reserved for the macOS compatibility remapping of 0.8.x / 0.9.x releases. Please use a different version number."
+            echo "::error::Version '$VERSION' starts with reserved 1.8/1.9 compatibility range "\
+              "for remapped 0.8.x/0.9.x releases. Please use a different version."
             exit 1
           fi
 
@@ -157,7 +159,8 @@ jobs:
             echo "Version check passed (patch increased)."
             exit 0
           else
-            echo "::error::New version '$NEW_VERSION' (major=$NEW_MAJOR, minor=$NEW_MINOR, patch=$NEW_PATCH) must be strictly greater than the latest release '$LATEST_VERSION' (major=$LAT_MAJOR, minor=$LAT_MINOR, patch=$LAT_PATCH)."
+            echo "::error::New version '$NEW_VERSION' (major=$NEW_MAJOR, minor=$NEW_MINOR, patch=$NEW_PATCH) "\
+              "must be greater than latest '$LATEST_VERSION' (major=$LAT_MAJOR, minor=$LAT_MINOR, patch=$LAT_PATCH)."
             exit 1
           fi
 
@@ -784,7 +787,7 @@ jobs:
       needs.build_android.result == 'success' &&
       needs.build_linux_deb.result == 'success' &&
       needs.build_windows_exe.result == 'success' &&
-      needs.build_windows_msi.result == 'success' 
+      needs.build_windows_msi.result == 'success'
 
     steps:
       - name: Download Android APK artifact

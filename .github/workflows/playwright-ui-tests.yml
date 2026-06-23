@@ -1,3 +1,4 @@
+---
 name: Playwright UI Tests
 
 on:
@@ -11,7 +12,7 @@ jobs:
     name: Run Playwright UI Tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    
+
     steps:
       # 1. Checkout the repository
       - name: "✅ Checkout code"
@@ -58,7 +59,7 @@ jobs:
           ./gradlew :composeApp:wasmJsBrowserDevelopmentRun --no-daemon &
           SERVER_PID=$!
           echo "SERVER_PID=$SERVER_PID" >> "$GITHUB_ENV"
-          
+
           # Wait for server to be ready
           echo "Waiting for server to start..."
           for i in {1..60}; do
@@ -132,7 +133,7 @@ jobs:
             echo "- **Videos**: Recordings of failed tests (if any)"
             echo ""
           } >> "$GITHUB_STEP_SUMMARY"
-          
+
           # Count screenshots
           if [ -d "frontend/test-screenshots/playwright" ]; then
             SCREENSHOT_COUNT=$(find frontend/test-screenshots/playwright -name "*.png" | wc -l)
