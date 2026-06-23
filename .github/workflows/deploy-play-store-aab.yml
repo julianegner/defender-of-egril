@@ -1,3 +1,4 @@
+---
 # Deploy AAB to Google Play Store
 #
 # Trigger: manual dispatch only.
@@ -72,21 +73,25 @@ jobs:
             exit 1
           fi
 
-          echo "version=$VERSION"   >> "$GITHUB_OUTPUT"
-          echo "aab_url=$AAB_URL"   >> "$GITHUB_OUTPUT"
-          echo "aab_name=$AAB_NAME" >> "$GITHUB_OUTPUT"
+          {
+            echo "version=$VERSION"
+            echo "aab_url=$AAB_URL"
+            echo "aab_name=$AAB_NAME"
+          } >> "$GITHUB_OUTPUT"
 
-          echo "## Latest Release" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Version | \`$VERSION\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Release | $RELEASE_NAME |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Release page | [$RELEASE_URL]($RELEASE_URL) |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| AAB file | \`$AAB_NAME\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Target track | \`${{ github.event.inputs.track }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "> **If this is not the release you want to deploy, cancel this workflow run now.**" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "## Latest Release"
+            echo ""
+            echo "| Field | Value |"
+            echo "|-------|-------|"
+            echo "| Version | \`$VERSION\` |"
+            echo "| Release | $RELEASE_NAME |"
+            echo "| Release page | [$RELEASE_URL]($RELEASE_URL) |"
+            echo "| AAB file | \`$AAB_NAME\` |"
+            echo "| Target track | \`${{ github.event.inputs.track }}\` |"
+            echo ""
+            echo "> **If this is not the release you want to deploy, cancel this workflow run now.**"
+          } >> "$GITHUB_STEP_SUMMARY"
 
           echo "Version:    $VERSION"
           echo "Release:    $RELEASE_NAME"
@@ -132,11 +137,13 @@ jobs:
 
       - name: Write deploy summary
         run: |
-          echo "## Deployment Complete" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Field | Value |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|-------|-------|" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Version | \`${{ needs.check_release.outputs.version }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| AAB file | \`${{ needs.check_release.outputs.aab_name }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Track | \`${{ github.event.inputs.track }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Status | ✅ Uploaded successfully |" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "## Deployment Complete"
+            echo ""
+            echo "| Field | Value |"
+            echo "|-------|-------|"
+            echo "| Version | \`${{ needs.check_release.outputs.version }}\` |"
+            echo "| AAB file | \`${{ needs.check_release.outputs.aab_name }}\` |"
+            echo "| Track | \`${{ github.event.inputs.track }}\` |"
+            echo "| Status | ✅ Uploaded successfully |"
+          } >> "$GITHUB_STEP_SUMMARY"

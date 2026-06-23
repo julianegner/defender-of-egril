@@ -32,6 +32,7 @@
 #     package version adjusted automatically in build.gradle.kts.
 #   - Linux Snap, Flatpak, Arch Linux and AppImage builds are optional and do not block the release.
 
+---
 name: Release
 
 on:
@@ -78,7 +79,7 @@ jobs:
           # a minimum major version of 1, so 0.8.x was published as 1.8.x on that
           # platform).  Allowing new releases in this range would cause version conflicts.
           if echo "$VERSION" | grep -qE '^1\.[89]\.'; then
-            echo "::error::Version '$VERSION' starts with 1.8. or 1.9., which is reserved for the macOS compatibility remapping of 0.8.x / 0.9.x releases. Please use a different version number."
+            echo "::error::Version '$VERSION' is in reserved 1.8.x/1.9.x range used for macOS remapping of 0.8.x/0.9.x releases. Use a different version."
             exit 1
           fi
 
@@ -101,9 +102,11 @@ jobs:
           # Android versionCode: major*10000 + minor*100 + patch
           VERSION_CODE=$(( MAJOR * 10000 + MINOR * 100 + PATCH ))
 
-          echo "version=$VERSION"             >> "$GITHUB_OUTPUT"
-          echo "version_tag=v$VERSION"        >> "$GITHUB_OUTPUT"
-          echo "version_code=$VERSION_CODE"   >> "$GITHUB_OUTPUT"
+          {
+            echo "version=$VERSION"
+            echo "version_tag=v$VERSION"
+            echo "version_code=$VERSION_CODE"
+          } >> "$GITHUB_OUTPUT"
 
           echo "Version:      $VERSION"
           echo "Tag:          v$VERSION"
@@ -155,7 +158,8 @@ jobs:
             echo "Version check passed (patch increased)."
             exit 0
           else
-            echo "::error::New version '$NEW_VERSION' (major=$NEW_MAJOR, minor=$NEW_MINOR, patch=$NEW_PATCH) must be strictly greater than the latest release '$LATEST_VERSION' (major=$LAT_MAJOR, minor=$LAT_MINOR, patch=$LAT_PATCH)."
+            echo "::error::New version '$NEW_VERSION' must have higher major, minor, or patch than '$LATEST_VERSION'."
+            echo "::notice::Debug context: new major=$NEW_MAJOR minor=$NEW_MINOR patch=$NEW_PATCH; latest major=$LAT_MAJOR minor=$LAT_MINOR patch=$LAT_PATCH"
             exit 1
           fi
 
@@ -250,7 +254,7 @@ jobs:
         run: |
           mkdir -p artifacts/apk artifacts/aab
           find frontend/composeApp/build/outputs/apk -name "*.apk" -exec cp {} artifacts/apk/ \;
-          find frontend/composeApp/build/outputs/bundle -name "*.aab" | while read f; do
+          find frontend/composeApp/build/outputs/bundle -name "*.aab" | while read -r f; do
             newname=$(basename "$f" | sed 's/^composeApp/de.egril.defender/')
             cp "$f" "artifacts/aab/$newname"
           done
@@ -782,7 +786,7 @@ jobs:
       needs.build_android.result == 'success' &&
       needs.build_linux_deb.result == 'success' &&
       needs.build_windows_exe.result == 'success' &&
-      needs.build_windows_msi.result == 'success' 
+      needs.build_windows_msi.result == 'success'
 
     steps:
       - name: Download Android APK artifact
@@ -892,14 +896,16 @@ jobs:
         run: |
           BASE="https://github.com/${REPO}/releases/download/${TAG}"
 
-          echo "## 🎉 Defender of Egril ${TAG} released" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "**Release page:** ${RELEASE_URL}" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "### Download links" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Platform | File | Download |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|----------|------|----------|" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo "## 🎉 Defender of Egril ${TAG} released"
+            echo ""
+            echo "**Release page:** ${RELEASE_URL}"
+            echo ""
+            echo "### Download links"
+            echo ""
+            echo "| Platform | File | Download |"
+            echo "|----------|------|----------|"
+          } >> "$GITHUB_STEP_SUMMARY"
 
           # Enumerate every uploaded file and emit a table row.
           find release-assets -type f | sort | while read -r f; do
@@ -918,8 +924,10 @@ jobs:
             echo "| ${PLATFORM} | \`${FILENAME}\` | [⬇ Download](${BASE}/${FILENAME}) |" >> "$GITHUB_STEP_SUMMARY"
           done
 
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "_Optional builds (macOS DMG, Linux Snap, Linux Flatpak, Linux Arch, Linux AppImage, iOS) are shown only when they succeeded._" >> "$GITHUB_STEP_SUMMARY"
+          {
+            echo ""
+            echo "_Optional builds (macOS DMG, Linux Snap, Linux Flatpak, Linux Arch, Linux AppImage, iOS) are shown only when they succeeded._"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Checkout repository
         uses: actions/checkout@v6
