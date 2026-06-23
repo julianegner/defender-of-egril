@@ -79,7 +79,7 @@ jobs:
           # a minimum major version of 1, so 0.8.x was published as 1.8.x on that
           # platform).  Allowing new releases in this range would cause version conflicts.
           if echo "$VERSION" | grep -qE '^1\.[89]\.'; then
-            echo "::error::Version '$VERSION' uses 1.8./1.9. reserved for macOS remapping of 0.8.x/0.9.x releases. Use a different version."
+            echo "::error::Version '$VERSION' uses 1.8./1.9. range reserved for macOS remapping of 0.8.x/0.9.x releases. Use a different version."
             exit 1
           fi
 
@@ -159,7 +159,7 @@ jobs:
             exit 0
           else
             echo "::error::New '$NEW_VERSION' must exceed latest '$LATEST_VERSION'."
-            echo "new: major=$NEW_MAJOR minor=$NEW_MINOR patch=$NEW_PATCH; latest: major=$LAT_MAJOR minor=$LAT_MINOR patch=$LAT_PATCH"
+            echo "::error::Debug context: new major=$NEW_MAJOR minor=$NEW_MINOR patch=$NEW_PATCH; latest major=$LAT_MAJOR minor=$LAT_MINOR patch=$LAT_PATCH"
             exit 1
           fi
 
