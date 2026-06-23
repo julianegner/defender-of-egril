@@ -398,7 +398,15 @@ if ! npm list playwright > /dev/null 2>&1; then
 fi
 
 # Install playwright browsers if needed
-if [ ! -d "$HOME/.cache/ms-playwright/chromium_headless_shell"* ]; then
+PLAYWRIGHT_BROWSER_FOUND=false
+for chromium_dir in "$HOME"/.cache/ms-playwright/chromium_headless_shell*; do
+    if [ -d "$chromium_dir" ]; then
+        PLAYWRIGHT_BROWSER_FOUND=true
+        break
+    fi
+done
+
+if [ "$PLAYWRIGHT_BROWSER_FOUND" = false ]; then
     echo "Installing Playwright browsers..."
     npx playwright install chromium > /dev/null 2>&1 || echo "Warning: Could not install browsers"
 fi
@@ -428,7 +436,7 @@ if node "$TEMP_JS" > "$TEMP_OUTPUT" 2>&1; then
         head -10 "$OUTPUT_FILE"
         if [ "$NAME_COUNT" -gt 10 ]; then
             echo "..."
-            echo "... (and $(($NAME_COUNT - 10)) more)"
+            echo "... (and $((NAME_COUNT - 10)) more)"
         fi
         rm -f "$TEMP_OUTPUT"
     else
