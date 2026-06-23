@@ -86,8 +86,8 @@ jobs:
         if: always()
         run: |
           if [ -n "${SERVER_PID:-}" ]; then
-            echo "Stopping server (PID: $SERVER_PID)..."
-            kill "$SERVER_PID" || true
+            echo "Stopping server (PID: ${SERVER_PID:-})..."
+            kill "${SERVER_PID:-}" || true
             # Also kill any gradle daemons
             ./gradlew --stop || true
           fi
