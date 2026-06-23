@@ -16,35 +16,35 @@ TEMP_JS="${SCRIPT_DIR}/.scraper_temp.js"
 
 # Show help
 if [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]]; then
-    echo "Dragon Names Scraper"
-    echo "===================="
-    echo ""
-    echo "This script scrapes 200 dragon names from mythopedia.com's name generator."
-    echo "The generator has 5 text fields and a 'Generate Names' button that this script"
-    echo "automatically interacts with to collect unique dragon names."
-    echo ""
-    echo "Usage:"
-    echo "  $0              Scrape dragon names from mythopedia.com"
-    echo "  $0 --test       Test mode (generates sample names for testing)"
-    echo "  $0 --help       Show this help message"
-    echo ""
-    echo "Requirements:"
-    echo "  - Node.js and npm must be installed"
-    echo "  - Internet connection to mythopedia.com"
-    echo "  - Playwright will be installed automatically if not present"
-    echo ""
-    echo "Output:"
-    echo "  Names are saved to: $OUTPUT_FILE"
-    echo "  One name per line, 200 names total"
-    exit 0
+	echo "Dragon Names Scraper"
+	echo "===================="
+	echo ""
+	echo "This script scrapes 200 dragon names from mythopedia.com's name generator."
+	echo "The generator has 5 text fields and a 'Generate Names' button that this script"
+	echo "automatically interacts with to collect unique dragon names."
+	echo ""
+	echo "Usage:"
+	echo "  $0              Scrape dragon names from mythopedia.com"
+	echo "  $0 --test       Test mode (generates sample names for testing)"
+	echo "  $0 --help       Show this help message"
+	echo ""
+	echo "Requirements:"
+	echo "  - Node.js and npm must be installed"
+	echo "  - Internet connection to mythopedia.com"
+	echo "  - Playwright will be installed automatically if not present"
+	echo ""
+	echo "Output:"
+	echo "  Names are saved to: $OUTPUT_FILE"
+	echo "  One name per line, 200 names total"
+	exit 0
 fi
 
 # Test mode - generate sample dragon names
 if [[ "$1" == "--test" ]]; then
-    echo "Running in TEST mode - generating sample dragon names..."
-    
-    # Generate 200 sample dragon names
-    cat > "$OUTPUT_FILE" << 'ENDNAMES'
+	echo "Running in TEST mode - generating sample dragon names..."
+
+	# Generate 200 sample dragon names
+	cat >"$OUTPUT_FILE" <<'ENDNAMES'
 Alduin
 Smaug
 Drogon
@@ -248,30 +248,30 @@ Cometowing
 Asteroidclaw
 Saturncfang
 ENDNAMES
-    
-    NAME_COUNT=$(wc -l < "$OUTPUT_FILE")
-    echo ""
-    echo "✓ Generated $NAME_COUNT sample dragon names"
-    echo "✓ Names saved to: $OUTPUT_FILE"
-    echo ""
-    echo "First 10 names:"
-    echo "---------------"
-    head -10 "$OUTPUT_FILE"
-    echo "..."
-    echo "... (and $((NAME_COUNT - 10)) more)"
-    exit 0
+
+	NAME_COUNT=$(wc -l <"$OUTPUT_FILE")
+	echo ""
+	echo "✓ Generated $NAME_COUNT sample dragon names"
+	echo "✓ Names saved to: $OUTPUT_FILE"
+	echo ""
+	echo "First 10 names:"
+	echo "---------------"
+	head -10 "$OUTPUT_FILE"
+	echo "..."
+	echo "... (and $((NAME_COUNT - 10)) more)"
+	exit 0
 fi
 
 # Clean up on exit
 cleanup() {
-    rm -f "$TEMP_JS"
+	rm -f "$TEMP_JS"
 }
 trap cleanup EXIT
 
 echo "Creating Node.js scraper script..."
 
 # Create a Node.js script using Playwright to scrape the names
-cat > "$TEMP_JS" << 'ENDOFJS'
+cat >"$TEMP_JS" <<'ENDOFJS'
 const { chromium } = require('playwright');
 
 async function scrapeNames() {
@@ -384,31 +384,31 @@ cd "$SCRIPT_DIR"
 
 # Check if we're in a node project, if not initialize
 if [ ! -f "package.json" ]; then
-    echo "Initializing npm project..."
-    npm init -y > /dev/null 2>&1
+	echo "Initializing npm project..."
+	npm init -y >/dev/null 2>&1
 fi
 
 # Check if playwright is installed locally
-if ! npm list playwright > /dev/null 2>&1; then
-    echo "Installing playwright (this may take a moment)..."
-    if ! npm install playwright > /dev/null 2>&1; then
-        echo "Warning: Failed to install playwright locally"
-        echo "Attempting to continue anyway..."
-    fi
+if ! npm list playwright >/dev/null 2>&1; then
+	echo "Installing playwright (this may take a moment)..."
+	if ! npm install playwright >/dev/null 2>&1; then
+		echo "Warning: Failed to install playwright locally"
+		echo "Attempting to continue anyway..."
+	fi
 fi
 
 # Install playwright browsers if needed
 PLAYWRIGHT_BROWSER_FOUND=false
 for chromium_dir in "$HOME"/.cache/ms-playwright/chromium_headless_shell*; do
-    if [ -d "$chromium_dir" ]; then
-        PLAYWRIGHT_BROWSER_FOUND=true
-        break
-    fi
+	if [ -d "$chromium_dir" ]; then
+		PLAYWRIGHT_BROWSER_FOUND=true
+		break
+	fi
 done
 
 if [ "$PLAYWRIGHT_BROWSER_FOUND" = false ]; then
-    echo "Installing Playwright browsers..."
-    npx playwright install chromium > /dev/null 2>&1 || echo "Warning: Could not install browsers"
+	echo "Installing Playwright browsers..."
+	npx playwright install chromium >/dev/null 2>&1 || echo "Warning: Could not install browsers"
 fi
 
 echo "Starting scraper..."
@@ -417,47 +417,47 @@ echo ""
 
 # Run the scraper and save output
 TEMP_OUTPUT="${OUTPUT_FILE}.tmp"
-if node "$TEMP_JS" > "$TEMP_OUTPUT" 2>&1; then
-    # Extract only the actual names (lines that don't start with typical log prefixes)
-    # and don't contain "Error", "Warning", etc.
-    grep -v "^Launching\|^Navigating\|^Page loaded\|^Iteration\|Found.*names\|^Warning\|^Total\|^Error\|^Fatal\|^  \|^Note:" "$TEMP_OUTPUT" | \
-    grep -v "^$" > "$OUTPUT_FILE" || true
-    
-    # Count the lines
-    NAME_COUNT=$(wc -l < "$OUTPUT_FILE" 2>/dev/null || echo "0")
-    
-    if [ "$NAME_COUNT" -gt 0 ]; then
-        echo ""
-        echo "✓ Success! Scraped $NAME_COUNT dragon names"
-        echo "✓ Names saved to: $OUTPUT_FILE"
-        echo ""
-        echo "First 10 names:"
-        echo "---------------"
-        head -10 "$OUTPUT_FILE"
-        if [ "$NAME_COUNT" -gt 10 ]; then
-            echo "..."
-            echo "... (and $((NAME_COUNT - 10)) more)"
-        fi
-        rm -f "$TEMP_OUTPUT"
-    else
-        echo "✗ Error: No names were successfully scraped"
-        echo ""
-        echo "Full output:"
-        cat "$TEMP_OUTPUT"
-        echo ""
-        echo "If the website is blocked, try running in test mode:"
-        echo "  $0 --test"
-        rm -f "$TEMP_OUTPUT"
-        exit 1
-    fi
+if node "$TEMP_JS" >"$TEMP_OUTPUT" 2>&1; then
+	# Extract only the actual names (lines that don't start with typical log prefixes)
+	# and don't contain "Error", "Warning", etc.
+	grep -v "^Launching\|^Navigating\|^Page loaded\|^Iteration\|Found.*names\|^Warning\|^Total\|^Error\|^Fatal\|^  \|^Note:" "$TEMP_OUTPUT" |
+		grep -v "^$" >"$OUTPUT_FILE" || true
+
+	# Count the lines
+	NAME_COUNT=$(wc -l <"$OUTPUT_FILE" 2>/dev/null || echo "0")
+
+	if [ "$NAME_COUNT" -gt 0 ]; then
+		echo ""
+		echo "✓ Success! Scraped $NAME_COUNT dragon names"
+		echo "✓ Names saved to: $OUTPUT_FILE"
+		echo ""
+		echo "First 10 names:"
+		echo "---------------"
+		head -10 "$OUTPUT_FILE"
+		if [ "$NAME_COUNT" -gt 10 ]; then
+			echo "..."
+			echo "... (and $((NAME_COUNT - 10)) more)"
+		fi
+		rm -f "$TEMP_OUTPUT"
+	else
+		echo "✗ Error: No names were successfully scraped"
+		echo ""
+		echo "Full output:"
+		cat "$TEMP_OUTPUT"
+		echo ""
+		echo "If the website is blocked, try running in test mode:"
+		echo "  $0 --test"
+		rm -f "$TEMP_OUTPUT"
+		exit 1
+	fi
 else
-    echo "✗ Error: Scraping failed"
-    echo ""
-    echo "Output:"
-    cat "$TEMP_OUTPUT"
-    echo ""
-    echo "If the website is blocked, try running in test mode:"
-    echo "  $0 --test"
-    rm -f "$TEMP_OUTPUT"
-    exit 1
+	echo "✗ Error: Scraping failed"
+	echo ""
+	echo "Output:"
+	cat "$TEMP_OUTPUT"
+	echo ""
+	echo "If the website is blocked, try running in test mode:"
+	echo "  $0 --test"
+	rm -f "$TEMP_OUTPUT"
+	exit 1
 fi
