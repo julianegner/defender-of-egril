@@ -44,6 +44,21 @@ ktlint_standard_filename = disabled
 # are hard to wrap without harming readability.
 max_line_length = off
 
+# when-entry brace consistency and blank lines between when-conditions are
+# purely cosmetic. Enforcing them would touch 1,300+ call sites across the
+# codebase without improving correctness or readability.
+ktlint_standard_when-entry-bracing = disabled
+ktlint_standard_blank-line-between-when-conditions = disabled
+
+# KDoc-style block comments are used inside Ktor route blocks in Routing.kt
+# as a deliberate documentation convention. The rule would require converting
+# them to regular block comments throughout the server module.
+ktlint_standard_kdoc = disabled
+
+# The two mixed && / || conditions in LevelLocationDialog.kt are already
+# readable; adding mandatory parentheses would add noise without adding clarity.
+ktlint_standard_mixed-condition-operators = disabled
+
 [*.kts]
 indent_style = space
 indent_size = 4
