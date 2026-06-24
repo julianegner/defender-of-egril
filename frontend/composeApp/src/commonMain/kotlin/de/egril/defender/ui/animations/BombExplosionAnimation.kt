@@ -14,7 +14,10 @@ import de.egril.defender.ui.icon.ExplosionIcon
  * When [animate] is false, shows a static explosion icon.
  */
 @Composable
-fun BombExplosionAnimation(animate: Boolean, modifier: Modifier = Modifier) {
+fun BombExplosionAnimation(
+    animate: Boolean,
+    modifier: Modifier = Modifier,
+) {
     if (animate) {
         AnimatedBombExplosion(modifier)
     } else {
@@ -27,7 +30,7 @@ private fun AnimatedBombExplosion(modifier: Modifier = Modifier) {
     LottieAnimation(
         animationType = AnimationType.BOMB_EXPLOSION,
         modifier = modifier.fillMaxSize(),
-        iterations = 1
+        iterations = 1,
     )
 }
 
@@ -35,7 +38,7 @@ private fun AnimatedBombExplosion(modifier: Modifier = Modifier) {
 private fun StaticBombExplosion(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         ExplosionIcon(size = 36.dp)
     }

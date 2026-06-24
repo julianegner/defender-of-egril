@@ -4,7 +4,7 @@ enum class ColorBlindPalette {
     OFF,
     DEUTERANOPIA,
     PROTANOPIA,
-    TRITANOPIA
+    TRITANOPIA,
 }
 
 data class AccessibilityPreferences(
@@ -12,5 +12,5 @@ data class AccessibilityPreferences(
     val colorBlindPalette: ColorBlindPalette = ColorBlindPalette.OFF,
     val captionsEnabled: Boolean = false,
     val holdToConfirmEnabled: Boolean = false,
-    val reduceMotionEnabled: Boolean = false
+    val reduceMotionEnabled: Boolean = false,
 )

@@ -20,10 +20,17 @@ import kotlin.math.abs
  * All modes use per-row adaptive filter selection and `Deflater.BEST_COMPRESSION`.
  */
 object OptimalPngEncoder {
-
-    private val PNG_SIGNATURE = byteArrayOf(
-        0x89.toByte(), 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A
-    )
+    private val PNG_SIGNATURE =
+        byteArrayOf(
+            0x89.toByte(),
+            0x50,
+            0x4E,
+            0x47,
+            0x0D,
+            0x0A,
+            0x1A,
+            0x0A,
+        )
 
     /** Maximum palette size for indexed PNG. */
     private const val MAX_PALETTE_SIZE = 256
@@ -36,7 +43,11 @@ object OptimalPngEncoder {
      * @param height Image height in pixels
      * @return PNG-encoded bytes
      */
-    fun encode(pixels: IntArray, width: Int, height: Int): ByteArray {
+    fun encode(
+        pixels: IntArray,
+        width: Int,
+        height: Int,
+    ): ByteArray {
         val hasAlpha = pixelsHaveAlpha(pixels)
 
         // For opaque images, try both palette and RGB, pick the smallest
@@ -61,11 +72,14 @@ object OptimalPngEncoder {
         /** Palette colors as packed 0x00RRGGBB ints. */
         val palette: IntArray,
         /** Per-pixel palette index (row-major, same length as input pixels). */
-        val indices: ByteArray
+        val indices: ByteArray,
     )
 
     /** A color with its pixel frequency, used during median-cut quantization. */
-    private class ColorEntry(val rgb: Int, val count: Int)
+    private class ColorEntry(
+        val rgb: Int,
+        val count: Int,
+    )
 
     /**
      * Build a palette for the given opaque pixels.
@@ -85,17 +99,18 @@ object OptimalPngEncoder {
         for (c in rgbPixels) colorSet.add(c)
         val uniqueCount = colorSet.size
 
-        val rawResult = if (uniqueCount <= MAX_PALETTE_SIZE) {
-            // Exact palette — no quantization needed
-            val palette = colorSet.toIntArray()
-            val colorToIndex = HashMap<Int, Int>(palette.size * 2)
-            for (i in palette.indices) colorToIndex[palette[i]] = i
-            val indices = ByteArray(rgbPixels.size) { colorToIndex[rgbPixels[it]]!!.toByte() }
-            PaletteResult(palette, indices)
-        } else {
-            // Median-cut quantization to MAX_PALETTE_SIZE colors
-            medianCutQuantize(rgbPixels)
-        }
+        val rawResult =
+            if (uniqueCount <= MAX_PALETTE_SIZE) {
+                // Exact palette — no quantization needed
+                val palette = colorSet.toIntArray()
+                val colorToIndex = HashMap<Int, Int>(palette.size * 2)
+                for (i in palette.indices) colorToIndex[palette[i]] = i
+                val indices = ByteArray(rgbPixels.size) { colorToIndex[rgbPixels[it]]!!.toByte() }
+                PaletteResult(palette, indices)
+            } else {
+                // Median-cut quantization to MAX_PALETTE_SIZE colors
+                medianCutQuantize(rgbPixels)
+            }
 
         // Sort palette by luminance for better spatial coherence in indices
         return sortPaletteByLuminance(rawResult)
@@ -110,21 +125,23 @@ object OptimalPngEncoder {
     private fun sortPaletteByLuminance(result: PaletteResult): PaletteResult {
         val oldPalette = result.palette
         // Sort order: by luminance (0.299R + 0.587G + 0.114B)
-        val sortedIndices = oldPalette.indices.sortedBy { i ->
-            val r = (oldPalette[i] ushr 16) and 0xFF
-            val g = (oldPalette[i] ushr 8) and 0xFF
-            val b = oldPalette[i] and 0xFF
-            r * 299 + g * 587 + b * 114
-        }
+        val sortedIndices =
+            oldPalette.indices.sortedBy { i ->
+                val r = (oldPalette[i] ushr 16) and 0xFF
+                val g = (oldPalette[i] ushr 8) and 0xFF
+                val b = oldPalette[i] and 0xFF
+                r * 299 + g * 587 + b * 114
+            }
         val newPalette = IntArray(oldPalette.size) { oldPalette[sortedIndices[it]] }
         // Build old→new index mapping
         val oldToNew = IntArray(oldPalette.size)
         for (newIdx in sortedIndices.indices) {
             oldToNew[sortedIndices[newIdx]] = newIdx
         }
-        val newIndices = ByteArray(result.indices.size) {
-            oldToNew[result.indices[it].toInt() and 0xFF].toByte()
-        }
+        val newIndices =
+            ByteArray(result.indices.size) {
+                oldToNew[result.indices[it].toInt() and 0xFF].toByte()
+            }
         return PaletteResult(newPalette, newIndices)
     }
 
@@ -172,7 +189,10 @@ object OptimalPngEncoder {
         // Compute palette: average color of each bucket, weighted by frequency
         val palette = IntArray(buckets.size)
         for (i in buckets.indices) {
-            var rSum = 0L; var gSum = 0L; var bSum = 0L; var wSum = 0L
+            var rSum = 0L
+            var gSum = 0L
+            var bSum = 0L
+            var wSum = 0L
             for (entry in buckets[i]) {
                 rSum += ((entry.rgb ushr 16) and 0xFF).toLong() * entry.count
                 gSum += ((entry.rgb ushr 8) and 0xFF).toLong() * entry.count
@@ -206,35 +226,47 @@ object OptimalPngEncoder {
 
     /** Compute the range of the widest channel in the bucket. */
     private fun bucketColorRange(bucket: List<ColorEntry>): Int {
-        var rMin = 255; var rMax = 0
-        var gMin = 255; var gMax = 0
-        var bMin = 255; var bMax = 0
+        var rMin = 255
+        var rMax = 0
+        var gMin = 255
+        var gMax = 0
+        var bMin = 255
+        var bMax = 0
         for (entry in bucket) {
             val r = (entry.rgb ushr 16) and 0xFF
             val g = (entry.rgb ushr 8) and 0xFF
             val b = entry.rgb and 0xFF
-            if (r < rMin) rMin = r; if (r > rMax) rMax = r
-            if (g < gMin) gMin = g; if (g > gMax) gMax = g
-            if (b < bMin) bMin = b; if (b > bMax) bMax = b
+            if (r < rMin) rMin = r
+            if (r > rMax) rMax = r
+            if (g < gMin) gMin = g
+            if (g > gMax) gMax = g
+            if (b < bMin) bMin = b
+            if (b > bMax) bMax = b
         }
         return maxOf(rMax - rMin, gMax - gMin, bMax - bMin)
     }
 
     /** Split a bucket along the channel with the widest range using median. */
     private fun splitBucket(
-        bucket: MutableList<ColorEntry>
+        bucket: MutableList<ColorEntry>,
     ): Pair<MutableList<ColorEntry>, MutableList<ColorEntry>> {
         // Find the channel with the widest range
-        var rMin = 255; var rMax = 0
-        var gMin = 255; var gMax = 0
-        var bMin = 255; var bMax = 0
+        var rMin = 255
+        var rMax = 0
+        var gMin = 255
+        var gMax = 0
+        var bMin = 255
+        var bMax = 0
         for (entry in bucket) {
             val r = (entry.rgb ushr 16) and 0xFF
             val g = (entry.rgb ushr 8) and 0xFF
             val b = entry.rgb and 0xFF
-            if (r < rMin) rMin = r; if (r > rMax) rMax = r
-            if (g < gMin) gMin = g; if (g > gMax) gMax = g
-            if (b < bMin) bMin = b; if (b > bMax) bMax = b
+            if (r < rMin) rMin = r
+            if (r > rMax) rMax = r
+            if (g < gMin) gMin = g
+            if (g > gMax) gMax = g
+            if (b < bMin) bMin = b
+            if (b > bMax) bMax = b
         }
 
         val rRange = rMax - rMin
@@ -242,24 +274,28 @@ object OptimalPngEncoder {
         val bRange = bMax - bMin
 
         // Sort by the widest channel
-        val sorted = when {
-            rRange >= gRange && rRange >= bRange ->
-                bucket.sortedBy { (it.rgb ushr 16) and 0xFF }
-            gRange >= bRange ->
-                bucket.sortedBy { (it.rgb ushr 8) and 0xFF }
-            else ->
-                bucket.sortedBy { it.rgb and 0xFF }
-        }
+        val sorted =
+            when {
+                rRange >= gRange && rRange >= bRange ->
+                    bucket.sortedBy { (it.rgb ushr 16) and 0xFF }
+                gRange >= bRange ->
+                    bucket.sortedBy { (it.rgb ushr 8) and 0xFF }
+                else ->
+                    bucket.sortedBy { it.rgb and 0xFF }
+            }
 
         val mid = sorted.size / 2
         return Pair(
             sorted.subList(0, mid).toMutableList(),
-            sorted.subList(mid, sorted.size).toMutableList()
+            sorted.subList(mid, sorted.size).toMutableList(),
         )
     }
 
     /** Find the index of the nearest palette color by Euclidean distance. */
-    private fun nearestPaletteIndex(rgb: Int, palette: IntArray): Int {
+    private fun nearestPaletteIndex(
+        rgb: Int,
+        palette: IntArray,
+    ): Int {
         val r = (rgb ushr 16) and 0xFF
         val g = (rgb ushr 8) and 0xFF
         val b = rgb and 0xFF
@@ -269,7 +305,9 @@ object OptimalPngEncoder {
             val pr = (palette[i] ushr 16) and 0xFF
             val pg = (palette[i] ushr 8) and 0xFF
             val pb = palette[i] and 0xFF
-            val dr = r - pr; val dg = g - pg; val db = b - pb
+            val dr = r - pr
+            val dg = g - pg
+            val db = b - pb
             val dist = dr * dr + dg * dg + db * db
             if (dist < bestDist) {
                 bestDist = dist
@@ -292,7 +330,7 @@ object OptimalPngEncoder {
         palette: IntArray,
         indices: ByteArray,
         width: Int,
-        height: Int
+        height: Int,
     ): ByteArray {
         val bytesPerPixel = 1
         val bytesPerRow = width
@@ -324,7 +362,7 @@ object OptimalPngEncoder {
         width: Int,
         height: Int,
         palette: IntArray,
-        compressedData: ByteArray
+        compressedData: ByteArray,
     ): ByteArray {
         val output = ByteArrayOutputStream()
 
@@ -345,9 +383,9 @@ object OptimalPngEncoder {
         // PLTE chunk — palette entries as R,G,B triplets
         val plteData = ByteArray(palette.size * 3)
         for (i in palette.indices) {
-            plteData[i * 3] = ((palette[i] ushr 16) and 0xFF).toByte()     // R
-            plteData[i * 3 + 1] = ((palette[i] ushr 8) and 0xFF).toByte()  // G
-            plteData[i * 3 + 2] = (palette[i] and 0xFF).toByte()           // B
+            plteData[i * 3] = ((palette[i] ushr 16) and 0xFF).toByte() // R
+            plteData[i * 3 + 1] = ((palette[i] ushr 8) and 0xFF).toByte() // G
+            plteData[i * 3 + 2] = (palette[i] and 0xFF).toByte() // B
         }
         writeChunk(output, "PLTE", plteData)
 
@@ -374,7 +412,7 @@ object OptimalPngEncoder {
         pixels: IntArray,
         width: Int,
         height: Int,
-        hasAlpha: Boolean
+        hasAlpha: Boolean,
     ): ByteArray {
         val bytesPerPixel = if (hasAlpha) 4 else 3
         val bytesPerRow = width * bytesPerPixel
@@ -387,9 +425,9 @@ object OptimalPngEncoder {
             for (x in 0 until width) {
                 val pixel = pixels[y * width + x]
                 val offset = x * bytesPerPixel
-                currRow[offset] = ((pixel ushr 16) and 0xFF).toByte()     // R
-                currRow[offset + 1] = ((pixel ushr 8) and 0xFF).toByte()  // G
-                currRow[offset + 2] = (pixel and 0xFF).toByte()           // B
+                currRow[offset] = ((pixel ushr 16) and 0xFF).toByte() // R
+                currRow[offset + 1] = ((pixel ushr 8) and 0xFF).toByte() // G
+                currRow[offset + 2] = (pixel and 0xFF).toByte() // B
                 if (hasAlpha) {
                     currRow[offset + 3] = ((pixel ushr 24) and 0xFF).toByte() // A
                 }
@@ -413,7 +451,7 @@ object OptimalPngEncoder {
         width: Int,
         height: Int,
         hasAlpha: Boolean,
-        compressedData: ByteArray
+        compressedData: ByteArray,
     ): ByteArray {
         val output = ByteArrayOutputStream()
         output.write(PNG_SIGNATURE)
@@ -423,7 +461,9 @@ object OptimalPngEncoder {
         writeInt(ihdr, 4, height)
         ihdr[8] = 8 // bit depth
         ihdr[9] = if (hasAlpha) 6 else 2 // color type: 6=RGBA, 2=RGB
-        ihdr[10] = 0; ihdr[11] = 0; ihdr[12] = 0
+        ihdr[10] = 0
+        ihdr[11] = 0
+        ihdr[12] = 0
         writeChunk(output, "IHDR", ihdr)
 
         var offset = 0
@@ -456,7 +496,7 @@ object OptimalPngEncoder {
     private fun selectBestFilter(
         currRow: ByteArray,
         prevRow: ByteArray,
-        bytesPerPixel: Int
+        bytesPerPixel: Int,
     ): Int {
         var bestFilter = 0
         var bestSum = Long.MAX_VALUE
@@ -476,7 +516,7 @@ object OptimalPngEncoder {
         filterType: Int,
         currRow: ByteArray,
         prevRow: ByteArray,
-        bytesPerPixel: Int
+        bytesPerPixel: Int,
     ): Long {
         var sum = 0L
         for (i in currRow.indices) {
@@ -485,14 +525,15 @@ object OptimalPngEncoder {
             val up = prevRow[i].toInt() and 0xFF
             val upLeft = if (i >= bytesPerPixel) prevRow[i - bytesPerPixel].toInt() and 0xFF else 0
 
-            val filtered = when (filterType) {
-                0 -> raw                                          // None
-                1 -> (raw - left) and 0xFF                        // Sub
-                2 -> (raw - up) and 0xFF                          // Up
-                3 -> (raw - ((left + up) / 2)) and 0xFF           // Average
-                4 -> (raw - paethPredictor(left, up, upLeft)) and 0xFF // Paeth
-                else -> raw
-            }
+            val filtered =
+                when (filterType) {
+                    0 -> raw // None
+                    1 -> (raw - left) and 0xFF // Sub
+                    2 -> (raw - up) and 0xFF // Up
+                    3 -> (raw - ((left + up) / 2)) and 0xFF // Average
+                    4 -> (raw - paethPredictor(left, up, upLeft)) and 0xFF // Paeth
+                    else -> raw
+                }
             sum += abs(filtered - if (filtered > 127) 256 else 0)
         }
         return sum
@@ -503,7 +544,7 @@ object OptimalPngEncoder {
         filterType: Int,
         currRow: ByteArray,
         prevRow: ByteArray,
-        bytesPerPixel: Int
+        bytesPerPixel: Int,
     ): ByteArray {
         val result = ByteArray(currRow.size)
         for (i in currRow.indices) {
@@ -512,20 +553,25 @@ object OptimalPngEncoder {
             val up = prevRow[i].toInt() and 0xFF
             val upLeft = if (i >= bytesPerPixel) prevRow[i - bytesPerPixel].toInt() and 0xFF else 0
 
-            result[i] = when (filterType) {
-                0 -> raw
-                1 -> (raw - left) and 0xFF
-                2 -> (raw - up) and 0xFF
-                3 -> (raw - ((left + up) / 2)) and 0xFF
-                4 -> (raw - paethPredictor(left, up, upLeft)) and 0xFF
-                else -> raw
-            }.toByte()
+            result[i] =
+                when (filterType) {
+                    0 -> raw
+                    1 -> (raw - left) and 0xFF
+                    2 -> (raw - up) and 0xFF
+                    3 -> (raw - ((left + up) / 2)) and 0xFF
+                    4 -> (raw - paethPredictor(left, up, upLeft)) and 0xFF
+                    else -> raw
+                }.toByte()
         }
         return result
     }
 
     /** PNG Paeth predictor function. */
-    private fun paethPredictor(a: Int, b: Int, c: Int): Int {
+    private fun paethPredictor(
+        a: Int,
+        b: Int,
+        c: Int,
+    ): Int {
         val p = a + b - c
         val pa = abs(p - a)
         val pb = abs(p - b)
@@ -556,7 +602,11 @@ object OptimalPngEncoder {
     }
 
     /** Write a 4-byte big-endian integer to a byte array at the given offset. */
-    private fun writeInt(array: ByteArray, offset: Int, value: Int) {
+    private fun writeInt(
+        array: ByteArray,
+        offset: Int,
+        value: Int,
+    ) {
         array[offset] = (value ushr 24).toByte()
         array[offset + 1] = (value ushr 16).toByte()
         array[offset + 2] = (value ushr 8).toByte()
@@ -569,7 +619,7 @@ object OptimalPngEncoder {
         type: String,
         data: ByteArray,
         dataOffset: Int = 0,
-        dataLength: Int = data.size
+        dataLength: Int = data.size,
     ) {
         val typeBytes = type.toByteArray(Charsets.US_ASCII)
 

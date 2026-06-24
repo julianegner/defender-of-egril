@@ -12,7 +12,6 @@ import org.publicvalue.multiplatform.oidc.appsupport.AndroidCodeAuthFlowFactory
  * creation).
  */
 object AndroidIamFlowProvider {
-
     /**
      * Single factory instance for the lifetime of the process.
      * `useWebView = false` → Chrome Custom Tabs (recommended for security).

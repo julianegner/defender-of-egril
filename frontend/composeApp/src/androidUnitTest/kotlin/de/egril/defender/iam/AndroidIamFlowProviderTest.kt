@@ -2,7 +2,6 @@ package de.egril.defender.iam
 
 import androidx.activity.ComponentActivity
 import io.mockk.mockk
-import io.mockk.verify
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertNotNull
@@ -15,7 +14,6 @@ import kotlin.test.assertSame
  * [AndroidIamFlowProvider.registerActivity] delegates to the underlying factory.
  */
 class AndroidIamFlowProviderTest {
-
     @Before
     fun resetIamState() {
         // Ensure a clean auth state before each test

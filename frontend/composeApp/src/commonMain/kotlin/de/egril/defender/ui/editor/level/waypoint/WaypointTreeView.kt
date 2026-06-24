@@ -27,7 +27,7 @@ fun WaypointTreeView(
     validationResult: WaypointValidationResult,
     map: EditorMap?,
     onDeleteConnection: (Position) -> Unit,
-    onConnectWaypoint: (Position) -> Unit
+    onConnectWaypoint: (Position) -> Unit,
 ) {
     val spawnPoints = remember(map) { map?.getSpawnPoints() ?: emptyList() }
     val targets = remember(map) { map?.getTargets() ?: emptyList() }
@@ -37,19 +37,19 @@ fun WaypointTreeView(
             text = stringResource(Res.string.no_waypoints_configured),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.Companion.padding(vertical = 16.dp)
+            modifier = Modifier.Companion.padding(vertical = 16.dp),
         )
         return
     }
 
     Column(
         modifier = Modifier.Companion.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
             text = stringResource(Res.string.waypoint_chains_title),
             style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Companion.Bold
+            fontWeight = FontWeight.Companion.Bold,
         )
 
         validationResult.waypointChains.forEach { chain ->
@@ -60,7 +60,7 @@ fun WaypointTreeView(
                 circularDeps = validationResult.circularDependencies,
                 unconnectedWaypoints = validationResult.unconnectedWaypoints,
                 onDeleteConnection = onDeleteConnection,
-                onConnectWaypoint = onConnectWaypoint
+                onConnectWaypoint = onConnectWaypoint,
             )
         }
     }

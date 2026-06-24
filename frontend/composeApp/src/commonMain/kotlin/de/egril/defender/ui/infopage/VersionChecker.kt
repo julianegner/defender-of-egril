@@ -10,7 +10,7 @@ import de.egril.defender.AppBuildInfo
  */
 data class NewVersionInfo(
     val version: String,
-    val releasePageUrl: String
+    val releasePageUrl: String,
 )
 
 /**
@@ -37,13 +37,14 @@ suspend fun checkForNewerVersion(): NewVersionInfo? {
         val releaseVersion = release.tagName.removePrefix("v")
         if (compareVersions(releaseVersion, currentVersion) <= 0) break
 
-        val hasPlatformAsset = release.assets.any { asset ->
-            extensions.any { ext -> asset.name.endsWith(ext, ignoreCase = true) }
-        }
+        val hasPlatformAsset =
+            release.assets.any { asset ->
+                extensions.any { ext -> asset.name.endsWith(ext, ignoreCase = true) }
+            }
         if (hasPlatformAsset) {
             return NewVersionInfo(
                 version = releaseVersion,
-                releasePageUrl = "https://github.com/julianegner/defender-of-egril/releases/tag/${release.tagName}"
+                releasePageUrl = "https://github.com/julianegner/defender-of-egril/releases/tag/${release.tagName}",
             )
         }
     }
@@ -54,7 +55,10 @@ suspend fun checkForNewerVersion(): NewVersionInfo? {
  * Compares two semantic version strings (e.g. "1.2.3").
  * Returns a positive number when [v1] > [v2], negative when [v1] < [v2], or 0 when equal.
  */
-internal fun compareVersions(v1: String, v2: String): Int {
+internal fun compareVersions(
+    v1: String,
+    v2: String,
+): Int {
     val parts1 = v1.split(".").map { it.toIntOrNull() ?: 0 }
     val parts2 = v2.split(".").map { it.toIntOrNull() ?: 0 }
     for (i in 0..2) {

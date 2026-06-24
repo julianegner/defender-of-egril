@@ -1,9 +1,9 @@
 package de.egril.defender.utils
 
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import java.util.Calendar
 
 actual fun currentTimeMillis(): Long = System.currentTimeMillis()
 

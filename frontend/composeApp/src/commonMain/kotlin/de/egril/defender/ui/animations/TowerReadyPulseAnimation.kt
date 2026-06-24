@@ -1,9 +1,8 @@
 package de.egril.defender.ui.animations
-import io.github.alexzhirkevich.compottie.Compottie
-
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import io.github.alexzhirkevich.compottie.Compottie
 
 /**
  * Pulsing blue border animation for towers that are ready to act (actions remaining > 0).
@@ -11,7 +10,10 @@ import androidx.compose.ui.Modifier
  * When [animate] is false, no additional visual is shown (the blue tile background already indicates ready state).
  */
 @Composable
-fun TowerReadyPulseAnimation(animate: Boolean, modifier: Modifier = Modifier) {
+fun TowerReadyPulseAnimation(
+    animate: Boolean,
+    modifier: Modifier = Modifier,
+) {
     if (animate) {
         AnimatedTowerReadyPulse(modifier)
     }
@@ -23,6 +25,6 @@ private fun AnimatedTowerReadyPulse(modifier: Modifier = Modifier) {
     LottieAnimation(
         animationType = AnimationType.TOWER_READY_PULSE,
         modifier = modifier.fillMaxSize(),
-        iterations = Compottie.IterateForever
+        iterations = Compottie.IterateForever,
     )
 }

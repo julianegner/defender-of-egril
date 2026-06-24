@@ -9,8 +9,14 @@ import de.egril.defender.iam.IamService
  * Errors are silently swallowed so analytics never disrupts gameplay.
  * If the user is authenticated via IAM, the Bearer token is attached as an optional header.
  */
-@JsFun("(url, body, token) => { const headers = { 'Content-Type': 'application/json' }; if (token) { headers['Authorization'] = 'Bearer ' + token; } fetch(url, { method: 'POST', headers: headers, body: body }).catch(() => {}); }")
-private external fun postJson(url: String, body: String, token: String?)
+@JsFun(
+    "(url, body, token) => { const headers = { 'Content-Type': 'application/json' }; if (token) { headers['Authorization'] = 'Bearer ' + token; } fetch(url, { method: 'POST', headers: headers, body: body }).catch(() => {}); }",
+)
+private external fun postJson(
+    url: String,
+    body: String,
+    token: String?,
+)
 
 /**
  * Sends analytics during browser page shutdown.
@@ -46,16 +52,24 @@ private external fun postJson(url: String, body: String, token: String?)
             // Errors during page unload are intentionally ignored.
         }
         return false;
-    }"""
+    }""",
 )
-private external fun postJsonOnPageHide(url: String, body: String): Boolean
+private external fun postJsonOnPageHide(
+    url: String,
+    body: String,
+): Boolean
 
 @JsFun("() => { try { return window.location.href; } catch (e) { return null; } }")
 private external fun getCurrentUrl(): String?
 
 private const val PLATFORM = "WEB"
 
-actual fun reportEvent(eventType: GameEventType, levelName: String?, turnNumber: Int?, difficulty: String?) {
+actual fun reportEvent(
+    eventType: GameEventType,
+    levelName: String?,
+    turnNumber: Int?,
+    difficulty: String?,
+) {
     val url = if (eventType == GameEventType.APP_STARTED || eventType == GameEventType.APP_CLOSED) getCurrentUrl() else null
     val json = buildEventJson(eventType, levelName, PLATFORM, turnNumber, difficulty, url)
     if (eventType == GameEventType.APP_CLOSED) {

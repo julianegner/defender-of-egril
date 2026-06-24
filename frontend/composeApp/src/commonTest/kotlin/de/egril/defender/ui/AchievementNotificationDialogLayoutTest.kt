@@ -6,15 +6,15 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class AchievementNotificationDialogLayoutTest {
-
     @Test
     fun mobileWebLandscapeUsesCompactHalfSizedDialog() {
-        val layout = calculateAchievementNotificationLayout(
-            availableWidth = 800.dp,
-            availableHeight = 400.dp,
-            isPlatformMobileDevice = false,
-            isMobileWeb = true
-        )
+        val layout =
+            calculateAchievementNotificationLayout(
+                availableWidth = 800.dp,
+                availableHeight = 400.dp,
+                isPlatformMobileDevice = false,
+                isMobileWeb = true,
+            )
 
         assertEquals(AchievementNotificationTypographyMode.VERY_COMPACT, layout.typographyMode)
         assertTrue(layout.cardWidth <= 320.dp)
@@ -24,12 +24,13 @@ class AchievementNotificationDialogLayoutTest {
 
     @Test
     fun mobileWebPortraitUsesCompactDialog() {
-        val layout = calculateAchievementNotificationLayout(
-            availableWidth = 400.dp,
-            availableHeight = 700.dp,
-            isPlatformMobileDevice = false,
-            isMobileWeb = true
-        )
+        val layout =
+            calculateAchievementNotificationLayout(
+                availableWidth = 400.dp,
+                availableHeight = 700.dp,
+                isPlatformMobileDevice = false,
+                isMobileWeb = true,
+            )
 
         assertEquals(AchievementNotificationTypographyMode.COMPACT, layout.typographyMode)
         assertTrue(layout.iconSize <= 40.dp)
@@ -38,12 +39,13 @@ class AchievementNotificationDialogLayoutTest {
 
     @Test
     fun desktopKeepsLargerDialogLayout() {
-        val layout = calculateAchievementNotificationLayout(
-            availableWidth = 1200.dp,
-            availableHeight = 900.dp,
-            isPlatformMobileDevice = false,
-            isMobileWeb = false
-        )
+        val layout =
+            calculateAchievementNotificationLayout(
+                availableWidth = 1200.dp,
+                availableHeight = 900.dp,
+                isPlatformMobileDevice = false,
+                isMobileWeb = false,
+            )
 
         assertEquals(AchievementNotificationTypographyMode.DESKTOP, layout.typographyMode)
         assertEquals(64.dp, layout.iconSize)

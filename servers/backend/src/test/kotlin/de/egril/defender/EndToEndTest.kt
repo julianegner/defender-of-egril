@@ -52,7 +52,6 @@ import kotlin.test.assertNotNull
  * The Keycloak container is skipped automatically when Docker is unavailable.
  */
 class EndToEndTest {
-
     companion object {
         private const val REALM_RESOURCE = "egril-realm-e2e.json"
         private const val REALM = "egril"
@@ -63,40 +62,42 @@ class EndToEndTest {
         private const val KEYCLOAK_IMAGE = "quay.io/keycloak/keycloak:24.0"
 
         /** Single PostgreSQL container shared across all tests in this class. */
-        private val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine")
-            .apply { start() }
+        private val postgres: PostgreSQLContainer<*> =
+            PostgreSQLContainer("postgres:16-alpine")
+                .apply { start() }
 
         /** Single Keycloak container shared across all tests in this class. */
-        private val keycloak: GenericContainer<*> = GenericContainer(KEYCLOAK_IMAGE)
-            .withExposedPorts(8080)
-            .withEnv("KEYCLOAK_ADMIN", "admin")
-            .withEnv("KEYCLOAK_ADMIN_PASSWORD", "admin")
-            .withCopyFileToContainer(
-                MountableFile.forClasspathResource(REALM_RESOURCE),
-                "/opt/keycloak/data/import/$REALM_RESOURCE"
-            )
-            .withCommand("start-dev --import-realm --health-enabled=true")
-            .waitingFor(
-                // Wait for the realm-specific OIDC discovery endpoint rather than the generic
-                // /health/ready endpoint. In Keycloak 24 dev mode, /health/ready can return 200
-                // before the realm import completes. The OIDC discovery endpoint only becomes
-                // available once the realm is fully imported and ready to issue tokens.
-                Wait.forHttp("/realms/$REALM/.well-known/openid-configuration")
-                    .forPort(8080)
-                    .forStatusCode(200)
-                    .withStartupTimeout(Duration.ofMinutes(3))
-            )
-            .apply { start() }
+        private val keycloak: GenericContainer<*> =
+            GenericContainer(KEYCLOAK_IMAGE)
+                .withExposedPorts(8080)
+                .withEnv("KEYCLOAK_ADMIN", "admin")
+                .withEnv("KEYCLOAK_ADMIN_PASSWORD", "admin")
+                .withCopyFileToContainer(
+                    MountableFile.forClasspathResource(REALM_RESOURCE),
+                    "/opt/keycloak/data/import/$REALM_RESOURCE",
+                ).withCommand("start-dev --import-realm --health-enabled=true")
+                .waitingFor(
+                    // Wait for the realm-specific OIDC discovery endpoint rather than the generic
+                    // /health/ready endpoint. In Keycloak 24 dev mode, /health/ready can return 200
+                    // before the realm import completes. The OIDC discovery endpoint only becomes
+                    // available once the realm is fully imported and ready to issue tokens.
+                    Wait
+                        .forHttp("/realms/$REALM/.well-known/openid-configuration")
+                        .forPort(8080)
+                        .forStatusCode(200)
+                        .withStartupTimeout(Duration.ofMinutes(3)),
+                ).apply { start() }
 
         /** DataSource connected to the Testcontainers PostgreSQL instance. */
         private val testDataSource: HikariDataSource by lazy {
-            val config = HikariConfig().apply {
-                jdbcUrl = postgres.jdbcUrl
-                username = postgres.username
-                password = postgres.password
-                driverClassName = "org.postgresql.Driver"
-                maximumPoolSize = 5
-            }
+            val config =
+                HikariConfig().apply {
+                    jdbcUrl = postgres.jdbcUrl
+                    username = postgres.username
+                    password = postgres.password
+                    driverClassName = "org.postgresql.Driver"
+                    maximumPoolSize = 5
+                }
             HikariDataSource(config).also { ds -> runMigrations(ds) }
         }
 
@@ -113,12 +114,14 @@ class EndToEndTest {
             val loader = thread.contextClassLoader
             try {
                 dataSource.connection.use { conn ->
-                    val db = DatabaseFactory.getInstance()
-                        .findCorrectDatabaseImplementation(JdbcConnection(conn))
+                    val db =
+                        DatabaseFactory
+                            .getInstance()
+                            .findCorrectDatabaseImplementation(JdbcConnection(conn))
                     Liquibase(
                         "db/changelog/db.changelog-master.xml",
                         ClassLoaderResourceAccessor(loader),
-                        db
+                        db,
                     ).update("")
                 }
             } finally {
@@ -133,7 +136,10 @@ class EndToEndTest {
          * The returned token is a genuine Keycloak-issued JWT that the backend can parse
          * with [extractUserIdFromBearerToken] in exactly the same way as production tokens.
          */
-        private fun getKeycloakToken(username: String, password: String): String {
+        private fun getKeycloakToken(
+            username: String,
+            password: String,
+        ): String {
             val keycloakUrl = "http://localhost:${keycloak.getMappedPort(8080)}"
             val tokenUrl = "$keycloakUrl/realms/$REALM/protocol/openid-connect/token"
             val body = "grant_type=password&client_id=$CLIENT_ID&username=$username&password=$password"
@@ -146,15 +152,17 @@ class EndToEndTest {
                 connection.outputStream.use { it.write(body.toByteArray()) }
 
                 val responseCode = connection.responseCode
-                val responseBody = if (responseCode < 400) {
-                    connection.inputStream.use { it.readBytes().toString(Charsets.UTF_8) }
-                } else {
-                    val errorBody = connection.errorStream?.use { it.readBytes().toString(Charsets.UTF_8) }
-                        ?: "<no error body>"
-                    error(
-                        "Keycloak token request failed with HTTP $responseCode for user '$username': $errorBody"
-                    )
-                }
+                val responseBody =
+                    if (responseCode < 400) {
+                        connection.inputStream.use { it.readBytes().toString(Charsets.UTF_8) }
+                    } else {
+                        val errorBody =
+                            connection.errorStream?.use { it.readBytes().toString(Charsets.UTF_8) }
+                                ?: "<no error body>"
+                        error(
+                            "Keycloak token request failed with HTTP $responseCode for user '$username': $errorBody",
+                        )
+                    }
                 val json = Json.parseToJsonElement(responseBody).jsonObject
                 return checkNotNull(json["access_token"]?.jsonPrimitive?.content) {
                     "Keycloak token response did not contain 'access_token': $responseBody"
@@ -182,23 +190,26 @@ class EndToEndTest {
     // -------------------------------------------------------------------------
 
     @Test
-    fun `Keycloak issues valid access tokens that the backend accepts`() = withRealDatabase {
-        val token = getKeycloakToken(PLAYER_A_USERNAME, PLAYER_PASSWORD)
-        assertNotNull(token, "Keycloak must issue a non-null token")
-        assertFalse(token.isBlank(), "Token must not be blank")
-        // A Keycloak JWT has exactly three dot-separated parts
-        assertEquals(3, token.split(".").size, "Token must be a valid JWT with three parts")
+    fun `Keycloak issues valid access tokens that the backend accepts`() =
+        withRealDatabase {
+            val token = getKeycloakToken(PLAYER_A_USERNAME, PLAYER_PASSWORD)
+            assertNotNull(token, "Keycloak must issue a non-null token")
+            assertFalse(token.isBlank(), "Token must not be blank")
+            // A Keycloak JWT has exactly three dot-separated parts
+            assertEquals(3, token.split(".").size, "Token must be a valid JWT with three parts")
 
-        // The backend accepts requests authenticated with real Keycloak tokens
-        client.get("/api/savefiles") {
-            header(HttpHeaders.Authorization, "Bearer $token")
-        }.apply {
-            assertEquals(
-                HttpStatusCode.OK, status,
-                "Backend must accept real Keycloak tokens for authenticated endpoints"
-            )
+            // The backend accepts requests authenticated with real Keycloak tokens
+            client
+                .get("/api/savefiles") {
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                }.apply {
+                    assertEquals(
+                        HttpStatusCode.OK,
+                        status,
+                        "Backend must accept real Keycloak tokens for authenticated endpoints",
+                    )
+                }
         }
-    }
 
     @Test
     fun `Keycloak issues distinct tokens for different users`() {
@@ -211,8 +222,15 @@ class EndToEndTest {
         fun extractSub(token: String): String {
             val payload = token.split(".")[1]
             val padded = payload + "=".repeat((4 - payload.length % 4) % 4)
-            val decoded = java.util.Base64.getUrlDecoder().decode(padded).toString(Charsets.UTF_8)
-            return Json.parseToJsonElement(decoded).jsonObject["sub"]!!.jsonPrimitive.content
+            val decoded =
+                java.util.Base64
+                    .getUrlDecoder()
+                    .decode(padded)
+                    .toString(Charsets.UTF_8)
+            return Json
+                .parseToJsonElement(decoded)
+                .jsonObject["sub"]!!
+                .jsonPrimitive.content
         }
 
         val subA = extractSub(tokenA)
@@ -225,182 +243,205 @@ class EndToEndTest {
     // -------------------------------------------------------------------------
 
     @Test
-    fun `player saves on Web with real token and retrieves the save on Android`() = withRealDatabase {
-        val token = getKeycloakToken(PLAYER_A_USERNAME, PLAYER_PASSWORD)
-        val saveData = """{"level":3,"coins":750,"health":9,"worldMap":{"unlocked":["level-1","level-2"]}}"""
+    fun `player saves on Web with real token and retrieves the save on Android`() =
+        withRealDatabase {
+            val token = getKeycloakToken(PLAYER_A_USERNAME, PLAYER_PASSWORD)
+            val saveData = """{"level":3,"coins":750,"health":9,"worldMap":{"unlocked":["level-1","level-2"]}}"""
 
-        // Simulate saving from the Web platform
-        client.post("/api/savefiles") {
-            contentType(ContentType.Application.Json)
-            header(HttpHeaders.Authorization, "Bearer $token")
-            setBody("""{"saveId":"e2e-world-save","data":${jsonString(saveData)},"platform":"WEB"}""")
-        }.apply {
-            assertEquals(HttpStatusCode.OK, status, "Web save with real token must succeed")
-        }
+            // Simulate saving from the Web platform
+            client
+                .post("/api/savefiles") {
+                    contentType(ContentType.Application.Json)
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                    setBody("""{"saveId":"e2e-world-save","data":${jsonString(saveData)},"platform":"WEB"}""")
+                }.apply {
+                    assertEquals(HttpStatusCode.OK, status, "Web save with real token must succeed")
+                }
 
-        // Simulate loading from the Android platform (same token = same user)
-        client.get("/api/savefiles") {
-            header(HttpHeaders.Authorization, "Bearer $token")
-        }.apply {
-            assertEquals(HttpStatusCode.OK, status, "Android load with real token must succeed")
-            val body = bodyAsText()
-            assertContains(body, "e2e-world-save")
-            assertContains(body, "level-2")
-            assertContains(body, "750")
+            // Simulate loading from the Android platform (same token = same user)
+            client
+                .get("/api/savefiles") {
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                }.apply {
+                    assertEquals(HttpStatusCode.OK, status, "Android load with real token must succeed")
+                    val body = bodyAsText()
+                    assertContains(body, "e2e-world-save")
+                    assertContains(body, "level-2")
+                    assertContains(body, "750")
+                }
         }
-    }
 
     @Test
-    fun `player XP and abilities are preserved across platforms with real tokens`() = withRealDatabase {
-        val token = getKeycloakToken(PLAYER_A_USERNAME, PLAYER_PASSWORD)
-        val userData = """{"localUsername":"$PLAYER_A_USERNAME","xp":3500,"abilities":{"shield":2,"fireball":1},"levelProgress":{"level-1":"GOLD"}}"""
+    fun `player XP and abilities are preserved across platforms with real tokens`() =
+        withRealDatabase {
+            val token = getKeycloakToken(PLAYER_A_USERNAME, PLAYER_PASSWORD)
+            val userData = """{"localUsername":"$PLAYER_A_USERNAME","xp":3500,"abilities":{"shield":2,"fireball":1},"levelProgress":{"level-1":"GOLD"}}"""
 
-        // Upload from Desktop
-        client.post("/api/userdata") {
-            contentType(ContentType.Application.Json)
-            header(HttpHeaders.Authorization, "Bearer $token")
-            setBody("""{"data":${jsonString(userData)},"platform":"DESKTOP"}""")
-        }.apply { assertEquals(HttpStatusCode.OK, status) }
+            // Upload from Desktop
+            client
+                .post("/api/userdata") {
+                    contentType(ContentType.Application.Json)
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                    setBody("""{"data":${jsonString(userData)},"platform":"DESKTOP"}""")
+                }.apply { assertEquals(HttpStatusCode.OK, status) }
 
-        // Load from iOS
-        client.get("/api/userdata") {
-            header(HttpHeaders.Authorization, "Bearer $token")
-        }.apply {
-            assertEquals(HttpStatusCode.OK, status)
-            val body = bodyAsText()
-            assertContains(body, "3500")
-            assertContains(body, "fireball")
-            assertContains(body, "GOLD")
+            // Load from iOS
+            client
+                .get("/api/userdata") {
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                }.apply {
+                    assertEquals(HttpStatusCode.OK, status)
+                    val body = bodyAsText()
+                    assertContains(body, "3500")
+                    assertContains(body, "fireball")
+                    assertContains(body, "GOLD")
+                }
         }
-    }
 
     @Test
-    fun `settings sync across platforms with real tokens`() = withRealDatabase {
-        val token = getKeycloakToken(PLAYER_A_USERNAME, PLAYER_PASSWORD)
-        val settings = """{"language":"fr","darkMode":true,"soundEnabled":true}"""
+    fun `settings sync across platforms with real tokens`() =
+        withRealDatabase {
+            val token = getKeycloakToken(PLAYER_A_USERNAME, PLAYER_PASSWORD)
+            val settings = """{"language":"fr","darkMode":true,"soundEnabled":true}"""
 
-        // Save on Android
-        client.post("/api/settings") {
-            contentType(ContentType.Application.Json)
-            header(HttpHeaders.Authorization, "Bearer $token")
-            setBody("""{"data":${jsonString(settings)},"platform":"ANDROID"}""")
-        }.apply { assertEquals(HttpStatusCode.OK, status) }
+            // Save on Android
+            client
+                .post("/api/settings") {
+                    contentType(ContentType.Application.Json)
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                    setBody("""{"data":${jsonString(settings)},"platform":"ANDROID"}""")
+                }.apply { assertEquals(HttpStatusCode.OK, status) }
 
-        // Load on Web
-        client.get("/api/settings") {
-            header(HttpHeaders.Authorization, "Bearer $token")
-        }.apply {
-            assertEquals(HttpStatusCode.OK, status)
-            val body = bodyAsText()
-            assertContains(body, "fr")
-            assertContains(body, "darkMode")
+            // Load on Web
+            client
+                .get("/api/settings") {
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                }.apply {
+                    assertEquals(HttpStatusCode.OK, status)
+                    val body = bodyAsText()
+                    assertContains(body, "fr")
+                    assertContains(body, "darkMode")
+                }
         }
-    }
 
     @Test
-    fun `two different players have isolated data with real tokens`() = withRealDatabase {
-        val tokenA = getKeycloakToken(PLAYER_A_USERNAME, PLAYER_PASSWORD)
-        val tokenB = getKeycloakToken(PLAYER_B_USERNAME, PLAYER_PASSWORD)
+    fun `two different players have isolated data with real tokens`() =
+        withRealDatabase {
+            val tokenA = getKeycloakToken(PLAYER_A_USERNAME, PLAYER_PASSWORD)
+            val tokenB = getKeycloakToken(PLAYER_B_USERNAME, PLAYER_PASSWORD)
 
-        // Player A saves on Web
-        client.post("/api/savefiles") {
-            contentType(ContentType.Application.Json)
-            header(HttpHeaders.Authorization, "Bearer $tokenA")
-            setBody("""{"saveId":"e2e-isolation-save","data":${jsonString("""{"secret":"player-a-data","coins":9999}""")},"platform":"WEB"}""")
-        }.apply { assertEquals(HttpStatusCode.OK, status) }
+            // Player A saves on Web
+            client
+                .post("/api/savefiles") {
+                    contentType(ContentType.Application.Json)
+                    header(HttpHeaders.Authorization, "Bearer $tokenA")
+                    setBody("""{"saveId":"e2e-isolation-save","data":${jsonString("""{"secret":"player-a-data","coins":9999}""")},"platform":"WEB"}""")
+                }.apply { assertEquals(HttpStatusCode.OK, status) }
 
-        // Player B saves on Android with the same saveId
-        client.post("/api/savefiles") {
-            contentType(ContentType.Application.Json)
-            header(HttpHeaders.Authorization, "Bearer $tokenB")
-            setBody("""{"saveId":"e2e-isolation-save","data":${jsonString("""{"secret":"player-b-data","coins":1}""")},"platform":"ANDROID"}""")
-        }.apply { assertEquals(HttpStatusCode.OK, status) }
+            // Player B saves on Android with the same saveId
+            client
+                .post("/api/savefiles") {
+                    contentType(ContentType.Application.Json)
+                    header(HttpHeaders.Authorization, "Bearer $tokenB")
+                    setBody("""{"saveId":"e2e-isolation-save","data":${jsonString("""{"secret":"player-b-data","coins":1}""")},"platform":"ANDROID"}""")
+                }.apply { assertEquals(HttpStatusCode.OK, status) }
 
-        // Player A must still see only their own data
-        client.get("/api/savefiles") {
-            header(HttpHeaders.Authorization, "Bearer $tokenA")
-        }.apply {
-            assertEquals(HttpStatusCode.OK, status)
-            val body = bodyAsText()
-            assertContains(body, "player-a-data")
-            assertFalse(body.contains("player-b-data"), "Player A must not see Player B's data")
+            // Player A must still see only their own data
+            client
+                .get("/api/savefiles") {
+                    header(HttpHeaders.Authorization, "Bearer $tokenA")
+                }.apply {
+                    assertEquals(HttpStatusCode.OK, status)
+                    val body = bodyAsText()
+                    assertContains(body, "player-a-data")
+                    assertFalse(body.contains("player-b-data"), "Player A must not see Player B's data")
+                }
+
+            // Player B must see only their own data
+            client
+                .get("/api/savefiles") {
+                    header(HttpHeaders.Authorization, "Bearer $tokenB")
+                }.apply {
+                    assertEquals(HttpStatusCode.OK, status)
+                    val body = bodyAsText()
+                    assertContains(body, "player-b-data")
+                    assertFalse(body.contains("player-a-data"), "Player B must not see Player A's data")
+                }
         }
-
-        // Player B must see only their own data
-        client.get("/api/savefiles") {
-            header(HttpHeaders.Authorization, "Bearer $tokenB")
-        }.apply {
-            assertEquals(HttpStatusCode.OK, status)
-            val body = bodyAsText()
-            assertContains(body, "player-b-data")
-            assertFalse(body.contains("player-a-data"), "Player B must not see Player A's data")
-        }
-    }
 
     @Test
-    fun `complete end-to-end cross-platform session with real Keycloak tokens`() = withRealDatabase {
-        val token = getKeycloakToken(PLAYER_A_USERNAME, PLAYER_PASSWORD)
+    fun `complete end-to-end cross-platform session with real Keycloak tokens`() =
+        withRealDatabase {
+            val token = getKeycloakToken(PLAYER_A_USERNAME, PLAYER_PASSWORD)
 
-        // -- Session 1: Web --
-        // User starts playing on Web: completes level 1, earns XP, unlocks fireball
-        client.post("/api/userdata") {
-            contentType(ContentType.Application.Json)
-            header(HttpHeaders.Authorization, "Bearer $token")
-            setBody("""{"data":${jsonString("""{"localUsername":"$PLAYER_A_USERNAME","xp":300,"abilities":{"fireball":1},"levelProgress":{"level-1":"COMPLETED"}}""")},"platform":"WEB"}""")
-        }.apply { assertEquals(HttpStatusCode.OK, status) }
+            // -- Session 1: Web --
+            // User starts playing on Web: completes level 1, earns XP, unlocks fireball
+            client
+                .post("/api/userdata") {
+                    contentType(ContentType.Application.Json)
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                    setBody("""{"data":${jsonString("""{"localUsername":"$PLAYER_A_USERNAME","xp":300,"abilities":{"fireball":1},"levelProgress":{"level-1":"COMPLETED"}}""")},"platform":"WEB"}""")
+                }.apply { assertEquals(HttpStatusCode.OK, status) }
 
-        client.post("/api/savefiles") {
-            contentType(ContentType.Application.Json)
-            header(HttpHeaders.Authorization, "Bearer $token")
-            setBody("""{"saveId":"e2e-main","data":${jsonString("""{"currentLevel":2,"coins":600,"health":10}""")},"platform":"WEB"}""")
-        }.apply { assertEquals(HttpStatusCode.OK, status) }
+            client
+                .post("/api/savefiles") {
+                    contentType(ContentType.Application.Json)
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                    setBody("""{"saveId":"e2e-main","data":${jsonString("""{"currentLevel":2,"coins":600,"health":10}""")},"platform":"WEB"}""")
+                }.apply { assertEquals(HttpStatusCode.OK, status) }
 
-        client.post("/api/settings") {
-            contentType(ContentType.Application.Json)
-            header(HttpHeaders.Authorization, "Bearer $token")
-            setBody("""{"data":${jsonString("""{"language":"it","darkMode":false}""")},"platform":"WEB"}""")
-        }.apply { assertEquals(HttpStatusCode.OK, status) }
+            client
+                .post("/api/settings") {
+                    contentType(ContentType.Application.Json)
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                    setBody("""{"data":${jsonString("""{"language":"it","darkMode":false}""")},"platform":"WEB"}""")
+                }.apply { assertEquals(HttpStatusCode.OK, status) }
 
-        // -- Session 2: Android --
-        // User continues on Android: completes level 2, gains more XP
-        client.post("/api/userdata") {
-            contentType(ContentType.Application.Json)
-            header(HttpHeaders.Authorization, "Bearer $token")
-            setBody("""{"data":${jsonString("""{"localUsername":"$PLAYER_A_USERNAME","xp":700,"abilities":{"fireball":1,"shield":1},"levelProgress":{"level-1":"COMPLETED","level-2":"COMPLETED"}}""")},"platform":"ANDROID"}""")
-        }.apply { assertEquals(HttpStatusCode.OK, status) }
+            // -- Session 2: Android --
+            // User continues on Android: completes level 2, gains more XP
+            client
+                .post("/api/userdata") {
+                    contentType(ContentType.Application.Json)
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                    setBody("""{"data":${jsonString("""{"localUsername":"$PLAYER_A_USERNAME","xp":700,"abilities":{"fireball":1,"shield":1},"levelProgress":{"level-1":"COMPLETED","level-2":"COMPLETED"}}""")},"platform":"ANDROID"}""")
+                }.apply { assertEquals(HttpStatusCode.OK, status) }
 
-        client.post("/api/savefiles") {
-            contentType(ContentType.Application.Json)
-            header(HttpHeaders.Authorization, "Bearer $token")
-            setBody("""{"saveId":"e2e-main","data":${jsonString("""{"currentLevel":3,"coins":1200,"health":8}""")},"platform":"ANDROID"}""")
-        }.apply { assertEquals(HttpStatusCode.OK, status) }
+            client
+                .post("/api/savefiles") {
+                    contentType(ContentType.Application.Json)
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                    setBody("""{"saveId":"e2e-main","data":${jsonString("""{"currentLevel":3,"coins":1200,"health":8}""")},"platform":"ANDROID"}""")
+                }.apply { assertEquals(HttpStatusCode.OK, status) }
 
-        // -- Verify on Desktop: all state from Web + Android sessions is present --
-        client.get("/api/userdata") {
-            header(HttpHeaders.Authorization, "Bearer $token")
-        }.apply {
-            assertEquals(HttpStatusCode.OK, status)
-            val body = bodyAsText()
-            assertContains(body, "700")
-            assertContains(body, "shield")
-            assertContains(body, "level-2")
+            // -- Verify on Desktop: all state from Web + Android sessions is present --
+            client
+                .get("/api/userdata") {
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                }.apply {
+                    assertEquals(HttpStatusCode.OK, status)
+                    val body = bodyAsText()
+                    assertContains(body, "700")
+                    assertContains(body, "shield")
+                    assertContains(body, "level-2")
+                }
+
+            client
+                .get("/api/savefiles") {
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                }.apply {
+                    assertEquals(HttpStatusCode.OK, status)
+                    val body = bodyAsText()
+                    assertContains(body, "1200")
+                    assertContains(body, "currentLevel")
+                }
+
+            client
+                .get("/api/settings") {
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                }.apply {
+                    assertEquals(HttpStatusCode.OK, status)
+                    val body = bodyAsText()
+                    assertContains(body, "it")
+                }
         }
-
-        client.get("/api/savefiles") {
-            header(HttpHeaders.Authorization, "Bearer $token")
-        }.apply {
-            assertEquals(HttpStatusCode.OK, status)
-            val body = bodyAsText()
-            assertContains(body, "1200")
-            assertContains(body, "currentLevel")
-        }
-
-        client.get("/api/settings") {
-            header(HttpHeaders.Authorization, "Bearer $token")
-        }.apply {
-            assertEquals(HttpStatusCode.OK, status)
-            val body = bodyAsText()
-            assertContains(body, "it")
-        }
-    }
 }

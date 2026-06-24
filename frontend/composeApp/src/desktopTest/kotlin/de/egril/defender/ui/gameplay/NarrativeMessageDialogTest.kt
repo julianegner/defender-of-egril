@@ -13,7 +13,6 @@ import org.junit.Test
  * button works properly.
  */
 class NarrativeMessageDialogTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -26,13 +25,14 @@ class NarrativeMessageDialogTest {
                 type = NarrativeMessageType.EWHAD,
                 title = "Ewhad enters the battlefield",
                 text = "Ewhad has entered the Battlefield!",
-                onDismiss = {}
+                onDismiss = {},
             )
         }
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("Ewhad enters the battlefield", substring = true)
+        composeTestRule
+            .onNodeWithText("Ewhad enters the battlefield", substring = true)
             .assertIsDisplayed()
     }
 
@@ -43,13 +43,14 @@ class NarrativeMessageDialogTest {
                 type = NarrativeMessageType.EWHAD,
                 title = "Ewhad retreats",
                 text = "You have forced Ewhad to retreat!",
-                onDismiss = {}
+                onDismiss = {},
             )
         }
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("You have forced Ewhad to retreat!", substring = true)
+        composeTestRule
+            .onNodeWithText("You have forced Ewhad to retreat!", substring = true)
             .assertIsDisplayed()
     }
 
@@ -60,13 +61,14 @@ class NarrativeMessageDialogTest {
                 type = NarrativeMessageType.EWHAD,
                 title = "Ewhad is defeated",
                 text = "You defeated Ewhad!",
-                onDismiss = {}
+                onDismiss = {},
             )
         }
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("OK", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("OK", substring = true, ignoreCase = true)
             .assertExists()
             .assertHasClickAction()
     }
@@ -80,13 +82,14 @@ class NarrativeMessageDialogTest {
                 type = NarrativeMessageType.EWHAD,
                 title = "Ewhad is defeated",
                 text = "You defeated Ewhad!",
-                onDismiss = { dismissed = true }
+                onDismiss = { dismissed = true },
             )
         }
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("OK", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("OK", substring = true, ignoreCase = true)
             .performClick()
 
         composeTestRule.waitForIdle()
@@ -103,13 +106,14 @@ class NarrativeMessageDialogTest {
                 type = NarrativeMessageType.STORY,
                 title = "A Tale Begins",
                 text = "Once upon a time in Egril...",
-                onDismiss = {}
+                onDismiss = {},
             )
         }
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("A Tale Begins", substring = true)
+        composeTestRule
+            .onNodeWithText("A Tale Begins", substring = true)
             .assertIsDisplayed()
     }
 
@@ -120,13 +124,14 @@ class NarrativeMessageDialogTest {
                 type = NarrativeMessageType.STORY,
                 title = "A Tale Begins",
                 text = "Once upon a time in Egril...",
-                onDismiss = {}
+                onDismiss = {},
             )
         }
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("Once upon a time in Egril...", substring = true)
+        composeTestRule
+            .onNodeWithText("Once upon a time in Egril...", substring = true)
             .assertIsDisplayed()
     }
 
@@ -137,13 +142,14 @@ class NarrativeMessageDialogTest {
                 type = NarrativeMessageType.STORY,
                 title = "A Tale Begins",
                 text = "Once upon a time in Egril...",
-                onDismiss = {}
+                onDismiss = {},
             )
         }
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("OK", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("OK", substring = true, ignoreCase = true)
             .assertExists()
             .assertHasClickAction()
     }
@@ -157,13 +163,14 @@ class NarrativeMessageDialogTest {
                 type = NarrativeMessageType.STORY,
                 title = "A Tale Begins",
                 text = "Once upon a time in Egril...",
-                onDismiss = { dismissed = true }
+                onDismiss = { dismissed = true },
             )
         }
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("OK", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("OK", substring = true, ignoreCase = true)
             .performClick()
 
         composeTestRule.waitForIdle()

@@ -10,7 +10,6 @@ import kotlin.test.assertTrue
  * Tests for [IamState] ensuring default values and state transitions behave correctly.
  */
 class IamStateTest {
-
     @Test
     fun `default state is not authenticated`() {
         val state = IamState()

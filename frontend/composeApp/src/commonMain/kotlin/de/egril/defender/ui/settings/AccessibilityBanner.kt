@@ -13,9 +13,9 @@ import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.ui.a11y.FontSizeMaximum
 import de.egril.defender.ui.gameplay.ShortcutKeyChip
+import defender_of_egril.composeapp.generated.resources.*
 import dev.vicart.compose.material.symbols.FilledSymbol
 import dev.vicart.compose.material.symbols.MaterialSymbols
-import defender_of_egril.composeapp.generated.resources.*
 
 /**
  * Accessibility banner shown on first run of the app.
@@ -28,48 +28,51 @@ import defender_of_egril.composeapp.generated.resources.*
 fun AccessibilityBanner(
     onOpenAccessibilitySettings: () -> Unit,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val bannerDescription = stringResource(Res.string.accessibility_banner_title)
     val closeDescription = stringResource(Res.string.close)
     FontSizeMaximum {
         Card(
             modifier = modifier.semantics { contentDescription = bannerDescription },
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.inverseSurface,
-                contentColor = MaterialTheme.colorScheme.inverseOnSurface
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+            colors =
+                CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.inverseSurface,
+                    contentColor = MaterialTheme.colorScheme.inverseOnSurface,
+                ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         ) {
             Column(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                modifier =
+                    Modifier
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                        .fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
                         text = stringResource(Res.string.accessibility_banner_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.inverseOnSurface,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
                     )
                     ShortcutKeyChip(text = "X")
                     Spacer(modifier = Modifier.width(4.dp))
                     IconButton(
                         onClick = onDismiss,
-                        modifier = Modifier
-                            .size(32.dp)
-                            .semantics { contentDescription = closeDescription }
+                        modifier =
+                            Modifier
+                                .size(32.dp)
+                                .semantics { contentDescription = closeDescription },
                     ) {
                         Box(modifier = Modifier.clearAndSetSemantics { }) {
                             FilledSymbol(
                                 icon = MaterialSymbols.CLOSE,
-                                tint = MaterialTheme.colorScheme.inverseOnSurface
+                                tint = MaterialTheme.colorScheme.inverseOnSurface,
                             )
                         }
                     }
@@ -78,24 +81,25 @@ fun AccessibilityBanner(
                 Text(
                     text = stringResource(Res.string.accessibility_banner_message),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.inverseOnSurface
+                    color = MaterialTheme.colorScheme.inverseOnSurface,
                 )
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
+                    horizontalArrangement = Arrangement.End,
                 ) {
                     Button(
                         onClick = onOpenAccessibilitySettings,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.inversePrimary,
-                            contentColor = MaterialTheme.colorScheme.onSurface
-                        )
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.inversePrimary,
+                                contentColor = MaterialTheme.colorScheme.onSurface,
+                            ),
                     ) {
                         Text(
                             text = stringResource(Res.string.accessibility_banner_open_settings),
                             style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
                         )
                     }
                 }

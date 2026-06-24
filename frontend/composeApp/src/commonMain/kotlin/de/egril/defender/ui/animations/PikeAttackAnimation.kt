@@ -17,8 +17,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.PikeAttackEffect
 import de.egril.defender.model.Position
-import de.egril.defender.ui.hexagon.HexagonalGridConstants
 import de.egril.defender.ui.gameplay.GamePlayConstants
+import de.egril.defender.ui.hexagon.HexagonalGridConstants
 import kotlinx.coroutines.delay
 import kotlin.math.PI
 import kotlin.math.cos
@@ -58,7 +58,7 @@ fun PikeAttackOverlay(
     effects: List<PikeAttackEffect>,
     hexSizeDp: Float,
     contentSize: IntSize,
-    animate: Boolean
+    animate: Boolean,
 ) {
     val pixelDensity = LocalDensity.current.density
     val hexSizePx = hexSizeDp * pixelDensity
@@ -76,7 +76,7 @@ fun PikeAttackOverlay(
                 rowVerticalAdjPx = rowVerticalAdjPx,
                 contentWidth = contentWidth,
                 contentHeight = contentHeight,
-                animate = animate
+                animate = animate,
             )
         }
     }
@@ -90,7 +90,7 @@ private fun SinglePikeOverlay(
     rowVerticalAdjPx: Float,
     contentWidth: Dp,
     contentHeight: Dp,
-    animate: Boolean
+    animate: Boolean,
 ) {
     val hexWidthPx = hexSizePx * sqrt(3f)
     val hexHeightPx = hexSizePx * 2f
@@ -113,10 +113,11 @@ private fun SinglePikeOverlay(
         if (animate) {
             overallProgress.animateTo(
                 targetValue = 1f,
-                animationSpec = tween(
-                    durationMillis = GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS.toInt(),
-                    easing = LinearEasing
-                )
+                animationSpec =
+                    tween(
+                        durationMillis = GamePlayConstants.AnimationTimings.PIKE_EXTEND_DELAY_MS.toInt(),
+                        easing = LinearEasing,
+                    ),
             )
         } else {
             overallProgress.snapTo(1f)
@@ -134,7 +135,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPike(
     progress: Float,
     sourceCenter: Offset,
     targetCenter: Offset,
-    hexSizePx: Float
+    hexSizePx: Float,
 ) {
     if (progress >= 1f) return
 
@@ -174,7 +175,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPike(
                 start = Offset(tailCenter.x + shadowOff, tailCenter.y + shadowOff),
                 end = Offset(tipCenter.x - nx * headLength * 0.5f + shadowOff, tipCenter.y - ny * headLength * 0.5f + shadowOff),
                 strokeWidth = shaftWidth,
-                cap = StrokeCap.Round
+                cap = StrokeCap.Round,
             )
 
             // Shaft (dark brown hardwood)
@@ -183,40 +184,44 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPike(
                 start = tailCenter,
                 end = Offset(tipCenter.x - nx * headLength * 0.55f, tipCenter.y - ny * headLength * 0.55f),
                 strokeWidth = shaftWidth,
-                cap = StrokeCap.Round
+                cap = StrokeCap.Round,
             )
 
             // Grip wrap near the tail (darker band)
-            val wrapCenter = Offset(
-                tailCenter.x + nx * shaftWidth * 1.5f,
-                tailCenter.y + ny * shaftWidth * 1.5f
-            )
+            val wrapCenter =
+                Offset(
+                    tailCenter.x + nx * shaftWidth * 1.5f,
+                    tailCenter.y + ny * shaftWidth * 1.5f,
+                )
             drawLine(
                 color = Color(0xFF3A200A),
                 start = Offset(wrapCenter.x - nx * shaftWidth, wrapCenter.y - ny * shaftWidth),
                 end = Offset(wrapCenter.x + nx * shaftWidth, wrapCenter.y + ny * shaftWidth),
                 strokeWidth = shaftWidth * 1.8f,
-                cap = StrokeCap.Round
+                cap = StrokeCap.Round,
             )
         }
 
         // Pike head (metallic silver/steel triangle)
         val tipPoint = tipCenter
-        val baseLeft = Offset(
-            tipPoint.x - nx * headLength - px * headWidth * 0.5f,
-            tipPoint.y - ny * headLength - py * headWidth * 0.5f
-        )
-        val baseRight = Offset(
-            tipPoint.x - nx * headLength + px * headWidth * 0.5f,
-            tipPoint.y - ny * headLength + py * headWidth * 0.5f
-        )
+        val baseLeft =
+            Offset(
+                tipPoint.x - nx * headLength - px * headWidth * 0.5f,
+                tipPoint.y - ny * headLength - py * headWidth * 0.5f,
+            )
+        val baseRight =
+            Offset(
+                tipPoint.x - nx * headLength + px * headWidth * 0.5f,
+                tipPoint.y - ny * headLength + py * headWidth * 0.5f,
+            )
 
-        val headPath = Path().apply {
-            moveTo(tipPoint.x, tipPoint.y)
-            lineTo(baseLeft.x, baseLeft.y)
-            lineTo(baseRight.x, baseRight.y)
-            close()
-        }
+        val headPath =
+            Path().apply {
+                moveTo(tipPoint.x, tipPoint.y)
+                lineTo(baseLeft.x, baseLeft.y)
+                lineTo(baseRight.x, baseRight.y)
+                close()
+            }
         // Steel-colored head with slight blue tint
         drawPath(headPath, Color(0xFFB8C8D8))
 
@@ -226,21 +231,22 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPike(
             start = Offset(tipPoint.x - nx * headLength * 0.7f, tipPoint.y - ny * headLength * 0.7f),
             end = tipPoint,
             strokeWidth = shaftWidth * 0.3f,
-            cap = StrokeCap.Round
+            cap = StrokeCap.Round,
         )
 
         // Head base reinforcement ring (dark metal band where head meets shaft)
         if (travelDist > headLength * 0.8f) {
-            val ringCenter = Offset(
-                tipPoint.x - nx * headLength,
-                tipPoint.y - ny * headLength
-            )
+            val ringCenter =
+                Offset(
+                    tipPoint.x - nx * headLength,
+                    tipPoint.y - ny * headLength,
+                )
             drawLine(
                 color = Color(0xFF505050),
                 start = Offset(ringCenter.x - px * headWidth * 0.55f, ringCenter.y - py * headWidth * 0.55f),
                 end = Offset(ringCenter.x + px * headWidth * 0.55f, ringCenter.y + py * headWidth * 0.55f),
                 strokeWidth = shaftWidth * 1.4f,
-                cap = StrokeCap.Round
+                cap = StrokeCap.Round,
             )
         }
     } else {
@@ -254,7 +260,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPike(
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPikeImpactBurst(
     center: Offset,
     hitProgress: Float,
-    hexSizePx: Float
+    hexSizePx: Float,
 ) {
     val maxLineLength = hexSizePx * 0.50f
     val innerRadius = hexSizePx * 0.10f
@@ -274,7 +280,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPikeImpactBurst
             start = Offset(startX, startY),
             end = Offset(endX, endY),
             strokeWidth = lineWidth,
-            cap = StrokeCap.Round
+            cap = StrokeCap.Round,
         )
     }
 
@@ -282,7 +288,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPikeImpactBurst
     drawCircle(
         color = Color(0xFFFFFFFF).copy(alpha = alpha * 0.75f),
         radius = hexSizePx * (0.06f + hitProgress * 0.14f),
-        center = center
+        center = center,
     )
 }
 

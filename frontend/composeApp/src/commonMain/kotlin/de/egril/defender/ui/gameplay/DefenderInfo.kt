@@ -14,24 +14,23 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hyperether.resources.stringResource
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
+import de.egril.defender.ui.a11y.a11ySemantics
 import de.egril.defender.ui.animations.SpellDoubleLevelColor
 import de.egril.defender.ui.animations.SpellDoubleReachColor
-import de.egril.defender.ui.icon.InfoIcon
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
+import de.egril.defender.ui.gameplay.defenderButtons.TowerStats
 import de.egril.defender.ui.icon.HammerIcon
+import de.egril.defender.ui.icon.InfoIcon
 import de.egril.defender.ui.icon.LightningIcon
 import de.egril.defender.ui.icon.PickIcon
 import de.egril.defender.ui.icon.SwordIcon
 import de.egril.defender.ui.icon.TimerIcon
 import de.egril.defender.ui.icon.TrapIcon
-import de.egril.defender.ui.icon.WoodIcon
 import de.egril.defender.ui.icon.WarningIcon
-import de.egril.defender.ui.a11y.a11ySemantics
-import de.egril.defender.ui.gameplay.ShortcutKeyChip
-import de.egril.defender.ui.settings.AppSettings
-import com.hyperether.resources.stringResource
-import de.egril.defender.ui.gameplay.defenderButtons.TowerStats
+import de.egril.defender.ui.icon.WoodIcon
 import defender_of_egril.composeapp.generated.resources.*
 
 @Composable
@@ -42,58 +41,61 @@ fun DefenderInfo(
     onUndoTower: (Int) -> Unit,
     onSellTower: (Int) -> Unit,
     onMineAction: ((Int, MineAction) -> Unit)? = null,
-    onWizardAction: ((Int, WizardAction) -> Unit)? = null,  // For wizard tower magical traps - click to select action, then click map
-    selectedMineAction: MineAction? = null,  // Current trap placement mode
-    selectedWizardAction: WizardAction? = null,  // Current wizard trap placement mode
-    onBarricadeAction: ((Int, BarricadeAction) -> Unit)? = null,  // For spike/spear tower barricades - click to select action, then click map
-    selectedBarricadeAction: BarricadeAction? = null,  // Current barricade placement mode
+    onWizardAction: ((Int, WizardAction) -> Unit)? = null, // For wizard tower magical traps - click to select action, then click map
+    selectedMineAction: MineAction? = null, // Current trap placement mode
+    selectedWizardAction: WizardAction? = null, // Current wizard trap placement mode
+    onBarricadeAction: ((Int, BarricadeAction) -> Unit)? = null, // For spike/spear tower barricades - click to select action, then click map
+    selectedBarricadeAction: BarricadeAction? = null, // Current barricade placement mode
     compactBuyPanel: Boolean = false,
-    isMobile: Boolean = false,  // Add platform parameter
+    isMobile: Boolean = false, // Add platform parameter
     selectedTargetId: Int? = null,
     selectedTargetPosition: Position? = null,
     onDefenderAttack: ((Int, Int) -> Boolean)? = null,
     onDefenderAttackPosition: ((Int, Position) -> Boolean)? = null,
     isPlayerTurn: Boolean = false,
-    hasUnlockedSpells: Boolean = false  // Whether player has unlocked any spells
+    hasUnlockedSpells: Boolean = false, // Whether player has unlocked any spells
 ) {
     val locale = com.hyperether.resources.currentLanguage.value
     val buttonHeight = if (isMobile) 100.dp else 60.dp
-    val defenderDisplayName = if (defender.type == DefenderType.DRAGONS_LAIR) {
-        val dragonAlive = defender.dragonId.value?.let { dragonId ->
-            gameState.attackers.any { it.id == dragonId && !it.isDefeated.value }
-        } ?: false
-        if (dragonAlive) {
-            if (defender.dragonName != null) {
-                "${stringResource(Res.string.lair_of_the_dragon)} ${defender.dragonName}"
+    val defenderDisplayName =
+        if (defender.type == DefenderType.DRAGONS_LAIR) {
+            val dragonAlive =
+                defender.dragonId.value?.let { dragonId ->
+                    gameState.attackers.any { it.id == dragonId && !it.isDefeated.value }
+                } ?: false
+            if (dragonAlive) {
+                if (defender.dragonName != null) {
+                    "${stringResource(Res.string.lair_of_the_dragon)} ${defender.dragonName}"
+                } else {
+                    stringResource(Res.string.dragons_lair)
+                }
             } else {
-                stringResource(Res.string.dragons_lair)
+                stringResource(Res.string.empty_dragons_lair)
             }
+        } else if (defender.raftId.value != null) {
+            "${defender.type.getLocalizedShortName(locale)} ${stringResource(Res.string.raft)}"
         } else {
-            stringResource(Res.string.empty_dragons_lair)
+            defender.type.getLocalizedName(locale)
         }
-    } else if (defender.raftId.value != null) {
-        "${defender.type.getLocalizedShortName(locale)} ${stringResource(Res.string.raft)}"
-    } else {
-        defender.type.getLocalizedName(locale)
-    }
     val levelLabel = stringResource(Res.string.level)
     val damageLabel = stringResource(Res.string.damage)
     val rangeLabel = stringResource(Res.string.range)
-    val defenderCardLabel = buildString {
-        append(defenderDisplayName)
-        append(", ")
-        append(levelLabel)
-        append(": ")
-        append(defender.level.value)
-        append(", ")
-        append(damageLabel)
-        append(": ")
-        append(defender.damage)
-        append(", ")
-        append(rangeLabel)
-        append(": ")
-        append(defender.range)
-    }
+    val defenderCardLabel =
+        buildString {
+            append(defenderDisplayName)
+            append(", ")
+            append(levelLabel)
+            append(": ")
+            append(defender.level.value)
+            append(", ")
+            append(damageLabel)
+            append(": ")
+            append(defender.damage)
+            append(", ")
+            append(rangeLabel)
+            append(": ")
+            append(defender.range)
+        }
     // Use key to force recomposition when defender stats change
     key(
         defender.id,
@@ -102,148 +104,154 @@ fun DefenderInfo(
         defender.range,
         defender.actionsRemaining.value,
         defender.buildTimeRemaining.value,
-        defender.isReady
+        defender.isReady,
     ) {
         Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(if (isMobile) 4.dp else 8.dp)
-                .a11ySemantics(label = defenderCardLabel)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(if (isMobile) 4.dp else 8.dp)
+                    .a11ySemantics(label = defenderCardLabel),
         ) {
-                // Compute active spell effects once for use throughout the card
-                val doubleLevelEffect = gameState.activeSpellEffects.find {
+            // Compute active spell effects once for use throughout the card
+            val doubleLevelEffect =
+                gameState.activeSpellEffects.find {
                     it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == defender.id
                 }
-                val doubleReachEffect = gameState.activeSpellEffects.find {
+            val doubleReachEffect =
+                gameState.activeSpellEffects.find {
                     it.spell == SpellType.DOUBLE_TOWER_REACH && it.defenderId == defender.id
                 }
-                // Tower icon, name, and actions in one row
-                Row(
-                    // modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start
+            // Tower icon, name, and actions in one row
+            Row(
+                // modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start,
+            ) {
+                // Tower icon - double the original size
+                val iconSize = if (isMobile) 64.dp else 96.dp
+                val iconInnerSize = if (isMobile) 56.dp else 88.dp
+                Box(
+                    modifier = Modifier.size(iconSize),
+                    contentAlignment = Alignment.Center,
                 ) {
-                    // Tower icon - double the original size
-                    val iconSize = if (isMobile) 64.dp else 96.dp
-                    val iconInnerSize = if (isMobile) 56.dp else 88.dp
-                    Box(
-                        modifier = Modifier.size(iconSize),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        TowerIcon(defender = defender, modifier = Modifier.size(iconInnerSize), gameState = gameState)
-                    }
+                    TowerIcon(defender = defender, modifier = Modifier.size(iconInnerSize), gameState = gameState)
+                }
 
-                    val horizontalSpacing = if (isMobile) 4.dp else 8.dp
-                    Spacer(modifier = Modifier.width(horizontalSpacing))
+                val horizontalSpacing = if (isMobile) 4.dp else 8.dp
+                Spacer(modifier = Modifier.width(horizontalSpacing))
 
-                    // Tower name and level
-                    Column(modifier = Modifier.weight(1f)
+                // Tower name and level
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        defenderDisplayName,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Clip,
+                    )
+                    // Compute spell effect once and reuse below
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        Text(
-                            defenderDisplayName,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Clip
-                        )
-                        // Compute spell effect once and reuse below
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            if (doubleLevelEffect != null) {
-                                val effectiveLevel = defender.level.value * 2
-                                Text(
-                                    "Level $effectiveLevel (×2)",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = SpellDoubleLevelColor,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            } else {
-                                Text(
-                                    "Level ${defender.level.value}",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = GamePlayColors.Success
-                                )
-                            }
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                SwordIcon(size = 12.dp)
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    defender.type.attackType.getLocalizedName(locale),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Clip
-                                )
-                            }
-                        }
-                        // Show Double Tower Level spell active description
                         if (doubleLevelEffect != null) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                modifier = Modifier.padding(top = 2.dp)
-                            ) {
-                                LightningIcon(size = 12.dp)
-                                Text(
-                                    stringResource(Res.string.double_level_active),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = SpellDoubleLevelColor,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
+                            val effectiveLevel = defender.level.value * 2
+                            Text(
+                                "Level $effectiveLevel (×2)",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = SpellDoubleLevelColor,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        } else {
+                            Text(
+                                "Level ${defender.level.value}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = GamePlayColors.Success,
+                            )
                         }
-                        // Show tower base info if on tower base
-                        val towerBase = gameState.barricades.find { it.id == defender.towerBaseBarricadeId.value }
-                        if (towerBase != null) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                modifier = Modifier.padding(top = 4.dp)
-                            ) {
-                                WoodIcon(size = 12.dp)
-                                Text(
-                                    stringResource(Res.string.tower_base_hp_label, towerBase.healthPoints.value),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = if (towerBase.healthPoints.value < 100) GamePlayColors.Warning else GamePlayColors.Success
-                                )
-                            }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            SwordIcon(size = 12.dp)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                defender.type.attackType.getLocalizedName(locale),
+                                style = MaterialTheme.typography.bodySmall,
+                                maxLines = 1,
+                                overflow = TextOverflow.Clip,
+                            )
                         }
-                        Row {
-                            DefenderActionsInfo(defender)
-                            dwarvenMineInfoButtonArea(defender)
-                            TowerInfoButtonArea(defender, gameState)
+                    }
+                    // Show Double Tower Level spell active description
+                    if (doubleLevelEffect != null) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.padding(top = 2.dp),
+                        ) {
+                            LightningIcon(size = 12.dp)
+                            Text(
+                                stringResource(Res.string.double_level_active),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = SpellDoubleLevelColor,
+                                fontWeight = FontWeight.Bold,
+                            )
                         }
-                        // Warn when a dragon is targeting this mine
-                        if (defender.type == DefenderType.DWARVEN_MINE) {
-                            val targetingDragon = gameState.attackers.find {
+                    }
+                    // Show tower base info if on tower base
+                    val towerBase = gameState.barricades.find { it.id == defender.towerBaseBarricadeId.value }
+                    if (towerBase != null) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier.padding(top = 4.dp),
+                        ) {
+                            WoodIcon(size = 12.dp)
+                            Text(
+                                stringResource(Res.string.tower_base_hp_label, towerBase.healthPoints.value),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = if (towerBase.healthPoints.value < 100) GamePlayColors.Warning else GamePlayColors.Success,
+                            )
+                        }
+                    }
+                    Row {
+                        DefenderActionsInfo(defender)
+                        dwarvenMineInfoButtonArea(defender)
+                        TowerInfoButtonArea(defender, gameState)
+                    }
+                    // Warn when a dragon is targeting this mine
+                    if (defender.type == DefenderType.DWARVEN_MINE) {
+                        val targetingDragon =
+                            gameState.attackers.find {
                                 it.type == AttackerType.DRAGON &&
                                     it.targetMineId.value == defender.id &&
                                     !it.isDefeated.value
                             }
-                            if (targetingDragon != null) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                    modifier = Modifier.padding(top = 2.dp)
-                                ) {
-                                    WarningIcon(size = 12.dp)
-                                    Text(
-                                        "${stringResource(Res.string.mine_targeted_by_dragon)}: ${targetingDragon.dragonName ?: stringResource(Res.string.dragon_name)}",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = Color.Red,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
+                        if (targetingDragon != null) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                modifier = Modifier.padding(top = 2.dp),
+                            ) {
+                                WarningIcon(size = 12.dp)
+                                Text(
+                                    "${stringResource(
+                                        Res.string.mine_targeted_by_dragon,
+                                    )}: ${targetingDragon.dragonName ?: stringResource(Res.string.dragon_name)}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = Color.Red,
+                                    fontWeight = FontWeight.Bold,
+                                )
                             }
                         }
                     }
-                
+                }
+
                 // Show undo button for towers that are still building (in same turn as placed)
                 if (!defender.isReady && defender.placedOnTurn == gameState.turnNumber.value && !defender.hasBeenUsed.value) {
                     Spacer(modifier = Modifier.width(horizontalSpacing))
-                    Column(modifier = Modifier.weight(1f),
+                    Column(
+                        modifier = Modifier.weight(1f),
                         verticalArrangement = Arrangement.Center,
                     ) {
                         UndoOrSellButton(
@@ -251,9 +259,10 @@ fun DefenderInfo(
                             gameState = gameState,
                             onUndoTower = onUndoTower,
                             onSellTower = onSellTower,
-                            modifier = Modifier
-                                .width(240.dp)
-                                .height(buttonHeight)
+                            modifier =
+                                Modifier
+                                    .width(240.dp)
+                                    .height(buttonHeight),
                         )
                     }
                 }
@@ -262,254 +271,280 @@ fun DefenderInfo(
                     if (defender.type == DefenderType.DRAGONS_LAIR) {
                         // Dragon's lair - no actions, can't be sold
                         // Show dragon name in normal text if available
-                        val dragonAlive = defender.dragonId.value?.let { dragonId ->
-                            gameState.attackers.any {
-                                it.id == dragonId && !it.isDefeated.value
-                            }
-                        } ?: false
-                        
+                        val dragonAlive =
+                            defender.dragonId.value?.let { dragonId ->
+                                gameState.attackers.any {
+                                    it.id == dragonId && !it.isDefeated.value
+                                }
+                            } ?: false
+
                         if (dragonAlive && defender.dragonName != null) {
                             Text(
                                 "${stringResource(Res.string.lair_of_the_dragon)} ${defender.dragonName}",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = GamePlayColors.ErrorDark,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
                             )
                         }
-                        
+
                         Text(
                             stringResource(Res.string.dragons_lair_desc),
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.Gray,
-                            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
                         )
                     } else {
-
                         // Normal tower stats and buttons
                         // Calculate next level stats using helper functions
                         val currentLevel = defender.level.value
                         val nextLevel = currentLevel + 1
-                        val nextActualDamage = if (defender.type == DefenderType.DWARVEN_MINE) {
-                            calculateTrapDamage(defender, nextLevel)
-                        } else {
-                            calculateActualDamage(defender, nextLevel)
-                        }
+                        val nextActualDamage =
+                            if (defender.type == DefenderType.DWARVEN_MINE) {
+                                calculateTrapDamage(defender, nextLevel)
+                            } else {
+                                calculateActualDamage(defender, nextLevel)
+                            }
                         val nextRange = calculateRange(defender, nextLevel)
                         val nextActions = calculateActionsPerTurn(defender, nextLevel)
 
                         // Effective stats considering active spells
                         val effectiveLevel = if (doubleLevelEffect != null) currentLevel * 2 else currentLevel
-                        val currentDisplayDamage = if (doubleLevelEffect != null) {
-                            if (defender.type == DefenderType.DWARVEN_MINE) calculateTrapDamage(defender, effectiveLevel)
-                            else calculateActualDamage(defender, effectiveLevel)
-                        } else {
-                            if (defender.type == DefenderType.DWARVEN_MINE) defender.trapDamage else defender.actualDamage
-                        }
-                        val currentDisplayRange = when {
-                            doubleReachEffect != null -> defender.range * 2
-                            doubleLevelEffect != null -> calculateRange(defender, effectiveLevel)
-                            else -> defender.range
-                        }
-                        val currentDisplayActions = if (doubleLevelEffect != null) {
-                            calculateActionsPerTurn(defender, effectiveLevel)
-                        } else {
-                            defender.actionsPerTurnCalculated
-                        }
+                        val currentDisplayDamage =
+                            if (doubleLevelEffect != null) {
+                                if (defender.type == DefenderType.DWARVEN_MINE) {
+                                    calculateTrapDamage(defender, effectiveLevel)
+                                } else {
+                                    calculateActualDamage(defender, effectiveLevel)
+                                }
+                            } else {
+                                if (defender.type == DefenderType.DWARVEN_MINE) defender.trapDamage else defender.actualDamage
+                            }
+                        val currentDisplayRange =
+                            when {
+                                doubleReachEffect != null -> defender.range * 2
+                                doubleLevelEffect != null -> calculateRange(defender, effectiveLevel)
+                                else -> defender.range
+                            }
+                        val currentDisplayActions =
+                            if (doubleLevelEffect != null) {
+                                calculateActionsPerTurn(defender, effectiveLevel)
+                            } else {
+                                defender.actionsPerTurnCalculated
+                            }
 
                         // Determine whether any extra action button columns (attack, mana, trap,
                         // barricade) will be rendered. Used to decide whether to fill the row with
                         // a placeholder spacer or let the upgrade/sell buttons expand naturally.
-                        val hasAttackColumn = isPlayerTurn &&
+                        val hasAttackColumn =
+                            isPlayerTurn &&
+                                defender.type != DefenderType.DWARVEN_MINE &&
+                                defender.type != DefenderType.DRAGONS_LAIR &&
+                                onDefenderAttack != null &&
+                                onDefenderAttackPosition != null
+                        val hasManaColumn =
+                            isPlayerTurn &&
+                                defender.type == DefenderType.WIZARD_TOWER &&
+                                gameState.currentMana.value < gameState.maxMana.value &&
+                                onWizardAction != null
+                        val hasTrapColumn =
+                            isPlayerTurn &&
+                                defender.type == DefenderType.WIZARD_TOWER &&
+                                defender.level.value >= 10 &&
+                                onWizardAction != null
+                        val hasBarricadeColumn =
+                            isPlayerTurn &&
+                                onBarricadeAction != null &&
+                                when (defender.type) {
+                                    DefenderType.SPIKE_TOWER ->
+                                        defender.level.value >= 20 &&
+                                            gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_2
+                                    DefenderType.SPEAR_TOWER ->
+                                        defender.level.value >= 10 &&
+                                            gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_1
+                                    else -> false
+                                }
+                        val hasExtraButtonColumns =
+                            hasAttackColumn ||
+                                hasManaColumn ||
+                                hasTrapColumn ||
+                                hasBarricadeColumn
+
+                        // Current stats column
+                        Column(modifier = Modifier.weight(0.5f)) {
+                            Text(
+                                if (doubleLevelEffect != null) "Lvl $effectiveLevel (×2)" else "Lvl $currentLevel",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = if (doubleLevelEffect != null) SpellDoubleLevelColor else Color.Unspecified,
+                            )
+                            TowerStats(
+                                defender.type.minRange,
+                                currentDisplayDamage,
+                                currentDisplayRange,
+                                currentDisplayActions,
+                                rangeColor = if (doubleReachEffect != null) SpellDoubleReachColor else Color.Unspecified,
+                            )
+                        }
+
+                        // After upgrade stats column
+                        Column(modifier = Modifier.weight(0.5f)) {
+                            Text(
+                                "Lvl $nextLevel",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = if (gameState.canUpgradeDefender(defender)) GamePlayColors.Success else Color.Gray,
+                            )
+                            TowerStats(
+                                defender.type.minRange,
+                                nextActualDamage,
+                                nextRange,
+                                nextActions,
+                            )
+                        }
+
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            UpgradeButton(
+                                defender,
+                                gameState,
+                                onUpgradeDefender = onUpgradeDefender,
+                                modifier =
+                                    Modifier
+                                        .width(240.dp)
+                                        .height(buttonHeight),
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(horizontalSpacing))
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.Center,
+                        ) {
+                            UndoOrSellButton(
+                                defender = defender,
+                                gameState = gameState,
+                                onUndoTower = onUndoTower,
+                                onSellTower = onSellTower,
+                                modifier =
+                                    Modifier
+                                        .width(240.dp)
+                                        .height(buttonHeight),
+                            )
+                        }
+
+                        if (isPlayerTurn &&
                             defender.type != DefenderType.DWARVEN_MINE &&
                             defender.type != DefenderType.DRAGONS_LAIR &&
                             onDefenderAttack != null &&
                             onDefenderAttackPosition != null
-                        val hasManaColumn = isPlayerTurn &&
+                        ) {
+                            Spacer(modifier = Modifier.width(horizontalSpacing))
+                            Column(modifier = Modifier.weight(1.3f)) {
+                                AttackButton(
+                                    defender = defender,
+                                    gameState = gameState,
+                                    selectedTargetId = selectedTargetId,
+                                    selectedTargetPosition = selectedTargetPosition,
+                                    onDefenderAttack = { defenderId, targetId ->
+                                        onDefenderAttack(defenderId, targetId)
+                                    },
+                                    onDefenderAttackPosition = { defenderId, targetPos ->
+                                        onDefenderAttackPosition(defenderId, targetPos)
+                                    },
+                                    modifier =
+                                        Modifier
+                                            .width(240.dp)
+                                            .height(buttonHeight),
+                                )
+                            }
+                        }
+
+                        // Generate Mana button for wizard tower (when mana is below max)
+                        if (isPlayerTurn &&
                             defender.type == DefenderType.WIZARD_TOWER &&
                             gameState.currentMana.value < gameState.maxMana.value &&
                             onWizardAction != null
-                        val hasTrapColumn = isPlayerTurn &&
+                        ) {
+                            Spacer(modifier = Modifier.width(horizontalSpacing))
+                            Column(modifier = Modifier.weight(1.3f)) {
+                                GenerateManaButton(
+                                    defender = defender,
+                                    gameState = gameState,
+                                    onWizardAction = onWizardAction,
+                                    modifier =
+                                        Modifier
+                                            .width(240.dp)
+                                            .height(buttonHeight),
+                                )
+                            }
+                        }
+
+                        // Magical trap button for wizard tower level 10+
+                        if (isPlayerTurn &&
                             defender.type == DefenderType.WIZARD_TOWER &&
                             defender.level.value >= 10 &&
                             onWizardAction != null
-                        val hasBarricadeColumn = isPlayerTurn && onBarricadeAction != null &&
-                            when (defender.type) {
-                                DefenderType.SPIKE_TOWER ->
-                                    defender.level.value >= 20 &&
-                                    gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_2
-                                DefenderType.SPEAR_TOWER ->
-                                    defender.level.value >= 10 &&
-                                    gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_1
-                                else -> false
-                            }
-                        val hasExtraButtonColumns = hasAttackColumn || hasManaColumn ||
-                            hasTrapColumn || hasBarricadeColumn
-
-                        // Current stats column
-                            Column(modifier = Modifier.weight(0.5f)) {
-                                Text(
-                                    if (doubleLevelEffect != null) "Lvl $effectiveLevel (×2)" else "Lvl $currentLevel",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    color = if (doubleLevelEffect != null) SpellDoubleLevelColor else Color.Unspecified
-                                )
-                                TowerStats(
-                                    defender.type.minRange,
-                                    currentDisplayDamage,
-                                    currentDisplayRange,
-                                    currentDisplayActions,
-                                    rangeColor = if (doubleReachEffect != null) SpellDoubleReachColor else Color.Unspecified
-                                )
-                            }
-
-                            // After upgrade stats column
-                            Column(modifier = Modifier.weight(0.5f)) {
-                                Text(
-                                    "Lvl $nextLevel",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    color = if (gameState.canUpgradeDefender(defender)) GamePlayColors.Success else Color.Gray
-                                )
-                                TowerStats(
-                                    defender.type.minRange,
-                                    nextActualDamage,
-                                    nextRange,
-                                    nextActions
-                                )
-                            }
-
-                            Column(modifier = Modifier.weight(1f),
-                                verticalArrangement = Arrangement.Center,
-                            ) {
-                                UpgradeButton(defender, gameState,
-                                    onUpgradeDefender = onUpgradeDefender,
-                                    modifier = Modifier
-                                        .width(240.dp)
-                                        .height(buttonHeight),
-                                )
-                            }
+                        ) {
                             Spacer(modifier = Modifier.width(horizontalSpacing))
-                            Column(modifier = Modifier.weight(1f),
-                                verticalArrangement = Arrangement.Center,
-                                ) {
-                                UndoOrSellButton(
+                            Column(modifier = Modifier.weight(1.3f)) {
+                                MagicalTrapButton(
                                     defender = defender,
-                                    gameState = gameState,
-                                    onUndoTower = onUndoTower,
-                                    onSellTower = onSellTower,
-                                    modifier = Modifier
-                                        .width(240.dp)
-                                        .height(buttonHeight)
+                                    onWizardAction = onWizardAction,
+                                    selectedWizardAction = selectedWizardAction,
+                                    modifier =
+                                        Modifier
+                                            .width(240.dp)
+                                            .height(buttonHeight),
                                 )
                             }
+                        }
 
-                            if (isPlayerTurn &&
-                                defender.type != DefenderType.DWARVEN_MINE &&
-                                defender.type != DefenderType.DRAGONS_LAIR &&
-                                onDefenderAttack != null &&
-                                onDefenderAttackPosition != null) {
-
-                                Spacer(modifier = Modifier.width(horizontalSpacing))
-                                Column(modifier = Modifier.weight(1.3f)) {
-                                    AttackButton(
-                                        defender = defender,
-                                        gameState = gameState,
-                                        selectedTargetId = selectedTargetId,
-                                        selectedTargetPosition = selectedTargetPosition,
-                                        onDefenderAttack = { defenderId, targetId ->
-                                            onDefenderAttack(defenderId, targetId)
-                                        },
-                                        onDefenderAttackPosition = { defenderId, targetPos ->
-                                            onDefenderAttackPosition(defenderId, targetPos)
-                                        },
-                                        modifier = Modifier
-                                            .width(240.dp)
-                                            .height(buttonHeight)
-                                    )
-                                }
-                            }
-
-                            // Generate Mana button for wizard tower (when mana is below max)
-                            if (isPlayerTurn &&
-                                defender.type == DefenderType.WIZARD_TOWER &&
-                                gameState.currentMana.value < gameState.maxMana.value &&
-                                onWizardAction != null) {
-
-                                Spacer(modifier = Modifier.width(horizontalSpacing))
-                                Column(modifier = Modifier.weight(1.3f)) {
-                                    GenerateManaButton(
-                                        defender = defender,
-                                        gameState = gameState,
-                                        onWizardAction = onWizardAction,
-                                        modifier = Modifier
-                                            .width(240.dp)
-                                            .height(buttonHeight)
-                                    )
-                                }
-                            }
-
-                            // Magical trap button for wizard tower level 10+
-                            if (isPlayerTurn &&
-                                defender.type == DefenderType.WIZARD_TOWER &&
-                                defender.level.value >= 10 &&
-                                onWizardAction != null) {
-
-                                Spacer(modifier = Modifier.width(horizontalSpacing))
-                                Column(modifier = Modifier.weight(1.3f)) {
-                                    MagicalTrapButton(
-                                        defender = defender,
-                                        onWizardAction = onWizardAction,
-                                        selectedWizardAction = selectedWizardAction,
-                                        modifier = Modifier
-                                            .width(240.dp)
-                                            .height(buttonHeight)
-                                    )
-                                }
-                            }
-
-                            // Barricade button for spike tower (level 20+) or spear tower (level 10+)
-                            // Requires Construction level 1 for spear, level 2 for spike
-                            if (isPlayerTurn && onBarricadeAction != null) {
-                                val canBuildBarricade = when (defender.type) {
-                                    DefenderType.SPIKE_TOWER -> 
-                                        defender.level.value >= 20 && 
-                                        gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_2
-                                    DefenderType.SPEAR_TOWER -> 
-                                        defender.level.value >= 10 && 
-                                        gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_1
+                        // Barricade button for spike tower (level 20+) or spear tower (level 10+)
+                        // Requires Construction level 1 for spear, level 2 for spike
+                        if (isPlayerTurn && onBarricadeAction != null) {
+                            val canBuildBarricade =
+                                when (defender.type) {
+                                    DefenderType.SPIKE_TOWER ->
+                                        defender.level.value >= 20 &&
+                                            gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_2
+                                    DefenderType.SPEAR_TOWER ->
+                                        defender.level.value >= 10 &&
+                                            gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_1
                                     else -> false
                                 }
-                                
-                                if (canBuildBarricade) {
-                                    Spacer(modifier = Modifier.width(horizontalSpacing))
-                                    Column(modifier = Modifier.weight(1.3f)) {
-                                        BarricadeButton(
-                                            defender = defender,
-                                            onBarricadeAction = onBarricadeAction,
-                                            selectedBarricadeAction = selectedBarricadeAction,
-                                            doubleLevelEffect = doubleLevelEffect,
-                                            modifier = Modifier
+
+                            if (canBuildBarricade) {
+                                Spacer(modifier = Modifier.width(horizontalSpacing))
+                                Column(modifier = Modifier.weight(1.3f)) {
+                                    BarricadeButton(
+                                        defender = defender,
+                                        onBarricadeAction = onBarricadeAction,
+                                        selectedBarricadeAction = selectedBarricadeAction,
+                                        doubleLevelEffect = doubleLevelEffect,
+                                        modifier =
+                                            Modifier
                                                 .width(240.dp)
-                                                .height(buttonHeight)
-                                        )
-                                    }
+                                                .height(buttonHeight),
+                                    )
                                 }
                             }
-
-                            dwarvenMineActionButtonArea(
-                                defender.type,
-                                gameState,
-                                defender,
-                                onMineAction,
-                                selectedMineAction,
-                                compactBuyPanel,
-                                horizontalSpacing,
-                                buttonHeight,
-                                hasExtraButtonColumns
-                            )
                         }
+
+                        dwarvenMineActionButtonArea(
+                            defender.type,
+                            gameState,
+                            defender,
+                            onMineAction,
+                            selectedMineAction,
+                            compactBuyPanel,
+                            horizontalSpacing,
+                            buttonHeight,
+                            hasExtraButtonColumns,
+                        )
                     }
                 }
+            }
         }
     }
 }
@@ -526,12 +561,11 @@ private fun RowScope.dwarvenMineActionButtonArea(
     gameState: GameState,
     defender: Defender,
     onMineAction: ((Int, MineAction) -> Unit)?,
-    selectedMineAction: MineAction? = null,  // Current trap placement mode
+    selectedMineAction: MineAction? = null, // Current trap placement mode
     compactBuyPanel: Boolean = false,
     horizontalSpacing: Dp = 8.dp,
     buttonHeight: Dp = 60.dp,
-    hasExtraButtonColumns: Boolean = false
-
+    hasExtraButtonColumns: Boolean = false,
 ) {
     if (type == DefenderType.DWARVEN_MINE) {
         val mineActionsEnabled =
@@ -543,25 +577,26 @@ private fun RowScope.dwarvenMineActionButtonArea(
                 Button(
                     onClick = { onMineAction?.invoke(defender.id, MineAction.DIG) },
                     enabled = mineActionsEnabled,
-                    modifier = Modifier
-                        .width(240.dp)
-                        .height(buttonHeight)
-                        .padding(start = horizontalSpacing),
-                    contentPadding = PaddingValues(
-                        horizontal = 4.dp,
-                        vertical = 2.dp
-                    )
+                    modifier =
+                        Modifier
+                            .width(240.dp)
+                            .height(buttonHeight)
+                            .padding(start = horizontalSpacing),
+                    contentPadding =
+                        PaddingValues(
+                            horizontal = 4.dp,
+                            vertical = 2.dp,
+                        ),
                 ) {
                     Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         PickIcon(size = 24.dp)
                         Text(stringResource(Res.string.dig), fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                            ShortcutKeyChip(text = "1")
+                        ShortcutKeyChip(text = "1")
                     }
                 }
             }
-
 
             Column(modifier = Modifier.weight(0.5f)) {
                 // Trap button
@@ -570,31 +605,36 @@ private fun RowScope.dwarvenMineActionButtonArea(
                     onClick = {
                         onMineAction?.invoke(
                             defender.id,
-                            MineAction.BUILD_TRAP
+                            MineAction.BUILD_TRAP,
                         )
                     },
                     enabled = mineActionsEnabled,
-                    modifier = Modifier
-                        .width(240.dp)
-                        .height(buttonHeight)
-                        .padding(start = horizontalSpacing),
-                    border = if (isTrapModeActive) {
-                        androidx.compose.foundation.BorderStroke(
-                            width = 3.dp,
-                            color = GamePlayColors.Yellow
-                        )
-                    } else null,
-                    contentPadding = PaddingValues(
-                        horizontal = 4.dp,
-                        vertical = 2.dp
-                    )
+                    modifier =
+                        Modifier
+                            .width(240.dp)
+                            .height(buttonHeight)
+                            .padding(start = horizontalSpacing),
+                    border =
+                        if (isTrapModeActive) {
+                            androidx.compose.foundation.BorderStroke(
+                                width = 3.dp,
+                                color = GamePlayColors.Yellow,
+                            )
+                        } else {
+                            null
+                        },
+                    contentPadding =
+                        PaddingValues(
+                            horizontal = 4.dp,
+                            vertical = 2.dp,
+                        ),
                 ) {
                     Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         TrapIcon(size = 24.dp)
                         Text(stringResource(Res.string.trap), fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                            ShortcutKeyChip(text = "2")
+                        ShortcutKeyChip(text = "2")
                     }
                 }
             }
@@ -640,33 +680,34 @@ fun MiningOutcomeGrid() {
 fun DefenderActionsInfo(defender: Defender) {
     if (!defender.isReady) {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             TimerIcon(size = 16.dp)
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 "Building: ${defender.buildTimeRemaining.value}T",
                 style = MaterialTheme.typography.titleMedium,
-                color = GamePlayColors.Warning
+                color = GamePlayColors.Warning,
             )
         }
     } else if (defender.isDisabled.value) {
         // Show disabled status by Red Witch
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            de.egril.defender.ui.icon.LockIcon(size = 16.dp)
+            de.egril.defender.ui.icon
+                .LockIcon(size = 16.dp)
             Spacer(modifier = Modifier.width(4.dp))
             Text(
                 "${stringResource(Res.string.disabled)}: ${defender.disabledTurnsRemaining.value}T",
                 style = MaterialTheme.typography.titleMedium,
                 color = GamePlayColors.ErrorDark,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
         }
     } else {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             LightningIcon(size = 16.dp)
             Spacer(modifier = Modifier.width(4.dp))
@@ -688,34 +729,36 @@ fun GenerateManaButton(
     defender: Defender,
     gameState: GameState,
     onWizardAction: (Int, WizardAction) -> Unit,
-    modifier: Modifier = Modifier.fillMaxWidth().height(56.dp)
+    modifier: Modifier = Modifier.fillMaxWidth().height(56.dp),
 ) {
     if (defender.isReady) {
         // Calculate mana generation amount
         val manaAmount = 5 + (defender.level.value / 5)
         val isAtMaxMana = gameState.currentMana.value >= gameState.maxMana.value
-        
+
         // Button to generate mana - enabled when wizard has actions and not at max mana
         Button(
             onClick = { onWizardAction(defender.id, WizardAction.GENERATE_MANA) },
             enabled = defender.actionsRemaining.value > 0 && !isAtMaxMana,
             modifier = modifier,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF9C27B0)  // Purple color for mana
-            )
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF9C27B0), // Purple color for mana
+                ),
         ) {
             Row(
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth().padding(start = 0.dp, end = 4.dp)
+                modifier = Modifier.fillMaxWidth().padding(start = 0.dp, end = 4.dp),
             ) {
                 // Mana icon on the left
-                de.egril.defender.ui.icon.PentagramIcon(size = 40.dp)
+                de.egril.defender.ui.icon
+                    .PentagramIcon(size = 40.dp)
                 Spacer(modifier = Modifier.width(4.dp))
                 // Two rows on the right
                 Column(
                     modifier = Modifier.weight(1f),
-                    horizontalAlignment = Alignment.Start
+                    horizontalAlignment = Alignment.Start,
                 ) {
                     // Upper row: "Generate Mana"
                     Text(
@@ -723,16 +766,16 @@ fun GenerateManaButton(
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
-                        overflow = TextOverflow.Clip
+                        overflow = TextOverflow.Clip,
                     )
                     // Lower row: "+X Mana"
                     Text(
                         "+$manaAmount ${stringResource(Res.string.mana_label)}",
                         fontSize = 13.sp,
                         maxLines = 1,
-                        overflow = TextOverflow.Visible
+                        overflow = TextOverflow.Visible,
                     )
-                        ShortcutKeyChip(text = "1")
+                    ShortcutKeyChip(text = "1")
                 }
             }
         }
@@ -748,8 +791,8 @@ fun GenerateManaButton(
 fun MagicalTrapButton(
     defender: Defender,
     onWizardAction: (Int, WizardAction) -> Unit,
-    selectedWizardAction: WizardAction? = null,  // Current wizard trap placement mode
-    modifier: Modifier = Modifier.fillMaxWidth().height(56.dp)
+    selectedWizardAction: WizardAction? = null, // Current wizard trap placement mode
+    modifier: Modifier = Modifier.fillMaxWidth().height(56.dp),
 ) {
     if (defender.isReady) {
         val isOnCooldown = defender.trapCooldownRemaining.value > 0
@@ -760,29 +803,34 @@ fun MagicalTrapButton(
             onClick = { onWizardAction(defender.id, WizardAction.PLACE_MAGICAL_TRAP) },
             enabled = !isOnCooldown && defender.actionsRemaining.value > 0,
             modifier = modifier,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = GamePlayColors.InfoDark
-            ),
-            border = if (isTrapModeActive) {
-                androidx.compose.foundation.BorderStroke(
-                    width = 3.dp,
-                    color = GamePlayColors.Yellow
-                )
-            } else null
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = GamePlayColors.InfoDark,
+                ),
+            border =
+                if (isTrapModeActive) {
+                    androidx.compose.foundation.BorderStroke(
+                        width = 3.dp,
+                        color = GamePlayColors.Yellow,
+                    )
+                } else {
+                    null
+                },
         ) {
             Row(
                 horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                de.egril.defender.ui.icon.PentagramIcon(size = 24.dp)
+                de.egril.defender.ui.icon
+                    .PentagramIcon(size = 24.dp)
                 Spacer(modifier = Modifier.width(8.dp))
                 Column(modifier = Modifier.weight(3f)) {
                     Text(
                         stringResource(Res.string.magical_trap),
                         fontSize = if (isOnCooldown) 14.sp else 16.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
                     )
-                        ShortcutKeyChip(text = "2")
+                    ShortcutKeyChip(text = "2")
                 }
                 if (isOnCooldown) {
                     Column(modifier = Modifier.weight(1f)) {
@@ -790,7 +838,7 @@ fun MagicalTrapButton(
                         Text(
                             defender.trapCooldownRemaining.value.toString(),
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
                         )
                     }
                 }
@@ -809,39 +857,44 @@ fun MagicalTrapButton(
 fun BarricadeButton(
     defender: Defender,
     onBarricadeAction: (Int, BarricadeAction) -> Unit,
-    selectedBarricadeAction: BarricadeAction? = null,  // Current barricade placement mode
-    doubleLevelEffect: ActiveSpellEffect? = null,  // Active DOUBLE_TOWER_LEVEL spell effect
-    modifier: Modifier = Modifier.fillMaxWidth().height(56.dp)
+    selectedBarricadeAction: BarricadeAction? = null, // Current barricade placement mode
+    doubleLevelEffect: ActiveSpellEffect? = null, // Active DOUBLE_TOWER_LEVEL spell effect
+    modifier: Modifier = Modifier.fillMaxWidth().height(56.dp),
 ) {
     if (defender.isReady) {
         // Calculate HP that will be added based on tower type, using effective level
         val effectiveLevel = if (doubleLevelEffect != null) defender.level.value * 2 else defender.level.value
-        val hpAmount = if (defender.type == DefenderType.SPIKE_TOWER) {
-            maxOf(1, (effectiveLevel - 20) / 2)
-        } else {
-            maxOf(1, effectiveLevel - 10)
-        }
+        val hpAmount =
+            if (defender.type == DefenderType.SPIKE_TOWER) {
+                maxOf(1, (effectiveLevel - 20) / 2)
+            } else {
+                maxOf(1, effectiveLevel - 10)
+            }
         val isBarricadeModeActive = selectedBarricadeAction == BarricadeAction.BUILD_BARRICADE
-        
+
         // Button to enter barricade placement mode - enabled when tower has actions
         Button(
             onClick = { onBarricadeAction(defender.id, BarricadeAction.BUILD_BARRICADE) },
             enabled = defender.actionsRemaining.value > 0,
             modifier = modifier,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF795548)  // Brown color for wood
-            ),
-            border = if (isBarricadeModeActive) {
-                androidx.compose.foundation.BorderStroke(
-                    width = 3.dp,
-                    color = GamePlayColors.Yellow
-                )
-            } else null
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF795548), // Brown color for wood
+                ),
+            border =
+                if (isBarricadeModeActive) {
+                    androidx.compose.foundation.BorderStroke(
+                        width = 3.dp,
+                        color = GamePlayColors.Yellow,
+                    )
+                } else {
+                    null
+                },
         ) {
             Row(
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth().padding(start = 0.dp, end = 4.dp)
+                modifier = Modifier.fillMaxWidth().padding(start = 0.dp, end = 4.dp),
             ) {
                 // Icon on the left
                 WoodIcon(size = 40.dp)
@@ -849,7 +902,7 @@ fun BarricadeButton(
                 // Two rows on the right
                 Column(
                     modifier = Modifier.weight(1f),
-                    horizontalAlignment = Alignment.Start
+                    horizontalAlignment = Alignment.Start,
                 ) {
                     // Upper row: "Barricade"
                     Text(
@@ -857,16 +910,16 @@ fun BarricadeButton(
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
-                        overflow = TextOverflow.Clip
+                        overflow = TextOverflow.Clip,
                     )
                     // Lower row: "X HP"
                     Text(
                         "$hpAmount ${stringResource(Res.string.hp_label)}",
                         fontSize = 13.sp,
                         maxLines = 1,
-                        overflow = TextOverflow.Visible
+                        overflow = TextOverflow.Visible,
                     )
-                        ShortcutKeyChip(text = "1")
+                    ShortcutKeyChip(text = "1")
                 }
             }
         }
@@ -876,14 +929,18 @@ fun BarricadeButton(
 /**
  * Calculate the damage for a defender at a specific level
  */
-private fun calculateDamage(defender: Defender, level: Int): Int {
-    return defender.type.baseDamage + (level - 1) * 5
-}
+private fun calculateDamage(
+    defender: Defender,
+    level: Int,
+): Int = defender.type.baseDamage + (level - 1) * 5
 
 /**
  * Calculate the actual damage (accounting for LASTING attack type) for a defender at a specific level
  */
-private fun calculateActualDamage(defender: Defender, level: Int): Int {
+private fun calculateActualDamage(
+    defender: Defender,
+    level: Int,
+): Int {
     val baseDamage = calculateDamage(defender, level)
     return when (defender.type.attackType) {
         AttackType.LASTING -> baseDamage / 2
@@ -894,25 +951,31 @@ private fun calculateActualDamage(defender: Defender, level: Int): Int {
 /**
  * Calculate trap damage for dwarven mine at a specific level
  */
-private fun calculateTrapDamage(defender: Defender, level: Int): Int {
-    return if (defender.type == DefenderType.DWARVEN_MINE) {
+private fun calculateTrapDamage(
+    defender: Defender,
+    level: Int,
+): Int =
+    if (defender.type == DefenderType.DWARVEN_MINE) {
         10 + ((level / 2) * 5)
     } else {
         0
     }
-}
 
 /**
  * Calculate the range for a defender at a specific level
  */
-private fun calculateRange(defender: Defender, level: Int): Int {
-    val baseCalculatedRange = if (defender.type == DefenderType.DWARVEN_MINE) {
-        // Dwarven mine has special growth: 3 base + 1 every 5 levels
-        3 + (level / 5)
-    } else {
-        // Standard growth: baseRange + (level - 1) / 2
-        defender.type.baseRange + (level - 1) / 2
-    }
+private fun calculateRange(
+    defender: Defender,
+    level: Int,
+): Int {
+    val baseCalculatedRange =
+        if (defender.type == DefenderType.DWARVEN_MINE) {
+            // Dwarven mine has special growth: 3 base + 1 every 5 levels
+            3 + (level / 5)
+        } else {
+            // Standard growth: baseRange + (level - 1) / 2
+            defender.type.baseRange + (level - 1) / 2
+        }
     // Apply maxRange cap if defined for this tower type
     return if (defender.type.maxRange != null) {
         minOf(baseCalculatedRange, defender.type.maxRange)
@@ -924,8 +987,11 @@ private fun calculateRange(defender: Defender, level: Int): Int {
 /**
  * Calculate actions per turn for a defender at a specific level
  */
-private fun calculateActionsPerTurn(defender: Defender, level: Int): Int {
-    return if (defender.type == DefenderType.SPIKE_TOWER) {
+private fun calculateActionsPerTurn(
+    defender: Defender,
+    level: Int,
+): Int =
+    if (defender.type == DefenderType.SPIKE_TOWER) {
         val bonusActions = level / 5
         minOf(defender.type.actionsPerTurn + bonusActions, 3)
     } else if (defender.type == DefenderType.DWARVEN_MINE) {
@@ -933,7 +999,6 @@ private fun calculateActionsPerTurn(defender: Defender, level: Int): Int {
     } else {
         defender.type.actionsPerTurn
     }
-}
 
 /**
  * Info message data for displaying in combined tower info dialog
@@ -943,16 +1008,19 @@ private data class TowerInfoMessage(
     val message: String,
     val icon: @Composable () -> Unit,
     val color: Color,
-    val extraContent: (@Composable () -> Unit)? = null  // Optional additional content after message
+    val extraContent: (@Composable () -> Unit)? = null, // Optional additional content after message
 )
 
 /**
  * Get all relevant info messages for a specific tower
  */
 @Composable
-private fun getTowerInfoMessages(defender: Defender, gameState: GameState): List<TowerInfoMessage> {
+private fun getTowerInfoMessages(
+    defender: Defender,
+    gameState: GameState,
+): List<TowerInfoMessage> {
     val messages = mutableListOf<TowerInfoMessage>()
-    
+
     // Add first-use info message for the tower type
     when (defender.type) {
         DefenderType.WIZARD_TOWER -> {
@@ -960,21 +1028,23 @@ private fun getTowerInfoMessages(defender: Defender, gameState: GameState): List
                 TowerInfoMessage(
                     title = stringResource(Res.string.wizard_first_use_title),
                     message = stringResource(Res.string.wizard_first_use_message),
-                    icon = { 
+                    icon = {
                         Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Gray, CircleShape),  // Gray background for visibility
-                            contentAlignment = Alignment.Center
+                            modifier =
+                                Modifier
+                                    .fillMaxSize()
+                                    .background(Color.Gray, CircleShape),
+                            // Gray background for visibility
+                            contentAlignment = Alignment.Center,
                         ) {
                             de.egril.defender.ui.TowerTypeIcon(
                                 defenderType = DefenderType.WIZARD_TOWER,
-                                modifier = Modifier.size(56.dp)  // Slightly smaller than container
+                                modifier = Modifier.size(56.dp), // Slightly smaller than container
                             )
                         }
                     },
-                    color = Color(0xFF9C27B0)  // Purple
-                )
+                    color = Color(0xFF9C27B0), // Purple
+                ),
             )
         }
         DefenderType.ALCHEMY_TOWER -> {
@@ -982,21 +1052,23 @@ private fun getTowerInfoMessages(defender: Defender, gameState: GameState): List
                 TowerInfoMessage(
                     title = stringResource(Res.string.alchemy_first_use_title),
                     message = stringResource(Res.string.alchemy_first_use_message),
-                    icon = { 
+                    icon = {
                         Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Gray, CircleShape),  // Gray background for visibility
-                            contentAlignment = Alignment.Center
+                            modifier =
+                                Modifier
+                                    .fillMaxSize()
+                                    .background(Color.Gray, CircleShape),
+                            // Gray background for visibility
+                            contentAlignment = Alignment.Center,
                         ) {
                             de.egril.defender.ui.TowerTypeIcon(
                                 defenderType = DefenderType.ALCHEMY_TOWER,
-                                modifier = Modifier.size(56.dp)  // Slightly smaller than container
+                                modifier = Modifier.size(56.dp), // Slightly smaller than container
                             )
                         }
                     },
-                    color = Color(0xFF4CAF50)  // Green
-                )
+                    color = Color(0xFF4CAF50), // Green
+                ),
             )
         }
         DefenderType.BALLISTA_TOWER -> {
@@ -1004,21 +1076,23 @@ private fun getTowerInfoMessages(defender: Defender, gameState: GameState): List
                 TowerInfoMessage(
                     title = stringResource(Res.string.ballista_first_use_title),
                     message = stringResource(Res.string.ballista_first_use_message),
-                    icon = { 
+                    icon = {
                         Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Gray, CircleShape),  // Gray background for visibility
-                            contentAlignment = Alignment.Center
+                            modifier =
+                                Modifier
+                                    .fillMaxSize()
+                                    .background(Color.Gray, CircleShape),
+                            // Gray background for visibility
+                            contentAlignment = Alignment.Center,
                         ) {
                             de.egril.defender.ui.TowerTypeIcon(
                                 defenderType = DefenderType.BALLISTA_TOWER,
-                                modifier = Modifier.size(56.dp)  // Slightly smaller than container
+                                modifier = Modifier.size(56.dp), // Slightly smaller than container
                             )
                         }
                     },
-                    color = Color(0xFF795548)  // Brown
-                )
+                    color = Color(0xFF795548), // Brown
+                ),
             )
         }
         DefenderType.DWARVEN_MINE -> {
@@ -1026,20 +1100,22 @@ private fun getTowerInfoMessages(defender: Defender, gameState: GameState): List
                 TowerInfoMessage(
                     title = stringResource(Res.string.mine_first_use_title),
                     message = stringResource(Res.string.mine_first_use_message),
-                    icon = { 
+                    icon = {
                         Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Gray, CircleShape),  // Gray background for visibility
-                            contentAlignment = Alignment.Center
+                            modifier =
+                                Modifier
+                                    .fillMaxSize()
+                                    .background(Color.Gray, CircleShape),
+                            // Gray background for visibility
+                            contentAlignment = Alignment.Center,
                         ) {
                             de.egril.defender.ui.TowerTypeIcon(
                                 defenderType = DefenderType.DWARVEN_MINE,
-                                modifier = Modifier.size(56.dp)  // Slightly smaller than container
+                                modifier = Modifier.size(56.dp), // Slightly smaller than container
                             )
                         }
                     },
-                    color = Color(0xFFFFD700),  // Gold
+                    color = Color(0xFFFFD700), // Gold
                     extraContent = {
                         // Add mining probabilities section
                         Spacer(modifier = Modifier.height(16.dp))
@@ -1047,105 +1123,116 @@ private fun getTowerInfoMessages(defender: Defender, gameState: GameState): List
                             text = stringResource(Res.string.mining_probabilities),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFFFFD700)
+                            color = Color(0xFFFFD700),
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         MiningOutcomeGrid()
-                    }
-                )
+                    },
+                ),
             )
         }
         else -> {}
     }
-    
+
     // Add ability info messages based on tower level
-    
+
     // Spike barbs info (spike tower level 10+ AND Construction level 1+)
-    if (defender.type == DefenderType.SPIKE_TOWER && 
-        defender.level.value >= 10 && 
-        gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_1) {
+    if (defender.type == DefenderType.SPIKE_TOWER &&
+        defender.level.value >= 10 &&
+        gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_1
+    ) {
         messages.add(
             TowerInfoMessage(
                 title = stringResource(Res.string.spike_barbs_info_title),
                 message = stringResource(Res.string.spike_barbs_info_message),
                 icon = { SwordIcon(size = 32.dp) },
-                color = Color(0xFF8B4513)  // SaddleBrown
-            )
+                color = Color(0xFF8B4513), // SaddleBrown
+            ),
         )
     }
-    
+
     // Barricade info (spike tower level 20+ with Construction 2+ or spear tower level 10+ with Construction 1+)
-    val hasBarricadeAbility = when (defender.type) {
-        DefenderType.SPIKE_TOWER -> 
-            defender.level.value >= 20 && 
-            gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_2
-        DefenderType.SPEAR_TOWER -> 
-            defender.level.value >= 10 && 
-            gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_1
-        else -> false
-    }
+    val hasBarricadeAbility =
+        when (defender.type) {
+            DefenderType.SPIKE_TOWER ->
+                defender.level.value >= 20 &&
+                    gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_2
+            DefenderType.SPEAR_TOWER ->
+                defender.level.value >= 10 &&
+                    gameState.constructionLevel >= PlayerAbilities.CONSTRUCTION_LEVEL_1
+            else -> false
+        }
     if (hasBarricadeAbility) {
         messages.add(
             TowerInfoMessage(
                 title = stringResource(Res.string.barricade_info_title),
                 message = stringResource(Res.string.barricade_info_message),
                 icon = { WoodIcon(size = 32.dp) },
-                color = Color(0xFF795548)  // Brown
-            )
+                color = Color(0xFF795548), // Brown
+            ),
         )
     }
-    
+
     // Barricade hint: tower has level but construction ability is insufficient
-    val needsConstructionUpgrade = when (defender.type) {
-        DefenderType.SPIKE_TOWER -> 
-            defender.level.value >= 20 && 
-            gameState.constructionLevel < PlayerAbilities.CONSTRUCTION_LEVEL_2
-        DefenderType.SPEAR_TOWER -> 
-            defender.level.value >= 10 && 
-            gameState.constructionLevel < PlayerAbilities.CONSTRUCTION_LEVEL_1
-        else -> false
-    }
-    if (needsConstructionUpgrade) {
-        val requiredLevel = when (defender.type) {
-            DefenderType.SPIKE_TOWER -> PlayerAbilities.CONSTRUCTION_LEVEL_2
-            else -> PlayerAbilities.CONSTRUCTION_LEVEL_1
+    val needsConstructionUpgrade =
+        when (defender.type) {
+            DefenderType.SPIKE_TOWER ->
+                defender.level.value >= 20 &&
+                    gameState.constructionLevel < PlayerAbilities.CONSTRUCTION_LEVEL_2
+            DefenderType.SPEAR_TOWER ->
+                defender.level.value >= 10 &&
+                    gameState.constructionLevel < PlayerAbilities.CONSTRUCTION_LEVEL_1
+            else -> false
         }
+    if (needsConstructionUpgrade) {
+        val requiredLevel =
+            when (defender.type) {
+                DefenderType.SPIKE_TOWER -> PlayerAbilities.CONSTRUCTION_LEVEL_2
+                else -> PlayerAbilities.CONSTRUCTION_LEVEL_1
+            }
         messages.add(
             0,
             TowerInfoMessage(
                 title = stringResource(Res.string.barricade_construction_hint_title),
                 message = stringResource(Res.string.barricade_construction_hint_message, requiredLevel),
                 icon = { HammerIcon(size = 32.dp) },
-                color = Color(0xFFFF9800)  // Orange (warning)
-            )
+                color = Color(0xFFFF9800), // Orange (warning)
+            ),
         )
     }
-    
+
     // Magical trap info (wizard tower level 10+)
     if (defender.type == DefenderType.WIZARD_TOWER && defender.level.value >= 10) {
         messages.add(
             TowerInfoMessage(
                 title = stringResource(Res.string.magical_trap_tutorial_title),
                 message = stringResource(Res.string.magical_trap_tutorial_message),
-                icon = { de.egril.defender.ui.icon.PentagramIcon(size = 32.dp) },
-                color = Color(0xFF9C27B0)  // Purple
-            )
+                icon = {
+                    de.egril.defender.ui.icon
+                        .PentagramIcon(size = 32.dp)
+                },
+                color = Color(0xFF9C27B0), // Purple
+            ),
         )
     }
-    
+
     // Extended area info (wizard or alchemy tower level 20+)
-    if ((defender.type == DefenderType.WIZARD_TOWER || defender.type == DefenderType.ALCHEMY_TOWER) && 
-        defender.level.value >= 20) {
+    if ((defender.type == DefenderType.WIZARD_TOWER || defender.type == DefenderType.ALCHEMY_TOWER) &&
+        defender.level.value >= 20
+    ) {
         messages.add(
             TowerInfoMessage(
                 title = stringResource(Res.string.extended_area_tutorial_title),
                 message = stringResource(Res.string.extended_area_tutorial_message),
-                icon = { de.egril.defender.ui.icon.ExplosionIcon(size = 32.dp) },
-                color = Color(0xFFFF5722)  // Deep orange
-            )
+                icon = {
+                    de.egril.defender.ui.icon
+                        .ExplosionIcon(size = 32.dp)
+                },
+                color = Color(0xFFFF5722), // Deep orange
+            ),
         )
     }
-    
+
     return messages
 }
 
@@ -1154,25 +1241,29 @@ private fun getTowerInfoMessages(defender: Defender, gameState: GameState): List
  * Triggers InfoState to show dialog as proper overlay
  */
 @Composable
-private fun TowerInfoButtonArea(defender: Defender, gameState: GameState) {
+private fun TowerInfoButtonArea(
+    defender: Defender,
+    gameState: GameState,
+) {
     val messages = getTowerInfoMessages(defender, gameState)
-    
+
     // Only show info icon if there are info messages for this tower
     if (messages.isEmpty()) {
         return
     }
-    
+
     // Info icon button - triggers InfoState to show dialog as overlay
     InfoIcon(
         size = 16.dp,
-        modifier = Modifier
-            .clickable {
-                gameState.infoState.value = gameState.infoState.value.showInfo(
-                    type = InfoType.TOWER_INFO,
-                    towerId = defender.id
-                )
-            }
-            .padding(4.dp)
+        modifier =
+            Modifier
+                .clickable {
+                    gameState.infoState.value =
+                        gameState.infoState.value.showInfo(
+                            type = InfoType.TOWER_INFO,
+                            towerId = defender.id,
+                        )
+                }.padding(4.dp),
     )
 }
 
@@ -1184,54 +1275,55 @@ private fun TowerInfoButtonArea(defender: Defender, gameState: GameState) {
 internal fun TowerInfoDialog(
     defender: Defender,
     gameState: GameState,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     val messages = getTowerInfoMessages(defender, gameState)
-    
+
     ScrollableInfoCard(
         title = {
             Text(
                 text = stringResource(Res.string.tower_info_title),
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
         },
         width = 600.dp,
         maxHeight = 500.dp,
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
     ) {
         messages.forEachIndexed { index, info ->
             if (index > 0) {
                 HorizontalDivider(
                     modifier = Modifier.padding(vertical = 8.dp),
-                    color = MaterialTheme.colorScheme.outline
+                    color = MaterialTheme.colorScheme.outline,
                 )
             }
-            
+
             // Subtitle with icon (doubled in size)
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier.padding(bottom = 8.dp),
             ) {
-                Box(modifier = Modifier.size(64.dp)) {  // Doubled from 32.dp
+                Box(modifier = Modifier.size(64.dp)) {
+                    // Doubled from 32.dp
                     info.icon()
                 }
                 Text(
                     text = info.title,
                     style = MaterialTheme.typography.titleMedium,
                     color = info.color,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
             }
-            
+
             // Message content
             Text(
                 text = info.message,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
             )
-            
+
             // Extra content (if any)
             info.extraContent?.invoke()
         }

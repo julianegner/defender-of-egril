@@ -10,7 +10,10 @@ import androidx.compose.ui.Modifier
  * When [animate] is false, no additional visual is shown (spawn point label already indicates the area).
  */
 @Composable
-fun EnemySpawnAnimation(animate: Boolean, modifier: Modifier = Modifier) {
+fun EnemySpawnAnimation(
+    animate: Boolean,
+    modifier: Modifier = Modifier,
+) {
     if (animate) {
         AnimatedEnemySpawn(modifier)
     }
@@ -22,6 +25,6 @@ private fun AnimatedEnemySpawn(modifier: Modifier = Modifier) {
     LottieAnimation(
         animationType = AnimationType.ENEMY_SPAWN,
         modifier = modifier.fillMaxSize(),
-        iterations = 1
+        iterations = 1,
     )
 }

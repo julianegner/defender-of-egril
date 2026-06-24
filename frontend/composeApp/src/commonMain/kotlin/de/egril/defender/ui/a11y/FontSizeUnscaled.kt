@@ -16,10 +16,11 @@ fun FontSizeUnscaled(content: @Composable () -> Unit) {
     val currentDensity = LocalDensity.current
     val fontSizeScale = AppSettings.fontSize.value.scale
     if (fontSizeScale != 1.0f) {
-        val unscaledDensity = Density(
-            density = currentDensity.density,
-            fontScale = currentDensity.fontScale / fontSizeScale
-        )
+        val unscaledDensity =
+            Density(
+                density = currentDensity.density,
+                fontScale = currentDensity.fontScale / fontSizeScale,
+            )
         CompositionLocalProvider(LocalDensity provides unscaledDensity) {
             content()
         }

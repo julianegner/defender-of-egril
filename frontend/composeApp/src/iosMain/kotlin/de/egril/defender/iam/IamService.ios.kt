@@ -6,8 +6,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.publicvalue.multiplatform.oidc.OpenIdConnectClient
-import org.publicvalue.multiplatform.oidc.types.CodeChallengeMethod
 import org.publicvalue.multiplatform.oidc.appsupport.IosCodeAuthFlowFactory
+import org.publicvalue.multiplatform.oidc.types.CodeChallengeMethod
 import platform.Foundation.NSDate
 
 actual fun getIamBaseUrl(): String = "https://sso.julianegner.de"
@@ -47,17 +47,18 @@ private val iamScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 // OIDC client factory
 // ---------------------------------------------------------------------------
 
-private fun createOidcClient(): OpenIdConnectClient = OpenIdConnectClient {
-    endpoints {
-        tokenEndpoint = IamConfig.tokenUrl
-        authorizationEndpoint = IamConfig.authUrl
-        endSessionEndpoint = IamConfig.logoutUrl
+private fun createOidcClient(): OpenIdConnectClient =
+    OpenIdConnectClient {
+        endpoints {
+            tokenEndpoint = IamConfig.tokenUrl
+            authorizationEndpoint = IamConfig.authUrl
+            endSessionEndpoint = IamConfig.logoutUrl
+        }
+        clientId = IamConfig.CLIENT_ID
+        scope = "openid profile"
+        codeChallengeMethod = CodeChallengeMethod.S256
+        redirectUri = IOS_REDIRECT_URI
     }
-    clientId = IamConfig.CLIENT_ID
-    scope = "openid profile"
-    codeChallengeMethod = CodeChallengeMethod.S256
-    redirectUri = IOS_REDIRECT_URI
-}
 
 /** Current time as epoch milliseconds using Foundation's NSDate. */
 private fun nowMs(): Long = (NSDate().timeIntervalSince1970 * 1000).toLong()
@@ -131,7 +132,7 @@ internal actual fun openPlatformAccountConsole() {
     platform.UIKit.UIApplication.sharedApplication.openURL(
         url = url,
         options = emptyMap<Any?, Any?>(),
-        completionHandler = null
+        completionHandler = null,
     )
 }
 

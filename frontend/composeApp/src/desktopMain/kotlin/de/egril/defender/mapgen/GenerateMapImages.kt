@@ -12,7 +12,6 @@ import java.io.File
  * [MapImageGenerator] and [MapImageEncoder], and writes the PNG alongside the JSON.
  */
 object GenerateMapImages {
-
     /**
      * Generate PNG images for all map JSON files in [mapsDir].
      * Skips maps whose PNG is already up-to-date (same mtime or newer).
@@ -20,11 +19,15 @@ object GenerateMapImages {
      * @param mapsDir Directory containing map_*.json files.
      * @param forceRegenerate If true, regenerate even when PNG already exists.
      */
-    fun generateAll(mapsDir: File, forceRegenerate: Boolean = false) {
+    fun generateAll(
+        mapsDir: File,
+        forceRegenerate: Boolean = false,
+    ) {
         require(mapsDir.isDirectory) { "Maps directory not found: ${mapsDir.absolutePath}" }
 
-        val jsonFiles = mapsDir.listFiles { f -> f.extension == "json" && f.name.startsWith("map_") }
-            ?: emptyArray()
+        val jsonFiles =
+            mapsDir.listFiles { f -> f.extension == "json" && f.name.startsWith("map_") }
+                ?: emptyArray()
 
         if (jsonFiles.isEmpty()) {
             println("GenerateMapImages: No map JSON files found in ${mapsDir.absolutePath}")
@@ -57,7 +60,10 @@ object GenerateMapImages {
      * Generate a single map PNG from [jsonFile] and write it to [pngFile].
      * @return true on success, false on failure.
      */
-    fun generateOne(jsonFile: File, pngFile: File): Boolean {
+    fun generateOne(
+        jsonFile: File,
+        pngFile: File,
+    ): Boolean {
         return try {
             val json = jsonFile.readText()
             val map = EditorJsonSerializer.deserializeMap(json)
@@ -94,13 +100,14 @@ object GenerateMapImages {
  *   [1] = "--force" to regenerate all images even if already up-to-date (optional)
  */
 fun main(args: Array<String>) {
-    val mapsDir = if (args.isNotEmpty() && args[0] != "--force") {
-        File(args[0])
-    } else {
-        // Default: relative to project root
-        val projectRoot = File(System.getProperty("user.dir"))
-        File(projectRoot, "composeApp/src/commonMain/composeResources/files/repository/maps")
-    }
+    val mapsDir =
+        if (args.isNotEmpty() && args[0] != "--force") {
+            File(args[0])
+        } else {
+            // Default: relative to project root
+            val projectRoot = File(System.getProperty("user.dir"))
+            File(projectRoot, "composeApp/src/commonMain/composeResources/files/repository/maps")
+        }
 
     val force = args.any { it == "--force" }
 

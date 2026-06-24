@@ -5,14 +5,13 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class LevelCompleteLayoutDecisionTest {
-
     @Test
     fun nativeMobileUsesMobileLevelCompleteLayout() {
         assertTrue(
             shouldUseMobileLevelCompleteLayout(
                 isNativeMobile = true,
-                isMobileWeb = false
-            )
+                isMobileWeb = false,
+            ),
         )
     }
 
@@ -21,8 +20,8 @@ class LevelCompleteLayoutDecisionTest {
         assertTrue(
             shouldUseMobileLevelCompleteLayout(
                 isNativeMobile = false,
-                isMobileWeb = true
-            )
+                isMobileWeb = true,
+            ),
         )
     }
 
@@ -31,8 +30,8 @@ class LevelCompleteLayoutDecisionTest {
         assertFalse(
             shouldUseMobileLevelCompleteLayout(
                 isNativeMobile = false,
-                isMobileWeb = false
-            )
+                isMobileWeb = false,
+            ),
         )
     }
 
@@ -41,8 +40,8 @@ class LevelCompleteLayoutDecisionTest {
         assertTrue(
             shouldStackLevelCompleteButtons(
                 isMobileLayout = true,
-                isPortrait = true
-            )
+                isPortrait = true,
+            ),
         )
     }
 
@@ -51,8 +50,8 @@ class LevelCompleteLayoutDecisionTest {
         assertFalse(
             shouldStackLevelCompleteButtons(
                 isMobileLayout = true,
-                isPortrait = false
-            )
+                isPortrait = false,
+            ),
         )
     }
 
@@ -61,8 +60,8 @@ class LevelCompleteLayoutDecisionTest {
         assertFalse(
             shouldStackLevelCompleteButtons(
                 isMobileLayout = false,
-                isPortrait = true
-            )
+                isPortrait = true,
+            ),
         )
     }
 }

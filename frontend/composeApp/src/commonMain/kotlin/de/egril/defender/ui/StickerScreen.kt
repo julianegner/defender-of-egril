@@ -19,10 +19,10 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DefenderType
 import de.egril.defender.ui.common.ScrollableTabRowWithHints
-import de.egril.defender.ui.icon.enemy.*
-import de.egril.defender.ui.icon.defender.*
-import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.feedback.FeedbackButton
+import de.egril.defender.ui.icon.defender.*
+import de.egril.defender.ui.icon.enemy.*
+import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.*
 import org.jetbrains.compose.resources.Font
@@ -42,18 +42,19 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun StickerScreen(
     onBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     var selectedTab by remember { mutableStateOf(0) }
 
     // Build the ordered list of symbol tabs (group tabs first, then individual enemy tabs)
-    val allSymbolTabs: List<SymbolTab> = remember {
-        buildList {
-            add(SymbolTab.BannerEnemies)
-            add(SymbolTab.BannerTowers)
-            AttackerType.entries.forEach { add(SymbolTab.SingleEnemy(it)) }
+    val allSymbolTabs: List<SymbolTab> =
+        remember {
+            buildList {
+                add(SymbolTab.BannerEnemies)
+                add(SymbolTab.BannerTowers)
+                AttackerType.entries.forEach { add(SymbolTab.SingleEnemy(it)) }
+            }
         }
-    }
 
     // Total tabs = original + banner image + allSymbolTabs + QR code
     val totalTabs = 1 + 1 + allSymbolTabs.size + 1
@@ -62,18 +63,18 @@ fun StickerScreen(
 
     Surface(
         modifier = modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+        color = MaterialTheme.colorScheme.background,
     ) {
         Box(
-            modifier = Modifier.fillMaxSize().padding(16.dp)
+            modifier = Modifier.fillMaxSize().padding(16.dp),
         ) {
-
             // Settings and Feedback buttons in top-right corner
             Row(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                modifier =
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 FeedbackButton()
                 SettingsButton()
@@ -82,37 +83,39 @@ fun StickerScreen(
             // Back button
             Button(
                 onClick = onBack,
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .width(200.dp)
-                    .height(50.dp)
-                    .padding(end = 80.dp, top = 8.dp)
+                modifier =
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .width(200.dp)
+                        .height(50.dp)
+                        .padding(end = 80.dp, top = 8.dp),
             ) {
                 Text(stringResource(Res.string.back))
             }
 
             // Main content with tabs
             Column(
-                modifier = Modifier
-                    .padding(top = 70.dp)
-                    .fillMaxSize()
+                modifier =
+                    Modifier
+                        .padding(top = 70.dp)
+                        .fillMaxSize(),
             ) {
                 // Use ScrollableTabRowWithHints because there are many tabs
                 ScrollableTabRowWithHints(
                     selectedTabIndex = selectedTab,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     // Tab 0: original sticker
                     Tab(
                         selected = selectedTab == 0,
                         onClick = { selectedTab = 0 },
-                        text = { Text(stringResource(Res.string.sticker_tab_original)) }
+                        text = { Text(stringResource(Res.string.sticker_tab_original)) },
                     )
                     // Tab 1: PNG banner image
                     Tab(
                         selected = selectedTab == bannerImageTabIndex,
                         onClick = { selectedTab = bannerImageTabIndex },
-                        text = { Text(stringResource(Res.string.sticker_tab_banner_image)) }
+                        text = { Text(stringResource(Res.string.sticker_tab_banner_image)) },
                     )
                     // Tabs 2..(2+allSymbolTabs.size-1): symbol tabs
                     allSymbolTabs.forEachIndexed { idx, tab ->
@@ -120,14 +123,14 @@ fun StickerScreen(
                         Tab(
                             selected = selectedTab == tabIndex,
                             onClick = { selectedTab = tabIndex },
-                            text = { Text(tab.label()) }
+                            text = { Text(tab.label()) },
                         )
                     }
                     // Last tab: QR code
                     Tab(
                         selected = selectedTab == qrCodeTabIndex,
                         onClick = { selectedTab = qrCodeTabIndex },
-                        text = { Text(stringResource(Res.string.sticker_tab_qr_code)) }
+                        text = { Text(stringResource(Res.string.sticker_tab_qr_code)) },
                     )
                 }
 
@@ -155,21 +158,26 @@ fun StickerScreen(
 private sealed interface SymbolTab {
     /** The three banner enemies (Goblin, Ork, EvilWizard) together */
     data object BannerEnemies : SymbolTab
+
     /** The two banner towers (Bow, Wizard) */
     data object BannerTowers : SymbolTab
+
     /** A single enemy type with outline */
-    data class SingleEnemy(val type: AttackerType) : SymbolTab
+    data class SingleEnemy(
+        val type: AttackerType,
+    ) : SymbolTab
 }
 
 /**
  * Returns the tab label for this [SymbolTab], using localized strings.
  */
 @Composable
-private fun SymbolTab.label(): String = when (this) {
-    is SymbolTab.BannerEnemies -> stringResource(Res.string.sticker_tab_enemies)
-    is SymbolTab.BannerTowers -> stringResource(Res.string.sticker_tab_towers)
-    is SymbolTab.SingleEnemy -> type.getLocalizedName()
-}
+private fun SymbolTab.label(): String =
+    when (this) {
+        is SymbolTab.BannerEnemies -> stringResource(Res.string.sticker_tab_enemies)
+        is SymbolTab.BannerTowers -> stringResource(Res.string.sticker_tab_towers)
+        is SymbolTab.SingleEnemy -> type.getLocalizedName()
+    }
 
 /**
  * Tab 0: Original sticker content with ApplicationBanner, tagline and URL.
@@ -179,12 +187,12 @@ private fun StickerOriginalTab() {
     Row(
         modifier = Modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.spacedBy(32.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(
             modifier = Modifier.weight(1f),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+            verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
             ApplicationBanner()
 
@@ -214,7 +222,7 @@ private fun StickerBannerImageTab() {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         ApplicationBannerImage()
     }
@@ -228,17 +236,18 @@ private fun StickerBannerImageTab() {
 private fun StickerSymbolTab(tab: SymbolTab) {
     val lineColor = MaterialTheme.colorScheme.onBackground
     val backgroundColor = MaterialTheme.colorScheme.background
-    val outlineColor = if (MaterialTheme.colorScheme.background.luminance() < 0.5f) {
-        Color.White
-    } else {
-        Color.Black
-    }
+    val outlineColor =
+        if (MaterialTheme.colorScheme.background.luminance() < 0.5f) {
+            Color.White
+        } else {
+            Color.Black
+        }
     val greatVibesFont = FontFamily(Font(Res.font.greatvibes_regular))
 
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         val canvasSize = if (isPlatformMobile) 160.dp else 200.dp
         Box(modifier = Modifier.size(canvasSize)) {
@@ -273,13 +282,14 @@ private fun StickerSymbolTab(tab: SymbolTab) {
                         val towerHeight = wizardBaseSize * 0.6f
                         val top = wizardCenterY - towerHeight / 2
                         val bottom = wizardCenterY + towerHeight / 2
-                        val trapezoid = Path().apply {
-                            moveTo(wizardCenterX - bottomWidth / 2, bottom)
-                            lineTo(wizardCenterX + bottomWidth / 2, bottom)
-                            lineTo(wizardCenterX + topWidth / 2, top)
-                            lineTo(wizardCenterX - topWidth / 2, top)
-                            close()
-                        }
+                        val trapezoid =
+                            Path().apply {
+                                moveTo(wizardCenterX - bottomWidth / 2, bottom)
+                                lineTo(wizardCenterX + bottomWidth / 2, bottom)
+                                lineTo(wizardCenterX + topWidth / 2, top)
+                                lineTo(wizardCenterX - topWidth / 2, top)
+                                close()
+                            }
                         drawPath(trapezoid, backgroundColor)
                         val battlement = wizardBaseSize * 0.08f
                         for (i in 0..2) {
@@ -287,7 +297,9 @@ private fun StickerSymbolTab(tab: SymbolTab) {
                             drawRect(
                                 color = backgroundColor,
                                 topLeft = Offset(x, top - battlement),
-                                size = androidx.compose.ui.geometry.Size(battlement, battlement)
+                                size =
+                                    androidx.compose.ui.geometry
+                                        .Size(battlement, battlement),
                             )
                         }
                         drawTower(DefenderType.WIZARD_TOWER, wizardCenterX, wizardCenterY, iconSize, lineColor)
@@ -319,14 +331,14 @@ private fun StickerSymbolTab(tab: SymbolTab) {
             fontSize = 32.sp,
             fontFamily = greatVibesFont,
             fontWeight = FontWeight.Normal,
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.onBackground,
         )
         Text(
             text = "Egril",
             fontSize = 56.sp,
             fontFamily = greatVibesFont,
             fontWeight = FontWeight.Normal,
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.onBackground,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -335,7 +347,7 @@ private fun StickerSymbolTab(tab: SymbolTab) {
             "defender.egril.de",
             style = MaterialTheme.typography.bodyLarge,
             fontSize = 18.sp,
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.onBackground,
         )
     }
 }
@@ -349,13 +361,13 @@ private fun StickerQrCodeTab() {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
     ) {
         val qrSize = if (isPlatformMobile) 200.dp else 280.dp
         Image(
             painter = painterResource(Res.drawable.qr_code_defender),
             contentDescription = "QR Code for defender.egril.de",
-            modifier = Modifier.size(qrSize)
+            modifier = Modifier.size(qrSize),
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -364,8 +376,7 @@ private fun StickerQrCodeTab() {
             "defender.egril.de",
             style = MaterialTheme.typography.titleLarge,
             fontSize = 22.sp,
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.onBackground,
         )
     }
 }
-

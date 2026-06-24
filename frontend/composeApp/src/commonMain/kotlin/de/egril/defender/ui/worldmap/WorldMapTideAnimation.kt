@@ -34,20 +34,21 @@ import org.jetbrains.compose.resources.painterResource
 private const val TIDE_CYCLE_MILLIS = 36000
 private val INNER_TIDE_COLOR = Color(0xFF7CC6FF)
 
-private val shorelineTideSliceResources = listOf(
-    Res.drawable.world_map_tide_band01,
-    Res.drawable.world_map_tide_band02,
-    Res.drawable.world_map_tide_band03,
-    Res.drawable.world_map_tide_band04,
-    Res.drawable.world_map_tide_band05,
-    Res.drawable.world_map_tide_band06,
-    Res.drawable.world_map_tide_band07,
-    Res.drawable.world_map_tide_band08,
-    Res.drawable.world_map_tide_band09,
-    Res.drawable.world_map_tide_band10,
-    Res.drawable.world_map_tide_band11,
-    Res.drawable.world_map_tide_band12,
-)
+private val shorelineTideSliceResources =
+    listOf(
+        Res.drawable.world_map_tide_band01,
+        Res.drawable.world_map_tide_band02,
+        Res.drawable.world_map_tide_band03,
+        Res.drawable.world_map_tide_band04,
+        Res.drawable.world_map_tide_band05,
+        Res.drawable.world_map_tide_band06,
+        Res.drawable.world_map_tide_band07,
+        Res.drawable.world_map_tide_band08,
+        Res.drawable.world_map_tide_band09,
+        Res.drawable.world_map_tide_band10,
+        Res.drawable.world_map_tide_band11,
+        Res.drawable.world_map_tide_band12,
+    )
 
 @Composable
 fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
@@ -57,17 +58,19 @@ fun WorldMapTideAnimation(modifier: Modifier = Modifier) {
     val shorelineVisibleSliceProgress by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 0f,
-        animationSpec = infiniteRepeatable(
-            animation = keyframes {
-                durationMillis = TIDE_CYCLE_MILLIS
-                0f at 0 using EaseInOut
-                shorelineTideSliceResources.size.toFloat() at 12000 using EaseInOut
-                shorelineTideSliceResources.size.toFloat() at 18000 using EaseInOut
-                0f at 30000 using EaseInOut
-                0f at TIDE_CYCLE_MILLIS
-            },
-            repeatMode = RepeatMode.Restart,
-        ),
+        animationSpec =
+            infiniteRepeatable(
+                animation =
+                    keyframes {
+                        durationMillis = TIDE_CYCLE_MILLIS
+                        0f at 0 using EaseInOut
+                        shorelineTideSliceResources.size.toFloat() at 12000 using EaseInOut
+                        shorelineTideSliceResources.size.toFloat() at 18000 using EaseInOut
+                        0f at 30000 using EaseInOut
+                        0f at TIDE_CYCLE_MILLIS
+                    },
+                repeatMode = RepeatMode.Restart,
+            ),
         label = "shorelineVisibleSliceProgress",
     )
 

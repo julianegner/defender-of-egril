@@ -1,30 +1,31 @@
 package de.egril.defender.game
 
 import androidx.compose.runtime.mutableStateOf
+import de.egril.defender.config.LogConfig
 import de.egril.defender.model.*
 import kotlin.math.min
-import de.egril.defender.config.LogConfig
 
 /**
  * Handles special enemy abilities like summoning demons, healing, disabling towers, and building bridges.
  */
-class EnemyAbilitySystem(private val state: GameState) {
-    
+class EnemyAbilitySystem(
+    private val state: GameState,
+) {
     private val bridgeSystem = BridgeSystem(state)
-    
+
     fun processEnemyAbilities() {
         // Create a snapshot of attackers to avoid ConcurrentModificationException
         // when spawning new demons during iteration
         val attackersSnapshot = state.attackers.toList()
-        
+
         for (attacker in attackersSnapshot) {
             if (attacker.isDefeated.value) continue
-            
+
             // Decrement summon cooldown
             if (attacker.summonCooldown.value > 0) {
                 attacker.summonCooldown.value--
             }
-            
+
             when (attacker.type) {
                 AttackerType.EVIL_WIZARD -> {
                     handleSummon(
@@ -41,25 +42,30 @@ class EnemyAbilitySystem(private val state: GameState) {
                         state,
                         blueDemons = attacker.level.value * 2,
                         redDemons = attacker.level.value,
-                        undead = 3
+                        undead = 3,
                     )
                 }
                 AttackerType.GREEN_WITCH -> {
                     // Heal adjacent units (5x level healing amount)
                     val adjacentPositions = attacker.position.value.getHexNeighbors()
                     if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-                    println("DEBUG: Green witch ${attacker.id} at ${attacker.position.value} checking ${adjacentPositions.size} adjacent positions")
+                        println(
+                            "DEBUG: Green witch ${attacker.id} at ${attacker.position.value} checking ${adjacentPositions.size} adjacent positions",
+                        )
                     }
                     var healedCount = 0
                     for (adjacent in adjacentPositions) {
-                        val adjacentEnemy = state.attackers.find { 
-                            !it.isDefeated.value && it.id != attacker.id && it.position.value == adjacent 
-                        }
+                        val adjacentEnemy =
+                            state.attackers.find {
+                                !it.isDefeated.value && it.id != attacker.id && it.position.value == adjacent
+                            }
                         if (adjacentEnemy != null) {
                             // Heal 5x witch level, but never exceed max health
                             val healAmount = min(attacker.level.value * 5, adjacentEnemy.maxHealth - adjacentEnemy.currentHealth.value)
                             if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-                            println("DEBUG: Found ${adjacentEnemy.type} at $adjacent, HP ${adjacentEnemy.currentHealth.value}/${adjacentEnemy.maxHealth}, heal amount: $healAmount")
+                                println(
+                                    "DEBUG: Found ${adjacentEnemy.type} at $adjacent, HP ${adjacentEnemy.currentHealth.value}/${adjacentEnemy.maxHealth}, heal amount: $healAmount",
+                                )
                             }
                             if (healAmount > 0) {
                                 adjacentEnemy.currentHealth.value += healAmount
@@ -70,20 +76,24 @@ class EnemyAbilitySystem(private val state: GameState) {
                                         position = adjacent,
                                         type = HealingEffectType.GREEN_WITCH,
                                         healAmount = healAmount,
-                                        turnNumber = state.turnNumber.value
-                                    )
+                                        turnNumber = state.turnNumber.value,
+                                    ),
                                 )
                                 if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-                                println("DEBUG: Healed ${adjacentEnemy.type} for $healAmount HP (new HP: ${adjacentEnemy.currentHealth.value})")
+                                    println(
+                                        "DEBUG: Healed ${adjacentEnemy.type} for $healAmount HP (new HP: ${adjacentEnemy.currentHealth.value})",
+                                    )
                                 }
                             }
-                            
+
                             // Remove up to 3 barbs from adjacent enemy
                             if (adjacentEnemy.movementPenalty.value > 0) {
                                 val barbsToRemove = minOf(3, adjacentEnemy.movementPenalty.value)
                                 adjacentEnemy.movementPenalty.value -= barbsToRemove
                                 if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-                                println("DEBUG: Green witch removed $barbsToRemove barbs from ${adjacentEnemy.type}, remaining penalty: ${adjacentEnemy.movementPenalty.value}")
+                                    println(
+                                        "DEBUG: Green witch removed $barbsToRemove barbs from ${adjacentEnemy.type}, remaining penalty: ${adjacentEnemy.movementPenalty.value}",
+                                    )
                                 }
                             }
                         }
@@ -92,7 +102,7 @@ class EnemyAbilitySystem(private val state: GameState) {
                         println("DEBUG: Green witch ${attacker.id} healed $healedCount enemies")
                     } else {
                         if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-                        println("DEBUG: Green witch ${attacker.id} found no adjacent damaged enemies to heal")
+                            println("DEBUG: Green witch ${attacker.id} found no adjacent damaged enemies to heal")
                         }
                     }
                 }
@@ -119,7 +129,7 @@ class EnemyAbilitySystem(private val state: GameState) {
         blueDemons: Int,
         redDemons: Int,
         undead: Int = 0,
-        fixedLevel : Int? = null
+        fixedLevel: Int? = null,
     ) {
         if (attacker.summonCooldown.value == 0) {
             repeat(blueDemons) {
@@ -129,67 +139,82 @@ class EnemyAbilitySystem(private val state: GameState) {
                 spawnDemonNear(attacker, AttackerType.RED_DEMON, fixedLevel ?: state.turnNumber.value)
             }
             repeat(undead) {
-                spawnUndeadNear(attacker, 10 + (fixedLevel ?:  state.turnNumber.value))
+                spawnUndeadNear(attacker, 10 + (fixedLevel ?: state.turnNumber.value))
             }
             attacker.summonCooldown.value = 3
         }
     }
-    
+
     /**
      * Spawn a demon near the given attacker (1-2 cells away)
      */
-    private fun spawnDemonNear(summoner: Attacker, demonType: AttackerType, level: Int) {
+    private fun spawnDemonNear(
+        summoner: Attacker,
+        demonType: AttackerType,
+        level: Int,
+    ) {
         val summonerPos = summoner.position.value
-        
+
         // Try to find a free position 1-2 cells away
         val possiblePositions = mutableListOf<Position>()
-        
+
         // Get positions 1 cell away
         possiblePositions.addAll(summonerPos.getHexNeighbors())
-        
+
         // Get positions 2 cells away
         for (neighbor in summonerPos.getHexNeighbors()) {
             possiblePositions.addAll(neighbor.getHexNeighbors())
         }
-        
+
         // Filter valid positions (on path, not occupied, within bounds)
-        val validPositions = possiblePositions.filter { pos ->
-            pos.x >= 0 && pos.x < state.level.gridWidth &&
-            pos.y >= 0 && pos.y < state.level.gridHeight &&
-            state.level.isOnPath(pos) &&
-            !state.attackers.any { it.position.value == pos && !it.isDefeated.value }
-        }.distinct()
-        
+        val validPositions =
+            possiblePositions
+                .filter { pos ->
+                    pos.x >= 0 &&
+                        pos.x < state.level.gridWidth &&
+                        pos.y >= 0 &&
+                        pos.y < state.level.gridHeight &&
+                        state.level.isOnPath(pos) &&
+                        !state.attackers.any { it.position.value == pos && !it.isDefeated.value }
+                }.distinct()
+
         if (validPositions.isEmpty()) return
-        
+
         // Pick a random position
         val spawnPos = validPositions.random()
-        
+
         // Inherit the summoner's current target so demons follow the same waypoint chain
-        val inheritedTarget = summoner.currentTarget?.value ?: if (state.level.waypoints.isNotEmpty()) {
-            // Use the first waypoint's next target, not the waypoint position itself
-            state.level.waypoints.first().nextTarget
-        } else {
-            state.level.targetPositions.first()
-        }
-        
-        val demon = Attacker(
-            id = state.nextAttackerId.value++,
-            type = demonType,
-            position = mutableStateOf(spawnPos),
-            level = mutableStateOf(level),
-            currentTarget = mutableStateOf(inheritedTarget)
-        )
+        val inheritedTarget =
+            summoner.currentTarget?.value ?: if (state.level.waypoints.isNotEmpty()) {
+                // Use the first waypoint's next target, not the waypoint position itself
+                state.level.waypoints
+                    .first()
+                    .nextTarget
+            } else {
+                state.level.targetPositions.first()
+            }
+
+        val demon =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = demonType,
+                position = mutableStateOf(spawnPos),
+                level = mutableStateOf(level),
+                currentTarget = mutableStateOf(inheritedTarget),
+            )
         state.attackers.add(demon)
     }
-    
+
     /**
      * Spawn an undead (skeleton) near the given attacker
      */
-    private fun spawnUndeadNear(summoner: Attacker, level: Int) {
+    private fun spawnUndeadNear(
+        summoner: Attacker,
+        level: Int,
+    ) {
         spawnDemonNear(summoner, AttackerType.SKELETON, level)
     }
-    
+
     /**
      * Red Witch disables adjacent towers (within 1 hex distance).
      * Disables one tower per turn.
@@ -199,54 +224,61 @@ class EnemyAbilitySystem(private val state: GameState) {
     private fun disableNearestTower(witch: Attacker) {
         // Get adjacent positions (1 hex distance)
         val adjacentPositions = witch.position.value.getHexNeighbors()
-        
+
         if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-        println("DEBUG: Red witch ${witch.id} level ${witch.level.value} at ${witch.position.value} checking ${adjacentPositions.size} adjacent positions")
+            println(
+                "DEBUG: Red witch ${witch.id} level ${witch.level.value} at ${witch.position.value} checking ${adjacentPositions.size} adjacent positions",
+            )
         }
         if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-        println("DEBUG: Adjacent positions: $adjacentPositions")
+            println("DEBUG: Adjacent positions: $adjacentPositions")
         }
-        
+
         // Log all towers in the game for debugging
         if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-        println("DEBUG: All towers in game (${state.defenders.size}):")
+            println("DEBUG: All towers in game (${state.defenders.size}):")
         }
         state.defenders.forEach { tower ->
             if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-            println("DEBUG:   ${tower.type} id=${tower.id} level=${tower.level.value} at ${tower.position.value} isReady=${tower.isReady} isDisabled=${tower.isDisabled.value}")
+                println(
+                    "DEBUG:   ${tower.type} id=${tower.id} level=${tower.level.value} at ${tower.position.value} isReady=${tower.isReady} isDisabled=${tower.isDisabled.value}",
+                )
             }
         }
-        
+
         // Find adjacent towers that:
         // - Is ready (not building)
         // - Is not already disabled
         // - Is adjacent (within 1 hex)
         // - Can be disabled by this witch (tower level <= witch level)
-        val adjacentTowers = state.defenders.filter { tower ->
-            val isReady = tower.isReady
-            val notDisabled = !tower.isDisabled.value
-            val isAdjacent = adjacentPositions.contains(tower.position.value)
-            val canDisable = tower.level.value <= witch.level.value
-            
-            if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-            println("DEBUG: Checking tower ${tower.type} id=${tower.id}: isReady=$isReady, notDisabled=$notDisabled, isAdjacent=$isAdjacent, canDisable=$canDisable (tower level ${tower.level.value} vs witch level ${witch.level.value})")
+        val adjacentTowers =
+            state.defenders.filter { tower ->
+                val isReady = tower.isReady
+                val notDisabled = !tower.isDisabled.value
+                val isAdjacent = adjacentPositions.contains(tower.position.value)
+                val canDisable = tower.level.value <= witch.level.value
+
+                if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
+                    println(
+                        "DEBUG: Checking tower ${tower.type} id=${tower.id}: isReady=$isReady, notDisabled=$notDisabled, isAdjacent=$isAdjacent, canDisable=$canDisable (tower level ${tower.level.value} vs witch level ${witch.level.value})",
+                    )
+                }
+
+                isReady && notDisabled && isAdjacent && canDisable
             }
-            
-            isReady && notDisabled && isAdjacent && canDisable
-        }
-        
+
         if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-        println("DEBUG: Found ${adjacentTowers.size} eligible adjacent towers to disable")
+            println("DEBUG: Found ${adjacentTowers.size} eligible adjacent towers to disable")
         }
-        
+
         if (adjacentTowers.isEmpty()) {
             println("DEBUG: Red witch ${witch.id} found no eligible adjacent towers to disable")
             return
         }
-        
+
         // Pick the first adjacent tower (any adjacent tower is valid)
         val targetTower = adjacentTowers.firstOrNull()
-        
+
         if (targetTower != null) {
             // Calculate disable duration: 1 turn base + 1 per 5 levels
             // +1 to account for immediate decrement at end of this turn
@@ -255,16 +287,18 @@ class EnemyAbilitySystem(private val state: GameState) {
             // Level 10-14: 4 turns (disabled for 3 player turns)
             // Level 20-24: 5 turns (disabled for 4 player turns), etc.
             val disableDuration = 1 + (witch.level.value / 5) + 1
-            
+
             targetTower.isDisabled.value = true
             targetTower.disabledTurnsRemaining.value = disableDuration
-            
+
             if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-            println("DEBUG: Red witch ${witch.id} disabled ${targetTower.type} id=${targetTower.id} at ${targetTower.position.value} for $disableDuration turns")
+                println(
+                    "DEBUG: Red witch ${witch.id} disabled ${targetTower.type} id=${targetTower.id} at ${targetTower.position.value} for $disableDuration turns",
+                )
             }
         }
     }
-    
+
     /**
      * Update tower disable status - decrement timers and re-enable towers
      */
@@ -278,67 +312,73 @@ class EnemyAbilitySystem(private val state: GameState) {
             }
         }
     }
-    
+
     /**
      * Find the nearest active tower for Red Witch to target
      */
     fun findNearestActiveTower(witch: Attacker): Defender? {
-        val eligibleTowers = state.defenders.filter { tower ->
-            tower.isReady && !tower.isDisabled.value && tower.level.value <= witch.level.value
-        }
-        
+        val eligibleTowers =
+            state.defenders.filter { tower ->
+                tower.isReady && !tower.isDisabled.value && tower.level.value <= witch.level.value
+            }
+
         if (eligibleTowers.isEmpty()) return null
-        
+
         return eligibleTowers.minByOrNull { tower ->
             tower.position.value.distanceTo(witch.position.value)
         }
     }
-    
+
     /**
      * Find a position on the path near the target tower for Red Witch to move towards
      */
     fun findPathPositionNearTower(towerPosition: Position): Position {
         // Find all path positions adjacent to the tower
-        val adjacentPathPositions = towerPosition.getHexNeighbors().filter { pos ->
-            pos.x >= 0 && pos.x < state.level.gridWidth &&
-            pos.y >= 0 && pos.y < state.level.gridHeight &&
-            state.level.isOnPath(pos)
-        }
-        
+        val adjacentPathPositions =
+            towerPosition.getHexNeighbors().filter { pos ->
+                pos.x >= 0 &&
+                    pos.x < state.level.gridWidth &&
+                    pos.y >= 0 &&
+                    pos.y < state.level.gridHeight &&
+                    state.level.isOnPath(pos)
+            }
+
         // Return the first adjacent path position, or tower position if none found
         return adjacentPathPositions.firstOrNull() ?: towerPosition
     }
-    
+
     /**
      * Find the nearest damaged enemy for Green Witch to move towards and heal.
      * Prioritizes Ewhad if he exists and has damaged health.
      */
     fun findHealingTarget(witch: Attacker): Attacker? {
         // First check if Ewhad exists and is damaged
-        val ewhad = state.attackers.find {
-            it.type == AttackerType.EWHAD &&
-            !it.isDefeated.value &&
-            it.currentHealth.value < it.maxHealth
-        }
-        
+        val ewhad =
+            state.attackers.find {
+                it.type == AttackerType.EWHAD &&
+                    !it.isDefeated.value &&
+                    it.currentHealth.value < it.maxHealth
+            }
+
         if (ewhad != null) {
-            return ewhad  // Always prioritize healing Ewhad
+            return ewhad // Always prioritize healing Ewhad
         }
-        
+
         // Otherwise, find nearest damaged enemy
-        val damagedEnemies = state.attackers.filter {
-            !it.isDefeated.value &&
-            it.id != witch.id &&
-            it.currentHealth.value < it.maxHealth
-        }
-        
+        val damagedEnemies =
+            state.attackers.filter {
+                !it.isDefeated.value &&
+                    it.id != witch.id &&
+                    it.currentHealth.value < it.maxHealth
+            }
+
         if (damagedEnemies.isEmpty()) return null
-        
+
         return damagedEnemies.minByOrNull { enemy ->
             witch.position.value.distanceTo(enemy.position.value)
         }
     }
-    
+
     /**
      * Find the nearest tower that is not disabled for Red Witch to move towards and disable.
      * Returns the tower's position if found.
@@ -346,17 +386,19 @@ class EnemyAbilitySystem(private val state: GameState) {
      */
     fun findTowerTarget(witch: Attacker): Position? {
         // Find ready towers that are not disabled and can be disabled by this witch
-        val availableTowers = state.defenders.filter { tower ->
-            tower.isReady && !tower.isDisabled.value && tower.level.value <= witch.level.value
-        }
-        
+        val availableTowers =
+            state.defenders.filter { tower ->
+                tower.isReady && !tower.isDisabled.value && tower.level.value <= witch.level.value
+            }
+
         if (availableTowers.isEmpty()) return null
-        
+
         // Find the closest tower
-        val nearestTower = availableTowers.minByOrNull { tower ->
-            witch.position.value.distanceTo(tower.position.value)
-        }
-        
+        val nearestTower =
+            availableTowers.minByOrNull { tower ->
+                witch.position.value.distanceTo(tower.position.value)
+            }
+
         return nearestTower?.position?.value
     }
 }

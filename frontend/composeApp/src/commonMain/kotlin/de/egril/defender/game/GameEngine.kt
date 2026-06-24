@@ -3,68 +3,76 @@ package de.egril.defender.game
 import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.audio.GlobalSoundManager
 import de.egril.defender.audio.SoundEvent
-import de.egril.defender.model.*
 import de.egril.defender.config.GameLogBuffer
 import de.egril.defender.config.LogConfig
+import de.egril.defender.model.*
 
 /**
  * Main game engine that coordinates all game systems.
  * Delegates to specialized subsystems for better organization and maintainability.
  */
-class GameEngine(private val state: GameState) {
-    
+class GameEngine(
+    private val state: GameState,
+) {
     // Specialized subsystems
     private val towerManager = TowerManager(state)
     private val pathfinding = PathfindingSystem(state)
     private val bridgeSystem = BridgeSystem(state)
-    private val combatSystem = CombatSystem(
-        state,
-        bridgeSystem,
-        getEffectiveLevel = { defender -> getEffectiveLevel(defender) },
-        getEffectiveRange = { defender -> getEffectiveRange(defender) }
-    )
+    private val combatSystem =
+        CombatSystem(
+            state,
+            bridgeSystem,
+            getEffectiveLevel = { defender -> getEffectiveLevel(defender) },
+            getEffectiveRange = { defender -> getEffectiveRange(defender) },
+        )
     private val enemyMovement = EnemyMovementSystem(state, pathfinding)
     private val enemyAbilities = EnemyAbilitySystem(state)
     private val mineOperations = MineOperations(state)
     private val raftSystem = RaftSystem(state)
-    private val barricadeSystem = BarricadeSystem(state)  // Add barricade system
-    
+    private val barricadeSystem = BarricadeSystem(state) // Add barricade system
+
     // Callback for dragon level changes (stored to set on new dragons)
     private var dragonLevelChangeCallback: ((oldLevel: Int, newLevel: Int) -> Unit)? = null
-    
+
     // Tower Management - delegated to TowerManager
-    fun placeDefender(type: DefenderType, position: Position, instantDeploy: Boolean = false): Boolean =
-        towerManager.placeDefender(type, position, instantDeploy)
-    
-    fun upgradeDefender(defenderId: Int): Boolean =
-        towerManager.upgradeDefender(defenderId)
-    
-    fun undoTower(defenderId: Int): Boolean =
-        towerManager.undoTower(defenderId)
-    
-    fun sellTower(defenderId: Int): Boolean =
-        towerManager.sellTower(defenderId)
-    
+    fun placeDefender(
+        type: DefenderType,
+        position: Position,
+        instantDeploy: Boolean = false,
+    ): Boolean = towerManager.placeDefender(type, position, instantDeploy)
+
+    fun upgradeDefender(defenderId: Int): Boolean = towerManager.upgradeDefender(defenderId)
+
+    fun undoTower(defenderId: Int): Boolean = towerManager.undoTower(defenderId)
+
+    fun sellTower(defenderId: Int): Boolean = towerManager.sellTower(defenderId)
+
     // Combat System - delegated to CombatSystem
-    fun defenderAttack(defenderId: Int, targetId: Int): Boolean =
-        combatSystem.defenderAttack(defenderId, targetId) { combatSystem.processDefeatedAttackers() }
-    
-    fun defenderAttackPosition(defenderId: Int, targetPosition: Position): Boolean =
-        combatSystem.defenderAttackPosition(defenderId, targetPosition) { combatSystem.processDefeatedAttackers() }
-    
+    fun defenderAttack(
+        defenderId: Int,
+        targetId: Int,
+    ): Boolean = combatSystem.defenderAttack(defenderId, targetId) { combatSystem.processDefeatedAttackers() }
+
+    fun defenderAttackPosition(
+        defenderId: Int,
+        targetPosition: Position,
+    ): Boolean = combatSystem.defenderAttackPosition(defenderId, targetPosition) { combatSystem.processDefeatedAttackers() }
+
     // Mine Operations - delegated to MineOperations
-    fun performMineDig(mineId: Int): DigOutcome? =
-        mineOperations.performMineDig(mineId)
-    
-    fun performMineDigWithOutcome(outcomeType: DigOutcome): DigOutcome? =
-        mineOperations.performMineDigWithOutcome(outcomeType)
-    
-    fun performMineBuildTrap(mineId: Int, trapPosition: Position): Boolean =
-        mineOperations.performMineBuildTrap(mineId, trapPosition)
-    
-    fun performWizardPlaceMagicalTrap(wizardId: Int, trapPosition: Position): Boolean =
-        mineOperations.performWizardPlaceMagicalTrap(wizardId, trapPosition)
-    
+    fun performMineDig(mineId: Int): DigOutcome? = mineOperations.performMineDig(mineId)
+
+    fun performMineDigWithOutcome(outcomeType: DigOutcome): DigOutcome? = mineOperations.performMineDigWithOutcome(outcomeType)
+
+    fun performMineBuildTrap(
+        mineId: Int,
+        trapPosition: Position,
+    ): Boolean = mineOperations.performMineBuildTrap(mineId, trapPosition)
+
+    fun performWizardPlaceMagicalTrap(
+        wizardId: Int,
+        trapPosition: Position,
+    ): Boolean = mineOperations.performWizardPlaceMagicalTrap(wizardId, trapPosition)
+
     /**
      * Perform wizard mana generation action
      * Generates base 5 mana + (wizard level / 5) bonus mana
@@ -97,18 +105,21 @@ class GameEngine(private val state: GameState) {
 
         // Log mana generation
         if (LogConfig.ENABLE_SPELL_LOGGING) {
-            println("=== SPELL: Wizard tower $wizardId generated $actualManaGenerated mana (${state.currentMana.value}/${state.maxMana.value})")
+            println(
+                "=== SPELL: Wizard tower $wizardId generated $actualManaGenerated mana (${state.currentMana.value}/${state.maxMana.value})",
+            )
         }
 
         return true
     }
 
     // Barricade Operations - delegated to BarricadeSystem
-    fun performBuildBarricade(towerId: Int, barricadePosition: Position): Boolean =
-        barricadeSystem.performBuildBarricade(towerId, barricadePosition)
-    
-    fun removeBarricade(position: Position): Int =
-        barricadeSystem.removeBarricade(position)
+    fun performBuildBarricade(
+        towerId: Int,
+        barricadePosition: Position,
+    ): Boolean = barricadeSystem.performBuildBarricade(towerId, barricadePosition)
+
+    fun removeBarricade(position: Position): Int = barricadeSystem.removeBarricade(position)
 
     fun autoDefenderAttacks() {
         if (state.phase.value != GamePhase.PLAYER_TURN) return
@@ -124,39 +135,43 @@ class GameEngine(private val state: GameState) {
 
             while (defender.actionsRemaining.value > 0) {
                 // Get fresh list of active attackers for each attack
-                val activeAttackers = state.attackers.filter { attacker ->
-                    !attacker.isDefeated.value && !attacker.isBuildingBridge.value
-                }
-                
+                val activeAttackers =
+                    state.attackers.filter { attacker ->
+                        !attacker.isDefeated.value && !attacker.isBuildingBridge.value
+                    }
+
                 // If no attackers left, we're done
                 if (activeAttackers.isEmpty()) return
-                
-                val attackSucceeded = when (defender.type.attackType) {
-                    AttackType.MELEE, AttackType.RANGED -> {
-                        val target = selectAutoTargetForDefender(defender, activeAttackers) ?: break
-                        val success = combatSystem.defenderAttack(defender.id, target.id) {
-                            combatSystem.processDefeatedAttackers()
+
+                val attackSucceeded =
+                    when (defender.type.attackType) {
+                        AttackType.MELEE, AttackType.RANGED -> {
+                            val target = selectAutoTargetForDefender(defender, activeAttackers) ?: break
+                            val success =
+                                combatSystem.defenderAttack(defender.id, target.id) {
+                                    combatSystem.processDefeatedAttackers()
+                                }
+                            // If attack failed, break to avoid infinite loop
+                            if (!success) break
+                            success
                         }
-                        // If attack failed, break to avoid infinite loop
-                        if (!success) break
-                        success
-                    }
-                    AttackType.AREA, AttackType.LASTING -> {
-                        // For area/lasting attacks, find the best position that hits the most enemies
-                        val targetPosition = selectBestAreaAttackPosition(defender, activeAttackers) ?: break
-                        val success = combatSystem.defenderAttackPosition(defender.id, targetPosition) {
-                            combatSystem.processDefeatedAttackers()
+                        AttackType.AREA, AttackType.LASTING -> {
+                            // For area/lasting attacks, find the best position that hits the most enemies
+                            val targetPosition = selectBestAreaAttackPosition(defender, activeAttackers) ?: break
+                            val success =
+                                combatSystem.defenderAttackPosition(defender.id, targetPosition) {
+                                    combatSystem.processDefeatedAttackers()
+                                }
+                            // If attack failed (invalid position), break to avoid infinite loop
+                            if (!success) break
+                            success
                         }
-                        // If attack failed (invalid position), break to avoid infinite loop
-                        if (!success) break
-                        success
+                        AttackType.NONE -> break
                     }
-                    AttackType.NONE -> break
-                }
             }
         }
     }
-    
+
     fun checkAndActivateTraps() {
         mineOperations.checkAndActivateTraps { combatSystem.processDefeatedAttackers() }
     }
@@ -203,17 +218,21 @@ class GameEngine(private val state: GameState) {
         }
     }
 
-    private fun selectAutoTargetForDefender(defender: Defender, candidates: List<Attacker>): Attacker? {
-        val attackable = candidates.filter { attacker ->
-            !attacker.isDefeated.value && defender.canAttack(attacker)
-        }
+    private fun selectAutoTargetForDefender(
+        defender: Defender,
+        candidates: List<Attacker>,
+    ): Attacker? {
+        val attackable =
+            candidates.filter { attacker ->
+                !attacker.isDefeated.value && defender.canAttack(attacker)
+            }
         if (attackable.isEmpty()) return null
 
         return attackable.minWithOrNull(
             compareByDescending<Attacker> { threatScore(it) }
                 .thenBy { estimateRemainingDistanceToGoal(it) }
                 .thenBy { it.currentHealth.value }
-                .thenBy { it.id }
+                .thenBy { it.id },
         )
     }
 
@@ -221,16 +240,19 @@ class GameEngine(private val state: GameState) {
      * Select the best position for an area or lasting attack.
      * Tries to maximize the number of enemies hit, prioritizing high-threat enemies.
      */
-    private fun selectBestAreaAttackPosition(defender: Defender, candidates: List<Attacker>): Position? {
+    private fun selectBestAreaAttackPosition(
+        defender: Defender,
+        candidates: List<Attacker>,
+    ): Position? {
         val radius = defender.areaEffectRadius
-        
+
         // Collect all enemy positions that could potentially be in range
         val enemyPositions = candidates.filter { !it.isDefeated.value }.map { it.position.value }.toSet()
-        
+
         // Find all valid attack positions (within defender's direct range)
         // These are positions we can target with our area attack
         val validAttackPositions = mutableSetOf<Position>()
-        
+
         // Check all enemy positions and their neighbors as potential target positions
         for (enemyPos in enemyPositions) {
             // Add the enemy position itself
@@ -240,7 +262,7 @@ class GameEngine(private val state: GameState) {
                     validAttackPositions.add(enemyPos)
                 }
             }
-            
+
             // Also consider positions near the enemy (within area radius)
             // that are within our direct attack range
             if (radius > 0) {
@@ -255,57 +277,64 @@ class GameEngine(private val state: GameState) {
                 }
             }
         }
-        
+
         if (validAttackPositions.isEmpty()) return null
-        
+
         // For each position, count how many enemies would be hit (considering area effect)
-        val positionScores = validAttackPositions.map { targetPos ->
-            val affectedPositions = mutableSetOf(targetPos)
-            
-            if (radius == 1) {
-                affectedPositions.addAll(
-                    targetPos.getHexNeighbors().filter { neighbor ->
-                        neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
-                        neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
-                        (state.level.isOnPath(neighbor) || state.isBridgeAt(neighbor))
-                    }
-                )
-            } else {
-                affectedPositions.addAll(
-                    targetPos.getHexNeighborsWithinRadius(radius, state.level.gridWidth, state.level.gridHeight)
-                        .filter { state.level.isOnPath(it) || state.isBridgeAt(it) }
-                )
-            }
-            
-            // Count enemies in affected area (considering immunities)
-            val affectedEnemies = candidates.filter { attacker ->
-                !attacker.isDefeated.value && 
-                affectedPositions.contains(attacker.position.value) &&
-                when (defender.type.attackType) {
-                    AttackType.AREA -> attacker.canBeDamagedByFireball()
-                    AttackType.LASTING -> attacker.canBeDamagedByAcid()
-                    else -> true  // Should not happen for other attack types
+        val positionScores =
+            validAttackPositions.map { targetPos ->
+                val affectedPositions = mutableSetOf(targetPos)
+
+                if (radius == 1) {
+                    affectedPositions.addAll(
+                        targetPos.getHexNeighbors().filter { neighbor ->
+                            neighbor.x >= 0 &&
+                                neighbor.x < state.level.gridWidth &&
+                                neighbor.y >= 0 &&
+                                neighbor.y < state.level.gridHeight &&
+                                (state.level.isOnPath(neighbor) || state.isBridgeAt(neighbor))
+                        },
+                    )
+                } else {
+                    affectedPositions.addAll(
+                        targetPos
+                            .getHexNeighborsWithinRadius(radius, state.level.gridWidth, state.level.gridHeight)
+                            .filter { state.level.isOnPath(it) || state.isBridgeAt(it) },
+                    )
                 }
+
+                // Count enemies in affected area (considering immunities)
+                val affectedEnemies =
+                    candidates.filter { attacker ->
+                        !attacker.isDefeated.value &&
+                            affectedPositions.contains(attacker.position.value) &&
+                            when (defender.type.attackType) {
+                                AttackType.AREA -> attacker.canBeDamagedByFireball()
+                                AttackType.LASTING -> attacker.canBeDamagedByAcid()
+                                else -> true // Should not happen for other attack types
+                            }
+                    }
+
+                // Calculate score: number of enemies hit + sum of threat scores + proximity to goal
+                val enemyCount = affectedEnemies.size
+                val totalThreat = affectedEnemies.sumOf { threatScore(it) }
+                val avgDistanceToGoal =
+                    if (affectedEnemies.isNotEmpty()) {
+                        affectedEnemies.map { estimateRemainingDistanceToGoal(it) }.average()
+                    } else {
+                        Double.MAX_VALUE
+                    }
+
+                Triple(targetPos, enemyCount * 1000 + totalThreat, avgDistanceToGoal)
             }
-            
-            // Calculate score: number of enemies hit + sum of threat scores + proximity to goal
-            val enemyCount = affectedEnemies.size
-            val totalThreat = affectedEnemies.sumOf { threatScore(it) }
-            val avgDistanceToGoal = if (affectedEnemies.isNotEmpty()) {
-                affectedEnemies.map { estimateRemainingDistanceToGoal(it) }.average()
-            } else {
-                Double.MAX_VALUE
-            }
-            
-            Triple(targetPos, enemyCount * 1000 + totalThreat, avgDistanceToGoal)
-        }
-        
+
         // Select position with highest score (most enemies + highest threat)
         // Tie-breaker: closest to goal
-        return positionScores.maxWithOrNull(
-            compareBy<Triple<Position, Int, Double>> { it.second }
-                .thenBy { -it.third }  // Negative because lower distance is better
-        )?.first
+        return positionScores
+            .maxWithOrNull(
+                compareBy<Triple<Position, Int, Double>> { it.second }
+                    .thenBy { -it.third }, // Negative because lower distance is better
+            )?.first
     }
 
     private fun threatScore(attacker: Attacker): Int {
@@ -334,36 +363,39 @@ class GameEngine(private val state: GameState) {
             currentPos.distanceTo(finalGoal)
         }
     }
-    
+
     /**
      * Process dragon greed: eat adjacent units based on greed level.
      * Called after dragon movement.
      */
     private fun processDragonGreed(dragon: Attacker) {
         if (!dragon.type.isDragon || dragon.greed <= 0) return
-        
+
         val dragonPos = dragon.position.value
         val neighbors = dragonPos.getHexNeighbors()
-        
+
         // Find all adjacent units (excluding Ewhad)
-        val adjacentUnits = state.attackers.filter { unit ->
-            unit.id != dragon.id &&
-            !unit.isDefeated.value &&
-            unit.type != AttackerType.EWHAD &&
-            neighbors.contains(unit.position.value)
-        }
-        
+        val adjacentUnits =
+            state.attackers.filter { unit ->
+                unit.id != dragon.id &&
+                    !unit.isDefeated.value &&
+                    unit.type != AttackerType.EWHAD &&
+                    neighbors.contains(unit.position.value)
+            }
+
         // Sort by health (eat weakest first) and limit to greed amount
         val unitsToEat = adjacentUnits.sortedBy { it.currentHealth.value }.take(dragon.greed)
-        
+
         for (unit in unitsToEat) {
             if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-            println("Dragon ${dragon.id} (greed ${dragon.greed}) eating adjacent ${unit.type} at ${unit.position.value}, gaining ${unit.currentHealth.value} HP")
+                println(
+                    "Dragon ${dragon.id} (greed ${dragon.greed}) eating adjacent ${unit.type} at ${unit.position.value}, gaining ${unit.currentHealth.value} HP",
+                )
             }
             dragon.currentHealth.value += unit.currentHealth.value
             unit.isDefeated.value = true
         }
-        
+
         // Update dragon level after eating
         if (unitsToEat.isNotEmpty()) {
             val oldLevel = dragon.level.value
@@ -376,36 +408,41 @@ class GameEngine(private val state: GameState) {
      * Records a DragonLevelChangeEffect when a dragon's level changes.
      * Called after updateDragonLevel() at every call site.
      */
-    private fun recordDragonLevelChange(dragon: Attacker, oldLevel: Int) {
+    private fun recordDragonLevelChange(
+        dragon: Attacker,
+        oldLevel: Int,
+    ) {
         val newLevel = dragon.level.value
         if (newLevel != oldLevel) {
             state.dragonLevelChangeEffects.add(
                 DragonLevelChangeEffect(
                     position = dragon.position.value,
                     isLevelUp = newLevel > oldLevel,
-                    turnNumber = state.turnNumber.value
-                )
+                    turnNumber = state.turnNumber.value,
+                ),
             )
         }
     }
-    
+
     /**
      * Find the nearest mine to a position.
      * Returns the mine defender and its distance, or null if no mines exist.
      */
     private fun findNearestMine(from: Position): Pair<Defender, Int>? {
-        val mines = state.defenders.filter { 
-            it.type == DefenderType.DWARVEN_MINE && 
-            !state.destroyedMinePositions.contains(it.position.value)
-        }
-        
+        val mines =
+            state.defenders.filter {
+                it.type == DefenderType.DWARVEN_MINE &&
+                    !state.destroyedMinePositions.contains(it.position.value)
+            }
+
         if (mines.isEmpty()) return null
-        
-        return mines.map { mine -> 
-            Pair(mine, from.distanceTo(mine.position.value))
-        }.minByOrNull { it.second }
+
+        return mines
+            .map { mine ->
+                Pair(mine, from.distanceTo(mine.position.value))
+            }.minByOrNull { it.second }
     }
-    
+
     /**
      * Find the closest active (non-taken) target position from a given position.
      * Falls back to any target position if all are taken (level is then lost).
@@ -416,7 +453,7 @@ class GameEngine(private val state: GameState) {
         return (if (active.isNotEmpty()) active else state.level.targetPositions)
             .minByOrNull { from.distanceTo(it) } ?: state.level.targetPositions.firstOrNull() ?: from
     }
-    
+
     /**
      * Check if dragon should target mines (greed > 5 and mines exist).
      * Updates dragon's target if needed.
@@ -427,16 +464,19 @@ class GameEngine(private val state: GameState) {
             if (dragon.targetMineId.value != null) {
                 dragon.targetMineId.value = null
                 // Target closest target position instead of first
-                dragon.currentTarget?.value = if (state.level.waypoints.isNotEmpty()) {
-                    // Use the first waypoint's next target, not the waypoint position itself
-                    state.level.waypoints.first().nextTarget
-                } else {
-                    findClosestTargetPosition(dragon.position.value)
-                }
+                dragon.currentTarget?.value =
+                    if (state.level.waypoints.isNotEmpty()) {
+                        // Use the first waypoint's next target, not the waypoint position itself
+                        state.level.waypoints
+                            .first()
+                            .nextTarget
+                    } else {
+                        findClosestTargetPosition(dragon.position.value)
+                    }
             }
             return
         }
-        
+
         // Very greedy - target nearest mine
         val nearestMine = findNearestMine(dragon.position.value)
         if (nearestMine != null) {
@@ -446,7 +486,7 @@ class GameEngine(private val state: GameState) {
                 dragon.currentTarget?.value = mine.position.value
                 dragon.mineWarningShown.value = false
                 if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                println("Dragon ${dragon.id} (greed ${dragon.greed}) now targeting mine ${mine.id} at ${mine.position.value}")
+                    println("Dragon ${dragon.id} (greed ${dragon.greed}) now targeting mine ${mine.id} at ${mine.position.value}")
                 }
             }
         } else {
@@ -454,42 +494,45 @@ class GameEngine(private val state: GameState) {
             if (dragon.targetMineId.value != null) {
                 dragon.targetMineId.value = null
                 // Target closest target position instead of first
-                dragon.currentTarget?.value = if (state.level.waypoints.isNotEmpty()) {
-                    // Use the first waypoint's next target, not the waypoint position itself
-                    state.level.waypoints.first().nextTarget
-                } else {
-                    findClosestTargetPosition(dragon.position.value)
-                }
+                dragon.currentTarget?.value =
+                    if (state.level.waypoints.isNotEmpty()) {
+                        // Use the first waypoint's next target, not the waypoint position itself
+                        state.level.waypoints
+                            .first()
+                            .nextTarget
+                    } else {
+                        findClosestTargetPosition(dragon.position.value)
+                    }
                 if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                println("Dragon ${dragon.id} no more mines, returning to closest target")
+                    println("Dragon ${dragon.id} no more mines, returning to closest target")
                 }
             }
         }
     }
-    
+
     /**
      * Check if dragon can reach its target mine in the next turn and show warning.
      * Warning is shown when dragon could reach mine on next move based on its movement pattern.
      */
     private fun checkMineWarning(dragon: Attacker) {
         if (dragon.targetMineId.value == null || dragon.mineWarningShown.value) return
-        
+
         val targetMine = state.defenders.find { it.id == dragon.targetMineId.value }
         if (targetMine == null) return
-        
+
         // Calculate if dragon can reach mine in next turn
         // Dragon alternates: odd turns walk (1 tile), even turns fly (5 tiles)
         val nextTurnNumber = dragon.dragonTurnsSinceSpawned.value + 1
         val isNextTurnOdd = nextTurnNumber % 2 == 1
-        val nextTurnSpeed = if (isNextTurnOdd) 1 else 5  // Walking or flying
-        
+        val nextTurnSpeed = if (isNextTurnOdd) 1 else 5 // Walking or flying
+
         val currentPos = dragon.position.value
         val minePos = targetMine.position.value
         val distance = currentPos.distanceTo(minePos)
-        
+
         // Check if dragon can reach mine with next turn's movement
         val canReachNextTurn = distance <= nextTurnSpeed
-        
+
         if (canReachNextTurn) {
             // Dragon can reach mine next turn, show warning
             if (!state.mineWarnings.contains(targetMine.id)) {
@@ -497,28 +540,30 @@ class GameEngine(private val state: GameState) {
             }
             dragon.mineWarningShown.value = true
             if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-            println("Warning: Dragon ${dragon.id} can reach mine ${targetMine.id} next turn! (distance: $distance, next speed: $nextTurnSpeed)")
+                println(
+                    "Warning: Dragon ${dragon.id} can reach mine ${targetMine.id} next turn! (distance: $distance, next speed: $nextTurnSpeed)",
+                )
             }
         }
     }
-    
+
     /**
      * Destroy mine if dragon reaches it.
      * Dragon gains health equal to a new dragon (500 HP).
      */
     private fun checkAndDestroyMine(dragon: Attacker) {
         if (dragon.targetMineId.value == null) return
-        
+
         val targetMine = state.defenders.find { it.id == dragon.targetMineId.value }
         if (targetMine == null) return
-        
+
         // Check if dragon reached the mine position (now dragons can move to mine tiles)
         val isAtMine = dragon.position.value == targetMine.position.value
-        
+
         if (isAtMine && dragon.mineWarningShown.value) {
             // Destroy the mine - dragon has reached it and warning was already shown
             if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-            println("Dragon ${dragon.id} destroys mine ${targetMine.id} at ${targetMine.position.value}")
+                println("Dragon ${dragon.id} destroys mine ${targetMine.id} at ${targetMine.position.value}")
             }
 
             // Add health (same as new dragon base health: 500)
@@ -527,97 +572,101 @@ class GameEngine(private val state: GameState) {
             val oldLevelMine = dragon.level.value
             dragon.updateDragonLevel()
             recordDragonLevelChange(dragon, oldLevelMine)
-            
+
             // Mark position as destroyed
             state.destroyedMinePositions.add(targetMine.position.value)
-            
+
             // Remove the mine
             state.defenders.remove(targetMine)
-            
+
             // Remove warning
             state.mineWarnings.remove(targetMine.id)
-            
+
             // Clear target to find next mine
             dragon.targetMineId.value = null
             dragon.mineWarningShown.value = false
         }
     }
-    
+
     // Turn Management
     fun startFirstPlayerTurn() {
         if (state.phase.value != GamePhase.INITIAL_BUILDING) return
-        
+
         GameLogBuffer.log("GAME", "Game started — Turn 1, ${state.defenders.size} towers placed")
-        
+
         // Play battle start sound
         GlobalSoundManager.playSound(SoundEvent.BATTLE_START)
-        
+
         // Start tracking for achievement purposes
         startTurnTracking()
-        
+
         state.phase.value = GamePhase.PLAYER_TURN
-        state.turnNumber.value = 1  // Start at turn 1 when game begins
-        
+        state.turnNumber.value = 1 // Start at turn 1 when game begins
+
         // Load first wave
         if (state.currentWaveIndex.value == 0 && state.attackersToSpawn.isEmpty()) {
             enemyMovement.loadNextWave()
         }
-        
+
         // Spawn initial enemies immediately
         spawnInitialEnemies()
-        
+
         // Reset all defender actions
         resetDefenderActions()
     }
-    
+
     private fun spawnInitialEnemies() {
         // Spawn all enemies scheduled for turn 1 from the spawn plan
         val turn1Spawns = state.spawnPlan.filter { it.spawnTurn == 1 }
         val spawnPoints = state.level.startPositions
-        
+
         turn1Spawns.forEachIndexed { index, plannedSpawn ->
             // Use fixed spawn point if specified, otherwise use round-robin
             val preferredSpawnPoint = plannedSpawn.spawnPoint ?: spawnPoints[index % spawnPoints.size]
-            
+
             // Find a free position near the preferred spawn point
             val spawnPos = enemyMovement.findFreePositionNear(preferredSpawnPoint)
-            
+
             if (spawnPos == null) {
                 // No free position found - skip this enemy for now
                 // This should rarely happen unless the map is completely congested
                 return@forEachIndexed
             }
-            
+
             // Ensure only one Ewhad exists at a time (boss is unique)
             if (plannedSpawn.attackerType == AttackerType.EWHAD) {
-                val ewhadExists = state.attackers.any { 
-                    it.type == AttackerType.EWHAD && !it.isDefeated.value 
-                }
+                val ewhadExists =
+                    state.attackers.any {
+                        it.type == AttackerType.EWHAD && !it.isDefeated.value
+                    }
                 if (ewhadExists) {
                     // Skip spawning another Ewhad if one already exists
                     return@forEachIndexed
                 }
             }
-            
+
             // Get initial target based on preferred spawn point (BEFORE congestion offsets)
             val initialTarget = enemyMovement.getInitialTarget(preferredSpawnPoint)
-            val attacker = Attacker(
-                id = state.nextAttackerId.value++,
-                type = plannedSpawn.attackerType,
-                position = mutableStateOf(spawnPos),
-                level = mutableStateOf(plannedSpawn.level),
-                currentTarget = mutableStateOf(initialTarget)
-            )
+            val attacker =
+                Attacker(
+                    id = state.nextAttackerId.value++,
+                    type = plannedSpawn.attackerType,
+                    position = mutableStateOf(spawnPos),
+                    level = mutableStateOf(plannedSpawn.level),
+                    currentTarget = mutableStateOf(initialTarget),
+                )
             state.attackers.add(attacker)
             GameLogBuffer.log("SPAWN", "${attacker.type} Lv${attacker.level.value} spawned at $spawnPos")
             if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-            println("Spawned attacker ${attacker.id} at $spawnPos (preferred: $preferredSpawnPoint) with initial target: $initialTarget")
+                println(
+                    "Spawned attacker ${attacker.id} at $spawnPos (preferred: $preferredSpawnPoint) with initial target: $initialTarget",
+                )
             }
-            
+
             // Queue Ewhad enters message when Ewhad spawns
             if (plannedSpawn.attackerType == AttackerType.EWHAD) {
                 state.pendingMessages.add(
-                    GameMessage(type = GameMessageType.EWHAD_ENTERS)
+                    GameMessage(type = GameMessageType.EWHAD_ENTERS),
                 )
             }
         }
@@ -626,10 +675,9 @@ class GameEngine(private val state: GameState) {
         enemyMovement.moveGoblinsAfterSpawn()
     }
 
-
     data class EnemyTurnMovements(
         val allMovementSteps: List<List<Pair<Int, Position>>>,
-        val attackersStoppedByBarricade: Set<Pair<Attacker, Position>>
+        val attackersStoppedByBarricade: Set<Pair<Attacker, Position>>,
     )
 
     /**
@@ -639,14 +687,14 @@ class GameEngine(private val state: GameState) {
      */
     fun calculateEnemyTurnMovements(): EnemyTurnMovements {
         val allMovementSteps = mutableListOf<List<Pair<Int, Position>>>()
-        
+
         // Get all non-defeated attackers, separating dragons from regular units
         val allAttackers = state.attackers.filter { !it.isDefeated.value }
         val dragons = allAttackers.filter { it.type.isDragon }
         val regularAttackers = allAttackers.filter { !it.type.isDragon }.toMutableList()
-        
+
         if (allAttackers.isEmpty()) return EnemyTurnMovements(allMovementSteps, emptySet())
-        
+
         // Handle dragon movement separately (they have special alternating walk/fly behavior)
         for (dragon in dragons) {
             val movementPath = enemyMovement.calculateDragonMovementPath(dragon)
@@ -654,17 +702,17 @@ class GameEngine(private val state: GameState) {
                 allMovementSteps.add(listOf(Pair(dragon.id, position)))
             }
         }
-        
+
         // Handle regular attacker movement
         if (regularAttackers.isEmpty()) return EnemyTurnMovements(allMovementSteps, emptySet())
-        
+
         // Track current positions for collision detection during simulation
         val currentPositions = mutableMapOf<Int, Position>()
         regularAttackers.forEach { currentPositions[it.id] = it.position.value }
-        
+
         // Track which attackers encountered a barricade and should stop moving
         val attackersStoppedByBarricade = mutableSetOf<Pair<Attacker, Position>>()
-        
+
         // Compute which attackers are feared at the START of this turn (based on initial position).
         // Previously, fear was checked per-step using currentPos, which caused area-fear enemies at
         // the edge of the 2-hex radius to exit the zone mid-turn (for speed>1 units) and stop fleeing.
@@ -672,17 +720,21 @@ class GameEngine(private val state: GameState) {
         val fearedAttackerIds = mutableSetOf<Int>()
         regularAttackers.forEach { attacker ->
             val startPos = attacker.position.value
-            val isFearedAtStart = state.activeSpellEffects.any { effect ->
-                (effect.spell == SpellType.FEAR_SPELL && effect.attackerId == attacker.id) ||
-                (effect.spell == SpellType.FEAR_SPELL_AREA && effect.position != null &&
-                    startPos.hexDistanceTo(effect.position) <= 2)
-            }
+            val isFearedAtStart =
+                state.activeSpellEffects.any { effect ->
+                    (effect.spell == SpellType.FEAR_SPELL && effect.attackerId == attacker.id) ||
+                        (
+                            effect.spell == SpellType.FEAR_SPELL_AREA &&
+                                effect.position != null &&
+                                startPos.hexDistanceTo(effect.position) <= 2
+                        )
+                }
             if (isFearedAtStart) fearedAttackerIds.add(attacker.id)
         }
 
         // Find the maximum speed to know how many steps to simulate
         val maxSpeed = regularAttackers.maxOfOrNull { it.type.speed } ?: 0
-        
+
         // Pre-compute imminent bombs (turnsRemaining <= 1) for flee behavior
         val imminentBombs = state.activeSpellEffects.filter { it.spell == SpellType.BOMB && it.position != null && it.turnsRemaining <= 1 }
 
@@ -690,14 +742,15 @@ class GameEngine(private val state: GameState) {
         for (stepIndex in 0 until maxSpeed) {
             val movementsInThisStep = mutableListOf<Pair<Int, Position>>()
             val positionsToOccupy = mutableSetOf<Position>()
-            
+
             for (attacker in regularAttackers) {
                 val currentPos = currentPositions[attacker.id] ?: continue
-                
+
                 // Check if attacker is frozen
-                val isFrozen = state.activeSpellEffects.any {
-                    it.spell == SpellType.FREEZE_SPELL && it.attackerId == attacker.id
-                }
+                val isFrozen =
+                    state.activeSpellEffects.any {
+                        it.spell == SpellType.FREEZE_SPELL && it.attackerId == attacker.id
+                    }
                 if (isFrozen) {
                     println("Attacker ${attacker.id} (${attacker.type}) is frozen, skipping movement")
                     continue
@@ -707,27 +760,31 @@ class GameEngine(private val state: GameState) {
                 if (attackersStoppedByBarricade
                         .map { it.first }
                         .map { it.id }
-                        .contains(attacker.id)) continue
-                
+                        .contains(attacker.id)
+                ) {
+                    continue
+                }
+
                 // Calculate effective speed by subtracting movement penalty from spike barbs
                 var effectiveSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
 
                 // Check if attacker is in a cooling area (reduces speed by 1)
-                val isInCoolingArea = state.activeSpellEffects.any { effect ->
-                    effect.spell == SpellType.COOLING_SPELL &&
-                    effect.position != null &&
-                    currentPos.hexDistanceTo(effect.position) <= 2
-                }
+                val isInCoolingArea =
+                    state.activeSpellEffects.any { effect ->
+                        effect.spell == SpellType.COOLING_SPELL &&
+                            effect.position != null &&
+                            currentPos.hexDistanceTo(effect.position) <= 2
+                    }
                 if (isInCoolingArea) {
                     effectiveSpeed = maxOf(0, effectiveSpeed - 1)
                     if (stepIndex == 0) {
                         println("Attacker ${attacker.id} (${attacker.type}) is in cooling area, speed reduced to $effectiveSpeed")
                     }
                 }
-                
+
                 // Check if this attacker has more moves left
                 if (stepIndex >= effectiveSpeed) continue
-                
+
                 // Check if unit should build a bridge BEFORE calculating path
                 // This allows units adjacent to rivers to build bridges before moving sideways
                 if (attacker.type.canBuildBridge && !attacker.isBuildingBridge.value) {
@@ -735,7 +792,9 @@ class GameEngine(private val state: GameState) {
                     if (bridgeablePositions.isNotEmpty() && bridgeSystem.shouldAutoBuildBridge(attacker)) {
                         val bridgeBuilt = bridgeSystem.autoBuildBridge(attacker)
                         if (bridgeBuilt) {
-                            println("Unit ${attacker.id} (${attacker.type}) built bridge at $currentPos during movement at turn ${state.turnNumber.value}")
+                            println(
+                                "Unit ${attacker.id} (${attacker.type}) built bridge at $currentPos during movement at turn ${state.turnNumber.value}",
+                            )
                             if (attacker.isDefeated.value) {
                                 // Unit sacrificed itself for the bridge, cannot move
                                 continue
@@ -744,87 +803,98 @@ class GameEngine(private val state: GameState) {
                         }
                     }
                 }
-                
+
                 // Use the attacker's current target if set, otherwise use level target
                 // Special case: Green Witch moves towards damaged enemies (especially Ewhad)
                 // Special case: Red Witch moves towards closest not-disabled tower
                 // Special case: Feared enemy flees towards nearest spawn point (determined once at turn start)
                 val isFeared = fearedAttackerIds.contains(attacker.id)
-                val target = if (isFeared) {
-                    val nearestSpawn = state.level.startPositions.minByOrNull { spawnPos ->
-                        currentPos.hexDistanceTo(spawnPos)
-                    } ?: state.level.startPositions.first()
-                    if (stepIndex == 0) {
-                        println("Attacker ${attacker.id} (${attacker.type}) is FEARED, fleeing to spawn: $nearestSpawn")
-                    }
-                    nearestSpawn
-                } else if (attacker.type == AttackerType.GREEN_WITCH) {
-                    val healingTarget = enemyAbilities.findHealingTarget(attacker)
-                    if (healingTarget != null) {
-                        // Move towards the healing target
+                val target =
+                    if (isFeared) {
+                        val nearestSpawn =
+                            state.level.startPositions.minByOrNull { spawnPos ->
+                                currentPos.hexDistanceTo(spawnPos)
+                            } ?: state.level.startPositions.first()
                         if (stepIndex == 0) {
-                            println("Green witch ${attacker.id} at $currentPos moving towards healing target ${healingTarget.type} at ${healingTarget.position.value}")
+                            println("Attacker ${attacker.id} (${attacker.type}) is FEARED, fleeing to spawn: $nearestSpawn")
                         }
-                        healingTarget.position.value
+                        nearestSpawn
+                    } else if (attacker.type == AttackerType.GREEN_WITCH) {
+                        val healingTarget = enemyAbilities.findHealingTarget(attacker)
+                        if (healingTarget != null) {
+                            // Move towards the healing target
+                            if (stepIndex == 0) {
+                                println(
+                                    "Green witch ${attacker.id} at $currentPos moving towards healing target ${healingTarget.type} at ${healingTarget.position.value}",
+                                )
+                            }
+                            healingTarget.position.value
+                        } else {
+                            // No damaged enemies, move towards normal target
+                            attacker.currentTarget?.value
+                                ?: state.getActiveTargetPositions().minByOrNull { currentPos.distanceTo(it) }
+                                ?: state.level.targetPositions.first()
+                        }
+                    } else if (attacker.type == AttackerType.RED_WITCH) {
+                        val towerTarget = enemyAbilities.findTowerTarget(attacker)
+                        if (towerTarget != null) {
+                            // Move towards the tower to disable it
+                            if (stepIndex == 0) {
+                                println("Red witch ${attacker.id} at $currentPos moving towards tower at $towerTarget")
+                            }
+                            towerTarget
+                        } else {
+                            // No towers to disable, move towards normal target
+                            attacker.currentTarget?.value
+                                ?: state.getActiveTargetPositions().minByOrNull { currentPos.distanceTo(it) }
+                                ?: state.level.targetPositions.first()
+                        }
                     } else {
-                        // No damaged enemies, move towards normal target
                         attacker.currentTarget?.value
                             ?: state.getActiveTargetPositions().minByOrNull { currentPos.distanceTo(it) }
                             ?: state.level.targetPositions.first()
                     }
-                } else if (attacker.type == AttackerType.RED_WITCH) {
-                    val towerTarget = enemyAbilities.findTowerTarget(attacker)
-                    if (towerTarget != null) {
-                        // Move towards the tower to disable it
-                        if (stepIndex == 0) {
-                            println("Red witch ${attacker.id} at $currentPos moving towards tower at $towerTarget")
-                        }
-                        towerTarget
-                    } else {
-                        // No towers to disable, move towards normal target
-                        attacker.currentTarget?.value
-                            ?: state.getActiveTargetPositions().minByOrNull { currentPos.distanceTo(it) }
-                            ?: state.level.targetPositions.first()
-                    }
-                } else {
-                    attacker.currentTarget?.value
-                        ?: state.getActiveTargetPositions().minByOrNull { currentPos.distanceTo(it) }
-                        ?: state.level.targetPositions.first()
-                }
                 if (stepIndex == 0) {
                     println("Enemy turn: Attacker ${attacker.id} (${attacker.type}) at $currentPos pathing to target: $target")
                 }
 
                 // Enemy flee behavior: if a bomb with 1 turn remaining is nearby, move away from it
-                val nearbyBomb = if (imminentBombs.isNotEmpty()) {
-                    imminentBombs.find { effect ->
-                        effect.position != null && currentPos.hexDistanceTo(effect.position) <= 3
-                    }
-                } else null
-                var path = if (nearbyBomb?.position != null) {
-                    val bombPos = nearbyBomb.position
-                    // Find a valid path tile neighbor that is farther from the bomb
-                    val neighbors = currentPos.getHexNeighbors().filter { neighbor ->
-                        neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
-                        neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
-                        (state.level.isEnemyTraversable(neighbor)) &&
-                        state.barricades.none { b -> b.position == neighbor && !b.isDestroyed() } &&
-                        state.attackers.none { a -> !a.isDefeated.value && a.id != attacker.id && a.position.value == neighbor }
-                    }
-                    val fleeTo = neighbors.maxByOrNull { it.hexDistanceTo(bombPos) }
-                    if (fleeTo != null && fleeTo.hexDistanceTo(bombPos) > currentPos.hexDistanceTo(bombPos)) {
-                        if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
-                            println("Attacker ${attacker.id} (${attacker.type}) fleeing from bomb at $bombPos to $fleeTo")
+                val nearbyBomb =
+                    if (imminentBombs.isNotEmpty()) {
+                        imminentBombs.find { effect ->
+                            effect.position != null && currentPos.hexDistanceTo(effect.position) <= 3
                         }
-                        listOf(currentPos, fleeTo)
+                    } else {
+                        null
+                    }
+                var path =
+                    if (nearbyBomb?.position != null) {
+                        val bombPos = nearbyBomb.position
+                        // Find a valid path tile neighbor that is farther from the bomb
+                        val neighbors =
+                            currentPos.getHexNeighbors().filter { neighbor ->
+                                neighbor.x >= 0 &&
+                                    neighbor.x < state.level.gridWidth &&
+                                    neighbor.y >= 0 &&
+                                    neighbor.y < state.level.gridHeight &&
+                                    (state.level.isEnemyTraversable(neighbor)) &&
+                                    state.barricades.none { b -> b.position == neighbor && !b.isDestroyed() } &&
+                                    state.attackers.none { a -> !a.isDefeated.value && a.id != attacker.id && a.position.value == neighbor }
+                            }
+                        val fleeTo = neighbors.maxByOrNull { it.hexDistanceTo(bombPos) }
+                        if (fleeTo != null && fleeTo.hexDistanceTo(bombPos) > currentPos.hexDistanceTo(bombPos)) {
+                            if (LogConfig.ENABLE_ENEMY_AI_LOGGING) {
+                                println("Attacker ${attacker.id} (${attacker.type}) fleeing from bomb at $bombPos to $fleeTo")
+                            }
+                            listOf(currentPos, fleeTo)
+                        } else {
+                            pathfinding.findPath(currentPos, target, attacker)
+                        }
                     } else {
                         pathfinding.findPath(currentPos, target, attacker)
                     }
-                } else {
-                    pathfinding.findPath(currentPos, target, attacker)
-                }
                 if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                println("path: $path")
+                    println("path: $path")
                 }
                 // println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos: findPath returned path of size ${path.size}")
 
@@ -833,7 +903,9 @@ class GameEngine(private val state: GameState) {
                     if (bridgeSystem.shouldAutoBuildBridge(attacker)) {
                         val bridgeBuilt = bridgeSystem.autoBuildBridge(attacker)
                         if (bridgeBuilt) {
-                            println("Unit ${attacker.id} (${attacker.type}) built bridge (fallback) during movement at turn ${state.turnNumber.value}")
+                            println(
+                                "Unit ${attacker.id} (${attacker.type}) built bridge (fallback) during movement at turn ${state.turnNumber.value}",
+                            )
                             if (attacker.isDefeated.value) {
                                 continue
                             }
@@ -841,7 +913,7 @@ class GameEngine(private val state: GameState) {
                         }
                     }
                 }
-                
+
                 if (path.size < 2) {
                     // No path found - check if we should attack a barricade
                     val nextPos = pathfinding.moveTowards(currentPos, target, attacker)
@@ -851,7 +923,9 @@ class GameEngine(private val state: GameState) {
                         if (barricadeAtPos != null && !barricadeAtPos.isDestroyed()) {
                             attackersStoppedByBarricade.add(Pair(attacker, nextPos))
                             if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                            println("CETM -A---------------------- attackersStoppedByBarricade Unit ${attacker.id} (${attacker.type}) at $currentPos will attack barricade at $nextPos (HP: ${barricadeAtPos.healthPoints.value})")
+                                println(
+                                    "CETM -A---------------------- attackersStoppedByBarricade Unit ${attacker.id} (${attacker.type}) at $currentPos will attack barricade at $nextPos (HP: ${barricadeAtPos.healthPoints.value})",
+                                )
                             }
                             continue
                         }
@@ -859,11 +933,11 @@ class GameEngine(private val state: GameState) {
                     // No movement possible
                     continue
                 }
-                
-                val newPos = path[1]  // Next position in path
+
+                val newPos = path[1] // Next position in path
                 val barricadeAtPath1 = barricadeSystem.getBarricadeAt(newPos)
                 // println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos wants to move to $newPos towards target $target (barricade at newPos: ${barricadeAtPath1 != null && !barricadeAtPath1.isDestroyed()})")
-                
+
                 // Check if there's a barricade at the new position (non-flying units only)
                 // If so, this unit will attack the barricade and stop moving for the rest of this turn
                 val isFlying = attacker.isFlying.value == true
@@ -874,27 +948,30 @@ class GameEngine(private val state: GameState) {
                         attackersStoppedByBarricade.add(Pair(attacker, newPos))
 
                         if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                        println("CETM -D---------------------- attackersStoppedByBarricade Unit ${attacker.id} (${attacker.type}) at $currentPos cannot move to $newPos due to barricade, will attack barricade instead")
+                            println(
+                                "CETM -D---------------------- attackersStoppedByBarricade Unit ${attacker.id} (${attacker.type}) at $currentPos cannot move to $newPos due to barricade, will attack barricade instead",
+                            )
                         }
 
                         continue
                     }
                 }
-                
+
                 // Check if this position is already occupied or will be occupied by another unit in this step
                 // Exception: Allow multiple units to move to an active target position (they get defeated immediately)
-                val isOccupied = if (state.isActiveTargetPosition(newPos)) {
-                    false  // Active target position can accommodate multiple units
-                } else {
-                    currentPositions.any { (id, pos) ->
-                        id != attacker.id && pos == newPos
+                val isOccupied =
+                    if (state.isActiveTargetPosition(newPos)) {
+                        false // Active target position can accommodate multiple units
+                    } else {
+                        currentPositions.any { (id, pos) ->
+                            id != attacker.id && pos == newPos
+                        } ||
+                            positionsToOccupy.contains(newPos) ||
+                            barricadeSystem.getBarricadeAt(newPos) != null
                     }
-                            || positionsToOccupy.contains(newPos)
-                            || barricadeSystem.getBarricadeAt(newPos) != null
-                }
 
                 // println("CETM ----------------------- Unit ${attacker.id} (${attacker.type}) at $currentPos trying to move to $newPos. Occupied: $isOccupied")
-                
+
                 if (!isOccupied) {
                     movementsInThisStep.add(Pair(attacker.id, newPos))
                     if (!state.isActiveTargetPosition(newPos)) {
@@ -925,7 +1002,9 @@ class GameEngine(private val state: GameState) {
                             if (barricadeAtPos != null && !barricadeAtPos.isDestroyed()) {
                                 attackersStoppedByBarricade.add(Pair(attacker, barricadePos))
                                 if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                                println("CETM -B---------------------- attackersStoppedByBarricade Unit ${attacker.id} (${attacker.type}) at $currentPos blocked by other units, will attack optimal barricade at $barricadePos (HP: ${barricadeAtPos.healthPoints.value})")
+                                    println(
+                                        "CETM -B---------------------- attackersStoppedByBarricade Unit ${attacker.id} (${attacker.type}) at $currentPos blocked by other units, will attack optimal barricade at $barricadePos (HP: ${barricadeAtPos.healthPoints.value})",
+                                    )
                                 }
                             }
                         }
@@ -936,19 +1015,21 @@ class GameEngine(private val state: GameState) {
                         // If the original newPos has a barricade, mark attacker as stopped to handle barricade attack in applyMovement
                         attackersStoppedByBarricade.add(Pair(attacker, newPos))
                         if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                        println("CETM -F---------------------- attackersStoppedByBarricade Unit ${attacker.id} (${attacker.type}) at $currentPos cannot move to $newPos due to barricade, will attack barricade instead")
+                            println(
+                                "CETM -F---------------------- attackersStoppedByBarricade Unit ${attacker.id} (${attacker.type}) at $currentPos cannot move to $newPos due to barricade, will attack barricade instead",
+                            )
                         }
                     }
                 }
             }
             // println("CETM ----------------------- End of step $stepIndex, movements planned: ${movementsInThisStep.size}, positions to occupy next: $positionsToOccupy")
             // println("CETM -- barricade-stopped attackers so far: $attackersStoppedByBarricade")
-            
+
             if (movementsInThisStep.isNotEmpty()) {
                 allMovementSteps.add(movementsInThisStep)
             }
         }
-        
+
         return EnemyTurnMovements(allMovementSteps, attackersStoppedByBarricade)
     }
 
@@ -956,7 +1037,7 @@ class GameEngine(private val state: GameState) {
         currentPos: Position,
         target: Position,
         attacker: Attacker,
-        attackersStoppedByBarricade: MutableSet<Pair<Attacker, Position>>
+        attackersStoppedByBarricade: MutableSet<Pair<Attacker, Position>>,
     ) {
         // Both primary and alternative positions have barricades
         val barricadePathSet = mutableSetOf<Pair<Barricade, List<Position>>>()
@@ -1019,31 +1100,35 @@ class GameEngine(private val state: GameState) {
         // First, check the direct path (ignoring barricades) separately
         val pathIgnoringBarricades = pathfinding.findPath(currentPos, target, attacker, ignoreBarricades = true)
         if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-        println("[DEBUG] pathIgnoringBarricades: $pathIgnoringBarricades")
+            println("[DEBUG] pathIgnoringBarricades: $pathIgnoringBarricades")
         }
         if (pathIgnoringBarricades.size > 1) {
             val barricadeAtPath = barricadeSystem.getBarricadeAt(pathIgnoringBarricades[1])
             if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-            println("[DEBUG] pathIgnoringBarricades[1]=${pathIgnoringBarricades[1]}, barricade=${barricadeAtPath?.let { "HP=${it.healthPoints.value} at ${it.position}" } ?: "null"}")
+                println(
+                    "[DEBUG] pathIgnoringBarricades[1]=${pathIgnoringBarricades[1]}, barricade=${barricadeAtPath?.let {
+                        "HP=${it.healthPoints.value} at ${it.position}"
+                    } ?: "null"}",
+                )
             }
             if (barricadeAtPath != null) {
                 barricadePathSet.add(Pair(barricadeAtPath, pathIgnoringBarricades))
             }
         }
-        
+
         // Now loop through alternative paths, progressively excluding positions found
         // This replaces the hardcoded path1, path2, path3 approach
         val excludedPositions = mutableSetOf<Position>()
-        var maxIterations = 10  // Safety limit (original code had 3, but we support more)
+        var maxIterations = 10 // Safety limit (original code had 3, but we support more)
         var iteration = 0
-        
+
         while (iteration < maxIterations) {
             iteration++
-            
+
             // Find path excluding previously found barricade positions
             val currentPath = pathfinding.findPath(currentPos, target, attacker, excludedPositions)
             if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-            println("[DEBUG] Iteration $iteration: excludedPositions=$excludedPositions, currentPath=$currentPath")
+                println("[DEBUG] Iteration $iteration: excludedPositions=$excludedPositions, currentPath=$currentPath")
             }
 
             // Check if path has at least 2 positions (current + next)
@@ -1051,12 +1136,16 @@ class GameEngine(private val state: GameState) {
                 println("[DEBUG] Iteration $iteration: Breaking - path too short (size=${currentPath.size})")
                 break
             }
-            
+
             // Check if next position has a barricade
             val nextPos = currentPath[1]
             val barricadeAtNextPos = barricadeSystem.getBarricadeAt(nextPos)
             if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-            println("[DEBUG] Iteration $iteration: nextPos=$nextPos, barricade=${barricadeAtNextPos?.let { "HP=${it.healthPoints.value} at ${it.position}" } ?: "null"}")
+                println(
+                    "[DEBUG] Iteration $iteration: nextPos=$nextPos, barricade=${barricadeAtNextPos?.let {
+                        "HP=${it.healthPoints.value} at ${it.position}"
+                    } ?: "null"}",
+                )
             }
 
             if (barricadeAtNextPos != null) {
@@ -1075,7 +1164,9 @@ class GameEngine(private val state: GameState) {
                     // Path doesn't have a barricade at [1] AND doesn't reach target
                     // This means pathfinding is routing around something, exclude this position too
                     if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                    println("[DEBUG] Iteration $iteration: No barricade at nextPos, but path doesn't reach target. Excluding $nextPos and continuing.")
+                        println(
+                            "[DEBUG] Iteration $iteration: No barricade at nextPos, but path doesn't reach target. Excluding $nextPos and continuing.",
+                        )
                     }
                     excludedPositions.add(nextPos)
                     // Continue to try finding another path
@@ -1087,20 +1178,23 @@ class GameEngine(private val state: GameState) {
         var pathOfLeastEffort: Pair<Barricade, List<Position>>? = null
 
         if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-        println("[REFACTORED] barricadePathSet size: ${barricadePathSet.size}")
+            println("[REFACTORED] barricadePathSet size: ${barricadePathSet.size}")
         }
 
         barricadePathSet.forEach { (barricade, path) ->
-            val hp = if (barricade.hasTower()) {
-                barricade.healthPoints.value - 100
-            } else {
-                barricade.healthPoints.value
-            }
+            val hp =
+                if (barricade.hasTower()) {
+                    barricade.healthPoints.value - 100
+                } else {
+                    barricade.healthPoints.value
+                }
             val pathSteps = path.size - 1
             val effort = (hp / getBarricadeDamageForEnemyUnit(attacker)) + pathSteps
 
             if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-            println("[REFACTORED] Barricade at ${barricade.position}, HP=${barricade.healthPoints.value}, hasTower=${barricade.hasTower()}, effectiveHP=$hp, pathSteps=$pathSteps, effort=$effort")
+                println(
+                    "[REFACTORED] Barricade at ${barricade.position}, HP=${barricade.healthPoints.value}, hasTower=${barricade.hasTower()}, effectiveHP=$hp, pathSteps=$pathSteps, effort=$effort",
+                )
             }
 
             if (effort < min) {
@@ -1110,7 +1204,9 @@ class GameEngine(private val state: GameState) {
         }
 
         if (pathOfLeastEffort != null) {
-            println("[REFACTORED] SELECTED: Barricade at ${pathOfLeastEffort.first.position}, HP=${pathOfLeastEffort.first.healthPoints.value}")
+            println(
+                "[REFACTORED] SELECTED: Barricade at ${pathOfLeastEffort.first.position}, HP=${pathOfLeastEffort.first.healthPoints.value}",
+            )
             attackersStoppedByBarricade.add(Pair(attacker, pathOfLeastEffort.first.position))
         }
     }
@@ -1133,11 +1229,13 @@ class GameEngine(private val state: GameState) {
                 state.pendingMessages.add(
                     de.egril.defender.model.GameMessage(
                         type = de.egril.defender.model.GameMessageType.TARGET_TAKEN,
-                        name = name
-                    )
+                        name = name,
+                    ),
                 )
                 if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                    println("!!! SINGLE_HIT TARGET TAKEN !!! Turn ${state.turnNumber.value}: ${attacker.type} (ID ${attacker.id}) took target '${name ?: position}'")
+                    println(
+                        "!!! SINGLE_HIT TARGET TAKEN !!! Turn ${state.turnNumber.value}: ${attacker.type} (ID ${attacker.id}) took target '${name ?: position}'",
+                    )
                 }
                 // Redirect all enemies that were heading to this taken target
                 state.retargetEnemiesFromTakenTarget(position)
@@ -1146,9 +1244,14 @@ class GameEngine(private val state: GameState) {
             // Standard target: deal HP damage
             val damage = attacker.calculateTargetDamage()
             if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                println("!!! ENEMY ENTERED TARGET !!! Turn ${state.turnNumber.value}: ${attacker.type} (ID ${attacker.id}) at $position dealt $damage damage. HP: ${state.healthPoints.value} -> ${state.healthPoints.value - damage}")
+                println(
+                    "!!! ENEMY ENTERED TARGET !!! Turn ${state.turnNumber.value}: ${attacker.type} (ID ${attacker.id}) at $position dealt $damage damage. HP: ${state.healthPoints.value} -> ${state.healthPoints.value - damage}",
+                )
             }
-            GameLogBuffer.log("DAMAGE", "${attacker.type} Lv${attacker.level.value} reached target — dealt $damage damage (HP: ${state.healthPoints.value} -> ${state.healthPoints.value - damage})")
+            GameLogBuffer.log(
+                "DAMAGE",
+                "${attacker.type} Lv${attacker.level.value} reached target — dealt $damage damage (HP: ${state.healthPoints.value} -> ${state.healthPoints.value - damage})",
+            )
             state.healthPoints.value = maxOf(0, state.healthPoints.value - damage)
         }
         attacker.isDefeated.value = true
@@ -1157,9 +1260,12 @@ class GameEngine(private val state: GameState) {
     /**
      * Apply a single movement step for the given attacker.
      */
-    fun applyMovement(attackerId: Int, newPosition: Position) {
+    fun applyMovement(
+        attackerId: Int,
+        newPosition: Position,
+    ) {
         val attacker = state.attackers.find { it.id == attackerId } ?: return
-        if (attacker.isDefeated.value)  {
+        if (attacker.isDefeated.value) {
             println("attackBarricade A")
             if (attackBarricade(newPosition, attacker)) return
         }
@@ -1167,18 +1273,21 @@ class GameEngine(private val state: GameState) {
         // Special handling for dragons - they can eat other units
         if (attacker.type.isDragon) {
             // Check if landing on another unit
-            val unitAtPosition = state.attackers.find {
-                it.id != attacker.id && !it.isDefeated.value && it.position.value == newPosition
-            }
-            
+            val unitAtPosition =
+                state.attackers.find {
+                    it.id != attacker.id && !it.isDefeated.value && it.position.value == newPosition
+                }
+
             if (unitAtPosition != null && unitAtPosition.type != AttackerType.EWHAD) {
                 // Dragon eats the unit and gains its health
                 if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                println("Dragon ${attacker.id} eating ${unitAtPosition.type} at $newPosition, gaining ${unitAtPosition.currentHealth.value} HP")
+                    println(
+                        "Dragon ${attacker.id} eating ${unitAtPosition.type} at $newPosition, gaining ${unitAtPosition.currentHealth.value} HP",
+                    )
                 }
                 attacker.currentHealth.value += unitAtPosition.currentHealth.value
                 val oldLevelEating = attacker.level.value
-                attacker.updateDragonLevel()  // Update level based on new health
+                attacker.updateDragonLevel() // Update level based on new health
                 recordDragonLevelChange(attacker, oldLevelEating)
                 unitAtPosition.isDefeated.value = true
                 // Record movement trail on the vacated tile
@@ -1187,10 +1296,10 @@ class GameEngine(private val state: GameState) {
                     state.enemyMoveEffects.add(EnemyMoveEffect(oldPosDragon, state.turnNumber.value))
                 }
                 attacker.position.value = newPosition
-                
+
                 // Check for traps at the new position
                 mineOperations.checkAndActivateTrapForAttacker(attacker)
-                
+
                 // Only continue if dragon was not defeated by trap
                 if (!attacker.isDefeated.value) {
                     // Check if reached a waypoint and update target
@@ -1200,23 +1309,28 @@ class GameEngine(private val state: GameState) {
                         if (waypoint != null) {
                             attacker.currentTarget.value = state.resolveWaypointNextTarget(waypoint.nextTarget, newPosition)
                             if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                                println("Dragon ${attacker.id} reached waypoint at $newPosition, next target: ${attacker.currentTarget.value}")
+                                println(
+                                    "Dragon ${attacker.id} reached waypoint at $newPosition, next target: ${attacker.currentTarget.value}",
+                                )
                             }
                         }
                     }
                 }
             } else if (unitAtPosition != null && unitAtPosition.type == AttackerType.EWHAD) {
                 // Can't land on Ewhad, try to find alternate position
-                val alternatePos = newPosition.getHexNeighbors()
-                    .filter { pos ->
-                        state.level.isOnPath(pos) &&
-                        state.attackers.none { it.position.value == pos && !it.isDefeated.value }
-                    }
-                    .minByOrNull { it.distanceTo(
-                        state.getActiveTargetPositions().minByOrNull { t -> newPosition.distanceTo(t) }
-                            ?: state.level.targetPositions.first()
-                    ) }
-                
+                val alternatePos =
+                    newPosition
+                        .getHexNeighbors()
+                        .filter { pos ->
+                            state.level.isOnPath(pos) &&
+                                state.attackers.none { it.position.value == pos && !it.isDefeated.value }
+                        }.minByOrNull {
+                            it.distanceTo(
+                                state.getActiveTargetPositions().minByOrNull { t -> newPosition.distanceTo(t) }
+                                    ?: state.level.targetPositions.first(),
+                            )
+                        }
+
                 if (alternatePos != null) {
                     println("Dragon ${attacker.id} can't land on Ewhad, moving to alternate position $alternatePos")
                     // Record movement trail on the vacated tile
@@ -1225,10 +1339,10 @@ class GameEngine(private val state: GameState) {
                         state.enemyMoveEffects.add(EnemyMoveEffect(oldPosAlt, state.turnNumber.value))
                     }
                     attacker.position.value = alternatePos
-                    
+
                     // Check for traps at the alternate position
                     mineOperations.checkAndActivateTrapForAttacker(attacker)
-                    
+
                     // Only continue if dragon was not defeated by trap
                     if (!attacker.isDefeated.value) {
                         // Check if reached a waypoint and update target
@@ -1238,7 +1352,9 @@ class GameEngine(private val state: GameState) {
                             if (waypoint != null) {
                                 attacker.currentTarget.value = state.resolveWaypointNextTarget(waypoint.nextTarget, alternatePos)
                                 if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                                    println("Dragon ${attacker.id} reached waypoint at $alternatePos, next target: ${attacker.currentTarget.value}")
+                                    println(
+                                        "Dragon ${attacker.id} reached waypoint at $alternatePos, next target: ${attacker.currentTarget.value}",
+                                    )
                                 }
                             }
                         }
@@ -1257,11 +1373,11 @@ class GameEngine(private val state: GameState) {
                     state.enemyMoveEffects.add(EnemyMoveEffect(oldPosNormal, state.turnNumber.value))
                 }
                 attacker.position.value = newPosition
-                
+
                 // Check for traps at the new position
                 mineOperations.checkAndActivateTrapForAttacker(attacker)
             }
-            
+
             // Check if reached a waypoint and update target
             // Only update if the waypoint position is the current target
             if (state.level.isWaypoint(attacker.position.value) && attacker.currentTarget?.value == attacker.position.value) {
@@ -1270,7 +1386,9 @@ class GameEngine(private val state: GameState) {
                     // Update target to the next waypoint or final target
                     attacker.currentTarget.value = state.resolveWaypointNextTarget(waypoint.nextTarget, attacker.position.value)
                     if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                        println("Dragon ${attacker.id} reached waypoint at ${attacker.position.value}, next target: ${attacker.currentTarget.value}")
+                        println(
+                            "Dragon ${attacker.id} reached waypoint at ${attacker.position.value}, next target: ${attacker.currentTarget.value}",
+                        )
                     }
                 }
             }
@@ -1279,46 +1397,47 @@ class GameEngine(private val state: GameState) {
             if (state.isActiveTargetPosition(attacker.position.value)) {
                 applyTargetDamage(attacker)
             }
-            
+
             // Process dragon greed mechanics if not defeated
             if (!attacker.isDefeated.value) {
                 // Update mine targeting if greed > 5
                 updateDragonMineTargeting(attacker)
-                
+
                 // Check for mine warning
                 checkMineWarning(attacker)
-                
+
                 // Check and destroy mine if applicable
                 checkAndDestroyMine(attacker)
-                
+
                 // Eat adjacent units based on greed
                 processDragonGreed(attacker)
             }
-            
+
             return
         }
-        
+
         // Regular unit movement (non-dragons)
         // Check if position is occupied by another alive attacker
         // Exception: Allow movement to active target position even if occupied (units get defeated immediately)
-        val isOccupied = if (state.isActiveTargetPosition(newPosition)) {
-            false  // Active target can accommodate multiple units
-        } else {
-            state.attackers.any {
-                it.id != attacker.id && !it.isDefeated.value && it.position.value == newPosition
+        val isOccupied =
+            if (state.isActiveTargetPosition(newPosition)) {
+                false // Active target can accommodate multiple units
+            } else {
+                state.attackers.any {
+                    it.id != attacker.id && !it.isDefeated.value && it.position.value == newPosition
+                }
             }
-        }
-        
+
         // Only move if position is not occupied
         if (!isOccupied) {
             val oldPosition = attacker.position.value
             attacker.position.value = newPosition
-            
+
             // Check for traps at the new position (only if enemy actually moved)
             if (oldPosition != newPosition) {
                 mineOperations.checkAndActivateTrapForAttacker(attacker)
             }
-            
+
             // Only continue if enemy was not defeated by trap
             if (!attacker.isDefeated.value) {
                 // Check if reached a waypoint and update target
@@ -1329,7 +1448,9 @@ class GameEngine(private val state: GameState) {
                         // Update target to the next waypoint or final target
                         attacker.currentTarget.value = state.resolveWaypointNextTarget(waypoint.nextTarget, newPosition)
                         if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                            println("Attacker ${attacker.id} reached waypoint at $newPosition, next target: ${attacker.currentTarget.value}")
+                            println(
+                                "Attacker ${attacker.id} reached waypoint at $newPosition, next target: ${attacker.currentTarget.value}",
+                            )
                         }
                     }
                 }
@@ -1344,7 +1465,7 @@ class GameEngine(private val state: GameState) {
 
     fun attackBarricade(
         newPosition: Position,
-        attacker: Attacker
+        attacker: Attacker,
     ): Boolean {
         // Check if there's a barricade AT the new position
         // Flying dragons can fly over barricades (like they fly over non-playable tiles)
@@ -1355,7 +1476,9 @@ class GameEngine(private val state: GameState) {
         val isFlying = attacker.isFlying.value
 
         if (barricadeAtPosition != null && !barricadeAtPosition.isDestroyed() && !isFlying) {
-            println("Attack barricade: Attacker ${attacker.id} (${attacker.type}) at ${attacker.position.value} attacks barricade at $newPosition (HP: ${barricadeAtPosition.healthPoints.value})")
+            println(
+                "Attack barricade: Attacker ${attacker.id} (${attacker.type}) at ${attacker.position.value} attacks barricade at $newPosition (HP: ${barricadeAtPosition.healthPoints.value})",
+            )
             // Non-flying enemy encounters barricade - attack it instead of moving
             val damage = getBarricadeDamageForEnemyUnit(attacker)
 
@@ -1390,11 +1513,12 @@ class GameEngine(private val state: GameState) {
     }
 
     fun getBarricadeDamageForEnemyUnit(attacker: Attacker): Int {
-        val damage = if (attacker.type.isDragon) {
-            attacker.level.value * 5
-        } else {
-            attacker.level.value
-        }
+        val damage =
+            if (attacker.type.isDragon) {
+                attacker.level.value * 5
+            } else {
+                attacker.level.value
+            }
         return damage
     }
 
@@ -1404,19 +1528,24 @@ class GameEngine(private val state: GameState) {
      */
     fun startEnemyTurn() {
         if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-        println("GameEngine.startEnemyTurn: phase=${state.phase.value}")
+            println("GameEngine.startEnemyTurn: phase=${state.phase.value}")
         }
         if (state.phase.value != GamePhase.PLAYER_TURN) {
             println("GameEngine.startEnemyTurn: Not in PLAYER_TURN phase, returning")
             return
         }
-        
+
         state.turnNumber.value++
         state.phase.value = GamePhase.ENEMY_TURN
-        
-        GameLogBuffer.log("TURN", "Enemy turn ${state.turnNumber.value} — HP: ${state.healthPoints.value}, Coins: ${state.coins.value}, Enemies alive: ${state.attackers.count { !it.isDefeated.value }}")
+
+        GameLogBuffer.log(
+            "TURN",
+            "Enemy turn ${state.turnNumber.value} — HP: ${state.healthPoints.value}, Coins: ${state.coins.value}, Enemies alive: ${state.attackers.count {
+                !it.isDefeated.value
+            }}",
+        )
         if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-        println("GameEngine.startEnemyTurn: Changed phase to ENEMY_TURN, turn=${state.turnNumber.value}")
+            println("GameEngine.startEnemyTurn: Changed phase to ENEMY_TURN, turn=${state.turnNumber.value}")
         }
 
         // Ensure trap trigger effects are clean at the start of enemy turn (belt-and-suspenders;
@@ -1426,11 +1555,11 @@ class GameEngine(private val state: GameState) {
         // Process raft movements on rivers at the start of enemy turn
         // This happens immediately when player presses "Next Turn"
         if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-        println("GameEngine.startEnemyTurn: About to call raftSystem.processRaftMovements()")
+            println("GameEngine.startEnemyTurn: About to call raftSystem.processRaftMovements()")
         }
         raftSystem.processRaftMovements()
         if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-        println("GameEngine.startEnemyTurn: Completed raft movement processing")
+            println("GameEngine.startEnemyTurn: Completed raft movement processing")
         }
 
         // Play ticking sound if any bombs are active on the level
@@ -1439,7 +1568,7 @@ class GameEngine(private val state: GameState) {
             GlobalSoundManager.playSound(SoundEvent.BOMB_TICKING)
         }
     }
-    
+
     /**
      * Spawn new attackers during enemy turn.
      * Called after movements to ensure spawn points are clear.
@@ -1447,7 +1576,7 @@ class GameEngine(private val state: GameState) {
     fun spawnEnemyTurnAttackers() {
         enemyMovement.spawnAttackers()
     }
-    
+
     /**
      * Calculate movement steps for newly spawned units (those at spawn points).
      * This moves them away from spawn points to make room for future spawns.
@@ -1456,41 +1585,43 @@ class GameEngine(private val state: GameState) {
      */
     fun calculateNewlySpawnedMovements(): List<List<Pair<Int, Position>>> {
         val allMovementSteps = mutableListOf<List<Pair<Int, Position>>>()
-        
+
         // Find attackers at spawn points
-        val newlySpawned = state.attackers.filter { attacker ->
-            !attacker.isDefeated.value && state.level.isSpawnPoint(attacker.position.value)
-        }.toMutableList()
-        
+        val newlySpawned =
+            state.attackers
+                .filter { attacker ->
+                    !attacker.isDefeated.value && state.level.isSpawnPoint(attacker.position.value)
+                }.toMutableList()
+
         if (newlySpawned.isEmpty()) return allMovementSteps
-        
+
         // Track current positions for collision detection during simulation
         val currentPositions = mutableMapOf<Int, Position>()
         newlySpawned.forEach { currentPositions[it.id] = it.position.value }
-        
+
         // Track which attackers encountered a barricade and should stop moving
         val attackersStoppedByBarricade = mutableSetOf<Int>()
-        
+
         // Find the maximum speed to know how many steps to simulate
         val maxSpeed = newlySpawned.maxOfOrNull { it.type.speed } ?: 0
-        
+
         // Simulate movement step by step
         for (stepIndex in 0 until maxSpeed) {
             val movementsInThisStep = mutableListOf<Pair<Int, Position>>()
             val positionsToOccupy = mutableSetOf<Position>()
-            
+
             for (attacker in newlySpawned) {
                 val currentPos = currentPositions[attacker.id] ?: continue
-                
+
                 // Skip if this attacker already encountered a barricade
                 if (attackersStoppedByBarricade.contains(attacker.id)) continue
-                
+
                 // Calculate effective speed by subtracting movement penalty from spike barbs
                 val effectiveSpeed = maxOf(1, attacker.type.speed - attacker.movementPenalty.value)
-                
+
                 // Check if this attacker has more moves left
                 if (stepIndex >= effectiveSpeed) continue
-                
+
                 // Check if unit should build a bridge BEFORE calculating path
                 // This allows units adjacent to rivers to build bridges before moving sideways
                 if (attacker.type.canBuildBridge && !attacker.isBuildingBridge.value) {
@@ -1498,7 +1629,9 @@ class GameEngine(private val state: GameState) {
                     if (bridgeablePositions.isNotEmpty() && bridgeSystem.shouldAutoBuildBridge(attacker)) {
                         val bridgeBuilt = bridgeSystem.autoBuildBridge(attacker)
                         if (bridgeBuilt) {
-                            println("Newly spawned unit ${attacker.id} (${attacker.type}) built bridge at $currentPos during movement at turn ${state.turnNumber.value}")
+                            println(
+                                "Newly spawned unit ${attacker.id} (${attacker.type}) built bridge at $currentPos during movement at turn ${state.turnNumber.value}",
+                            )
                             if (attacker.isDefeated.value) {
                                 // Unit sacrificed itself for the bridge, cannot move
                                 continue
@@ -1507,48 +1640,53 @@ class GameEngine(private val state: GameState) {
                         }
                     }
                 }
-                
+
                 // Use the attacker's current target if set, otherwise use nearest active target
                 // Special case: Green Witch moves towards damaged enemies (especially Ewhad)
                 // Special case: Red Witch moves towards closest not-disabled tower
-                val target = if (attacker.type == AttackerType.GREEN_WITCH) {
-                    val healingTarget = enemyAbilities.findHealingTarget(attacker)
-                    if (healingTarget != null) {
-                        // Move towards the healing target
-                        healingTarget.position.value
+                val target =
+                    if (attacker.type == AttackerType.GREEN_WITCH) {
+                        val healingTarget = enemyAbilities.findHealingTarget(attacker)
+                        if (healingTarget != null) {
+                            // Move towards the healing target
+                            healingTarget.position.value
+                        } else {
+                            // No damaged enemies, move towards normal target
+                            attacker.currentTarget?.value
+                                ?: state.getActiveTargetPositions().minByOrNull { currentPos.distanceTo(it) }
+                                ?: state.level.targetPositions.first()
+                        }
+                    } else if (attacker.type == AttackerType.RED_WITCH) {
+                        val towerTarget = enemyAbilities.findTowerTarget(attacker)
+                        if (towerTarget != null) {
+                            // Move towards the tower to disable it
+                            towerTarget
+                        } else {
+                            // No towers to disable, move towards normal target
+                            attacker.currentTarget?.value
+                                ?: state.getActiveTargetPositions().minByOrNull { currentPos.distanceTo(it) }
+                                ?: state.level.targetPositions.first()
+                        }
                     } else {
-                        // No damaged enemies, move towards normal target
                         attacker.currentTarget?.value
                             ?: state.getActiveTargetPositions().minByOrNull { currentPos.distanceTo(it) }
                             ?: state.level.targetPositions.first()
                     }
-                } else if (attacker.type == AttackerType.RED_WITCH) {
-                    val towerTarget = enemyAbilities.findTowerTarget(attacker)
-                    if (towerTarget != null) {
-                        // Move towards the tower to disable it
-                        towerTarget
-                    } else {
-                        // No towers to disable, move towards normal target
-                        attacker.currentTarget?.value
-                            ?: state.getActiveTargetPositions().minByOrNull { currentPos.distanceTo(it) }
-                            ?: state.level.targetPositions.first()
-                    }
-                } else {
-                    attacker.currentTarget?.value
-                        ?: state.getActiveTargetPositions().minByOrNull { currentPos.distanceTo(it) }
-                        ?: state.level.targetPositions.first()
-                }
                 if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                println("Newly spawned attacker ${attacker.id} at $currentPos pathing to target: $target (currentTarget: ${attacker.currentTarget?.value})")
+                    println(
+                        "Newly spawned attacker ${attacker.id} at $currentPos pathing to target: $target (currentTarget: ${attacker.currentTarget?.value})",
+                    )
                 }
                 var path = pathfinding.findPath(currentPos, target, attacker)
-                
+
                 // If still no path after bridge attempt, try one more time
                 if (path.size < 2 && attacker.type.canBuildBridge && !attacker.isBuildingBridge.value) {
                     if (bridgeSystem.shouldAutoBuildBridge(attacker)) {
                         val bridgeBuilt = bridgeSystem.autoBuildBridge(attacker)
                         if (bridgeBuilt) {
-                            println("Newly spawned unit ${attacker.id} (${attacker.type}) built bridge (fallback) during movement at turn ${state.turnNumber.value}")
+                            println(
+                                "Newly spawned unit ${attacker.id} (${attacker.type}) built bridge (fallback) during movement at turn ${state.turnNumber.value}",
+                            )
                             if (attacker.isDefeated.value) {
                                 continue
                             }
@@ -1556,7 +1694,7 @@ class GameEngine(private val state: GameState) {
                         }
                     }
                 }
-                
+
                 if (path.size < 2) {
                     // No path found - check if we should attack a barricade
                     val nextPos = pathfinding.moveTowards(currentPos, target, attacker)
@@ -1572,9 +1710,9 @@ class GameEngine(private val state: GameState) {
                     // No movement possible
                     continue
                 }
-                
-                val newPos = path[1]  // Next position in path
-                
+
+                val newPos = path[1] // Next position in path
+
                 // Check if there's a barricade at the new position (non-flying units only)
                 // If so, this unit will attack the barricade and stop moving for the rest of this turn
                 val isFlying = attacker.isFlying.value == true
@@ -1585,19 +1723,22 @@ class GameEngine(private val state: GameState) {
                         attackersStoppedByBarricade.add(attacker.id)
                     }
                 }
-                
+
                 // Check if this position is already occupied or will be occupied by another unit in this step
                 // Exception: Allow multiple units to move to an active target position (they get defeated immediately)
-                val isOccupied = if (state.isActiveTargetPosition(newPos)) {
-                    false  // Active target position can accommodate multiple units
-                } else {
-                    state.attackers.any {
-                        it.id != attacker.id && !it.isDefeated.value && it.position.value == newPos
-                    } || currentPositions.any { (id, pos) ->
-                        id != attacker.id && pos == newPos
-                    } || positionsToOccupy.contains(newPos)
-                }
-                
+                val isOccupied =
+                    if (state.isActiveTargetPosition(newPos)) {
+                        false // Active target position can accommodate multiple units
+                    } else {
+                        state.attackers.any {
+                            it.id != attacker.id && !it.isDefeated.value && it.position.value == newPos
+                        } ||
+                            currentPositions.any { (id, pos) ->
+                                id != attacker.id && pos == newPos
+                            } ||
+                            positionsToOccupy.contains(newPos)
+                    }
+
                 if (!isOccupied) {
                     movementsInThisStep.add(Pair(attacker.id, newPos))
                     if (!state.isActiveTargetPosition(newPos)) {
@@ -1605,7 +1746,7 @@ class GameEngine(private val state: GameState) {
                         positionsToOccupy.add(newPos)
                     }
                     currentPositions[attacker.id] = newPos
-                    
+
                     // Update waypoint target immediately if reached a waypoint
                     // This ensures the next step uses the new target
                     // Only update if the waypoint position is the current target
@@ -1614,7 +1755,9 @@ class GameEngine(private val state: GameState) {
                         if (waypoint != null) {
                             attacker.currentTarget.value = state.resolveWaypointNextTarget(waypoint.nextTarget, newPos)
                             if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                                println("Attacker ${attacker.id} reached waypoint at $newPos during spawn movement, next target: ${attacker.currentTarget.value}")
+                                println(
+                                    "Attacker ${attacker.id} reached waypoint at $newPos during spawn movement, next target: ${attacker.currentTarget.value}",
+                                )
                             }
                         }
                     }
@@ -1628,7 +1771,7 @@ class GameEngine(private val state: GameState) {
                             positionsToOccupy.add(alternativePos)
                         }
                         currentPositions[attacker.id] = alternativePos
-                        
+
                         // Update waypoint target if the alternative position is a waypoint
                         // Only update if the waypoint position is the current target
                         if (state.level.isWaypoint(alternativePos) && attacker.currentTarget?.value == alternativePos) {
@@ -1636,7 +1779,9 @@ class GameEngine(private val state: GameState) {
                             if (waypoint != null) {
                                 attacker.currentTarget.value = state.resolveWaypointNextTarget(waypoint.nextTarget, alternativePos)
                                 if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                                    println("Attacker ${attacker.id} reached waypoint at $alternativePos during spawn movement, next target: ${attacker.currentTarget.value}")
+                                    println(
+                                        "Attacker ${attacker.id} reached waypoint at $alternativePos during spawn movement, next target: ${attacker.currentTarget.value}",
+                                    )
                                 }
                             }
                         }
@@ -1650,7 +1795,9 @@ class GameEngine(private val state: GameState) {
                             if (barricadeAtPos != null && !barricadeAtPos.isDestroyed()) {
                                 attackersStoppedByBarricade.add(attacker.id)
                                 if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                                println("CETM -C---------------------- attackersStoppedByBarricade Newly spawned unit ${attacker.id} (${attacker.type}) at $currentPos blocked by other units, will attack optimal barricade at $barricadePos (HP: ${barricadeAtPos.healthPoints.value})")
+                                    println(
+                                        "CETM -C---------------------- attackersStoppedByBarricade Newly spawned unit ${attacker.id} (${attacker.type}) at $currentPos blocked by other units, will attack optimal barricade at $barricadePos (HP: ${barricadeAtPos.healthPoints.value})",
+                                    )
                                 }
                             }
                         }
@@ -1658,15 +1805,15 @@ class GameEngine(private val state: GameState) {
                     // If still no movement, unit stays in place for this step
                 }
             }
-            
+
             if (movementsInThisStep.isNotEmpty()) {
                 allMovementSteps.add(movementsInThisStep)
             }
         }
-        
+
         return allMovementSteps
     }
-    
+
     /**
      * Find an alternative position when the optimal path is blocked.
      * Tries to find any adjacent position that moves the unit closer to (or at least not further from) the target.
@@ -1677,60 +1824,67 @@ class GameEngine(private val state: GameState) {
         target: Position,
         attackerId: Int,
         currentPositions: Map<Int, Position>,
-        positionsToOccupy: Set<Position>
+        positionsToOccupy: Set<Position>,
     ): Position? {
         val currentDistance = currentPos.distanceTo(target)
-        
+
         // Get all hex neighbors
         val neighbors = currentPos.getHexNeighbors()
-        
+
         // Filter valid positions (on the map, on path)
-        val validNeighbors = neighbors.filter { neighbor ->
-            neighbor.x >= 0 && neighbor.x < state.level.gridWidth &&
-            neighbor.y >= 0 && neighbor.y < state.level.gridHeight &&
-            state.level.isOnPath(neighbor)
-        }
-        
+        val validNeighbors =
+            neighbors.filter { neighbor ->
+                neighbor.x >= 0 &&
+                    neighbor.x < state.level.gridWidth &&
+                    neighbor.y >= 0 &&
+                    neighbor.y < state.level.gridHeight &&
+                    state.level.isOnPath(neighbor)
+            }
+
         // Find positions that are not occupied
-        val availableNeighbors = validNeighbors.filter { neighbor ->
-            val isOccupied = state.attackers.any {
-                it.id != attackerId && !it.isDefeated.value && it.position.value == neighbor
-            } || currentPositions.any { (id, pos) ->
-                id != attackerId && pos == neighbor
-            } || positionsToOccupy.contains(neighbor)
-            
-            !isOccupied
-        }
-        
+        val availableNeighbors =
+            validNeighbors.filter { neighbor ->
+                val isOccupied =
+                    state.attackers.any {
+                        it.id != attackerId && !it.isDefeated.value && it.position.value == neighbor
+                    } ||
+                        currentPositions.any { (id, pos) ->
+                            id != attackerId && pos == neighbor
+                        } ||
+                        positionsToOccupy.contains(neighbor)
+
+                !isOccupied
+            }
+
         if (availableNeighbors.isEmpty()) return null
-        
+
         // Prioritize positions that move closer to the target
         val movingCloser = availableNeighbors.filter { it.distanceTo(target) < currentDistance }
         if (movingCloser.isNotEmpty()) {
             return movingCloser.minByOrNull { it.distanceTo(target) }
         }
-        
+
         // If no closer positions, accept same distance (lateral movement to clear spawn point)
         val sameDist = availableNeighbors.filter { it.distanceTo(target) == currentDistance }
         if (sameDist.isNotEmpty()) {
             return sameDist.first()
         }
-        
+
         // As a last resort for spawn points, even moving away is better than staying
         // This ensures spawn points are always cleared
         if (state.level.isSpawnPoint(currentPos)) {
             return availableNeighbors.minByOrNull { it.distanceTo(target) }
         }
-        
+
         return null
     }
-    
+
     /**
      * Complete enemy turn: apply effects and start player turn.
      */
     fun completeEnemyTurn() {
         if (state.phase.value != GamePhase.ENEMY_TURN) return
-        
+
         // Safety flush: if any coin-gain animations hadn't fired by the time the turn ends
         // (e.g., no enemy movements → very short enemy turn), credit the remaining pending
         // coins now before the effects list is cleared.
@@ -1738,7 +1892,7 @@ class GameEngine(private val state: GameState) {
             state.coins.value += state.pendingCoinGains.value
             state.pendingCoinGains.value = 0
         }
-        
+
         // Clear all visual effects from the previous turn before adding new ones for this turn.
         // This ensures effects added during this call (traps, construction, spawns, deaths, coins)
         // persist through the following player turn and are cleaned up on the next enemy turn.
@@ -1760,10 +1914,10 @@ class GameEngine(private val state: GameState) {
 
         // Check and activate traps after all movements
         checkAndActivateTraps()
-        
+
         // Apply damage over time effects
         combatSystem.applyLastingEffects()
-        
+
         // Update field effects
         enemyMovement.updateFieldEffects()
 
@@ -1772,22 +1926,22 @@ class GameEngine(private val state: GameState) {
 
         // Process special enemy abilities
         enemyAbilities.processEnemyAbilities()
-        
+
         // Process bridge building and bridge turn updates
         bridgeSystem.processBridges()
 
         // Remove defeated attackers and give rewards
         combatSystem.processDefeatedAttackers()
-        
+
         // Check if we should load next wave
         if (state.attackersToSpawn.isEmpty() && state.attackers.isEmpty()) {
             enemyMovement.loadNextWave()
         }
-        
+
         // Advance building timers and re-enable towers
         advanceBuildTimers()
         enemyAbilities.updateTowerDisableStatus()
-        
+
         // Clear trap trigger effects so they don't persist into the player's turn.
         // They were visible during the enemy turn when the traps fired; clearing here
         // prevents the lingering overlay from showing during the player's turn.
@@ -1796,11 +1950,11 @@ class GameEngine(private val state: GameState) {
         state.phase.value = GamePhase.PLAYER_TURN
         resetDefenderActions()
     }
-    
+
     private fun resetDefenderActions() {
         state.defenders.forEach { it.resetActions() }
     }
-    
+
     private fun advanceBuildTimers() {
         state.defenders.forEach { defender ->
             if (defender.buildTimeRemaining.value > 0) {
@@ -1811,8 +1965,8 @@ class GameEngine(private val state: GameState) {
                     state.constructionCompleteEffects.add(
                         TowerConstructionEffect(
                             position = defender.position.value,
-                            turnNumber = state.turnNumber.value
-                        )
+                            turnNumber = state.turnNumber.value,
+                        ),
                     )
                 }
             }
@@ -1822,7 +1976,7 @@ class GameEngine(private val state: GameState) {
             }
         }
     }
-    
+
     /**
      * Update spell buffs: decrement turns remaining, handle special effects, and remove expired buffs
      */
@@ -1851,7 +2005,7 @@ class GameEngine(private val state: GameState) {
                 // Buff expired, mark for removal
                 toRemove.add(index)
                 if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-                println("Spell effect ${effect.spell.displayName} expired")
+                    println("Spell effect ${effect.spell.displayName} expired")
                 }
             } else {
                 // Update the effect with decremented turns
@@ -1876,12 +2030,13 @@ class GameEngine(private val state: GameState) {
         var bridgesDestroyed = 0
 
         // Calculate damage based on distance from blast center
-        fun damageAt(distance: Int): Int = when (distance) {
-            0 -> 200  // Direct hit: heaviest
-            1 -> 150  // Adjacent: heavy
-            2 -> 100  // 2 steps: medium
-            else -> 50 // 3 steps: lower
-        }
+        fun damageAt(distance: Int): Int =
+            when (distance) {
+                0 -> 200 // Direct hit: heaviest
+                1 -> 150 // Adjacent: heavy
+                2 -> 100 // 2 steps: medium
+                else -> 50 // 3 steps: lower
+            }
 
         // Damage enemies in range
         state.attackers.forEach { attacker ->
@@ -1916,11 +2071,12 @@ class GameEngine(private val state: GameState) {
         }
 
         // Destroy bridges in range
-        val bridgesToRemove = state.bridges.filter { bridge ->
-            bridge.positions.any { bridgePos ->
-                bridgePos.hexDistanceTo(position) <= explosionRange
+        val bridgesToRemove =
+            state.bridges.filter { bridge ->
+                bridge.positions.any { bridgePos ->
+                    bridgePos.hexDistanceTo(position) <= explosionRange
+                }
             }
-        }
         bridgesDestroyed = bridgesToRemove.size
         bridgesToRemove.forEach { bridge ->
             state.bridges.remove(bridge)
@@ -1930,11 +2086,13 @@ class GameEngine(private val state: GameState) {
         combatSystem.processDefeatedAttackers()
 
         // Collect affected positions for the explosion visual effect
-        val affectedPositions = position.getHexNeighborsWithinRadius(
-            explosionRange,
-            state.level.gridWidth,
-            state.level.gridHeight
-        ).toMutableList()
+        val affectedPositions =
+            position
+                .getHexNeighborsWithinRadius(
+                    explosionRange,
+                    state.level.gridWidth,
+                    state.level.gridHeight,
+                ).toMutableList()
         affectedPositions.add(position)
 
         // Record explosion for UI animation (cleared next turn)
@@ -1942,12 +2100,14 @@ class GameEngine(private val state: GameState) {
             BombExplosionEffect(
                 center = position,
                 affectedPositions = affectedPositions,
-                turnNumber = state.turnNumber.value
-            )
+                turnNumber = state.turnNumber.value,
+            ),
         )
 
         if (LogConfig.ENABLE_GAME_STATE_LOGGING) {
-        println("Bomb exploded at $position! Damaged $enemiesDamaged enemies, $barricadesDamaged barricades, destroyed $bridgesDestroyed bridges")
+            println(
+                "Bomb exploded at $position! Damaged $enemiesDamaged enemies, $barricadesDamaged barricades, destroyed $bridgesDestroyed bridges",
+            )
         }
         GlobalSoundManager.playSound(SoundEvent.BOMB_EXPLOSION)
     }
@@ -1956,9 +2116,10 @@ class GameEngine(private val state: GameState) {
      * Get effective level for a defender, accounting for active spell buffs
      */
     fun getEffectiveLevel(defender: Defender): Int {
-        val hasDoubleLevelBuff = state.activeSpellEffects.any {
-            it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == defender.id
-        }
+        val hasDoubleLevelBuff =
+            state.activeSpellEffects.any {
+                it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == defender.id
+            }
         return if (hasDoubleLevelBuff) defender.level.value * 2 else defender.level.value
     }
 
@@ -1966,9 +2127,10 @@ class GameEngine(private val state: GameState) {
      * Get effective range for a defender, accounting for active spell buffs
      */
     fun getEffectiveRange(defender: Defender): Int {
-        val hasDoubleRangeBuff = state.activeSpellEffects.any {
-            it.spell == SpellType.DOUBLE_TOWER_REACH && it.defenderId == defender.id
-        }
+        val hasDoubleRangeBuff =
+            state.activeSpellEffects.any {
+                it.spell == SpellType.DOUBLE_TOWER_REACH && it.defenderId == defender.id
+            }
         return if (hasDoubleRangeBuff) defender.range * 2 else defender.range
     }
 
@@ -1976,11 +2138,11 @@ class GameEngine(private val state: GameState) {
     fun addCoins(amount: Int) {
         state.coins.value += amount
     }
-    
+
     fun setCoins(amount: Int) {
         state.coins.value = amount
     }
-    
+
     fun addMana(amount: Int) {
         state.currentMana.value = minOf(state.maxMana.value, state.currentMana.value + amount)
     }
@@ -1989,58 +2151,62 @@ class GameEngine(private val state: GameState) {
         state.currentMana.value = maxOf(0, state.currentMana.value - amount)
     }
 
-    fun spawnEnemy(type: AttackerType, level: Int = 1) {
+    fun spawnEnemy(
+        type: AttackerType,
+        level: Int = 1,
+    ) {
         // Find a free spawn position
         val spawnPos = enemyMovement.findFreeSpawnPosition() ?: return
-        
+
         // Create the enemy with scaled health based on level
         val scaledHealth = type.health * level
-        val attacker = Attacker(
-            id = state.nextAttackerId.value++,
-            type = type,
-            position = mutableStateOf(spawnPos),
-            currentHealth = mutableStateOf(scaledHealth),
-            dragonName = if (type.isDragon) DragonNames.getRandomName() else null,
-            currentTarget = mutableStateOf(enemyMovement.getInitialTarget(spawnPos))
-        )
-        
+        val attacker =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = type,
+                position = mutableStateOf(spawnPos),
+                currentHealth = mutableStateOf(scaledHealth),
+                dragonName = if (type.isDragon) DragonNames.getRandomName() else null,
+                currentTarget = mutableStateOf(enemyMovement.getInitialTarget(spawnPos)),
+            )
+
         // Set dragon level change callback if this is a dragon
         if (type.isDragon) {
             attacker.onDragonLevelChanged = dragonLevelChangeCallback
         }
-        
+
         // Add to attackers list
         state.attackers.add(attacker)
-        
+
         // Move goblins immediately after spawning (if it's a goblin)
         if (type == AttackerType.GOBLIN) {
             enemyMovement.moveGoblinsAfterSpawn()
         }
     }
-    
+
     /**
      * Cheat code to spawn a dragon from a random dwarven mine
      */
     fun spawnDragonCheat(): Boolean {
         // Find any dwarven mine on the map
         val mine = state.defenders.find { it.type == DefenderType.DWARVEN_MINE }
-        
+
         if (mine != null) {
             // Use the mine operations to spawn the dragon
             mineOperations.performMineDigWithOutcome(DigOutcome.DRAGON)
             return true
         }
-        
+
         return false
     }
-    
+
     /**
      * Set callback for combat results (for achievements)
      */
     fun setCombatResultCallback(callback: (CombatResult) -> Unit) {
         combatSystem.onCombatResult = callback
     }
-    
+
     /**
      * Get kills this turn for achievement tracking
      */
@@ -2057,7 +2223,7 @@ class GameEngine(private val state: GameState) {
     fun setRaftLossCallback(callback: (RaftLossReason) -> Unit) {
         raftSystem.onRaftLost = callback
     }
-    
+
     /**
      * Set callback for dragon level changes (for achievements and XP)
      */
@@ -2067,7 +2233,7 @@ class GameEngine(private val state: GameState) {
             if (oldLevel > newLevel) {
                 // Dragon lost levels - award XP for each level lost
                 val levelsLost = oldLevel - newLevel
-                val xpPerLevel = AttackerType.DRAGON.xp  // 50 XP per level lost
+                val xpPerLevel = AttackerType.DRAGON.xp // 50 XP per level lost
                 val xpEarned = xpPerLevel * levelsLost
                 state.xpEarnedThisLevel.value += xpEarned
             }
@@ -2080,7 +2246,7 @@ class GameEngine(private val state: GameState) {
             dragon.onDragonLevelChanged = wrappedCallback
         }
     }
-    
+
     /**
      * Reset turn counters at start of turn (for achievements)
      */

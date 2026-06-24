@@ -4,9 +4,6 @@ package de.egril.defender.ui.worldmap
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,37 +12,35 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
-import de.egril.defender.model.LevelStatus
+import com.hyperether.resources.stringResource
+import de.egril.defender.config.LogConfig
+import de.egril.defender.editor.RepositoryManager
+import de.egril.defender.iam.IamState
 import de.egril.defender.model.WorldLevel
 import de.egril.defender.ui.CheatCodeDialog
+import de.egril.defender.ui.a11y.accessibilityVisualFilter
+import de.egril.defender.ui.feedback.FeedbackButton
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
+import de.egril.defender.ui.icon.UnlockIcon
 import de.egril.defender.ui.isEditorAvailable
 import de.egril.defender.ui.isMobileWebBrowser
-import de.egril.defender.ui.settings.SettingsButton
-import de.egril.defender.ui.feedback.FeedbackButton
+import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.DifficultyDisplay
 import de.egril.defender.ui.settings.DifficultyLevel
-import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.settings.isShortcutBindingPressed
-import de.egril.defender.editor.RepositoryManager
 import de.egril.defender.utils.isPlatformMobile
 import de.egril.defender.utils.isPlatformWasm
-import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import defender_of_egril.composeapp.generated.resources.Res
 import kotlinx.coroutines.launch
-import androidx.compose.ui.text.font.FontStyle
-import de.egril.defender.config.LogConfig
-import de.egril.defender.iam.IamState
-import de.egril.defender.ui.icon.UnlockIcon
-import de.egril.defender.ui.a11y.accessibilityVisualFilter
-import de.egril.defender.ui.gameplay.ShortcutKeyChip
-import de.egril.defender.ui.settings.formatShortcutBindingForDisplay
 
 // Button sizing constants for world map bottom bar
-private val BUTTON_WIDTH_MOBILE_IMAGE_MAP = 133.dp  // ~33% smaller than default for compact mobile layout
-private val BUTTON_WIDTH_MOBILE_WEB_IMAGE_MAP = 140.dp  // 70% of default for mobile web browsers
-private val BUTTON_WIDTH_DEFAULT = 200.dp  // Standard button width for desktop and mobile level cards view
+private val BUTTON_WIDTH_MOBILE_IMAGE_MAP = 133.dp // ~33% smaller than default for compact mobile layout
+private val BUTTON_WIDTH_MOBILE_WEB_IMAGE_MAP = 140.dp // 70% of default for mobile web browsers
+private val BUTTON_WIDTH_DEFAULT = 200.dp // Standard button width for desktop and mobile level cards view
 private const val IMAGE_MAP_TAB_COUNT = 3
 
 /**
@@ -57,37 +52,37 @@ private fun PlayerNameWithIam(
     currentPlayerName: String,
     iamState: IamState,
     onEditPlayerName: () -> Unit,
-    onSwitchPlayer: () -> Unit
+    onSwitchPlayer: () -> Unit,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Column(
-            modifier = Modifier.clickable { onEditPlayerName() }
+            modifier = Modifier.clickable { onEditPlayerName() },
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 Text(
                     text = currentPlayerName,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary,
                 )
-                    ShortcutKeyChip(text = "P")
+                ShortcutKeyChip(text = "P")
             }
             // Show Keycloak username below the local player name when logged in
             if (iamState.isAuthenticated && iamState.username != null) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                    horizontalArrangement = Arrangement.spacedBy(2.dp),
                 ) {
                     UnlockIcon(size = 12.dp)
                     Text(
                         text = iamState.username,
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.secondary
+                        color = MaterialTheme.colorScheme.secondary,
                     )
                 }
             }
@@ -95,11 +90,11 @@ private fun PlayerNameWithIam(
 
         TextButton(
             onClick = onSwitchPlayer,
-            modifier = Modifier.defaultMinSize(minHeight = 36.dp)
+            modifier = Modifier.defaultMinSize(minHeight = 36.dp),
         ) {
             Text(
                 text = stringResource(Res.string.switch_player),
-                style = MaterialTheme.typography.labelSmall
+                style = MaterialTheme.typography.labelSmall,
             )
             if (AppSettings.showButtonShortcutHints.value) {
                 Spacer(modifier = Modifier.width(4.dp))
@@ -117,20 +112,20 @@ fun WorldMapScreen(
     onShowRules: () -> Unit,
     onOpenEditor: () -> Unit,
     onLoadGame: () -> Unit,
-    onCheatCode: ((String) -> Boolean)? = null,  // Callback for processing cheat codes, returns true if code was valid
-    onReloadWorldMap: (() -> Unit)? = null,  // Callback to reload world map after syncing repository files
-    onDownloadCommunityContent: (() -> Unit)? = null,  // Callback to fetch community level metadata from backend
-    remoteCommunityLevels: List<de.egril.defender.save.CommunityFileInfo> = emptyList(),  // Levels available on the server
-    onDownloadCommunityLevel: ((de.egril.defender.save.CommunityFileInfo, (Boolean) -> Unit) -> Unit)? = null,  // On-demand level download
-    checkForNewRepositoryData: Boolean = true,  // Set to false in tests to avoid repository checks
-    onSwitchPlayer: (() -> Unit)? = null,  // Callback to switch player
-    onEditPlayerName: (() -> Unit)? = null,  // Callback to edit player name
-    currentPlayerName: String? = null,  // Current player name for display
-    iamState: IamState = IamState(),  // IAM state for showing Keycloak username
-    showPlatformInfo: Boolean = false,  // Show platform info from cheat code
-    onClearPlatformInfo: (() -> Unit)? = null,  // Callback to clear platform info
-    showCheatHelp: Boolean = false,  // Show cheat code help screen
-    onClearCheatHelp: (() -> Unit)? = null  // Callback to clear cheat help
+    onCheatCode: ((String) -> Boolean)? = null, // Callback for processing cheat codes, returns true if code was valid
+    onReloadWorldMap: (() -> Unit)? = null, // Callback to reload world map after syncing repository files
+    onDownloadCommunityContent: (() -> Unit)? = null, // Callback to fetch community level metadata from backend
+    remoteCommunityLevels: List<de.egril.defender.save.CommunityFileInfo> = emptyList(), // Levels available on the server
+    onDownloadCommunityLevel: ((de.egril.defender.save.CommunityFileInfo, (Boolean) -> Unit) -> Unit)? = null, // On-demand level download
+    checkForNewRepositoryData: Boolean = true, // Set to false in tests to avoid repository checks
+    onSwitchPlayer: (() -> Unit)? = null, // Callback to switch player
+    onEditPlayerName: (() -> Unit)? = null, // Callback to edit player name
+    currentPlayerName: String? = null, // Current player name for display
+    iamState: IamState = IamState(), // IAM state for showing Keycloak username
+    showPlatformInfo: Boolean = false, // Show platform info from cheat code
+    onClearPlatformInfo: (() -> Unit)? = null, // Callback to clear platform info
+    showCheatHelp: Boolean = false, // Show cheat code help screen
+    onClearCheatHelp: (() -> Unit)? = null, // Callback to clear cheat help
 ) {
     var showCheatDialog by remember { mutableStateOf(false) }
     var selectedLocation by remember { mutableStateOf<Pair<WorldMapLocation, List<WorldLevel>>?>(null) }
@@ -172,69 +167,80 @@ fun WorldMapScreen(
     // Track which tab is active in image map mode.
     // null = show image map, 1 = Community tab, 2 = User Levels tab
     var imageMapActiveTab by remember { mutableStateOf<Int?>(null) }
-    
+
     // Keyboard navigation: focused location index for Tab cycling
     var keyboardFocusedLocationIndex by remember { mutableStateOf(-1) }
     var triggerLocationSelect by remember { mutableStateOf(false) }
-    
+
     // Watch the setting for world map style
     val useLevelCards = AppSettings.useLevelCards.value
-    
+
     // Watch the setting for showing testing levels
     val showTestingLevels = AppSettings.showTestingLevels.value
-    
+
     // Filter world levels based on testingOnly flag
-    val visibleWorldLevels = remember(worldLevels, showTestingLevels) {
-        if (showTestingLevels) {
-            worldLevels
-        } else {
-            // Filter out levels marked as testing only.
-            // getLevel() covers official and user levels; getCommunityLevel() covers community levels
-            // (getLevel does not search the community directory, so community levels must be checked
-            // separately to correctly hide community levels that have testingOnly = true).
-            worldLevels.filter { worldLevel ->
-                val editorLevelId = worldLevel.level.editorLevelId ?: ""
-                val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(editorLevelId)
-                    ?: de.egril.defender.editor.EditorStorage.getCommunityLevel(editorLevelId)
-                editorLevel?.testingOnly != true
+    val visibleWorldLevels =
+        remember(worldLevels, showTestingLevels) {
+            if (showTestingLevels) {
+                worldLevels
+            } else {
+                // Filter out levels marked as testing only.
+                // getLevel() covers official and user levels; getCommunityLevel() covers community levels
+                // (getLevel does not search the community directory, so community levels must be checked
+                // separately to correctly hide community levels that have testingOnly = true).
+                worldLevels.filter { worldLevel ->
+                    val editorLevelId = worldLevel.level.editorLevelId ?: ""
+                    val editorLevel =
+                        de.egril.defender.editor.EditorStorage
+                            .getLevel(editorLevelId)
+                            ?: de.egril.defender.editor.EditorStorage
+                                .getCommunityLevel(editorLevelId)
+                    editorLevel?.testingOnly != true
+                }
             }
         }
-    }
-    
+
     // Check if there are any user levels (non-official, non-community)
-    val hasUserLevels = remember(worldLevels) {
-        worldLevels.any { worldLevel ->
-            val editorLevel = de.egril.defender.editor.EditorStorage.getLevel(worldLevel.level.editorLevelId ?: "")
-            editorLevel?.isOfficial == false && editorLevel.isCommunity == false
+    val hasUserLevels =
+        remember(worldLevels) {
+            worldLevels.any { worldLevel ->
+                val editorLevel =
+                    de.egril.defender.editor.EditorStorage
+                        .getLevel(worldLevel.level.editorLevelId ?: "")
+                editorLevel?.isOfficial == false && editorLevel.isCommunity == false
+            }
         }
-    }
 
     // Check if there are any community levels (local or remote)
-    val hasCommunityLevels = remember(worldLevels, remoteCommunityLevels) {
-        remoteCommunityLevels.isNotEmpty() ||
-        worldLevels.any { worldLevel ->
-            val editorLevel = de.egril.defender.editor.EditorStorage.getCommunityLevel(worldLevel.level.editorLevelId ?: "")
-            editorLevel?.isCommunity == true
+    val hasCommunityLevels =
+        remember(worldLevels, remoteCommunityLevels) {
+            remoteCommunityLevels.isNotEmpty() ||
+                worldLevels.any { worldLevel ->
+                    val editorLevel =
+                        de.egril.defender.editor.EditorStorage
+                            .getCommunityLevel(worldLevel.level.editorLevelId ?: "")
+                    editorLevel?.isCommunity == true
+                }
         }
-    }
-    
+
     val scope = rememberCoroutineScope()
-    
+
     // Start background music when entering world map
     LaunchedEffect(Unit) {
         de.egril.defender.audio.GlobalBackgroundMusicManager.playMusic(
             de.egril.defender.audio.BackgroundMusic.WORLD_MAP,
-            loop = true
+            loop = true,
         )
     }
-    
+
     // Stop background music when leaving world map
     DisposableEffect(Unit) {
         onDispose {
-            de.egril.defender.audio.GlobalBackgroundMusicManager.stopMusic()
+            de.egril.defender.audio.GlobalBackgroundMusicManager
+                .stopMusic()
         }
     }
-    
+
     // Check for new repository data on first load and auto-sync (if enabled)
     LaunchedEffect(checkForNewRepositoryData) {
         if (checkForNewRepositoryData) {
@@ -244,7 +250,7 @@ fun WorldMapScreen(
                     if (detectedData != null) {
                         // Automatically sync official content without asking
                         if (LogConfig.ENABLE_UI_LOGGING) {
-                        println("Detected new official content, auto-syncing...")
+                            println("Detected new official content, auto-syncing...")
                         }
                         val success = RepositoryManager.syncNewRepositoryFiles()
                         if (success) {
@@ -253,23 +259,26 @@ fun WorldMapScreen(
                             onReloadWorldMap?.invoke()
                         } else {
                             if (LogConfig.ENABLE_UI_LOGGING) {
-                            println("Failed to sync official content")
+                                println("Failed to sync official content")
                             }
                         }
                     }
                 } catch (e: Exception) {
                     // Silently ignore repository check errors to avoid disrupting the user experience
                     if (LogConfig.ENABLE_UI_LOGGING) {
-                    println("Info: Repository check skipped - ${e.message}")
+                        println("Info: Repository check skipped - ${e.message}")
                     }
                 }
             }
         }
     }
-    
+
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) {
-        try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+        try {
+            focusRequester.requestFocus()
+        } catch (_: IllegalStateException) {
+        }
     }
 
     // True when the image-map is shown and no level-tab overlay is active.
@@ -278,628 +287,678 @@ fun WorldMapScreen(
     val canShowUserLevelsTab = hasUserLevels && !useLevelCards && imageMapActiveTab == null
 
     BoxWithConstraints(
-        modifier = Modifier
-            .fillMaxSize()
-            .focusRequester(focusRequester)
-            .focusTarget()
-            .onPreviewKeyEvent { event ->
-                if (event.type == KeyEventType.KeyDown) {
-                    when {
-                        event.key == Key.Back || event.key == Key.Escape -> {
-                            if (selectedLocation != null) {
-                                selectedLocation = null
-                            } else {
-                                onBackToMenu()
-                            }
-                            true
-                        }
-                        // L: Load game
-                        event.key == Key.L && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
-                            onLoadGame()
-                            true
-                        }
-                        // H: Show Rules
-                        event.key == Key.H && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
-                            onShowRules()
-                            true
-                        }
-                        // O: Open Level Editor (if available)
-                        event.key == Key.O && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed
-                                && isEditorAvailable() -> {
-                            onOpenEditor()
-                            true
-                        }
-                        // V → Community Levels (if available)
-                        event.key == Key.V && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed
-                                && canShowCommunityLevelsTab -> {
-                            imageMapActiveTab = 1
-                            true
-                        }
-                        // J → User Levels (if available)
-                        event.key == Key.J && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed
-                                && canShowUserLevelsTab -> {
-                            imageMapActiveTab = 2
-                            true
-                        }
-                        // Arrow Right: cycle tab view when image-map tab overlay is open
-                        event.key == Key.DirectionRight -> {
-                            val currentTab = imageMapActiveTab ?: return@onPreviewKeyEvent false
-                            imageMapActiveTab = (currentTab + 1) % IMAGE_MAP_TAB_COUNT
-                            true
-                        }
-                        // Arrow Left: cycle tab view backwards when image-map tab overlay is open;
-                        // going "left" of the first real tab (Community/User) returns to the world map
-                        event.key == Key.DirectionLeft -> {
-                            val currentTab = imageMapActiveTab ?: return@onPreviewKeyEvent false
-                            val prevTab = currentTab - 1
-                            if (prevTab == 0) {
-                                imageMapActiveTab = null
-                            } else {
-                                imageMapActiveTab = prevTab
-                            }
-                            true
-                        }
-                        // Tab: Cycle through map locations
-                        event.key == Key.Tab && !event.isShiftPressed && imageMapActiveTab == null -> {
-                            val locationCount = de.egril.defender.editor.EditorStorage.getWorldMapData().locations.size
-                                .coerceAtLeast(visibleWorldLevels.size)
-                            if (locationCount > 0) {
-                                keyboardFocusedLocationIndex = (keyboardFocusedLocationIndex + 1) % locationCount
-                            }
-                            true
-                        }
-                        // Shift+Tab: Cycle backwards through map locations
-                        event.key == Key.Tab && event.isShiftPressed && imageMapActiveTab == null -> {
-                            val locationCount = de.egril.defender.editor.EditorStorage.getWorldMapData().locations.size
-                                .coerceAtLeast(visibleWorldLevels.size)
-                            if (locationCount > 0) {
-                                keyboardFocusedLocationIndex = if (keyboardFocusedLocationIndex <= 0) locationCount - 1
-                                    else keyboardFocusedLocationIndex - 1
-                            }
-                            true
-                        }
-                        // Enter: Select focused location (handled below via onKeyboardLocationSelected)
-                        event.key == Key.Enter && keyboardFocusedLocationIndex >= 0 && imageMapActiveTab == null -> {
-                            triggerLocationSelect = true
-                            true
-                        }
-                        // D: Cycle difficulty level
-                        event.key == Key.D && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
-                            val levels = DifficultyLevel.entries
-                            val currentIndex = levels.indexOf(AppSettings.difficulty.value)
-                            val nextIndex = (currentIndex + 1) % levels.size
-                            AppSettings.saveDifficulty(levels[nextIndex])
-                            true
-                        }
-                        isShortcutBindingPressed(event, AppSettings.shortcutCheat.value) && onCheatCode != null -> {
-                            showCheatDialog = true
-                            true
-                        }
-                        // Period (.) → Open feedback
-                        event.key == Key.Period && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
-                            triggerFeedback = true
-                            true
-                        }
-                        // Comma (,) → Open settings
-                        event.key == Key.Comma && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
-                            triggerSettings = true
-                            true
-                        }
-                        // P → Open player profile
-                        event.key == Key.P && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed
-                                && onEditPlayerName != null -> {
-                            onEditPlayerName.invoke()
-                            true
-                        }
-                        // Q → Switch player
-                        event.key == Key.Q && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed
-                                && onSwitchPlayer != null -> {
-                            onSwitchPlayer.invoke()
-                            true
-                        }
-                        // X → Dismiss daily hint banner
-                        event.key == Key.X && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed
-                                && activeDailyHint != null -> {
-                            activeDailyHint = null
-                            true
-                        }
-                        else -> false
-                    }
-                } else {
-                    false
-                }
-            }
-    ) {
-        val windowSize = remember(maxWidth, maxHeight) {
-            "Window: ${maxWidth.value.toInt()} x ${maxHeight.value.toInt()} dp"
-        }
-        val isLandscape = maxWidth > maxHeight
-        
-        Surface(
-            modifier = Modifier
+        modifier =
+            Modifier
                 .fillMaxSize()
-                .accessibilityVisualFilter(
-                    highContrastEnabled = AppSettings.highContrastEnabled.value,
-                    colorBlindPalette = AppSettings.colorBlindPalette.value
-                ),
-            color = MaterialTheme.colorScheme.background
-        ) {
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            // Content area - switches between image map and level cards based on setting
-            if (useLevelCards) {
-                // Level cards view - grid of level cards with tabs
-                LevelCardsView(
-                    worldLevels = visibleWorldLevels,
-                    onLevelSelected = onLevelSelected,
-                    showUserLevelsTab = isEditorAvailable(),  // Show tabs on desktop/wasm
-                    remoteCommunityLevels = remoteCommunityLevels,
-                    downloadingLevelId = downloadingLevelId,
-                    onDownloadRemoteLevel = handleDownloadRemoteLevel,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = 80.dp, bottom = 80.dp)  // Leave space for top/bottom bars
-                )
-            } else {
-                // Image Map View
-                if ((hasUserLevels || hasCommunityLevels) && imageMapActiveTab != null) {
-                    // Show tab view – Official tab returns to image map, Community/User tabs show level cards
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = 80.dp, bottom = 80.dp)
-                    ) {
-                        val tabIndex = imageMapActiveTab ?: return@Column
-                        androidx.compose.material3.PrimaryTabRow(selectedTabIndex = tabIndex) {
-                            // Tab 0: Official – click to return to image worldmap
-                            androidx.compose.material3.Tab(
-                                selected = false,
-                                onClick = { imageMapActiveTab = null },
-                                text = { Text(stringResource(Res.string.official)) }
-                            )
-                            // Tab 1: Community (always rendered so indices stay stable)
-                            androidx.compose.material3.Tab(
-                                selected = tabIndex == 1,
-                                onClick = { imageMapActiveTab = 1 },
-                                text = { Text(stringResource(Res.string.community_levels)) }
-                            )
-                            // Tab 2: User Levels
-                            androidx.compose.material3.Tab(
-                                selected = tabIndex == 2,
-                                onClick = { imageMapActiveTab = 2 },
-                                text = { Text(stringResource(Res.string.user_levels)) }
-                            )
+                .focusRequester(focusRequester)
+                .focusTarget()
+                .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown) {
+                        when {
+                            event.key == Key.Back || event.key == Key.Escape -> {
+                                if (selectedLocation != null) {
+                                    selectedLocation = null
+                                } else {
+                                    onBackToMenu()
+                                }
+                                true
+                            }
+                            // L: Load game
+                            event.key == Key.L && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                onLoadGame()
+                                true
+                            }
+                            // H: Show Rules
+                            event.key == Key.H && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                onShowRules()
+                                true
+                            }
+                            // O: Open Level Editor (if available)
+                            event.key == Key.O &&
+                                !event.isCtrlPressed &&
+                                !event.isAltPressed &&
+                                !event.isShiftPressed &&
+                                isEditorAvailable() -> {
+                                onOpenEditor()
+                                true
+                            }
+                            // V → Community Levels (if available)
+                            event.key == Key.V &&
+                                !event.isCtrlPressed &&
+                                !event.isAltPressed &&
+                                !event.isShiftPressed &&
+                                canShowCommunityLevelsTab -> {
+                                imageMapActiveTab = 1
+                                true
+                            }
+                            // J → User Levels (if available)
+                            event.key == Key.J &&
+                                !event.isCtrlPressed &&
+                                !event.isAltPressed &&
+                                !event.isShiftPressed &&
+                                canShowUserLevelsTab -> {
+                                imageMapActiveTab = 2
+                                true
+                            }
+                            // Arrow Right: cycle tab view when image-map tab overlay is open
+                            event.key == Key.DirectionRight -> {
+                                val currentTab = imageMapActiveTab ?: return@onPreviewKeyEvent false
+                                imageMapActiveTab = (currentTab + 1) % IMAGE_MAP_TAB_COUNT
+                                true
+                            }
+                            // Arrow Left: cycle tab view backwards when image-map tab overlay is open;
+                            // going "left" of the first real tab (Community/User) returns to the world map
+                            event.key == Key.DirectionLeft -> {
+                                val currentTab = imageMapActiveTab ?: return@onPreviewKeyEvent false
+                                val prevTab = currentTab - 1
+                                if (prevTab == 0) {
+                                    imageMapActiveTab = null
+                                } else {
+                                    imageMapActiveTab = prevTab
+                                }
+                                true
+                            }
+                            // Tab: Cycle through map locations
+                            event.key == Key.Tab && !event.isShiftPressed && imageMapActiveTab == null -> {
+                                val locationCount =
+                                    de.egril.defender.editor.EditorStorage
+                                        .getWorldMapData()
+                                        .locations.size
+                                        .coerceAtLeast(visibleWorldLevels.size)
+                                if (locationCount > 0) {
+                                    keyboardFocusedLocationIndex = (keyboardFocusedLocationIndex + 1) % locationCount
+                                }
+                                true
+                            }
+                            // Shift+Tab: Cycle backwards through map locations
+                            event.key == Key.Tab && event.isShiftPressed && imageMapActiveTab == null -> {
+                                val locationCount =
+                                    de.egril.defender.editor.EditorStorage
+                                        .getWorldMapData()
+                                        .locations.size
+                                        .coerceAtLeast(visibleWorldLevels.size)
+                                if (locationCount > 0) {
+                                    keyboardFocusedLocationIndex =
+                                        if (keyboardFocusedLocationIndex <= 0) {
+                                            locationCount - 1
+                                        } else {
+                                            keyboardFocusedLocationIndex - 1
+                                        }
+                                }
+                                true
+                            }
+                            // Enter: Select focused location (handled below via onKeyboardLocationSelected)
+                            event.key == Key.Enter && keyboardFocusedLocationIndex >= 0 && imageMapActiveTab == null -> {
+                                triggerLocationSelect = true
+                                true
+                            }
+                            // D: Cycle difficulty level
+                            event.key == Key.D && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                val levels = DifficultyLevel.entries
+                                val currentIndex = levels.indexOf(AppSettings.difficulty.value)
+                                val nextIndex = (currentIndex + 1) % levels.size
+                                AppSettings.saveDifficulty(levels[nextIndex])
+                                true
+                            }
+                            isShortcutBindingPressed(event, AppSettings.shortcutCheat.value) && onCheatCode != null -> {
+                                showCheatDialog = true
+                                true
+                            }
+                            // Period (.) → Open feedback
+                            event.key == Key.Period && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                triggerFeedback = true
+                                true
+                            }
+                            // Comma (,) → Open settings
+                            event.key == Key.Comma && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                triggerSettings = true
+                                true
+                            }
+                            // P → Open player profile
+                            event.key == Key.P &&
+                                !event.isCtrlPressed &&
+                                !event.isAltPressed &&
+                                !event.isShiftPressed &&
+                                onEditPlayerName != null -> {
+                                onEditPlayerName.invoke()
+                                true
+                            }
+                            // Q → Switch player
+                            event.key == Key.Q &&
+                                !event.isCtrlPressed &&
+                                !event.isAltPressed &&
+                                !event.isShiftPressed &&
+                                onSwitchPlayer != null -> {
+                                onSwitchPlayer.invoke()
+                                true
+                            }
+                            // X → Dismiss daily hint banner
+                            event.key == Key.X &&
+                                !event.isCtrlPressed &&
+                                !event.isAltPressed &&
+                                !event.isShiftPressed &&
+                                activeDailyHint != null -> {
+                                activeDailyHint = null
+                                true
+                            }
+                            else -> false
                         }
-                        // Show the appropriate level cards for the selected tab
-                        when (tabIndex) {
-                            1 -> LevelCardsView(
-                                worldLevels = visibleWorldLevels,
-                                onLevelSelected = onLevelSelected,
-                                filterToCommunityOnly = true,
-                                remoteCommunityLevels = remoteCommunityLevels,
-                                downloadingLevelId = downloadingLevelId,
-                                onDownloadRemoteLevel = handleDownloadRemoteLevel,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                            2 -> LevelCardsView(
-                                worldLevels = visibleWorldLevels,
-                                onLevelSelected = onLevelSelected,
-                                filterToUserLevelsOnly = true,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
+                    } else {
+                        false
                     }
-                } else {
-                    // Show image-based World Map (no tabs)
-                    ImageWorldMapView(
-                        worldLevels = visibleWorldLevels,
-                        onLocationClicked = { location, levelsAtLocation ->
-                            selectedLocation = location to levelsAtLocation
-                        },
-                        modifier = Modifier.fillMaxSize(),
-                        keyboardFocusedLocationIndex = keyboardFocusedLocationIndex,
-                        onKeyboardLocationSelected = { location, levelsAtLocation ->
-                            selectedLocation = location to levelsAtLocation
-                        },
-                        triggerSelect = triggerLocationSelect,
-                        onTriggerSelectHandled = { triggerLocationSelect = false }
-                    )
-                }
+                },
+    ) {
+        val windowSize =
+            remember(maxWidth, maxHeight) {
+                "Window: ${maxWidth.value.toInt()} x ${maxHeight.value.toInt()} dp"
             }
-            
-            // Top bar with title and buttons
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .align(Alignment.TopCenter),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Title/subtitle area and player info
-                // In Image Map View: Stack player info below title
-                // In Level Cards View: Show player info in same row with spacing
-                if (useLevelCards || imageMapActiveTab != null) {
-                    // Level Cards View or tab view: Title and player info in same row
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        // Title and subtitle - clickable for cheat code access
-                        Column(
-                            modifier = Modifier.then(
-                                if (onCheatCode != null) {
-                                    Modifier.clickable { showCheatDialog = true }
-                                } else {
-                                    Modifier
-                                }
-                            )
-                        ) {
-                            Text(
-                                text = stringResource(Res.string.world_map_title),
-                                style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                            Text(
-                                text = stringResource(Res.string.world_map_subtitle),
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    fontStyle = FontStyle.Italic
-                                ),
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                        }
-                        
-                        // Player name and switch button (if available)
-                        if (currentPlayerName != null && onSwitchPlayer != null && onEditPlayerName != null) {
-                            PlayerNameWithIam(
-                                currentPlayerName = currentPlayerName,
-                                iamState = iamState,
-                                onEditPlayerName = onEditPlayerName,
-                                onSwitchPlayer = onSwitchPlayer
-                            )
-                        }
-                    }
-                } else {
-                    // Image Map View (no tab overlay): Title and player info stacked
-                    Column{
-                        Column(
-                            modifier = Modifier.then(
-                                if (onCheatCode != null) {
-                                    Modifier.clickable { showCheatDialog = true }
-                                } else {
-                                    Modifier
-                                }
-                            )
-                        ) {
-                            Text(
-                                text = stringResource(Res.string.world_map_title),
-                                style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                            Text(
-                                text = stringResource(Res.string.world_map_subtitle),
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    fontStyle = FontStyle.Italic
-                                ),
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                        }
-                        
-                        // Player name and switch button (if available) - shown below title
-                        if (currentPlayerName != null && onSwitchPlayer != null && onEditPlayerName != null) {
-                            Spacer(modifier = Modifier.height(8.dp))
-                            PlayerNameWithIam(
-                                currentPlayerName = currentPlayerName,
-                                iamState = iamState,
-                                onEditPlayerName = onEditPlayerName,
-                                onSwitchPlayer = onSwitchPlayer
-                            )
-                        }
-                    }
-                }
-                
-                // Difficulty and Settings button
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Difficulty display (clickable to open dropdown)
-                    DifficultyDisplay(
-                        isClickable = true,
-                        shortcutKey = "D",
-                        modifier = Modifier
-                    )
-                    
-                    // Feedback button
-                    FeedbackButton(
-                        shortcutKey = ".",
-                        triggerOpen = triggerFeedback,
-                        onTriggerHandled = { triggerFeedback = false }
-                    )
+        val isLandscape = maxWidth > maxHeight
 
-                    // Settings button
-                    SettingsButton(
-                        shortcutKey = ",",
-                        triggerOpen = triggerSettings,
-                        onTriggerHandled = { triggerSettings = false }
+        Surface(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .accessibilityVisualFilter(
+                        highContrastEnabled = AppSettings.highContrastEnabled.value,
+                        colorBlindPalette = AppSettings.colorBlindPalette.value,
+                    ),
+            color = MaterialTheme.colorScheme.background,
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                // Content area - switches between image map and level cards based on setting
+                if (useLevelCards) {
+                    // Level cards view - grid of level cards with tabs
+                    LevelCardsView(
+                        worldLevels = visibleWorldLevels,
+                        onLevelSelected = onLevelSelected,
+                        showUserLevelsTab = isEditorAvailable(), // Show tabs on desktop/wasm
+                        remoteCommunityLevels = remoteCommunityLevels,
+                        downloadingLevelId = downloadingLevelId,
+                        onDownloadRemoteLevel = handleDownloadRemoteLevel,
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .padding(top = 80.dp, bottom = 80.dp), // Leave space for top/bottom bars
                     )
+                } else {
+                    // Image Map View
+                    if ((hasUserLevels || hasCommunityLevels) && imageMapActiveTab != null) {
+                        // Show tab view – Official tab returns to image map, Community/User tabs show level cards
+                        Column(
+                            modifier =
+                                Modifier
+                                    .fillMaxSize()
+                                    .padding(top = 80.dp, bottom = 80.dp),
+                        ) {
+                            val tabIndex = imageMapActiveTab ?: return@Column
+                            androidx.compose.material3.PrimaryTabRow(selectedTabIndex = tabIndex) {
+                                // Tab 0: Official – click to return to image worldmap
+                                androidx.compose.material3.Tab(
+                                    selected = false,
+                                    onClick = { imageMapActiveTab = null },
+                                    text = { Text(stringResource(Res.string.official)) },
+                                )
+                                // Tab 1: Community (always rendered so indices stay stable)
+                                androidx.compose.material3.Tab(
+                                    selected = tabIndex == 1,
+                                    onClick = { imageMapActiveTab = 1 },
+                                    text = { Text(stringResource(Res.string.community_levels)) },
+                                )
+                                // Tab 2: User Levels
+                                androidx.compose.material3.Tab(
+                                    selected = tabIndex == 2,
+                                    onClick = { imageMapActiveTab = 2 },
+                                    text = { Text(stringResource(Res.string.user_levels)) },
+                                )
+                            }
+                            // Show the appropriate level cards for the selected tab
+                            when (tabIndex) {
+                                1 ->
+                                    LevelCardsView(
+                                        worldLevels = visibleWorldLevels,
+                                        onLevelSelected = onLevelSelected,
+                                        filterToCommunityOnly = true,
+                                        remoteCommunityLevels = remoteCommunityLevels,
+                                        downloadingLevelId = downloadingLevelId,
+                                        onDownloadRemoteLevel = handleDownloadRemoteLevel,
+                                        modifier = Modifier.fillMaxSize(),
+                                    )
+                                2 ->
+                                    LevelCardsView(
+                                        worldLevels = visibleWorldLevels,
+                                        onLevelSelected = onLevelSelected,
+                                        filterToUserLevelsOnly = true,
+                                        modifier = Modifier.fillMaxSize(),
+                                    )
+                            }
+                        }
+                    } else {
+                        // Show image-based World Map (no tabs)
+                        ImageWorldMapView(
+                            worldLevels = visibleWorldLevels,
+                            onLocationClicked = { location, levelsAtLocation ->
+                                selectedLocation = location to levelsAtLocation
+                            },
+                            modifier = Modifier.fillMaxSize(),
+                            keyboardFocusedLocationIndex = keyboardFocusedLocationIndex,
+                            onKeyboardLocationSelected = { location, levelsAtLocation ->
+                                selectedLocation = location to levelsAtLocation
+                            },
+                            triggerSelect = triggerLocationSelect,
+                            onTriggerSelectHandled = { triggerLocationSelect = false },
+                        )
+                    }
                 }
-            }
-            
-            // TAB navigation hint overlay (above the left-side buttons)
-            if (AppSettings.showButtonShortcutHints.value && imageMapActiveTab == null) {
-                Surface(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(bottom = 180.dp, start = 16.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f),
-                    shape = MaterialTheme.shapes.small,
-                    tonalElevation = 2.dp
+
+                // Top bar with title and buttons
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                            .align(Alignment.TopCenter),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Column(
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        verticalArrangement = Arrangement.spacedBy(2.dp)
+                    // Title/subtitle area and player info
+                    // In Image Map View: Stack player info below title
+                    // In Level Cards View: Show player info in same row with spacing
+                    if (useLevelCards || imageMapActiveTab != null) {
+                        // Level Cards View or tab view: Title and player info in same row
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        ) {
+                            // Title and subtitle - clickable for cheat code access
+                            Column(
+                                modifier =
+                                    Modifier.then(
+                                        if (onCheatCode != null) {
+                                            Modifier.clickable { showCheatDialog = true }
+                                        } else {
+                                            Modifier
+                                        },
+                                    ),
+                            ) {
+                                Text(
+                                    text = stringResource(Res.string.world_map_title),
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                )
+                                Text(
+                                    text = stringResource(Res.string.world_map_subtitle),
+                                    style =
+                                        MaterialTheme.typography.titleMedium.copy(
+                                            fontStyle = FontStyle.Italic,
+                                        ),
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                )
+                            }
+
+                            // Player name and switch button (if available)
+                            if (currentPlayerName != null && onSwitchPlayer != null && onEditPlayerName != null) {
+                                PlayerNameWithIam(
+                                    currentPlayerName = currentPlayerName,
+                                    iamState = iamState,
+                                    onEditPlayerName = onEditPlayerName,
+                                    onSwitchPlayer = onSwitchPlayer,
+                                )
+                            }
+                        }
+                    } else {
+                        // Image Map View (no tab overlay): Title and player info stacked
+                        Column {
+                            Column(
+                                modifier =
+                                    Modifier.then(
+                                        if (onCheatCode != null) {
+                                            Modifier.clickable { showCheatDialog = true }
+                                        } else {
+                                            Modifier
+                                        },
+                                    ),
+                            ) {
+                                Text(
+                                    text = stringResource(Res.string.world_map_title),
+                                    style = MaterialTheme.typography.titleLarge,
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                )
+                                Text(
+                                    text = stringResource(Res.string.world_map_subtitle),
+                                    style =
+                                        MaterialTheme.typography.titleMedium.copy(
+                                            fontStyle = FontStyle.Italic,
+                                        ),
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                )
+                            }
+
+                            // Player name and switch button (if available) - shown below title
+                            if (currentPlayerName != null && onSwitchPlayer != null && onEditPlayerName != null) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                PlayerNameWithIam(
+                                    currentPlayerName = currentPlayerName,
+                                    iamState = iamState,
+                                    onEditPlayerName = onEditPlayerName,
+                                    onSwitchPlayer = onSwitchPlayer,
+                                )
+                            }
+                        }
+                    }
+
+                    // Difficulty and Settings button
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        // Difficulty display (clickable to open dropdown)
+                        DifficultyDisplay(
+                            isClickable = true,
+                            shortcutKey = "D",
+                            modifier = Modifier,
+                        )
+
+                        // Feedback button
+                        FeedbackButton(
+                            shortcutKey = ".",
+                            triggerOpen = triggerFeedback,
+                            onTriggerHandled = { triggerFeedback = false },
+                        )
+
+                        // Settings button
+                        SettingsButton(
+                            shortcutKey = ",",
+                            triggerOpen = triggerSettings,
+                            onTriggerHandled = { triggerSettings = false },
+                        )
+                    }
+                }
+
+                // TAB navigation hint overlay (above the left-side buttons)
+                if (AppSettings.showButtonShortcutHints.value && imageMapActiveTab == null) {
+                    Surface(
+                        modifier =
+                            Modifier
+                                .align(Alignment.BottomStart)
+                                .padding(bottom = 180.dp, start = 16.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f),
+                        shape = MaterialTheme.shapes.small,
+                        tonalElevation = 2.dp,
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalArrangement = Arrangement.spacedBy(2.dp),
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                ShortcutKeyChip(text = "Tab")
+                                Text(
+                                    text = stringResource(Res.string.keyboard_nav_navigate_locations),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                ShortcutKeyChip(text = "Shift+Tab")
+                                Text(
+                                    text = stringResource(Res.string.keyboard_nav_prev_location),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    }
+                }
+                if (AppSettings.showButtonShortcutHints.value && imageMapActiveTab != null) {
+                    Surface(
+                        modifier =
+                            Modifier
+                                .align(Alignment.BottomStart)
+                                .padding(bottom = 180.dp, start = 16.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f),
+                        shape = MaterialTheme.shapes.small,
+                        tonalElevation = 2.dp,
                     ) {
                         Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
-                            ShortcutKeyChip(text = "Tab")
+                            ShortcutKeyChip(text = "Left/Right")
                             Text(
-                                text = stringResource(Res.string.keyboard_nav_navigate_locations),
+                                text = stringResource(Res.string.keyboard_nav_switch_tab),
                                 style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            ShortcutKeyChip(text = "Shift+Tab")
-                            Text(
-                                text = stringResource(Res.string.keyboard_nav_prev_location),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }
                 }
-            }
-            if (AppSettings.showButtonShortcutHints.value && imageMapActiveTab != null) {
-                Surface(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(bottom = 180.dp, start = 16.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f),
-                    shape = MaterialTheme.shapes.small,
-                    tonalElevation = 2.dp
+
+                // Bottom bar with action buttons
+                // Determine button arrangement based on platform and view mode
+                val isMobileImageMap = isPlatformMobile && !useLevelCards
+                val isMobileLevelCards = isPlatformMobile && useLevelCards
+                // Wasm/web also uses the stacked (image map) layout when in image map mode
+                val isImageMapLayout = (isPlatformMobile || isPlatformWasm) && !useLevelCards
+                val buttonArrangement =
+                    when {
+                        isMobileLevelCards -> Arrangement.Center
+                        isImageMapLayout -> Arrangement.Start
+                        else -> Arrangement.Center // Desktop
+                    }
+
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                            .align(Alignment.BottomCenter),
+                    horizontalArrangement = buttonArrangement,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    // Button width: smaller on mobile in image map view, standard otherwise
+                    val buttonMinWidth =
+                        when {
+                            isMobileImageMap -> BUTTON_WIDTH_MOBILE_IMAGE_MAP
+                            isMobileWebBrowser() -> BUTTON_WIDTH_MOBILE_WEB_IMAGE_MAP
+                            else -> BUTTON_WIDTH_DEFAULT
+                        }
+
+                    val tabIndex = imageMapActiveTab ?: 0
+                    // Button layout varies by platform and view mode:
+                    // - Mobile + Image Map: Column layout, left-aligned, smaller buttons
+                    // - Wasm/Web + Image Map: Column layout, left-aligned, standard buttons
+                    // - Mobile + Level Cards: Row layout, centered, normal buttons
+                    // - Desktop: Row layout, centered
+                    when {
+                        isImageMapLayout && tabIndex == 0 -> {
+                            // Mobile/Wasm + Image Map View: Column layout, left-aligned
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                horizontalAlignment = Alignment.Start,
+                            ) {
+                                Button(
+                                    onClick = onLoadGame,
+                                    modifier = Modifier.widthIn(min = buttonMinWidth),
+                                ) {
+                                    Text(stringResource(Res.string.load_game))
+                                    if (AppSettings.showButtonShortcutHints.value) {
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        ShortcutKeyChip(text = "L", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                    }
+                                }
+
+                                Button(
+                                    onClick = onShowRules,
+                                    modifier = Modifier.widthIn(min = buttonMinWidth),
+                                ) {
+                                    Text(stringResource(Res.string.rules))
+                                    if (AppSettings.showButtonShortcutHints.value) {
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        ShortcutKeyChip(text = "H", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                    }
+                                }
+
+                                Button(
+                                    onClick = onBackToMenu,
+                                    modifier = Modifier.widthIn(min = buttonMinWidth),
+                                ) {
+                                    Text(stringResource(Res.string.back))
+                                    if (AppSettings.showButtonShortcutHints.value) {
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        ShortcutKeyChip(text = "Esc", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                    }
+                                }
+                            }
+                        }
+                        else -> {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            ) {
+                                Button(onClick = onLoadGame) {
+                                    Text(stringResource(Res.string.load_game))
+                                    if (AppSettings.showButtonShortcutHints.value) {
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        ShortcutKeyChip(text = "L", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                    }
+                                }
+
+                                Button(onClick = onShowRules) {
+                                    Text(stringResource(Res.string.rules))
+                                    if (AppSettings.showButtonShortcutHints.value) {
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        ShortcutKeyChip(text = "H", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                    }
+                                }
+
+                                Button(onClick = onBackToMenu) {
+                                    Text(stringResource(Res.string.back))
+                                    if (AppSettings.showButtonShortcutHints.value) {
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        ShortcutKeyChip(text = "Esc", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Spacer to push community/user/editor buttons to the right
+                    if ((!isPlatformMobile && !isPlatformWasm && isEditorAvailable()) ||
+                        (isImageMapLayout && (hasUserLevels || hasCommunityLevels) && imageMapActiveTab == null)
                     ) {
-                        ShortcutKeyChip(text = "Left/Right")
-                        Text(
-                            text = stringResource(Res.string.keyboard_nav_switch_tab),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        Spacer(modifier = Modifier.weight(1f))
+                    }
+
+                    // User/Community Levels Buttons (only in Image Map View when not showing tab view)
+                    if ((canShowUserLevelsTab || canShowCommunityLevelsTab)) {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalAlignment = Alignment.End,
+                        ) {
+                            if (canShowUserLevelsTab) {
+                                Button(onClick = { imageMapActiveTab = 2 }) {
+                                    Text(stringResource(Res.string.user_levels))
+                                    if (AppSettings.showButtonShortcutHints.value) {
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        ShortcutKeyChip(text = "J", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                    }
+                                }
+                            }
+                            if (canShowCommunityLevelsTab) {
+                                Button(onClick = { imageMapActiveTab = 1 }) {
+                                    Text(stringResource(Res.string.community_levels))
+                                    if (AppSettings.showButtonShortcutHints.value) {
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        ShortcutKeyChip(text = "V", color = LocalContentColor.current.copy(alpha = 0.75f))
+                                    }
+                                }
+                            }
+                            // Editor Button below the level buttons
+                            if (isEditorAvailable()) {
+                                EditorButtonCard(onClick = onOpenEditor)
+                            }
+                        }
+                    } else if (isEditorAvailable()) {
+                        // Just Editor Button (when no user/community levels or already in tab view)
+                        EditorButtonCard(onClick = onOpenEditor)
+                    }
+                }
+
+                // Daily hint banner — shown once per calendar day until dismissed
+                val hint = activeDailyHint
+                if (hint != null) {
+                    if (isLandscape) {
+                        DailyHintBanner(
+                            messageRes = hint.hint.messageRes,
+                            onDismiss = { activeDailyHint = null },
+                            modifier =
+                                Modifier
+                                    .align(Alignment.CenterEnd)
+                                    .padding(end = 16.dp)
+                                    .width(280.dp),
+                        )
+                    } else {
+                        DailyHintBanner(
+                            messageRes = hint.hint.messageRes,
+                            onDismiss = { activeDailyHint = null },
+                            modifier =
+                                Modifier
+                                    .align(Alignment.TopCenter)
+                                    .padding(top = 80.dp, start = 16.dp, end = 16.dp)
+                                    .fillMaxWidth(),
                         )
                     }
                 }
             }
-
-            // Bottom bar with action buttons
-            // Determine button arrangement based on platform and view mode
-            val isMobileImageMap = isPlatformMobile && !useLevelCards
-            val isMobileLevelCards = isPlatformMobile && useLevelCards
-            // Wasm/web also uses the stacked (image map) layout when in image map mode
-            val isImageMapLayout = (isPlatformMobile || isPlatformWasm) && !useLevelCards
-            val buttonArrangement = when {
-                isMobileLevelCards -> Arrangement.Center
-                isImageMapLayout -> Arrangement.Start
-                else -> Arrangement.Center  // Desktop
-            }
-            
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .align(Alignment.BottomCenter),
-                horizontalArrangement = buttonArrangement,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Button width: smaller on mobile in image map view, standard otherwise
-                val buttonMinWidth = when {
-                    isMobileImageMap -> BUTTON_WIDTH_MOBILE_IMAGE_MAP
-                    isMobileWebBrowser() -> BUTTON_WIDTH_MOBILE_WEB_IMAGE_MAP
-                    else -> BUTTON_WIDTH_DEFAULT
-                }
-
-
-                val tabIndex = imageMapActiveTab ?: 0
-                // Button layout varies by platform and view mode:
-                // - Mobile + Image Map: Column layout, left-aligned, smaller buttons
-                // - Wasm/Web + Image Map: Column layout, left-aligned, standard buttons
-                // - Mobile + Level Cards: Row layout, centered, normal buttons
-                // - Desktop: Row layout, centered
-                when {
-                    isImageMapLayout && tabIndex == 0 -> {
-                        // Mobile/Wasm + Image Map View: Column layout, left-aligned
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            horizontalAlignment = Alignment.Start
-                        ) {
-                            Button(
-                                onClick = onLoadGame,
-                                modifier = Modifier.widthIn(min = buttonMinWidth)
-                            ) {
-                                Text(stringResource(Res.string.load_game))
-                                if (AppSettings.showButtonShortcutHints.value) {
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    ShortcutKeyChip(text = "L", color = LocalContentColor.current.copy(alpha = 0.75f))
-                                }
-                            }
-                            
-                            Button(
-                                onClick = onShowRules,
-                                modifier = Modifier.widthIn(min = buttonMinWidth)
-                            ) {
-                                Text(stringResource(Res.string.rules))
-                                if (AppSettings.showButtonShortcutHints.value) {
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    ShortcutKeyChip(text = "H", color = LocalContentColor.current.copy(alpha = 0.75f))
-                                }
-                            }
-                            
-                            Button(
-                                onClick = onBackToMenu,
-                                modifier = Modifier.widthIn(min = buttonMinWidth)
-                            ) {
-                                Text(stringResource(Res.string.back))
-                                if (AppSettings.showButtonShortcutHints.value) {
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    ShortcutKeyChip(text = "Esc", color = LocalContentColor.current.copy(alpha = 0.75f))
-                                }
-                            }
-                        }
-                    }
-                    else -> {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            Button(onClick = onLoadGame) {
-                                Text(stringResource(Res.string.load_game))
-                                if (AppSettings.showButtonShortcutHints.value) {
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    ShortcutKeyChip(text = "L", color = LocalContentColor.current.copy(alpha = 0.75f))
-                                }
-                            }
-                            
-                            Button(onClick = onShowRules) {
-                                Text(stringResource(Res.string.rules))
-                                if (AppSettings.showButtonShortcutHints.value) {
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    ShortcutKeyChip(text = "H", color = LocalContentColor.current.copy(alpha = 0.75f))
-                                }
-                            }
-                            
-                            Button(onClick = onBackToMenu) {
-                                Text(stringResource(Res.string.back))
-                                if (AppSettings.showButtonShortcutHints.value) {
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    ShortcutKeyChip(text = "Esc", color = LocalContentColor.current.copy(alpha = 0.75f))
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                // Spacer to push community/user/editor buttons to the right
-                if ((!isPlatformMobile && !isPlatformWasm && isEditorAvailable()) ||
-                    (isImageMapLayout && (hasUserLevels || hasCommunityLevels) && imageMapActiveTab == null)) {
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-                
-                // User/Community Levels Buttons (only in Image Map View when not showing tab view)
-                if ((canShowUserLevelsTab || canShowCommunityLevelsTab)) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        horizontalAlignment = Alignment.End
-                    ) {
-                        if (canShowUserLevelsTab) {
-                            Button(onClick = { imageMapActiveTab = 2 }) {
-                                Text(stringResource(Res.string.user_levels))
-                                if (AppSettings.showButtonShortcutHints.value) {
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    ShortcutKeyChip(text = "J", color = LocalContentColor.current.copy(alpha = 0.75f))
-                                }
-                            }
-                        }
-                        if (canShowCommunityLevelsTab) {
-                            Button(onClick = { imageMapActiveTab = 1 }) {
-                                Text(stringResource(Res.string.community_levels))
-                                if (AppSettings.showButtonShortcutHints.value) {
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    ShortcutKeyChip(text = "V", color = LocalContentColor.current.copy(alpha = 0.75f))
-                                }
-                            }
-                        }
-                        // Editor Button below the level buttons
-                        if (isEditorAvailable()) {
-                            EditorButtonCard(onClick = onOpenEditor)
-                        }
-                    }
-                } else if (isEditorAvailable()) {
-                    // Just Editor Button (when no user/community levels or already in tab view)
-                    EditorButtonCard(onClick = onOpenEditor)
-                }
-            }
-
-            // Daily hint banner — shown once per calendar day until dismissed
-            val hint = activeDailyHint
-            if (hint != null) {
-                if (isLandscape) {
-                    DailyHintBanner(
-                        messageRes = hint.hint.messageRes,
-                        onDismiss = { activeDailyHint = null },
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(end = 16.dp)
-                            .width(280.dp)
-                    )
-                } else {
-                    DailyHintBanner(
-                        messageRes = hint.hint.messageRes,
-                        onDismiss = { activeDailyHint = null },
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .padding(top = 80.dp, start = 16.dp, end = 16.dp)
-                            .fillMaxWidth()
-                    )
-                }
-            }
         }
-    }
-    
-    // Level location dialog - shows all levels at the clicked location
-    if (selectedLocation != null) {
-        val (location, levels) = selectedLocation!!
-        LevelLocationDialog(
-            location = location,
-            levelsAtLocation = levels,
-            onPlayLevel = { levelId ->
-                onLevelSelected(levelId)
-                selectedLocation = null
-            },
-            onDismiss = { selectedLocation = null }
-        )
-    }
-    
-    // Cheat code dialog
-    if (showCheatDialog && onCheatCode != null) {
-        CheatCodeDialog(
-            onDismiss = { showCheatDialog = false },
-            onApplyCheatCode = onCheatCode
-        )
-    }
-    
-    // Platform info dialog (from platform cheat code)
-    if (showPlatformInfo && onClearPlatformInfo != null) {
-        de.egril.defender.ui.PlatformInfoDialog(
-            platformInfo = de.egril.defender.utils.getPlatform().name,
-            windowSize = windowSize,
-            onDismiss = onClearPlatformInfo
-        )
-    }
-    
-    // Cheat code help screen (from cheat/cheats/help cheat code)
-    if (showCheatHelp && onClearCheatHelp != null) {
-        de.egril.defender.ui.CheatCodeHelpScreen(
-            onDismiss = onClearCheatHelp,
-            isInGameplay = false
-        )
-    }
+
+        // Level location dialog - shows all levels at the clicked location
+        if (selectedLocation != null) {
+            val (location, levels) = selectedLocation!!
+            LevelLocationDialog(
+                location = location,
+                levelsAtLocation = levels,
+                onPlayLevel = { levelId ->
+                    onLevelSelected(levelId)
+                    selectedLocation = null
+                },
+                onDismiss = { selectedLocation = null },
+            )
+        }
+
+        // Cheat code dialog
+        if (showCheatDialog && onCheatCode != null) {
+            CheatCodeDialog(
+                onDismiss = { showCheatDialog = false },
+                onApplyCheatCode = onCheatCode,
+            )
+        }
+
+        // Platform info dialog (from platform cheat code)
+        if (showPlatformInfo && onClearPlatformInfo != null) {
+            de.egril.defender.ui.PlatformInfoDialog(
+                platformInfo =
+                    de.egril.defender.utils
+                        .getPlatform()
+                        .name,
+                windowSize = windowSize,
+                onDismiss = onClearPlatformInfo,
+            )
+        }
+
+        // Cheat code help screen (from cheat/cheats/help cheat code)
+        if (showCheatHelp && onClearCheatHelp != null) {
+            de.egril.defender.ui.CheatCodeHelpScreen(
+                onDismiss = onClearCheatHelp,
+                isInGameplay = false,
+            )
+        }
     }
 }

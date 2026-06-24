@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -21,12 +20,10 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.AlchemyAttackEffect
 import de.egril.defender.model.Position
-import de.egril.defender.ui.hexagon.HexagonalGridConstants
 import de.egril.defender.ui.gameplay.GamePlayConstants
+import de.egril.defender.ui.hexagon.HexagonalGridConstants
 import kotlinx.coroutines.delay
 import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.sin
 import kotlin.math.sqrt
 
 /** Fraction of the animation (0–1) spent on the green charge flash before the vial starts flying. */
@@ -56,7 +53,7 @@ fun AlchemyAttackOverlay(
     effects: List<AlchemyAttackEffect>,
     hexSizeDp: Float,
     contentSize: IntSize,
-    animate: Boolean
+    animate: Boolean,
 ) {
     val pixelDensity = LocalDensity.current.density
     val hexSizePx = hexSizeDp * pixelDensity
@@ -74,7 +71,7 @@ fun AlchemyAttackOverlay(
                 rowVerticalAdjPx = rowVerticalAdjPx,
                 contentWidth = contentWidth,
                 contentHeight = contentHeight,
-                animate = animate
+                animate = animate,
             )
         }
     }
@@ -88,7 +85,7 @@ private fun SingleVialOverlay(
     rowVerticalAdjPx: Float,
     contentWidth: Dp,
     contentHeight: Dp,
-    animate: Boolean
+    animate: Boolean,
 ) {
     val hexWidthPx = hexSizePx * sqrt(3f)
     val hexHeightPx = hexSizePx * 2f
@@ -111,10 +108,11 @@ private fun SingleVialOverlay(
         if (animate) {
             overallProgress.animateTo(
                 targetValue = 1f,
-                animationSpec = tween(
-                    durationMillis = GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS.toInt(),
-                    easing = LinearEasing
-                )
+                animationSpec =
+                    tween(
+                        durationMillis = GamePlayConstants.AnimationTimings.ALCHEMY_FLIGHT_DELAY_MS.toInt(),
+                        easing = LinearEasing,
+                    ),
             )
         } else {
             overallProgress.snapTo(1f)
@@ -132,7 +130,7 @@ private fun DrawScope.drawAcidVial(
     progress: Float,
     sourceCenter: Offset,
     targetCenter: Offset,
-    hexSizePx: Float
+    hexSizePx: Float,
 ) {
     if (progress < CHARGE_PHASE_END) {
         // Phase 1: Alchemy tower charge glow (green)
@@ -143,19 +141,19 @@ private fun DrawScope.drawAcidVial(
         drawCircle(
             color = Color(0xFF00CC44).copy(alpha = glowAlpha * 0.40f),
             radius = hexSizePx * (0.60f + fp * 0.35f),
-            center = sourceCenter
+            center = sourceCenter,
         )
         // Inner bright green flash
         drawCircle(
             color = Color(0xFF88FF44).copy(alpha = glowAlpha * 0.55f),
             radius = hexSizePx * (0.28f + fp * 0.18f),
-            center = sourceCenter
+            center = sourceCenter,
         )
         // White-hot center
         drawCircle(
             color = Color(0xFFFFFFFF).copy(alpha = glowAlpha * 0.50f),
             radius = hexSizePx * (0.12f + fp * 0.10f),
-            center = sourceCenter
+            center = sourceCenter,
         )
     } else if (progress < 1f) {
         // Phase 2: Acid vial in flight
@@ -175,7 +173,7 @@ private fun DrawScope.drawAcidVial(
         // The vial tumbles 270° over the full flight (so it spins gently)
         val flightAngleDeg = (atan2(dy.toDouble(), dx.toDouble()) * GamePlayConstants.AnimationTimings.RADIANS_TO_DEGREES).toFloat()
         val tumbleDeg = flyProgress * 270f
-        val totalRotationDeg = flightAngleDeg + 90f + tumbleDeg  // +90 so tube points forward
+        val totalRotationDeg = flightAngleDeg + 90f + tumbleDeg // +90 so tube points forward
 
         // Vial size proportional to hexSize
         val bulbRadius = hexSizePx * 0.18f
@@ -196,7 +194,7 @@ private fun DrawScope.drawAcidVial(
                     drawCircle(
                         color = Color(0xFF44EE44).copy(alpha = bubbleAlpha),
                         radius = bulbRadius * (0.25f - b * 0.05f).coerceAtLeast(0.05f),
-                        center = Offset(trailX, trailY)
+                        center = Offset(trailX, trailY),
                     )
                 }
             }
@@ -206,29 +204,30 @@ private fun DrawScope.drawAcidVial(
             drawCircle(
                 color = Color(0xCC22DD44),
                 radius = bulbRadius * 0.88f,
-                center = vialCenter
+                center = vialCenter,
             )
             // Glass outer ring of bulb (semi-transparent)
             drawCircle(
                 color = Color(0x55AAFFCC),
                 radius = bulbRadius,
-                center = vialCenter
+                center = vialCenter,
             )
             // Glass outline of bulb
             drawCircle(
                 color = Color(0xBB88FFAA),
                 radius = bulbRadius,
                 center = vialCenter,
-                style = Stroke(width = tubeHalfWidth * 0.5f)
+                style = Stroke(width = tubeHalfWidth * 0.5f),
             )
             // Bulb highlight (upper-left specular)
             drawCircle(
                 color = Color(0xAAFFFFFF),
                 radius = bulbRadius * 0.28f,
-                center = Offset(
-                    vialCenter.x - bulbRadius * 0.32f,
-                    vialCenter.y - bulbRadius * 0.35f
-                )
+                center =
+                    Offset(
+                        vialCenter.x - bulbRadius * 0.32f,
+                        vialCenter.y - bulbRadius * 0.35f,
+                    ),
             )
 
             // Tube (neck above the bulb): from bulb top upward
@@ -240,13 +239,13 @@ private fun DrawScope.drawAcidVial(
             drawRect(
                 color = Color(0xCC22DD44),
                 topLeft = Offset(vialCenter.x - tubeHalfWidth * 0.85f, tubeTopY + (tubeLength - acidFillHeight)),
-                size = Size(tubeHalfWidth * 1.70f, acidFillHeight)
+                size = Size(tubeHalfWidth * 1.70f, acidFillHeight),
             )
             // Glass tube walls (semi-transparent)
             drawRect(
                 color = Color(0x3388FFCC),
                 topLeft = Offset(vialCenter.x - tubeHalfWidth, tubeTopY),
-                size = Size(tubeHalfWidth * 2f, tubeLength)
+                size = Size(tubeHalfWidth * 2f, tubeLength),
             )
             // Tube left outline
             drawLine(
@@ -254,7 +253,7 @@ private fun DrawScope.drawAcidVial(
                 start = Offset(vialCenter.x - tubeHalfWidth, tubeBottomY),
                 end = Offset(vialCenter.x - tubeHalfWidth, tubeTopY),
                 strokeWidth = tubeHalfWidth * 0.4f,
-                cap = StrokeCap.Round
+                cap = StrokeCap.Round,
             )
             // Tube right outline
             drawLine(
@@ -262,7 +261,7 @@ private fun DrawScope.drawAcidVial(
                 start = Offset(vialCenter.x + tubeHalfWidth, tubeBottomY),
                 end = Offset(vialCenter.x + tubeHalfWidth, tubeTopY),
                 strokeWidth = tubeHalfWidth * 0.4f,
-                cap = StrokeCap.Round
+                cap = StrokeCap.Round,
             )
             // Tube top cap line
             drawLine(
@@ -270,7 +269,7 @@ private fun DrawScope.drawAcidVial(
                 start = Offset(vialCenter.x - tubeHalfWidth, tubeTopY),
                 end = Offset(vialCenter.x + tubeHalfWidth, tubeTopY),
                 strokeWidth = tubeHalfWidth * 0.4f,
-                cap = StrokeCap.Round
+                cap = StrokeCap.Round,
             )
 
             // Stopper (cork) at the very top
@@ -279,24 +278,25 @@ private fun DrawScope.drawAcidVial(
             drawRect(
                 color = Color(0xFF996633),
                 topLeft = Offset(vialCenter.x - stopperHalfWidth, stopperTopY),
-                size = Size(stopperHalfWidth * 2f, stopperLength)
+                size = Size(stopperHalfWidth * 2f, stopperLength),
             )
             drawLine(
                 color = Color(0xFF774422),
                 start = Offset(vialCenter.x - stopperHalfWidth, stopperTopY),
                 end = Offset(vialCenter.x + stopperHalfWidth, stopperTopY),
                 strokeWidth = tubeHalfWidth * 0.5f,
-                cap = StrokeCap.Round
+                cap = StrokeCap.Round,
             )
 
             // Animated bubbles inside the bulb
             // Each bubble rises from bottom to top of bulb based on flyProgress
-            val bubblePositions = listOf(
-                Pair(-0.30f, (flyProgress * 2.1f) % 1.0f),
-                Pair(0.10f,  (flyProgress * 1.7f + 0.33f) % 1.0f),
-                Pair(0.35f,  (flyProgress * 2.4f + 0.66f) % 1.0f),
-                Pair(-0.05f, (flyProgress * 1.5f + 0.50f) % 1.0f),
-            )
+            val bubblePositions =
+                listOf(
+                    Pair(-0.30f, (flyProgress * 2.1f) % 1.0f),
+                    Pair(0.10f, (flyProgress * 1.7f + 0.33f) % 1.0f),
+                    Pair(0.35f, (flyProgress * 2.4f + 0.66f) % 1.0f),
+                    Pair(-0.05f, (flyProgress * 1.5f + 0.50f) % 1.0f),
+                )
             for ((xFrac, t) in bubblePositions) {
                 // Bubbles rise from bottom (t=0) to top (t=1) of the bulb
                 val bx = vialCenter.x + xFrac * bulbRadius * 0.70f
@@ -306,7 +306,7 @@ private fun DrawScope.drawAcidVial(
                     drawCircle(
                         color = Color(0xAA88FFCC),
                         radius = bulbRadius * 0.10f,
-                        center = Offset(bx, by)
+                        center = Offset(bx, by),
                     )
                 }
             }

@@ -11,7 +11,13 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 /**
  * Draw red demon symbol (slow but tanky with red armor)
  */
-fun DrawScope.drawRedDemonSymbol(centerX: Float, centerY: Float, size: Float, outlineColor: Color? = null, headScale: Float = 1.0f) {
+fun DrawScope.drawRedDemonSymbol(
+    centerX: Float,
+    centerY: Float,
+    size: Float,
+    outlineColor: Color? = null,
+    headScale: Float = 1.0f,
+) {
     // Entire figure is the head/face (scaled)
     withTransform({ scale(headScale, headScale, Offset(centerX, centerY)) }) {
         if (outlineColor != null) {
@@ -19,36 +25,38 @@ fun DrawScope.drawRedDemonSymbol(centerX: Float, centerY: Float, size: Float, ou
                 color = outlineColor,
                 radius = size * 0.35f + 2f,
                 center = Offset(centerX, centerY),
-                style = Stroke(width = 3f)
+                style = Stroke(width = 3f),
             )
         }
         // Large armored body/head
         drawCircle(
             color = Color(0xFF8B0000), // Dark red
             radius = size * 0.35f,
-            center = Offset(centerX, centerY)
+            center = Offset(centerX, centerY),
         )
 
         // Armor plates
         drawRect(
             color = Color(0xFF4A0000),
             topLeft = Offset(centerX - size * 0.25f, centerY - size * 0.1f),
-            size = Size(size * 0.5f, size * 0.2f)
+            size = Size(size * 0.5f, size * 0.2f),
         )
 
         // Large horns
-        val hornPath1 = Path().apply {
-            moveTo(centerX - size * 0.25f, centerY - size * 0.2f)
-            lineTo(centerX - size * 0.4f, centerY - size * 0.45f)
-            lineTo(centerX - size * 0.15f, centerY - size * 0.25f)
-            close()
-        }
-        val hornPath2 = Path().apply {
-            moveTo(centerX + size * 0.25f, centerY - size * 0.2f)
-            lineTo(centerX + size * 0.4f, centerY - size * 0.45f)
-            lineTo(centerX + size * 0.15f, centerY - size * 0.25f)
-            close()
-        }
+        val hornPath1 =
+            Path().apply {
+                moveTo(centerX - size * 0.25f, centerY - size * 0.2f)
+                lineTo(centerX - size * 0.4f, centerY - size * 0.45f)
+                lineTo(centerX - size * 0.15f, centerY - size * 0.25f)
+                close()
+            }
+        val hornPath2 =
+            Path().apply {
+                moveTo(centerX + size * 0.25f, centerY - size * 0.2f)
+                lineTo(centerX + size * 0.4f, centerY - size * 0.45f)
+                lineTo(centerX + size * 0.15f, centerY - size * 0.25f)
+                close()
+            }
         if (outlineColor != null) {
             drawPath(hornPath1, outlineColor, style = Stroke(width = 3f))
             drawPath(hornPath2, outlineColor, style = Stroke(width = 3f))

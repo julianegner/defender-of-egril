@@ -1,0 +1,65 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.kt]
+indent_style = space
+indent_size = 4
+
+# Compose @Composable functions conventionally use PascalCase (they represent
+# UI components, not regular functions). Allow it here.
+ktlint_function_naming_ignore_when_annotated_with = Composable
+
+# Wildcard imports are idiomatic in Compose / Android code and are used
+# throughout this codebase. The rule would require expanding hundreds of
+# imports without adding clarity.
+ktlint_standard_no-wildcard-imports = disabled
+
+# Block/EOL comments on value parameters are used for documentation and are
+# a deliberate style choice in this project.
+ktlint_standard_value-parameter-comment = disabled
+
+# Consecutive comment blocks appear intentionally in documentation headers
+# and commented-out code. The rule adds no safety value here.
+ktlint_standard_no-consecutive-comments = disabled
+
+# Compose dimension / colour / style constants in objects use PascalCase
+# (e.g. val Small = 10.sp) following the Compose Material Design convention
+# rather than SCREAMING_SNAKE_CASE. Disabling avoids mass renaming.
+ktlint_standard_property-naming = disabled
+
+# Backing-property naming (_field / field pattern) is used for Compose
+# MutableState holders; the strict ktlint rule does not fit this pattern.
+ktlint_standard_backing-property-naming = disabled
+
+# Entry-point files (main.kt) and files containing extension functions do
+# not need to be renamed to PascalCase.
+ktlint_standard_filename = disabled
+
+# No enforced line-length limit. Compose UI chains and long string literals
+# are hard to wrap without harming readability.
+max_line_length = off
+
+[*.kts]
+indent_style = space
+indent_size = 4
+max_line_length = off
+
+[*.yaml]
+indent_style = space
+indent_size = 2
+
+[*.yml]
+indent_style = space
+indent_size = 2
+
+[*.json]
+indent_style = space
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false

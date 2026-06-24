@@ -26,22 +26,22 @@ class MainActivity : ComponentActivity() {
 
         // Initialize context provider for file storage
         AndroidContextProvider.initialize(this)
-        
+
         // Register activity with the OIDC auth-flow factory so Chrome Custom Tabs
         // can redirect back to the app and the login flow can be continued/resumed.
         AndroidIamFlowProvider.registerActivity(this)
-        
+
         // Initialize file export/import for save files
         AndroidFileExportImport.initialize(this)
-        
+
         // Initialize Android audio system for sound playback
         initializeAndroidAudio(this)
-        
+
         // Initialize Android context for background music manager
         setAndroidContext(this)
-        
+
         enableEdgeToEdge()
-        
+
         // Enable immersive fullscreen mode
         WindowCompat.setDecorFitsSystemWindows(window, false)
         val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
             // Configure behavior when swiping to reveal system bars
             systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         }
-        
+
         setContent {
             App()
         }

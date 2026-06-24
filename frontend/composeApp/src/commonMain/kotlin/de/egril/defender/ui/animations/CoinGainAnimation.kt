@@ -16,7 +16,11 @@ import androidx.compose.ui.text.font.FontWeight
  * When [animate] is false, shows a static gold "+[amount]" label.
  */
 @Composable
-fun CoinGainAnimation(amount: Int, animate: Boolean, modifier: Modifier = Modifier) {
+fun CoinGainAnimation(
+    amount: Int,
+    animate: Boolean,
+    modifier: Modifier = Modifier,
+) {
     if (animate) {
         AnimatedCoinGain(modifier)
     } else {
@@ -29,15 +33,18 @@ private fun AnimatedCoinGain(modifier: Modifier = Modifier) {
     LottieAnimation(
         animationType = AnimationType.COIN_GAIN,
         modifier = modifier.fillMaxSize(),
-        iterations = 1
+        iterations = 1,
     )
 }
 
 @Composable
-private fun StaticCoinGain(amount: Int, modifier: Modifier = Modifier) {
+private fun StaticCoinGain(
+    amount: Int,
+    modifier: Modifier = Modifier,
+) {
     Box(
         modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         // "+N" is a universal numeric notation (like damage values elsewhere in the UI)
         // and does not require localization.
@@ -45,7 +52,7 @@ private fun StaticCoinGain(amount: Int, modifier: Modifier = Modifier) {
             "+$amount",
             style = MaterialTheme.typography.labelSmall,
             color = Color(0xFFFFD700),
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
     }
 }

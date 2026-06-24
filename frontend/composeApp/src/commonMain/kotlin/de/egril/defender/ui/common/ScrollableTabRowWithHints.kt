@@ -14,11 +14,11 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
-import dev.vicart.compose.material.symbols.FilledSymbol
-import dev.vicart.compose.material.symbols.MaterialSymbols
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.scroll_hint_more_tabs_left
 import defender_of_egril.composeapp.generated.resources.scroll_hint_more_tabs_right
+import dev.vicart.compose.material.symbols.FilledSymbol
+import dev.vicart.compose.material.symbols.MaterialSymbols
 
 /**
  * A [PrimaryScrollableTabRow] with left/right chevron hints that appear when
@@ -41,7 +41,7 @@ fun ScrollableTabRowWithHints(
     selectedTabIndex: Int,
     modifier: Modifier = Modifier,
     edgePadding: Dp = 0.dp,
-    tabs: @Composable () -> Unit
+    tabs: @Composable () -> Unit,
 ) {
     val scrollState = rememberScrollState()
 
@@ -54,7 +54,7 @@ fun ScrollableTabRowWithHints(
                     icon = MaterialSymbols.KEYBOARD_ARROW_LEFT,
                     size = 20.dp,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.semantics { contentDescription = label }
+                    modifier = Modifier.semantics { contentDescription = label },
                 )
             }
         }
@@ -63,7 +63,7 @@ fun ScrollableTabRowWithHints(
             selectedTabIndex = selectedTabIndex,
             modifier = Modifier.weight(1f),
             scrollState = scrollState,
-            edgePadding = edgePadding
+            edgePadding = edgePadding,
         ) {
             tabs()
         }
@@ -76,7 +76,7 @@ fun ScrollableTabRowWithHints(
                     icon = MaterialSymbols.KEYBOARD_ARROW_RIGHT,
                     size = 20.dp,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.semantics { contentDescription = label }
+                    modifier = Modifier.semantics { contentDescription = label },
                 )
             }
         }

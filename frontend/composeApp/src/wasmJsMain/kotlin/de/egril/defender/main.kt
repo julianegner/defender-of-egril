@@ -4,18 +4,18 @@ package de.egril.defender
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.window.ComposeViewport
+import de.egril.defender.utils.WindowCloseHandler
 import kotlinx.browser.document
 import kotlinx.browser.window
-import de.egril.defender.utils.WindowCloseHandler
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
     val body = document.body ?: error("Document body not found")
-    
+
     // Set up beforeunload event handler for browser
     setupBeforeUnloadHandler()
     setupPageHideHandler()
-    
+
     ComposeViewport(body) {
         App()
     }

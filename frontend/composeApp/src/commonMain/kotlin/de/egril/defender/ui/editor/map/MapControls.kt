@@ -16,26 +16,28 @@ import de.egril.defender.ui.ZoomControls
 data class MapControlState(
     val zoomLevel: Float,
     val offsetX: Float,
-    val offsetY: Float
+    val offsetY: Float,
 )
 
 @Composable
 fun BoxScope.MapControls(
     mapControlState: MapControlState,
     onStateChange: (MapControlState) -> Unit,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .align(Alignment.BottomEnd)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .align(Alignment.BottomEnd),
     ) {
         Row(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(bottom = 8.dp, end = 8.dp),
+            modifier =
+                Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(bottom = 8.dp, end = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.Bottom
+            verticalAlignment = Alignment.Bottom,
         ) {
             if (de.egril.defender.ui.settings.AppSettings.showControlPad.value) {
                 // Directional pad
@@ -51,7 +53,7 @@ fun BoxScope.MapControls(
                     },
                     onRight = {
                         onStateChange(mapControlState.copy(offsetX = mapControlState.offsetX - 30f))
-                    }
+                    },
                 )
 
                 // Zoom controls
@@ -61,7 +63,7 @@ fun BoxScope.MapControls(
                     },
                     onZoomOut = {
                         onStateChange(mapControlState.copy(zoomLevel = (mapControlState.zoomLevel - 0.1f).coerceIn(0.5f, 3.0f)))
-                    }
+                    },
                 )
             }
             content()

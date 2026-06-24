@@ -17,13 +17,13 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.BowAttackEffect
 import de.egril.defender.model.Position
-import de.egril.defender.ui.hexagon.HexagonalGridConstants
 import de.egril.defender.ui.gameplay.GamePlayConstants
+import de.egril.defender.ui.hexagon.HexagonalGridConstants
 import kotlinx.coroutines.delay
+import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
-import kotlin.math.PI
 
 /** Fraction of the animation (0–1) spent on the bow-string flash before the arrows start flying. */
 private const val FIRING_PHASE_END = 0.20f
@@ -68,7 +68,7 @@ fun BowAttackOverlay(
     effects: List<BowAttackEffect>,
     hexSizeDp: Float,
     contentSize: IntSize,
-    animate: Boolean
+    animate: Boolean,
 ) {
     val pixelDensity = LocalDensity.current.density
     val hexSizePx = hexSizeDp * pixelDensity
@@ -86,7 +86,7 @@ fun BowAttackOverlay(
                 rowVerticalAdjPx = rowVerticalAdjPx,
                 contentWidth = contentWidth,
                 contentHeight = contentHeight,
-                animate = animate
+                animate = animate,
             )
         }
     }
@@ -100,7 +100,7 @@ private fun SingleBowVolleyOverlay(
     rowVerticalAdjPx: Float,
     contentWidth: Dp,
     contentHeight: Dp,
-    animate: Boolean
+    animate: Boolean,
 ) {
     val hexWidthPx = hexSizePx * sqrt(3f)
     val hexHeightPx = hexSizePx * 2f
@@ -123,10 +123,11 @@ private fun SingleBowVolleyOverlay(
         if (animate) {
             overallProgress.animateTo(
                 targetValue = 1f,
-                animationSpec = tween(
-                    durationMillis = GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS.toInt(),
-                    easing = LinearEasing
-                )
+                animationSpec =
+                    tween(
+                        durationMillis = GamePlayConstants.AnimationTimings.ARROW_FLIGHT_DELAY_MS.toInt(),
+                        easing = LinearEasing,
+                    ),
             )
         } else {
             overallProgress.snapTo(1f)
@@ -144,7 +145,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBowVolley(
     progress: Float,
     sourceCenter: Offset,
     targetCenter: Offset,
-    hexSizePx: Float
+    hexSizePx: Float,
 ) {
     if (progress < FIRING_PHASE_END) {
         // Phase 1: Bow-string snap flash on the source tile
@@ -155,13 +156,13 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBowVolley(
         drawCircle(
             color = Color(0xFF99CC00).copy(alpha = glowAlpha * 0.35f),
             radius = hexSizePx * (0.6f + fp * 0.35f),
-            center = sourceCenter
+            center = sourceCenter,
         )
         // Inner bright flash
         drawCircle(
             color = Color(0xFFFFFF00).copy(alpha = glowAlpha * 0.55f),
             radius = hexSizePx * (0.3f + fp * 0.18f),
-            center = sourceCenter
+            center = sourceCenter,
         )
     } else if (progress <= 1f) {
         // Phase 2: Arrow volley in flight
@@ -185,21 +186,23 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBowVolley(
 
         // 5 arrows: 3 front-row + 2 staggered back-row
         // Each arrow is defined by (perpendicular spread multiplier, forward lag in flyProgress)
-        val arrowDefs = listOf(
-            Pair(-1.0f, 0.0f),          // front-left
-            Pair(0.0f, 0.0f),           // front-center
-            Pair(1.0f, 0.0f),           // front-right
-            Pair(-0.5f, BACK_ROW_LAG),  // back between left and center
-            Pair(0.5f, BACK_ROW_LAG)    // back between center and right
-        )
+        val arrowDefs =
+            listOf(
+                Pair(-1.0f, 0.0f), // front-left
+                Pair(0.0f, 0.0f), // front-center
+                Pair(1.0f, 0.0f), // front-right
+                Pair(-0.5f, BACK_ROW_LAG), // back between left and center
+                Pair(0.5f, BACK_ROW_LAG), // back between center and right
+            )
 
         // Arrows fade out as the impact burst progresses so they vanish after the hit
-        val arrowAlpha = if (flyProgress < HIT_BURST_START_FLY) {
-            1f
-        } else {
-            val hitProgress = (flyProgress - HIT_BURST_START_FLY) / (1f - HIT_BURST_START_FLY)
-            1f - hitProgress
-        }
+        val arrowAlpha =
+            if (flyProgress < HIT_BURST_START_FLY) {
+                1f
+            } else {
+                val hitProgress = (flyProgress - HIT_BURST_START_FLY) / (1f - HIT_BURST_START_FLY)
+                1f - hitProgress
+            }
 
         if (arrowAlpha > 0f) {
             for ((spreadMul, lag) in arrowDefs) {
@@ -221,27 +224,30 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBowVolley(
                     start = tailCenter,
                     end = Offset(tipCenter.x - nx * headSize * 0.5f, tipCenter.y - ny * headSize * 0.5f),
                     strokeWidth = shaftWidth,
-                    cap = StrokeCap.Round
+                    cap = StrokeCap.Round,
                 )
 
                 // Arrowhead (silver triangle pointing in direction of travel)
                 val tipX = tipCenter.x
                 val tipY = tipCenter.y
-                val baseLeft = Offset(
-                    tipX - nx * headSize - px * headSize * 0.55f,
-                    tipY - ny * headSize - py * headSize * 0.55f
-                )
-                val baseRight = Offset(
-                    tipX - nx * headSize + px * headSize * 0.55f,
-                    tipY - ny * headSize + py * headSize * 0.55f
-                )
+                val baseLeft =
+                    Offset(
+                        tipX - nx * headSize - px * headSize * 0.55f,
+                        tipY - ny * headSize - py * headSize * 0.55f,
+                    )
+                val baseRight =
+                    Offset(
+                        tipX - nx * headSize + px * headSize * 0.55f,
+                        tipY - ny * headSize + py * headSize * 0.55f,
+                    )
 
-                val arrowHeadPath = Path().apply {
-                    moveTo(tipX, tipY)
-                    lineTo(baseLeft.x, baseLeft.y)
-                    lineTo(baseRight.x, baseRight.y)
-                    close()
-                }
+                val arrowHeadPath =
+                    Path().apply {
+                        moveTo(tipX, tipY)
+                        lineTo(baseLeft.x, baseLeft.y)
+                        lineTo(baseRight.x, baseRight.y)
+                        close()
+                    }
                 drawPath(arrowHeadPath, Color(0xFFC8C8C8).copy(alpha = arrowAlpha))
 
                 // Small tail feathers (fletching) — two short lines at the tail
@@ -250,16 +256,24 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBowVolley(
                 drawLine(
                     color = Color(0xFFCCCCFF).copy(alpha = 0.8f * arrowAlpha),
                     start = tailCenter,
-                    end = Offset(tailCenter.x + nx * fletchLength + px * fletchSpread, tailCenter.y + ny * fletchLength + py * fletchSpread),
+                    end =
+                        Offset(
+                            tailCenter.x + nx * fletchLength + px * fletchSpread,
+                            tailCenter.y + ny * fletchLength + py * fletchSpread,
+                        ),
                     strokeWidth = shaftWidth * 0.7f,
-                    cap = StrokeCap.Round
+                    cap = StrokeCap.Round,
                 )
                 drawLine(
                     color = Color(0xFFCCCCFF).copy(alpha = 0.8f * arrowAlpha),
                     start = tailCenter,
-                    end = Offset(tailCenter.x + nx * fletchLength - px * fletchSpread, tailCenter.y + ny * fletchLength - py * fletchSpread),
+                    end =
+                        Offset(
+                            tailCenter.x + nx * fletchLength - px * fletchSpread,
+                            tailCenter.y + ny * fletchLength - py * fletchSpread,
+                        ),
                     strokeWidth = shaftWidth * 0.7f,
-                    cap = StrokeCap.Round
+                    cap = StrokeCap.Round,
                 )
             }
         }
@@ -276,7 +290,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBowVolley(
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawArrowImpactBurst(
     center: Offset,
     hitProgress: Float,
-    hexSizePx: Float
+    hexSizePx: Float,
 ) {
     val maxLineLength = hexSizePx * 0.55f
     val innerRadius = hexSizePx * 0.12f
@@ -298,7 +312,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawArrowImpactBurs
             start = Offset(startX, startY),
             end = Offset(endX, endY),
             strokeWidth = lineWidth,
-            cap = StrokeCap.Round
+            cap = StrokeCap.Round,
         )
     }
 
@@ -306,7 +320,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawArrowImpactBurs
     drawCircle(
         color = Color(0xFFFFFFAA).copy(alpha = alpha * 0.7f),
         radius = hexSizePx * (0.08f + hitProgress * 0.18f),
-        center = center
+        center = center,
     )
 }
 

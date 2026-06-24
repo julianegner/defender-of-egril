@@ -10,31 +10,39 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 /**
  * Draw Ewhad symbol (evil arch mage boss) - unique skull and trident symbol
  */
-fun DrawScope.drawEwhadSymbol(centerX: Float, centerY: Float, size: Float, outlineColor: Color? = null, headScale: Float = 1.0f) {
+fun DrawScope.drawEwhadSymbol(
+    centerX: Float,
+    centerY: Float,
+    size: Float,
+    outlineColor: Color? = null,
+    headScale: Float = 1.0f,
+) {
     val headCenterY = centerY - size * 0.05f
 
     // Large dark robe (not scaled)
-    val robePath = Path().apply {
-        moveTo(centerX, centerY - size * 0.45f)
-        lineTo(centerX - size * 0.35f, centerY + size * 0.35f)
-        lineTo(centerX + size * 0.35f, centerY + size * 0.35f)
-        close()
-    }
+    val robePath =
+        Path().apply {
+            moveTo(centerX, centerY - size * 0.45f)
+            lineTo(centerX - size * 0.35f, centerY + size * 0.35f)
+            lineTo(centerX + size * 0.35f, centerY + size * 0.35f)
+            close()
+        }
     drawPath(robePath, Color(0xFF0A0015)) // Almost black with purple tint
     if (outlineColor != null) {
         drawPath(robePath, outlineColor, style = Stroke(width = 3f))
     }
 
     // Elaborate hood with points (not scaled)
-    val hoodPath = Path().apply {
-        moveTo(centerX, centerY - size * 0.5f)
-        lineTo(centerX - size * 0.35f, centerY - size * 0.1f)
-        lineTo(centerX - size * 0.3f, centerY - size * 0.15f)
-        lineTo(centerX, centerY - size * 0.45f)
-        lineTo(centerX + size * 0.3f, centerY - size * 0.15f)
-        lineTo(centerX + size * 0.35f, centerY - size * 0.1f)
-        close()
-    }
+    val hoodPath =
+        Path().apply {
+            moveTo(centerX, centerY - size * 0.5f)
+            lineTo(centerX - size * 0.35f, centerY - size * 0.1f)
+            lineTo(centerX - size * 0.3f, centerY - size * 0.15f)
+            lineTo(centerX, centerY - size * 0.45f)
+            lineTo(centerX + size * 0.3f, centerY - size * 0.15f)
+            lineTo(centerX + size * 0.35f, centerY - size * 0.1f)
+            close()
+        }
     drawPath(hoodPath, Color.Black)
 
     // Skull face (scaled)
@@ -43,7 +51,7 @@ fun DrawScope.drawEwhadSymbol(centerX: Float, centerY: Float, size: Float, outli
         drawCircle(
             color = Color(0xFFD3D3D3),
             radius = size * 0.2f,
-            center = Offset(centerX, headCenterY)
+            center = Offset(centerX, headCenterY),
         )
 
         // Skull eye sockets (glowing red)
@@ -55,13 +63,14 @@ fun DrawScope.drawEwhadSymbol(centerX: Float, centerY: Float, size: Float, outli
 
     // Crown/spikes on hood (not scaled)
     for (i in -1..1) {
-        val path = Path().apply {
-            val x = centerX + i * size * 0.15f
-            moveTo(x, centerY - size * 0.45f)
-            lineTo(x - size * 0.05f, centerY - size * 0.35f)
-            lineTo(x + size * 0.05f, centerY - size * 0.35f)
-            close()
-        }
+        val path =
+            Path().apply {
+                val x = centerX + i * size * 0.15f
+                moveTo(x, centerY - size * 0.45f)
+                lineTo(x - size * 0.05f, centerY - size * 0.35f)
+                lineTo(x + size * 0.05f, centerY - size * 0.35f)
+                close()
+            }
         drawPath(path, Color(0xFFFFD700)) // Gold
     }
 
@@ -70,32 +79,32 @@ fun DrawScope.drawEwhadSymbol(centerX: Float, centerY: Float, size: Float, outli
         color = Color(0xFF3A0060),
         start = Offset(centerX + size * 0.35f, centerY - size * 0.2f),
         end = Offset(centerX + size * 0.45f, centerY + size * 0.45f),
-        strokeWidth = 4f
+        strokeWidth = 4f,
     )
     // Trident top (Ψ shape)
     drawLine(
         color = Color(0xFF8B00FF),
         start = Offset(centerX + size * 0.35f, centerY - size * 0.25f),
         end = Offset(centerX + size * 0.45f, centerY - size * 0.35f),
-        strokeWidth = 3f
+        strokeWidth = 3f,
     )
     drawLine(
         color = Color(0xFF8B00FF),
         start = Offset(centerX + size * 0.45f, centerY - size * 0.25f),
         end = Offset(centerX + size * 0.45f, centerY - size * 0.35f),
-        strokeWidth = 3f
+        strokeWidth = 3f,
     )
     drawLine(
         color = Color(0xFF8B00FF),
         start = Offset(centerX + size * 0.55f, centerY - size * 0.25f),
         end = Offset(centerX + size * 0.45f, centerY - size * 0.35f),
-        strokeWidth = 3f
+        strokeWidth = 3f,
     )
 
     // Dark energy aura (not scaled)
     drawCircle(
         color = Color(0xFF4B0082).copy(alpha = 0.3f),
         radius = size * 0.5f,
-        center = Offset(centerX, centerY)
+        center = Offset(centerX, centerY),
     )
 }

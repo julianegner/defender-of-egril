@@ -10,30 +10,29 @@ import kotlin.test.assertTrue
  * Unit tests for AndroidFileExportImport initialization
  */
 class AndroidFileExportImportTest {
-    
     @Test
     fun `initialize accepts ComponentActivity without error`() {
         val mockActivity = mockk<ComponentActivity>(relaxed = true)
-        
+
         // Should initialize without throwing exception
         AndroidFileExportImport.initialize(mockActivity)
     }
-    
+
     @Test
     fun `getInstance returns AndroidFileExportImport instance`() {
         val instance = AndroidFileExportImport.getInstance()
         assertNotNull(instance)
     }
-    
+
     @Test
     fun `getInstance is singleton`() {
         val instance1 = AndroidFileExportImport.getInstance()
         val instance2 = AndroidFileExportImport.getInstance()
-        
+
         // Should return same instance
         assertTrue(instance1 === instance2)
     }
-    
+
     @Test
     fun `getFileExportImport returns AndroidFileExportImport instance`() {
         val exportImport = getFileExportImport()

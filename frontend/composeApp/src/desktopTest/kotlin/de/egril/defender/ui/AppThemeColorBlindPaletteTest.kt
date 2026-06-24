@@ -7,7 +7,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 
 class AppThemeColorBlindPaletteTest {
-
     @Test
     fun colorBlindPaletteOffReturnsBaseScheme() {
         val base = AppTheme.lightColorScheme

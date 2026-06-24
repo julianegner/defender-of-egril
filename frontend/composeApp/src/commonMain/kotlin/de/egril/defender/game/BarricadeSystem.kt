@@ -8,8 +8,9 @@ import de.egril.defender.model.*
 /**
  * Handles barricade operations for Spike Tower (level 20+) and Spear Tower (level 10+).
  */
-class BarricadeSystem(private val state: GameState) {
-    
+class BarricadeSystem(
+    private val state: GameState,
+) {
     /**
      * Calculate health points for a new barricade from a tower.
      * Uses the effective level which accounts for active DOUBLE_TOWER_LEVEL spell.
@@ -24,35 +25,35 @@ class BarricadeSystem(private val state: GameState) {
             maxOf(1, effectiveLevel - 10)
         }
     }
-    
+
     /**
      * Get effective level for a defender, accounting for active DOUBLE_TOWER_LEVEL spell.
      */
     private fun getEffectiveLevel(tower: Defender): Int {
-        val hasDoubleLevelBuff = state.activeSpellEffects.any {
-            it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == tower.id
-        }
+        val hasDoubleLevelBuff =
+            state.activeSpellEffects.any {
+                it.spell == SpellType.DOUBLE_TOWER_LEVEL && it.defenderId == tower.id
+            }
         return if (hasDoubleLevelBuff) tower.level.value * 2 else tower.level.value
     }
-    
+
     /**
      * Check if a tower can build barricades.
      * Spike Tower: level 20+
      * Spear Tower: level 10+
      */
-    fun canBuildBarricade(tower: Defender): Boolean {
-        return when (tower.type) {
+    fun canBuildBarricade(tower: Defender): Boolean =
+        when (tower.type) {
             DefenderType.SPIKE_TOWER -> tower.level.value >= 20
             DefenderType.SPEAR_TOWER -> tower.level.value >= 10
             else -> false
         }
-    }
-    
+
     /**
      * Get the range for barricade placement (3 tiles)
      */
     fun getBarricadeRange(): Int = 3
-    
+
     /**
      * Check if a barricade position qualifies as a gate.
      * A gate is a barricade between two buildable tiles (BUILD_AREA) that have towers.
@@ -60,50 +61,55 @@ class BarricadeSystem(private val state: GameState) {
     private fun isGatePosition(barricadePosition: Position): Boolean {
         // Get all 6 hex neighbors
         val neighbors = barricadePosition.getHexNeighbors()
-        
+
         // Count how many neighbors are buildable tiles with towers
-        val buildableNeighborsWithTowers = neighbors.count { neighbor ->
-            val isBuildable = state.level.isBuildArea(neighbor)
-            val hasTower = state.defenders.any { it.position.value == neighbor }
-            isBuildable && hasTower
-        }
-        
+        val buildableNeighborsWithTowers =
+            neighbors.count { neighbor ->
+                val isBuildable = state.level.isBuildArea(neighbor)
+                val hasTower = state.defenders.any { it.position.value == neighbor }
+                isBuildable && hasTower
+            }
+
         // A gate must be between exactly 2 buildable tiles with towers
         return buildableNeighborsWithTowers >= 2
     }
-    
+
     /**
      * Build a new barricade or reinforce an existing one.
      * Returns true if successful.
      */
-    fun performBuildBarricade(towerId: Int, barricadePosition: Position): Boolean {
+    fun performBuildBarricade(
+        towerId: Int,
+        barricadePosition: Position,
+    ): Boolean {
         val tower = state.defenders.find { it.id == towerId } ?: return false
-        
+
         // Check if tower can build barricades
         if (!canBuildBarricade(tower)) return false
-        
+
         // Check if tower has actions remaining
         if (!tower.isReady || tower.actionsRemaining.value <= 0) return false
-        
+
         // Check if position is valid (empty path tile within range)
         if (!state.level.isOnPath(barricadePosition)) return false
-        
+
         // Check if position is within 3 tiles range
         val distance = tower.position.value.distanceTo(barricadePosition)
         if (distance > getBarricadeRange()) return false
-        
+
         // Check if position is empty (no attacker, no existing barricade without reinforcement)
         // Allow defenders on tower bases (barricades with towers on them)
         val hasAttacker = state.attackers.any { !it.isDefeated.value && it.position.value == barricadePosition }
         val existingBarricade = state.barricades.find { it.position == barricadePosition }
-        val hasDefenderNotOnTowerBase = state.defenders.any { defender ->
-            defender.position.value == barricadePosition && defender.towerBaseBarricadeId.value == null
-        }
+        val hasDefenderNotOnTowerBase =
+            state.defenders.any { defender ->
+                defender.position.value == barricadePosition && defender.towerBaseBarricadeId.value == null
+            }
         if (hasAttacker || hasDefenderNotOnTowerBase) return false
-        
+
         // Calculate HP to add
         val hpToAdd = calculateBarricadeHP(tower)
-        
+
         // Check if there's already a barricade at this position
         if (existingBarricade != null) {
             // Reinforce existing barricade (including tower bases)
@@ -111,28 +117,29 @@ class BarricadeSystem(private val state: GameState) {
         } else {
             // Check if this should be a gate
             val isGate = isGatePosition(barricadePosition)
-            
+
             // Build new barricade
-            val barricade = Barricade(
-                id = state.nextBarricadeId.value++,
-                position = barricadePosition,
-                healthPoints = mutableStateOf(hpToAdd),
-                defenderId = towerId,
-                isGate = isGate
-            )
+            val barricade =
+                Barricade(
+                    id = state.nextBarricadeId.value++,
+                    position = barricadePosition,
+                    healthPoints = mutableStateOf(hpToAdd),
+                    defenderId = towerId,
+                    isGate = isGate,
+                )
             state.barricades.add(barricade)
         }
-        
+
         // Play sound
         GlobalSoundManager.playSound(SoundEvent.TOWER_UPGRADED)
-        
+
         // Consume action
         tower.actionsRemaining.value--
         tower.hasBeenUsed.value = true
-        
+
         return true
     }
-    
+
     /**
      * Remove a barricade (player-initiated removal)
      * If the barricade has a tower on it, also removes the tower and returns the sell value
@@ -140,9 +147,9 @@ class BarricadeSystem(private val state: GameState) {
      */
     fun removeBarricade(position: Position): Int {
         val barricade = state.barricades.find { it.position == position } ?: return 0
-        
+
         var coinRefund = 0
-        
+
         // If barricade has a tower on it, remove the tower and calculate refund
         if (barricade.hasTower()) {
             val towerId = barricade.supportedTowerId.value
@@ -155,39 +162,41 @@ class BarricadeSystem(private val state: GameState) {
                 }
             }
         }
-        
+
         state.barricades.remove(barricade)
         return coinRefund
     }
-    
+
     /**
      * Check if there's a barricade at a position
      */
-    fun getBarricadeAt(position: Position): Barricade? {
-        return state.barricades.find { it.position == position }
-    }
-    
+    fun getBarricadeAt(position: Position): Barricade? = state.barricades.find { it.position == position }
+
     /**
      * Handle enemy attacking a barricade.
      * Returns true if barricade is destroyed, false otherwise.
      * If the barricade falls below 100 HP and has a tower on it, the tower is destroyed.
      */
-    fun handleEnemyAttackBarricade(enemy: Attacker, barricade: Barricade, damage: Int): Boolean {
+    fun handleEnemyAttackBarricade(
+        enemy: Attacker,
+        barricade: Barricade,
+        damage: Int,
+    ): Boolean {
         // Check if barricade had tower support before damage
         val hadTowerSupport = barricade.canSupportTower() && barricade.hasTower()
-        
+
         // Apply damage to barricade
         val wasDestroyed = barricade.takeDamage(damage)
-        
+
         // Add damage effect for visualization
         state.damageEffects.add(
             DamageEffect(
                 position = barricade.position,
                 damageAmount = damage,
-                turnNumber = state.turnNumber.value
-            )
+                turnNumber = state.turnNumber.value,
+            ),
         )
-        
+
         // Check if tower base was compromised (fell below 100 HP)
         if (hadTowerSupport && !barricade.canSupportTower() && barricade.hasTower()) {
             // Destroy the tower on this base
@@ -202,15 +211,15 @@ class BarricadeSystem(private val state: GameState) {
                 }
             }
         }
-        
+
         if (wasDestroyed) {
             // Emit gate-destroyed message if the barricade has a name
             if (!barricade.name.isNullOrBlank()) {
                 state.pendingMessages.add(
                     de.egril.defender.model.GameMessage(
                         type = de.egril.defender.model.GameMessageType.GATE_DESTROYED,
-                        name = barricade.name
-                    )
+                        name = barricade.name,
+                    ),
                 )
             }
             // If barricade is destroyed and had a tower, remove the tower too
@@ -226,7 +235,7 @@ class BarricadeSystem(private val state: GameState) {
             // Remove destroyed barricade
             state.barricades.remove(barricade)
         }
-        
+
         return wasDestroyed
     }
 }

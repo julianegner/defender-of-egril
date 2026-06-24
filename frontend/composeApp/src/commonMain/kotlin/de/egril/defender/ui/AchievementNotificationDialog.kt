@@ -1,14 +1,9 @@
 package de.egril.defender.ui
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -27,7 +22,6 @@ import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.achievement_unlocked
 import defender_of_egril.composeapp.generated.resources.close
-import androidx.compose.foundation.text.selection.SelectionContainer
 
 internal data class AchievementNotificationLayout(
     val cardWidth: Dp,
@@ -36,20 +30,20 @@ internal data class AchievementNotificationLayout(
     val contentSpacing: Dp,
     val iconSize: Dp,
     val typographyMode: AchievementNotificationTypographyMode,
-    val buttonFillFraction: Float
+    val buttonFillFraction: Float,
 )
 
 internal enum class AchievementNotificationTypographyMode {
     DESKTOP,
     COMPACT,
-    VERY_COMPACT
+    VERY_COMPACT,
 }
 
 internal fun calculateAchievementNotificationLayout(
     availableWidth: Dp,
     availableHeight: Dp,
     isPlatformMobileDevice: Boolean,
-    isMobileWeb: Boolean
+    isMobileWeb: Boolean,
 ): AchievementNotificationLayout {
     val isLandscape = availableWidth > availableHeight
     val useCompactMobileWebLayout = isMobileWeb && isLandscape
@@ -57,45 +51,49 @@ internal fun calculateAchievementNotificationLayout(
     val useCompactLayout = useCompactMobileWebLayout || (!isPlatformMobileDevice && availableWidth < 900.dp && availableHeight < 600.dp)
 
     return when {
-        useCompactMobileWebLayout -> AchievementNotificationLayout(
-            cardWidth = (availableWidth * 0.5f).coerceIn(220.dp, 320.dp),
-            maxHeight = (availableHeight * 0.5f).coerceIn(180.dp, 260.dp),
-            contentPadding = 10.dp,
-            contentSpacing = 6.dp,
-            iconSize = 28.dp,
-            typographyMode = AchievementNotificationTypographyMode.VERY_COMPACT,
-            buttonFillFraction = 0.72f
-        )
+        useCompactMobileWebLayout ->
+            AchievementNotificationLayout(
+                cardWidth = (availableWidth * 0.5f).coerceIn(220.dp, 320.dp),
+                maxHeight = (availableHeight * 0.5f).coerceIn(180.dp, 260.dp),
+                contentPadding = 10.dp,
+                contentSpacing = 6.dp,
+                iconSize = 28.dp,
+                typographyMode = AchievementNotificationTypographyMode.VERY_COMPACT,
+                buttonFillFraction = 0.72f,
+            )
 
-        usePortraitMobileWebLayout -> AchievementNotificationLayout(
-            cardWidth = (availableWidth * 0.85f).coerceIn(220.dp, 340.dp),
-            maxHeight = (availableHeight * 0.55f).coerceIn(200.dp, 340.dp),
-            contentPadding = 12.dp,
-            contentSpacing = 8.dp,
-            iconSize = 32.dp,
-            typographyMode = AchievementNotificationTypographyMode.COMPACT,
-            buttonFillFraction = 0.9f
-        )
+        usePortraitMobileWebLayout ->
+            AchievementNotificationLayout(
+                cardWidth = (availableWidth * 0.85f).coerceIn(220.dp, 340.dp),
+                maxHeight = (availableHeight * 0.55f).coerceIn(200.dp, 340.dp),
+                contentPadding = 12.dp,
+                contentSpacing = 8.dp,
+                iconSize = 32.dp,
+                typographyMode = AchievementNotificationTypographyMode.COMPACT,
+                buttonFillFraction = 0.9f,
+            )
 
-        isPlatformMobileDevice || useCompactLayout -> AchievementNotificationLayout(
-            cardWidth = (availableWidth * 0.82f).coerceIn(240.dp, 380.dp),
-            maxHeight = (availableHeight * 0.7f).coerceIn(220.dp, 360.dp),
-            contentPadding = 14.dp,
-            contentSpacing = 10.dp,
-            iconSize = 40.dp,
-            typographyMode = AchievementNotificationTypographyMode.COMPACT,
-            buttonFillFraction = 0.82f
-        )
+        isPlatformMobileDevice || useCompactLayout ->
+            AchievementNotificationLayout(
+                cardWidth = (availableWidth * 0.82f).coerceIn(240.dp, 380.dp),
+                maxHeight = (availableHeight * 0.7f).coerceIn(220.dp, 360.dp),
+                contentPadding = 14.dp,
+                contentSpacing = 10.dp,
+                iconSize = 40.dp,
+                typographyMode = AchievementNotificationTypographyMode.COMPACT,
+                buttonFillFraction = 0.82f,
+            )
 
-        else -> AchievementNotificationLayout(
-            cardWidth = availableWidth.coerceAtMost(520.dp),
-            maxHeight = (availableHeight - 32.dp).coerceAtLeast(260.dp),
-            contentPadding = 24.dp,
-            contentSpacing = 16.dp,
-            iconSize = 64.dp,
-            typographyMode = AchievementNotificationTypographyMode.DESKTOP,
-            buttonFillFraction = 1f
-        )
+        else ->
+            AchievementNotificationLayout(
+                cardWidth = availableWidth.coerceAtMost(520.dp),
+                maxHeight = (availableHeight - 32.dp).coerceAtLeast(260.dp),
+                contentPadding = 24.dp,
+                contentSpacing = 16.dp,
+                iconSize = 64.dp,
+                typographyMode = AchievementNotificationTypographyMode.DESKTOP,
+                buttonFillFraction = 1f,
+            )
     }
 }
 
@@ -105,38 +103,43 @@ internal fun calculateAchievementNotificationLayout(
 @Composable
 fun AchievementNotificationDialog(
     achievement: Achievement?,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     if (achievement == null) return
 
     Dialog(onDismissRequest = onDismiss) {
         BoxWithConstraints(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            contentAlignment = Alignment.Center
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+            contentAlignment = Alignment.Center,
         ) {
-            val layout = calculateAchievementNotificationLayout(
-                availableWidth = maxWidth,
-                availableHeight = maxHeight,
-                isPlatformMobileDevice = isPlatformMobile,
-                isMobileWeb = isMobileWebBrowser()
-            )
-            val titleStyle = when (layout.typographyMode) {
-                AchievementNotificationTypographyMode.DESKTOP -> MaterialTheme.typography.headlineSmall
-                AchievementNotificationTypographyMode.COMPACT -> MaterialTheme.typography.titleMedium
-                AchievementNotificationTypographyMode.VERY_COMPACT -> MaterialTheme.typography.titleSmall
-            }
-            val nameStyle = when (layout.typographyMode) {
-                AchievementNotificationTypographyMode.DESKTOP -> MaterialTheme.typography.titleLarge
-                AchievementNotificationTypographyMode.COMPACT -> MaterialTheme.typography.bodyLarge
-                AchievementNotificationTypographyMode.VERY_COMPACT -> MaterialTheme.typography.bodyMedium
-            }
-            val descriptionStyle = when (layout.typographyMode) {
-                AchievementNotificationTypographyMode.DESKTOP -> MaterialTheme.typography.bodyMedium
-                AchievementNotificationTypographyMode.COMPACT -> MaterialTheme.typography.bodySmall
-                AchievementNotificationTypographyMode.VERY_COMPACT -> MaterialTheme.typography.bodySmall
-            }
+            val layout =
+                calculateAchievementNotificationLayout(
+                    availableWidth = maxWidth,
+                    availableHeight = maxHeight,
+                    isPlatformMobileDevice = isPlatformMobile,
+                    isMobileWeb = isMobileWebBrowser(),
+                )
+            val titleStyle =
+                when (layout.typographyMode) {
+                    AchievementNotificationTypographyMode.DESKTOP -> MaterialTheme.typography.headlineSmall
+                    AchievementNotificationTypographyMode.COMPACT -> MaterialTheme.typography.titleMedium
+                    AchievementNotificationTypographyMode.VERY_COMPACT -> MaterialTheme.typography.titleSmall
+                }
+            val nameStyle =
+                when (layout.typographyMode) {
+                    AchievementNotificationTypographyMode.DESKTOP -> MaterialTheme.typography.titleLarge
+                    AchievementNotificationTypographyMode.COMPACT -> MaterialTheme.typography.bodyLarge
+                    AchievementNotificationTypographyMode.VERY_COMPACT -> MaterialTheme.typography.bodyMedium
+                }
+            val descriptionStyle =
+                when (layout.typographyMode) {
+                    AchievementNotificationTypographyMode.DESKTOP -> MaterialTheme.typography.bodyMedium
+                    AchievementNotificationTypographyMode.COMPACT -> MaterialTheme.typography.bodySmall
+                    AchievementNotificationTypographyMode.VERY_COMPACT -> MaterialTheme.typography.bodySmall
+                }
 
             AchievementNotificationCard(
                 achievement = achievement,
@@ -145,7 +148,7 @@ fun AchievementNotificationDialog(
                 nameStyle = nameStyle,
                 descriptionStyle = descriptionStyle,
                 onDismiss = onDismiss,
-                modifier = Modifier
+                modifier = Modifier,
             )
         }
     }
@@ -159,37 +162,41 @@ internal fun AchievementNotificationCard(
     nameStyle: androidx.compose.ui.text.TextStyle,
     descriptionStyle: androidx.compose.ui.text.TextStyle,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Card(
-        modifier = modifier
-            .width(layout.cardWidth)
-            .heightIn(max = layout.maxHeight)
-            .testTag("achievementNotificationCard"),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        modifier =
+            modifier
+                .width(layout.cardWidth)
+                .heightIn(max = layout.maxHeight)
+                .testTag("achievementNotificationCard"),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+            ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(layout.contentPadding),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(layout.contentPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(layout.contentSpacing)
+            verticalArrangement = Arrangement.spacedBy(layout.contentSpacing),
         ) {
             SelectionContainer {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f, fill = false)
-                        .verticalScroll(rememberScrollState()),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .weight(1f, fill = false)
+                            .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(layout.contentSpacing)
+                    verticalArrangement = Arrangement.spacedBy(layout.contentSpacing),
                 ) {
                     TrophyIcon(
                         size = layout.iconSize,
-                        tint = MaterialTheme.colorScheme.tertiary
+                        tint = MaterialTheme.colorScheme.tertiary,
                     )
 
                     Text(
@@ -197,7 +204,7 @@ internal fun AchievementNotificationCard(
                         style = titleStyle,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
 
                     Text(
@@ -205,21 +212,21 @@ internal fun AchievementNotificationCard(
                         style = nameStyle,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
 
                     Text(
                         text = achievement.id.getLocalizedDescription(),
                         style = descriptionStyle,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                 }
             }
 
             Button(
                 onClick = onDismiss,
-                modifier = Modifier.fillMaxWidth(layout.buttonFillFraction)
+                modifier = Modifier.fillMaxWidth(layout.buttonFillFraction),
             ) {
                 Text(stringResource(Res.string.close))
             }

@@ -4,20 +4,19 @@ import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.model.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 /**
  * Tests that enemies at spawn points can be attacked by towers.
  */
 class SpawnPointAttackTest {
-
     /**
      * Creates a test level where the spawn point is at (0,3), path goes across row 3,
      * and the target is at (9,3). Build areas are adjacent to the path.
      */
-    private fun createTestLevel(): Level {
-        return Level(
+    private fun createTestLevel(): Level =
+        Level(
             id = 1,
             name = "Test Level",
             gridWidth = 10,
@@ -26,22 +25,23 @@ class SpawnPointAttackTest {
             targetPositions = listOf(Position(9, 3)),
             pathCells = (1..8).map { Position(it, 3) }.toSet(),
             buildAreas = setOf(Position(2, 1), Position(2, 2)),
-            attackerWaves = listOf(
-                AttackerWave(listOf(AttackerType.GOBLIN))
-            ),
+            attackerWaves =
+                listOf(
+                    AttackerWave(listOf(AttackerType.GOBLIN)),
+                ),
             initialCoins = 1000,
-            healthPoints = 10
+            healthPoints = 10,
         )
-    }
 
     private fun spawnEnemyAtSpawnPoint(state: GameState): Attacker {
         val spawnPoint = state.level.startPositions.first()
-        val enemy = Attacker(
-            id = state.nextAttackerId.value++,
-            type = AttackerType.GOBLIN,
-            position = mutableStateOf(spawnPoint),
-            level = mutableStateOf(1)
-        )
+        val enemy =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.GOBLIN,
+                position = mutableStateOf(spawnPoint),
+                level = mutableStateOf(1),
+            )
         state.attackers.add(enemy)
         return enemy
     }
@@ -127,19 +127,20 @@ class SpawnPointAttackTest {
     fun testAreaAttackSpawnPointExcludedWhenNoEnemy() {
         // An area attack can target an empty spawn point (preemptive strike)
         // Use a level with no enemies to avoid any spawning
-        val emptyLevel = Level(
-            id = 1,
-            name = "Empty Test Level",
-            gridWidth = 10,
-            gridHeight = 6,
-            startPositions = listOf(Position(0, 3)),
-            targetPositions = listOf(Position(9, 3)),
-            pathCells = (1..8).map { Position(it, 3) }.toSet(),
-            buildAreas = setOf(Position(2, 1), Position(2, 2)),
-            attackerWaves = emptyList(),
-            initialCoins = 1000,
-            healthPoints = 10
-        )
+        val emptyLevel =
+            Level(
+                id = 1,
+                name = "Empty Test Level",
+                gridWidth = 10,
+                gridHeight = 6,
+                startPositions = listOf(Position(0, 3)),
+                targetPositions = listOf(Position(9, 3)),
+                pathCells = (1..8).map { Position(it, 3) }.toSet(),
+                buildAreas = setOf(Position(2, 1), Position(2, 2)),
+                attackerWaves = emptyList(),
+                initialCoins = 1000,
+                healthPoints = 10,
+            )
         val state = GameState(emptyLevel)
         val engine = GameEngine(state)
 
@@ -156,7 +157,10 @@ class SpawnPointAttackTest {
         assertFalse(emptyLevel.isOnPath(spawnPoint), "Spawn point should not be on path")
 
         // Area attack should be allowed at a spawn point (it's a valid target tile for enemies)
-        assertTrue(engine.defenderAttackPosition(wizard.id, spawnPoint), "Area attack should be allowed at spawn point even without an enemy")
+        assertTrue(
+            engine.defenderAttackPosition(wizard.id, spawnPoint),
+            "Area attack should be allowed at spawn point even without an enemy",
+        )
         // No enemies on the map since the level has none
         assertTrue(state.attackers.isEmpty(), "No enemies should be on map in an empty level")
     }
@@ -175,12 +179,13 @@ class SpawnPointAttackTest {
 
         // Manually spawn Ewhad at spawn point
         val spawnPoint = state.level.startPositions.first()
-        val ewhad = Attacker(
-            id = state.nextAttackerId.value++,
-            type = AttackerType.EWHAD,
-            position = mutableStateOf(spawnPoint),
-            level = mutableStateOf(1)
-        )
+        val ewhad =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.EWHAD,
+                position = mutableStateOf(spawnPoint),
+                level = mutableStateOf(1),
+            )
         state.attackers.add(ewhad)
         state.pendingMessages.add(GameMessage(type = GameMessageType.EWHAD_ENTERS))
 
@@ -195,27 +200,29 @@ class SpawnPointAttackTest {
     @Test
     fun testEwhadEntersMessageQueuedBySpawnAttackers() {
         // Verify that spawnAttackers() automatically queues EWHAD_ENTERS when Ewhad spawns
-        val ewhadLevel = Level(
-            id = 1,
-            name = "Ewhad Level",
-            gridWidth = 10,
-            gridHeight = 6,
-            startPositions = listOf(Position(0, 3)),
-            targetPositions = listOf(Position(9, 3)),
-            pathCells = (1..8).map { Position(it, 3) }.toSet(),
-            buildAreas = setOf(Position(2, 1), Position(2, 2)),
-            attackerWaves = emptyList(),
-            directSpawnPlan = listOf(
-                PlannedEnemySpawn(
-                    attackerType = AttackerType.EWHAD,
-                    spawnTurn = 2,
-                    level = 1,
-                    spawnPoint = Position(0, 3)
-                )
-            ),
-            initialCoins = 1000,
-            healthPoints = 10
-        )
+        val ewhadLevel =
+            Level(
+                id = 1,
+                name = "Ewhad Level",
+                gridWidth = 10,
+                gridHeight = 6,
+                startPositions = listOf(Position(0, 3)),
+                targetPositions = listOf(Position(9, 3)),
+                pathCells = (1..8).map { Position(it, 3) }.toSet(),
+                buildAreas = setOf(Position(2, 1), Position(2, 2)),
+                attackerWaves = emptyList(),
+                directSpawnPlan =
+                    listOf(
+                        PlannedEnemySpawn(
+                            attackerType = AttackerType.EWHAD,
+                            spawnTurn = 2,
+                            level = 1,
+                            spawnPoint = Position(0, 3),
+                        ),
+                    ),
+                initialCoins = 1000,
+                healthPoints = 10,
+            )
         val state = GameState(ewhadLevel)
         val engine = GameEngine(state)
 
@@ -239,19 +246,20 @@ class SpawnPointAttackTest {
     fun testEwhadRetreatsMessageQueuedOnDefeat() {
         // Verify that killing Ewhad via defenderAttack queues EWHAD_RETREATS immediately
         val spawnPoint = Position(0, 3)
-        val ewhadLevel = Level(
-            id = 1,
-            name = "Ewhad Level",
-            gridWidth = 10,
-            gridHeight = 6,
-            startPositions = listOf(spawnPoint),
-            targetPositions = listOf(Position(9, 3)),
-            pathCells = (1..8).map { Position(it, 3) }.toSet(),
-            buildAreas = setOf(Position(2, 1), Position(2, 2)),
-            attackerWaves = emptyList(),
-            initialCoins = 1000,
-            healthPoints = 10
-        )
+        val ewhadLevel =
+            Level(
+                id = 1,
+                name = "Ewhad Level",
+                gridWidth = 10,
+                gridHeight = 6,
+                startPositions = listOf(spawnPoint),
+                targetPositions = listOf(Position(9, 3)),
+                pathCells = (1..8).map { Position(it, 3) }.toSet(),
+                buildAreas = setOf(Position(2, 1), Position(2, 2)),
+                attackerWaves = emptyList(),
+                initialCoins = 1000,
+                healthPoints = 10,
+            )
         val state = GameState(ewhadLevel)
         val engine = GameEngine(state)
 
@@ -262,13 +270,14 @@ class SpawnPointAttackTest {
         tower.resetActions()
 
         // Spawn Ewhad with minimal health so one attack kills it
-        val ewhad = Attacker(
-            id = state.nextAttackerId.value++,
-            type = AttackerType.EWHAD,
-            position = mutableStateOf(spawnPoint),
-            level = mutableStateOf(1),
-            currentHealth = mutableStateOf(1)
-        )
+        val ewhad =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.EWHAD,
+                position = mutableStateOf(spawnPoint),
+                level = mutableStateOf(1),
+                currentHealth = mutableStateOf(1),
+            )
         state.attackers.add(ewhad)
 
         assertTrue(state.pendingMessages.isEmpty(), "No messages before attack")
@@ -277,27 +286,32 @@ class SpawnPointAttackTest {
         engine.defenderAttack(tower.id, ewhad.id)
 
         assertEquals(1, state.pendingMessages.size, "EWHAD_RETREATS message should be queued immediately after killing Ewhad")
-        assertEquals(GameMessageType.EWHAD_RETREATS, state.pendingMessages.first().type, "Message type should be EWHAD_RETREATS (not final stand)")
+        assertEquals(
+            GameMessageType.EWHAD_RETREATS,
+            state.pendingMessages.first().type,
+            "Message type should be EWHAD_RETREATS (not final stand)",
+        )
     }
 
     @Test
     fun testEwhadDefeatedMessageQueuedOnFinalStand() {
         // Verify EWHAD_DEFEATED message is queued when killing Ewhad on the final stand level
         val spawnPoint = Position(0, 3)
-        val finalStandLevel = Level(
-            id = 1,
-            name = "Final Stand",
-            gridWidth = 10,
-            gridHeight = 6,
-            startPositions = listOf(spawnPoint),
-            targetPositions = listOf(Position(9, 3)),
-            pathCells = (1..8).map { Position(it, 3) }.toSet(),
-            buildAreas = setOf(Position(2, 1), Position(2, 2)),
-            attackerWaves = emptyList(),
-            initialCoins = 1000,
-            healthPoints = 10,
-            editorLevelId = "the_final_stand"
-        )
+        val finalStandLevel =
+            Level(
+                id = 1,
+                name = "Final Stand",
+                gridWidth = 10,
+                gridHeight = 6,
+                startPositions = listOf(spawnPoint),
+                targetPositions = listOf(Position(9, 3)),
+                pathCells = (1..8).map { Position(it, 3) }.toSet(),
+                buildAreas = setOf(Position(2, 1), Position(2, 2)),
+                attackerWaves = emptyList(),
+                initialCoins = 1000,
+                healthPoints = 10,
+                editorLevelId = "the_final_stand",
+            )
         val state = GameState(finalStandLevel)
         val engine = GameEngine(state)
 
@@ -307,18 +321,23 @@ class SpawnPointAttackTest {
         engine.startFirstPlayerTurn()
         tower.resetActions()
 
-        val ewhad = Attacker(
-            id = state.nextAttackerId.value++,
-            type = AttackerType.EWHAD,
-            position = mutableStateOf(spawnPoint),
-            level = mutableStateOf(1),
-            currentHealth = mutableStateOf(1)
-        )
+        val ewhad =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.EWHAD,
+                position = mutableStateOf(spawnPoint),
+                level = mutableStateOf(1),
+                currentHealth = mutableStateOf(1),
+            )
         state.attackers.add(ewhad)
 
         engine.defenderAttack(tower.id, ewhad.id)
 
         assertEquals(1, state.pendingMessages.size, "EWHAD_DEFEATED message should be queued immediately on final stand")
-        assertEquals(GameMessageType.EWHAD_DEFEATED, state.pendingMessages.first().type, "Message type should be EWHAD_DEFEATED on final stand level")
+        assertEquals(
+            GameMessageType.EWHAD_DEFEATED,
+            state.pendingMessages.first().type,
+            "Message type should be EWHAD_DEFEATED on final stand level",
+        )
     }
 }

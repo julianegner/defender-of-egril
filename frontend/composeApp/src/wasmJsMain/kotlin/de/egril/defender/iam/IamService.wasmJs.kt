@@ -2,12 +2,12 @@
 
 package de.egril.defender.iam
 
+import com.hyperether.resources.currentLanguage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import com.hyperether.resources.currentLanguage
 
 // ---------------------------------------------------------------------------
 // JS interop – all interaction with the Keycloak JS adapter goes through here
@@ -184,14 +184,15 @@ private fun syncKcState() {
         // Only update when the token value has actually changed to avoid
         // unnecessary Compose recompositions.
         if (token != null && token != currentState.token) {
-            IamService.state.value = IamState(
-                isAuthenticated = true,
-                username = jsGetKcUsername() ?: currentState.username,
-                token = token,
-                email = jsGetKcEmail() ?: currentState.email,
-                firstName = jsGetKcFirstName() ?: currentState.firstName,
-                lastName = jsGetKcLastName() ?: currentState.lastName
-            )
+            IamService.state.value =
+                IamState(
+                    isAuthenticated = true,
+                    username = jsGetKcUsername() ?: currentState.username,
+                    token = token,
+                    email = jsGetKcEmail() ?: currentState.email,
+                    firstName = jsGetKcFirstName() ?: currentState.firstName,
+                    lastName = jsGetKcLastName() ?: currentState.lastName,
+                )
         }
     } else if (currentState.isAuthenticated) {
         // Session ended (e.g. refresh token expired) – clear local auth state.

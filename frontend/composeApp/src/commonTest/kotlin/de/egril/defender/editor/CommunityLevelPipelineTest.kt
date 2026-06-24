@@ -23,7 +23,6 @@ import kotlin.test.assertTrue
  *   5. UI filtering logic (`isCommunity` flag persistence through the pipeline)
  */
 class CommunityLevelPipelineTest {
-
     // -----------------------------------------------------------------------
     // Helpers that build minimal valid EditorMap / EditorLevel objects
     // -----------------------------------------------------------------------
@@ -37,26 +36,26 @@ class CommunityLevelPipelineTest {
         name: String = "Test Map",
         isOfficial: Boolean = false,
         isCommunity: Boolean = false,
-        author: String = ""
-    ): EditorMap {
-        return EditorMap(
+        author: String = "",
+    ): EditorMap =
+        EditorMap(
             id = id,
             name = name,
             width = 5,
             height = 1,
-            tiles = mapOf(
-                "0,0" to TileType.SPAWN_POINT,
-                "1,0" to TileType.PATH,
-                "2,0" to TileType.PATH,
-                "3,0" to TileType.PATH,
-                "4,0" to TileType.TARGET
-            ),
+            tiles =
+                mapOf(
+                    "0,0" to TileType.SPAWN_POINT,
+                    "1,0" to TileType.PATH,
+                    "2,0" to TileType.PATH,
+                    "3,0" to TileType.PATH,
+                    "4,0" to TileType.TARGET,
+                ),
             readyToUse = true,
             isOfficial = isOfficial,
             isCommunity = isCommunity,
-            author = author
+            author = author,
         )
-    }
 
     /**
      * Creates a minimal valid editor level referencing [mapId].
@@ -67,22 +66,22 @@ class CommunityLevelPipelineTest {
         mapId: String = "test_map",
         title: String = "Test Level",
         isCommunity: Boolean = false,
-        communityAuthorUsername: String = ""
-    ): EditorLevel {
-        return EditorLevel(
+        communityAuthorUsername: String = "",
+    ): EditorLevel =
+        EditorLevel(
             id = id,
             mapId = mapId,
             title = title,
             startCoins = 100,
             startHealthPoints = 10,
-            enemySpawns = listOf(
-                EditorEnemySpawn(AttackerType.GOBLIN, 1, 1, Position(0, 0))
-            ),
+            enemySpawns =
+                listOf(
+                    EditorEnemySpawn(AttackerType.GOBLIN, 1, 1, Position(0, 0)),
+                ),
             availableTowers = setOf(DefenderType.SPIKE_TOWER),
             isCommunity = isCommunity,
-            communityAuthorUsername = communityAuthorUsername
+            communityAuthorUsername = communityAuthorUsername,
         )
-    }
 
     /** Builds a map JSON string in the standard serializer format. */
     private fun buildMapJson(
@@ -96,10 +95,15 @@ class CommunityLevelPipelineTest {
     "2,0": "PATH",
     "3,0": "PATH",
     "4,0": "TARGET"
-"""
+""",
     ): String {
-        val authorJson = if (author.isNotEmpty()) """,
-  "author": "$author"""" else ""
+        val authorJson =
+            if (author.isNotEmpty()) {
+                """,
+  "author": "$author""""
+            } else {
+                ""
+            }
         return """{
   "metadata": {
     "program": "Defender of Egril",
@@ -123,9 +127,9 @@ $tileEntries
     private fun buildLevelJson(
         id: String = "test_level",
         mapId: String = "test_map",
-        title: String = "Test Level"
-    ): String {
-        return """{
+        title: String = "Test Level",
+    ): String =
+        """{
   "metadata": {
     "program": "Defender of Egril",
     "type": "level"
@@ -145,7 +149,6 @@ $tileEntries
   "prerequisites": []
 }
 }"""
-    }
 
     // =======================================================================
     // 1. EditorLevel.isReadyToPlay() — level-only checks
@@ -193,59 +196,66 @@ $tileEntries
 
     @Test
     fun testMapWithNoSpawnFails() {
-        val map = EditorMap(
-            id = "no_spawn",
-            name = "No Spawn",
-            width = 5,
-            height = 1,
-            tiles = mapOf(
-                "1,0" to TileType.PATH,
-                "4,0" to TileType.TARGET
+        val map =
+            EditorMap(
+                id = "no_spawn",
+                name = "No Spawn",
+                width = 5,
+                height = 1,
+                tiles =
+                    mapOf(
+                        "1,0" to TileType.PATH,
+                        "4,0" to TileType.TARGET,
+                    ),
             )
-        )
         assertFalse(map.validateReadyToUse(), "Map without spawn should fail validation")
     }
 
     @Test
     fun testMapWithNoTargetFails() {
-        val map = EditorMap(
-            id = "no_target",
-            name = "No Target",
-            width = 5,
-            height = 1,
-            tiles = mapOf(
-                "0,0" to TileType.SPAWN_POINT,
-                "1,0" to TileType.PATH
+        val map =
+            EditorMap(
+                id = "no_target",
+                name = "No Target",
+                width = 5,
+                height = 1,
+                tiles =
+                    mapOf(
+                        "0,0" to TileType.SPAWN_POINT,
+                        "1,0" to TileType.PATH,
+                    ),
             )
-        )
         assertFalse(map.validateReadyToUse(), "Map without target should fail validation")
     }
 
     @Test
     fun testMapWithNoPathFails() {
         // Spawn at (0,0) and target at (4,0) with no path connecting them
-        val map = EditorMap(
-            id = "no_path",
-            name = "No Path",
-            width = 5,
-            height = 1,
-            tiles = mapOf(
-                "0,0" to TileType.SPAWN_POINT,
-                "4,0" to TileType.TARGET
+        val map =
+            EditorMap(
+                id = "no_path",
+                name = "No Path",
+                width = 5,
+                height = 1,
+                tiles =
+                    mapOf(
+                        "0,0" to TileType.SPAWN_POINT,
+                        "4,0" to TileType.TARGET,
+                    ),
             )
-        )
         assertFalse(map.validateReadyToUse(), "Map without continuous path should fail validation")
     }
 
     @Test
     fun testEmptyMapFails() {
-        val map = EditorMap(
-            id = "empty",
-            name = "Empty Map",
-            width = 5,
-            height = 1,
-            tiles = emptyMap()
-        )
+        val map =
+            EditorMap(
+                id = "empty",
+                name = "Empty Map",
+                width = 5,
+                height = 1,
+                tiles = emptyMap(),
+            )
         assertFalse(map.validateReadyToUse(), "Empty map should fail validation")
     }
 
@@ -257,33 +267,37 @@ $tileEntries
     fun testLevelWithNoWaypointsIsValid() {
         val map = buildValidEditorMap()
         val level = buildValidEditorLevel()
-        val result = level.validateWaypointsDetailed(
-            targetPositions = map.getTargets(),
-            spawnPoints = map.getSpawnPoints()
-        )
+        val result =
+            level.validateWaypointsDetailed(
+                targetPositions = map.getTargets(),
+                spawnPoints = map.getSpawnPoints(),
+            )
         assertTrue(result.isValid, "Level without waypoints should be valid")
     }
 
     @Test
     fun testLevelWithMultipleTargetsRequiresWaypoints() {
-        val map = EditorMap(
-            id = "multi_target",
-            name = "Multi Target",
-            width = 5,
-            height = 2,
-            tiles = mapOf(
-                "0,0" to TileType.SPAWN_POINT,
-                "1,0" to TileType.PATH,
-                "2,0" to TileType.PATH,
-                "3,0" to TileType.TARGET,
-                "3,1" to TileType.TARGET
+        val map =
+            EditorMap(
+                id = "multi_target",
+                name = "Multi Target",
+                width = 5,
+                height = 2,
+                tiles =
+                    mapOf(
+                        "0,0" to TileType.SPAWN_POINT,
+                        "1,0" to TileType.PATH,
+                        "2,0" to TileType.PATH,
+                        "3,0" to TileType.TARGET,
+                        "3,1" to TileType.TARGET,
+                    ),
             )
-        )
         val level = buildValidEditorLevel(mapId = map.id)
-        val result = level.validateWaypointsDetailed(
-            targetPositions = map.getTargets(),
-            spawnPoints = map.getSpawnPoints()
-        )
+        val result =
+            level.validateWaypointsDetailed(
+                targetPositions = map.getTargets(),
+                spawnPoints = map.getSpawnPoints(),
+            )
         // Multiple targets with no waypoints → invalid
         assertFalse(result.isValid, "Multiple targets with no waypoints should be invalid")
     }
@@ -320,11 +334,12 @@ $tileEntries
 
     @Test
     fun testCommunityMapWithAuthorRoundTrip() {
-        val original = buildValidEditorMap(
-            id = "community_map_1",
-            name = "Community Map",
-            author = "community_author"
-        )
+        val original =
+            buildValidEditorMap(
+                id = "community_map_1",
+                name = "Community Map",
+                author = "community_author",
+            )
         val json = EditorJsonSerializer.serializeMap(original)
         val deserialized = EditorJsonSerializer.deserializeMap(json)
         assertNotNull(deserialized, "Community map should deserialize")
@@ -391,12 +406,13 @@ $tileEntries
     fun testCommunityLevelWithOfficialMap_DeserializeAndValidate() {
         // Simulate: official map already exists, community level references it
         val officialMap = buildValidEditorMap(id = "official_map", isOfficial = true)
-        val communityLevel = buildValidEditorLevel(
-            id = "comm_level_1",
-            mapId = "official_map",
-            isCommunity = true,
-            communityAuthorUsername = "player1"
-        )
+        val communityLevel =
+            buildValidEditorLevel(
+                id = "comm_level_1",
+                mapId = "official_map",
+                isCommunity = true,
+                communityAuthorUsername = "player1",
+            )
 
         // Validate level-only readiness
         assertTrue(communityLevel.isReadyToPlay(), "Community level should pass level-only check")
@@ -405,10 +421,11 @@ $tileEntries
         assertTrue(officialMap.validateReadyToUse(), "Official map should pass validation")
 
         // Validate waypoints (empty waypoints with single target = valid)
-        val waypointResult = communityLevel.validateWaypointsDetailed(
-            targetPositions = officialMap.getTargets(),
-            spawnPoints = officialMap.getSpawnPoints()
-        )
+        val waypointResult =
+            communityLevel.validateWaypointsDetailed(
+                targetPositions = officialMap.getTargets(),
+                spawnPoints = officialMap.getSpawnPoints(),
+            )
         assertTrue(waypointResult.isValid, "Waypoint validation should pass for community level with official map")
     }
 
@@ -429,10 +446,11 @@ $tileEntries
         // Map should be ready to use
         assertTrue(deserMap.validateReadyToUse(), "Deserialized map should be ready")
         // Waypoints should be valid
-        val result = deserLevel.validateWaypointsDetailed(
-            targetPositions = deserMap.getTargets(),
-            spawnPoints = deserMap.getSpawnPoints()
-        )
+        val result =
+            deserLevel.validateWaypointsDetailed(
+                targetPositions = deserMap.getTargets(),
+                spawnPoints = deserMap.getSpawnPoints(),
+            )
         assertTrue(result.isValid, "Waypoints should be valid after full round-trip")
     }
 
@@ -444,20 +462,22 @@ $tileEntries
     fun testCommunityLevelWithCommunityMap_DeserializeAndValidate() {
         // Simulate: community map downloaded alongside community level
         val communityMap = buildValidEditorMap(id = "comm_map", isCommunity = true, author = "map_author")
-        val communityLevel = buildValidEditorLevel(
-            id = "comm_level_2",
-            mapId = "comm_map",
-            isCommunity = true,
-            communityAuthorUsername = "player2"
-        )
+        val communityLevel =
+            buildValidEditorLevel(
+                id = "comm_level_2",
+                mapId = "comm_map",
+                isCommunity = true,
+                communityAuthorUsername = "player2",
+            )
 
         assertTrue(communityLevel.isReadyToPlay(), "Community level should pass level-only check")
         assertTrue(communityMap.validateReadyToUse(), "Community map should pass validation")
 
-        val waypointResult = communityLevel.validateWaypointsDetailed(
-            targetPositions = communityMap.getTargets(),
-            spawnPoints = communityMap.getSpawnPoints()
-        )
+        val waypointResult =
+            communityLevel.validateWaypointsDetailed(
+                targetPositions = communityMap.getTargets(),
+                spawnPoints = communityMap.getSpawnPoints(),
+            )
         assertTrue(waypointResult.isValid, "Waypoint validation should pass for community level with community map")
     }
 
@@ -475,10 +495,11 @@ $tileEntries
         assertTrue(deserLevel.isReadyToPlay(), "Deserialized community level should be ready")
         assertTrue(deserMap.validateReadyToUse(), "Deserialized community map should be ready")
 
-        val result = deserLevel.validateWaypointsDetailed(
-            targetPositions = deserMap.getTargets(),
-            spawnPoints = deserMap.getSpawnPoints()
-        )
+        val result =
+            deserLevel.validateWaypointsDetailed(
+                targetPositions = deserMap.getTargets(),
+                spawnPoints = deserMap.getSpawnPoints(),
+            )
         assertTrue(result.isValid, "Waypoints should be valid after round-trip of community map + level")
     }
 
@@ -607,16 +628,17 @@ $tileEntries
 
     @Test
     fun testMapWithUnknownTileTypeSkipsTile() {
-        val json = buildMapJson(
-            id = "unknown_tile",
-            tileEntries = """
+        val json =
+            buildMapJson(
+                id = "unknown_tile",
+                tileEntries = """
     "0,0": "SPAWN_POINT",
     "1,0": "SOME_FUTURE_TYPE",
     "2,0": "PATH",
     "3,0": "PATH",
     "4,0": "TARGET"
-"""
-        )
+""",
+            )
         val map = EditorJsonSerializer.deserializeMap(json)
         assertNotNull(map, "Map with unknown tile type should still deserialize")
         // Unknown tile should be skipped, so 4 tiles (not 5)
@@ -627,16 +649,17 @@ $tileEntries
 
     @Test
     fun testMapWithIslandTileBackwardCompat() {
-        val json = buildMapJson(
-            id = "island_map",
-            tileEntries = """
+        val json =
+            buildMapJson(
+                id = "island_map",
+                tileEntries = """
     "0,0": "SPAWN_POINT",
     "1,0": "PATH",
     "2,0": "ISLAND",
     "3,0": "PATH",
     "4,0": "TARGET"
-"""
-        )
+""",
+            )
         val map = EditorJsonSerializer.deserializeMap(json)
         assertNotNull(map, "Map with ISLAND tile should deserialize")
         assertEquals(TileType.BUILD_AREA, map.tiles["2,0"], "ISLAND should map to BUILD_AREA")
@@ -675,11 +698,12 @@ $tileEntries
         val officialMap = buildValidEditorMap(id = "official_repo_map", isOfficial = true)
 
         // Step 2: A user uploads a community level that references this official map
-        val originalLevel = buildValidEditorLevel(
-            id = "uploaded_community_level",
-            mapId = "official_repo_map",
-            title = "Community Battle"
-        )
+        val originalLevel =
+            buildValidEditorLevel(
+                id = "uploaded_community_level",
+                mapId = "official_repo_map",
+                title = "Community Battle",
+            )
 
         // Step 3: The backend returns the level JSON via fetchCommunityFile
         val backendLevelJson = EditorJsonSerializer.serializeLevel(originalLevel)
@@ -689,10 +713,11 @@ $tileEntries
         assertNotNull(deserializedLevel, "Level from backend should deserialize")
 
         // Step 5: App creates community copy
-        val communityLevel = deserializedLevel.copy(
-            isCommunity = true,
-            communityAuthorUsername = "uploader_name"
-        )
+        val communityLevel =
+            deserializedLevel.copy(
+                isCommunity = true,
+                communityAuthorUsername = "uploader_name",
+            )
 
         // Step 6: Validation checks
         assertTrue(communityLevel.isReadyToPlay(), "Community level should pass isReadyToPlay()")
@@ -703,28 +728,31 @@ $tileEntries
         assertTrue(officialMap.validateReadyToUse(includeRiversAsWalkable = true), "Official map should pass validation")
 
         // Step 8: Waypoint validation
-        val waypointResult = communityLevel.validateWaypointsDetailed(
-            targetPositions = officialMap.getTargets(),
-            spawnPoints = officialMap.getSpawnPoints()
-        )
+        val waypointResult =
+            communityLevel.validateWaypointsDetailed(
+                targetPositions = officialMap.getTargets(),
+                spawnPoints = officialMap.getSpawnPoints(),
+            )
         assertTrue(waypointResult.isValid, "Waypoints should be valid")
     }
 
     @Test
     fun testFullBackendDataFlow_CommunityLevelWithCommunityMap() {
         // Step 1: A community map is uploaded by another user
-        val originalMap = buildValidEditorMap(
-            id = "community_shared_map",
-            name = "Shared Community Map",
-            author = "map_creator"
-        )
+        val originalMap =
+            buildValidEditorMap(
+                id = "community_shared_map",
+                name = "Shared Community Map",
+                author = "map_creator",
+            )
 
         // Step 2: A level is uploaded that uses this community map
-        val originalLevel = buildValidEditorLevel(
-            id = "community_level_using_comm_map",
-            mapId = "community_shared_map",
-            title = "Community Adventure"
-        )
+        val originalLevel =
+            buildValidEditorLevel(
+                id = "community_level_using_comm_map",
+                mapId = "community_shared_map",
+                title = "Community Adventure",
+            )
 
         // Step 3: Backend returns both as JSON
         val backendMapJson = EditorJsonSerializer.serializeMap(originalMap)
@@ -749,10 +777,11 @@ $tileEntries
         assertEquals("community_shared_map", communityMap.id, "Community map ID should match")
 
         // Step 8: Waypoint check
-        val waypointResult = communityLevel.validateWaypointsDetailed(
-            targetPositions = communityMap.getTargets(),
-            spawnPoints = communityMap.getSpawnPoints()
-        )
+        val waypointResult =
+            communityLevel.validateWaypointsDetailed(
+                targetPositions = communityMap.getTargets(),
+                spawnPoints = communityMap.getSpawnPoints(),
+            )
         assertTrue(waypointResult.isValid, "Waypoints should pass validation")
 
         // Step 9: Check that the deserialized map would work for game level conversion
@@ -810,10 +839,11 @@ $tileEntries
 
     @Test
     fun testMapWithLongNameRoundTrips() {
-        val map = buildValidEditorMap(
-            id = "long_name_map",
-            name = "This is a very long community map name with lots of words and characters 1234567890"
-        )
+        val map =
+            buildValidEditorMap(
+                id = "long_name_map",
+                name = "This is a very long community map name with lots of words and characters 1234567890",
+            )
         val json = EditorJsonSerializer.serializeMap(map)
         val deser = EditorJsonSerializer.deserializeMap(json)
         assertNotNull(deser, "Map with long name should deserialize")
@@ -868,21 +898,23 @@ $tileEntries
 
     @Test
     fun testLevelWithMultipleEnemyTypesRoundTrips() {
-        val level = EditorLevel(
-            id = "multi_enemy",
-            mapId = "test_map",
-            title = "Multi Enemy Level",
-            startCoins = 200,
-            startHealthPoints = 20,
-            enemySpawns = listOf(
-                EditorEnemySpawn(AttackerType.GOBLIN, 1, 1, Position(0, 0)),
-                EditorEnemySpawn(AttackerType.ORK, 2, 3, Position(0, 0)),
-                EditorEnemySpawn(AttackerType.OGRE, 1, 5, Position(0, 0)),
-                EditorEnemySpawn(AttackerType.SKELETON, 1, 2, Position(0, 0)),
-                EditorEnemySpawn(AttackerType.EVIL_WIZARD, 1, 4, Position(0, 0))
-            ),
-            availableTowers = setOf(DefenderType.SPIKE_TOWER, DefenderType.BOW_TOWER, DefenderType.WIZARD_TOWER)
-        )
+        val level =
+            EditorLevel(
+                id = "multi_enemy",
+                mapId = "test_map",
+                title = "Multi Enemy Level",
+                startCoins = 200,
+                startHealthPoints = 20,
+                enemySpawns =
+                    listOf(
+                        EditorEnemySpawn(AttackerType.GOBLIN, 1, 1, Position(0, 0)),
+                        EditorEnemySpawn(AttackerType.ORK, 2, 3, Position(0, 0)),
+                        EditorEnemySpawn(AttackerType.OGRE, 1, 5, Position(0, 0)),
+                        EditorEnemySpawn(AttackerType.SKELETON, 1, 2, Position(0, 0)),
+                        EditorEnemySpawn(AttackerType.EVIL_WIZARD, 1, 4, Position(0, 0)),
+                    ),
+                availableTowers = setOf(DefenderType.SPIKE_TOWER, DefenderType.BOW_TOWER, DefenderType.WIZARD_TOWER),
+            )
 
         val json = EditorJsonSerializer.serializeLevel(level)
         val deser = EditorJsonSerializer.deserializeLevel(json)!!
@@ -898,22 +930,24 @@ $tileEntries
 
     @Test
     fun testMapWithBuildAreasPassesValidation() {
-        val map = EditorMap(
-            id = "build_area_map",
-            name = "Map With Build Areas",
-            width = 5,
-            height = 3,
-            tiles = mapOf(
-                "0,0" to TileType.SPAWN_POINT,
-                "1,0" to TileType.PATH,
-                "2,0" to TileType.PATH,
-                "3,0" to TileType.PATH,
-                "4,0" to TileType.TARGET,
-                "1,1" to TileType.BUILD_AREA,
-                "2,1" to TileType.BUILD_AREA,
-                "3,1" to TileType.BUILD_AREA
+        val map =
+            EditorMap(
+                id = "build_area_map",
+                name = "Map With Build Areas",
+                width = 5,
+                height = 3,
+                tiles =
+                    mapOf(
+                        "0,0" to TileType.SPAWN_POINT,
+                        "1,0" to TileType.PATH,
+                        "2,0" to TileType.PATH,
+                        "3,0" to TileType.PATH,
+                        "4,0" to TileType.TARGET,
+                        "1,1" to TileType.BUILD_AREA,
+                        "2,1" to TileType.BUILD_AREA,
+                        "3,1" to TileType.BUILD_AREA,
+                    ),
             )
-        )
         assertTrue(map.validateReadyToUse(), "Map with build areas should pass validation")
     }
 
@@ -924,19 +958,21 @@ $tileEntries
     @Test
     fun testMapWithRiverRequiresIncludeRiversFlagToPassValidation() {
         // Path goes: SPAWN → PATH → RIVER → PATH → TARGET
-        val map = EditorMap(
-            id = "river_map",
-            name = "River Map",
-            width = 5,
-            height = 1,
-            tiles = mapOf(
-                "0,0" to TileType.SPAWN_POINT,
-                "1,0" to TileType.PATH,
-                "2,0" to TileType.RIVER,
-                "3,0" to TileType.PATH,
-                "4,0" to TileType.TARGET
+        val map =
+            EditorMap(
+                id = "river_map",
+                name = "River Map",
+                width = 5,
+                height = 1,
+                tiles =
+                    mapOf(
+                        "0,0" to TileType.SPAWN_POINT,
+                        "1,0" to TileType.PATH,
+                        "2,0" to TileType.RIVER,
+                        "3,0" to TileType.PATH,
+                        "4,0" to TileType.TARGET,
+                    ),
             )
-        )
         // With rivers as walkable → should pass
         assertTrue(map.validateReadyToUse(includeRiversAsWalkable = true), "Should pass with rivers as walkable")
         // Without rivers as walkable → may fail if river is required for connectivity
@@ -951,7 +987,10 @@ $tileEntries
      * Reproduces the exact logic of EditorStorage.isLevelReadyToPlay() without filesystem access.
      * This helps verify whether a given level + map combination would pass.
      */
-    private fun simulateIsLevelReadyToPlay(level: EditorLevel, map: EditorMap?): Boolean {
+    private fun simulateIsLevelReadyToPlay(
+        level: EditorLevel,
+        map: EditorMap?,
+    ): Boolean {
         if (!level.isReadyToPlay()) return false
         if (map == null) return false
         if (!map.validateReadyToUse(includeRiversAsWalkable = true)) return false
@@ -991,17 +1030,19 @@ $tileEntries
 
     @Test
     fun testSimulatedIsReadyToPlay_MapWithNoPathFails() {
-        val disconnectedMap = EditorMap(
-            id = "disc_map",
-            name = "Disconnected",
-            width = 10,
-            height = 1,
-            tiles = mapOf(
-                "0,0" to TileType.SPAWN_POINT,
-                // Gap at positions 1-8
-                "9,0" to TileType.TARGET
+        val disconnectedMap =
+            EditorMap(
+                id = "disc_map",
+                name = "Disconnected",
+                width = 10,
+                height = 1,
+                tiles =
+                    mapOf(
+                        "0,0" to TileType.SPAWN_POINT,
+                        // Gap at positions 1-8
+                        "9,0" to TileType.TARGET,
+                    ),
             )
-        )
         val level = buildValidEditorLevel(mapId = "disc_map")
         assertFalse(simulateIsLevelReadyToPlay(level, disconnectedMap), "Disconnected path should fail")
     }
@@ -1027,19 +1068,21 @@ $tileEntries
     @Test
     fun testMapTileOrderDoesNotAffectValidation() {
         // Same tiles, different insertion order
-        val map1 = EditorMap(
-            id = "order1",
-            name = "Order Test 1",
-            width = 5,
-            height = 1,
-            tiles = linkedMapOf(
-                "4,0" to TileType.TARGET,
-                "0,0" to TileType.SPAWN_POINT,
-                "2,0" to TileType.PATH,
-                "1,0" to TileType.PATH,
-                "3,0" to TileType.PATH
+        val map1 =
+            EditorMap(
+                id = "order1",
+                name = "Order Test 1",
+                width = 5,
+                height = 1,
+                tiles =
+                    linkedMapOf(
+                        "4,0" to TileType.TARGET,
+                        "0,0" to TileType.SPAWN_POINT,
+                        "2,0" to TileType.PATH,
+                        "1,0" to TileType.PATH,
+                        "3,0" to TileType.PATH,
+                    ),
             )
-        )
         assertTrue(map1.validateReadyToUse(), "Tile insertion order should not matter for validation")
     }
 
@@ -1120,30 +1163,32 @@ $tileEntries
      */
     @Test
     fun testCommunityTestingLevelHiddenByVisibleWorldLevelsFilter() {
-        val testingCommunityLevel = buildValidEditorLevel(id = "testing_comm_level")
-            .copy(testingOnly = true, isCommunity = true)
+        val testingCommunityLevel =
+            buildValidEditorLevel(id = "testing_comm_level")
+                .copy(testingOnly = true, isCommunity = true)
 
         // OLD logic: getLevel returns null for community levels
-        val oldLogicEditorLevel: EditorLevel? = null  // getLevel("testing_comm_level") → null
+        val oldLogicEditorLevel: EditorLevel? = null // getLevel("testing_comm_level") → null
         val oldFilterResult = oldLogicEditorLevel?.testingOnly != true
         assertTrue(
             oldFilterResult,
-            "OLD bug: null?.testingOnly != true is true — testing community level incorrectly shown"
+            "OLD bug: null?.testingOnly != true is true — testing community level incorrectly shown",
         )
 
         // NEW logic: getCommunityLevel is used as fallback
-        val newLogicEditorLevel: EditorLevel? = testingCommunityLevel  // getCommunityLevel finds it
+        val newLogicEditorLevel: EditorLevel? = testingCommunityLevel // getCommunityLevel finds it
         val newFilterResult = newLogicEditorLevel?.testingOnly != true
         assertFalse(
             newFilterResult,
-            "FIX: testing community level's testingOnly=true is evaluated -> correctly excluded"
+            "FIX: testing community level's testingOnly=true is evaluated -> correctly excluded",
         )
     }
 
     @Test
     fun testNonTestingCommunityLevelPassesVisibleWorldLevelsFilter() {
-        val normalCommunityLevel = buildValidEditorLevel(id = "normal_comm_level")
-            .copy(isCommunity = true)
+        val normalCommunityLevel =
+            buildValidEditorLevel(id = "normal_comm_level")
+                .copy(isCommunity = true)
         assertFalse(normalCommunityLevel.testingOnly, "Normal community level should have testingOnly=false")
 
         // Both old and new logic correctly include non-testing community levels
@@ -1181,20 +1226,20 @@ $tileEntries
         assertEquals(mapJsonId, downloadedMap.id, "Downloaded map has internal id from JSON")
 
         // Simulate the OLD saveCommunityMap: only saves under map.id
-        val oldCacheKey = downloadedMap.id  // = "map_internal_id"
+        val oldCacheKey = downloadedMap.id // = "map_internal_id"
         // getMap("level_reference_id") would look for "level_reference_id" → NOT FOUND
 
         // Simulate the NEW saveCommunityMap with requestedId:
         // saves under BOTH map.id and requestedId
         val communityMap = downloadedMap.copy(isCommunity = true, communityAuthorUsername = "author")
         val simulatedNewCache = mutableMapOf<String, EditorMap>()
-        simulatedNewCache[downloadedMap.id] = communityMap  // primary save
-        simulatedNewCache[levelMapId] = communityMap        // alias save (the fix)
+        simulatedNewCache[downloadedMap.id] = communityMap // primary save
+        simulatedNewCache[levelMapId] = communityMap // alias save (the fix)
 
         // Old lookup (would fail without the fix)
         assertNull(
-            null as EditorMap?,  // getMap("level_reference_id") → oldCacheKey only has "map_internal_id"
-            "OLD: map not found by level's mapId reference (old cache had only: $oldCacheKey)"
+            null as EditorMap?, // getMap("level_reference_id") → oldCacheKey only has "map_internal_id"
+            "OLD: map not found by level's mapId reference (old cache had only: $oldCacheKey)",
         )
 
         // New lookup succeeds
@@ -1221,7 +1266,7 @@ $tileEntries
         // Verify the fix handles the normal case without side effects
         val communityMap = downloadedMap.copy(isCommunity = true)
         val simulatedCache = mutableMapOf<String, EditorMap>()
-        simulatedCache[mapId] = communityMap  // only one entry needed (no alias)
+        simulatedCache[mapId] = communityMap // only one entry needed (no alias)
 
         assertNotNull(simulatedCache[levelMapId], "Normal case: map found by level's mapId reference")
         assertEquals(1, simulatedCache.size, "Normal case: only one cache entry (no alias needed)")

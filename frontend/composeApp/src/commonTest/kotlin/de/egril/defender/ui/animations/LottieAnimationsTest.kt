@@ -9,7 +9,6 @@ import kotlin.test.assertNotNull
  * Tests for Lottie animation integration
  */
 class LottieAnimationsTest {
-    
     @Test
     fun testAnimationTypeEnumExists() {
         // Verify that animation types are defined correctly
@@ -65,10 +64,13 @@ class LottieAnimationsTest {
 
     @Test
     fun testCompottieIterateForeverIsMaxInt() {
-        assertEquals(Int.MAX_VALUE, Compottie.IterateForever,
-            "Compottie.IterateForever should equal Int.MAX_VALUE")
+        assertEquals(
+            Int.MAX_VALUE,
+            Compottie.IterateForever,
+            "Compottie.IterateForever should equal Int.MAX_VALUE",
+        )
     }
-    
+
     @Test
     fun testAnimationTypeCount() {
         // Verify we have exactly 31 animation types

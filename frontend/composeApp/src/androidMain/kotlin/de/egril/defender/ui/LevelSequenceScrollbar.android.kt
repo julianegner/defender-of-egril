@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 @Composable
 actual fun BoxScope.LevelSequenceScrollbar(
     horizontalScrollState: ScrollState,
-    verticalScrollState: ScrollState
+    verticalScrollState: ScrollState,
 ) {
     // No-op: Android uses native scroll behavior
 }

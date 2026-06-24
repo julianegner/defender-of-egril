@@ -14,19 +14,21 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 actual fun BoxScope.IconGridScrollbar(gridState: LazyGridState) {
-    val scrollbarStyle = ScrollbarStyle(
-        minimalHeight = 16.dp,
-        thickness = 8.dp,
-        shape = MaterialTheme.shapes.small,
-        hoverDurationMillis = 300,
-        unhoverColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-        hoverColor = MaterialTheme.colorScheme.primary
-    )
+    val scrollbarStyle =
+        ScrollbarStyle(
+            minimalHeight = 16.dp,
+            thickness = 8.dp,
+            shape = MaterialTheme.shapes.small,
+            hoverDurationMillis = 300,
+            unhoverColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+            hoverColor = MaterialTheme.colorScheme.primary,
+        )
     VerticalScrollbar(
         adapter = rememberScrollbarAdapter(gridState),
         style = scrollbarStyle,
-        modifier = Modifier
-            .align(Alignment.CenterEnd)
-            .fillMaxHeight()
+        modifier =
+            Modifier
+                .align(Alignment.CenterEnd)
+                .fillMaxHeight(),
     )
 }

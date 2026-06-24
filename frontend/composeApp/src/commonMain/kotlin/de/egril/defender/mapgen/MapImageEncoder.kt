@@ -12,5 +12,9 @@ expect object MapImageEncoder {
      * @param height Image height
      * @return PNG-encoded bytes, or null if encoding fails
      */
-    fun encodeToPng(pixels: IntArray, width: Int, height: Int): ByteArray?
+    fun encodeToPng(
+        pixels: IntArray,
+        width: Int,
+        height: Int,
+    ): ByteArray?
 }

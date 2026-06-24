@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import dev.vicart.compose.material.symbols.FilledSymbol
-import dev.vicart.compose.material.symbols.MaterialSymbols
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -24,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import de.egril.defender.model.DigOutcome
 import de.egril.defender.ui.drawTowerBase
 import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.barricade
 import defender_of_egril.composeapp.generated.resources.bomb
 import defender_of_egril.composeapp.generated.resources.dig_outcome_brass
 import defender_of_egril.composeapp.generated.resources.dig_outcome_diamond
@@ -55,9 +54,10 @@ import defender_of_egril.composeapp.generated.resources.emoji_timer
 import defender_of_egril.composeapp.generated.resources.emoji_tools
 import defender_of_egril.composeapp.generated.resources.emoji_unlock
 import defender_of_egril.composeapp.generated.resources.emoji_warning
-import defender_of_egril.composeapp.generated.resources.barricade
 import defender_of_egril.composeapp.generated.resources.gate
 import defender_of_egril.composeapp.generated.resources.trap
+import dev.vicart.compose.material.symbols.FilledSymbol
+import dev.vicart.compose.material.symbols.MaterialSymbols
 import org.jetbrains.compose.resources.painterResource
 import kotlin.math.PI
 import kotlin.math.cos
@@ -71,12 +71,12 @@ import kotlin.random.Random
 @Composable
 fun LightningIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_lightning),
         contentDescription = "Lightning",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -87,12 +87,12 @@ fun LightningIcon(
 @Composable
 fun TimerIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 10.dp
+    size: Dp = 10.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_timer),
         contentDescription = "Timer",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -103,12 +103,12 @@ fun TimerIcon(
 @Composable
 fun SwordIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 14.dp
+    size: Dp = 14.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_sword),
         contentDescription = "Sword",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -118,13 +118,13 @@ fun SwordIcon(
 @Composable
 fun HeartIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
 ) {
     FilledSymbol(
         icon = MaterialSymbols.FAVORITE,
         size = size,
         tint = Color.Red,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -135,12 +135,12 @@ fun HeartIcon(
 @Composable
 fun ReloadIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_reload),
         contentDescription = "Reload",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -151,12 +151,12 @@ fun ReloadIcon(
 @Composable
 fun ExplosionIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_explosion),
         contentDescription = "Explosion",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -166,12 +166,12 @@ fun ExplosionIcon(
 @Composable
 fun BombIcon(
     modifier: Modifier = Modifier,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.bomb),
         contentDescription = "Bomb",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -182,12 +182,12 @@ fun BombIcon(
 @Composable
 fun TestTubeIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_test_tube),
         contentDescription = "Test Tube",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -198,12 +198,12 @@ fun TestTubeIcon(
 @Composable
 fun HoleIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 24.dp
+    size: Dp = 24.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_hole),
         contentDescription = "Hole",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -214,12 +214,12 @@ fun HoleIcon(
 @Composable
 fun TrapIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 24.dp
+    size: Dp = 24.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.trap),
         contentDescription = "Trap",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -230,12 +230,12 @@ fun TrapIcon(
 @Composable
 fun TargetIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_target),
         contentDescription = "Target",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -246,12 +246,12 @@ fun TargetIcon(
 @Composable
 fun PickIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 24.dp
+    size: Dp = 24.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_pick),
         contentDescription = "Pick",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -262,12 +262,12 @@ fun PickIcon(
 @Composable
 fun MoneyIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_money),
         contentDescription = "Money",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -278,12 +278,12 @@ fun MoneyIcon(
 @Composable
 fun CoffeeIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_coffee),
         contentDescription = "Coffee",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -294,12 +294,12 @@ fun CoffeeIcon(
 @Composable
 fun BedIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_bed),
         contentDescription = "Bed",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -310,13 +310,13 @@ fun BedIcon(
 fun TriangleUpIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
-    tint: Color? = null
+    tint: Color? = null,
 ) {
     FilledSymbol(
         icon = MaterialSymbols.ARROW_DROP_UP,
         size = size,
         tint = tint ?: LocalContentColor.current,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -327,13 +327,13 @@ fun TriangleUpIcon(
 fun TriangleRightIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
-    tint: Color? = null
+    tint: Color? = null,
 ) {
     FilledSymbol(
         icon = MaterialSymbols.ARROW_RIGHT,
         size = size,
         tint = tint ?: LocalContentColor.current,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -344,13 +344,13 @@ fun TriangleRightIcon(
 fun TriangleLeftIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
-    tint: Color? = null
+    tint: Color? = null,
 ) {
     FilledSymbol(
         icon = MaterialSymbols.ARROW_LEFT,
         size = size,
         tint = tint ?: LocalContentColor.current,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -361,13 +361,13 @@ fun TriangleLeftIcon(
 fun TriangleDownIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
-    tint: Color? = null
+    tint: Color? = null,
 ) {
     FilledSymbol(
         icon = MaterialSymbols.ARROW_DROP_DOWN,
         size = size,
         tint = tint ?: LocalContentColor.current,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -377,12 +377,12 @@ fun TriangleDownIcon(
 @Composable
 fun TrashIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 24.dp
+    size: Dp = 24.dp,
 ) {
     FilledSymbol(
         icon = MaterialSymbols.DELETE,
         size = size,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -393,12 +393,12 @@ fun TrashIcon(
 @Composable
 fun InfoIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_info),
         contentDescription = "Info",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -409,12 +409,12 @@ fun InfoIcon(
 @Composable
 fun PushpinIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_pushpin),
         contentDescription = "Pushpin",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -425,13 +425,13 @@ fun PushpinIcon(
 fun LeftArrowIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
-    tint: Color? = null
+    tint: Color? = null,
 ) {
     FilledSymbol(
         icon = MaterialSymbols.ARROW_BACK,
         size = size,
         tint = tint ?: LocalContentColor.current,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -442,13 +442,13 @@ fun LeftArrowIcon(
 fun UpArrowIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
-    tint: Color? = null
+    tint: Color? = null,
 ) {
     FilledSymbol(
         icon = MaterialSymbols.ARROW_UPWARD,
         size = size,
         tint = tint ?: LocalContentColor.current,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -459,13 +459,13 @@ fun UpArrowIcon(
 fun DownArrowIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
-    tint: Color? = null
+    tint: Color? = null,
 ) {
     FilledSymbol(
         icon = MaterialSymbols.ARROW_DOWNWARD,
         size = size,
         tint = tint ?: LocalContentColor.current,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -476,13 +476,13 @@ fun DownArrowIcon(
 fun CheckmarkIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
-    tint: Color? = null
+    tint: Color? = null,
 ) {
     FilledSymbol(
         icon = MaterialSymbols.CHECK,
         size = size,
         tint = tint ?: LocalContentColor.current,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -493,12 +493,12 @@ fun CheckmarkIcon(
 @Composable
 fun ToolsIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 24.dp
+    size: Dp = 24.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_tools),
         contentDescription = "Tools",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -509,12 +509,12 @@ fun ToolsIcon(
 @Composable
 fun LockIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_lock),
         contentDescription = "Lock",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -525,12 +525,12 @@ fun LockIcon(
 @Composable
 fun UnlockIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_unlock),
         contentDescription = "Unlock",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -541,13 +541,13 @@ fun UnlockIcon(
 fun MagnifyingGlassIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
-    tint: Color? = null
+    tint: Color? = null,
 ) {
     FilledSymbol(
         icon = MaterialSymbols.SEARCH,
         size = size,
         tint = tint ?: LocalContentColor.current,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -558,12 +558,12 @@ fun MagnifyingGlassIcon(
 @Composable
 fun SaveIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_save),
         contentDescription = "Save",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -579,25 +579,26 @@ fun SaveIcon(
 fun DigOutcomeIcon(
     outcome: DigOutcome,
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 64.dp
+    size: Dp = 64.dp,
 ) {
-    val resource = when (outcome) {
-        DigOutcome.NOTHING -> Res.drawable.dig_outcome_rubble
-        DigOutcome.BRASS -> Res.drawable.dig_outcome_brass
-        DigOutcome.SILVER -> Res.drawable.dig_outcome_silver
-        DigOutcome.GOLD -> Res.drawable.dig_outcome_gold
-        DigOutcome.GEMS -> {
-            // Randomly select gem color (red, green, or blue) as per requirements
-            // This adds visual variety and doesn't affect game state
-            when (Random.Default.nextInt(3)) {
-                0 -> Res.drawable.dig_outcome_gem_red
-                1 -> Res.drawable.dig_outcome_gem_green
-                else -> Res.drawable.dig_outcome_gem_blue
+    val resource =
+        when (outcome) {
+            DigOutcome.NOTHING -> Res.drawable.dig_outcome_rubble
+            DigOutcome.BRASS -> Res.drawable.dig_outcome_brass
+            DigOutcome.SILVER -> Res.drawable.dig_outcome_silver
+            DigOutcome.GOLD -> Res.drawable.dig_outcome_gold
+            DigOutcome.GEMS -> {
+                // Randomly select gem color (red, green, or blue) as per requirements
+                // This adds visual variety and doesn't affect game state
+                when (Random.Default.nextInt(3)) {
+                    0 -> Res.drawable.dig_outcome_gem_red
+                    1 -> Res.drawable.dig_outcome_gem_green
+                    else -> Res.drawable.dig_outcome_gem_blue
+                }
             }
+            DigOutcome.DIAMOND -> Res.drawable.dig_outcome_diamond
+            DigOutcome.DRAGON -> Res.drawable.dragon_destroying_mine
         }
-        DigOutcome.DIAMOND -> Res.drawable.dig_outcome_diamond
-        DigOutcome.DRAGON -> Res.drawable.dragon_destroying_mine
-    }
 
     // Dragon image is displayed at double size (2x in both dimensions)
     val displaySize = if (outcome == DigOutcome.DRAGON) size * 2 else size
@@ -605,7 +606,7 @@ fun DigOutcomeIcon(
     Image(
         painter = painterResource(resource),
         contentDescription = outcome.displayName,
-        modifier = modifier.size(displaySize)
+        modifier = modifier.size(displaySize),
     )
 }
 
@@ -616,12 +617,12 @@ fun DigOutcomeIcon(
 @Composable
 fun WarningIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_warning),
         contentDescription = "Warning",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -632,13 +633,13 @@ fun WarningIcon(
 fun RightArrowIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
-    tint: Color? = null
+    tint: Color? = null,
 ) {
     FilledSymbol(
         icon = MaterialSymbols.ARROW_FORWARD,
         size = size,
         tint = tint ?: LocalContentColor.current,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -648,13 +649,13 @@ fun RightArrowIcon(
 @Composable
 fun RedCircleIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 12.dp
+    size: Dp = 12.dp,
 ) {
     FilledSymbol(
         icon = MaterialSymbols.CIRCLE,
         size = size,
         tint = Color.Red,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -665,48 +666,54 @@ fun RedCircleIcon(
 fun PentagramIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 24.dp,
-    color: Color = Color(0xFFAA00FF)  // Purple/magenta color for magical trap
+    color: Color = Color(0xFFAA00FF), // Purple/magenta color for magical trap
 ) {
     androidx.compose.foundation.Canvas(
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     ) {
         val canvasWidth = this.size.width
         val canvasHeight = this.size.height
         val centerX = canvasWidth / 2f
         val centerY = canvasHeight / 2f
         val radius = minOf(canvasWidth, canvasHeight) / 2f * 0.9f
-        
+
         // Calculate the 5 points of the star
         val points = mutableListOf<androidx.compose.ui.geometry.Offset>()
         for (i in 0 until 5) {
-            val angle = (i * 72 - 90) * (PI / 180.0)  // Convert degrees to radians
+            val angle = (i * 72 - 90) * (PI / 180.0) // Convert degrees to radians
             val x = centerX + (radius * cos(angle)).toFloat()
             val y = centerY + (radius * sin(angle)).toFloat()
-            points.add(androidx.compose.ui.geometry.Offset(x, y))
+            points.add(
+                androidx.compose.ui.geometry
+                    .Offset(x, y),
+            )
         }
-        
+
         // Draw the pentagram by connecting every second point
-        val path = androidx.compose.ui.graphics.Path().apply {
-            moveTo(points[0].x, points[0].y)
-            lineTo(points[2].x, points[2].y)
-            lineTo(points[4].x, points[4].y)
-            lineTo(points[1].x, points[1].y)
-            lineTo(points[3].x, points[3].y)
-            close()
-        }
-        
+        val path =
+            androidx.compose.ui.graphics.Path().apply {
+                moveTo(points[0].x, points[0].y)
+                lineTo(points[2].x, points[2].y)
+                lineTo(points[4].x, points[4].y)
+                lineTo(points[1].x, points[1].y)
+                lineTo(points[3].x, points[3].y)
+                close()
+            }
+
         // Fill the pentagram
         drawPath(
             path = path,
             color = color,
-            alpha = 0.3f
+            alpha = 0.3f,
         )
-        
+
         // Draw the outline
         drawPath(
             path = path,
             color = color,
-            style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2f)
+            style =
+                androidx.compose.ui.graphics.drawscope
+                    .Stroke(width = 2f),
         )
     }
 }
@@ -718,13 +725,13 @@ fun PentagramIcon(
 fun DownloadIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
-    tint: Color? = null
+    tint: Color? = null,
 ) {
     FilledSymbol(
         icon = MaterialSymbols.ARROW_DOWNWARD,
         size = size,
         tint = tint ?: LocalContentColor.current,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -735,13 +742,13 @@ fun DownloadIcon(
 fun UploadIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
-    tint: Color? = null
+    tint: Color? = null,
 ) {
     FilledSymbol(
         icon = MaterialSymbols.ARROW_UPWARD,
         size = size,
         tint = tint ?: LocalContentColor.current,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -751,12 +758,12 @@ fun UploadIcon(
 @Composable
 fun SpeakerLowIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
 ) {
     FilledSymbol(
         icon = MaterialSymbols.VOLUME_DOWN,
         size = size,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -766,12 +773,12 @@ fun SpeakerLowIcon(
 @Composable
 fun SpeakerHighIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
 ) {
     FilledSymbol(
         icon = MaterialSymbols.VOLUME_UP,
         size = size,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -782,12 +789,12 @@ fun SpeakerHighIcon(
 @Composable
 fun WoodIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 24.dp
+    size: Dp = 24.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.barricade),
         contentDescription = "Wood",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -798,12 +805,12 @@ fun WoodIcon(
 @Composable
 fun GateIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 24.dp
+    size: Dp = 24.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.gate),
         contentDescription = "Gate",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -814,13 +821,13 @@ fun GateIcon(
 fun PlusIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
-    tint: Color? = null
+    tint: Color? = null,
 ) {
     FilledSymbol(
         icon = MaterialSymbols.ADD,
         size = size,
         tint = tint ?: LocalContentColor.current,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -831,13 +838,13 @@ fun PlusIcon(
 fun CrossIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
-    tint: Color? = null
+    tint: Color? = null,
 ) {
     FilledSymbol(
         icon = MaterialSymbols.CLOSE,
         size = size,
         tint = tint ?: LocalContentColor.current,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -847,12 +854,12 @@ fun CrossIcon(
 @Composable
 fun PencilIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
 ) {
     FilledSymbol(
         icon = MaterialSymbols.EDIT,
         size = size,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -863,13 +870,13 @@ fun PencilIcon(
 fun TrophyIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
-    tint: Color? = null
+    tint: Color? = null,
 ) {
     FilledSymbol(
         icon = MaterialSymbols.WORKSPACE_PREMIUM,
         size = size,
         tint = tint ?: LocalContentColor.current,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -880,20 +887,21 @@ fun TrophyIcon(
 fun ChevronRightIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
-    tint: Color = Color.Black
+    tint: Color = Color.Black,
 ) {
     Canvas(modifier = modifier.size(size)) {
         val width = size.toPx()
         val height = size.toPx()
-        val arrowPath = Path().apply {
-            moveTo(width * 0.3f, height * 0.2f)
-            lineTo(width * 0.7f, height * 0.5f)
-            lineTo(width * 0.3f, height * 0.8f)
-        }
+        val arrowPath =
+            Path().apply {
+                moveTo(width * 0.3f, height * 0.2f)
+                lineTo(width * 0.7f, height * 0.5f)
+                lineTo(width * 0.3f, height * 0.8f)
+            }
         drawPath(
             path = arrowPath,
             color = tint,
-            style = Stroke(width = width * 0.15f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+            style = Stroke(width = width * 0.15f, cap = StrokeCap.Round, join = StrokeJoin.Round),
         )
     }
 }
@@ -906,13 +914,13 @@ fun ChevronRightIcon(
 fun TowerIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
-    lineColor: Color = Color.Gray
+    lineColor: Color = Color.Gray,
 ) {
     Canvas(modifier = modifier.size(size)) {
         val centerX = this.size.width / 2
         val centerY = this.size.height / 2
         val iconSize = minOf(this.size.width, this.size.height)
-        
+
         // Draw tower base using the same function as in-game towers
         drawTowerBase(centerX, centerY, iconSize * 0.8f, lineColor)
     }
@@ -926,38 +934,48 @@ fun TowerIcon(
 fun WaterIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
-    tint: Color = Color(0xFF2196F3)  // Blue color
+    tint: Color = Color(0xFF2196F3), // Blue color
 ) {
     Canvas(modifier = modifier.size(size)) {
         val width = size.toPx()
         val height = size.toPx()
-        
+
         // Draw wave pattern
-        val wavePath = Path().apply {
-            moveTo(0f, height * 0.5f)
-            // First wave
-            cubicTo(
-                width * 0.15f, height * 0.3f,
-                width * 0.25f, height * 0.7f,
-                width * 0.4f, height * 0.5f
-            )
-            // Second wave
-            cubicTo(
-                width * 0.55f, height * 0.3f,
-                width * 0.65f, height * 0.7f,
-                width * 0.8f, height * 0.5f
-            )
-            // Third wave
-            cubicTo(
-                width * 0.9f, height * 0.4f,
-                width * 0.95f, height * 0.5f,
-                width, height * 0.5f
-            )
-        }
+        val wavePath =
+            Path().apply {
+                moveTo(0f, height * 0.5f)
+                // First wave
+                cubicTo(
+                    width * 0.15f,
+                    height * 0.3f,
+                    width * 0.25f,
+                    height * 0.7f,
+                    width * 0.4f,
+                    height * 0.5f,
+                )
+                // Second wave
+                cubicTo(
+                    width * 0.55f,
+                    height * 0.3f,
+                    width * 0.65f,
+                    height * 0.7f,
+                    width * 0.8f,
+                    height * 0.5f,
+                )
+                // Third wave
+                cubicTo(
+                    width * 0.9f,
+                    height * 0.4f,
+                    width * 0.95f,
+                    height * 0.5f,
+                    width,
+                    height * 0.5f,
+                )
+            }
         drawPath(
             path = wavePath,
             color = tint,
-            style = Stroke(width = width * 0.1f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+            style = Stroke(width = width * 0.1f, cap = StrokeCap.Round, join = StrokeJoin.Round),
         )
     }
 }
@@ -969,10 +987,10 @@ fun WaterIcon(
 fun StarIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 24.dp,
-    color: Color = Color(0xFFFFD700)  // Gold color
+    color: Color = Color(0xFFFFD700), // Gold color
 ) {
     Canvas(
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     ) {
         val canvasWidth = this.size.width
         val canvasHeight = this.size.height
@@ -980,38 +998,39 @@ fun StarIcon(
         val centerY = canvasHeight / 2f
         val outerRadius = minOf(canvasWidth, canvasHeight) / 2f * 0.9f
         val innerRadius = outerRadius * 0.4f
-        
+
         // Calculate the 5 points of the star (outer and inner)
         val points = mutableListOf<Offset>()
         for (i in 0 until 10) {
-            val angle = (i * 36 - 90) * (PI / 180.0)  // Convert degrees to radians
+            val angle = (i * 36 - 90) * (PI / 180.0) // Convert degrees to radians
             val radius = if (i % 2 == 0) outerRadius else innerRadius
             val x = centerX + (radius * cos(angle)).toFloat()
             val y = centerY + (radius * sin(angle)).toFloat()
             points.add(Offset(x, y))
         }
-        
+
         // Draw the star
-        val path = Path().apply {
-            moveTo(points[0].x, points[0].y)
-            for (i in 1 until points.size) {
-                lineTo(points[i].x, points[i].y)
+        val path =
+            Path().apply {
+                moveTo(points[0].x, points[0].y)
+                for (i in 1 until points.size) {
+                    lineTo(points[i].x, points[i].y)
+                }
+                close()
             }
-            close()
-        }
-        
+
         // Fill the star
         drawPath(
             path = path,
             color = color,
-            alpha = 0.3f
+            alpha = 0.3f,
         )
-        
+
         // Draw the outline
         drawPath(
             path = path,
             color = color,
-            style = Stroke(width = 2f)
+            style = Stroke(width = 2f),
         )
     }
 }
@@ -1023,38 +1042,38 @@ fun StarIcon(
 fun HammerIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 24.dp,
-    color: Color = Color(0xFF795548)  // Brown color
+    color: Color = Color(0xFF795548), // Brown color
 ) {
     Canvas(
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     ) {
         val canvasWidth = this.size.width
         val canvasHeight = this.size.height
-        
+
         // Draw hammer head (rectangle)
         val headWidth = canvasWidth * 0.5f
         val headHeight = canvasHeight * 0.2f
         val headLeft = canvasWidth * 0.1f
         val headTop = canvasHeight * 0.15f
-        
+
         drawRect(
             color = color,
             topLeft = Offset(headLeft, headTop),
-            size = Size(headWidth, headHeight)
+            size = Size(headWidth, headHeight),
         )
-        
+
         // Draw hammer handle (line)
         val handleStartX = canvasWidth * 0.5f
         val handleStartY = headTop + headHeight
         val handleEndX = canvasWidth * 0.8f
         val handleEndY = canvasHeight * 0.85f
-        
+
         drawLine(
             color = color,
             start = Offset(handleStartX, handleStartY),
             end = Offset(handleEndX, handleEndY),
             strokeWidth = canvasWidth * 0.1f,
-            cap = StrokeCap.Round
+            cap = StrokeCap.Round,
         )
     }
 }
@@ -1065,7 +1084,7 @@ fun HammerIcon(
 @Composable
 fun AttackAreaSpellIcon(
     modifier: Modifier = Modifier,
-    size: Dp = 24.dp
+    size: Dp = 24.dp,
 ) {
     Canvas(modifier = modifier.size(size)) {
         val w = this.size.width
@@ -1078,11 +1097,12 @@ fun AttackAreaSpellIcon(
         // 3 positions: 1 centered on top row, 2 on bottom row
         val topRowY = h * 0.3f
         val bottomRowY = h * 0.72f
-        val positions = listOf(
-            Offset(w / 2f, topRowY),            // top center
-            Offset(w * 0.27f, bottomRowY),       // bottom left
-            Offset(w * 0.73f, bottomRowY)        // bottom right
-        )
+        val positions =
+            listOf(
+                Offset(w / 2f, topRowY), // top center
+                Offset(w * 0.27f, bottomRowY), // bottom left
+                Offset(w * 0.73f, bottomRowY), // bottom right
+            )
 
         for (pos in positions) {
             drawCircle(color = purple, radius = radius, center = pos, style = Stroke(width = strokeWidth))
@@ -1097,7 +1117,7 @@ fun AttackAreaSpellIcon(
 @Composable
 fun AttackAimedSpellIcon(
     modifier: Modifier = Modifier,
-    size: Dp = 24.dp
+    size: Dp = 24.dp,
 ) {
     Canvas(modifier = modifier.size(size)) {
         val w = this.size.width
@@ -1116,21 +1136,27 @@ fun AttackAimedSpellIcon(
 /**
  * Draws a small goblin head (green circle with pointy ears and red eyes) at the given center and scale.
  */
-private fun DrawScope.drawSmallGoblinHead(cx: Float, cy: Float, headRadius: Float) {
+private fun DrawScope.drawSmallGoblinHead(
+    cx: Float,
+    cy: Float,
+    headRadius: Float,
+) {
     val earW = headRadius * 0.55f
     val earH = headRadius * 0.65f
-    val leftEar = Path().apply {
-        moveTo(cx - headRadius * 0.75f, cy - headRadius * 0.2f)
-        lineTo(cx - headRadius * 0.75f - earW, cy - headRadius * 0.2f - earH)
-        lineTo(cx - headRadius * 0.4f, cy - headRadius * 0.55f)
-        close()
-    }
-    val rightEar = Path().apply {
-        moveTo(cx + headRadius * 0.75f, cy - headRadius * 0.2f)
-        lineTo(cx + headRadius * 0.75f + earW, cy - headRadius * 0.2f - earH)
-        lineTo(cx + headRadius * 0.4f, cy - headRadius * 0.55f)
-        close()
-    }
+    val leftEar =
+        Path().apply {
+            moveTo(cx - headRadius * 0.75f, cy - headRadius * 0.2f)
+            lineTo(cx - headRadius * 0.75f - earW, cy - headRadius * 0.2f - earH)
+            lineTo(cx - headRadius * 0.4f, cy - headRadius * 0.55f)
+            close()
+        }
+    val rightEar =
+        Path().apply {
+            moveTo(cx + headRadius * 0.75f, cy - headRadius * 0.2f)
+            lineTo(cx + headRadius * 0.75f + earW, cy - headRadius * 0.2f - earH)
+            lineTo(cx + headRadius * 0.4f, cy - headRadius * 0.55f)
+            close()
+        }
     drawPath(leftEar, Color(0xFF90EE90))
     drawPath(rightEar, Color(0xFF90EE90))
     drawCircle(color = Color(0xFF90EE90), radius = headRadius, center = Offset(cx, cy))
@@ -1141,7 +1167,11 @@ private fun DrawScope.drawSmallGoblinHead(cx: Float, cy: Float, headRadius: Floa
 /**
  * Draws a small ogre head (brown circle with white eyes) at the given center and scale.
  */
-private fun DrawScope.drawSmallOgreHead(cx: Float, cy: Float, headRadius: Float) {
+private fun DrawScope.drawSmallOgreHead(
+    cx: Float,
+    cy: Float,
+    headRadius: Float,
+) {
     drawCircle(color = Color(0xFFA0522D), radius = headRadius, center = Offset(cx, cy))
     drawCircle(color = Color.White, radius = headRadius * 0.22f, center = Offset(cx - headRadius * 0.35f, cy - headRadius * 0.1f))
     drawCircle(color = Color.White, radius = headRadius * 0.22f, center = Offset(cx + headRadius * 0.35f, cy - headRadius * 0.1f))
@@ -1152,7 +1182,12 @@ private fun DrawScope.drawSmallOgreHead(cx: Float, cy: Float, headRadius: Float)
 /**
  * Draws fear scribbles (chaotic zigzag lines in black) above a head center.
  */
-private fun DrawScope.drawFearScribbles(cx: Float, topY: Float, width: Float, strokeWidth: Float) {
+private fun DrawScope.drawFearScribbles(
+    cx: Float,
+    topY: Float,
+    width: Float,
+    strokeWidth: Float,
+) {
     val halfW = width / 2f
     val zigzagH = width * 0.35f
     val scribblePaint = Color.Black
@@ -1160,12 +1195,13 @@ private fun DrawScope.drawFearScribbles(cx: Float, topY: Float, width: Float, st
     // Two zigzag scribble lines
     for (i in 0..1) {
         val yBase = topY + i * zigzagH * 0.9f
-        val scribble = Path().apply {
-            moveTo(cx - halfW, yBase)
-            lineTo(cx - halfW * 0.4f, yBase - zigzagH * 0.5f)
-            lineTo(cx + halfW * 0.2f, yBase + zigzagH * 0.3f)
-            lineTo(cx + halfW, yBase - zigzagH * 0.4f)
-        }
+        val scribble =
+            Path().apply {
+                moveTo(cx - halfW, yBase)
+                lineTo(cx - halfW * 0.4f, yBase - zigzagH * 0.5f)
+                lineTo(cx + halfW * 0.2f, yBase + zigzagH * 0.3f)
+                lineTo(cx + halfW, yBase - zigzagH * 0.4f)
+            }
         drawPath(scribble, scribblePaint, style = Stroke(width = strokeWidth, cap = StrokeCap.Round, join = StrokeJoin.Round))
     }
 }
@@ -1176,7 +1212,7 @@ private fun DrawScope.drawFearScribbles(cx: Float, topY: Float, width: Float, st
 @Composable
 fun FearSpellIcon(
     modifier: Modifier = Modifier,
-    size: Dp = 24.dp
+    size: Dp = 24.dp,
 ) {
     Canvas(modifier = modifier.size(size)) {
         val w = this.size.width
@@ -1201,7 +1237,7 @@ fun FearSpellIcon(
 @Composable
 fun FearSpellAreaIcon(
     modifier: Modifier = Modifier,
-    size: Dp = 24.dp
+    size: Dp = 24.dp,
 ) {
     Canvas(modifier = modifier.size(size)) {
         val w = this.size.width
@@ -1239,12 +1275,12 @@ fun FearSpellAreaIcon(
 @Composable
 fun ShieldIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_shield),
         contentDescription = "Shield",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -1255,12 +1291,12 @@ fun ShieldIcon(
 @Composable
 fun SpeechBubbleIcon(
     modifier: Modifier = Modifier.Companion,
-    size: Dp = 16.dp
+    size: Dp = 16.dp,
 ) {
     Image(
         painter = painterResource(Res.drawable.emoji_speech_bubble),
         contentDescription = "Speech Bubble",
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     )
 }
 
@@ -1271,13 +1307,13 @@ fun SpeechBubbleIcon(
 fun HelpIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 16.dp,
-    tint: Color? = null
+    tint: Color? = null,
 ) {
     FilledSymbol(
         icon = MaterialSymbols.HELP,
         size = size,
         tint = tint ?: LocalContentColor.current,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -1288,65 +1324,68 @@ fun HelpIcon(
 fun SnowflakeIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 24.dp,
-    tint: Color = Color.Cyan
+    tint: Color = Color.Cyan,
 ) {
     Canvas(
-        modifier = modifier.size(size)
+        modifier = modifier.size(size),
     ) {
         val center = Offset(this.size.width / 2f, this.size.height / 2f)
         val radius = this.size.minDimension / 2.5f
         val strokeWidth = this.size.minDimension * 0.08f
-        
+
         // Draw 6 arms of the snowflake (60 degrees apart)
         for (i in 0 until 6) {
             val angle = i * PI.toFloat() / 3f
             val cos = kotlin.math.cos(angle)
             val sin = kotlin.math.sin(angle)
-            
+
             // Main arm
             drawLine(
                 color = tint,
                 start = center,
-                end = Offset(
-                    center.x + cos * radius,
-                    center.y + sin * radius
-                ),
+                end =
+                    Offset(
+                        center.x + cos * radius,
+                        center.y + sin * radius,
+                    ),
                 strokeWidth = strokeWidth,
-                cap = StrokeCap.Round
+                cap = StrokeCap.Round,
             )
-            
+
             // Small branches on each arm
             val branchLength = radius * 0.3f
             val branchPos = radius * 0.7f
-            
+
             // Branch point
             val branchX = center.x + cos * branchPos
             val branchY = center.y + sin * branchPos
-            
+
             // Left branch
             val leftAngle = angle - PI.toFloat() / 6f
             drawLine(
                 color = tint,
                 start = Offset(branchX, branchY),
-                end = Offset(
-                    branchX + kotlin.math.cos(leftAngle) * branchLength,
-                    branchY + kotlin.math.sin(leftAngle) * branchLength
-                ),
+                end =
+                    Offset(
+                        branchX + kotlin.math.cos(leftAngle) * branchLength,
+                        branchY + kotlin.math.sin(leftAngle) * branchLength,
+                    ),
                 strokeWidth = strokeWidth * 0.7f,
-                cap = StrokeCap.Round
+                cap = StrokeCap.Round,
             )
-            
+
             // Right branch
             val rightAngle = angle + PI.toFloat() / 6f
             drawLine(
                 color = tint,
                 start = Offset(branchX, branchY),
-                end = Offset(
-                    branchX + kotlin.math.cos(rightAngle) * branchLength,
-                    branchY + kotlin.math.sin(rightAngle) * branchLength
-                ),
+                end =
+                    Offset(
+                        branchX + kotlin.math.cos(rightAngle) * branchLength,
+                        branchY + kotlin.math.sin(rightAngle) * branchLength,
+                    ),
                 strokeWidth = strokeWidth * 0.7f,
-                cap = StrokeCap.Round
+                cap = StrokeCap.Round,
             )
         }
     }
@@ -1360,7 +1399,7 @@ fun SnowflakeIcon(
 fun KeyboardKeyIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 24.dp,
-    color: Color = Color.Unspecified
+    color: Color = Color.Unspecified,
 ) {
     val resolvedColor = if (color == Color.Unspecified) MaterialTheme.colorScheme.onSurface else color
     Canvas(modifier = modifier.size(size)) {
@@ -1375,8 +1414,10 @@ fun KeyboardKeyIcon(
             color = resolvedColor,
             topLeft = Offset(outerInset, outerInset),
             size = Size(w - strokeWidth, h - strokeWidth),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(cornerRadius, cornerRadius),
-            style = Stroke(width = strokeWidth)
+            cornerRadius =
+                androidx.compose.ui.geometry
+                    .CornerRadius(cornerRadius, cornerRadius),
+            style = Stroke(width = strokeWidth),
         )
 
         // Inner raised key surface (slightly inset)
@@ -1386,8 +1427,10 @@ fun KeyboardKeyIcon(
             color = resolvedColor,
             topLeft = Offset(innerInset, innerInset),
             size = Size(w - innerInset * 2f, h * 0.55f),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(innerCorner, innerCorner),
-            style = Stroke(width = strokeWidth * 0.7f)
+            cornerRadius =
+                androidx.compose.ui.geometry
+                    .CornerRadius(innerCorner, innerCorner),
+            style = Stroke(width = strokeWidth * 0.7f),
         )
     }
 }
@@ -1400,7 +1443,7 @@ fun KeyboardKeyIcon(
 fun SellTowerIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 24.dp,
-    lineColor: Color = Color.White
+    lineColor: Color = Color.White,
 ) {
     Canvas(modifier = modifier.size(size)) {
         val centerX = this.size.width / 2
@@ -1416,7 +1459,7 @@ fun SellTowerIcon(
             start = Offset(this.size.width * 0.1f, this.size.height * 0.9f),
             end = Offset(this.size.width * 0.9f, this.size.height * 0.1f),
             strokeWidth = iconSize * 0.1f,
-            cap = StrokeCap.Round
+            cap = StrokeCap.Round,
         )
     }
 }
@@ -1435,7 +1478,7 @@ private const val UPGRADE_ICON_WIDTH_RATIO = 1.6f
 fun UpgradeTowerIcon(
     modifier: Modifier = Modifier.Companion,
     size: Dp = 24.dp,
-    lineColor: Color = Color.White
+    lineColor: Color = Color.White,
 ) {
     Canvas(modifier = modifier.width(size * UPGRADE_ICON_WIDTH_RATIO).height(size)) {
         val s = size.toPx()
@@ -1459,16 +1502,17 @@ fun UpgradeTowerIcon(
             start = Offset(arrowX, arrowBottom),
             end = Offset(arrowX, arrowTop + arrowWidth),
             strokeWidth = s * 0.1f,
-            cap = StrokeCap.Round
+            cap = StrokeCap.Round,
         )
 
         // Arrow head (filled triangle pointing up)
-        val head = Path().apply {
-            moveTo(arrowX, arrowTop)
-            lineTo(arrowX - arrowWidth / 2f, arrowTop + arrowWidth)
-            lineTo(arrowX + arrowWidth / 2f, arrowTop + arrowWidth)
-            close()
-        }
+        val head =
+            Path().apply {
+                moveTo(arrowX, arrowTop)
+                lineTo(arrowX - arrowWidth / 2f, arrowTop + arrowWidth)
+                lineTo(arrowX + arrowWidth / 2f, arrowTop + arrowWidth)
+                close()
+            }
         drawPath(head, Color.Red)
     }
 }

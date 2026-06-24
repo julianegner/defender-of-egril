@@ -16,7 +16,6 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 class NewVersionDialogTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -28,7 +27,7 @@ class NewVersionDialogTest {
             composeTestRule.setContent {
                 NewVersionDialog(
                     info = NewVersionInfo(version = "9.9.9", releasePageUrl = "https://example.invalid/releases"),
-                    onDismiss = {}
+                    onDismiss = {},
                 )
             }
 
@@ -59,29 +58,32 @@ class NewVersionDialogTest {
             currentLanguage.value = AppLocale.DEFAULT
             var openedUrl: String? = null
             var dismissCount = 0
-            val releaseInfo = NewVersionInfo(
-                version = "9.9.9",
-                releasePageUrl = "https://example.invalid/releases"
-            )
+            val releaseInfo =
+                NewVersionInfo(
+                    version = "9.9.9",
+                    releasePageUrl = "https://example.invalid/releases",
+                )
 
             composeTestRule.setContent {
                 CompositionLocalProvider(
-                    LocalUriHandler provides object : UriHandler {
-                        override fun openUri(uri: String) {
-                            openedUrl = uri
-                        }
-                    }
+                    LocalUriHandler provides
+                        object : UriHandler {
+                            override fun openUri(uri: String) {
+                                openedUrl = uri
+                            }
+                        },
                 ) {
                     NewVersionDialog(
                         info = releaseInfo,
-                        onDismiss = { dismissCount++ }
+                        onDismiss = { dismissCount++ },
                     )
                 }
             }
 
             composeTestRule.waitForIdle()
             composeTestRule.onNodeWithTag("newVersionDialog").assertExists()
-            composeTestRule.onNodeWithText("Go to Download", substring = true, ignoreCase = true)
+            composeTestRule
+                .onNodeWithText("Go to Download", substring = true, ignoreCase = true)
                 .performClick()
             composeTestRule.waitForIdle()
 
@@ -92,22 +94,24 @@ class NewVersionDialogTest {
             dismissCount = 0
             composeTestRule.setContent {
                 CompositionLocalProvider(
-                    LocalUriHandler provides object : UriHandler {
-                        override fun openUri(uri: String) {
-                            openedUrl = uri
-                        }
-                    }
+                    LocalUriHandler provides
+                        object : UriHandler {
+                            override fun openUri(uri: String) {
+                                openedUrl = uri
+                            }
+                        },
                 ) {
                     NewVersionDialog(
                         info = releaseInfo,
-                        onDismiss = { dismissCount++ }
+                        onDismiss = { dismissCount++ },
                     )
                 }
             }
 
             composeTestRule.waitForIdle()
             composeTestRule.onNodeWithTag("newVersionDialog").assertExists()
-            composeTestRule.onNodeWithText("Close", substring = true, ignoreCase = true)
+            composeTestRule
+                .onNodeWithText("Close", substring = true, ignoreCase = true)
                 .performClick()
             composeTestRule.waitForIdle()
 

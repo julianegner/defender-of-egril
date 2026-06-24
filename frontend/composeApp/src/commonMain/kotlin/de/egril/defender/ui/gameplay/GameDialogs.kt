@@ -10,16 +10,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
+import com.hyperether.resources.stringResource
 import de.egril.defender.model.*
 import de.egril.defender.ui.*
 import de.egril.defender.ui.icon.DigOutcomeIcon
 import de.egril.defender.ui.settings.AppSettings
-import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 import kotlinx.coroutines.delay
 
@@ -28,13 +27,13 @@ fun DigOutcomeDialog(
     outcome: DigOutcome,
     onDismiss: () -> Unit,
     onResetSelections: () -> Unit,
-    dragonName: String? = null  // Optional dragon name for DRAGON outcome
+    dragonName: String? = null, // Optional dragon name for DRAGON outcome
 ) {
     // Reset selections when dragon awakes
     if (outcome == DigOutcome.DRAGON) {
         onResetSelections()
     }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(Res.string.mining_result)) },
@@ -42,33 +41,42 @@ fun DigOutcomeDialog(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 // Image on the left
                 DigOutcomeIcon(
                     outcome = outcome,
-                    size = 80.dp
+                    size = 80.dp,
                 )
-                
+
                 // Text on the right
-                val message = when (outcome) {
-                    DigOutcome.NOTHING -> stringResource(Res.string.found_nothing)
-                    DigOutcome.BRASS -> "${stringResource(Res.string.found_brass)}\n+${outcome.coins} ${stringResource(Res.string.coins)}"
-                    DigOutcome.SILVER -> "${stringResource(Res.string.found_silver)}\n+${outcome.coins} ${stringResource(Res.string.coins)}"
-                    DigOutcome.GOLD -> "${stringResource(Res.string.found_gold)}\n+${outcome.coins} ${stringResource(Res.string.coins)}"
-                    DigOutcome.GEMS -> "${stringResource(Res.string.found_gems)}\n+${outcome.coins} ${stringResource(Res.string.coins)}"
-                    DigOutcome.DIAMOND -> "${stringResource(Res.string.found_diamond)}\n+${outcome.coins} ${stringResource(Res.string.coins)}"
-                    DigOutcome.DRAGON -> {
-                        if (dragonName != null) {
-                            "${stringResource(Res.string.the_dragon)} $dragonName ${stringResource(Res.string.awakens)}!\n${stringResource(Res.string.mine_destroyed)}"
-                        } else {
-                            "${stringResource(Res.string.dragon_awakens)}\n${stringResource(Res.string.mine_destroyed)}"
+                val message =
+                    when (outcome) {
+                        DigOutcome.NOTHING -> stringResource(Res.string.found_nothing)
+                        DigOutcome.BRASS -> "${stringResource(
+                            Res.string.found_brass,
+                        )}\n+${outcome.coins} ${stringResource(Res.string.coins)}"
+                        DigOutcome.SILVER -> "${stringResource(
+                            Res.string.found_silver,
+                        )}\n+${outcome.coins} ${stringResource(Res.string.coins)}"
+                        DigOutcome.GOLD -> "${stringResource(Res.string.found_gold)}\n+${outcome.coins} ${stringResource(Res.string.coins)}"
+                        DigOutcome.GEMS -> "${stringResource(Res.string.found_gems)}\n+${outcome.coins} ${stringResource(Res.string.coins)}"
+                        DigOutcome.DIAMOND -> "${stringResource(
+                            Res.string.found_diamond,
+                        )}\n+${outcome.coins} ${stringResource(Res.string.coins)}"
+                        DigOutcome.DRAGON -> {
+                            if (dragonName != null) {
+                                "${stringResource(
+                                    Res.string.the_dragon,
+                                )} $dragonName ${stringResource(Res.string.awakens)}!\n${stringResource(Res.string.mine_destroyed)}"
+                            } else {
+                                "${stringResource(Res.string.dragon_awakens)}\n${stringResource(Res.string.mine_destroyed)}"
+                            }
                         }
                     }
-                }
                 Text(
                     text = message,
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
                 )
             }
         },
@@ -76,7 +84,7 @@ fun DigOutcomeDialog(
             Button(onClick = onDismiss) {
                 Text(stringResource(Res.string.ok))
             }
-        }
+        },
     )
 }
 
@@ -85,7 +93,7 @@ fun SaveGameDialog(
     saveCommentInput: String,
     onSaveCommentChange: (String) -> Unit,
     onSave: (String?) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -94,7 +102,7 @@ fun SaveGameDialog(
             Column {
                 Text(
                     stringResource(Res.string.add_optional_comment),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 TextField(
@@ -112,9 +120,9 @@ fun SaveGameDialog(
                     supportingText = {
                         Text(
                             "${saveCommentInput.length}/200",
-                            style = MaterialTheme.typography.bodySmall
+                            style = MaterialTheme.typography.bodySmall,
                         )
-                    }
+                    },
                 )
             }
         },
@@ -123,7 +131,7 @@ fun SaveGameDialog(
                 onClick = {
                     val comment = if (saveCommentInput.isBlank()) null else saveCommentInput.trim()
                     onSave(comment)
-                }
+                },
             ) {
                 Text(stringResource(Res.string.save))
             }
@@ -132,14 +140,12 @@ fun SaveGameDialog(
             Button(onClick = onDismiss) {
                 Text(stringResource(Res.string.cancel))
             }
-        }
+        },
     )
 }
 
 @Composable
-fun SaveConfirmationDialog(
-    onDismiss: () -> Unit
-) {
+fun SaveConfirmationDialog(onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(Res.string.game_saved)) },
@@ -150,7 +156,7 @@ fun SaveConfirmationDialog(
             Button(onClick = onDismiss) {
                 Text(stringResource(Res.string.ok))
             }
-        }
+        },
     )
 }
 
@@ -158,48 +164,56 @@ fun SaveConfirmationDialog(
 fun UnsavedChangesDialog(
     onSaveAndExit: () -> Unit,
     onDiscardChanges: () -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
 ) {
     val holdToConfirmEnabled = AppSettings.holdToConfirmEnabled.value
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) {
-        try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+        try {
+            focusRequester.requestFocus()
+        } catch (_: IllegalStateException) {
+        }
     }
     AlertDialog(
-        modifier = Modifier
-            .focusRequester(focusRequester)
-            .focusTarget()
-            .onPreviewKeyEvent { event ->
-            if (event.type == KeyEventType.KeyDown) {
-                when {
-                    event.key == Key.Enter && !event.isCtrlPressed && !event.isAltPressed -> {
-                        onSaveAndExit()
-                        true
+        modifier =
+            Modifier
+                .focusRequester(focusRequester)
+                .focusTarget()
+                .onPreviewKeyEvent { event ->
+                    if (event.type == KeyEventType.KeyDown) {
+                        when {
+                            event.key == Key.Enter && !event.isCtrlPressed && !event.isAltPressed -> {
+                                onSaveAndExit()
+                                true
+                            }
+                            event.key == Key.D && !event.isCtrlPressed && !event.isAltPressed -> {
+                                onDiscardChanges()
+                                true
+                            }
+                            event.key == Key.Escape -> {
+                                onCancel()
+                                true
+                            }
+                            else -> false
+                        }
+                    } else {
+                        false
                     }
-                    event.key == Key.D && !event.isCtrlPressed && !event.isAltPressed -> {
-                        onDiscardChanges()
-                        true
-                    }
-                    event.key == Key.Escape -> {
-                        onCancel()
-                        true
-                    }
-                    else -> false
-                }
-            } else false
-        },
+                },
         onDismissRequest = onCancel,
         title = { Text(stringResource(Res.string.unsaved_changes_title)) },
         text = {
             Text(
                 stringResource(Res.string.unsaved_changes_message),
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
             )
         },
         confirmButton = {
             if (holdToConfirmEnabled) {
                 val holdToConfirmLabel = stringResource(Res.string.accessibility_hold_to_confirm)
-                val holdToDiscardLabel = "${stringResource(Res.string.discard_changes)} (${stringResource(Res.string.accessibility_hold_to_confirm)})"
+                val holdToDiscardLabel = "${stringResource(
+                    Res.string.discard_changes,
+                )} (${stringResource(Res.string.accessibility_hold_to_confirm)})"
                 val holdInteractionSource = remember { MutableInteractionSource() }
                 val isPressed by holdInteractionSource.collectIsPressedAsState()
                 var holdProgress by remember { mutableFloatStateOf(0f) }
@@ -228,9 +242,10 @@ fun UnsavedChangesDialog(
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Button(
                             onClick = onCancel,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.secondary
-                            )
+                            colors =
+                                ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondary,
+                                ),
                         ) {
                             Text(stringResource(Res.string.cancel))
                         }
@@ -243,10 +258,11 @@ fun UnsavedChangesDialog(
                         if (holdProgress > 0f) {
                             LinearProgressIndicator(
                                 progress = { holdProgress },
-                                modifier = Modifier
-                                    .width(GamePlayConstants.ButtonSizes.HoldToConfirmProgressWidth)
-                                    .height(GamePlayConstants.ButtonSizes.HoldToConfirmProgressHeight),
-                                color = MaterialTheme.colorScheme.error
+                                modifier =
+                                    Modifier
+                                        .width(GamePlayConstants.ButtonSizes.HoldToConfirmProgressWidth)
+                                        .height(GamePlayConstants.ButtonSizes.HoldToConfirmProgressHeight),
+                                color = MaterialTheme.colorScheme.error,
                             )
                             Spacer(modifier = Modifier.height(GamePlayConstants.ButtonSizes.HoldToConfirmProgressSpacing))
                         }
@@ -254,9 +270,10 @@ fun UnsavedChangesDialog(
                             onClick = { },
                             interactionSource = holdInteractionSource,
                             modifier = Modifier.semantics { stateDescription = holdToConfirmLabel },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.error
-                            )
+                            colors =
+                                ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.error,
+                                ),
                         ) {
                             Text(holdToDiscardLabel)
                         }
@@ -264,104 +281,106 @@ fun UnsavedChangesDialog(
                 }
             } else {
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Button(
                         onClick = onCancel,
                         modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.secondary
-                        )
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.secondary,
+                            ),
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(stringResource(Res.string.cancel))
-                                ShortcutKeyChip(text = "Esc")
+                            ShortcutKeyChip(text = "Esc")
                         }
                     }
                     Button(
                         onClick = onDiscardChanges,
                         modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.error
-                        )
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error,
+                            ),
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(stringResource(Res.string.discard_changes))
-                                ShortcutKeyChip(text = "D")
+                            ShortcutKeyChip(text = "D")
                         }
                     }
                     Button(
                         onClick = onSaveAndExit,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(stringResource(Res.string.save_and_exit))
-                                ShortcutKeyChip(text = "Enter")
+                            ShortcutKeyChip(text = "Enter")
                         }
                     }
                 }
             }
-        }
+        },
     )
 }
-
-
 
 @Composable
 fun EndTurnConfirmationDialog(
     onConfirm: () -> Unit,
     onAutoAttackAndConfirm: () -> Unit,
     onCancel: () -> Unit,
-    showAutoAttackButton: Boolean = true
+    showAutoAttackButton: Boolean = true,
 ) {
     AlertDialog(
         onDismissRequest = onCancel,
         title = { Text(stringResource(Res.string.end_turn_confirmation_title)) },
         text = {
             Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Text(
                     stringResource(Res.string.end_turn_confirmation_message),
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
                 )
                 if (showAutoAttackButton) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         stringResource(Res.string.auto_attack_warning),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
         },
         confirmButton = {
             Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Button(
                         onClick = onCancel,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.secondary
-                        )
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.secondary,
+                            ),
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(stringResource(Res.string.cancel))
-                                ShortcutKeyChip(text = "Esc")
+                            ShortcutKeyChip(text = "Esc")
                         }
                     }
                     Button(
                         onClick = onConfirm,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = GamePlayColors.WarningDeep
-                        )
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = GamePlayColors.WarningDeep,
+                            ),
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text(stringResource(Res.string.end_turn_confirm))
-                                ShortcutKeyChip(text = "Enter")
+                            ShortcutKeyChip(text = "Enter")
                         }
                     }
                 }
@@ -369,52 +388,54 @@ fun EndTurnConfirmationDialog(
                     Button(
                         onClick = onAutoAttackAndConfirm,
                         modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
-                        )
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                            ),
                     ) {
                         Text(stringResource(Res.string.auto_attack_and_end_turn))
                     }
                 }
             }
-        }
+        },
     )
 }
 
 @Composable
 fun SpecialActionsRemainingDialog(
     remainingTypes: List<DefenderType>,
-    onContinueTurn: () -> Unit
+    onContinueTurn: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onContinueTurn,
         title = { Text(stringResource(Res.string.special_actions_remaining_title)) },
         text = {
             Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Text(
                     stringResource(Res.string.special_actions_remaining_message),
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
                 )
-                
+
                 // List each tower type with remaining actions
                 Column(
                     verticalArrangement = Arrangement.spacedBy(6.dp),
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.padding(start = 8.dp),
                 ) {
                     remainingTypes.forEach { type ->
-                        val message = when (type) {
-                            DefenderType.DWARVEN_MINE -> stringResource(Res.string.dwarven_mine_actions)
-                            DefenderType.ALCHEMY_TOWER -> stringResource(Res.string.alchemy_tower_actions)
-                            DefenderType.WIZARD_TOWER -> stringResource(Res.string.wizard_tower_actions)
-                            else -> ""
-                        }
+                        val message =
+                            when (type) {
+                                DefenderType.DWARVEN_MINE -> stringResource(Res.string.dwarven_mine_actions)
+                                DefenderType.ALCHEMY_TOWER -> stringResource(Res.string.alchemy_tower_actions)
+                                DefenderType.WIZARD_TOWER -> stringResource(Res.string.wizard_tower_actions)
+                                else -> ""
+                            }
                         if (message.isNotEmpty()) {
                             Text(
                                 text = "• $message",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }
@@ -425,7 +446,7 @@ fun SpecialActionsRemainingDialog(
             Button(onClick = onContinueTurn) {
                 Text(stringResource(Res.string.continue_turn))
             }
-        }
+        },
     )
 }
 
@@ -441,22 +462,24 @@ fun ReminderDialog(
     type: ReminderType,
     elapsedTime: String? = null,
     timeDescription: String? = null,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
-    val title = when (type) {
-        ReminderType.BREAK -> stringResource(Res.string.time_for_break_title)
-        ReminderType.SLEEP -> stringResource(Res.string.time_for_sleep_title)
-    }
-    
-    val message = when (type) {
-        ReminderType.BREAK -> {
-            elapsedTime?.let { 
-                stringResource(Res.string.time_for_break_message, it)
-            } ?: ""
+    val title =
+        when (type) {
+            ReminderType.BREAK -> stringResource(Res.string.time_for_break_title)
+            ReminderType.SLEEP -> stringResource(Res.string.time_for_sleep_title)
         }
-        ReminderType.SLEEP -> timeDescription ?: ""
-    }
-    
+
+    val message =
+        when (type) {
+            ReminderType.BREAK -> {
+                elapsedTime?.let {
+                    stringResource(Res.string.time_for_break_message, it)
+                } ?: ""
+            }
+            ReminderType.SLEEP -> timeDescription ?: ""
+        }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
@@ -464,18 +487,22 @@ fun ReminderDialog(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 // Icon on the left
                 when (type) {
-                    ReminderType.BREAK -> de.egril.defender.ui.icon.CoffeeIcon(size = 60.dp)
-                    ReminderType.SLEEP -> de.egril.defender.ui.icon.BedIcon(size = 60.dp)
+                    ReminderType.BREAK ->
+                        de.egril.defender.ui.icon
+                            .CoffeeIcon(size = 60.dp)
+                    ReminderType.SLEEP ->
+                        de.egril.defender.ui.icon
+                            .BedIcon(size = 60.dp)
                 }
-                
+
                 // Text on the right
                 Text(
                     text = message,
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
                 )
             }
         },
@@ -483,7 +510,7 @@ fun ReminderDialog(
             Button(onClick = onDismiss) {
                 Text(stringResource(Res.string.ok))
             }
-        }
+        },
     )
 }
 
@@ -491,14 +518,14 @@ fun ReminderDialog(
  * Type of reminder message
  */
 enum class ReminderType {
-    BREAK,  // Break reminder every 2 hours
-    SLEEP   // Sleep reminder after 23:00
+    BREAK, // Break reminder every 2 hours
+    SLEEP, // Sleep reminder after 23:00
 }
 
 @Composable
 fun AbortInstantTowerSpellDialog(
     onAbort: () -> Unit,
-    onContinue: () -> Unit
+    onContinue: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onContinue,
@@ -506,29 +533,31 @@ fun AbortInstantTowerSpellDialog(
         text = {
             Text(
                 stringResource(Res.string.instant_tower_spell_abort_message),
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
             )
         },
         confirmButton = {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(
                     onClick = onAbort,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error
-                    )
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.error,
+                        ),
                 ) {
                     Text(stringResource(Res.string.instant_tower_spell_abort_confirm))
                 }
                 Button(
                     onClick = onContinue,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary
-                    )
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary,
+                        ),
                 ) {
                     Text(stringResource(Res.string.instant_tower_spell_abort_cancel))
                 }
             }
-        }
+        },
     )
 }
 
@@ -538,30 +567,32 @@ fun AbortInstantTowerSpellDialog(
 @Composable
 fun GameEventMessageDialog(
     message: GameMessage,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
-    val title = when (message.type) {
-        GameMessageType.TARGET_TAKEN -> stringResource(Res.string.target_taken_title)
-        GameMessageType.GATE_DESTROYED -> stringResource(Res.string.gate_destroyed_title)
-        else -> ""
-    }
-    val text = when (message.type) {
-        GameMessageType.TARGET_TAKEN -> {
-            if (!message.name.isNullOrBlank()) {
-                stringResource(Res.string.target_taken_message_named, message.name)
-            } else {
-                stringResource(Res.string.target_taken_message_unnamed)
-            }
+    val title =
+        when (message.type) {
+            GameMessageType.TARGET_TAKEN -> stringResource(Res.string.target_taken_title)
+            GameMessageType.GATE_DESTROYED -> stringResource(Res.string.gate_destroyed_title)
+            else -> ""
         }
-        GameMessageType.GATE_DESTROYED -> {
-            if (!message.name.isNullOrBlank()) {
-                stringResource(Res.string.gate_destroyed_message_named, message.name)
-            } else {
-                stringResource(Res.string.gate_destroyed_message_unnamed)
+    val text =
+        when (message.type) {
+            GameMessageType.TARGET_TAKEN -> {
+                if (!message.name.isNullOrBlank()) {
+                    stringResource(Res.string.target_taken_message_named, message.name)
+                } else {
+                    stringResource(Res.string.target_taken_message_unnamed)
+                }
             }
+            GameMessageType.GATE_DESTROYED -> {
+                if (!message.name.isNullOrBlank()) {
+                    stringResource(Res.string.gate_destroyed_message_named, message.name)
+                } else {
+                    stringResource(Res.string.gate_destroyed_message_unnamed)
+                }
+            }
+            else -> ""
         }
-        else -> ""
-    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -571,6 +602,6 @@ fun GameEventMessageDialog(
             Button(onClick = onDismiss) {
                 Text(stringResource(Res.string.ok))
             }
-        }
+        },
     )
 }

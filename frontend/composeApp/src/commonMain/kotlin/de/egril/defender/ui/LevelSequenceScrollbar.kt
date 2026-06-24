@@ -12,5 +12,5 @@ import androidx.compose.runtime.Composable
 @Composable
 expect fun BoxScope.LevelSequenceScrollbar(
     horizontalScrollState: ScrollState,
-    verticalScrollState: ScrollState
+    verticalScrollState: ScrollState,
 )

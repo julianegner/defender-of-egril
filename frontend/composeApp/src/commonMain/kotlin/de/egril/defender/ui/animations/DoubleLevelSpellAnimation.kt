@@ -1,6 +1,4 @@
 package de.egril.defender.ui.animations
-import io.github.alexzhirkevich.compottie.Compottie
-
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -9,6 +7,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import io.github.alexzhirkevich.compottie.Compottie
 
 /** Spell color (lila/purple) used for Double Tower Level effects */
 val SpellDoubleLevelColor = Color(0xFFAB47BC)
@@ -23,7 +22,10 @@ val SpellDoubleReachColor = Color(0xFFAB47BC)
  * When [animate] is false, a static tri-colored border is drawn instead.
  */
 @Composable
-fun DoubleLevelSpellAnimation(animate: Boolean, modifier: Modifier = Modifier) {
+fun DoubleLevelSpellAnimation(
+    animate: Boolean,
+    modifier: Modifier = Modifier,
+) {
     if (animate) {
         AnimatedDoubleLevelSpell(modifier)
     } else {
@@ -36,7 +38,7 @@ private fun AnimatedDoubleLevelSpell(modifier: Modifier = Modifier) {
     LottieAnimation(
         animationType = AnimationType.DOUBLE_LEVEL_SPELL,
         modifier = modifier.fillMaxSize(),
-        iterations = Compottie.IterateForever
+        iterations = Compottie.IterateForever,
     )
 }
 
@@ -54,7 +56,7 @@ private fun StaticDoubleLevelSpell(modifier: Modifier = Modifier) {
                 color = color.copy(alpha = 0.85f),
                 topLeft = Offset(inset, inset),
                 size = Size(w - 2 * inset, h - 2 * inset),
-                style = Stroke(width = strokeWidth)
+                style = Stroke(width = strokeWidth),
             )
         }
     }

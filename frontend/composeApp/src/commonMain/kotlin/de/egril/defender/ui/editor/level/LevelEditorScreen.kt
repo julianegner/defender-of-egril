@@ -17,18 +17,18 @@ import androidx.compose.ui.input.key.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
-import de.egril.defender.ui.icon.LeftArrowIcon
-import de.egril.defender.ui.editor.EditorTab
+import com.hyperether.resources.stringResource
 import de.egril.defender.ui.editor.EditorHowToContent
+import de.egril.defender.ui.editor.EditorTab
 import de.egril.defender.ui.editor.map.MapEditorContent
 import de.egril.defender.ui.editor.worldmap.WorldMapPositionEditorContent
-import de.egril.defender.ui.settings.SettingsButton
 import de.egril.defender.ui.feedback.FeedbackButton
 import de.egril.defender.ui.gameplay.ShortcutKeyChip
+import de.egril.defender.ui.icon.LeftArrowIcon
 import de.egril.defender.ui.settings.AppSettings
-import com.hyperether.resources.stringResource
-import kotlinx.coroutines.launch
+import de.egril.defender.ui.settings.SettingsButton
 import defender_of_egril.composeapp.generated.resources.*
+import kotlinx.coroutines.launch
 
 /**
  * Main screen for level editing with tabs for Map Editor, Level Editor, Level Sequence, and World Map Positions
@@ -38,297 +38,326 @@ fun LevelEditorScreen(
     onBack: () -> Unit,
     remoteCommunityMaps: List<de.egril.defender.save.CommunityFileInfo> = emptyList(),
     downloadingMapId: String? = null,
-    onDownloadRemoteMap: ((de.egril.defender.save.CommunityFileInfo) -> Unit)? = null
+    onDownloadRemoteMap: ((de.egril.defender.save.CommunityFileInfo) -> Unit)? = null,
 ) {
     var currentTab by remember { mutableStateOf(EditorTab.LEVEL_EDITOR) }
     var showHowToDialog by remember { mutableStateOf(false) }
     var triggerFeedback by remember { mutableStateOf(false) }
     var triggerSettings by remember { mutableStateOf(false) }
-    
-    val tabs = listOf(
-        EditorTab.MAP_EDITOR,
-        EditorTab.LEVEL_EDITOR,
-        EditorTab.LEVEL_SEQUENCE,
-        EditorTab.WORLD_MAP_POSITIONS
-    )
-    
+
+    val tabs =
+        listOf(
+            EditorTab.MAP_EDITOR,
+            EditorTab.LEVEL_EDITOR,
+            EditorTab.LEVEL_SEQUENCE,
+            EditorTab.WORLD_MAP_POSITIONS,
+        )
+
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+        color = MaterialTheme.colorScheme.background,
     ) {
         val focusRequester = remember { FocusRequester() }
         LaunchedEffect(Unit) {
-            try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+            try {
+                focusRequester.requestFocus()
+            } catch (_: IllegalStateException) {
+            }
         }
         // Re-request focus on tab change to keep Esc and ←/→ working
         LaunchedEffect(currentTab) {
-            try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+            try {
+                focusRequester.requestFocus()
+            } catch (_: IllegalStateException) {
+            }
         }
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .focusRequester(focusRequester)
-                .focusTarget()
-                .onPreviewKeyEvent { event ->
-                    if (event.type == KeyEventType.KeyDown) {
-                        when {
-                            event.key == Key.Escape || event.key == Key.Back -> {
-                                onBack()
-                                true
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .focusRequester(focusRequester)
+                    .focusTarget()
+                    .onPreviewKeyEvent { event ->
+                        if (event.type == KeyEventType.KeyDown) {
+                            when {
+                                event.key == Key.Escape || event.key == Key.Back -> {
+                                    onBack()
+                                    true
+                                }
+                                event.key == Key.DirectionLeft && !event.isCtrlPressed && !event.isAltPressed -> {
+                                    val idx = tabs.indexOf(currentTab)
+                                    if (idx > 0) currentTab = tabs[idx - 1]
+                                    true
+                                }
+                                event.key == Key.DirectionRight && !event.isCtrlPressed && !event.isAltPressed -> {
+                                    val idx = tabs.indexOf(currentTab)
+                                    if (idx < tabs.size - 1) currentTab = tabs[idx + 1]
+                                    true
+                                }
+                                event.key == Key.I && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
+                                    showHowToDialog = true
+                                    true
+                                }
+                                event.key == Key.Period && !event.isCtrlPressed && !event.isAltPressed -> {
+                                    triggerFeedback = true
+                                    true
+                                }
+                                event.key == Key.Comma && !event.isCtrlPressed && !event.isAltPressed -> {
+                                    triggerSettings = true
+                                    true
+                                }
+                                else -> false
                             }
-                            event.key == Key.DirectionLeft && !event.isCtrlPressed && !event.isAltPressed -> {
-                                val idx = tabs.indexOf(currentTab)
-                                if (idx > 0) currentTab = tabs[idx - 1]
-                                true
-                            }
-                            event.key == Key.DirectionRight && !event.isCtrlPressed && !event.isAltPressed -> {
-                                val idx = tabs.indexOf(currentTab)
-                                if (idx < tabs.size - 1) currentTab = tabs[idx + 1]
-                                true
-                            }
-                            event.key == Key.I && !event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed -> {
-                                showHowToDialog = true
-                                true
-                            }
-                            event.key == Key.Period && !event.isCtrlPressed && !event.isAltPressed -> {
-                                triggerFeedback = true
-                                true
-                            }
-                            event.key == Key.Comma && !event.isCtrlPressed && !event.isAltPressed -> {
-                                triggerSettings = true
-                                true
-                            }
-                            else -> false
+                        } else {
+                            false
                         }
-                    } else false
-                }
+                    },
         ) {
-        // Content area (below header)
-        Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp)
-        ) {
-            // Spacer for header
-            Spacer(modifier = Modifier.height(140.dp))
-
-            // Tab switch hint row (same level as action buttons inside each tab)
-            if (AppSettings.showButtonShortcutHints.value) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    ShortcutKeyChip(text = "\u2190")
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "/",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    ShortcutKeyChip(text = "\u2192")
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = stringResource(Res.string.keyboard_nav_switch_tab),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-            
-            // Content based on selected tab
-            when (currentTab) {
-                EditorTab.MAP_EDITOR -> MapEditorContent(
-                    remoteCommunityMaps = remoteCommunityMaps,
-                    downloadingMapId = downloadingMapId,
-                    onDownloadRemoteMap = onDownloadRemoteMap
-                )
-                EditorTab.LEVEL_EDITOR -> LevelEditorContent()
-                EditorTab.LEVEL_SEQUENCE -> LevelSequenceContent()
-                EditorTab.WORLD_MAP_POSITIONS -> WorldMapPositionEditorContent()
-            }
-        }
-        
-        // Main header (on top with elevated z-index)
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .zIndex(1f)
-                .padding(16.dp),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-        ) {
+            // Content area (below header)
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surface)
-                    .padding(12.dp)
+                modifier = Modifier.fillMaxSize().padding(16.dp),
             ) {
-                // Title and Back button row
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(Res.string.level_editor),
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                    
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        FeedbackButton(
-                            shortcutKey = ".",
-                            triggerOpen = triggerFeedback,
-                            onTriggerHandled = { triggerFeedback = false }
-                        )
-                        SettingsButton(
-                            shortcutKey = ",",
-                            triggerOpen = triggerSettings,
-                            onTriggerHandled = { triggerSettings = false }
-                        )
-                        
-                        Button(
-                            onClick = { showHowToDialog = true }
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(stringResource(Res.string.info))
-                                if (AppSettings.showButtonShortcutHints.value) {
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    ShortcutKeyChip(
-                                        text = "I",
-                                        color = LocalContentColor.current.copy(alpha = 0.75f)
-                                    )
-                                }
-                            }
-                        }
-                        
-                        Button(onClick = onBack) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                LeftArrowIcon(size = 16.dp, tint = Color.White)
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(stringResource(Res.string.back_to_world_map))
-                                if (AppSettings.showButtonShortcutHints.value) {
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    ShortcutKeyChip(
-                                        text = "Esc",
-                                        color = LocalContentColor.current.copy(alpha = 0.75f)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-                
-                // Tab navigation
-                val tabs = listOf(
-                    EditorTab.MAP_EDITOR to stringResource(Res.string.map_editor),
-                    EditorTab.LEVEL_EDITOR to stringResource(Res.string.level_editor),
-                    EditorTab.LEVEL_SEQUENCE to stringResource(Res.string.level_dependencies),
-                    EditorTab.WORLD_MAP_POSITIONS to stringResource(Res.string.world_map_positions)
-                )
-                
-                val selectedTabIndex = tabs.indexOfFirst { it.first == currentTab }.let { index ->
-                    if (index == -1) tabs.indexOfFirst { it.first == EditorTab.LEVEL_EDITOR } else index
-                }
-                
-                PrimaryTabRow(
-                    selectedTabIndex = selectedTabIndex,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    tabs.forEachIndexed { index, (tab, label) ->
-                        Tab(
-                            selected = index == selectedTabIndex,
-                            onClick = { currentTab = tab },
-                            text = { Text(label) }
-                        )
-                    }
-                }
-            }
-        }
+                // Spacer for header
+                Spacer(modifier = Modifier.height(140.dp))
 
-        // How-To dialog shown when the Info button is clicked
-        if (showHowToDialog) {
-            Dialog(onDismissRequest = { showHowToDialog = false }) {
-                val infoScrollState = androidx.compose.foundation.rememberScrollState()
-                val infoScope = rememberCoroutineScope()
-                val infoFocusRequester = remember { FocusRequester() }
-                LaunchedEffect(Unit) {
-                    try { infoFocusRequester.requestFocus() } catch (_: IllegalStateException) {}
+                // Tab switch hint row (same level as action buttons inside each tab)
+                if (AppSettings.showButtonShortcutHints.value) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        ShortcutKeyChip(text = "\u2190")
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "/",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        ShortcutKeyChip(text = "\u2192")
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = stringResource(Res.string.keyboard_nav_switch_tab),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
-                Card(
-                    modifier = Modifier
-                        .widthIn(min = 700.dp, max = 900.dp)
-                        .heightIn(max = 620.dp)
-                        .focusRequester(infoFocusRequester)
-                        .focusTarget()
-                        .onPreviewKeyEvent { event ->
-                            if (event.type == KeyEventType.KeyDown) {
-                                when (event.key) {
-                                    Key.Escape, Key.Back -> {
-                                        showHowToDialog = false
-                                        true
-                                    }
-                                    Key.DirectionUp -> {
-                                        infoScope.launch { infoScrollState.animateScrollTo((infoScrollState.value - 100).coerceAtLeast(0)) }
-                                        true
-                                    }
-                                    Key.DirectionDown -> {
-                                        infoScope.launch { infoScrollState.animateScrollTo((infoScrollState.value + 100).coerceAtMost(infoScrollState.maxValue)) }
-                                        true
-                                    }
-                                    else -> false
-                                }
-                            } else false
-                        },
-                    shape = RoundedCornerShape(16.dp)
+
+                // Content based on selected tab
+                when (currentTab) {
+                    EditorTab.MAP_EDITOR ->
+                        MapEditorContent(
+                            remoteCommunityMaps = remoteCommunityMaps,
+                            downloadingMapId = downloadingMapId,
+                            onDownloadRemoteMap = onDownloadRemoteMap,
+                        )
+                    EditorTab.LEVEL_EDITOR -> LevelEditorContent()
+                    EditorTab.LEVEL_SEQUENCE -> LevelSequenceContent()
+                    EditorTab.WORLD_MAP_POSITIONS -> WorldMapPositionEditorContent()
+                }
+            }
+
+            // Main header (on top with elevated z-index)
+            Card(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .zIndex(1f)
+                        .padding(16.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            ) {
+                Column(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surface)
+                            .padding(12.dp),
                 ) {
-                    Column(modifier = Modifier.padding(24.dp)) {
+                    // Title and Back button row
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.level_editor),
+                            style = MaterialTheme.typography.titleLarge,
+                        )
+
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text(
-                                text = stringResource(Res.string.editor_howto_title),
-                                style = MaterialTheme.typography.titleLarge
+                            FeedbackButton(
+                                shortcutKey = ".",
+                                triggerOpen = triggerFeedback,
+                                onTriggerHandled = { triggerFeedback = false },
                             )
-                            if (AppSettings.showButtonShortcutHints.value) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                ) {
-                                    ShortcutKeyChip(text = "\u2191\u2193")
-                                    Text(
-                                        text = stringResource(Res.string.scroll),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
+                            SettingsButton(
+                                shortcutKey = ",",
+                                triggerOpen = triggerSettings,
+                                onTriggerHandled = { triggerSettings = false },
+                            )
+
+                            Button(
+                                onClick = { showHowToDialog = true },
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(stringResource(Res.string.info))
+                                    if (AppSettings.showButtonShortcutHints.value) {
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        ShortcutKeyChip(
+                                            text = "I",
+                                            color = LocalContentColor.current.copy(alpha = 0.75f),
+                                        )
+                                    }
+                                }
+                            }
+
+                            Button(onClick = onBack) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    LeftArrowIcon(size = 16.dp, tint = Color.White)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(stringResource(Res.string.back_to_world_map))
+                                    if (AppSettings.showButtonShortcutHints.value) {
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        ShortcutKeyChip(
+                                            text = "Esc",
+                                            color = LocalContentColor.current.copy(alpha = 0.75f),
+                                        )
+                                    }
                                 }
                             }
                         }
-                        Box(modifier = Modifier.weight(1f)) {
-                            EditorHowToContent(scrollState = infoScrollState)
+                    }
+
+                    // Tab navigation
+                    val tabs =
+                        listOf(
+                            EditorTab.MAP_EDITOR to stringResource(Res.string.map_editor),
+                            EditorTab.LEVEL_EDITOR to stringResource(Res.string.level_editor),
+                            EditorTab.LEVEL_SEQUENCE to stringResource(Res.string.level_dependencies),
+                            EditorTab.WORLD_MAP_POSITIONS to stringResource(Res.string.world_map_positions),
+                        )
+
+                    val selectedTabIndex =
+                        tabs.indexOfFirst { it.first == currentTab }.let { index ->
+                            if (index == -1) tabs.indexOfFirst { it.first == EditorTab.LEVEL_EDITOR } else index
                         }
-                        Button(
-                            onClick = { showHowToDialog = false },
-                            modifier = Modifier.align(Alignment.End).padding(top = 12.dp)
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(stringResource(Res.string.editor_howto_close))
+
+                    PrimaryTabRow(
+                        selectedTabIndex = selectedTabIndex,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        tabs.forEachIndexed { index, (tab, label) ->
+                            Tab(
+                                selected = index == selectedTabIndex,
+                                onClick = { currentTab = tab },
+                                text = { Text(label) },
+                            )
+                        }
+                    }
+                }
+            }
+
+            // How-To dialog shown when the Info button is clicked
+            if (showHowToDialog) {
+                Dialog(onDismissRequest = { showHowToDialog = false }) {
+                    val infoScrollState = androidx.compose.foundation.rememberScrollState()
+                    val infoScope = rememberCoroutineScope()
+                    val infoFocusRequester = remember { FocusRequester() }
+                    LaunchedEffect(Unit) {
+                        try {
+                            infoFocusRequester.requestFocus()
+                        } catch (_: IllegalStateException) {
+                        }
+                    }
+                    Card(
+                        modifier =
+                            Modifier
+                                .widthIn(min = 700.dp, max = 900.dp)
+                                .heightIn(max = 620.dp)
+                                .focusRequester(infoFocusRequester)
+                                .focusTarget()
+                                .onPreviewKeyEvent { event ->
+                                    if (event.type == KeyEventType.KeyDown) {
+                                        when (event.key) {
+                                            Key.Escape, Key.Back -> {
+                                                showHowToDialog = false
+                                                true
+                                            }
+                                            Key.DirectionUp -> {
+                                                infoScope.launch {
+                                                    infoScrollState.animateScrollTo(
+                                                        (infoScrollState.value - 100).coerceAtLeast(0),
+                                                    )
+                                                }
+                                                true
+                                            }
+                                            Key.DirectionDown -> {
+                                                infoScope.launch {
+                                                    infoScrollState.animateScrollTo(
+                                                        (infoScrollState.value + 100).coerceAtMost(infoScrollState.maxValue),
+                                                    )
+                                                }
+                                                true
+                                            }
+                                            else -> false
+                                        }
+                                    } else {
+                                        false
+                                    }
+                                },
+                        shape = RoundedCornerShape(16.dp),
+                    ) {
+                        Column(modifier = Modifier.padding(24.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text(
+                                    text = stringResource(Res.string.editor_howto_title),
+                                    style = MaterialTheme.typography.titleLarge,
+                                )
                                 if (AppSettings.showButtonShortcutHints.value) {
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    ShortcutKeyChip(
-                                        text = "Esc",
-                                        color = LocalContentColor.current.copy(alpha = 0.75f)
-                                    )
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    ) {
+                                        ShortcutKeyChip(text = "\u2191\u2193")
+                                        Text(
+                                            text = stringResource(Res.string.scroll),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                }
+                            }
+                            Box(modifier = Modifier.weight(1f)) {
+                                EditorHowToContent(scrollState = infoScrollState)
+                            }
+                            Button(
+                                onClick = { showHowToDialog = false },
+                                modifier = Modifier.align(Alignment.End).padding(top = 12.dp),
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(stringResource(Res.string.editor_howto_close))
+                                    if (AppSettings.showButtonShortcutHints.value) {
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        ShortcutKeyChip(
+                                            text = "Esc",
+                                            color = LocalContentColor.current.copy(alpha = 0.75f),
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        }
         }
     }
 }

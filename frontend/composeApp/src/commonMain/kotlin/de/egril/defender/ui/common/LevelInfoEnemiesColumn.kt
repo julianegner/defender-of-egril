@@ -18,12 +18,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import de.egril.defender.ui.getLocalizedTitle
-import de.egril.defender.ui.getLocalizedSubtitle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.egril.defender.model.AttackerType
 import de.egril.defender.ui.getLocalizedName
+import de.egril.defender.ui.getLocalizedSubtitle
+import de.egril.defender.ui.getLocalizedTitle
 import de.egril.defender.ui.icon.HeartIcon
 import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
@@ -34,25 +34,24 @@ data class LevelInfoEnemiesLevelData(
     val id: String,
     val name: String,
     val subtitle: String = "",
-    val titleKey: String? = null,  // Optional translation key for the title
-    val subtitleKey: String? = null,  // Optional translation key for the subtitle
+    val titleKey: String? = null, // Optional translation key for the title
+    val subtitleKey: String? = null, // Optional translation key for the subtitle
     val initialCoins: Int,
     val healthPoints: Int,
-    val enemyTypeCounts: Map<AttackerType, Int>
+    val enemyTypeCounts: Map<AttackerType, Int>,
 )
 
 @Composable
 fun RowScope.LevelInfoEnemiesColumn(
     level: LevelInfoEnemiesLevelData,
-    textColor: Color
+    textColor: Color,
 ) {
-
     val enemyList = level.enemyTypeCounts.entries.toList()
 
     // Left column: Level info, coins, health, and enemies
     Column(
         modifier = Modifier.weight(2f).fillMaxHeight(),
-        verticalArrangement = Arrangement.Top
+        verticalArrangement = Arrangement.Top,
     ) {
         Row {
             // Header: level number and name
@@ -61,7 +60,7 @@ fun RowScope.LevelInfoEnemiesColumn(
                     text = "Level ${level.id}",
                     style = MaterialTheme.typography.titleMedium,
                     color = textColor,
-                    fontSize = 18.sp
+                    fontSize = 18.sp,
                 )
 
                 val locale = com.hyperether.resources.currentLanguage.value
@@ -71,7 +70,7 @@ fun RowScope.LevelInfoEnemiesColumn(
                     color = textColor,
                     textAlign = TextAlign.Start,
                     modifier = Modifier.fillMaxWidth(),
-                    fontSize = 14.sp
+                    fontSize = 14.sp,
                 )
 
                 // Show subtitle if it's not empty
@@ -83,7 +82,7 @@ fun RowScope.LevelInfoEnemiesColumn(
                         color = textColor.copy(alpha = 0.85f),
                         textAlign = TextAlign.Start,
                         modifier = Modifier.fillMaxWidth(),
-                        fontSize = 12.sp
+                        fontSize = 12.sp,
                     )
                 }
 
@@ -92,7 +91,7 @@ fun RowScope.LevelInfoEnemiesColumn(
                 // Coins and Health display
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         MoneyIcon(size = 12.dp)
@@ -101,7 +100,7 @@ fun RowScope.LevelInfoEnemiesColumn(
                             text = "${level.initialCoins}",
                             style = MaterialTheme.typography.bodySmall,
                             color = textColor,
-                            fontSize = 12.sp
+                            fontSize = 12.sp,
                         )
                     }
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -111,7 +110,7 @@ fun RowScope.LevelInfoEnemiesColumn(
                             text = "${level.healthPoints}",
                             style = MaterialTheme.typography.bodySmall,
                             color = textColor,
-                            fontSize = 12.sp
+                            fontSize = 12.sp,
                         )
                     }
                 }
@@ -124,7 +123,7 @@ fun RowScope.LevelInfoEnemiesColumn(
             if (enemyList.isNotEmpty()) {
                 Column(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     enemyList.forEachIndexed { index, (attackerType, count) ->
                         if (index % 2 == 0) {
@@ -134,7 +133,7 @@ fun RowScope.LevelInfoEnemiesColumn(
                 }
                 Column(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     enemyList.forEachIndexed { index, (attackerType, count) ->
                         if (index % 2 == 1) {
@@ -148,14 +147,18 @@ fun RowScope.LevelInfoEnemiesColumn(
 }
 
 @Composable
-private fun EnemyUnitEntry(attackerType: AttackerType, count: Int, textColor: Color) {
+private fun EnemyUnitEntry(
+    attackerType: AttackerType,
+    count: Int,
+    textColor: Color,
+) {
     val locale = com.hyperether.resources.currentLanguage.value
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
+        horizontalArrangement = Arrangement.Start,
     ) {
         Box(
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(24.dp),
         ) {
             EnemyTypeIcon(attackerType = attackerType)
         }
@@ -163,10 +166,10 @@ private fun EnemyUnitEntry(attackerType: AttackerType, count: Int, textColor: Co
         Spacer(modifier = Modifier.width(4.dp))
 
         Text(
-            text = "${attackerType.getLocalizedName(locale)}: ${count}",
+            text = "${attackerType.getLocalizedName(locale)}: $count",
             style = MaterialTheme.typography.bodySmall,
             color = textColor,
-            fontSize = 11.sp
+            fontSize = 11.sp,
         )
     }
 }

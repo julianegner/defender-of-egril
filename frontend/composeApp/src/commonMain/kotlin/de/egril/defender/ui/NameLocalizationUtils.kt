@@ -11,11 +11,11 @@ import de.egril.defender.ui.common.LevelInfoEnemiesLevelData
 
 /**
  * Utility functions for getting localized names for maps, levels, and locations.
- * 
+ *
  * These functions support dynamic content from JSON files:
  * - If a nameKey/titleKey is provided and exists in string resources, use the translated string
  * - Otherwise, fall back to the direct name/title value
- * 
+ *
  * This allows:
  * - Built-in content to be translated via string resources
  * - Custom/user-added content to use direct names without translation
@@ -25,27 +25,26 @@ import de.egril.defender.ui.common.LevelInfoEnemiesLevelData
  * Get the localized name for a map.
  * Falls back to the direct name if nameKey is null or not found in resources.
  */
-fun EditorMap.getLocalizedName(locale: AppLocale = currentLanguage.value): String {
-    return if (nameKey != null) {
+fun EditorMap.getLocalizedName(locale: AppLocale = currentLanguage.value): String =
+    if (nameKey != null) {
         try {
             LocalizedStrings.get(nameKey, locale)
         } catch (e: Exception) {
-            name  // Fallback to direct name if key not found
+            name // Fallback to direct name if key not found
         }
     } else {
         name
     }
-}
 
 /**
  * Get the localized title for a level.
  * Falls back to the direct title if titleKey is null or not found in resources.
- * 
+ *
  * Supports parameterized keys in format "key:param" where param is appended to the translated string.
  * Example: "level_the_fortress_title:1" -> looks up "level_the_fortress_title" and appends " 1"
  */
-fun EditorLevel.getLocalizedTitle(locale: AppLocale = currentLanguage.value): String {
-    return if (titleKey != null) {
+fun EditorLevel.getLocalizedTitle(locale: AppLocale = currentLanguage.value): String =
+    if (titleKey != null) {
         try {
             // Check if titleKey contains a parameter (format: "key:param")
             if (titleKey.contains(':')) {
@@ -59,54 +58,51 @@ fun EditorLevel.getLocalizedTitle(locale: AppLocale = currentLanguage.value): St
                 LocalizedStrings.get(titleKey, locale)
             }
         } catch (e: Exception) {
-            title  // Fallback to direct title if key not found
+            title // Fallback to direct title if key not found
         }
     } else {
         title
     }
-}
 
 /**
  * Get the localized subtitle for a level.
  * Falls back to the direct subtitle if subtitleKey is null or not found in resources.
  */
-fun EditorLevel.getLocalizedSubtitle(locale: AppLocale = currentLanguage.value): String {
-    return if (subtitleKey != null) {
+fun EditorLevel.getLocalizedSubtitle(locale: AppLocale = currentLanguage.value): String =
+    if (subtitleKey != null) {
         try {
             LocalizedStrings.get(subtitleKey, locale)
         } catch (e: Exception) {
-            subtitle  // Fallback to direct subtitle if key not found
+            subtitle // Fallback to direct subtitle if key not found
         }
     } else {
         subtitle
     }
-}
 
 /**
  * Get the localized name for a world map location.
  * Falls back to the direct name if nameKey is null or not found in resources.
  */
-fun WorldMapLocationData.getLocalizedName(locale: AppLocale = currentLanguage.value): String {
-    return if (nameKey != null) {
+fun WorldMapLocationData.getLocalizedName(locale: AppLocale = currentLanguage.value): String =
+    if (nameKey != null) {
         try {
             LocalizedStrings.get(nameKey, locale)
         } catch (e: Exception) {
-            name  // Fallback to direct name if key not found
+            name // Fallback to direct name if key not found
         }
     } else {
         name
     }
-}
 
 /**
  * Get the localized title for a Level (game model, not editor).
  * Falls back to the direct name if titleKey is null or not found in resources.
- * 
+ *
  * Supports parameterized keys in format "key:param" where param is appended to the translated string.
  * Example: "level_the_fortress_title:1" -> looks up "level_the_fortress_title" and appends " 1"
  */
-fun Level.getLocalizedTitle(locale: AppLocale = currentLanguage.value): String {
-    return if (titleKey != null) {
+fun Level.getLocalizedTitle(locale: AppLocale = currentLanguage.value): String =
+    if (titleKey != null) {
         try {
             // Check if titleKey contains a parameter (format: "key:param")
             if (titleKey.contains(':')) {
@@ -120,38 +116,36 @@ fun Level.getLocalizedTitle(locale: AppLocale = currentLanguage.value): String {
                 LocalizedStrings.get(titleKey, locale)
             }
         } catch (e: Exception) {
-            name  // Fallback to direct name if key not found
+            name // Fallback to direct name if key not found
         }
     } else {
         name
     }
-}
 
 /**
  * Get the localized subtitle for a Level (game model, not editor).
  * Falls back to the direct subtitle if subtitleKey is null or not found in resources.
  */
-fun Level.getLocalizedSubtitle(locale: AppLocale = currentLanguage.value): String {
-    return if (subtitleKey != null) {
+fun Level.getLocalizedSubtitle(locale: AppLocale = currentLanguage.value): String =
+    if (subtitleKey != null) {
         try {
             LocalizedStrings.get(subtitleKey, locale)
         } catch (e: Exception) {
-            subtitle  // Fallback to direct subtitle if key not found
+            subtitle // Fallback to direct subtitle if key not found
         }
     } else {
         subtitle
     }
-}
 
 /**
  * Get the localized title for a LevelInfoEnemiesLevelData.
  * Falls back to the direct name if titleKey is null or not found in resources.
- * 
+ *
  * Supports parameterized keys in format "key:param" where param is appended to the translated string.
  * Example: "level_the_fortress_title:1" -> looks up "level_the_fortress_title" and appends " 1"
  */
-fun LevelInfoEnemiesLevelData.getLocalizedTitle(locale: AppLocale = currentLanguage.value): String {
-    return if (titleKey != null) {
+fun LevelInfoEnemiesLevelData.getLocalizedTitle(locale: AppLocale = currentLanguage.value): String =
+    if (titleKey != null) {
         try {
             // Check if titleKey contains a parameter (format: "key:param")
             if (titleKey.contains(':')) {
@@ -165,39 +159,41 @@ fun LevelInfoEnemiesLevelData.getLocalizedTitle(locale: AppLocale = currentLangu
                 LocalizedStrings.get(titleKey, locale)
             }
         } catch (e: Exception) {
-            name  // Fallback to direct name if key not found
+            name // Fallback to direct name if key not found
         }
     } else {
         name
     }
-}
 
 /**
  * Get the localized subtitle for a LevelInfoEnemiesLevelData.
  * Falls back to the direct subtitle if subtitleKey is null or not found in resources.
  */
-fun LevelInfoEnemiesLevelData.getLocalizedSubtitle(locale: AppLocale = currentLanguage.value): String {
-    return if (subtitleKey != null) {
+fun LevelInfoEnemiesLevelData.getLocalizedSubtitle(locale: AppLocale = currentLanguage.value): String =
+    if (subtitleKey != null) {
         try {
             LocalizedStrings.get(subtitleKey, locale)
         } catch (e: Exception) {
-            subtitle  // Fallback to direct subtitle if key not found
+            subtitle // Fallback to direct subtitle if key not found
         }
     } else {
         subtitle
     }
-}
 
-private val KNOWN_MAP_TOOLING_INFO_KEYS: Map<String, String> = mapOf(
-    "procedural generation" to "map_tooling_info_procedural_generation",
-    "procedural generation, enhanced with Canvas of Kings" to "map_tooling_info_procedural_generation_canvas_of_kings",
-    "made with Canvas of Kings" to "map_tooling_info_made_with_canvas_of_kings"
-)
+private val KNOWN_MAP_TOOLING_INFO_KEYS: Map<String, String> =
+    mapOf(
+        "procedural generation" to "map_tooling_info_procedural_generation",
+        "procedural generation, enhanced with Canvas of Kings" to "map_tooling_info_procedural_generation_canvas_of_kings",
+        "made with Canvas of Kings" to "map_tooling_info_made_with_canvas_of_kings",
+    )
 
 /**
  * Localizes known map tooling descriptions and returns custom free-form text unchanged.
  */
-fun localizeMapToolingInfo(text: String, locale: AppLocale = currentLanguage.value): String {
+fun localizeMapToolingInfo(
+    text: String,
+    locale: AppLocale = currentLanguage.value,
+): String {
     val key = KNOWN_MAP_TOOLING_INFO_KEYS[text] ?: return text
     return LocalizedStrings.get(key, locale)
 }

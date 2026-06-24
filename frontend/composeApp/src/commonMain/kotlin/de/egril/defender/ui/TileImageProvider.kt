@@ -17,37 +17,40 @@ import org.jetbrains.compose.resources.painterResource
  * Uses normal drawable resources with tile_ prefix.
  */
 object TileImageProvider {
-    
     /**
      * Attempts to load a tile image for the given tile type.
      * Returns null if:
      * - Tile images are disabled in settings
      * - No image is available for this tile type
-     * 
+     *
      * For RIVER tiles, pass isMaelstrom=true to get the maelstrom variant.
      */
     @Composable
-    fun getTilePainter(tileType: TileType, isMaelstrom: Boolean = false): Painter? {
+    fun getTilePainter(
+        tileType: TileType,
+        isMaelstrom: Boolean = false,
+    ): Painter? {
         val useTileImages = AppSettings.useTileImages.value
-        
+
         if (!useTileImages) {
             return null
         }
-        
+
         return when (tileType) {
             TileType.PATH -> painterResource(Res.drawable.tile_path)
             TileType.BUILD_AREA -> painterResource(Res.drawable.tile_build_area)
             TileType.NO_PLAY -> painterResource(Res.drawable.tile_no_play)
-            TileType.RIVER -> if (isMaelstrom) {
-                painterResource(Res.drawable.tile_river_maelstrom)
-            } else {
-                painterResource(Res.drawable.tile_river)
-            }
-            TileType.SPAWN_POINT -> null  // No tile image yet
-            TileType.TARGET -> null  // No tile image yet
+            TileType.RIVER ->
+                if (isMaelstrom) {
+                    painterResource(Res.drawable.tile_river_maelstrom)
+                } else {
+                    painterResource(Res.drawable.tile_river)
+                }
+            TileType.SPAWN_POINT -> null // No tile image yet
+            TileType.TARGET -> null // No tile image yet
         }
     }
-    
+
     /**
      * Clears the cache (no longer needed with normal drawables)
      */

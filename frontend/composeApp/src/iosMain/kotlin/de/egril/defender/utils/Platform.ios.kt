@@ -1,9 +1,9 @@
 package de.egril.defender.utils
 
-import platform.UIKit.UIDevice
 import platform.Foundation.NSLocale
+import platform.UIKit.UIDevice
 
-class IOSPlatform: Platform {
+class IOSPlatform : Platform {
     override val name: String = UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
     override val isAndroidTV: Boolean = false
     override val isSteamDeckGamingMode: Boolean = false
@@ -13,13 +13,12 @@ class IOSPlatform: Platform {
 
 actual fun getPlatform(): Platform = IOSPlatform()
 
-actual fun getSystemLanguageCode(): String? {
-    return try {
+actual fun getSystemLanguageCode(): String? =
+    try {
         NSLocale.currentLocale.languageCode?.lowercase()
     } catch (e: Exception) {
         null
     }
-}
 
 actual fun getCurrentUsername(): String = ""
 

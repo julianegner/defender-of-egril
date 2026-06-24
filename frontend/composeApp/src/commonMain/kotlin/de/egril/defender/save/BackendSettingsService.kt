@@ -8,7 +8,6 @@ package de.egril.defender.save
  * This allows settings to be read and written independently of other player data.
  */
 expect object BackendSettingsService {
-
     /**
      * Upload the player's settings to the backend.
      * Returns true on success, false on failure (e.g. not authenticated, network error).
@@ -16,7 +15,10 @@ expect object BackendSettingsService {
      * @param settingsJson Raw JSON content representing the settings map
      * @param token        Bearer token for authentication
      */
-    suspend fun uploadSettings(settingsJson: String, token: String): Boolean
+    suspend fun uploadSettings(
+        settingsJson: String,
+        token: String,
+    ): Boolean
 
     /**
      * Fetch the player's settings from the backend.
@@ -32,18 +34,23 @@ expect object BackendSettingsService {
 // ---------------------------------------------------------------------------
 
 /** Builds the JSON payload for a settings upload request. */
-internal fun buildSettingsUploadJson(settingsJson: String): String = buildString {
-    val currentPlatform = de.egril.defender.utils.getPlatform()
-    val platform = de.egril.defender.utils.getClientPlatformName()
-    val platformLong = currentPlatform.name
-    val osName = currentPlatform.osName
-    val versionName = de.egril.defender.AppBuildInfo.VERSION_NAME
-    val commitHash = de.egril.defender.AppBuildInfo.COMMIT_HASH
-    append("{")
-    append("\"data\":\"${escapeJsonString(settingsJson)}\",")
-    appendClientInfo(platform, platformLong, versionName, commitHash, osName)
-    append("}")
-}
+internal fun buildSettingsUploadJson(settingsJson: String): String =
+    buildString {
+        val currentPlatform =
+            de.egril.defender.utils
+                .getPlatform()
+        val platform =
+            de.egril.defender.utils
+                .getClientPlatformName()
+        val platformLong = currentPlatform.name
+        val osName = currentPlatform.osName
+        val versionName = de.egril.defender.AppBuildInfo.VERSION_NAME
+        val commitHash = de.egril.defender.AppBuildInfo.COMMIT_HASH
+        append("{")
+        append("\"data\":\"${escapeJsonString(settingsJson)}\",")
+        appendClientInfo(platform, platformLong, versionName, commitHash, osName)
+        append("}")
+    }
 
 /**
  * Parses a settings map from the JSON response returned by GET /api/settings.
@@ -66,9 +73,10 @@ internal fun parseSettingsResponseJson(responseJson: String): Map<String, String
  * Serialises a settings map to a flat JSON object string (the inner payload, without envelope).
  */
 internal fun serializeSettingsJson(settings: Map<String, String>): String {
-    val entries = settings.entries.joinToString(",\n  ") { (k, v) ->
-        "\"${escapeJsonString(k)}\": \"${escapeJsonString(v)}\""
-    }
+    val entries =
+        settings.entries.joinToString(",\n  ") { (k, v) ->
+            "\"${escapeJsonString(k)}\": \"${escapeJsonString(v)}\""
+        }
     return "{\n  $entries\n}"
 }
 
@@ -81,11 +89,12 @@ internal fun parseSettingsJson(json: String): Map<String, String>? {
     if (!trimmed.startsWith("{")) return null
     return try {
         val map = mutableMapOf<String, String>()
-        val inner = if (trimmed.endsWith("}")) {
-            trimmed.substring(1, trimmed.length - 1)
-        } else {
-            trimmed.substring(1)
-        }
+        val inner =
+            if (trimmed.endsWith("}")) {
+                trimmed.substring(1, trimmed.length - 1)
+            } else {
+                trimmed.substring(1)
+            }
         var pos = 0
         while (pos < inner.length) {
             val keyStart = inner.indexOf('"', pos)

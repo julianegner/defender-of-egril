@@ -16,7 +16,6 @@ import org.junit.Test
  * UI tests for the Abilities Upgrade screen.
  */
 class AbilitiesUpgradeScreenTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -25,17 +24,19 @@ class AbilitiesUpgradeScreenTest {
         currentLanguage.value = AppLocale.DEFAULT
     }
 
-    private fun createTestProfile(availableAbilityPoints: Int = 3) = PlayerProfile(
-        id = "test_player",
-        name = "Test Player",
-        createdAt = 0L,
-        lastPlayedAt = 0L,
-        abilities = PlayerAbilities(
-            totalXP = 500,
-            level = 3,
-            availableAbilityPoints = availableAbilityPoints
+    private fun createTestProfile(availableAbilityPoints: Int = 3) =
+        PlayerProfile(
+            id = "test_player",
+            name = "Test Player",
+            createdAt = 0L,
+            lastPlayedAt = 0L,
+            abilities =
+                PlayerAbilities(
+                    totalXP = 500,
+                    level = 3,
+                    availableAbilityPoints = availableAbilityPoints,
+                ),
         )
-    )
 
     @Test
     fun testAbilitiesScreenWithContinueButton() {
@@ -49,25 +50,28 @@ class AbilitiesUpgradeScreenTest {
                 onUnlockSpell = {},
                 onBack = { backClicked = true },
                 onContinueToNextLevel = { continueClicked = true },
-                nextLevelName = "The Ork Invasion"
+                nextLevelName = "The Ork Invasion",
             )
         }
 
         composeTestRule.waitForIdle()
 
         // "Back to World Map" button should appear (instead of plain "Back")
-        composeTestRule.onNodeWithText("Back to World Map", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Back to World Map", substring = true, ignoreCase = true)
             .assertExists()
             .assertHasClickAction()
 
         // "Continue with Level" button should appear
-        composeTestRule.onNodeWithText("Continue with Level", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Continue with Level", substring = true, ignoreCase = true)
             .assertExists()
             .assertHasClickAction()
 
         // Plain "Back" button should NOT appear (only "Back to World Map" is shown)
         // We check by using exact match (not substring) to distinguish from "Back to World Map"
-        composeTestRule.onAllNodesWithText("Back", ignoreCase = true)
+        composeTestRule
+            .onAllNodesWithText("Back", ignoreCase = true)
             .filter(hasText("Back", substring = false))
             .assertCountEquals(0)
 
@@ -76,7 +80,7 @@ class AbilitiesUpgradeScreenTest {
             composeTestRule,
             "abilities-screen-with-continue-button",
             width = 1200,
-            height = 800
+            height = 800,
         )
     }
 
@@ -89,22 +93,25 @@ class AbilitiesUpgradeScreenTest {
                 playerProfile = createTestProfile(),
                 onUpgradeAbility = {},
                 onUnlockSpell = {},
-                onBack = { backClicked = true }
+                onBack = { backClicked = true },
             )
         }
 
         composeTestRule.waitForIdle()
 
         // Plain "Back" button should appear
-        composeTestRule.onNodeWithText("Back", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Back", substring = true, ignoreCase = true)
             .assertExists()
             .assertHasClickAction()
 
         // "Back to World Map" and "Continue with Level" should NOT appear
-        composeTestRule.onNodeWithText("Back to World Map", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Back to World Map", substring = true, ignoreCase = true)
             .assertDoesNotExist()
 
-        composeTestRule.onNodeWithText("Continue with Level", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Continue with Level", substring = true, ignoreCase = true)
             .assertDoesNotExist()
 
         // Capture screenshot
@@ -112,7 +119,7 @@ class AbilitiesUpgradeScreenTest {
             composeTestRule,
             "abilities-screen-normal",
             width = 1200,
-            height = 800
+            height = 800,
         )
     }
 
@@ -126,7 +133,7 @@ class AbilitiesUpgradeScreenTest {
                 spell = spell,
                 isUnlocked = false,
                 canUnlock = false,
-                onUnlock = {}
+                onUnlock = {},
             )
         }
 

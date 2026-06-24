@@ -5,7 +5,7 @@ import java.io.File
 /**
  * Android implementation using actual file storage in app's internal storage directory.
  * Files are stored in Context.filesDir which is private to the app and persists between app restarts.
- * 
+ *
  * For unit tests without Android context, falls back to in-memory storage.
  */
 class AndroidFileStorage : FileStorage {
@@ -13,12 +13,14 @@ class AndroidFileStorage : FileStorage {
     private val inMemoryFiles = mutableMapOf<String, String>()
     private val inMemoryDirectories = mutableSetOf<String>()
     private var useInMemory = false
-    
+
     private val baseDir: File?
         get() {
             return try {
-                val context = de.egril.defender.AndroidContextProvider.getContext()
-                File(context.filesDir, "defender-of-egril").also { 
+                val context =
+                    de.egril.defender.AndroidContextProvider
+                        .getContext()
+                File(context.filesDir, "defender-of-egril").also {
                     if (!it.exists()) {
                         it.mkdirs()
                     }
@@ -29,14 +31,18 @@ class AndroidFileStorage : FileStorage {
                 null
             }
         }
-    
+
     // Use shared JVM implementation when possible, fallback for tests
-    private val jvmStorage = object : JvmFileStorage() {
-        override val baseDir: File?
-            get() = this@AndroidFileStorage.baseDir
-    }
-    
-    override fun writeFile(path: String, content: String) {
+    private val jvmStorage =
+        object : JvmFileStorage() {
+            override val baseDir: File?
+                get() = this@AndroidFileStorage.baseDir
+        }
+
+    override fun writeFile(
+        path: String,
+        content: String,
+    ) {
         if (useInMemory || baseDir == null) {
             // Fallback for tests
             inMemoryFiles[path] = content
@@ -44,18 +50,17 @@ class AndroidFileStorage : FileStorage {
             jvmStorage.writeFile(path, content)
         }
     }
-    
-    override fun readFile(path: String): String? {
-        return if (useInMemory || baseDir == null) {
+
+    override fun readFile(path: String): String? =
+        if (useInMemory || baseDir == null) {
             // Fallback for tests
             inMemoryFiles[path]
         } else {
             jvmStorage.readFile(path)
         }
-    }
-    
-    override fun listFiles(directory: String): List<String> {
-        return if (useInMemory || baseDir == null) {
+
+    override fun listFiles(directory: String): List<String> =
+        if (useInMemory || baseDir == null) {
             // Fallback for tests
             inMemoryFiles.keys
                 .filter { it.startsWith("$directory/") }
@@ -65,17 +70,15 @@ class AndroidFileStorage : FileStorage {
         } else {
             jvmStorage.listFiles(directory)
         }
-    }
-    
-    override fun fileExists(path: String): Boolean {
-        return if (useInMemory || baseDir == null) {
+
+    override fun fileExists(path: String): Boolean =
+        if (useInMemory || baseDir == null) {
             // Fallback for tests
             inMemoryFiles.containsKey(path)
         } else {
             jvmStorage.fileExists(path)
         }
-    }
-    
+
     override fun createDirectory(path: String) {
         if (useInMemory || baseDir == null) {
             // Fallback for tests
@@ -84,7 +87,7 @@ class AndroidFileStorage : FileStorage {
             jvmStorage.createDirectory(path)
         }
     }
-    
+
     override fun deleteFile(path: String) {
         if (useInMemory || baseDir == null) {
             // Fallback for tests
@@ -93,27 +96,31 @@ class AndroidFileStorage : FileStorage {
             jvmStorage.deleteFile(path)
         }
     }
-    
-    override fun renameDirectory(oldPath: String, newPath: String): Boolean {
-        return if (useInMemory || baseDir == null) {
+
+    override fun renameDirectory(
+        oldPath: String,
+        newPath: String,
+    ): Boolean =
+        if (useInMemory || baseDir == null) {
             // Fallback for tests - not implemented for in-memory
             false
         } else {
             jvmStorage.renameDirectory(oldPath, newPath)
         }
-    }
-    
-    override fun copyDirectory(sourcePath: String, targetPath: String): Boolean {
-        return if (useInMemory || baseDir == null) {
+
+    override fun copyDirectory(
+        sourcePath: String,
+        targetPath: String,
+    ): Boolean =
+        if (useInMemory || baseDir == null) {
             // Fallback for tests - not implemented for in-memory
             false
         } else {
             jvmStorage.copyDirectory(sourcePath, targetPath)
         }
-    }
-    
-    override fun deleteDirectory(path: String): Boolean {
-        return if (useInMemory || baseDir == null) {
+
+    override fun deleteDirectory(path: String): Boolean =
+        if (useInMemory || baseDir == null) {
             // Fallback for tests
             inMemoryFiles.keys.removeAll { it.startsWith("$path/") }
             inMemoryDirectories.remove(path)
@@ -121,18 +128,19 @@ class AndroidFileStorage : FileStorage {
         } else {
             jvmStorage.deleteDirectory(path)
         }
-    }
-    
-    override fun getAbsolutePath(path: String): String {
-        return if (useInMemory || baseDir == null) {
+
+    override fun getAbsolutePath(path: String): String =
+        if (useInMemory || baseDir == null) {
             // Fallback for tests
             path
         } else {
             jvmStorage.getAbsolutePath(path)
         }
-    }
 
-    override fun writeBinaryFile(path: String, content: ByteArray) {
+    override fun writeBinaryFile(
+        path: String,
+        content: ByteArray,
+    ) {
         if (useInMemory || baseDir == null) {
             // No-op for tests
         } else {
@@ -140,13 +148,12 @@ class AndroidFileStorage : FileStorage {
         }
     }
 
-    override fun readBinaryFile(path: String): ByteArray? {
-        return if (useInMemory || baseDir == null) {
+    override fun readBinaryFile(path: String): ByteArray? =
+        if (useInMemory || baseDir == null) {
             null
         } else {
             jvmStorage.readBinaryFile(path)
         }
-    }
 }
 
 actual fun getFileStorage(): FileStorage = AndroidFileStorage()

@@ -11,7 +11,13 @@ import androidx.compose.ui.graphics.drawscope.withTransform
 /**
  * Draw skeleton symbol (skull and bones)
  */
-fun DrawScope.drawSkeletonSymbol(centerX: Float, centerY: Float, size: Float, outlineColor: Color? = null, headScale: Float = 1.0f) {
+fun DrawScope.drawSkeletonSymbol(
+    centerX: Float,
+    centerY: Float,
+    size: Float,
+    outlineColor: Color? = null,
+    headScale: Float = 1.0f,
+) {
     val headCenterY = centerY - size * 0.1f
 
     // Skull with facial features (scaled)
@@ -22,14 +28,14 @@ fun DrawScope.drawSkeletonSymbol(centerX: Float, centerY: Float, size: Float, ou
                 color = outlineColor,
                 radius = size * 0.25f + 2f,
                 center = Offset(centerX, headCenterY),
-                style = Stroke(width = 3f)
+                style = Stroke(width = 3f),
             )
         }
         // Skull
         drawCircle(
             color = Color.White,
             radius = size * 0.25f,
-            center = Offset(centerX, headCenterY)
+            center = Offset(centerX, headCenterY),
         )
 
         // Eye sockets (black)
@@ -37,12 +43,13 @@ fun DrawScope.drawSkeletonSymbol(centerX: Float, centerY: Float, size: Float, ou
         drawCircle(color = Color.Black, radius = size * 0.08f, center = Offset(centerX + size * 0.12f, centerY - size * 0.15f))
 
         // Nose hole (triangle)
-        val nosePath = Path().apply {
-            moveTo(centerX, centerY - size * 0.05f)
-            lineTo(centerX - size * 0.05f, centerY + size * 0.05f)
-            lineTo(centerX + size * 0.05f, centerY + size * 0.05f)
-            close()
-        }
+        val nosePath =
+            Path().apply {
+                moveTo(centerX, centerY - size * 0.05f)
+                lineTo(centerX - size * 0.05f, centerY + size * 0.05f)
+                lineTo(centerX + size * 0.05f, centerY + size * 0.05f)
+                close()
+            }
         drawPath(nosePath, Color.Black)
     }
 
@@ -54,14 +61,14 @@ fun DrawScope.drawSkeletonSymbol(centerX: Float, centerY: Float, size: Float, ou
             start = Offset(centerX - size * 0.3f, centerY + size * 0.25f),
             end = Offset(centerX + size * 0.3f, centerY + size * 0.35f),
             strokeWidth = 7f,
-            cap = StrokeCap.Round
+            cap = StrokeCap.Round,
         )
         drawLine(
             color = outlineColor,
             start = Offset(centerX - size * 0.3f, centerY + size * 0.35f),
             end = Offset(centerX + size * 0.3f, centerY + size * 0.25f),
             strokeWidth = 7f,
-            cap = StrokeCap.Round
+            cap = StrokeCap.Round,
         )
     }
     drawLine(
@@ -69,13 +76,13 @@ fun DrawScope.drawSkeletonSymbol(centerX: Float, centerY: Float, size: Float, ou
         start = Offset(centerX - size * 0.3f, centerY + size * 0.25f),
         end = Offset(centerX + size * 0.3f, centerY + size * 0.35f),
         strokeWidth = 4f,
-        cap = StrokeCap.Round
+        cap = StrokeCap.Round,
     )
     drawLine(
         color = Color.White,
         start = Offset(centerX - size * 0.3f, centerY + size * 0.35f),
         end = Offset(centerX + size * 0.3f, centerY + size * 0.25f),
         strokeWidth = 4f,
-        cap = StrokeCap.Round
+        cap = StrokeCap.Round,
     )
 }

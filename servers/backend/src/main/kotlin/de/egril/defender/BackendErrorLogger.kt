@@ -17,21 +17,22 @@ fun logBackendError(
     endpoint: String,
     httpMethod: String,
     statusCode: Int,
-    message: String
+    message: String,
 ) {
     errorLogger.error("[$statusCode] $httpMethod $endpoint — $message")
     val ds = dataSourceRef.get() ?: return
     try {
         ds.connection.use { conn ->
-            conn.prepareStatement(
-                "INSERT INTO backend_errors (endpoint, http_method, status_code, message) VALUES (?, ?, ?, ?)"
-            ).use { stmt ->
-                stmt.setString(1, endpoint)
-                stmt.setString(2, httpMethod)
-                stmt.setInt(3, statusCode)
-                stmt.setString(4, message)
-                stmt.executeUpdate()
-            }
+            conn
+                .prepareStatement(
+                    "INSERT INTO backend_errors (endpoint, http_method, status_code, message) VALUES (?, ?, ?, ?)",
+                ).use { stmt ->
+                    stmt.setString(1, endpoint)
+                    stmt.setString(2, httpMethod)
+                    stmt.setInt(3, statusCode)
+                    stmt.setString(4, message)
+                    stmt.executeUpdate()
+                }
         }
     } catch (e: Exception) {
         errorLogger.error("Failed to persist backend error to database: ${e.message}", e)
@@ -52,7 +53,7 @@ fun Application.configureErrorLogging(dataSourceRef: AtomicReference<DataSource?
                 call.request.path(),
                 call.request.httpMethod.value,
                 500,
-                e.message ?: "Unhandled exception"
+                e.message ?: "Unhandled exception",
             )
             throw e
         }
@@ -63,7 +64,7 @@ fun Application.configureErrorLogging(dataSourceRef: AtomicReference<DataSource?
                 call.request.path(),
                 call.request.httpMethod.value,
                 status.value,
-                status.description
+                status.description,
             )
         }
     }

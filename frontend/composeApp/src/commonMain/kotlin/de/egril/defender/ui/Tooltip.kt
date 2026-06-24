@@ -71,20 +71,20 @@ fun TooltipWrapper(
     }
 
     Box(
-        modifier = modifier
-            .then(
-                if (isHoverTooltipEnabled) {
-                    Modifier.hoverable(interactionSource = interactionSource)
-                } else {
-                    Modifier
-                }
-            )
-            .onGloballyPositioned { coordinates ->
-                elementHeightPx = coordinates.size.height
-                val posInWindow = coordinates.positionInWindow()
-                elementLeftPx = posInWindow.x
-                elementBottomPx = posInWindow.y + coordinates.size.height
-            }
+        modifier =
+            modifier
+                .then(
+                    if (isHoverTooltipEnabled) {
+                        Modifier.hoverable(interactionSource = interactionSource)
+                    } else {
+                        Modifier
+                    },
+                ).onGloballyPositioned { coordinates ->
+                    elementHeightPx = coordinates.size.height
+                    val posInWindow = coordinates.positionInWindow()
+                    elementLeftPx = posInWindow.x
+                    elementBottomPx = posInWindow.y + coordinates.size.height
+                },
     ) {
         if (isHoverTooltipEnabled && isHovered && !text.isNullOrEmpty()) {
             val windowHeightPx = windowInfo.containerSize.height.toFloat()
@@ -95,11 +95,12 @@ fun TooltipWrapper(
             val minSpaceBelowPx = with(density) { 60.dp.toPx() }
             val showAbove = windowHeightPx > 0 && spaceBelowPx < minSpaceBelowPx
 
-            val offsetY: Dp = if (showAbove) {
-                (-40).dp  // above the element
-            } else {
-                with(density) { elementHeightPx.toDp() } + 4.dp  // below with a small gap
-            }
+            val offsetY: Dp =
+                if (showAbove) {
+                    (-40).dp // above the element
+                } else {
+                    with(density) { elementHeightPx.toDp() } + 4.dp // below with a small gap
+                }
 
             TooltipBox(
                 text = text,
@@ -120,42 +121,42 @@ private fun TooltipBox(
     windowWidthPx: Float = Float.MAX_VALUE,
 ) {
     Box(
-        modifier = Modifier
-            .zIndex(100f)
-            .layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints)
-                val yOffsetPx = offsetY.roundToPx()
+        modifier =
+            Modifier
+                .zIndex(100f)
+                .layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints)
+                    val yOffsetPx = offsetY.roundToPx()
 
-                // Compute a horizontal shift so the tooltip stays within the window bounds,
-                // keeping a small margin from both screen edges so the tooltip never touches the border.
-                // By default the tooltip's left edge aligns with the element's left edge (xOffset = 0).
-                var xOffsetPx = 0
-                if (windowWidthPx > 0 && windowWidthPx < Float.MAX_VALUE) {
-                    val edgeMarginPx = 8.dp.roundToPx()
-                    val rightEdge = elementLeftPx + placeable.width
-                    if (rightEdge > windowWidthPx - edgeMarginPx) {
-                        // Tooltip would overflow to the right — shift it left, keeping margin from right edge
-                        xOffsetPx = -(rightEdge - windowWidthPx + edgeMarginPx).toInt()
+                    // Compute a horizontal shift so the tooltip stays within the window bounds,
+                    // keeping a small margin from both screen edges so the tooltip never touches the border.
+                    // By default the tooltip's left edge aligns with the element's left edge (xOffset = 0).
+                    var xOffsetPx = 0
+                    if (windowWidthPx > 0 && windowWidthPx < Float.MAX_VALUE) {
+                        val edgeMarginPx = 8.dp.roundToPx()
+                        val rightEdge = elementLeftPx + placeable.width
+                        if (rightEdge > windowWidthPx - edgeMarginPx) {
+                            // Tooltip would overflow to the right — shift it left, keeping margin from right edge
+                            xOffsetPx = -(rightEdge - windowWidthPx + edgeMarginPx).toInt()
+                        }
+                        // Ensure the left edge always respects the margin from the left edge
+                        if (elementLeftPx + xOffsetPx < edgeMarginPx) {
+                            xOffsetPx = (edgeMarginPx - elementLeftPx).toInt()
+                        }
                     }
-                    // Ensure the left edge always respects the margin from the left edge
-                    if (elementLeftPx + xOffsetPx < edgeMarginPx) {
-                        xOffsetPx = (edgeMarginPx - elementLeftPx).toInt()
-                    }
-                }
 
-                // Report zero size so the tooltip does not affect the layout of surrounding elements
-                layout(0, 0) {
-                    placeable.place(xOffsetPx, yOffsetPx)
-                }
-            }
-            .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.inverseSurface)
-            .padding(horizontal = 10.dp, vertical = 6.dp)
+                    // Report zero size so the tooltip does not affect the layout of surrounding elements
+                    layout(0, 0) {
+                        placeable.place(xOffsetPx, yOffsetPx)
+                    }
+                }.clip(RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.inverseSurface)
+                .padding(horizontal = 10.dp, vertical = 6.dp),
     ) {
         Text(
             text = text,
             color = MaterialTheme.colorScheme.inverseOnSurface,
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodySmall,
         )
     }
 }

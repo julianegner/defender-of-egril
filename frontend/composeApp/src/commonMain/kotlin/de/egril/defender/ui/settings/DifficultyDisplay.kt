@@ -19,11 +19,11 @@ import defender_of_egril.composeapp.generated.resources.*
 fun DifficultyDisplay(
     modifier: Modifier = Modifier,
     isClickable: Boolean = false,
-    shortcutKey: String? = null
+    shortcutKey: String? = null,
 ) {
     val currentDifficulty = AppSettings.difficulty.value
     var showDropdown by remember { mutableStateOf(false) }
-    
+
     Box(modifier = modifier) {
         Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
             Text(
@@ -31,23 +31,24 @@ fun DifficultyDisplay(
                 style = MaterialTheme.typography.bodyMedium,
                 fontStyle = FontStyle.Italic,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = if (isClickable) {
-                    Modifier.clickable { showDropdown = !showDropdown }
-                } else {
-                    Modifier
-                }
+                modifier =
+                    if (isClickable) {
+                        Modifier.clickable { showDropdown = !showDropdown }
+                    } else {
+                        Modifier
+                    },
             )
             if (shortcutKey != null && AppSettings.showButtonShortcutHints.value) {
                 Spacer(modifier = Modifier.width(4.dp))
                 ShortcutKeyChip(text = shortcutKey)
             }
         }
-        
+
         // Show dropdown if clickable and opened
         if (isClickable && showDropdown) {
             DropdownMenu(
                 expanded = showDropdown,
-                onDismissRequest = { showDropdown = false }
+                onDismissRequest = { showDropdown = false },
             ) {
                 DifficultyLevel.entries.forEach { level ->
                     DropdownMenuItem(
@@ -55,19 +56,19 @@ fun DifficultyDisplay(
                             Column {
                                 Text(
                                     text = getDifficultyDisplayName(level),
-                                    style = MaterialTheme.typography.bodyLarge
+                                    style = MaterialTheme.typography.bodyLarge,
                                 )
                                 Text(
                                     text = getDifficultyDescription(level),
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
                         },
                         onClick = {
                             AppSettings.saveDifficulty(level)
                             showDropdown = false
-                        }
+                        },
                     )
                 }
             }
@@ -79,26 +80,24 @@ fun DifficultyDisplay(
  * Get the localized display name for a difficulty level
  */
 @Composable
-private fun getDifficultyDisplayName(level: DifficultyLevel): String {
-    return when (level) {
+private fun getDifficultyDisplayName(level: DifficultyLevel): String =
+    when (level) {
         DifficultyLevel.BABY -> stringResource(Res.string.difficulty_baby)
         DifficultyLevel.EASY -> stringResource(Res.string.difficulty_easy)
         DifficultyLevel.MEDIUM -> stringResource(Res.string.difficulty_medium)
         DifficultyLevel.HARD -> stringResource(Res.string.difficulty_hard)
         DifficultyLevel.NIGHTMARE -> stringResource(Res.string.difficulty_nightmare)
     }
-}
 
 /**
  * Get the localized description for a difficulty level
  */
 @Composable
-private fun getDifficultyDescription(level: DifficultyLevel): String {
-    return when (level) {
+private fun getDifficultyDescription(level: DifficultyLevel): String =
+    when (level) {
         DifficultyLevel.BABY -> stringResource(Res.string.difficulty_baby_desc)
         DifficultyLevel.EASY -> stringResource(Res.string.difficulty_easy_desc)
         DifficultyLevel.MEDIUM -> stringResource(Res.string.difficulty_medium_desc)
         DifficultyLevel.HARD -> stringResource(Res.string.difficulty_hard_desc)
         DifficultyLevel.NIGHTMARE -> stringResource(Res.string.difficulty_nightmare_desc)
     }
-}

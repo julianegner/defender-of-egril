@@ -21,22 +21,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorEnemySpawn
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.SpawnPointUtils
-import de.egril.defender.model.Position
 import de.egril.defender.ui.editor.level.ChangeAllSpawnPointsDialog
 import de.egril.defender.ui.editor.level.ChangeLevelDialog
 import de.egril.defender.ui.editor.level.ChangeSpawnPointDialog
 import de.egril.defender.ui.editor.level.ChangeTurnLevelDialog
 import de.egril.defender.ui.editor.level.SpawnTurnSection
-import de.egril.defender.ui.icon.WarningIcon
 import de.egril.defender.ui.icon.PlusIcon
+import de.egril.defender.ui.icon.WarningIcon
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.add_turn
 import defender_of_egril.composeapp.generated.resources.change_all_spawn_points
@@ -56,49 +53,50 @@ fun EnemySpawnsTab(
     ewhadCount: Int,
     onShowEnemyDialog: (Int) -> Unit,
     onShowRemoveAllTurnsDialog: () -> Unit,
-    map: EditorMap?
+    map: EditorMap?,
 ) {
     // Track the last added turn to keep it expanded
     var lastAddedTurn by remember { mutableStateOf<Int?>(null) }
-    
+
     // Track spawn point change dialog
     var spawnToChange by remember { mutableStateOf<EditorEnemySpawn?>(null) }
-    
+
     // Track level change dialog
     var spawnToChangeLevel by remember { mutableStateOf<EditorEnemySpawn?>(null) }
-    
+
     // Track turn level change dialog
     var turnToChangeLevel by remember { mutableStateOf<Int?>(null) }
-    
+
     // Track bulk spawn point change dialog
     var showChangeAllSpawnPointsDialog by remember { mutableStateOf(false) }
-    
+
     // Check if any enemies are spawned outside valid spawn points
     val mapSpawnPoints = remember(map) { map?.getSpawnPoints()?.toSet() ?: emptySet() }
-    val hasEnemiesOutsideSpawnPoints = remember(enemySpawns, mapSpawnPoints) {
-        enemySpawns.any { spawn ->
-            spawn.spawnPoint != null && spawn.spawnPoint !in mapSpawnPoints
+    val hasEnemiesOutsideSpawnPoints =
+        remember(enemySpawns, mapSpawnPoints) {
+            enemySpawns.any { spawn ->
+                spawn.spawnPoint != null && spawn.spawnPoint !in mapSpawnPoints
+            }
         }
-    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         // Add turn and remove all turns buttons
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = "${stringResource(Res.string.enemies)} (${enemySpawns.size}):",
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Button(onClick = {
                         // Add a new empty turn without opening dialog
@@ -115,50 +113,55 @@ fun EnemySpawnsTab(
                     Button(
                         onClick = onShowRemoveAllTurnsDialog,
                         enabled = enemySpawns.isNotEmpty() || maxTurnNumber > 0,
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (enemySpawns.isNotEmpty() || maxTurnNumber > 0)
-                                MaterialTheme.colorScheme.error
-                            else
-                                MaterialTheme.colorScheme.surfaceVariant
-                        )
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                containerColor =
+                                    if (enemySpawns.isNotEmpty() || maxTurnNumber > 0) {
+                                        MaterialTheme.colorScheme.error
+                                    } else {
+                                        MaterialTheme.colorScheme.surfaceVariant
+                                    },
+                            ),
                     ) {
                         Text(stringResource(Res.string.remove_all_turns))
                     }
                 }
             }
         }
-        
+
         // Warning card and button if enemies are outside spawn points
         if (hasEnemiesOutsideSpawnPoints) {
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer
-                    )
+                    colors =
+                        CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                        ),
                 ) {
                     Column(
                         modifier = Modifier.padding(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
                             WarningIcon(size = 20.dp)
                             Text(
                                 text = stringResource(Res.string.spawn_point_warning),
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.error
+                                color = MaterialTheme.colorScheme.error,
                             )
                         }
                         Button(
                             onClick = { showChangeAllSpawnPointsDialog = true },
                             modifier = Modifier.fillMaxWidth(),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.error
-                            )
+                            colors =
+                                ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.error,
+                                ),
                         ) {
                             Text(stringResource(Res.string.change_all_spawn_points))
                         }
@@ -171,9 +174,10 @@ fun EnemySpawnsTab(
         val turnGroups = enemySpawns.groupBy { it.spawnTurn }.entries.sortedBy { it.key }
 
         // Create list of all turns from 1 to maxTurnNumber (including empty ones)
-        val allTurns = (1..maxTurnNumber).map { turn ->
-            turn to (turnGroups.find { it.key == turn }?.value ?: emptyList())
-        }
+        val allTurns =
+            (1..maxTurnNumber).map { turn ->
+                turn to (turnGroups.find { it.key == turn }?.value ?: emptyList())
+            }
 
         allTurns.forEachIndexed { index, (turn, spawnsInTurn) ->
             item {
@@ -203,11 +207,12 @@ fun EnemySpawnsTab(
                     canDeleteTurn = turn == maxTurnNumber,
                     onCopyTurn = {
                         // Copy all enemies from this turn to a new turn (next available)
-                        val newSpawns = enemySpawns.toMutableList().apply {
-                            spawnsInTurn.forEach { spawn ->
-                                add(spawn.copy(spawnTurn = maxTurnNumber + 1))
+                        val newSpawns =
+                            enemySpawns.toMutableList().apply {
+                                spawnsInTurn.forEach { spawn ->
+                                    add(spawn.copy(spawnTurn = maxTurnNumber + 1))
+                                }
                             }
-                        }
                         onEnemySpawnsChange(newSpawns)
                         onMaxTurnNumberChange(maxTurnNumber + 1)
                     },
@@ -218,26 +223,30 @@ fun EnemySpawnsTab(
                     onMoveTurnUp = {
                         if (index > 0) {
                             val prevTurn = allTurns[index - 1].first
-                            val newSpawns = enemySpawns.map { spawn ->
-                                when (spawn.spawnTurn) {
-                                    turn -> spawn.copy(spawnTurn = prevTurn)
-                                    prevTurn -> spawn.copy(spawnTurn = turn)
-                                    else -> spawn
-                                }
-                            }.toMutableList()
+                            val newSpawns =
+                                enemySpawns
+                                    .map { spawn ->
+                                        when (spawn.spawnTurn) {
+                                            turn -> spawn.copy(spawnTurn = prevTurn)
+                                            prevTurn -> spawn.copy(spawnTurn = turn)
+                                            else -> spawn
+                                        }
+                                    }.toMutableList()
                             onEnemySpawnsChange(newSpawns)
                         }
                     },
                     onMoveTurnDown = {
                         if (index < allTurns.size - 1) {
                             val nextTurn = allTurns[index + 1].first
-                            val newSpawns = enemySpawns.map { spawn ->
-                                when (spawn.spawnTurn) {
-                                    turn -> spawn.copy(spawnTurn = nextTurn)
-                                    nextTurn -> spawn.copy(spawnTurn = turn)
-                                    else -> spawn
-                                }
-                            }.toMutableList()
+                            val newSpawns =
+                                enemySpawns
+                                    .map { spawn ->
+                                        when (spawn.spawnTurn) {
+                                            turn -> spawn.copy(spawnTurn = nextTurn)
+                                            nextTurn -> spawn.copy(spawnTurn = turn)
+                                            else -> spawn
+                                        }
+                                    }.toMutableList()
                             onEnemySpawnsChange(newSpawns)
                         }
                     },
@@ -252,12 +261,12 @@ fun EnemySpawnsTab(
                     },
                     onChangeTurnLevel = {
                         turnToChangeLevel = turn
-                    }
+                    },
                 )
             }
         }
     }
-    
+
     // Change spawn point dialog
     spawnToChange?.let { spawn ->
         ChangeSpawnPointDialog(
@@ -265,38 +274,42 @@ fun EnemySpawnsTab(
             map = map,
             onDismiss = { spawnToChange = null },
             onChange = { newSpawnPoint ->
-                val newSpawns = enemySpawns.map {
-                    if (it === spawn) {
-                        it.copy(spawnPoint = newSpawnPoint)
-                    } else {
-                        it
-                    }
-                }.toMutableList()
+                val newSpawns =
+                    enemySpawns
+                        .map {
+                            if (it === spawn) {
+                                it.copy(spawnPoint = newSpawnPoint)
+                            } else {
+                                it
+                            }
+                        }.toMutableList()
                 onEnemySpawnsChange(newSpawns)
                 spawnToChange = null
-            }
+            },
         )
     }
-    
+
     // Change level dialog
     spawnToChangeLevel?.let { spawn ->
         ChangeLevelDialog(
             spawn = spawn,
             onDismiss = { spawnToChangeLevel = null },
             onChange = { newLevel ->
-                val newSpawns = enemySpawns.map {
-                    if (it === spawn) {
-                        it.copy(level = newLevel)
-                    } else {
-                        it
-                    }
-                }.toMutableList()
+                val newSpawns =
+                    enemySpawns
+                        .map {
+                            if (it === spawn) {
+                                it.copy(level = newLevel)
+                            } else {
+                                it
+                            }
+                        }.toMutableList()
                 onEnemySpawnsChange(newSpawns)
                 spawnToChangeLevel = null
-            }
+            },
         )
     }
-    
+
     // Change turn level dialog
     turnToChangeLevel?.let { turn ->
         val spawnsInTurn = enemySpawns.filter { it.spawnTurn == turn }
@@ -305,19 +318,21 @@ fun EnemySpawnsTab(
             spawns = spawnsInTurn,
             onDismiss = { turnToChangeLevel = null },
             onChange = { newLevel ->
-                val newSpawns = enemySpawns.map {
-                    if (it.spawnTurn == turn) {
-                        it.copy(level = newLevel)
-                    } else {
-                        it
-                    }
-                }.toMutableList()
+                val newSpawns =
+                    enemySpawns
+                        .map {
+                            if (it.spawnTurn == turn) {
+                                it.copy(level = newLevel)
+                            } else {
+                                it
+                            }
+                        }.toMutableList()
                 onEnemySpawnsChange(newSpawns)
                 turnToChangeLevel = null
-            }
+            },
         )
     }
-    
+
     // Change all spawn points dialog
     if (showChangeAllSpawnPointsDialog) {
         ChangeAllSpawnPointsDialog(
@@ -328,22 +343,24 @@ fun EnemySpawnsTab(
                 // Apply remappings in correct order to avoid conflicts
                 // We need to handle cases where a "from" position is also a "to" position
                 val orderedRemappings = SpawnPointUtils.computeRemappingOrder(remappings)
-                
+
                 // Apply remappings
-                val newSpawns = enemySpawns.map { spawn ->
-                    spawn.spawnPoint?.let { spawnPoint ->
-                        val newPoint = orderedRemappings[spawnPoint]
-                        if (newPoint != null && newPoint != spawnPoint) {
-                            spawn.copy(spawnPoint = newPoint)
-                        } else {
-                            spawn
-                        }
-                    } ?: spawn
-                }.toMutableList()
-                
+                val newSpawns =
+                    enemySpawns
+                        .map { spawn ->
+                            spawn.spawnPoint?.let { spawnPoint ->
+                                val newPoint = orderedRemappings[spawnPoint]
+                                if (newPoint != null && newPoint != spawnPoint) {
+                                    spawn.copy(spawnPoint = newPoint)
+                                } else {
+                                    spawn
+                                }
+                            } ?: spawn
+                        }.toMutableList()
+
                 onEnemySpawnsChange(newSpawns)
                 showChangeAllSpawnPointsDialog = false
-            }
+            },
         )
     }
 }

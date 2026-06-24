@@ -15,8 +15,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import de.egril.defender.model.BallistaAttackEffect
 import de.egril.defender.model.Position
-import de.egril.defender.ui.hexagon.HexagonalGridConstants
 import de.egril.defender.ui.gameplay.GamePlayConstants
+import de.egril.defender.ui.hexagon.HexagonalGridConstants
 import kotlinx.coroutines.delay
 import kotlin.math.sqrt
 
@@ -49,7 +49,7 @@ fun BallistaAttackOverlay(
     effects: List<BallistaAttackEffect>,
     hexSizeDp: Float,
     contentSize: IntSize,
-    animate: Boolean
+    animate: Boolean,
 ) {
     val pixelDensity = LocalDensity.current.density
     val hexSizePx = hexSizeDp * pixelDensity
@@ -67,7 +67,7 @@ fun BallistaAttackOverlay(
                 rowVerticalAdjPx = rowVerticalAdjPx,
                 contentWidth = contentWidth,
                 contentHeight = contentHeight,
-                animate = animate
+                animate = animate,
             )
         }
     }
@@ -81,7 +81,7 @@ private fun SingleBallistaRockOverlay(
     rowVerticalAdjPx: Float,
     contentWidth: Dp,
     contentHeight: Dp,
-    animate: Boolean
+    animate: Boolean,
 ) {
     val hexWidthPx = hexSizePx * sqrt(3f)
     val hexHeightPx = hexSizePx * 2f
@@ -105,10 +105,11 @@ private fun SingleBallistaRockOverlay(
         if (animate) {
             overallProgress.animateTo(
                 targetValue = 1f,
-                animationSpec = tween(
-                    durationMillis = GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS.toInt(),
-                    easing = LinearEasing
-                )
+                animationSpec =
+                    tween(
+                        durationMillis = GamePlayConstants.AnimationTimings.BALLISTA_FLIGHT_DELAY_MS.toInt(),
+                        easing = LinearEasing,
+                    ),
             )
         } else {
             overallProgress.snapTo(1f)
@@ -126,7 +127,7 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBallistaRock(
     progress: Float,
     sourceCenter: Offset,
     targetCenter: Offset,
-    hexSizePx: Float
+    hexSizePx: Float,
 ) {
     val rockRadius = hexSizePx * ROCK_RADIUS_RATIO
 
@@ -139,13 +140,13 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBallistaRock(
         drawCircle(
             color = Color(0xFFFF8C00).copy(alpha = glowAlpha * 0.35f),
             radius = hexSizePx * (0.7f + fp * 0.4f),
-            center = sourceCenter
+            center = sourceCenter,
         )
         // Inner bright golden flash
         drawCircle(
             color = Color(0xFFFFD700).copy(alpha = glowAlpha * 0.55f),
             radius = hexSizePx * (0.35f + fp * 0.2f),
-            center = sourceCenter
+            center = sourceCenter,
         )
     } else if (progress < 1f) {
         // Phase 2: Rock in flight
@@ -158,25 +159,25 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBallistaRock(
         drawCircle(
             color = Color(0x55000000),
             radius = rockRadius * 0.9f,
-            center = Offset(rockCenter.x + rockRadius * 0.3f, rockCenter.y + rockRadius * 0.3f)
+            center = Offset(rockCenter.x + rockRadius * 0.3f, rockCenter.y + rockRadius * 0.3f),
         )
         // Rock body – dark brownish-grey boulder
         drawCircle(
             color = Color(0xFF7A6A55),
             radius = rockRadius,
-            center = rockCenter
+            center = rockCenter,
         )
         // Slightly lighter surface layer for depth
         drawCircle(
             color = Color(0xFF9B8B73),
             radius = rockRadius * 0.75f,
-            center = Offset(rockCenter.x - rockRadius * 0.08f, rockCenter.y - rockRadius * 0.08f)
+            center = Offset(rockCenter.x - rockRadius * 0.08f, rockCenter.y - rockRadius * 0.08f),
         )
         // Highlight spot (upper-left)
         drawCircle(
             color = Color(0xAAC4B09A),
             radius = rockRadius * 0.35f,
-            center = Offset(rockCenter.x - rockRadius * 0.28f, rockCenter.y - rockRadius * 0.32f)
+            center = Offset(rockCenter.x - rockRadius * 0.28f, rockCenter.y - rockRadius * 0.32f),
         )
     }
 }
@@ -200,7 +201,7 @@ fun BallistaAttackTestPreview(modifier: Modifier = Modifier) {
     val p = progress.value
 
     Canvas(modifier = modifier) {
-        val rockRadius = size.width * 0.045f  // fixed size for the standalone preview
+        val rockRadius = size.width * 0.045f // fixed size for the standalone preview
         val sourceX = size.width * 0.15f
         val targetX = size.width * 0.85f
         val midY = size.height * 0.5f
@@ -213,13 +214,13 @@ fun BallistaAttackTestPreview(modifier: Modifier = Modifier) {
             drawCircle(
                 color = Color(0xFFFF8C00).copy(alpha = glowAlpha * 0.35f),
                 radius = rockRadius * (2.2f + fp * 1.4f),
-                center = sourceCenter
+                center = sourceCenter,
             )
             // Inner bright flash
             drawCircle(
                 color = Color(0xFFFFD700).copy(alpha = glowAlpha * 0.55f),
                 radius = rockRadius * (1.1f + fp * 0.7f),
-                center = sourceCenter
+                center = sourceCenter,
             )
         } else if (p < 1f) {
             val flyProgress = (p - FIRING_PHASE_END) / (1f - FIRING_PHASE_END)
@@ -230,7 +231,7 @@ fun BallistaAttackTestPreview(modifier: Modifier = Modifier) {
             drawCircle(
                 color = Color(0x55000000),
                 radius = rockRadius * 0.9f,
-                center = Offset(rockCenter.x + rockRadius * 0.3f, rockCenter.y + rockRadius * 0.3f)
+                center = Offset(rockCenter.x + rockRadius * 0.3f, rockCenter.y + rockRadius * 0.3f),
             )
             // Rock body
             drawCircle(color = Color(0xFF7A6A55), radius = rockRadius, center = rockCenter)
@@ -238,13 +239,13 @@ fun BallistaAttackTestPreview(modifier: Modifier = Modifier) {
             drawCircle(
                 color = Color(0xFF9B8B73),
                 radius = rockRadius * 0.75f,
-                center = Offset(rockCenter.x - rockRadius * 0.08f, rockCenter.y - rockRadius * 0.08f)
+                center = Offset(rockCenter.x - rockRadius * 0.08f, rockCenter.y - rockRadius * 0.08f),
             )
             // Highlight
             drawCircle(
                 color = Color(0xAAC4B09A),
                 radius = rockRadius * 0.35f,
-                center = Offset(rockCenter.x - rockRadius * 0.28f, rockCenter.y - rockRadius * 0.32f)
+                center = Offset(rockCenter.x - rockRadius * 0.28f, rockCenter.y - rockRadius * 0.32f),
             )
         }
     }

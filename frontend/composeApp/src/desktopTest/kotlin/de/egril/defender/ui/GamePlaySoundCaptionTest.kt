@@ -18,7 +18,6 @@ import org.junit.Rule
 import org.junit.Test
 
 class GamePlaySoundCaptionTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -54,7 +53,7 @@ class GamePlaySoundCaptionTest {
                 onDefenderAttackPosition = { _, _ -> true },
                 onEndPlayerTurn = {},
                 onAutoAttackAndEndTurn = {},
-                onBackToMap = {}
+                onBackToMap = {},
             )
         }
 
@@ -65,7 +64,7 @@ class GamePlaySoundCaptionTest {
         composeTestRule.onNodeWithTag("gameplaySoundCaption").assertExists()
         ScreenshotTestUtils.captureScreenshot(
             composeTestRule = composeTestRule,
-            filename = "gameplay-sound-caption"
+            filename = "gameplay-sound-caption",
         )
     }
 
@@ -87,7 +86,7 @@ class GamePlaySoundCaptionTest {
                 onDefenderAttackPosition = { _, _ -> true },
                 onEndPlayerTurn = {},
                 onAutoAttackAndEndTurn = {},
-                onBackToMap = {}
+                onBackToMap = {},
             )
         }
 

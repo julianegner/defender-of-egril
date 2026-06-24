@@ -13,7 +13,6 @@ import org.junit.Test
  * This test captures a screenshot of the main menu with the new banner.
  */
 class ApplicationBannerTest {
-    
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -21,7 +20,7 @@ class ApplicationBannerTest {
     fun setDefaultLanguage() {
         currentLanguage.value = AppLocale.DEFAULT
     }
-    
+
     @Test
     fun testApplicationBannerRendersCorrectly() {
         // Set the content
@@ -33,44 +32,48 @@ class ApplicationBannerTest {
                 onShowRules = {},
                 onShowInstallationInfo = {},
                 onEditPlayerName = {},
-                currentPlayerName = null  // No player name in tests
+                currentPlayerName = null, // No player name in tests
             )
         }
-        
+
         // Wait for composition to complete
         composeTestRule.waitForIdle()
-        
+
         // Try to verify the banner displays "Defender of" text (may fail in headless env)
         try {
-            composeTestRule.onNodeWithText("Defender of", substring = true, ignoreCase = true)
+            composeTestRule
+                .onNodeWithText("Defender of", substring = true, ignoreCase = true)
                 .assertExists()
         } catch (e: AssertionError) {
             println("Note: Banner text 'Defender of' not found (expected in headless test environment)")
         }
-        
+
         // Try to verify the banner displays "Egril" text (may fail in headless env)
         try {
-            composeTestRule.onNodeWithText("Egril", substring = true, ignoreCase = true)
+            composeTestRule
+                .onNodeWithText("Egril", substring = true, ignoreCase = true)
                 .assertExists()
         } catch (e: AssertionError) {
             println("Note: Banner text 'Egril' not found (expected in headless test environment)")
         }
-        
+
         // Verify buttons still work
-        composeTestRule.onNodeWithText("Start Game", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Start Game", substring = true, ignoreCase = true)
             .assertExists()
             .assertHasClickAction()
-        
-        composeTestRule.onNodeWithText("Rules", substring = true, ignoreCase = true)
+
+        composeTestRule
+            .onNodeWithText("Rules", substring = true, ignoreCase = true)
             .assertExists()
             .assertHasClickAction()
-        
+
         // Capture screenshot
         ScreenshotTestUtils.captureScreenshot(
             composeTestRule,
             "main-menu-with-banner",
             width = 1200,
-            height = 800
+            height = 800,
         )
     }
 }

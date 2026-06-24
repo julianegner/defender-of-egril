@@ -19,27 +19,32 @@ actual fun initializeAudioSystem() {
 }
 
 @OptIn(DelicateCoroutinesApi::class)
-actual fun playSoundFile(fileName: String, volume: Float) {
+actual fun playSoundFile(
+    fileName: String,
+    volume: Float,
+) {
     GlobalScope.launch(Dispatchers.IO) {
         try {
             // Load audio file from compose resources
             val resourcePath = "files/sounds/$fileName"
-            val bytes = try {
-                // Use Res.readBytes to load from compose resources
-                Res.readBytes(resourcePath)
-            } catch (e: Exception) {
-                println("Could not load resource from compose resources: $resourcePath - ${e.message}")
-                return@launch
-            }
-            
+            val bytes =
+                try {
+                    // Use Res.readBytes to load from compose resources
+                    Res.readBytes(resourcePath)
+                } catch (e: Exception) {
+                    println("Could not load resource from compose resources: $resourcePath - ${e.message}")
+                    return@launch
+                }
+
             // Create audio input stream from bytes
-            val audioInputStream = AudioSystem.getAudioInputStream(
-                BufferedInputStream(ByteArrayInputStream(bytes))
-            )
-            
+            val audioInputStream =
+                AudioSystem.getAudioInputStream(
+                    BufferedInputStream(ByteArrayInputStream(bytes)),
+                )
+
             val playClip = AudioSystem.getClip()
             playClip.open(audioInputStream)
-            
+
             // Set volume
             if (playClip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
                 val gainControl = playClip.getControl(FloatControl.Type.MASTER_GAIN) as FloatControl
@@ -47,10 +52,10 @@ actual fun playSoundFile(fileName: String, volume: Float) {
                 val gain = gainControl.minimum + range * volume
                 gainControl.value = gain.coerceIn(gainControl.minimum, gainControl.maximum)
             }
-            
+
             // Play sound
             playClip.start()
-            
+
             // Clean up after playback
             playClip.addLineListener { event ->
                 if (event.type == javax.sound.sampled.LineEvent.Type.STOP) {

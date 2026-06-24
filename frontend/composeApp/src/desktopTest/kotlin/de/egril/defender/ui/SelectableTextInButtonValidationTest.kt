@@ -1,8 +1,8 @@
 package de.egril.defender.ui
 
+import java.io.File
 import kotlin.test.Test
 import kotlin.test.fail
-import java.io.File
 
 /**
  * Test to ensure SelectableText is never used inside Button composables.
@@ -20,20 +20,32 @@ import java.io.File
  *   Replace SelectableText(...) with Text(...) inside the button lambda.
  */
 class SelectableTextInButtonValidationTest {
+    private val projectRoot: File =
+        run {
+            val currentDir = File(System.getProperty("user.dir"))
+            if (currentDir.name == "composeApp") currentDir.parentFile else currentDir
+        }
 
-    private val projectRoot: File = run {
-        val currentDir = File(System.getProperty("user.dir"))
-        if (currentDir.name == "composeApp") currentDir.parentFile else currentDir
-    }
-
-    private val buttonTypes = listOf(
-        "Button", "TextButton", "OutlinedButton", "ElevatedButton",
-        "FilledTonalButton", "IconButton",
-        "AssistChip", "ElevatedAssistChip", "FilterChip", "ElevatedFilterChip",
-        "InputChip", "SuggestionChip", "ElevatedSuggestionChip",
-        "DropdownMenuItem", "NavigationBarItem", "NavigationRailItem",
-        "NavigationDrawerItem",
-    )
+    private val buttonTypes =
+        listOf(
+            "Button",
+            "TextButton",
+            "OutlinedButton",
+            "ElevatedButton",
+            "FilledTonalButton",
+            "IconButton",
+            "AssistChip",
+            "ElevatedAssistChip",
+            "FilterChip",
+            "ElevatedFilterChip",
+            "InputChip",
+            "SuggestionChip",
+            "ElevatedSuggestionChip",
+            "DropdownMenuItem",
+            "NavigationBarItem",
+            "NavigationRailItem",
+            "NavigationDrawerItem",
+        )
 
     @Test
     fun testNoSelectableTextInsideButtons() {
@@ -44,27 +56,32 @@ class SelectableTextInButtonValidationTest {
             fail("Source path not found: ${sourcePath.absolutePath}")
         }
 
-        sourcePath.walkTopDown()
+        sourcePath
+            .walkTopDown()
             .filter { it.isFile && it.extension == "kt" }
             .forEach { file -> scanFile(file, violations) }
 
         if (violations.isNotEmpty()) {
-            val message = buildString {
-                appendLine("Found ${violations.size} SelectableText usage(s) inside Button composable(s):")
-                appendLine()
-                appendLine("SelectableText must not be used inside Button composables.")
-                appendLine("Use plain Text() instead, as SelectableText wraps content in a")
-                appendLine("SelectionContainer which conflicts with button click handling.")
-                appendLine()
-                violations.forEach { appendLine(it) }
-                appendLine()
-                appendLine("How to fix: replace SelectableText(...) with Text(...) inside the button lambda.")
-            }
+            val message =
+                buildString {
+                    appendLine("Found ${violations.size} SelectableText usage(s) inside Button composable(s):")
+                    appendLine()
+                    appendLine("SelectableText must not be used inside Button composables.")
+                    appendLine("Use plain Text() instead, as SelectableText wraps content in a")
+                    appendLine("SelectionContainer which conflicts with button click handling.")
+                    appendLine()
+                    violations.forEach { appendLine(it) }
+                    appendLine()
+                    appendLine("How to fix: replace SelectableText(...) with Text(...) inside the button lambda.")
+                }
             fail(message)
         }
     }
 
-    private fun scanFile(file: File, violations: MutableList<String>) {
+    private fun scanFile(
+        file: File,
+        violations: MutableList<String>,
+    ) {
         val content = file.readText()
         if ("SelectableText" !in content) return
 

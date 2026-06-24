@@ -18,8 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.DefenderType
-import de.egril.defender.ui.hexagon.TowerIconOnHexagon
 import de.egril.defender.ui.getLocalizedName
+import de.egril.defender.ui.hexagon.TowerIconOnHexagon
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.add_all_towers
 import defender_of_egril.composeapp.generated.resources.available_towers
@@ -33,7 +33,7 @@ import defender_of_egril.composeapp.generated.resources.remove_all_towers
 @Composable
 fun TowersTab(
     availableTowers: Set<DefenderType>,
-    onAvailableTowersChange: (Set<DefenderType>) -> Unit
+    onAvailableTowersChange: (Set<DefenderType>) -> Unit,
 ) {
     val allTowers = DefenderType.entries.filter { it != DefenderType.DRAGONS_LAIR }
     val hasUnselectedTowers = allTowers.any { !availableTowers.contains(it) }
@@ -42,20 +42,20 @@ fun TowersTab(
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         // Add All / Remove All buttons
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Button(
                     onClick = {
                         onAvailableTowersChange(allTowers.toSet())
                     },
                     enabled = hasUnselectedTowers,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 ) {
                     Text(stringResource(Res.string.add_all_towers))
                 }
@@ -64,7 +64,7 @@ fun TowersTab(
                         onAvailableTowersChange(emptySet())
                     },
                     enabled = hasSelectedTowers,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 ) {
                     Text(stringResource(Res.string.remove_all_towers))
                 }
@@ -75,7 +75,7 @@ fun TowersTab(
             Text(
                 text = stringResource(Res.string.available_towers),
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
             )
         }
 
@@ -83,21 +83,26 @@ fun TowersTab(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Checkbox(
                     checked = availableTowers.contains(tower),
                     onCheckedChange = { checked ->
-                        val newTowers = if (checked) {
-                            availableTowers + tower
-                        } else {
-                            availableTowers - tower
-                        }
+                        val newTowers =
+                            if (checked) {
+                                availableTowers + tower
+                            } else {
+                                availableTowers - tower
+                            }
                         onAvailableTowersChange(newTowers)
-                    }
+                    },
                 )
                 TowerIconOnHexagon(defenderType = tower)
-                Text("${tower.getLocalizedName()} (${stringResource(Res.string.cost_label)}: ${tower.baseCost}, ${stringResource(Res.string.damage_label)}: ${tower.baseDamage})")
+                Text(
+                    "${tower.getLocalizedName()} (${stringResource(
+                        Res.string.cost_label,
+                    )}: ${tower.baseCost}, ${stringResource(Res.string.damage_label)}: ${tower.baseDamage})",
+                )
             }
         }
     }

@@ -8,8 +8,11 @@ import org.w3c.xhr.XMLHttpRequest
 import kotlin.coroutines.resume
 
 actual object BackendSaveService {
-
-    actual suspend fun uploadSavefile(saveId: String, jsonData: String, token: String): Boolean =
+    actual suspend fun uploadSavefile(
+        saveId: String,
+        jsonData: String,
+        token: String,
+    ): Boolean =
         suspendCancellableCoroutine { continuation ->
             try {
                 val xhr = XMLHttpRequest()

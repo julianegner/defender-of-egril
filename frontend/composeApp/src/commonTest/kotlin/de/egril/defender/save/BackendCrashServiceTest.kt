@@ -5,20 +5,22 @@ import kotlin.test.assertContains
 import kotlin.test.assertTrue
 
 class BackendCrashServiceTest {
-
     @Test
     fun buildCrashReportUploadJson_includesRequiredFields() {
-        val currentPlatform = de.egril.defender.utils.getPlatform()
-        val payload = buildCrashReportUploadJson(
-            CrashReportSubmitRequest(
-                crashId = "123e4567-e89b-12d3-a456-426614174000",
-                errorType = "java.lang.IllegalStateException",
-                errorMessage = "something broke",
-                stackTrace = "at de.egril.defender.Foo.bar(Foo.kt:42)",
-                gameLog = "turn=7",
-                settingsJson = serializeSettingsJson(mapOf("darkMode" to "false"))
+        val currentPlatform =
+            de.egril.defender.utils
+                .getPlatform()
+        val payload =
+            buildCrashReportUploadJson(
+                CrashReportSubmitRequest(
+                    crashId = "123e4567-e89b-12d3-a456-426614174000",
+                    errorType = "java.lang.IllegalStateException",
+                    errorMessage = "something broke",
+                    stackTrace = "at de.egril.defender.Foo.bar(Foo.kt:42)",
+                    gameLog = "turn=7",
+                    settingsJson = serializeSettingsJson(mapOf("darkMode" to "false")),
+                ),
             )
-        )
 
         assertContains(payload, "\"crashId\":\"123e4567-e89b-12d3-a456-426614174000\"")
         assertContains(payload, "\"errorType\":\"java.lang.IllegalStateException\"")
@@ -41,16 +43,17 @@ class BackendCrashServiceTest {
 
     @Test
     fun buildCrashReportUploadJson_allowsNullOptionalFields() {
-        val payload = buildCrashReportUploadJson(
-            CrashReportSubmitRequest(
-                crashId = "123e4567-e89b-12d3-a456-426614174000",
-                errorType = "kotlin.IllegalArgumentException",
-                errorMessage = null,
-                stackTrace = null,
-                gameLog = null,
-                settingsJson = null
+        val payload =
+            buildCrashReportUploadJson(
+                CrashReportSubmitRequest(
+                    crashId = "123e4567-e89b-12d3-a456-426614174000",
+                    errorType = "kotlin.IllegalArgumentException",
+                    errorMessage = null,
+                    stackTrace = null,
+                    gameLog = null,
+                    settingsJson = null,
+                ),
             )
-        )
 
         assertContains(payload, "\"errorMessage\":null")
         assertContains(payload, "\"stackTrace\":null")
@@ -60,16 +63,17 @@ class BackendCrashServiceTest {
 
     @Test
     fun buildCrashReportUploadJson_escapesQuotesAndNewlinesInErrorMessage() {
-        val payload = buildCrashReportUploadJson(
-            CrashReportSubmitRequest(
-                crashId = "123e4567-e89b-12d3-a456-426614174000",
-                errorType = "RuntimeException",
-                errorMessage = "bad \"value\"\nnext line",
-                stackTrace = null,
-                gameLog = null,
-                settingsJson = null
+        val payload =
+            buildCrashReportUploadJson(
+                CrashReportSubmitRequest(
+                    crashId = "123e4567-e89b-12d3-a456-426614174000",
+                    errorType = "RuntimeException",
+                    errorMessage = "bad \"value\"\nnext line",
+                    stackTrace = null,
+                    gameLog = null,
+                    settingsJson = null,
+                ),
             )
-        )
 
         // Quotes and newlines must be escaped so the body is still valid JSON.
         assertContains(payload, "\\\"value\\\"")

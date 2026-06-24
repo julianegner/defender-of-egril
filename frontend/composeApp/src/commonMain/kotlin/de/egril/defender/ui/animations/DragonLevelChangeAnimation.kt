@@ -20,15 +20,13 @@ import androidx.compose.ui.Modifier
 fun DragonLevelChangeAnimation(
     animate: Boolean,
     isLevelUp: Boolean = true,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     if (!animate) return
 
     LottieAnimation(
         animationType = if (isLevelUp) AnimationType.DRAGON_LEVEL_UP else AnimationType.DRAGON_LEVEL_DOWN,
         modifier = modifier.fillMaxSize(),
-        iterations = 1
+        iterations = 1,
     )
 }
-
-

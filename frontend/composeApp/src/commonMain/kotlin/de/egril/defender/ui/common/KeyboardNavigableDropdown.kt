@@ -28,7 +28,7 @@ import defender_of_egril.composeapp.generated.resources.dropdown_keyboard_hint
  */
 data class DropdownItem<T>(
     val value: T,
-    val content: @Composable () -> Unit
+    val content: @Composable () -> Unit,
 )
 
 /**
@@ -60,7 +60,7 @@ fun <T> KeyboardNavigableDropdown(
     modifier: Modifier = Modifier,
     triggerOpen: Boolean = false,
     onTriggerOpenHandled: () -> Unit = {},
-    showHint: Boolean = true
+    showHint: Boolean = true,
 ) {
     var expanded by remember { mutableStateOf(false) }
     var highlightedIndex by remember { mutableStateOf(-1) }
@@ -83,56 +83,58 @@ fun <T> KeyboardNavigableDropdown(
     Column {
         Box(
             contentAlignment = Alignment.CenterStart,
-            modifier = modifier
-                .height(56.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .border(
-                    BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                    RoundedCornerShape(8.dp)
-                )
-                .clickable { expanded = !expanded }
-                .onPreviewKeyEvent { event ->
-                    if (event.type == KeyEventType.KeyDown) {
-                        when {
-                            expanded && event.key == Key.DirectionDown -> {
-                                highlightedIndex =
-                                    (highlightedIndex + 1).coerceAtMost(items.size - 1)
-                                true
-                            }
-
-                            expanded && event.key == Key.DirectionUp -> {
-                                highlightedIndex =
-                                    (highlightedIndex - 1).coerceAtLeast(0)
-                                true
-                            }
-
-                            expanded && event.key == Key.Enter -> {
-                                val item = items.getOrNull(highlightedIndex)
-                                if (item != null) {
-                                    onItemSelected(item.value)
+            modifier =
+                modifier
+                    .height(56.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .border(
+                        BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+                        RoundedCornerShape(8.dp),
+                    ).clickable { expanded = !expanded }
+                    .onPreviewKeyEvent { event ->
+                        if (event.type == KeyEventType.KeyDown) {
+                            when {
+                                expanded && event.key == Key.DirectionDown -> {
+                                    highlightedIndex =
+                                        (highlightedIndex + 1).coerceAtMost(items.size - 1)
+                                    true
                                 }
-                                expanded = false
-                                true
-                            }
 
-                            expanded && event.key == Key.Escape -> {
-                                expanded = false
-                                true
-                            }
+                                expanded && event.key == Key.DirectionUp -> {
+                                    highlightedIndex =
+                                        (highlightedIndex - 1).coerceAtLeast(0)
+                                    true
+                                }
 
-                            !expanded && (event.key == Key.Enter || event.key == Key.Spacebar) -> {
-                                expanded = true
-                                true
-                            }
+                                expanded && event.key == Key.Enter -> {
+                                    val item = items.getOrNull(highlightedIndex)
+                                    if (item != null) {
+                                        onItemSelected(item.value)
+                                    }
+                                    expanded = false
+                                    true
+                                }
 
-                            else -> false
+                                expanded && event.key == Key.Escape -> {
+                                    expanded = false
+                                    true
+                                }
+
+                                !expanded && (event.key == Key.Enter || event.key == Key.Spacebar) -> {
+                                    expanded = true
+                                    true
+                                }
+
+                                else -> false
+                            }
+                        } else {
+                            false
                         }
-                    } else false
-                }
+                    },
         ) {
             Row(
                 modifier = Modifier.padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 selectedContent()
             }
@@ -142,23 +144,25 @@ fun <T> KeyboardNavigableDropdown(
                 TriangleUpIcon(
                     size = 14.dp,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 16.dp)
+                    modifier =
+                        Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(end = 16.dp),
                 )
             } else {
                 TriangleDownIcon(
                     size = 14.dp,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 16.dp)
+                    modifier =
+                        Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(end = 16.dp),
                 )
             }
 
             DropdownMenu(
                 expanded = expanded,
-                onDismissRequest = { expanded = false }
+                onDismissRequest = { expanded = false },
             ) {
                 items.forEachIndexed { index, item ->
                     DropdownMenuItem(
@@ -167,21 +171,23 @@ fun <T> KeyboardNavigableDropdown(
                             onItemSelected(item.value)
                             expanded = false
                         },
-                        colors = if (index == highlightedIndex) {
-                            MenuDefaults.itemColors(
-                                textColor = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                        } else {
-                            MenuDefaults.itemColors()
-                        },
-                        modifier = if (index == highlightedIndex) {
-                            Modifier.border(
-                                BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
-                                RoundedCornerShape(4.dp)
-                            )
-                        } else {
-                            Modifier
-                        }
+                        colors =
+                            if (index == highlightedIndex) {
+                                MenuDefaults.itemColors(
+                                    textColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                )
+                            } else {
+                                MenuDefaults.itemColors()
+                            },
+                        modifier =
+                            if (index == highlightedIndex) {
+                                Modifier.border(
+                                    BorderStroke(2.dp, MaterialTheme.colorScheme.primary),
+                                    RoundedCornerShape(4.dp),
+                                )
+                            } else {
+                                Modifier
+                            },
                     )
                 }
             }
@@ -193,7 +199,7 @@ fun <T> KeyboardNavigableDropdown(
                 text = stringResource(Res.string.dropdown_keyboard_hint),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier.padding(top = 4.dp),
             )
         }
     }

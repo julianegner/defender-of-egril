@@ -13,7 +13,7 @@ data class CrashReportSubmitRequest(
     val errorMessage: String?,
     val stackTrace: String?,
     val gameLog: String?,
-    val settingsJson: String?
+    val settingsJson: String?,
 )
 
 expect object BackendCrashService {
@@ -23,33 +23,44 @@ expect object BackendCrashService {
      *
      * @param token optional bearer token of the currently authenticated user.
      */
-    suspend fun submitCrashReport(request: CrashReportSubmitRequest, token: String?): Int?
+    suspend fun submitCrashReport(
+        request: CrashReportSubmitRequest,
+        token: String?,
+    ): Int?
 }
 
-internal fun buildCrashReportUploadJson(request: CrashReportSubmitRequest): String = buildString {
-    val currentPlatform = de.egril.defender.utils.getPlatform()
-    val platform = de.egril.defender.utils.getClientPlatformName()
-    val platformLong = currentPlatform.name
-    val osName = currentPlatform.osName
-    val versionName = de.egril.defender.AppBuildInfo.VERSION_NAME
-    val commitHash = de.egril.defender.AppBuildInfo.COMMIT_HASH
+internal fun buildCrashReportUploadJson(request: CrashReportSubmitRequest): String =
+    buildString {
+        val currentPlatform =
+            de.egril.defender.utils
+                .getPlatform()
+        val platform =
+            de.egril.defender.utils
+                .getClientPlatformName()
+        val platformLong = currentPlatform.name
+        val osName = currentPlatform.osName
+        val versionName = de.egril.defender.AppBuildInfo.VERSION_NAME
+        val commitHash = de.egril.defender.AppBuildInfo.COMMIT_HASH
 
-    append("{")
-    append("\"crashId\":\"${escapeJsonString(request.crashId)}\",")
-    append("\"errorType\":\"${escapeJsonString(request.errorType)}\",")
-    appendNullableJsonString("errorMessage", request.errorMessage)
-    append(',')
-    appendNullableJsonString("stackTrace", request.stackTrace)
-    append(',')
-    appendNullableJsonString("gameLog", request.gameLog)
-    append(',')
-    appendNullableJsonString("settingsJson", request.settingsJson)
-    append(',')
-    appendClientInfo(platform, platformLong, versionName, commitHash, osName)
-    append("}")
-}
+        append("{")
+        append("\"crashId\":\"${escapeJsonString(request.crashId)}\",")
+        append("\"errorType\":\"${escapeJsonString(request.errorType)}\",")
+        appendNullableJsonString("errorMessage", request.errorMessage)
+        append(',')
+        appendNullableJsonString("stackTrace", request.stackTrace)
+        append(',')
+        appendNullableJsonString("gameLog", request.gameLog)
+        append(',')
+        appendNullableJsonString("settingsJson", request.settingsJson)
+        append(',')
+        appendClientInfo(platform, platformLong, versionName, commitHash, osName)
+        append("}")
+    }
 
-private fun StringBuilder.appendNullableJsonString(key: String, value: String?) {
+private fun StringBuilder.appendNullableJsonString(
+    key: String,
+    value: String?,
+) {
     if (value == null) {
         append("\"$key\":null")
     } else {

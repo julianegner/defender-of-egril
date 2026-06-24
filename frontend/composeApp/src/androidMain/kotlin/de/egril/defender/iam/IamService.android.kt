@@ -72,13 +72,13 @@ private data class AndroidDeviceAuthResponse(
     val verificationUri: String,
     val verificationUriComplete: String?,
     val expiresIn: Long,
-    val interval: Long
+    val interval: Long,
 )
 
 private data class AndroidTokenData(
     val accessToken: String,
     val refreshToken: String?,
-    val expiresInSeconds: Long
+    val expiresInSeconds: Long,
 )
 
 // ---------------------------------------------------------------------------
@@ -89,31 +89,33 @@ private data class AndroidTokenData(
  * Creates an [OpenIdConnectClient] pointed at the configured Keycloak instance.
  * Uses PKCE (S256) and the custom-scheme redirect URI.
  */
-private fun createOidcClient(): OpenIdConnectClient = OpenIdConnectClient {
-    endpoints {
-        tokenEndpoint = IamConfig.tokenUrl
-        authorizationEndpoint = IamConfig.authUrl
-        endSessionEndpoint = IamConfig.logoutUrl
+private fun createOidcClient(): OpenIdConnectClient =
+    OpenIdConnectClient {
+        endpoints {
+            tokenEndpoint = IamConfig.tokenUrl
+            authorizationEndpoint = IamConfig.authUrl
+            endSessionEndpoint = IamConfig.logoutUrl
+        }
+        clientId = IamConfig.CLIENT_ID
+        scope = "openid profile"
+        codeChallengeMethod = CodeChallengeMethod.S256
+        redirectUri = ANDROID_REDIRECT_URI
     }
-    clientId = IamConfig.CLIENT_ID
-    scope = "openid profile"
-    codeChallengeMethod = CodeChallengeMethod.S256
-    redirectUri = ANDROID_REDIRECT_URI
-}
 
 /**
  * Creates an [OpenIdConnectClient] using [IamConfig.DESKTOP_CLIENT_ID] for
  * background token refresh after a Device Authorization Grant login on Android TV.
  */
-private fun createDeviceAuthOidcClient(): OpenIdConnectClient = OpenIdConnectClient {
-    endpoints {
-        tokenEndpoint = IamConfig.tokenUrl
-        authorizationEndpoint = IamConfig.authUrl
-        endSessionEndpoint = IamConfig.logoutUrl
+private fun createDeviceAuthOidcClient(): OpenIdConnectClient =
+    OpenIdConnectClient {
+        endpoints {
+            tokenEndpoint = IamConfig.tokenUrl
+            authorizationEndpoint = IamConfig.authUrl
+            endSessionEndpoint = IamConfig.logoutUrl
+        }
+        clientId = IamConfig.DESKTOP_CLIENT_ID
+        scope = "openid"
     }
-    clientId = IamConfig.DESKTOP_CLIENT_ID
-    scope = "openid"
-}
 
 // ---------------------------------------------------------------------------
 // Platform implementations
@@ -125,22 +127,23 @@ internal actual fun startPlatformLogin() {
     currentLoginJob?.cancel()
     deviceAuthCancelledAndroid = false
 
-    currentLoginJob = iamScope.launch {
-        try {
-            if (getPlatform().isAndroidTV) {
-                // Android TV: no accessible browser, use Device Authorization Grant.
-                startDeviceAuthLogin()
-            } else {
-                // Regular Android: use standard PKCE Authorization Code Grant via browser.
-                startPkceLogin()
+    currentLoginJob =
+        iamScope.launch {
+            try {
+                if (getPlatform().isAndroidTV) {
+                    // Android TV: no accessible browser, use Device Authorization Grant.
+                    startDeviceAuthLogin()
+                } else {
+                    // Regular Android: use standard PKCE Authorization Code Grant via browser.
+                    startPkceLogin()
+                }
+            } catch (_: Exception) {
+                // Login errors must never disrupt gameplay
+            } finally {
+                IamService.deviceAuthState.value = null
+                IamService.loginInProgress.value = false
             }
-        } catch (_: Exception) {
-            // Login errors must never disrupt gameplay
-        } finally {
-            IamService.deviceAuthState.value = null
-            IamService.loginInProgress.value = false
         }
-    }
 }
 
 /**
@@ -171,17 +174,19 @@ private suspend fun startPkceLogin() {
 private suspend fun startDeviceAuthLogin() {
     val deviceResponse = requestDeviceAuthAndroid() ?: return
 
-    IamService.deviceAuthState.value = DeviceAuthState(
-        userCode = deviceResponse.userCode,
-        verificationUri = deviceResponse.verificationUri,
-        verificationUriComplete = deviceResponse.verificationUriComplete
-    )
+    IamService.deviceAuthState.value =
+        DeviceAuthState(
+            userCode = deviceResponse.userCode,
+            verificationUri = deviceResponse.verificationUri,
+            verificationUriComplete = deviceResponse.verificationUriComplete,
+        )
 
-    val tokenData = pollDeviceTokenAndroid(
-        deviceCode = deviceResponse.deviceCode,
-        interval = deviceResponse.interval,
-        expiresIn = deviceResponse.expiresIn
-    ) ?: return
+    val tokenData =
+        pollDeviceTokenAndroid(
+            deviceCode = deviceResponse.deviceCode,
+            interval = deviceResponse.interval,
+            expiresIn = deviceResponse.expiresIn,
+        ) ?: return
 
     IamService.state.value = buildIamState(tokenData.accessToken)
     storedRefreshToken = tokenData.refreshToken
@@ -299,36 +304,37 @@ private fun startBackgroundTokenRefresh(client: OpenIdConnectClient) {
  * POSTs to the Keycloak device-authorization endpoint and returns the parsed response,
  * or `null` if the request fails or the server returns a non-200 status.
  */
-private suspend fun requestDeviceAuthAndroid(): AndroidDeviceAuthResponse? = withContext(Dispatchers.IO) {
-    try {
-        val body = "client_id=${URLEncoder.encode(IamConfig.DESKTOP_CLIENT_ID, "UTF-8")}&scope=openid"
-        val conn = URI.create(IamConfig.deviceAuthUrl).toURL().openConnection() as HttpURLConnection
-        conn.requestMethod = "POST"
-        conn.doOutput = true
-        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-        conn.connectTimeout = ANDROID_TOKEN_HTTP_TIMEOUT_MS
-        conn.readTimeout = ANDROID_TOKEN_HTTP_TIMEOUT_MS
-        conn.outputStream.use { it.write(body.toByteArray()) }
+private suspend fun requestDeviceAuthAndroid(): AndroidDeviceAuthResponse? =
+    withContext(Dispatchers.IO) {
+        try {
+            val body = "client_id=${URLEncoder.encode(IamConfig.DESKTOP_CLIENT_ID, "UTF-8")}&scope=openid"
+            val conn = URI.create(IamConfig.deviceAuthUrl).toURL().openConnection() as HttpURLConnection
+            conn.requestMethod = "POST"
+            conn.doOutput = true
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+            conn.connectTimeout = ANDROID_TOKEN_HTTP_TIMEOUT_MS
+            conn.readTimeout = ANDROID_TOKEN_HTTP_TIMEOUT_MS
+            conn.outputStream.use { it.write(body.toByteArray()) }
 
-        if (conn.responseCode != 200) {
+            if (conn.responseCode != 200) {
+                conn.disconnect()
+                return@withContext null
+            }
+            val json = conn.inputStream.bufferedReader().readText()
             conn.disconnect()
-            return@withContext null
-        }
-        val json = conn.inputStream.bufferedReader().readText()
-        conn.disconnect()
 
-        AndroidDeviceAuthResponse(
-            deviceCode = extractJsonStringValue(json, "device_code") ?: return@withContext null,
-            userCode = extractJsonStringValue(json, "user_code") ?: return@withContext null,
-            verificationUri = extractJsonStringValue(json, "verification_uri") ?: return@withContext null,
-            verificationUriComplete = extractJsonStringValue(json, "verification_uri_complete"),
-            expiresIn = extractJsonLongValue(json, "expires_in") ?: 300L,
-            interval = extractJsonLongValue(json, "interval") ?: 5L
-        )
-    } catch (_: Exception) {
-        null
+            AndroidDeviceAuthResponse(
+                deviceCode = extractJsonStringValue(json, "device_code") ?: return@withContext null,
+                userCode = extractJsonStringValue(json, "user_code") ?: return@withContext null,
+                verificationUri = extractJsonStringValue(json, "verification_uri") ?: return@withContext null,
+                verificationUriComplete = extractJsonStringValue(json, "verification_uri_complete"),
+                expiresIn = extractJsonLongValue(json, "expires_in") ?: 300L,
+                interval = extractJsonLongValue(json, "interval") ?: 5L,
+            )
+        } catch (_: Exception) {
+            null
+        }
     }
-}
 
 /**
  * Polls the Keycloak token endpoint using the Device Authorization Grant until
@@ -338,7 +344,7 @@ private suspend fun requestDeviceAuthAndroid(): AndroidDeviceAuthResponse? = wit
 private suspend fun pollDeviceTokenAndroid(
     deviceCode: String,
     interval: Long,
-    expiresIn: Long
+    expiresIn: Long,
 ): AndroidTokenData? {
     val deadline = System.currentTimeMillis() + expiresIn * 1_000L
     val pollIntervalMs = maxOf(interval, MIN_DEVICE_POLL_INTERVAL_SECONDS) * 1_000L
@@ -360,45 +366,52 @@ private suspend fun pollDeviceTokenAndroid(
  * request should be slowed down, or a network error occurs. Sets [deviceAuthCancelledAndroid]
  * on unrecoverable errors such as `expired_token`.
  */
-private suspend fun tryExchangeDeviceCodeAndroid(deviceCode: String): AndroidTokenData? = withContext(Dispatchers.IO) {
-    try {
-        val body = buildString {
-            append("grant_type=${URLEncoder.encode("urn:ietf:params:oauth:grant-type:device_code", "UTF-8")}")
-            append("&client_id=${URLEncoder.encode(IamConfig.DESKTOP_CLIENT_ID, "UTF-8")}")
-            append("&device_code=${URLEncoder.encode(deviceCode, "UTF-8")}")
-        }
-        val conn = URI.create(IamConfig.tokenUrl).toURL().openConnection() as HttpURLConnection
-        conn.requestMethod = "POST"
-        conn.doOutput = true
-        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-        conn.connectTimeout = ANDROID_TOKEN_HTTP_TIMEOUT_MS
-        conn.readTimeout = ANDROID_TOKEN_HTTP_TIMEOUT_MS
-        conn.outputStream.use { it.write(body.toByteArray()) }
+private suspend fun tryExchangeDeviceCodeAndroid(deviceCode: String): AndroidTokenData? =
+    withContext(Dispatchers.IO) {
+        try {
+            val body =
+                buildString {
+                    append("grant_type=${URLEncoder.encode("urn:ietf:params:oauth:grant-type:device_code", "UTF-8")}")
+                    append("&client_id=${URLEncoder.encode(IamConfig.DESKTOP_CLIENT_ID, "UTF-8")}")
+                    append("&device_code=${URLEncoder.encode(deviceCode, "UTF-8")}")
+                }
+            val conn = URI.create(IamConfig.tokenUrl).toURL().openConnection() as HttpURLConnection
+            conn.requestMethod = "POST"
+            conn.doOutput = true
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+            conn.connectTimeout = ANDROID_TOKEN_HTTP_TIMEOUT_MS
+            conn.readTimeout = ANDROID_TOKEN_HTTP_TIMEOUT_MS
+            conn.outputStream.use { it.write(body.toByteArray()) }
 
-        if (conn.responseCode == 200) {
-            val json = conn.inputStream.bufferedReader().readText()
-            conn.disconnect()
-            val accessToken = extractJsonStringValue(json, "access_token") ?: return@withContext null
-            val refreshToken = extractJsonStringValue(json, "refresh_token")
-            val expiresInSecs = extractJsonLongValue(json, "expires_in") ?: DEFAULT_TOKEN_EXPIRY_SECONDS
-            return@withContext AndroidTokenData(accessToken, refreshToken, expiresInSecs)
-        }
-
-        val errorJson = try { conn.errorStream?.bufferedReader()?.readText() } catch (_: Exception) { null } ?: ""
-        conn.disconnect()
-        val error = extractJsonStringValue(errorJson, "error") ?: ""
-        when (error) {
-            "authorization_pending", "slow_down" -> null // still waiting – continue polling
-            else -> {
-                // expired_token, access_denied, or other unrecoverable error
-                deviceAuthCancelledAndroid = true
-                null
+            if (conn.responseCode == 200) {
+                val json = conn.inputStream.bufferedReader().readText()
+                conn.disconnect()
+                val accessToken = extractJsonStringValue(json, "access_token") ?: return@withContext null
+                val refreshToken = extractJsonStringValue(json, "refresh_token")
+                val expiresInSecs = extractJsonLongValue(json, "expires_in") ?: DEFAULT_TOKEN_EXPIRY_SECONDS
+                return@withContext AndroidTokenData(accessToken, refreshToken, expiresInSecs)
             }
+
+            val errorJson =
+                try {
+                    conn.errorStream?.bufferedReader()?.readText()
+                } catch (_: Exception) {
+                    null
+                } ?: ""
+            conn.disconnect()
+            val error = extractJsonStringValue(errorJson, "error") ?: ""
+            when (error) {
+                "authorization_pending", "slow_down" -> null // still waiting – continue polling
+                else -> {
+                    // expired_token, access_denied, or other unrecoverable error
+                    deviceAuthCancelledAndroid = true
+                    null
+                }
+            }
+        } catch (_: Exception) {
+            null
         }
-    } catch (_: Exception) {
-        null
     }
-}
 
 /**
  * Opens the Keycloak user account console in the system browser so the user can
@@ -406,11 +419,14 @@ private suspend fun tryExchangeDeviceCodeAndroid(deviceCode: String): AndroidTok
  */
 internal actual fun openPlatformAccountConsole() {
     try {
-        val context = de.egril.defender.AndroidContextProvider.getContext()
-        val intent = android.content.Intent(
-            android.content.Intent.ACTION_VIEW,
-            android.net.Uri.parse(IamConfig.accountUrl)
-        )
+        val context =
+            de.egril.defender.AndroidContextProvider
+                .getContext()
+        val intent =
+            android.content.Intent(
+                android.content.Intent.ACTION_VIEW,
+                android.net.Uri.parse(IamConfig.accountUrl),
+            )
         intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(intent)
     } catch (_: Exception) {

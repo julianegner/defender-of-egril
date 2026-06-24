@@ -74,7 +74,7 @@ private data class DeviceAuthResponse(
     val verificationUri: String,
     val verificationUriComplete: String?,
     val expiresIn: Long,
-    val interval: Long
+    val interval: Long,
 )
 
 /**
@@ -93,7 +93,12 @@ private fun requestDeviceAuth(): DeviceAuthResponse? {
         conn.outputStream.use { it.write(body.toByteArray()) }
 
         if (conn.responseCode != 200) {
-            val errorBody = try { conn.errorStream?.bufferedReader()?.readText() } catch (_: Exception) { null }
+            val errorBody =
+                try {
+                    conn.errorStream?.bufferedReader()?.readText()
+                } catch (_: Exception) {
+                    null
+                }
             conn.disconnect()
             println("IAM: device-auth request failed with HTTP ${conn.responseCode}: $errorBody")
             return null
@@ -107,7 +112,7 @@ private fun requestDeviceAuth(): DeviceAuthResponse? {
             verificationUri = extractJsonStringValue(json, "verification_uri") ?: return null,
             verificationUriComplete = extractJsonStringValue(json, "verification_uri_complete"),
             expiresIn = extractJsonNumberValue(json, "expires_in") ?: 300L,
-            interval = extractJsonNumberValue(json, "interval") ?: 5L
+            interval = extractJsonNumberValue(json, "interval") ?: 5L,
         )
     } catch (e: Exception) {
         println("IAM: device-auth request failed: ${e.message}")
@@ -121,7 +126,11 @@ private fun requestDeviceAuth(): DeviceAuthResponse? {
  *
  * Returns the [TokenData] on success or `null` on failure / cancellation.
  */
-private fun pollDeviceToken(deviceCode: String, interval: Long, expiresIn: Long): TokenData? {
+private fun pollDeviceToken(
+    deviceCode: String,
+    interval: Long,
+    expiresIn: Long,
+): TokenData? {
     val deadline = System.currentTimeMillis() + expiresIn * 1_000L
     // Use the server-specified interval but clamp to at least MIN_POLL_INTERVAL_SECONDS
     // to avoid hammering the server (RFC 8628 §3.5).
@@ -145,11 +154,12 @@ private fun pollDeviceToken(deviceCode: String, interval: Long, expiresIn: Long)
  */
 private fun tryExchangeDeviceCode(deviceCode: String): TokenData? {
     return try {
-        val body = buildString {
-            append("grant_type=${URLEncoder.encode("urn:ietf:params:oauth:grant-type:device_code", "UTF-8")}")
-            append("&client_id=${URLEncoder.encode(IamConfig.DESKTOP_CLIENT_ID, "UTF-8")}")
-            append("&device_code=${URLEncoder.encode(deviceCode, "UTF-8")}")
-        }
+        val body =
+            buildString {
+                append("grant_type=${URLEncoder.encode("urn:ietf:params:oauth:grant-type:device_code", "UTF-8")}")
+                append("&client_id=${URLEncoder.encode(IamConfig.DESKTOP_CLIENT_ID, "UTF-8")}")
+                append("&device_code=${URLEncoder.encode(deviceCode, "UTF-8")}")
+            }
         val conn = URI.create(IamConfig.tokenUrl).toURL().openConnection() as HttpURLConnection
         conn.requestMethod = "POST"
         conn.doOutput = true
@@ -165,11 +175,16 @@ private fun tryExchangeDeviceCode(deviceCode: String): TokenData? {
         }
 
         // Non-200: read the error body to decide what to do
-        val errorJson = try { conn.errorStream?.bufferedReader()?.readText() } catch (_: Exception) { null } ?: ""
+        val errorJson =
+            try {
+                conn.errorStream?.bufferedReader()?.readText()
+            } catch (_: Exception) {
+                null
+            } ?: ""
         conn.disconnect()
         val error = extractJsonStringValue(errorJson, "error") ?: ""
         when (error) {
-            "authorization_pending", "slow_down" -> null  // still waiting – continue polling
+            "authorization_pending", "slow_down" -> null // still waiting – continue polling
             else -> {
                 // expired_token, access_denied, or other unrecoverable error
                 println("IAM: device-code exchange failed: $error")
@@ -221,17 +236,19 @@ internal actual fun startPlatformLogin() {
 private fun startDeviceAuthLogin() {
     val deviceResponse = requestDeviceAuth() ?: return
 
-    IamService.deviceAuthState.value = DeviceAuthState(
-        userCode = deviceResponse.userCode,
-        verificationUri = deviceResponse.verificationUri,
-        verificationUriComplete = deviceResponse.verificationUriComplete
-    )
+    IamService.deviceAuthState.value =
+        DeviceAuthState(
+            userCode = deviceResponse.userCode,
+            verificationUri = deviceResponse.verificationUri,
+            verificationUriComplete = deviceResponse.verificationUriComplete,
+        )
 
-    val tokenData = pollDeviceToken(
-        deviceCode = deviceResponse.deviceCode,
-        interval = deviceResponse.interval,
-        expiresIn = deviceResponse.expiresIn
-    ) ?: return
+    val tokenData =
+        pollDeviceToken(
+            deviceCode = deviceResponse.deviceCode,
+            interval = deviceResponse.interval,
+            expiresIn = deviceResponse.expiresIn,
+        ) ?: return
 
     IamService.state.value = tokenData.toIamState()
     storedRefreshToken = tokenData.refreshToken
@@ -255,18 +272,19 @@ private fun startPkceLogin() {
     val locale = currentLanguage.value
     val callbackUri = "http://localhost:$PKCE_CALLBACK_PORT/callback"
 
-    val authUrl = buildString {
-        append(IamConfig.authUrl)
-        append("?response_type=code")
-        append("&client_id=${URLEncoder.encode(IamConfig.CLIENT_ID, "UTF-8")}")
-        append("&redirect_uri=${URLEncoder.encode(callbackUri, "UTF-8")}")
-        append("&scope=openid")
-        append("&code_challenge=${URLEncoder.encode(codeChallenge, "UTF-8")}")
-        append("&code_challenge_method=S256")
-        append("&state=${URLEncoder.encode(stateParam, "UTF-8")}")
-        append("&prompt=login")
-        append("&ui_locales=${URLEncoder.encode(locale.code, "UTF-8")}")
-    }
+    val authUrl =
+        buildString {
+            append(IamConfig.authUrl)
+            append("?response_type=code")
+            append("&client_id=${URLEncoder.encode(IamConfig.CLIENT_ID, "UTF-8")}")
+            append("&redirect_uri=${URLEncoder.encode(callbackUri, "UTF-8")}")
+            append("&scope=openid")
+            append("&code_challenge=${URLEncoder.encode(codeChallenge, "UTF-8")}")
+            append("&code_challenge_method=S256")
+            append("&state=${URLEncoder.encode(stateParam, "UTF-8")}")
+            append("&prompt=login")
+            append("&ui_locales=${URLEncoder.encode(locale.code, "UTF-8")}")
+        }
 
     // Resolve page texts on this thread before the server starts waiting.
     val loginPageHeading = "&#x2713; ${LocalizedStrings.get("iam_login_successful_heading", locale)}"
@@ -280,22 +298,24 @@ private fun startPkceLogin() {
     // while we set up the callback listener.
     openBrowserNewWindow(authUrl)
 
-    val authCode = waitForPkceCallback(
-        expectedState = stateParam,
-        locale = locale.code,
-        loginPageHeading = loginPageHeading,
-        loginPageMessage = loginPageMessage,
-        errorPageHeading = errorPageHeading,
-        errorPageMessage = errorPageMessage,
-        closeButtonText = closeButtonText,
-        manualCloseText = manualCloseText
-    ) ?: return
+    val authCode =
+        waitForPkceCallback(
+            expectedState = stateParam,
+            locale = locale.code,
+            loginPageHeading = loginPageHeading,
+            loginPageMessage = loginPageMessage,
+            errorPageHeading = errorPageHeading,
+            errorPageMessage = errorPageMessage,
+            closeButtonText = closeButtonText,
+            manualCloseText = manualCloseText,
+        ) ?: return
 
-    val tokenData = exchangeCodeForToken(
-        code = authCode,
-        codeVerifier = codeVerifier,
-        redirectUri = callbackUri
-    ) ?: return
+    val tokenData =
+        exchangeCodeForToken(
+            code = authCode,
+            codeVerifier = codeVerifier,
+            redirectUri = callbackUri,
+        ) ?: return
 
     IamService.state.value = tokenData.toIamState()
     storedRefreshToken = tokenData.refreshToken
@@ -335,7 +355,8 @@ internal actual fun performPlatformLogout() {
 
     try {
         val logoutCallbackUri = "http://localhost:$PKCE_CALLBACK_PORT/logout-callback"
-        val logoutUrl = "${IamConfig.logoutUrl}?client_id=${IamConfig.CLIENT_ID}" +
+        val logoutUrl =
+            "${IamConfig.logoutUrl}?client_id=${IamConfig.CLIENT_ID}" +
                 "&post_logout_redirect_uri=${URLEncoder.encode(logoutCallbackUri, "UTF-8")}"
         // Spin up a one-shot server BEFORE opening the browser so we don't miss the redirect.
         Thread {
@@ -378,10 +399,11 @@ internal actual fun performPlatformLogoutBackchannel() {
         // Local state has already been cleared above so the UI updates immediately.
         Thread {
             try {
-                val body = buildString {
-                    append("client_id=${URLEncoder.encode(IamConfig.CLIENT_ID, "UTF-8")}")
-                    append("&refresh_token=${URLEncoder.encode(refreshToken, "UTF-8")}")
-                }
+                val body =
+                    buildString {
+                        append("client_id=${URLEncoder.encode(IamConfig.CLIENT_ID, "UTF-8")}")
+                        append("&refresh_token=${URLEncoder.encode(refreshToken, "UTF-8")}")
+                    }
                 val conn = URI.create(IamConfig.logoutUrl).toURL().openConnection() as HttpURLConnection
                 conn.requestMethod = "POST"
                 conn.doOutput = true
@@ -389,7 +411,9 @@ internal actual fun performPlatformLogoutBackchannel() {
                 conn.connectTimeout = TOKEN_HTTP_TIMEOUT_MS
                 conn.readTimeout = TOKEN_HTTP_TIMEOUT_MS
                 conn.outputStream.use { it.write(body.toByteArray()) }
-                try { conn.inputStream.use { it.readBytes() } } catch (e: Exception) {
+                try {
+                    conn.inputStream.use { it.readBytes() }
+                } catch (e: Exception) {
                     println("IAM: backchannel logout – could not read response: ${e.message}")
                 }
                 conn.disconnect()
@@ -439,7 +463,9 @@ private fun startBackgroundTokenRefresh() {
                 // without opening a browser logout page. The user simply needs to log in again.
                 storedRefreshToken = null
                 tokenExpiresAtMs = 0L
-                IamService.state.value = de.egril.defender.iam.IamState()
+                IamService.state.value =
+                    de.egril.defender.iam
+                        .IamState()
                 break
             }
 
@@ -457,11 +483,12 @@ private fun startBackgroundTokenRefresh() {
  */
 private fun refreshAccessToken(refreshToken: String): TokenData? {
     return try {
-        val body = buildString {
-            append("grant_type=refresh_token")
-            append("&client_id=${IamConfig.CLIENT_ID}")
-            append("&refresh_token=${URLEncoder.encode(refreshToken, "UTF-8")}")
-        }
+        val body =
+            buildString {
+                append("grant_type=refresh_token")
+                append("&client_id=${IamConfig.CLIENT_ID}")
+                append("&refresh_token=${URLEncoder.encode(refreshToken, "UTF-8")}")
+            }
         val conn = URI.create(IamConfig.tokenUrl).toURL().openConnection() as HttpURLConnection
         conn.requestMethod = "POST"
         conn.doOutput = true
@@ -490,7 +517,7 @@ private fun refreshAccessToken(refreshToken: String): TokenData? {
 private data class TokenData(
     val accessToken: String,
     val refreshToken: String?,
-    val expiresInSeconds: Long
+    val expiresInSeconds: Long,
 ) {
     fun toIamState(): IamState {
         val claims = parseJwtClaims(accessToken)
@@ -500,7 +527,7 @@ private data class TokenData(
             token = accessToken,
             email = claims.email,
             firstName = claims.firstName,
-            lastName = claims.lastName
+            lastName = claims.lastName,
         )
     }
 }
@@ -520,21 +547,30 @@ private fun parseTokenResponse(json: String): TokenData? {
 private fun generatePkceCodeVerifier(): String {
     val bytes = ByteArray(32)
     java.security.SecureRandom().nextBytes(bytes)
-    return java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(bytes)
+    return java.util.Base64
+        .getUrlEncoder()
+        .withoutPadding()
+        .encodeToString(bytes)
 }
 
 /** Derives the PKCE code challenge from [codeVerifier] using SHA-256 (RFC 7636 §4.2). */
 private fun generatePkceCodeChallenge(codeVerifier: String): String {
     val digest = java.security.MessageDigest.getInstance("SHA-256")
     val hash = digest.digest(codeVerifier.toByteArray(Charsets.US_ASCII))
-    return java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(hash)
+    return java.util.Base64
+        .getUrlEncoder()
+        .withoutPadding()
+        .encodeToString(hash)
 }
 
 /** Generates a random state parameter to prevent CSRF attacks. */
 private fun generatePkceState(): String {
     val bytes = ByteArray(16)
     java.security.SecureRandom().nextBytes(bytes)
-    return java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(bytes)
+    return java.util.Base64
+        .getUrlEncoder()
+        .withoutPadding()
+        .encodeToString(bytes)
 }
 
 /**
@@ -555,7 +591,7 @@ private fun waitForPkceCallback(
     errorPageHeading: String,
     errorPageMessage: String,
     closeButtonText: String,
-    manualCloseText: String
+    manualCloseText: String,
 ): String? {
     return try {
         val server = ServerSocket(PKCE_CALLBACK_PORT)
@@ -564,36 +600,56 @@ private fun waitForPkceCallback(
         try {
             val deadline = System.currentTimeMillis() + PKCE_LOGIN_TIMEOUT_MS
             while (!deviceAuthCancelled.get() && System.currentTimeMillis() < deadline) {
-                val socket = try {
-                    server.accept()
-                } catch (_: java.net.SocketTimeoutException) {
-                    continue // timeout slice expired – check cancellation flag and retry
-                }
+                val socket =
+                    try {
+                        server.accept()
+                    } catch (_: java.net.SocketTimeoutException) {
+                        continue // timeout slice expired – check cancellation flag and retry
+                    }
 
                 // Read the first line of the HTTP request to extract query parameters.
-                val requestLine = try {
-                    socket.getInputStream().bufferedReader().readLine()
-                } catch (_: Exception) {
-                    socket.close()
-                    continue
-                } ?: run { socket.close(); continue }
+                val requestLine =
+                    try {
+                        socket.getInputStream().bufferedReader().readLine()
+                    } catch (_: Exception) {
+                        socket.close()
+                        continue
+                    } ?: run {
+                        socket.close()
+                        continue
+                    }
 
                 // requestLine is e.g. "GET /callback?code=xxx&state=yyy HTTP/1.1"
                 val query = Regex("GET /[^?]*\\?([^\\s]+)").find(requestLine)?.groupValues?.get(1) ?: ""
-                val params = query.split("&").associate { param ->
-                    val (k, v) = param.split("=", limit = 2).let { it[0] to (it.getOrNull(1) ?: "") }
-                    k to java.net.URLDecoder.decode(v, "UTF-8")
-                }
+                val params =
+                    query.split("&").associate { param ->
+                        val (k, v) = param.split("=", limit = 2).let { it[0] to (it.getOrNull(1) ?: "") }
+                        k to java.net.URLDecoder.decode(v, "UTF-8")
+                    }
 
                 val receivedState = params["state"]
                 val authCode = params["code"]
 
                 if (receivedState != expectedState || authCode == null) {
-                    serveAutoClosePage(socket, langCode = locale, heading = errorPageHeading, message = errorPageMessage, closeButtonText = closeButtonText, manualCloseText = manualCloseText)
+                    serveAutoClosePage(
+                        socket,
+                        langCode = locale,
+                        heading = errorPageHeading,
+                        message = errorPageMessage,
+                        closeButtonText = closeButtonText,
+                        manualCloseText = manualCloseText,
+                    )
                     continue
                 }
 
-                serveAutoClosePage(socket, langCode = locale, heading = loginPageHeading, message = loginPageMessage, closeButtonText = closeButtonText, manualCloseText = manualCloseText)
+                serveAutoClosePage(
+                    socket,
+                    langCode = locale,
+                    heading = loginPageHeading,
+                    message = loginPageMessage,
+                    closeButtonText = closeButtonText,
+                    manualCloseText = manualCloseText,
+                )
                 return authCode
             }
             null
@@ -615,15 +671,20 @@ private const val PKCE_CALLBACK_POLL_MS = 2_000L
  * Exchanges a PKCE authorization [code] for tokens at the Keycloak token endpoint.
  * Returns `null` if the exchange fails or the server returns a non-200 response.
  */
-private fun exchangeCodeForToken(code: String, codeVerifier: String, redirectUri: String): TokenData? {
+private fun exchangeCodeForToken(
+    code: String,
+    codeVerifier: String,
+    redirectUri: String,
+): TokenData? {
     return try {
-        val body = buildString {
-            append("grant_type=authorization_code")
-            append("&client_id=${URLEncoder.encode(IamConfig.CLIENT_ID, "UTF-8")}")
-            append("&code=${URLEncoder.encode(code, "UTF-8")}")
-            append("&redirect_uri=${URLEncoder.encode(redirectUri, "UTF-8")}")
-            append("&code_verifier=${URLEncoder.encode(codeVerifier, "UTF-8")}")
-        }
+        val body =
+            buildString {
+                append("grant_type=authorization_code")
+                append("&client_id=${URLEncoder.encode(IamConfig.CLIENT_ID, "UTF-8")}")
+                append("&code=${URLEncoder.encode(code, "UTF-8")}")
+                append("&redirect_uri=${URLEncoder.encode(redirectUri, "UTF-8")}")
+                append("&code_verifier=${URLEncoder.encode(codeVerifier, "UTF-8")}")
+            }
         val conn = URI.create(IamConfig.tokenUrl).toURL().openConnection() as HttpURLConnection
         conn.requestMethod = "POST"
         conn.doOutput = true
@@ -633,7 +694,12 @@ private fun exchangeCodeForToken(code: String, codeVerifier: String, redirectUri
         conn.outputStream.use { it.write(body.toByteArray()) }
 
         if (conn.responseCode != 200) {
-            val errorBody = try { conn.errorStream?.bufferedReader()?.readText() } catch (_: Exception) { null }
+            val errorBody =
+                try {
+                    conn.errorStream?.bufferedReader()?.readText()
+                } catch (_: Exception) {
+                    null
+                }
             conn.disconnect()
             println("IAM: PKCE code exchange failed with HTTP ${conn.responseCode}: $errorBody")
             return null
@@ -647,13 +713,26 @@ private fun exchangeCodeForToken(code: String, codeVerifier: String, redirectUri
     }
 }
 
-private fun serveLogoutCallback(langCode: String, heading: String, message: String, closeButtonText: String, manualCloseText: String) {
+private fun serveLogoutCallback(
+    langCode: String,
+    heading: String,
+    message: String,
+    closeButtonText: String,
+    manualCloseText: String,
+) {
     try {
         val server = ServerSocket(PKCE_CALLBACK_PORT)
         server.soTimeout = 30_000
         try {
             val socket = server.accept()
-            serveAutoClosePage(socket, langCode = langCode, heading = heading, message = message, closeButtonText = closeButtonText, manualCloseText = manualCloseText)
+            serveAutoClosePage(
+                socket,
+                langCode = langCode,
+                heading = heading,
+                message = message,
+                closeButtonText = closeButtonText,
+                manualCloseText = manualCloseText,
+            )
         } finally {
             server.close()
         }
@@ -673,7 +752,14 @@ private fun serveLogoutCallback(langCode: String, heading: String, message: Stri
  * The [langCode] is used for the HTML lang attribute (e.g. "en", "de").
  * The socket is closed after writing.
  */
-private fun serveAutoClosePage(socket: java.net.Socket, langCode: String, heading: String, message: String, closeButtonText: String, manualCloseText: String) {
+private fun serveAutoClosePage(
+    socket: java.net.Socket,
+    langCode: String,
+    heading: String,
+    message: String,
+    closeButtonText: String,
+    manualCloseText: String,
+) {
     val html = """<!DOCTYPE html>
 <html lang="$langCode">
 <head><meta charset="UTF-8">
@@ -698,21 +784,30 @@ setTimeout(tryClose, 2000);
 </script>
 </body>
 </html>"""
-    socket.getOutputStream().write(buildString {
-        append("HTTP/1.1 200 OK\r\n")
-        append("Content-Type: text/html; charset=UTF-8\r\n")
-        append("Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'\r\n")
-        append("X-Frame-Options: DENY\r\n")
-        append("X-Content-Type-Options: nosniff\r\n")
-        append("\r\n")
-        append(html)
-    }.toByteArray())
+    socket.getOutputStream().write(
+        buildString {
+            append("HTTP/1.1 200 OK\r\n")
+            append("Content-Type: text/html; charset=UTF-8\r\n")
+            append("Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'\r\n")
+            append("X-Frame-Options: DENY\r\n")
+            append("X-Content-Type-Options: nosniff\r\n")
+            append("\r\n")
+            append(html)
+        }.toByteArray(),
+    )
     socket.close()
 }
 
 /** Extracts a numeric field from a flat JSON object without a full parser. */
-private fun extractJsonNumberValue(json: String, key: String): Long? =
-    Regex("\"${Regex.escape(key)}\"\\s*:\\s*(\\d+)").find(json)?.groupValues?.get(1)?.toLongOrNull()
+private fun extractJsonNumberValue(
+    json: String,
+    key: String,
+): Long? =
+    Regex("\"${Regex.escape(key)}\"\\s*:\\s*(\\d+)")
+        .find(json)
+        ?.groupValues
+        ?.get(1)
+        ?.toLongOrNull()
 
 // ---------------------------------------------------------------------------
 // Browser launcher – opens the URL in a new foreground window
@@ -753,7 +848,9 @@ private fun openBrowserNewWindow(url: String) {
     }
     // AWT fallback – may open a tab rather than a window but is always available
     try {
-        java.awt.Desktop.getDesktop().browse(URI(url))
+        java.awt.Desktop
+            .getDesktop()
+            .browse(URI(url))
     } catch (e: Exception) {
         // Both the process-based launch and AWT have failed.
         // On Steam Deck gaming mode this is expected – the user will use the code shown
@@ -768,30 +865,38 @@ private fun openBrowserNewWindow(url: String) {
  */
 private fun openBrowserLinuxNewWindow(url: String): Boolean {
     // Detect the default browser .desktop file (e.g. "google-chrome.desktop")
-    val defaultDesktop = try {
-        val proc = ProcessBuilder("xdg-settings", "get", "default-web-browser").start()
-        val result = proc.inputStream.bufferedReader().readLine()?.trim()?.lowercase() ?: ""
-        proc.waitFor()
-        result
-    } catch (_: Exception) {
-        ""
-    }
+    val defaultDesktop =
+        try {
+            val proc = ProcessBuilder("xdg-settings", "get", "default-web-browser").start()
+            val result =
+                proc.inputStream
+                    .bufferedReader()
+                    .readLine()
+                    ?.trim()
+                    ?.lowercase() ?: ""
+            proc.waitFor()
+            result
+        } catch (_: Exception) {
+            ""
+        }
 
     // Map recognised .desktop names to their CLI binary + --new-window flag
-    val command: List<String>? = when {
-        "chromium" in defaultDesktop -> listOf("chromium", "--new-window", url)
-        "chrome" in defaultDesktop  -> listOf("google-chrome", "--new-window", url)
-        "brave" in defaultDesktop   -> listOf("brave-browser", "--new-window", url)
-        "firefox" in defaultDesktop -> listOf("firefox", "--new-window", url)
-        "epiphany" in defaultDesktop -> listOf("epiphany", "--new-window", url)
-        else -> null
-    }
+    val command: List<String>? =
+        when {
+            "chromium" in defaultDesktop -> listOf("chromium", "--new-window", url)
+            "chrome" in defaultDesktop -> listOf("google-chrome", "--new-window", url)
+            "brave" in defaultDesktop -> listOf("brave-browser", "--new-window", url)
+            "firefox" in defaultDesktop -> listOf("firefox", "--new-window", url)
+            "epiphany" in defaultDesktop -> listOf("epiphany", "--new-window", url)
+            else -> null
+        }
 
     if (command != null) {
         try {
             ProcessBuilder(command).inheritIO().start()
             return true
-        } catch (_: Exception) {}
+        } catch (_: Exception) {
+        }
     }
 
     // Generic Linux fallback: xdg-open (may open a tab in an existing window)

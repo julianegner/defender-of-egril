@@ -5,14 +5,14 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class InfoPageBrowserNavigationTest {
-
     @Test
     fun infoRouteSelectsRequestedTab() {
-        val tabs = buildVisibleInfoTabs(
-            showDownloadTab = true,
-            showInstallationTab = true,
-            showEditorHowToTab = false
-        )
+        val tabs =
+            buildVisibleInfoTabs(
+                showDownloadTab = true,
+                showInstallationTab = true,
+                showEditorHowToTab = false,
+            )
 
         val navigation = resolveInfoPageBrowserNavigation("/info/keyboard-shortcuts", tabs)
 
@@ -22,11 +22,12 @@ class InfoPageBrowserNavigationTest {
 
     @Test
     fun dataPrivacyRouteSelectsBackendTab() {
-        val tabs = buildVisibleInfoTabs(
-            showDownloadTab = true,
-            showInstallationTab = true,
-            showEditorHowToTab = false
-        )
+        val tabs =
+            buildVisibleInfoTabs(
+                showDownloadTab = true,
+                showInstallationTab = true,
+                showEditorHowToTab = false,
+            )
 
         val navigation = resolveInfoPageBrowserNavigation("/data-privacy/en", tabs)
 
@@ -36,11 +37,12 @@ class InfoPageBrowserNavigationTest {
 
     @Test
     fun unknownInfoSlugFallsBackToFirstVisibleTab() {
-        val tabs = buildVisibleInfoTabs(
-            showDownloadTab = false,
-            showInstallationTab = false,
-            showEditorHowToTab = false
-        )
+        val tabs =
+            buildVisibleInfoTabs(
+                showDownloadTab = false,
+                showInstallationTab = false,
+                showEditorHowToTab = false,
+            )
 
         val navigation = resolveInfoPageBrowserNavigation("/info/not-a-tab", tabs)
 
@@ -50,11 +52,12 @@ class InfoPageBrowserNavigationTest {
 
     @Test
     fun rootPathNavigatesBack() {
-        val tabs = buildVisibleInfoTabs(
-            showDownloadTab = true,
-            showInstallationTab = true,
-            showEditorHowToTab = false
-        )
+        val tabs =
+            buildVisibleInfoTabs(
+                showDownloadTab = true,
+                showInstallationTab = true,
+                showEditorHowToTab = false,
+            )
 
         val navigation = resolveInfoPageBrowserNavigation("/", tabs)
 

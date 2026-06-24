@@ -6,7 +6,6 @@ import org.junit.Rule
 import org.junit.Test
 
 class InfoPageScreenTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -14,7 +13,7 @@ class InfoPageScreenTest {
     fun infoPageRendersAndCapturesScreenshot() {
         composeTestRule.setContent {
             InfoPageScreen(
-                onBack = {}
+                onBack = {},
             )
         }
 
@@ -24,7 +23,7 @@ class InfoPageScreenTest {
             composeTestRule,
             "info-page-screen",
             width = 1200,
-            height = 800
+            height = 800,
         )
     }
 }

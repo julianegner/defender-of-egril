@@ -2,12 +2,12 @@ package de.egril.defender.ui
 
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import org.jetbrains.skia.Bitmap as SkiaBitmap
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Image
+import org.jetbrains.skia.Bitmap as SkiaBitmap
 
-actual fun decodeMapImageBitmap(bytes: ByteArray): ImageBitmap? {
-    return try {
+actual fun decodeMapImageBitmap(bytes: ByteArray): ImageBitmap? =
+    try {
         val skiaImage = Image.makeFromEncoded(bytes)
         val bitmap = SkiaBitmap()
         bitmap.allocN32Pixels(skiaImage.width, skiaImage.height)
@@ -17,4 +17,3 @@ actual fun decodeMapImageBitmap(bytes: ByteArray): ImageBitmap? {
     } catch (e: Exception) {
         null
     }
-}

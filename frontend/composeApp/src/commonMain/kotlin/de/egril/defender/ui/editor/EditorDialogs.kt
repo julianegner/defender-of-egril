@@ -7,7 +7,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.iam.IamState
-
 import de.egril.defender.utils.getCurrentUsername
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -16,13 +15,12 @@ import defender_of_egril.composeapp.generated.resources.*
  * If the user is authenticated, uses their first and last name from the IAM token.
  * Falls back to the OS username when not authenticated.
  */
-fun getDefaultAuthorName(iamState: IamState): String {
-    return if (iamState.isAuthenticated) {
+fun getDefaultAuthorName(iamState: IamState): String =
+    if (iamState.isAuthenticated) {
         listOfNotNull(iamState.firstName, iamState.lastName).joinToString(" ")
     } else {
         getCurrentUsername()
     }
-}
 
 /**
  * Generic "Save As" dialog that can be used for both maps and levels
@@ -33,10 +31,10 @@ fun SaveAsDialog(
     label: String,
     currentValue: String,
     onDismiss: () -> Unit,
-    onSave: (String) -> Unit
+    onSave: (String) -> Unit,
 ) {
     var newValue by remember { mutableStateOf(currentValue) }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },
@@ -47,14 +45,14 @@ fun SaveAsDialog(
                     onValueChange = { newValue = it },
                     label = { Text(label) },
                     singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         },
         confirmButton = {
             Button(
                 onClick = { if (newValue.isNotBlank()) onSave(newValue) },
-                enabled = newValue.isNotBlank()
+                enabled = newValue.isNotBlank(),
             ) {
                 Text(stringResource(Res.string.save))
             }
@@ -63,7 +61,7 @@ fun SaveAsDialog(
             Button(onClick = onDismiss) {
                 Text(stringResource(Res.string.cancel))
             }
-        }
+        },
     )
 }
 
@@ -74,13 +72,13 @@ fun SaveAsDialog(
 fun CreateMapDialog(
     onDismiss: () -> Unit,
     onCreate: (String, Int, Int, String) -> Unit,
-    defaultAuthor: String = ""
+    defaultAuthor: String = "",
 ) {
     var name by remember { mutableStateOf("") }
     var width by remember { mutableStateOf("30") }
     var height by remember { mutableStateOf("8") }
     var author by remember { mutableStateOf(defaultAuthor) }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(Res.string.create_new_map_title)) },
@@ -90,25 +88,25 @@ fun CreateMapDialog(
                     value = name,
                     onValueChange = { name = it },
                     label = { Text(stringResource(Res.string.map_name)) },
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                 )
                 OutlinedTextField(
                     value = width,
                     onValueChange = { if (it.all { c -> c.isDigit() }) width = it },
                     label = { Text(stringResource(Res.string.width)) },
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                 )
                 OutlinedTextField(
                     value = height,
                     onValueChange = { if (it.all { c -> c.isDigit() }) height = it },
                     label = { Text(stringResource(Res.string.height)) },
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                 )
                 OutlinedTextField(
                     value = author,
                     onValueChange = { author = it },
                     label = { Text(stringResource(Res.string.author_optional)) },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         },
@@ -118,7 +116,7 @@ fun CreateMapDialog(
                     val w = width.toIntOrNull() ?: 30
                     val h = height.toIntOrNull() ?: 8
                     onCreate(name, w, h, author)
-                }
+                },
             ) {
                 Text(stringResource(Res.string.create))
             }
@@ -127,7 +125,7 @@ fun CreateMapDialog(
             Button(onClick = onDismiss) {
                 Text(stringResource(Res.string.cancel))
             }
-        }
+        },
     )
 }
 
@@ -138,11 +136,11 @@ fun CreateMapDialog(
 fun CreateLevelDialog(
     onDismiss: () -> Unit,
     onCreate: (String, String) -> Unit,
-    defaultAuthor: String = ""
+    defaultAuthor: String = "",
 ) {
     var title by remember { mutableStateOf("") }
     var author by remember { mutableStateOf(defaultAuthor) }
-    
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(Res.string.create_new_level_title)) },
@@ -152,13 +150,13 @@ fun CreateLevelDialog(
                     value = title,
                     onValueChange = { title = it },
                     label = { Text(stringResource(Res.string.level_title)) },
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
                 )
                 OutlinedTextField(
                     value = author,
                     onValueChange = { author = it },
                     label = { Text(stringResource(Res.string.author_optional)) },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         },
@@ -171,7 +169,7 @@ fun CreateLevelDialog(
             Button(onClick = onDismiss) {
                 Text(stringResource(Res.string.cancel))
             }
-        }
+        },
     )
 }
 
@@ -183,7 +181,7 @@ fun ConfirmationDialog(
     title: String,
     message: String,
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    onConfirm: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -198,6 +196,6 @@ fun ConfirmationDialog(
             Button(onClick = onDismiss) {
                 Text(stringResource(Res.string.cancel))
             }
-        }
+        },
     )
 }

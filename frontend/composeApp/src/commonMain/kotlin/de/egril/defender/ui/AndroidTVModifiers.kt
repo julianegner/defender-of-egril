@@ -14,7 +14,7 @@ import de.egril.defender.utils.getPlatform
 
 /**
  * Applies Android TV-specific modifiers for better accessibility and focus indication.
- * 
+ *
  * This function adds:
  * - A yellow border when the element is selected on Android TV devices
  * - Semantic content description for screen readers
@@ -29,10 +29,10 @@ import de.egril.defender.utils.getPlatform
 fun Modifier.androidTVModifier(
     baseModifier: Modifier = Modifier,
     isSelected: Boolean,
-    description: String
+    description: String,
 ): Modifier {
     val isAndroidTV = remember { getPlatform().isAndroidTV }
-    
+
     return baseModifier
         .then(this)
         .then(
@@ -40,10 +40,8 @@ fun Modifier.androidTVModifier(
                 Modifier.border(4.dp, Color.Yellow, MaterialTheme.shapes.small)
             } else {
                 Modifier
-            }
-        )
-        .semantics {
+            },
+        ).semantics {
             contentDescription = description
-        }
-        .focusable()
+        }.focusable()
 }

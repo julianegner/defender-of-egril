@@ -5,14 +5,13 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class InfoPageLayoutDecisionTest {
-
     @Test
     fun mobileWebLandscapeUsesCompactHeader() {
         assertTrue(
             shouldUseCompactInfoHeaderLayout(
                 isMobileWeb = true,
-                isLandscape = true
-            )
+                isLandscape = true,
+            ),
         )
     }
 
@@ -21,8 +20,8 @@ class InfoPageLayoutDecisionTest {
         assertFalse(
             shouldUseCompactInfoHeaderLayout(
                 isMobileWeb = true,
-                isLandscape = false
-            )
+                isLandscape = false,
+            ),
         )
     }
 
@@ -31,29 +30,31 @@ class InfoPageLayoutDecisionTest {
         assertFalse(
             shouldUseCompactInfoHeaderLayout(
                 isMobileWeb = false,
-                isLandscape = true
-            )
+                isLandscape = true,
+            ),
         )
     }
 
     @Test
     fun installationTabIsHiddenWhenPlatformIsNotWeb() {
-        val tabs = buildVisibleInfoTabs(
-            showDownloadTab = false,
-            showInstallationTab = false,
-            showEditorHowToTab = false
-        )
+        val tabs =
+            buildVisibleInfoTabs(
+                showDownloadTab = false,
+                showInstallationTab = false,
+                showEditorHowToTab = false,
+            )
 
         assertFalse(InfoTab.INSTALLATION in tabs)
     }
 
     @Test
     fun installationTabIsShownOnWeb() {
-        val tabs = buildVisibleInfoTabs(
-            showDownloadTab = true,
-            showInstallationTab = true,
-            showEditorHowToTab = false
-        )
+        val tabs =
+            buildVisibleInfoTabs(
+                showDownloadTab = true,
+                showInstallationTab = true,
+                showEditorHowToTab = false,
+            )
 
         assertTrue(InfoTab.INSTALLATION in tabs)
     }

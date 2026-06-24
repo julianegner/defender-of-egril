@@ -20,14 +20,18 @@ import kotlinx.coroutines.withContext
  * Loads PNG images from resources (bundled maps) or working directory (user maps).
  */
 object MapImageProvider {
-
     /**
      * Try to load map image bytes for the given map ID.
      * First tries the official maps dir, then user maps dir, then community maps dir,
      * then bundled resources.
      */
     suspend fun loadMapImageBytes(mapId: String): ByteArray? {
-        val storage = try { getFileStorage() } catch (e: Exception) { null }
+        val storage =
+            try {
+                getFileStorage()
+            } catch (e: Exception) {
+                null
+            }
 
         if (storage != null) {
             val officialBytes = storage.readBinaryFile("gamedata/official/maps/$mapId.png")
@@ -50,14 +54,13 @@ object MapImageProvider {
     /**
      * Decode PNG bytes to ImageBitmap (platform-specific).
      */
-    fun decodeImageBitmap(bytes: ByteArray): ImageBitmap? {
-        return try {
+    fun decodeImageBitmap(bytes: ByteArray): ImageBitmap? =
+        try {
             decodeMapImageBitmap(bytes)
         } catch (e: Exception) {
             println("MapImageProvider: Failed to decode image: ${e.message}")
             null
         }
-    }
 }
 
 /**
@@ -68,7 +71,10 @@ expect fun decodeMapImageBitmap(bytes: ByteArray): ImageBitmap?
 /**
  * Holds the state of a map image load: the painter (once loaded) and whether loading is still in progress.
  */
-data class MapImageState(val painter: Painter?, val isLoading: Boolean)
+data class MapImageState(
+    val painter: Painter?,
+    val isLoading: Boolean,
+)
 
 /**
  * Composable that loads a map image painter for the given mapId and exposes the loading state.
@@ -87,15 +93,16 @@ fun rememberMapImageState(mapId: String?): MapImageState {
         }
 
         isLoading = true
-        val result = withContext(Dispatchers.Default) {
-            val bytes = MapImageProvider.loadMapImageBytes(mapId)
-            if (bytes != null) {
-                val bitmap = MapImageProvider.decodeImageBitmap(bytes)
-                if (bitmap != null) BitmapPainter(bitmap) else null
-            } else {
-                null
+        val result =
+            withContext(Dispatchers.Default) {
+                val bytes = MapImageProvider.loadMapImageBytes(mapId)
+                if (bytes != null) {
+                    val bitmap = MapImageProvider.decodeImageBitmap(bytes)
+                    if (bitmap != null) BitmapPainter(bitmap) else null
+                } else {
+                    null
+                }
             }
-        }
         painter = result
         isLoading = false
     }

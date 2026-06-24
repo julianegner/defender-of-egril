@@ -8,7 +8,10 @@ import org.w3c.xhr.XMLHttpRequest
 import kotlin.coroutines.resume
 
 actual object BackendFeedbackService {
-    actual suspend fun submitFeedback(request: FeedbackSubmitRequest, token: String?): Int? =
+    actual suspend fun submitFeedback(
+        request: FeedbackSubmitRequest,
+        token: String?,
+    ): Int? =
         suspendCancellableCoroutine { continuation ->
             try {
                 val xhr = XMLHttpRequest()

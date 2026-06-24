@@ -8,13 +8,12 @@ import android.content.Context
  */
 object AndroidContextProvider {
     private var applicationContext: Context? = null
-    
+
     fun initialize(context: Context) {
         applicationContext = context.applicationContext
     }
-    
-    fun getContext(): Context {
-        return applicationContext 
+
+    fun getContext(): Context =
+        applicationContext
             ?: throw IllegalStateException("AndroidContextProvider not initialized. Call initialize() in MainActivity.onCreate()")
-    }
 }

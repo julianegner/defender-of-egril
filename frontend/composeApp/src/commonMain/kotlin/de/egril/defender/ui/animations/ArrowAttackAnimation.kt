@@ -25,25 +25,27 @@ fun ArrowAttackAnimation(
     animate: Boolean,
     modifier: Modifier = Modifier,
     directionAngle: Float = 0f,
-    isTargetTile: Boolean = false
+    isTargetTile: Boolean = false,
 ) {
     if (animate) {
         // When on the target tile, clip the right half of the animation in local space so the
         // arrow only travels to the center of the tile.  The clip modifier is placed AFTER
         // graphicsLayer in the chain so it operates in the pre-rotation coordinate system.
-        val innerClip: Modifier = if (isTargetTile)
-            Modifier.drawWithContent {
-                drawContext.canvas.save()
-                drawContext.canvas.clipRect(0f, 0f, size.width / 2f, size.height)
-                drawContent()
-                drawContext.canvas.restore()
+        val innerClip: Modifier =
+            if (isTargetTile) {
+                Modifier.drawWithContent {
+                    drawContext.canvas.save()
+                    drawContext.canvas.clipRect(0f, 0f, size.width / 2f, size.height)
+                    drawContent()
+                    drawContext.canvas.restore()
+                }
+            } else {
+                Modifier
             }
-        else
-            Modifier
         LottieAnimation(
             animationType = AnimationType.ARROW_ATTACK,
             modifier = modifier.graphicsLayer { rotationZ = directionAngle }.then(innerClip),
-            iterations = 1
+            iterations = 1,
         )
     }
     // No static fallback — the attack impact animation at the target tile already signals the hit.

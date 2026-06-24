@@ -12,62 +12,64 @@ internal fun buildEventJson(
     platform: String,
     turnNumber: Int? = null,
     difficulty: String? = null,
-    url: String? = null
-): String = buildString {
-    val currentPlatform = getPlatform()
-    val platformLong = currentPlatform.name
-    val platformExtended = currentPlatform.platformExtended
-    val osName = currentPlatform.osName
-    append("{\"event\":\"")
-    append(escapeJson(eventType.apiValue))
-    append("\",\"platform\":\"")
-    append(escapeJson(platform))
-    append("\",\"platformLong\":\"")
-    append(escapeJson(platformLong))
-    append("\",\"platformExtended\":\"")
-    append(escapeJson(platformExtended))
-    append("\"")
-    if (osName != null) {
-        append(",\"osName\":\"")
-        append(escapeJson(osName))
+    url: String? = null,
+): String =
+    buildString {
+        val currentPlatform = getPlatform()
+        val platformLong = currentPlatform.name
+        val platformExtended = currentPlatform.platformExtended
+        val osName = currentPlatform.osName
+        append("{\"event\":\"")
+        append(escapeJson(eventType.apiValue))
+        append("\",\"platform\":\"")
+        append(escapeJson(platform))
+        append("\",\"platformLong\":\"")
+        append(escapeJson(platformLong))
+        append("\",\"platformExtended\":\"")
+        append(escapeJson(platformExtended))
         append("\"")
-    }
-    append(",\"versionName\":\"")
-    append(escapeJson(AppBuildInfo.VERSION_NAME))
-    append("\",\"commitHash\":\"")
-    append(escapeJson(AppBuildInfo.COMMIT_HASH))
-    append("\"")
-    if (levelName != null) {
-        append(",\"levelName\":\"")
-        append(escapeJson(levelName))
+        if (osName != null) {
+            append(",\"osName\":\"")
+            append(escapeJson(osName))
+            append("\"")
+        }
+        append(",\"versionName\":\"")
+        append(escapeJson(AppBuildInfo.VERSION_NAME))
+        append("\",\"commitHash\":\"")
+        append(escapeJson(AppBuildInfo.COMMIT_HASH))
         append("\"")
+        if (levelName != null) {
+            append(",\"levelName\":\"")
+            append(escapeJson(levelName))
+            append("\"")
+        }
+        if (turnNumber != null) {
+            append(",\"turnNumber\":")
+            append(turnNumber)
+        }
+        if (difficulty != null) {
+            append(",\"difficulty\":\"")
+            append(escapeJson(difficulty))
+            append("\"")
+        }
+        if (url != null) {
+            append(",\"url\":\"")
+            append(escapeJson(url))
+            append("\"")
+        }
+        append("}")
     }
-    if (turnNumber != null) {
-        append(",\"turnNumber\":")
-        append(turnNumber)
-    }
-    if (difficulty != null) {
-        append(",\"difficulty\":\"")
-        append(escapeJson(difficulty))
-        append("\"")
-    }
-    if (url != null) {
-        append(",\"url\":\"")
-        append(escapeJson(url))
-        append("\"")
-    }
-    append("}")
-}
 
-internal fun escapeJson(value: String): String = buildString {
-    for (ch in value) {
-        when (ch) {
-            '\\' -> append("\\\\")
-            '"'  -> append("\\\"")
-            '\n' -> append("\\n")
-            '\r' -> append("\\r")
-            '\t' -> append("\\t")
-            else -> if (ch.code < 0x20) append("\\u${ch.code.toString(16).padStart(4, '0')}") else append(ch)
+internal fun escapeJson(value: String): String =
+    buildString {
+        for (ch in value) {
+            when (ch) {
+                '\\' -> append("\\\\")
+                '"' -> append("\\\"")
+                '\n' -> append("\\n")
+                '\r' -> append("\\r")
+                '\t' -> append("\\t")
+                else -> if (ch.code < 0x20) append("\\u${ch.code.toString(16).padStart(4, '0')}") else append(ch)
+            }
         }
     }
-}

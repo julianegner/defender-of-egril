@@ -17,18 +17,19 @@ private fun detectSteamDeckGamingMode(): Boolean {
     val os = System.getProperty("os.name", "").lowercase()
     if (!os.startsWith("linux")) return false
 
-    val isSteamDeck = try {
-        File("/etc/os-release").readLines().any { line ->
-            line.equals("ID=steamos", ignoreCase = true) ||
-                line.startsWith("ID=steamos ", ignoreCase = true) ||
-                line.startsWith("ID=\"steamos\"", ignoreCase = true) ||
-                line.equals("VARIANT_ID=steamdeck", ignoreCase = true) ||
-                line.startsWith("VARIANT_ID=steamdeck ", ignoreCase = true) ||
-                line.startsWith("VARIANT_ID=\"steamdeck\"", ignoreCase = true)
+    val isSteamDeck =
+        try {
+            File("/etc/os-release").readLines().any { line ->
+                line.equals("ID=steamos", ignoreCase = true) ||
+                    line.startsWith("ID=steamos ", ignoreCase = true) ||
+                    line.startsWith("ID=\"steamos\"", ignoreCase = true) ||
+                    line.equals("VARIANT_ID=steamdeck", ignoreCase = true) ||
+                    line.startsWith("VARIANT_ID=steamdeck ", ignoreCase = true) ||
+                    line.startsWith("VARIANT_ID=\"steamdeck\"", ignoreCase = true)
+            }
+        } catch (_: Exception) {
+            false
         }
-    } catch (_: Exception) {
-        false
-    }
     if (!isSteamDeck) return false
 
     // In gaming mode the session desktop is "gamescope" (or the variable is absent).
@@ -37,51 +38,52 @@ private fun detectSteamDeckGamingMode(): Boolean {
     return xdgDesktop != "KDE"
 }
 
-class JVMPlatform: Platform {
+class JVMPlatform : Platform {
     override val name: String = "Java ${System.getProperty("java.version")}"
     override val isAndroidTV: Boolean = false
     override val isSteamDeckGamingMode: Boolean = detectSteamDeckGamingMode()
-    override val platformExtended: String = run {
-        val osName = System.getProperty("os.name") ?: "Unknown"
-        val osVersion = System.getProperty("os.version") ?: ""
-        if (osVersion.isBlank()) osName else "$osName $osVersion"
-    }
-    override val osName: String? = run {
-        val osNameProp = System.getProperty("os.name") ?: return@run null
-        if (osNameProp.lowercase().startsWith("linux")) {
-            try {
-                File("/etc/os-release").useLines { lines ->
-                    lines.firstOrNull { it.startsWith("PRETTY_NAME=") }
-                        ?.removePrefix("PRETTY_NAME=")
-                        ?.trim('"')
-                } ?: osNameProp
-            } catch (_: Exception) {
-                osNameProp
-            }
-        } else {
+    override val platformExtended: String =
+        run {
+            val osName = System.getProperty("os.name") ?: "Unknown"
             val osVersion = System.getProperty("os.version") ?: ""
-            if (osVersion.isBlank()) osNameProp else "$osNameProp $osVersion"
+            if (osVersion.isBlank()) osName else "$osName $osVersion"
         }
-    }
+    override val osName: String? =
+        run {
+            val osNameProp = System.getProperty("os.name") ?: return@run null
+            if (osNameProp.lowercase().startsWith("linux")) {
+                try {
+                    File("/etc/os-release").useLines { lines ->
+                        lines
+                            .firstOrNull { it.startsWith("PRETTY_NAME=") }
+                            ?.removePrefix("PRETTY_NAME=")
+                            ?.trim('"')
+                    } ?: osNameProp
+                } catch (_: Exception) {
+                    osNameProp
+                }
+            } else {
+                val osVersion = System.getProperty("os.version") ?: ""
+                if (osVersion.isBlank()) osNameProp else "$osNameProp $osVersion"
+            }
+        }
 }
 
 actual fun getPlatform(): Platform = JVMPlatform()
 
-actual fun getSystemLanguageCode(): String? {
-    return try {
+actual fun getSystemLanguageCode(): String? =
+    try {
         Locale.getDefault().language.lowercase()
     } catch (e: Exception) {
         null
     }
-}
 
-actual fun getCurrentUsername(): String {
-    return try {
+actual fun getCurrentUsername(): String =
+    try {
         System.getProperty("user.name") ?: ""
     } catch (e: Exception) {
         ""
     }
-}
 
 actual fun reloadApp() {
     // No-op for desktop - restoration is handled by RepositoryManager

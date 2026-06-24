@@ -16,16 +16,19 @@ import androidx.compose.ui.draw.alpha
  * When [animate] is false, no overlay is shown (the mine info panel already has a text warning).
  */
 @Composable
-fun DragonTargetAnimation(animate: Boolean, modifier: Modifier = Modifier) {
+fun DragonTargetAnimation(
+    animate: Boolean,
+    modifier: Modifier = Modifier,
+) {
     if (animate) {
         Box(
             modifier = modifier.fillMaxSize().alpha(0.75f),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             LottieAnimation(
                 animationType = AnimationType.DRAGON_TARGET,
                 modifier = Modifier.fillMaxSize(),
-                iterations = 1
+                iterations = 1,
             )
         }
     }

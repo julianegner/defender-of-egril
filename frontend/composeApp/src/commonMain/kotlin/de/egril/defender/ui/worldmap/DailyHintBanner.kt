@@ -52,34 +52,36 @@ import org.jetbrains.compose.resources.StringResource
 fun DailyHintBanner(
     messageRes: StringResource,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val title = stringResource(Res.string.daily_hint_title)
     val closeDescription = stringResource(Res.string.close)
     Card(
         modifier = modifier.semantics { contentDescription = title },
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
         Column(
-            modifier = Modifier
-                .padding(horizontal = 12.dp, vertical = 10.dp)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(6.dp)
+            modifier =
+                Modifier
+                    .padding(horizontal = 12.dp, vertical = 10.dp)
+                    .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
                 if (AppSettings.showButtonShortcutHints.value) {
                     ShortcutKeyChip(text = "X")
@@ -87,14 +89,15 @@ fun DailyHintBanner(
                 }
                 IconButton(
                     onClick = onDismiss,
-                    modifier = Modifier
-                        .size(32.dp)
-                        .semantics { contentDescription = closeDescription }
+                    modifier =
+                        Modifier
+                            .size(32.dp)
+                            .semantics { contentDescription = closeDescription },
                 ) {
                     Box(modifier = Modifier.clearAndSetSemantics { }) {
                         FilledSymbol(
                             icon = MaterialSymbols.CLOSE,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
@@ -103,7 +106,7 @@ fun DailyHintBanner(
             Text(
                 text = stringResource(messageRes),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }

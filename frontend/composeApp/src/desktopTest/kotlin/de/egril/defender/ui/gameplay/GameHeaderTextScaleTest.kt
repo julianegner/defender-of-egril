@@ -20,7 +20,6 @@ import org.junit.Test
 import kotlin.test.assertTrue
 
 class GameHeaderTextScaleTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -48,7 +47,7 @@ class GameHeaderTextScaleTest {
                     onShowOverlayChange = {},
                     onBackToMap = {},
                     onSaveGame = null,
-                    onCheatCode = null
+                    onCheatCode = null,
                 )
             }
         }
@@ -65,7 +64,7 @@ class GameHeaderTextScaleTest {
                     onShowOverlayChange = {},
                     onBackToMap = {},
                     onSaveGame = null,
-                    onCheatCode = null
+                    onCheatCode = null,
                 )
             }
         }
@@ -89,7 +88,7 @@ class GameHeaderTextScaleTest {
                     onShowOverlayChange = {},
                     onBackToMap = {},
                     onSaveGame = null,
-                    onCheatCode = null
+                    onCheatCode = null,
                 )
             }
         }
@@ -97,7 +96,7 @@ class GameHeaderTextScaleTest {
 
         ScreenshotTestUtils.captureScreenshot(
             composeTestRule = composeTestRule,
-            filename = "game-header-large-scale"
+            filename = "game-header-large-scale",
         )
     }
 
@@ -114,7 +113,7 @@ class GameHeaderTextScaleTest {
                     onShowOverlayChange = {},
                     onBackToMap = {},
                     onSaveGame = null,
-                    onCheatCode = null
+                    onCheatCode = null,
                 )
             }
         }
@@ -122,7 +121,7 @@ class GameHeaderTextScaleTest {
 
         ScreenshotTestUtils.captureScreenshot(
             composeTestRule = composeTestRule,
-            filename = "game-header-enemy-list-button-centered"
+            filename = "game-header-enemy-list-button-centered",
         )
     }
 

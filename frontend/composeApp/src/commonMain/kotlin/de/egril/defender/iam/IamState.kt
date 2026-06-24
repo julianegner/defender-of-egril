@@ -16,5 +16,5 @@ data class IamState(
     val token: String? = null,
     val email: String? = null,
     val firstName: String? = null,
-    val lastName: String? = null
+    val lastName: String? = null,
 )

@@ -16,7 +16,8 @@ private const val GITHUB_API_URL =
  * each entry are separated by \u0000 (NUL). These control characters are used as delimiters
  * because they are guaranteed not to appear in asset filenames or HTTPS URLs.
  */
-@JsFun("""
+@JsFun(
+    """
     (json) => {
         try {
             const data = JSON.parse(json);
@@ -29,10 +30,12 @@ private const val GITHUB_API_URL =
             return "";
         }
     }
-""")
+""",
+)
 private external fun extractAssetsFromJson(json: String): String
 
-@JsFun("""
+@JsFun(
+    """
     (json) => {
         try {
             const data = JSON.parse(json);
@@ -41,7 +44,8 @@ private external fun extractAssetsFromJson(json: String): String
             return "";
         }
     }
-""")
+""",
+)
 private external fun extractTagNameFromJson(json: String): String
 
 actual suspend fun fetchLatestRelease(): GithubRelease? =
@@ -54,18 +58,19 @@ actual suspend fun fetchLatestRelease(): GithubRelease? =
                 if (xhr.status.toInt() in 200..299) {
                     val rawAssets = extractAssetsFromJson(xhr.responseText)
                     val tagName = extractTagNameFromJson(xhr.responseText)
-                    val assets = if (rawAssets.isEmpty()) {
-                        emptyList()
-                    } else {
-                        rawAssets.split("\u0001").mapNotNull { entry ->
-                            val parts = entry.split("\u0000")
-                            if (parts.size == 2) {
-                                GithubReleaseAsset(name = parts[0], downloadUrl = parts[1])
-                            } else {
-                                null
+                    val assets =
+                        if (rawAssets.isEmpty()) {
+                            emptyList()
+                        } else {
+                            rawAssets.split("\u0001").mapNotNull { entry ->
+                                val parts = entry.split("\u0000")
+                                if (parts.size == 2) {
+                                    GithubReleaseAsset(name = parts[0], downloadUrl = parts[1])
+                                } else {
+                                    null
+                                }
                             }
                         }
-                    }
                     continuation.resume(GithubRelease(tagName = tagName, assets = assets))
                 } else {
                     continuation.resume(null)

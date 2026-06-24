@@ -10,7 +10,6 @@ import org.junit.Rule
 import org.junit.Test
 
 class LevelLoadingScreenAnimationToggleTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -37,7 +36,7 @@ class LevelLoadingScreenAnimationToggleTest {
         composeTestRule.waitForIdle()
         ScreenshotTestUtils.captureScreenshot(
             composeTestRule = composeTestRule,
-            filename = "level-loading-screen-animations-off"
+            filename = "level-loading-screen-animations-off",
         )
         composeTestRule.onNodeWithTag("levelLoadingSpinner", useUnmergedTree = true).assertDoesNotExist()
     }

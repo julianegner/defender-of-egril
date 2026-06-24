@@ -7,17 +7,16 @@ import org.junit.Test
 
 /**
  * Test to verify the Main Menu screen button layout.
- * 
+ *
  * On desktop, buttons should be in a vertical column.
  * On mobile (Android/iOS), buttons should be in a horizontal row.
- * 
+ *
  * This test runs on desktop, so it verifies the column layout.
  */
 class MainMenuLayoutTest {
-    
     @get:Rule
     val composeTestRule = createComposeRule()
-    
+
     @Test
     fun testMainMenuDesktopLayout() {
         // Set the content
@@ -25,23 +24,23 @@ class MainMenuLayoutTest {
             MainMenuScreen(
                 onStartGame = {},
                 onContinueGame = {},
-                hasAutosave = false,  // No autosave in tests
+                hasAutosave = false, // No autosave in tests
                 onShowRules = {},
                 onShowInstallationInfo = {},
-                onEditPlayerName = {},  // No player selection in tests
-                currentPlayerName = null  // No player name in tests
+                onEditPlayerName = {}, // No player selection in tests
+                currentPlayerName = null, // No player name in tests
             )
         }
-        
+
         // Wait for composition to complete
         composeTestRule.waitForIdle()
-        
+
         // Capture screenshot for desktop layout (buttons in column)
         ScreenshotTestUtils.captureScreenshot(
             composeTestRule,
             "main-menu-desktop-layout",
             width = 1200,
-            height = 800
+            height = 800,
         )
     }
 }

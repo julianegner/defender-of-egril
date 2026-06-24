@@ -7,7 +7,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class AppSettingsAccessibilityTest {
-
     @Test
     fun toSettingsMap_includesAccessibilitySettings() {
         AppSettings.resetToDefaults()
@@ -44,8 +43,8 @@ class AppSettingsAccessibilityTest {
                     "hold_to_confirm" to "true",
                     "enable_animations" to "false",
                     "shortcut_center_selected_tower" to "U",
-                    "shortcut_center_next_spawn_point" to "I"
-                )
+                    "shortcut_center_next_spawn_point" to "I",
+                ),
             )
 
             val preferences = AppSettings.getAccessibilityPreferences()

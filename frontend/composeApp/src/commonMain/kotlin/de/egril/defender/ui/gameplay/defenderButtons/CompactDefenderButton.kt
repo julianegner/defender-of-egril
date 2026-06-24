@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,17 +22,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hyperether.resources.stringResource
 import de.egril.defender.model.DefenderType
 import de.egril.defender.ui.TowerTypeIcon
 import de.egril.defender.ui.androidTVModifier
 import de.egril.defender.ui.animations.InstantTowerSpellAnimation
 import de.egril.defender.ui.animations.SpellInstantTowerColor
 import de.egril.defender.ui.gameplay.GamePlayColors
+import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.getLocalizedShortName
 import de.egril.defender.ui.icon.MoneyIcon
-import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.settings.AppSettings
-import com.hyperether.resources.stringResource
 import defender_of_egril.composeapp.generated.resources.*
 
 @Composable
@@ -44,44 +43,47 @@ fun CompactDefenderButton(
     instantTowerActive: Boolean = false,
     shortcutIndex: Int? = null,
     modifier: Modifier,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     val isDarkMode = AppSettings.isDarkMode.value
     val locale = com.hyperether.resources.currentLanguage.value
 
     // Create accessible content description
     val towerName = type.getLocalizedShortName(locale)
-    val description = "$towerName, ${stringResource(Res.string.coins_label)}: ${type.baseCost}" +
-        if (isSelected) ", ${stringResource(Res.string.selected)}" else ""
+    val description =
+        "$towerName, ${stringResource(Res.string.coins_label)}: ${type.baseCost}" +
+            if (isSelected) ", ${stringResource(Res.string.selected)}" else ""
 
     // Apply Android TV modifiers for accessibility and focus
-    val buttonModifier = modifier.androidTVModifier(
-        isSelected = isSelected,
-        description = description
-    )
+    val buttonModifier =
+        modifier.androidTVModifier(
+            isSelected = isSelected,
+            description = description,
+        )
 
     Box(modifier = buttonModifier) {
         Button(
             onClick = onClick,
             enabled = canAfford,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isSelected) GamePlayColors.InfoDark else MaterialTheme.colorScheme.primary,
-                contentColor = if (isSelected && isDarkMode) Color.White else Color.White,  // Brighter text when selected in dark mode
-                disabledContainerColor = GamePlayColors.DisabledButton,
-                disabledContentColor = GamePlayColors.DisabledButtonText
-            ),
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = if (isSelected) GamePlayColors.InfoDark else MaterialTheme.colorScheme.primary,
+                    contentColor = if (isSelected && isDarkMode) Color.White else Color.White, // Brighter text when selected in dark mode
+                    disabledContainerColor = GamePlayColors.DisabledButton,
+                    disabledContentColor = GamePlayColors.DisabledButtonText,
+                ),
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(4.dp)
+            contentPadding = PaddingValues(4.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxSize(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start
+                horizontalArrangement = Arrangement.Start,
             ) {
                 // Tower icon
                 Box(
                     modifier = Modifier.size(28.dp),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     TowerTypeIcon(defenderType = type, modifier = Modifier.size(30.dp))
                 }
@@ -97,15 +99,15 @@ fun CompactDefenderButton(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f),
-                    color = if (isSelected && isDarkMode) Color.White else Color.White  // Ensure bright text
+                    color = if (isSelected && isDarkMode) Color.White else Color.White, // Ensure bright text
                 )
-                
+
                 // Shortcut chip right of tower name
                 if (AppSettings.showButtonShortcutHints.value && shortcutIndex != null) {
                     Spacer(modifier = Modifier.width(2.dp))
                     ShortcutKeyChip(
                         text = "${shortcutIndex + 1}",
-                        color = Color.White.copy(alpha = 0.85f)
+                        color = Color.White.copy(alpha = 0.85f),
                     )
                 }
 
@@ -119,7 +121,7 @@ fun CompactDefenderButton(
                         "${type.baseCost}",
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
+                        fontSize = 14.sp,
                     )
                 }
             }
@@ -128,11 +130,13 @@ fun CompactDefenderButton(
         if (instantTowerActive && canAfford) {
             InstantTowerSpellAnimation(
                 animate = AppSettings.enableAnimations.value,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
             Box(
-                modifier = Modifier.fillMaxSize()
-                    .border(2.dp, SpellInstantTowerColor, RoundedCornerShape(percent = 50))
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .border(2.dp, SpellInstantTowerColor, RoundedCornerShape(percent = 50)),
             )
         }
     }

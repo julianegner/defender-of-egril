@@ -5,15 +5,14 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class MainMenuLayoutDecisionTest {
-
     @Test
     fun mobileWebUsesStackedLayoutInPortrait() {
         assertTrue(
             shouldUseStackedMainMenuLayout(
                 isNativeMobile = false,
                 isMobileWeb = true,
-                isPortrait = true
-            )
+                isPortrait = true,
+            ),
         )
     }
 
@@ -23,8 +22,8 @@ class MainMenuLayoutDecisionTest {
             shouldUseStackedMainMenuLayout(
                 isNativeMobile = false,
                 isMobileWeb = true,
-                isPortrait = false
-            )
+                isPortrait = false,
+            ),
         )
     }
 
@@ -34,8 +33,8 @@ class MainMenuLayoutDecisionTest {
             shouldUseStackedMainMenuLayout(
                 isNativeMobile = true,
                 isMobileWeb = false,
-                isPortrait = false
-            )
+                isPortrait = false,
+            ),
         )
     }
 
@@ -44,8 +43,8 @@ class MainMenuLayoutDecisionTest {
         assertTrue(
             shouldUseCompactMainMenuLayout(
                 isNativeMobile = false,
-                isMobileWeb = true
-            )
+                isMobileWeb = true,
+            ),
         )
     }
 
@@ -54,8 +53,8 @@ class MainMenuLayoutDecisionTest {
         assertFalse(
             shouldUseCompactMainMenuLayout(
                 isNativeMobile = false,
-                isMobileWeb = false
-            )
+                isMobileWeb = false,
+            ),
         )
     }
 
@@ -65,8 +64,8 @@ class MainMenuLayoutDecisionTest {
             shouldUseCompactMainMenuLayout(
                 isNativeMobile = false,
                 isMobileWeb = false,
-                isNarrowWindow = true
-            )
+                isNarrowWindow = true,
+            ),
         )
     }
 
@@ -77,8 +76,8 @@ class MainMenuLayoutDecisionTest {
                 isNativeMobile = false,
                 isMobileWeb = false,
                 isPortrait = false,
-                isNarrowWindow = true
-            )
+                isNarrowWindow = true,
+            ),
         )
     }
 
@@ -87,14 +86,14 @@ class MainMenuLayoutDecisionTest {
         assertTrue(
             shouldShowInlineMainMenuVersionInfo(
                 usesStackedLayout = true,
-                isMobileWeb = false
-            )
+                isMobileWeb = false,
+            ),
         )
         assertFalse(
             shouldShowOverlayMainMenuVersionInfo(
                 usesStackedLayout = true,
-                isMobileWeb = false
-            )
+                isMobileWeb = false,
+            ),
         )
     }
 
@@ -103,14 +102,14 @@ class MainMenuLayoutDecisionTest {
         assertFalse(
             shouldShowInlineMainMenuVersionInfo(
                 usesStackedLayout = true,
-                isMobileWeb = true
-            )
+                isMobileWeb = true,
+            ),
         )
         assertTrue(
             shouldShowOverlayMainMenuVersionInfo(
                 usesStackedLayout = true,
-                isMobileWeb = true
-            )
+                isMobileWeb = true,
+            ),
         )
     }
 
@@ -119,14 +118,14 @@ class MainMenuLayoutDecisionTest {
         assertFalse(
             shouldShowInlineMainMenuVersionInfo(
                 usesStackedLayout = false,
-                isMobileWeb = false
-            )
+                isMobileWeb = false,
+            ),
         )
         assertTrue(
             shouldShowOverlayMainMenuVersionInfo(
                 usesStackedLayout = false,
-                isMobileWeb = false
-            )
+                isMobileWeb = false,
+            ),
         )
     }
 }

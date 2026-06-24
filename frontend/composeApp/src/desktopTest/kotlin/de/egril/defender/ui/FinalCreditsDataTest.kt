@@ -36,11 +36,11 @@ import kotlin.test.fail
  *    [FinalCreditsData.backgroundImageExclusions].
  */
 class FinalCreditsDataTest {
-
-    private val projectRoot: File = run {
-        val currentDir = File(System.getProperty("user.dir"))
-        if (currentDir.name == "composeApp") currentDir.parentFile else currentDir
-    }
+    private val projectRoot: File =
+        run {
+            val currentDir = File(System.getProperty("user.dir"))
+            if (currentDir.name == "composeApp") currentDir.parentFile else currentDir
+        }
 
     // ─── Developer coverage ───────────────────────────────────────────────────
 /*
@@ -70,31 +70,33 @@ class FinalCreditsDataTest {
 
     @Test
     fun testSoundEffectCreditsAreUpToDate() {
-        val readmeFile = File(
-            projectRoot,
-            "composeApp/src/commonMain/composeResources/files/sounds/README.md"
-        )
+        val readmeFile =
+            File(
+                projectRoot,
+                "composeApp/src/commonMain/composeResources/files/sounds/README.md",
+            )
         assertTrue(readmeFile.exists(), "Sound effects README not found: ${readmeFile.absolutePath}")
 
         val extracted = CreditsExtractor.extractSoundEffectAuthors(projectRoot)
         if (extracted.isEmpty()) {
             fail(
                 "CreditsExtractor could not extract any Freesound author names from " +
-                "${readmeFile.absolutePath}. Check that the README contains freesound.org URLs."
+                    "${readmeFile.absolutePath}. Check that the README contains freesound.org URLs.",
             )
         }
 
         val credited = FinalCreditsData.soundEffectsCredits.map { it.author }.toSet()
-        val missing = extracted.filter { author ->
-            credited.none { it.equals(author, ignoreCase = true) }
-        }
+        val missing =
+            extracted.filter { author ->
+                credited.none { it.equals(author, ignoreCase = true) }
+            }
 
         if (missing.isNotEmpty()) {
             fail(
                 "The following Freesound.org authors appear in sounds/README.md but are " +
-                "missing from FinalCreditsData.soundEffectsCredits.\n" +
-                "Run CreditsExtractor.extractSoundEffectAuthors() and update FinalCreditsData.kt:\n" +
-                missing.joinToString("\n") { "  - \"$it\"" }
+                    "missing from FinalCreditsData.soundEffectsCredits.\n" +
+                    "Run CreditsExtractor.extractSoundEffectAuthors() and update FinalCreditsData.kt:\n" +
+                    missing.joinToString("\n") { "  - \"$it\"" },
             )
         }
     }
@@ -103,28 +105,30 @@ class FinalCreditsDataTest {
 
     @Test
     fun testBackgroundMusicCreditsAreUpToDate() {
-        val readmeFile = File(
-            projectRoot,
-            "composeApp/src/commonMain/composeResources/files/sounds/background/README.md"
-        )
+        val readmeFile =
+            File(
+                projectRoot,
+                "composeApp/src/commonMain/composeResources/files/sounds/background/README.md",
+            )
         assertTrue(
             readmeFile.exists(),
-            "Background music README not found: ${readmeFile.absolutePath}"
+            "Background music README not found: ${readmeFile.absolutePath}",
         )
 
         val extracted = CreditsExtractor.extractBackgroundMusicAuthors(projectRoot)
-        val creditedText = FinalCreditsData.backgroundMusicCredits
-            .joinToString(" ") { "${it.author} ${it.description}" }
-            .lowercase()
+        val creditedText =
+            FinalCreditsData.backgroundMusicCredits
+                .joinToString(" ") { "${it.author} ${it.description}" }
+                .lowercase()
 
         val missing = extracted.filter { !creditedText.contains(it.lowercase()) }
 
         if (missing.isNotEmpty()) {
             fail(
                 "The following music authors/sources appear in sounds/background/README.md " +
-                "but are missing from FinalCreditsData.backgroundMusicCredits.\n" +
-                "Run CreditsExtractor.extractBackgroundMusicAuthors() and update FinalCreditsData.kt:\n" +
-                missing.joinToString("\n") { "  - \"$it\"" }
+                    "but are missing from FinalCreditsData.backgroundMusicCredits.\n" +
+                    "Run CreditsExtractor.extractBackgroundMusicAuthors() and update FinalCreditsData.kt:\n" +
+                    missing.joinToString("\n") { "  - \"$it\"" },
             )
         }
     }
@@ -133,14 +137,15 @@ class FinalCreditsDataTest {
 
     @Test
     fun testBackgroundImagesExcludeEmojiAndTile() {
-        val violations = FinalCreditsData.backgroundImageNames.filter { name ->
-            name.startsWith("emoji_") || name.startsWith("tile_")
-        }
+        val violations =
+            FinalCreditsData.backgroundImageNames.filter { name ->
+                name.startsWith("emoji_") || name.startsWith("tile_")
+            }
         if (violations.isNotEmpty()) {
             fail(
                 "FinalCreditsData.backgroundImageNames contains entries with forbidden " +
-                "prefixes (emoji_ or tile_):\n" +
-                violations.joinToString("\n") { "  - $it" }
+                    "prefixes (emoji_ or tile_):\n" +
+                    violations.joinToString("\n") { "  - $it" },
             )
         }
     }
@@ -148,35 +153,37 @@ class FinalCreditsDataTest {
     @Ignore
     @Test
     fun testAllNonEmojiNonTileDrawablesAccountedFor() {
-        val drawableDir = File(
-            projectRoot,
-            "composeApp/src/commonMain/composeResources/drawable"
-        )
+        val drawableDir =
+            File(
+                projectRoot,
+                "composeApp/src/commonMain/composeResources/drawable",
+            )
         assertTrue(drawableDir.exists(), "Drawable directory not found: ${drawableDir.absolutePath}")
 
-        val actualImages = drawableDir.listFiles()
-            ?.filter { file ->
-                file.isFile &&
-                file.extension.lowercase() == "png" &&
-                !file.name.startsWith("emoji_") &&
-                !file.name.startsWith("tile_")
-            }
-            ?.map { it.nameWithoutExtension.replace("-", "_") }
-            ?.toSet()
-            ?: emptySet()
+        val actualImages =
+            drawableDir
+                .listFiles()
+                ?.filter { file ->
+                    file.isFile &&
+                        file.extension.lowercase() == "png" &&
+                        !file.name.startsWith("emoji_") &&
+                        !file.name.startsWith("tile_")
+                }?.map { it.nameWithoutExtension.replace("-", "_") }
+                ?.toSet()
+                ?: emptySet()
 
-        val accounted = FinalCreditsData.backgroundImageNames.toSet() +
-                        FinalCreditsData.backgroundImageExclusions
+        val accounted =
+            FinalCreditsData.backgroundImageNames.toSet() +
+                FinalCreditsData.backgroundImageExclusions
         val missing = actualImages - accounted
 
         if (missing.isNotEmpty()) {
             fail(
                 "The following drawable files (excluding emoji_* and tile_*) are not " +
-                "accounted for in FinalCreditsData. Add each to either " +
-                "backgroundImageNames (to show it) or backgroundImageExclusions (to skip it):\n" +
-                missing.sorted().joinToString("\n") { "  - $it" }
+                    "accounted for in FinalCreditsData. Add each to either " +
+                    "backgroundImageNames (to show it) or backgroundImageExclusions (to skip it):\n" +
+                    missing.sorted().joinToString("\n") { "  - $it" },
             )
         }
     }
 }
-

@@ -28,16 +28,17 @@ fun LanguageChooser(
     modifier: Modifier = Modifier,
     onLanguageChanged: ((AppLocale) -> Unit)? = null,
     triggerOpen: Boolean = false,
-    onTriggerOpenHandled: () -> Unit = {}
+    onTriggerOpenHandled: () -> Unit = {},
 ) {
-    val items = remember {
-        AppLocale.entries.map { locale ->
-            DropdownItem(
-                value = locale,
-                content = { LanguageFlagAndName(locale) }
-            )
+    val items =
+        remember {
+            AppLocale.entries.map { locale ->
+                DropdownItem(
+                    value = locale,
+                    content = { LanguageFlagAndName(locale) },
+                )
+            }
         }
-    }
 
     KeyboardNavigableDropdown(
         items = items,
@@ -49,7 +50,7 @@ fun LanguageChooser(
         selectedContent = { LanguageFlagAndName(currentLanguage.value) },
         modifier = modifier.fillMaxWidth(),
         triggerOpen = triggerOpen,
-        onTriggerOpenHandled = onTriggerOpenHandled
+        onTriggerOpenHandled = onTriggerOpenHandled,
     )
 }
 
@@ -60,28 +61,29 @@ fun LanguageChooser(
 private fun LanguageFlagAndName(appLocale: AppLocale) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         // Get country code from locale
         val countryCode = getCountryCode(appLocale)
-        
+
         // Display flag if available
         FlagKit.getFlag(countryCode = countryCode)?.let { flagVector ->
             Image(
                 imageVector = flagVector,
                 contentDescription = "${appLocale.displayName} flag",
                 contentScale = ContentScale.FillBounds,
-                modifier = Modifier
-                    .width(40.dp)
-                    .height(24.dp)
-                    .border(1.dp, Color.Gray)
-                    .clip(RoundedCornerShape(2.dp))
+                modifier =
+                    Modifier
+                        .width(40.dp)
+                        .height(24.dp)
+                        .border(1.dp, Color.Gray)
+                        .clip(RoundedCornerShape(2.dp)),
             )
         }
-        
+
         Text(
             text = "${appLocale.nativeName} (${appLocale.code})",
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
         )
     }
 }
@@ -91,5 +93,4 @@ private fun LanguageFlagAndName(appLocale: AppLocale) {
  * UK flag for English (default language)
  * other languages: country code for flag matches locale code for language
  */
-private fun getCountryCode(appLocale: AppLocale): String =
-    if (appLocale == AppLocale.DEFAULT) "GB" else appLocale.code
+private fun getCountryCode(appLocale: AppLocale): String = if (appLocale == AppLocale.DEFAULT) "GB" else appLocale.code

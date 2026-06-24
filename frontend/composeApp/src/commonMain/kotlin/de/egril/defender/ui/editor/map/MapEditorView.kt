@@ -11,41 +11,43 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.IntSize
+import com.hyperether.resources.stringResource
+import de.egril.defender.editor.EditorJsonSerializer
 import de.egril.defender.editor.EditorMap
+import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.EditorTargetInfo
 import de.egril.defender.editor.TileType
-import de.egril.defender.editor.EditorStorage
 import de.egril.defender.model.Position
 import de.egril.defender.model.RiverTile
 import de.egril.defender.model.TargetType
+import de.egril.defender.ui.constrainMapOffsets
+import de.egril.defender.ui.editor.ConfirmationDialog
+import de.egril.defender.ui.editor.RiverFlowIndicator
+import de.egril.defender.ui.editor.SaveAsDialog
+import de.egril.defender.ui.editor.getTileColor
 import de.egril.defender.ui.hexagon.BaseGridCell
 import de.egril.defender.ui.hexagon.HexagonMinimapFromEditorMap
 import de.egril.defender.ui.hexagon.HexagonalMapConfig
 import de.egril.defender.ui.hexagon.HexagonalMapView
 import de.egril.defender.ui.hexagon.MinimapConfig
-import de.egril.defender.ui.constrainMapOffsets
-import de.egril.defender.ui.editor.ConfirmationDialog
-import de.egril.defender.ui.editor.SaveAsDialog
-import de.egril.defender.ui.editor.getTileColor
-import de.egril.defender.ui.editor.RiverFlowIndicator
 import de.egril.defender.utils.screenToHexGridPosition
-import com.hyperether.resources.stringResource
-import de.egril.defender.ui.icon.InfoIcon
 import defender_of_egril.composeapp.generated.resources.*
-import de.egril.defender.editor.EditorJsonSerializer
 import kotlinx.coroutines.launch
 
 /**
  * Converts a human-readable map name into a stable map ID component, e.g. "My Map" → "my_map".
  */
 private fun nameToMapId(name: String): String {
-    val sanitized = name.trim().lowercase()
-        .replace(" ", "_")
-        .replace(Regex("[^a-z0-9_]"), "")
-        .replace(Regex("_+"), "_")
+    val sanitized =
+        name
+            .trim()
+            .lowercase()
+            .replace(" ", "_")
+            .replace(Regex("[^a-z0-9_]"), "")
+            .replace(Regex("_+"), "_")
     return if (sanitized.isNotEmpty()) "map_$sanitized" else ""
 }
 
@@ -56,7 +58,7 @@ private fun nameToMapId(name: String): String {
 fun MapEditorView(
     map: EditorMap,
     onSave: (EditorMap, String?) -> Unit,
-    onCancel: () -> Unit
+    onCancel: () -> Unit,
 ) {
     var tiles by remember { mutableStateOf(map.tiles.toMutableMap()) }
     var riverTiles by remember { mutableStateOf(map.riverTiles.toMutableMap()) }
@@ -66,7 +68,7 @@ fun MapEditorView(
     var selectedRiverSpeed by remember { mutableStateOf(1) }
     var selectedTargetName by remember { mutableStateOf("") }
     var selectedTargetType by remember { mutableStateOf(TargetType.STANDARD) }
-    var editTargetKey by remember { mutableStateOf<String?>(null) }  // Key of a tile being edited in the inline dialog
+    var editTargetKey by remember { mutableStateOf<String?>(null) } // Key of a tile being edited in the inline dialog
     var mapName by remember { mutableStateOf(map.name) }
     var mapAuthor by remember { mutableStateOf(map.author) }
     var mapToolingInfo by remember { mutableStateOf(map.mapToolingInfo) }
@@ -82,24 +84,25 @@ fun MapEditorView(
     var offsetY by remember { mutableStateOf(0f) }
     var lastPaintedPos by remember { mutableStateOf<Position?>(null) }
     var isHeaderExpanded by remember { mutableStateOf(true) }
-    
+
     // Track container and content sizes for constraint calculation
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
     var actualContentSize by remember { mutableStateOf(IntSize.Zero) }
-    
+
     // Create updated map for minimap that reflects current tiles state
-    val currentMap = remember(tiles, riverTiles, targetInfoMap, mapToolingInfo) {
-        map.copy(
-            tiles = tiles.toMap(),
-            riverTiles = riverTiles.toMap(),
-            targetInfoMap = targetInfoMap.toMap(),
-            mapToolingInfo = mapToolingInfo
-        )
-    }
-    
+    val currentMap =
+        remember(tiles, riverTiles, targetInfoMap, mapToolingInfo) {
+            map.copy(
+                tiles = tiles.toMap(),
+                riverTiles = riverTiles.toMap(),
+                targetInfoMap = targetInfoMap.toMap(),
+                mapToolingInfo = mapToolingInfo,
+            )
+        }
+
     // Hexagon dimensions - using same constants as game (40.dp)
     val hexSize = 40.dp
-    
+
     // Calculate header height based on expanded/collapsed state
     val headerHeight = if (isHeaderExpanded) 280.dp else 56.dp
 
@@ -110,69 +113,77 @@ fun MapEditorView(
             println("Brush paint at content coords: $position")
 
             val key = "${position.x},${position.y}"
-            tiles = tiles.toMutableMap().apply {
-                this[key] = selectedTileType
-            }
-            
+            tiles =
+                tiles.toMutableMap().apply {
+                    this[key] = selectedTileType
+                }
+
             // If painting a river tile, add river data
             if (selectedTileType == TileType.RIVER) {
-                riverTiles = riverTiles.toMutableMap().apply {
-                    this[key] = de.egril.defender.model.RiverTile(
-                        position = position,
-                        flowDirection = selectedRiverFlow,
-                        flowSpeed = selectedRiverSpeed
-                    )
-                }
+                riverTiles =
+                    riverTiles.toMutableMap().apply {
+                        this[key] =
+                            de.egril.defender.model.RiverTile(
+                                position = position,
+                                flowDirection = selectedRiverFlow,
+                                flowSpeed = selectedRiverSpeed,
+                            )
+                    }
             } else {
                 // Remove river data if not a river tile
-                riverTiles = riverTiles.toMutableMap().apply {
-                    remove(key)
-                }
+                riverTiles =
+                    riverTiles.toMutableMap().apply {
+                        remove(key)
+                    }
             }
 
             // Update target info map
             if (selectedTileType == TileType.TARGET) {
-                targetInfoMap = targetInfoMap.toMutableMap().apply {
-                    this[key] = EditorTargetInfo(name = selectedTargetName, type = selectedTargetType)
-                }
+                targetInfoMap =
+                    targetInfoMap.toMutableMap().apply {
+                        this[key] = EditorTargetInfo(name = selectedTargetName, type = selectedTargetType)
+                    }
             } else {
-                targetInfoMap = targetInfoMap.toMutableMap().apply {
-                    remove(key)
-                }
+                targetInfoMap =
+                    targetInfoMap.toMutableMap().apply {
+                        remove(key)
+                    }
             }
-            
+
             lastPaintedPos = position
         }
     }
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
         // Map grid layer (below header)
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         ) {
             // Spacer to account for header height (dynamic based on expanded/collapsed state)
             Spacer(modifier = Modifier.height(headerHeight))
 
             val hexSizePx = with(LocalDensity.current) { hexSize.toPx() }
             Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .padding(8.dp)
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(8.dp),
             ) {
                 HexagonalMapView(
                     gridWidth = map.width,
                     gridHeight = map.height,
-                    config = HexagonalMapConfig(
-                        hexSize = hexSize.value,
-                        enableKeyboardNavigation = true,  // Enable keyboard navigation for editor
-                        enablePanNavigation = false,  // Disable pan navigation (use brush mode instead)
-                        enableBrushMode = true,  // Enable brush mode for tile painting
-                        keyboardPanSpeed = 50f,  // Increased for better responsiveness
-                        enableZoomMode = true  // Zoom now works with brush painting
-                    ),
+                    config =
+                        HexagonalMapConfig(
+                            hexSize = hexSize.value,
+                            enableKeyboardNavigation = true, // Enable keyboard navigation for editor
+                            enablePanNavigation = false, // Disable pan navigation (use brush mode instead)
+                            enableBrushMode = true, // Enable brush mode for tile painting
+                            keyboardPanSpeed = 50f, // Increased for better responsiveness
+                            enableZoomMode = true, // Zoom now works with brush painting
+                        ),
                     scale = zoomLevel,
                     offsetX = offsetX,
                     offsetY = offsetY,
@@ -183,28 +194,29 @@ fun MapEditorView(
                     },
                     onActualContentSizeChange = { actualContentSize = it },
                     onBrushPaint = onBrushPaint,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .onSizeChanged { containerSize = it }
-                        .pointerInput(containerSize, actualContentSize, zoomLevel) {
-                            detectDragGestures { change, _ ->
-                                val pointerPos = change.position
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .onSizeChanged { containerSize = it }
+                            .pointerInput(containerSize, actualContentSize, zoomLevel) {
+                                detectDragGestures { change, _ ->
+                                    val pointerPos = change.position
 
-                                // Adjust pointer position for centering
-                                // When content is smaller than container, it's centered
-                                // The centering must account for the scaled content size
-                                val scaledWidth = actualContentSize.width * zoomLevel
-                                val scaledHeight = actualContentSize.height * zoomLevel
-                                val adjustedX = pointerPos.x - (containerSize.width - scaledWidth) / 2f
-                                val adjustedY = pointerPos.y - (containerSize.height - scaledHeight) / 2f
-                                val adjustedPointerPos = Offset(adjustedX, adjustedY)
+                                    // Adjust pointer position for centering
+                                    // When content is smaller than container, it's centered
+                                    // The centering must account for the scaled content size
+                                    val scaledWidth = actualContentSize.width * zoomLevel
+                                    val scaledHeight = actualContentSize.height * zoomLevel
+                                    val adjustedX = pointerPos.x - (containerSize.width - scaledWidth) / 2f
+                                    val adjustedY = pointerPos.y - (containerSize.height - scaledHeight) / 2f
+                                    val adjustedPointerPos = Offset(adjustedX, adjustedY)
 
-                                val tilePos = screenToHexGridPosition(adjustedPointerPos, offsetX, offsetY, zoomLevel, hexSizePx)
-                                if (tilePos != null) {
-                                    onBrushPaint(tilePos)
+                                    val tilePos = screenToHexGridPosition(adjustedPointerPos, offsetX, offsetY, zoomLevel, hexSizePx)
+                                    if (tilePos != null) {
+                                        onBrushPaint(tilePos)
+                                    }
                                 }
-                            }
-                        }
+                            },
                 ) { position ->
                     val key = "${position.x},${position.y}"
                     val tileType = tiles[key] ?: TileType.NO_PLAY
@@ -219,56 +231,62 @@ fun MapEditorView(
                                 // Clicking an already-TARGET tile while in TARGET mode opens edit dialog
                                 editTargetKey = key
                             } else {
-                                tiles = tiles.toMutableMap().apply {
-                                    this[key] = selectedTileType
-                                }
-                                
+                                tiles =
+                                    tiles.toMutableMap().apply {
+                                        this[key] = selectedTileType
+                                    }
+
                                 // If painting a river tile, add river data
                                 if (selectedTileType == TileType.RIVER) {
-                                    riverTiles = riverTiles.toMutableMap().apply {
-                                        this[key] = RiverTile(
-                                            position = position,
-                                            flowDirection = selectedRiverFlow,
-                                            flowSpeed = selectedRiverSpeed
-                                        )
-                                    }
+                                    riverTiles =
+                                        riverTiles.toMutableMap().apply {
+                                            this[key] =
+                                                RiverTile(
+                                                    position = position,
+                                                    flowDirection = selectedRiverFlow,
+                                                    flowSpeed = selectedRiverSpeed,
+                                                )
+                                        }
                                 } else {
                                     // Remove river data if not a river tile
-                                    riverTiles = riverTiles.toMutableMap().apply {
-                                        remove(key)
-                                    }
+                                    riverTiles =
+                                        riverTiles.toMutableMap().apply {
+                                            remove(key)
+                                        }
                                 }
 
                                 // Update target info map
                                 if (selectedTileType == TileType.TARGET) {
-                                    targetInfoMap = targetInfoMap.toMutableMap().apply {
-                                        this[key] = EditorTargetInfo(name = selectedTargetName, type = selectedTargetType)
-                                    }
+                                    targetInfoMap =
+                                        targetInfoMap.toMutableMap().apply {
+                                            this[key] = EditorTargetInfo(name = selectedTargetName, type = selectedTargetType)
+                                        }
                                 } else {
-                                    targetInfoMap = targetInfoMap.toMutableMap().apply {
-                                        remove(key)
-                                    }
+                                    targetInfoMap =
+                                        targetInfoMap.toMutableMap().apply {
+                                            remove(key)
+                                        }
                                 }
                             }
                         },
                     ) {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
+                            verticalArrangement = Arrangement.Center,
                         ) {
                             Text(
                                 text = "${position.x},${position.y}",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = Color.White
+                                color = Color.White,
                             )
-                            
+
                             // Show target name if this is a target tile
                             val targetInfo = targetInfoMap[key]
                             if (tileType == TileType.TARGET && targetInfo != null && targetInfo.name.isNotBlank()) {
                                 Text(
                                     text = targetInfo.name,
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = Color.Yellow
+                                    color = Color.Yellow,
                                 )
                             }
 
@@ -277,7 +295,7 @@ fun MapEditorView(
                                 RiverFlowIndicator(
                                     flowDirection = riverTile.flowDirection,
                                     flowSpeed = riverTile.flowSpeed,
-                                    size = 20.dp
+                                    size = 20.dp,
                                 )
                             }
                         }
@@ -285,33 +303,36 @@ fun MapEditorView(
                 }
 
                 MapControls(
-                    mapControlState = MapControlState(
-                        zoomLevel = zoomLevel,
-                        offsetX = offsetX,
-                        offsetY = offsetY
-                    ),
+                    mapControlState =
+                        MapControlState(
+                            zoomLevel = zoomLevel,
+                            offsetX = offsetX,
+                            offsetY = offsetY,
+                        ),
                     onStateChange = { newState ->
                         val newScale = newState.zoomLevel
-                        val (constrainedX, constrainedY) = constrainMapOffsets(
-                            newState.offsetX, 
-                            newState.offsetY, 
-                            newScale,
-                            containerSize,
-                            actualContentSize
-                        )
+                        val (constrainedX, constrainedY) =
+                            constrainMapOffsets(
+                                newState.offsetX,
+                                newState.offsetY,
+                                newScale,
+                                containerSize,
+                                actualContentSize,
+                            )
                         zoomLevel = newScale
                         offsetX = constrainedX
                         offsetY = constrainedY
-                    }
+                    },
                 ) {
                     // Minimap
                     HexagonMinimapFromEditorMap(
                         map = currentMap,
                         modifier = Modifier.size(150.dp),
-                        config = MinimapConfig(
-                            showViewport = true,
-                            minimapSizeDp = 150f
-                        ),
+                        config =
+                            MinimapConfig(
+                                showViewport = true,
+                                minimapSizeDp = 150f,
+                            ),
                         scale = zoomLevel,
                         offsetX = offsetX,
                         offsetY = offsetY,
@@ -320,7 +341,7 @@ fun MapEditorView(
                         onViewportDrag = { newOffsetX, newOffsetY ->
                             offsetX = newOffsetX
                             offsetY = newOffsetY
-                        }
+                        },
                     )
                 }
 
@@ -381,53 +402,55 @@ fun MapEditorView(
                         )
                     }
                 }
-                */
+                 */
             }
-            
+
             // Action buttons
             Row(
                 modifier = Modifier.fillMaxWidth().padding(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Button(
                     onClick = {
                         // For user maps: if the name changed, derive a new ID from the new name
                         // so that the JSON and PNG filenames match the new name.
-                        val (newId, oldId) = if (!map.isOfficial && mapName.trim() != map.name.trim()) {
-                            val derived = nameToMapId(mapName)
-                            if (derived.isNotEmpty() && derived != map.id) Pair(derived, map.id) else Pair(map.id, null)
-                        } else {
-                            Pair(map.id, null)
-                        }
-                        val updatedMap = map.copy(
-                            id = newId,
-                            name = mapName,
-                            author = mapAuthor,
-                            mapToolingInfo = mapToolingInfo,
-                            tiles = tiles.toMap(),
-                            riverTiles = riverTiles.toMap(),
-                            targetInfoMap = targetInfoMap.toMap()
-                        )
+                        val (newId, oldId) =
+                            if (!map.isOfficial && mapName.trim() != map.name.trim()) {
+                                val derived = nameToMapId(mapName)
+                                if (derived.isNotEmpty() && derived != map.id) Pair(derived, map.id) else Pair(map.id, null)
+                            } else {
+                                Pair(map.id, null)
+                            }
+                        val updatedMap =
+                            map.copy(
+                                id = newId,
+                                name = mapName,
+                                author = mapAuthor,
+                                mapToolingInfo = mapToolingInfo,
+                                tiles = tiles.toMap(),
+                                riverTiles = riverTiles.toMap(),
+                                targetInfoMap = targetInfoMap.toMap(),
+                            )
                         // Validate and set readyToUse flag
                         val validatedMap = updatedMap.copy(readyToUse = updatedMap.validateReadyToUse())
                         onSave(validatedMap, oldId)
                     },
                     enabled = !map.isOfficial || de.egril.defender.OfficialEditMode.enabled,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 ) {
                     Text(stringResource(Res.string.save_map))
                 }
-                
+
                 Button(
                     onClick = { showSaveAsDialog = true },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 ) {
                     Text(stringResource(Res.string.save_as_new))
                 }
-                
+
                 Button(
                     onClick = onCancel,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 ) {
                     Text(stringResource(Res.string.cancel))
                 }
@@ -436,21 +459,28 @@ fun MapEditorView(
             // Community upload button - only shown for non-official maps when user is authenticated
             val iamState by de.egril.defender.iam.IamService.state
             if (!map.isOfficial && iamState.isAuthenticated) {
-                val currentMapJson = remember(map.id, map.hashCode(), tiles.hashCode(), riverTiles.hashCode(), mapToolingInfo) {
-                    val updatedMap = map.copy(
-                        tiles = tiles.toMap(),
-                        riverTiles = riverTiles.toMap(),
-                        targetInfoMap = targetInfoMap.toMap(),
-                        mapToolingInfo = mapToolingInfo
-                    )
-                    de.egril.defender.editor.EditorJsonSerializer.serializeMap(updatedMap)
-                }
-                val storedCommunityJson = remember(map.id) {
-                    de.egril.defender.editor.EditorStorage.getStoredCommunityMapJson(map.id)
-                }
-                val storedCommunityMap = remember(map.id) {
-                    de.egril.defender.editor.EditorStorage.getCommunityMap(map.id)
-                }
+                val currentMapJson =
+                    remember(map.id, map.hashCode(), tiles.hashCode(), riverTiles.hashCode(), mapToolingInfo) {
+                        val updatedMap =
+                            map.copy(
+                                tiles = tiles.toMap(),
+                                riverTiles = riverTiles.toMap(),
+                                targetInfoMap = targetInfoMap.toMap(),
+                                mapToolingInfo = mapToolingInfo,
+                            )
+                        de.egril.defender.editor.EditorJsonSerializer
+                            .serializeMap(updatedMap)
+                    }
+                val storedCommunityJson =
+                    remember(map.id) {
+                        de.egril.defender.editor.EditorStorage
+                            .getStoredCommunityMapJson(map.id)
+                    }
+                val storedCommunityMap =
+                    remember(map.id) {
+                        de.egril.defender.editor.EditorStorage
+                            .getCommunityMap(map.id)
+                    }
                 val isMyUpload = storedCommunityMap?.communityAuthorUsername == iamState.username
                 val isChanged = storedCommunityJson != null && storedCommunityJson != currentMapJson
 
@@ -458,18 +488,20 @@ fun MapEditorView(
                     isUploadingToCommunity = true
                     communityUploadStatus = null
                     coroutineScope.launch {
-                        val success = de.egril.defender.save.BackendCommunityService
-                            .uploadCommunityFile("MAP", map.id, currentMapJson, token)
+                        val success =
+                            de.egril.defender.save.BackendCommunityService
+                                .uploadCommunityFile("MAP", map.id, currentMapJson, token)
                         if (success) {
-                            val updatedMap = map.copy(
-                                tiles = tiles.toMap(),
-                                riverTiles = riverTiles.toMap(),
-                                targetInfoMap = targetInfoMap.toMap(),
-                                mapToolingInfo = mapToolingInfo
-                            )
+                            val updatedMap =
+                                map.copy(
+                                    tiles = tiles.toMap(),
+                                    riverTiles = riverTiles.toMap(),
+                                    targetInfoMap = targetInfoMap.toMap(),
+                                    mapToolingInfo = mapToolingInfo,
+                                )
                             de.egril.defender.editor.EditorStorage.saveCommunityMap(
                                 updatedMap,
-                                iamState.username ?: ""
+                                iamState.username ?: "",
                             )
                             communityUploadStatus = "success"
                         } else {
@@ -481,43 +513,59 @@ fun MapEditorView(
 
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     if (storedCommunityJson == null) {
                         Button(
                             onClick = { showCommunityUploadConfirm = true },
                             enabled = !isUploadingToCommunity,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
                         ) {
                             Text(
-                                if (isUploadingToCommunity) stringResource(Res.string.community_uploading)
-                                else stringResource(Res.string.upload_as_community_map)
+                                if (isUploadingToCommunity) {
+                                    stringResource(Res.string.community_uploading)
+                                } else {
+                                    stringResource(Res.string.upload_as_community_map)
+                                },
                             )
                         }
                     } else if (isMyUpload && isChanged) {
                         Button(
                             onClick = {
-                                val token = de.egril.defender.iam.IamService.getToken() ?: return@Button
+                                val token =
+                                    de.egril.defender.iam.IamService
+                                        .getToken() ?: return@Button
                                 doMapUpload(token)
                             },
                             enabled = !isUploadingToCommunity,
-                            modifier = Modifier.weight(1f)
+                            modifier = Modifier.weight(1f),
                         ) {
                             Text(
-                                if (isUploadingToCommunity) stringResource(Res.string.community_uploading)
-                                else stringResource(Res.string.update_community_map)
+                                if (isUploadingToCommunity) {
+                                    stringResource(Res.string.community_uploading)
+                                } else {
+                                    stringResource(Res.string.update_community_map)
+                                },
                             )
                         }
                     }
                 }
                 communityUploadStatus?.let { status ->
                     Text(
-                        text = if (status == "success") stringResource(Res.string.community_upload_success)
-                               else stringResource(Res.string.community_upload_failed),
-                        color = if (status == "success") Color(0xFF2E7D32)
-                                else MaterialTheme.colorScheme.error,
+                        text =
+                            if (status == "success") {
+                                stringResource(Res.string.community_upload_success)
+                            } else {
+                                stringResource(Res.string.community_upload_failed)
+                            },
+                        color =
+                            if (status == "success") {
+                                Color(0xFF2E7D32)
+                            } else {
+                                MaterialTheme.colorScheme.error
+                            },
                         style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(horizontal = 8.dp)
+                        modifier = Modifier.padding(horizontal = 8.dp),
                     )
                 }
 
@@ -529,9 +577,11 @@ fun MapEditorView(
                         onDismiss = { showCommunityUploadConfirm = false },
                         onConfirm = {
                             showCommunityUploadConfirm = false
-                            val token = de.egril.defender.iam.IamService.getToken() ?: return@ConfirmationDialog
+                            val token =
+                                de.egril.defender.iam.IamService
+                                    .getToken() ?: return@ConfirmationDialog
                             doMapUpload(token)
-                        }
+                        },
                     )
                 }
             }
@@ -561,10 +611,10 @@ fun MapEditorView(
             selectedTargetName = selectedTargetName,
             onTargetNameChange = { selectedTargetName = it },
             selectedTargetType = selectedTargetType,
-            onTargetTypeChange = { selectedTargetType = it }
+            onTargetTypeChange = { selectedTargetType = it },
         )
     }
-    
+
     if (showSaveAsDialog) {
         SaveAsDialog(
             title = stringResource(Res.string.save_map_as_new),
@@ -573,27 +623,29 @@ fun MapEditorView(
             onDismiss = { showSaveAsDialog = false },
             onSave = { newName ->
                 // Save as new map with ID based on name
-                val newId = nameToMapId(newName).ifEmpty {
-                    "map_copy_${kotlin.random.Random.nextInt(10000, 99999)}"
-                }
-                val newMap = map.copy(
-                    id = newId,
-                    name = newName,
-                    author = mapAuthor,
-                    mapToolingInfo = mapToolingInfo,
-                    tiles = tiles.toMap(),
-                    riverTiles = riverTiles.toMap(),
-                    targetInfoMap = targetInfoMap.toMap(),
-                    isOfficial = false  // Save as new always creates a user map
-                )
+                val newId =
+                    nameToMapId(newName).ifEmpty {
+                        "map_copy_${kotlin.random.Random.nextInt(10000, 99999)}"
+                    }
+                val newMap =
+                    map.copy(
+                        id = newId,
+                        name = newName,
+                        author = mapAuthor,
+                        mapToolingInfo = mapToolingInfo,
+                        tiles = tiles.toMap(),
+                        riverTiles = riverTiles.toMap(),
+                        targetInfoMap = targetInfoMap.toMap(),
+                        isOfficial = false, // Save as new always creates a user map
+                    )
                 // Validate and set readyToUse flag
                 val validatedMap = newMap.copy(readyToUse = newMap.validateReadyToUse())
-                onSave(validatedMap, null)  // null oldId: this is a brand-new map, not a rename
+                onSave(validatedMap, null) // null oldId: this is a brand-new map, not a rename
                 showSaveAsDialog = false
-            }
+            },
         )
     }
-    
+
     if (showChangeAllDialog) {
         ConfirmationDialog(
             title = stringResource(Res.string.change_all_no_play_confirm_title),
@@ -601,19 +653,20 @@ fun MapEditorView(
             onDismiss = { showChangeAllDialog = false },
             onConfirm = {
                 // Replace all NO_PLAY tiles with PATH tiles
-                tiles = tiles.toMutableMap().apply {
-                    // Iterate through all positions in the map
-                    for (x in 0 until map.width) {
-                        for (y in 0 until map.height) {
-                            val key = "$x,$y"
-                            if (this[key] == TileType.NO_PLAY || this[key] == null) {
-                                this[key] = TileType.PATH
+                tiles =
+                    tiles.toMutableMap().apply {
+                        // Iterate through all positions in the map
+                        for (x in 0 until map.width) {
+                            for (y in 0 until map.height) {
+                                val key = "$x,$y"
+                                if (this[key] == TileType.NO_PLAY || this[key] == null) {
+                                    this[key] = TileType.PATH
+                                }
                             }
                         }
                     }
-                }
                 showChangeAllDialog = false
-            }
+            },
         )
     }
 
@@ -626,30 +679,42 @@ fun MapEditorView(
             onDismissRequest = { editTargetKey = null },
             title = { Text(stringResource(Res.string.target_name_label)) },
             text = {
-                Column(verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp)) {
+                Column(
+                    verticalArrangement =
+                        androidx.compose.foundation.layout.Arrangement
+                            .spacedBy(8.dp),
+                ) {
                     OutlinedTextField(
                         value = editName,
                         onValueChange = { editName = it },
                         label = { Text(stringResource(Res.string.target_name_label)) },
                         modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
+                        singleLine = true,
                     )
                     Text(stringResource(Res.string.target_type_label), style = MaterialTheme.typography.bodyMedium)
-                    Row(horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(4.dp)) {
+                    Row(
+                        horizontalArrangement =
+                            androidx.compose.foundation.layout.Arrangement
+                                .spacedBy(4.dp),
+                    ) {
                         TargetType.entries.forEach { type ->
-                            val label = when (type) {
-                                TargetType.STANDARD -> stringResource(Res.string.target_type_standard)
-                                TargetType.SINGLE_HIT -> stringResource(Res.string.target_type_single_hit)
-                            }
+                            val label =
+                                when (type) {
+                                    TargetType.STANDARD -> stringResource(Res.string.target_type_standard)
+                                    TargetType.SINGLE_HIT -> stringResource(Res.string.target_type_single_hit)
+                                }
                             Button(
                                 onClick = { editType = type },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (editType == type)
-                                        MaterialTheme.colorScheme.primary
-                                    else
-                                        MaterialTheme.colorScheme.secondary
-                                ),
-                                modifier = Modifier.height(36.dp)
+                                colors =
+                                    ButtonDefaults.buttonColors(
+                                        containerColor =
+                                            if (editType == type) {
+                                                MaterialTheme.colorScheme.primary
+                                            } else {
+                                                MaterialTheme.colorScheme.secondary
+                                            },
+                                    ),
+                                modifier = Modifier.height(36.dp),
                             ) {
                                 Text(label, fontSize = 11.sp)
                             }
@@ -659,9 +724,10 @@ fun MapEditorView(
             },
             confirmButton = {
                 Button(onClick = {
-                    targetInfoMap = targetInfoMap.toMutableMap().apply {
-                        this[editKey] = EditorTargetInfo(name = editName, type = editType)
-                    }
+                    targetInfoMap =
+                        targetInfoMap.toMutableMap().apply {
+                            this[editKey] = EditorTargetInfo(name = editName, type = editType)
+                        }
                     editTargetKey = null
                 }) {
                     Text(stringResource(Res.string.ok))
@@ -671,7 +737,7 @@ fun MapEditorView(
                 Button(onClick = { editTargetKey = null }) {
                     Text(stringResource(Res.string.cancel))
                 }
-            }
+            },
         )
     }
 }

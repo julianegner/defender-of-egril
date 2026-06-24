@@ -20,7 +20,7 @@ data class RemoteUserData(
     val localUsername: String,
     val abilities: PlayerAbilities?,
     val levelProgress: Map<String, String>?,
-    val updatedAt: String = ""
+    val updatedAt: String = "",
 )
 
 /**
@@ -31,7 +31,6 @@ data class RemoteUserData(
  * Implementations are platform-specific but the interface is shared across all platforms.
  */
 expect object BackendUserDataService {
-
     /**
      * Upload the user's general data to the backend.
      * Returns true on success, false on failure (e.g. not authenticated, network error).
@@ -39,7 +38,10 @@ expect object BackendUserDataService {
      * @param jsonData Raw JSON content representing the user data
      * @param token    Bearer token for authentication
      */
-    suspend fun uploadUserData(jsonData: String, token: String): Boolean
+    suspend fun uploadUserData(
+        jsonData: String,
+        token: String,
+    ): Boolean
 
     /**
      * Fetch the user's general data from the backend.
@@ -55,18 +57,23 @@ expect object BackendUserDataService {
 // ---------------------------------------------------------------------------
 
 /** Builds the JSON payload for a user-data upload request. */
-internal fun buildUserDataUploadJson(jsonData: String): String = buildString {
-    val currentPlatform = de.egril.defender.utils.getPlatform()
-    val platform = de.egril.defender.utils.getClientPlatformName()
-    val platformLong = currentPlatform.name
-    val osName = currentPlatform.osName
-    val versionName = de.egril.defender.AppBuildInfo.VERSION_NAME
-    val commitHash = de.egril.defender.AppBuildInfo.COMMIT_HASH
-    append("{")
-    append("\"data\":\"${escapeJsonString(jsonData)}\",")
-    appendClientInfo(platform, platformLong, versionName, commitHash, osName)
-    append("}")
-}
+internal fun buildUserDataUploadJson(jsonData: String): String =
+    buildString {
+        val currentPlatform =
+            de.egril.defender.utils
+                .getPlatform()
+        val platform =
+            de.egril.defender.utils
+                .getClientPlatformName()
+        val platformLong = currentPlatform.name
+        val osName = currentPlatform.osName
+        val versionName = de.egril.defender.AppBuildInfo.VERSION_NAME
+        val commitHash = de.egril.defender.AppBuildInfo.COMMIT_HASH
+        append("{")
+        append("\"data\":\"${escapeJsonString(jsonData)}\",")
+        appendClientInfo(platform, platformLong, versionName, commitHash, osName)
+        append("}")
+    }
 
 /**
  * Parses a [RemoteUserData] from the JSON response returned by GET /api/userdata.
@@ -94,51 +101,68 @@ internal fun parseRemoteUserDataJson(responseJson: String): RemoteUserData? {
  * Parses a [RemoteUserData] from the raw user-data JSON payload (the inner content,
  * not the wrapper envelope).
  */
-internal fun parseUserDataJson(json: String, updatedAt: String = ""): RemoteUserData? {
+internal fun parseUserDataJson(
+    json: String,
+    updatedAt: String = "",
+): RemoteUserData? {
     val trimmed = json.trim()
     if (!trimmed.startsWith("{")) return null
 
     val localUsername = extractJsonStringFieldInternal(trimmed, "localUsername") ?: return null
 
     // Parse abilities (optional – may not be present in older saves)
-    val abilities = try {
-        val abilitiesStart = trimmed.indexOf("\"abilities\": {")
-            .takeIf { it >= 0 } ?: trimmed.indexOf("\"abilities\":{").takeIf { it >= 0 }
-        if (abilitiesStart != null) {
-            val jsonAfterKey = trimmed.substring(abilitiesStart)
-            val braceStart = jsonAfterKey.indexOf('{')
-            if (braceStart >= 0) {
-                val sub = jsonAfterKey.substring(braceStart)
-                val abilitiesJson = extractBalancedBraces(sub)
-                if (abilitiesJson != null) parseAbilitiesJson(abilitiesJson) else null
-            } else null
-        } else null
-    } catch (_: Exception) {
-        null
-    }
+    val abilities =
+        try {
+            val abilitiesStart =
+                trimmed
+                    .indexOf("\"abilities\": {")
+                    .takeIf { it >= 0 } ?: trimmed.indexOf("\"abilities\":{").takeIf { it >= 0 }
+            if (abilitiesStart != null) {
+                val jsonAfterKey = trimmed.substring(abilitiesStart)
+                val braceStart = jsonAfterKey.indexOf('{')
+                if (braceStart >= 0) {
+                    val sub = jsonAfterKey.substring(braceStart)
+                    val abilitiesJson = extractBalancedBraces(sub)
+                    if (abilitiesJson != null) parseAbilitiesJson(abilitiesJson) else null
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+        } catch (_: Exception) {
+            null
+        }
 
     // Parse levelProgress map (optional)
-    val levelProgress = try {
-        val lpStart = trimmed.indexOf("\"levelProgress\": {")
-            .takeIf { it >= 0 } ?: trimmed.indexOf("\"levelProgress\":{").takeIf { it >= 0 }
-        if (lpStart != null) {
-            val jsonAfterKey = trimmed.substring(lpStart)
-            val braceStart = jsonAfterKey.indexOf('{')
-            if (braceStart >= 0) {
-                val sub = jsonAfterKey.substring(braceStart)
-                val lpJson = extractBalancedBraces(sub)
-                if (lpJson != null) parseLevelProgressMap(lpJson) else null
-            } else null
-        } else null
-    } catch (_: Exception) {
-        null
-    }
+    val levelProgress =
+        try {
+            val lpStart =
+                trimmed
+                    .indexOf("\"levelProgress\": {")
+                    .takeIf { it >= 0 } ?: trimmed.indexOf("\"levelProgress\":{").takeIf { it >= 0 }
+            if (lpStart != null) {
+                val jsonAfterKey = trimmed.substring(lpStart)
+                val braceStart = jsonAfterKey.indexOf('{')
+                if (braceStart >= 0) {
+                    val sub = jsonAfterKey.substring(braceStart)
+                    val lpJson = extractBalancedBraces(sub)
+                    if (lpJson != null) parseLevelProgressMap(lpJson) else null
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+        } catch (_: Exception) {
+            null
+        }
 
     return RemoteUserData(
         localUsername = localUsername,
         abilities = abilities,
         levelProgress = levelProgress,
-        updatedAt = updatedAt
+        updatedAt = updatedAt,
     )
 }
 
@@ -146,12 +170,13 @@ internal fun parseUserDataJson(json: String, updatedAt: String = ""): RemoteUser
 internal fun serializeUserDataJson(
     localUsername: String,
     abilities: PlayerAbilities,
-    levelProgress: Map<String, String>
+    levelProgress: Map<String, String>,
 ): String {
     val abilitiesJson = serializeAbilitiesJson(abilities)
-    val levelProgressJson = levelProgress.entries.joinToString(",\n    ") { (id, status) ->
-        "\"${escapeJsonString(id)}\": \"${escapeJsonString(status)}\""
-    }
+    val levelProgressJson =
+        levelProgress.entries.joinToString(",\n    ") { (id, status) ->
+            "\"${escapeJsonString(id)}\": \"${escapeJsonString(status)}\""
+        }
     return """{
   "localUsername": "${escapeJsonString(localUsername)}",
   "abilities": $abilitiesJson,
@@ -196,7 +221,7 @@ private fun parseAbilitiesJson(json: String): PlayerAbilities? {
             incomeAbility = incomeAbility,
             constructionAbility = constructionAbility,
             manaAbility = manaAbility,
-            unlockedSpells = unlockedSpells
+            unlockedSpells = unlockedSpells,
         )
     } catch (_: Exception) {
         null
@@ -204,29 +229,38 @@ private fun parseAbilitiesJson(json: String): PlayerAbilities? {
 }
 
 private fun parseSpellList(json: String): Set<SpellType> {
-    val arrayStart = json.indexOf("\"unlockedSpells\": [")
-        .takeIf { it >= 0 } ?: json.indexOf("\"unlockedSpells\":[").takeIf { it >= 0 } ?: return emptySet()
+    val arrayStart =
+        json
+            .indexOf("\"unlockedSpells\": [")
+            .takeIf { it >= 0 } ?: json.indexOf("\"unlockedSpells\":[").takeIf { it >= 0 } ?: return emptySet()
     val bracketStart = json.indexOf('[', arrayStart)
     if (bracketStart < 0) return emptySet()
     val bracketEnd = json.indexOf(']', bracketStart)
     if (bracketEnd < 0) return emptySet()
     val arrayContent = json.substring(bracketStart + 1, bracketEnd).trim()
     if (arrayContent.isEmpty()) return emptySet()
-    return arrayContent.split(",").mapNotNull { token ->
-        val name = token.trim().removeSurrounding("\"")
-        try { SpellType.valueOf(name) } catch (_: Exception) { null }
-    }.toSet()
+    return arrayContent
+        .split(",")
+        .mapNotNull { token ->
+            val name = token.trim().removeSurrounding("\"")
+            try {
+                SpellType.valueOf(name)
+            } catch (_: Exception) {
+                null
+            }
+        }.toSet()
 }
 
 private fun parseLevelProgressMap(json: String): Map<String, String> {
     val map = mutableMapOf<String, String>()
     val trimmed = json.trim()
     // Remove surrounding braces
-    val inner = if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
-        trimmed.substring(1, trimmed.length - 1)
-    } else {
-        trimmed
-    }
+    val inner =
+        if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+            trimmed.substring(1, trimmed.length - 1)
+        } else {
+            trimmed
+        }
     // Iterate over "key": "value" pairs
     var pos = 0
     while (pos < inner.length) {
@@ -251,7 +285,10 @@ private fun parseLevelProgressMap(json: String): Map<String, String> {
     return map
 }
 
-private fun extractJsonIntField(json: String, key: String): Int? {
+private fun extractJsonIntField(
+    json: String,
+    key: String,
+): Int? {
     val pattern = "\"$key\""
     val keyIdx = json.indexOf(pattern)
     if (keyIdx < 0) return null
@@ -265,7 +302,10 @@ private fun extractJsonIntField(json: String, key: String): Int? {
 }
 
 // Re-export the package-private helper used in BackendCommunityService so we avoid duplication
-internal fun extractJsonStringFieldInternal(json: String, key: String): String? {
+internal fun extractJsonStringFieldInternal(
+    json: String,
+    key: String,
+): String? {
     val pattern = "\"${key}\""
     val keyIdx = json.indexOf(pattern)
     if (keyIdx < 0) return null
@@ -280,12 +320,30 @@ internal fun extractJsonStringFieldInternal(json: String, key: String): String? 
         val c = json[i]
         if (c == '\\' && i + 1 < json.length) {
             when (json[i + 1]) {
-                '"' -> { sb.append('"'); i += 2 }
-                '\\' -> { sb.append('\\'); i += 2 }
-                'n' -> { sb.append('\n'); i += 2 }
-                'r' -> { sb.append('\r'); i += 2 }
-                't' -> { sb.append('\t'); i += 2 }
-                else -> { sb.append(json[i + 1]); i += 2 }
+                '"' -> {
+                    sb.append('"')
+                    i += 2
+                }
+                '\\' -> {
+                    sb.append('\\')
+                    i += 2
+                }
+                'n' -> {
+                    sb.append('\n')
+                    i += 2
+                }
+                'r' -> {
+                    sb.append('\r')
+                    i += 2
+                }
+                't' -> {
+                    sb.append('\t')
+                    i += 2
+                }
+                else -> {
+                    sb.append(json[i + 1])
+                    i += 2
+                }
             }
         } else if (c == '"') {
             return sb.toString()

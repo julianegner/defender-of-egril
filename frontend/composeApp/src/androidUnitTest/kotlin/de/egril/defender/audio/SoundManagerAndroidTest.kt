@@ -8,7 +8,6 @@ import kotlin.test.assertTrue
  * Unit tests for Android sound manager factory
  */
 class SoundManagerAndroidTest {
-    
     @Test
     fun `createSoundManager returns FileSoundManager instance`() {
         val soundManager = createSoundManager()

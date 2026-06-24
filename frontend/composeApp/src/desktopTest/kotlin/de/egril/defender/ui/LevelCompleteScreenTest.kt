@@ -11,13 +11,12 @@ import org.junit.Test
 
 /**
  * UI tests for the Level Complete screen.
- * 
+ *
  * These tests verify that the Level Complete screen renders correctly
  * in different states (victory, defeat, final victory) and captures
  * screenshots for visual verification.
  */
 class LevelCompleteScreenTest {
-    
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -25,12 +24,12 @@ class LevelCompleteScreenTest {
     fun setDefaultLanguage() {
         currentLanguage.value = AppLocale.DEFAULT
     }
-    
+
     @Test
     fun testLevelCompleteScreenVictoryState() {
         var restartClicked = false
         var backToMapClicked = false
-        
+
         // Set up victory state (not last level)
         composeTestRule.setContent {
             LevelCompleteScreen(
@@ -38,36 +37,40 @@ class LevelCompleteScreenTest {
                 won = true,
                 isLastLevel = false,
                 onRestart = { restartClicked = true },
-                onBackToMap = { backToMapClicked = true }
+                onBackToMap = { backToMapClicked = true },
             )
         }
-        
+
         composeTestRule.waitForIdle()
-        
+
         // Verify victory elements are present
-        composeTestRule.onNodeWithText("Battle Won", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Battle Won", substring = true, ignoreCase = true)
             .assertExists()
-        
+
         // Check for retry button
-        composeTestRule.onNodeWithText("Retry", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Retry", substring = true, ignoreCase = true)
             .assertExists()
             .assertHasClickAction()
-        
+
         // Check for world map button
-        composeTestRule.onNodeWithText("World Map", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("World Map", substring = true, ignoreCase = true)
             .assertExists()
             .assertHasClickAction()
-        
+
         // "Next Level" button should NOT appear when onNextLevel is null
-        composeTestRule.onNodeWithText("Next Level", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Next Level", substring = true, ignoreCase = true)
             .assertDoesNotExist()
-        
+
         // Capture screenshot
         ScreenshotTestUtils.captureScreenshot(
             composeTestRule,
             "level-complete-victory",
             width = 1200,
-            height = 800
+            height = 800,
         )
     }
 
@@ -85,19 +88,21 @@ class LevelCompleteScreenTest {
                 isLastLevel = false,
                 onRestart = { restartClicked = true },
                 onBackToMap = { backToMapClicked = true },
-                onNextLevel = { nextLevelClicked = true }
+                onNextLevel = { nextLevelClicked = true },
             )
         }
 
         composeTestRule.waitForIdle()
 
         // "Next Level" button should appear
-        composeTestRule.onNodeWithText("Next Level", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Next Level", substring = true, ignoreCase = true)
             .assertExists()
             .assertHasClickAction()
 
         // Test clicking the next level button
-        composeTestRule.onNodeWithText("Next Level", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Next Level", substring = true, ignoreCase = true)
             .performClick()
 
         composeTestRule.waitForIdle()
@@ -108,15 +113,15 @@ class LevelCompleteScreenTest {
             composeTestRule,
             "level-complete-victory-with-next-level",
             width = 1200,
-            height = 800
+            height = 800,
         )
     }
-    
+
     @Test
     fun testLevelCompleteScreenDefeatState() {
         var restartClicked = false
         var backToMapClicked = false
-        
+
         // Set up defeat state
         composeTestRule.setContent {
             LevelCompleteScreen(
@@ -124,32 +129,35 @@ class LevelCompleteScreenTest {
                 won = false,
                 isLastLevel = false,
                 onRestart = { restartClicked = true },
-                onBackToMap = { backToMapClicked = true }
+                onBackToMap = { backToMapClicked = true },
             )
         }
-        
+
         composeTestRule.waitForIdle()
-        
+
         // Verify defeat elements are present
-        composeTestRule.onNodeWithText("Defeat", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Defeat", substring = true, ignoreCase = true)
             .assertExists()
-        
+
         // Check for retry button
-        composeTestRule.onNodeWithText("Retry", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Retry", substring = true, ignoreCase = true)
             .assertExists()
             .assertHasClickAction()
-        
+
         // Check for world map button
-        composeTestRule.onNodeWithText("World Map", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("World Map", substring = true, ignoreCase = true)
             .assertExists()
             .assertHasClickAction()
-        
+
         // Capture screenshot
         ScreenshotTestUtils.captureScreenshot(
             composeTestRule,
             "level-complete-defeat",
             width = 1200,
-            height = 800
+            height = 800,
         )
     }
 
@@ -165,34 +173,37 @@ class LevelCompleteScreenTest {
                 playerLevelGained = 1,
                 abilityPointsGained = 1,
                 onRestart = {},
-                onBackToMap = {}
+                onBackToMap = {},
             )
         }
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("XP Earned", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("XP Earned", substring = true, ignoreCase = true)
             .assertExists()
 
-        composeTestRule.onNodeWithText("Reached Level", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Reached Level", substring = true, ignoreCase = true)
             .assertExists()
 
-        composeTestRule.onNodeWithText("Ability Points Gained", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Ability Points Gained", substring = true, ignoreCase = true)
             .assertExists()
 
         ScreenshotTestUtils.captureScreenshot(
             composeTestRule,
             "level-complete-defeat-with-xp",
             width = 1200,
-            height = 800
+            height = 800,
         )
     }
-    
+
     @Test
     fun testLevelCompleteScreenFinalVictoryState() {
         var restartClicked = false
         var backToMapClicked = false
-        
+
         // Set up final victory state (last level won)
         composeTestRule.setContent {
             LevelCompleteScreen(
@@ -200,64 +211,70 @@ class LevelCompleteScreenTest {
                 won = true,
                 isLastLevel = true,
                 onRestart = { restartClicked = true },
-                onBackToMap = { backToMapClicked = true }
+                onBackToMap = { backToMapClicked = true },
             )
         }
-        
+
         composeTestRule.waitForIdle()
-        
+
         // Verify final victory elements are present
-        composeTestRule.onNodeWithText("Victory", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Victory", substring = true, ignoreCase = true)
             .assertExists()
-        
+
         // Check for buttons
-        composeTestRule.onNodeWithText("Retry", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Retry", substring = true, ignoreCase = true)
             .assertExists()
-        
-        composeTestRule.onNodeWithText("World Map", substring = true, ignoreCase = true)
+
+        composeTestRule
+            .onNodeWithText("World Map", substring = true, ignoreCase = true)
             .assertExists()
-        
+
         // "Next Level" button should NOT appear when it's the last level
-        composeTestRule.onNodeWithText("Next Level", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Next Level", substring = true, ignoreCase = true)
             .assertDoesNotExist()
-        
+
         // Capture screenshot
         ScreenshotTestUtils.captureScreenshot(
             composeTestRule,
             "level-complete-final-victory",
             width = 1200,
-            height = 800
+            height = 800,
         )
     }
-    
+
     @Test
     fun testLevelCompleteButtonInteractions() {
         var restartClicked = false
         var backToMapClicked = false
-        
+
         composeTestRule.setContent {
             LevelCompleteScreen(
                 levelId = 1,
                 won = true,
                 isLastLevel = false,
                 onRestart = { restartClicked = true },
-                onBackToMap = { backToMapClicked = true }
+                onBackToMap = { backToMapClicked = true },
             )
         }
-        
+
         composeTestRule.waitForIdle()
-        
+
         // Test retry button
-        composeTestRule.onNodeWithText("Retry", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Retry", substring = true, ignoreCase = true)
             .performClick()
-        
+
         composeTestRule.waitForIdle()
         assert(restartClicked) { "Restart button should trigger callback" }
-        
+
         // Test world map button
-        composeTestRule.onNodeWithText("World Map", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("World Map", substring = true, ignoreCase = true)
             .performClick()
-        
+
         composeTestRule.waitForIdle()
         assert(backToMapClicked) { "World Map button should trigger callback" }
     }
@@ -274,20 +291,21 @@ class LevelCompleteScreenTest {
                 playerLevelGained = 1,
                 abilityPointsGained = 1,
                 onRestart = {},
-                onBackToMap = {}
+                onBackToMap = {},
             )
         }
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("Reached Level", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Reached Level", substring = true, ignoreCase = true)
             .assertExists()
 
         ScreenshotTestUtils.captureScreenshot(
             composeTestRule,
             "level-complete-level-up-and-ability-points",
             width = 1200,
-            height = 800
+            height = 800,
         )
     }
 }

@@ -22,12 +22,12 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.ui.TooltipWrapper
 import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.settings.AppSettings
+import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.close
+import defender_of_egril.composeapp.generated.resources.feedback_form_title
+import defender_of_egril.composeapp.generated.resources.tooltip_feedback
 import dev.vicart.compose.material.symbols.FilledSymbol
 import dev.vicart.compose.material.symbols.MaterialSymbols
-import defender_of_egril.composeapp.generated.resources.Res
-import defender_of_egril.composeapp.generated.resources.tooltip_feedback
-import defender_of_egril.composeapp.generated.resources.feedback_form_title
-import defender_of_egril.composeapp.generated.resources.close
 import kotlinx.coroutines.launch
 
 /**
@@ -44,7 +44,7 @@ fun FeedbackButton(
     gameContext: GameFeedbackContext? = null,
     shortcutKey: String? = null,
     triggerOpen: Boolean = false,
-    onTriggerHandled: (() -> Unit)? = null
+    onTriggerHandled: (() -> Unit)? = null,
 ) {
     var showFeedback by remember { mutableStateOf(false) }
     val feedbackLabel = stringResource(Res.string.tooltip_feedback)
@@ -60,12 +60,12 @@ fun FeedbackButton(
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(
                 onClick = { showFeedback = true },
-                modifier = modifier.semantics { contentDescription = feedbackLabel }
+                modifier = modifier.semantics { contentDescription = feedbackLabel },
             ) {
                 FilledSymbol(
                     icon = MaterialSymbols.RATE_REVIEW,
                     size = 32.dp,
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
             if (shortcutKey != null && AppSettings.showButtonShortcutHints.value) {
@@ -87,76 +87,91 @@ fun FeedbackButton(
 @Composable
 private fun FeedbackDialog(
     onDismiss: () -> Unit,
-    gameContext: GameFeedbackContext? = null
+    gameContext: GameFeedbackContext? = null,
 ) {
     Dialog(onDismissRequest = onDismiss) {
         val scrollState = rememberScrollState()
         val scope = rememberCoroutineScope()
         val focusRequester = remember { FocusRequester() }
         Surface(
-            modifier = Modifier
-                .widthIn(min = 300.dp, max = 560.dp)
-                .fillMaxHeight(fraction = 0.92f)
-                .focusRequester(focusRequester)
-                .focusTarget()
-                .onPreviewKeyEvent { event ->
-                    if (event.type == KeyEventType.KeyDown) {
-                        when (event.key) {
-                            Key.Back, Key.Escape -> {
-                                onDismiss()
-                                true
-                            }
-                            Key.DirectionUp -> {
-                                if (!event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed) {
-                                    scope.launch { scrollState.animateScrollTo((scrollState.value - 120).coerceAtLeast(0)) }
+            modifier =
+                Modifier
+                    .widthIn(min = 300.dp, max = 560.dp)
+                    .fillMaxHeight(fraction = 0.92f)
+                    .focusRequester(focusRequester)
+                    .focusTarget()
+                    .onPreviewKeyEvent { event ->
+                        if (event.type == KeyEventType.KeyDown) {
+                            when (event.key) {
+                                Key.Back, Key.Escape -> {
+                                    onDismiss()
                                     true
-                                } else false
+                                }
+                                Key.DirectionUp -> {
+                                    if (!event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed) {
+                                        scope.launch { scrollState.animateScrollTo((scrollState.value - 120).coerceAtLeast(0)) }
+                                        true
+                                    } else {
+                                        false
+                                    }
+                                }
+                                Key.DirectionDown -> {
+                                    if (!event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed) {
+                                        scope.launch {
+                                            scrollState.animateScrollTo(
+                                                (scrollState.value + 120).coerceAtMost(scrollState.maxValue),
+                                            )
+                                        }
+                                        true
+                                    } else {
+                                        false
+                                    }
+                                }
+                                else -> false
                             }
-                            Key.DirectionDown -> {
-                                if (!event.isCtrlPressed && !event.isAltPressed && !event.isShiftPressed) {
-                                    scope.launch { scrollState.animateScrollTo((scrollState.value + 120).coerceAtMost(scrollState.maxValue)) }
-                                    true
-                                } else false
-                            }
-                            else -> false
+                        } else {
+                            false
                         }
-                    } else false
-                },
+                    },
             shape = RoundedCornerShape(16.dp),
             color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 6.dp
+            tonalElevation = 6.dp,
         ) {
             LaunchedEffect(Unit) {
-                try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
+                try {
+                    focusRequester.requestFocus()
+                } catch (_: IllegalStateException) {
+                }
             }
             Column(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth()
-                    .fillMaxHeight()
+                modifier =
+                    Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth()
+                        .fillMaxHeight(),
             ) {
                 // Title row with close button
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
                         text = stringResource(Res.string.feedback_form_title),
                         style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                     val closeLabel = stringResource(Res.string.close)
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                            ShortcutKeyChip(text = "Esc")
-                            Spacer(modifier = Modifier.width(4.dp))
+                        ShortcutKeyChip(text = "Esc")
+                        Spacer(modifier = Modifier.width(4.dp))
                         IconButton(
                             onClick = onDismiss,
-                            modifier = Modifier.semantics { contentDescription = closeLabel }
+                            modifier = Modifier.semantics { contentDescription = closeLabel },
                         ) {
                             FilledSymbol(
                                 icon = MaterialSymbols.CLOSE,
-                                tint = MaterialTheme.colorScheme.onSurface
+                                tint = MaterialTheme.colorScheme.onSurface,
                             )
                         }
                     }
@@ -164,14 +179,15 @@ private fun FeedbackDialog(
 
                 // Scrollable form content
                 Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                        .verticalScroll(scrollState)
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .verticalScroll(scrollState),
                 ) {
                     FeedbackFormContent(
                         showTitle = false,
-                        gameContext = gameContext
+                        gameContext = gameContext,
                     )
                 }
             }

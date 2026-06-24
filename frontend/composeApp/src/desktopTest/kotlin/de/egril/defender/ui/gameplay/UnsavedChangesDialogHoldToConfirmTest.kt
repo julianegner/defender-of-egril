@@ -8,7 +8,6 @@ import org.junit.Rule
 import org.junit.Test
 
 class UnsavedChangesDialogHoldToConfirmTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -25,15 +24,17 @@ class UnsavedChangesDialogHoldToConfirmTest {
             UnsavedChangesDialog(
                 onSaveAndExit = {},
                 onDiscardChanges = {},
-                onCancel = {}
+                onCancel = {},
             )
         }
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("Hold to Confirm", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Hold to Confirm", substring = true, ignoreCase = true)
             .assertExists()
-        composeTestRule.onNodeWithText("Save and Exit", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Save and Exit", substring = true, ignoreCase = true)
             .assertExists()
             .assertHasClickAction()
     }
@@ -46,13 +47,14 @@ class UnsavedChangesDialogHoldToConfirmTest {
             UnsavedChangesDialog(
                 onSaveAndExit = {},
                 onDiscardChanges = {},
-                onCancel = {}
+                onCancel = {},
             )
         }
 
         composeTestRule.waitForIdle()
 
-        composeTestRule.onNodeWithText("Discard Changes", substring = true, ignoreCase = true)
+        composeTestRule
+            .onNodeWithText("Discard Changes", substring = true, ignoreCase = true)
             .assertExists()
             .assertHasClickAction()
     }

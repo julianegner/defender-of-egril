@@ -15,7 +15,7 @@ internal fun postEventJson(
     levelName: String?,
     platform: String,
     turnNumber: Int? = null,
-    difficulty: String? = null
+    difficulty: String? = null,
 ) {
     val json = buildEventJson(eventType, levelName, platform, turnNumber, difficulty)
     val targetUrl = "$backendUrl/api/events"

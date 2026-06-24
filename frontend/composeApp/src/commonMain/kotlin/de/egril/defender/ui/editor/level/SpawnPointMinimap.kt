@@ -4,7 +4,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -23,7 +22,7 @@ import kotlin.math.sqrt
 @Composable
 fun SpawnPointMinimap(
     map: EditorMap,
-    selectedSpawnPoint: Position?
+    selectedSpawnPoint: Position?,
 ) {
     val isDarkMode = AppSettings.isDarkMode.value
 
@@ -75,18 +74,19 @@ fun SpawnPointMinimap(
                 val isSelected = pos == selectedSpawnPoint
 
                 // Get color for tile type
-                val color = when {
-                    isSelected -> Color(0xFF00FF00) // Bright green for selected spawn point
-                    tileType == TileType.SPAWN_POINT -> if (isDarkMode) Color(0xFF8B0000) else Color(0xFFDC143C)
-                    tileType == TileType.TARGET -> if (isDarkMode) Color(0xFF1E3A8A) else Color(0xFF4169E1)
-                    tileType == TileType.PATH -> if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)
-                    tileType == TileType.BUILD_AREA -> if (isDarkMode) Color(0xFF2E5C1A) else Color(0xFF90EE90)
-                    else -> if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFF808080)
-                }
+                val color =
+                    when {
+                        isSelected -> Color(0xFF00FF00) // Bright green for selected spawn point
+                        tileType == TileType.SPAWN_POINT -> if (isDarkMode) Color(0xFF8B0000) else Color(0xFFDC143C)
+                        tileType == TileType.TARGET -> if (isDarkMode) Color(0xFF1E3A8A) else Color(0xFF4169E1)
+                        tileType == TileType.PATH -> if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)
+                        tileType == TileType.BUILD_AREA -> if (isDarkMode) Color(0xFF2E5C1A) else Color(0xFF90EE90)
+                        else -> if (isDarkMode) Color(0xFF2C2C2C) else Color(0xFF808080)
+                    }
 
                 // Draw hexagon
                 drawHexagon(centerX, centerY, hexSize, color)
-                
+
                 // Draw a border around the selected spawn point
                 if (isSelected) {
                     drawHexagonBorder(centerX, centerY, hexSize, Color.Yellow, 2f)
@@ -99,7 +99,12 @@ fun SpawnPointMinimap(
 /**
  * Helper function to draw a hexagon (pointy-top orientation)
  */
-private fun DrawScope.drawHexagon(centerX: Float, centerY: Float, radius: Float, color: Color) {
+private fun DrawScope.drawHexagon(
+    centerX: Float,
+    centerY: Float,
+    radius: Float,
+    color: Color,
+) {
     val path = Path()
     for (i in 0..5) {
         val angle = PI * (60.0 * i - 30.0) / 180.0
@@ -120,7 +125,13 @@ private fun DrawScope.drawHexagon(centerX: Float, centerY: Float, radius: Float,
 /**
  * Helper function to draw a hexagon border (pointy-top orientation)
  */
-private fun DrawScope.drawHexagonBorder(centerX: Float, centerY: Float, radius: Float, color: Color, strokeWidth: Float) {
+private fun DrawScope.drawHexagonBorder(
+    centerX: Float,
+    centerY: Float,
+    radius: Float,
+    color: Color,
+    strokeWidth: Float,
+) {
     val path = Path()
     for (i in 0..5) {
         val angle = PI * (60.0 * i - 30.0) / 180.0
@@ -135,5 +146,11 @@ private fun DrawScope.drawHexagonBorder(centerX: Float, centerY: Float, radius: 
     }
     path.close()
 
-    drawPath(path, color, style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth))
+    drawPath(
+        path,
+        color,
+        style =
+            androidx.compose.ui.graphics.drawscope
+                .Stroke(width = strokeWidth),
+    )
 }

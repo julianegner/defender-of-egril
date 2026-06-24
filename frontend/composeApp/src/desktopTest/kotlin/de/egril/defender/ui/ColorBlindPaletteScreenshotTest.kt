@@ -6,14 +6,13 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import de.egril.defender.ui.a11y.ColorBlindPalette
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.app_name
-import de.egril.defender.ui.a11y.ColorBlindPalette
 import org.junit.Rule
 import org.junit.Test
 
 class ColorBlindPaletteScreenshotTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 
@@ -32,7 +31,7 @@ class ColorBlindPaletteScreenshotTest {
         composeTestRule.waitForIdle()
         ScreenshotTestUtils.captureScreenshot(
             composeTestRule = composeTestRule,
-            filename = "color-blind-palette-protanopia"
+            filename = "color-blind-palette-protanopia",
         )
     }
 }
