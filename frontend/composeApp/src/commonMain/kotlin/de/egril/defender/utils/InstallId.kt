@@ -19,7 +19,8 @@ fun getOrCreateInstallUuid(): String {
 }
 
 private fun generateUuidV4(): String {
-    val bytes = ByteArray(16) { Random.Default.nextInt(256).toByte() }
+    val bytes = ByteArray(16)
+    Random.Default.nextBytes(bytes)
     bytes[6] = ((bytes[6].toInt() and 0x0F) or 0x40).toByte() // version 4
     bytes[8] = ((bytes[8].toInt() and 0x3F) or 0x80).toByte() // variant 10xx
     val hexChars = "0123456789abcdef"
