@@ -2,7 +2,7 @@ package de.egril.defender.save
 
 data class FeedbackSubmitRequest(
     val feedbackId: String,
-    val installUuid: String,
+    val installUuid: String? = null,
     val feedbackType: String,
     val bugTypes: List<String>,
     val message: String,
@@ -45,7 +45,8 @@ internal fun buildFeedbackUploadJson(request: FeedbackSubmitRequest): String =
 
         append("{")
         append("\"feedbackId\":\"${escapeJsonString(request.feedbackId)}\",")
-        append("\"installUuid\":\"${escapeJsonString(request.installUuid)}\",")
+        appendNullableString("installUuid", request.installUuid)
+        append(',')
         append("\"feedbackType\":\"${escapeJsonString(request.feedbackType)}\",")
         append("\"bugTypes\":[${request.bugTypes.joinToString(",") { "\"${escapeJsonString(it)}\"" }}],")
         append("\"message\":\"${escapeJsonString(request.message)}\",")
